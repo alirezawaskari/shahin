@@ -1,0 +1,418 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Events\smsServiceSession;
+use App\Exports\SessionExport;
+use App\Helpers\Helper;
+use App\Models\FactorItem;
+use App\Models\FactorItemServiceTariff;
+use App\Models\Session;
+use App\Models\User;
+use App\Models\WalletTransaction;
+use App\Http\Controllers\Controller;
+use App\Models\UserPerformance;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Http\Resources\SessionCollection;
+
+class SessionController extends Controller {
+
+    public function index() {
+        $user = auth()->user();
+        if ( $user->isAbleTo(['session-detail','session']) ) {
+            $delete = $user->isAbleTo( 'session-delete' );
+            $confirm = $user->isAbleTo( 'session-confirm' );
+            return view( 'Admin.session.all', compact( 'delete', 'confirm' ) );
+        }
+        return abort( 401 );
+    }
+
+    public function filter(Request  $request) {
+        if ( auth()->user()->isAbleTo( 'session' ) ) {
+            $sessions = Session::filter()->where( 'agent_id', auth()->user()->id )->orderBy( 'date', 'desc' )->where( 'status', '!=', 0 );
+        } elseif (auth()->user()->isAbleTo( 'session-detail')) {
+            $sessions = Session::filter()->orderBy( 'date', 'desc' );
+        }
+
+        if (isset($request->excel) && $request->excel == 'on') {
+            return (new SessionExport($sessions))->download('sessions.xlsx');
+        }
+        return new SessionCollection( $sessions , $sessions->paginate( 20 ) );
+    }
+
+
+    //desktop for complete sessions
+    public function desktopComplete() {
+        $user = auth()->user();
+        if ( $user->isAbleTo( 'session-desktop-complete' ) ) {
+            $title = 'میزکار مراجعات';
+            $delete = $user->isAbleTo( 'session-delete' );
+            $type = 'complete';
+            $url = 'desktop-complete/filter';
+            return view( 'Admin.session.desktop', compact( 'delete', 'type', 'url' , 'title') );
+        }
+        return abort( 401 );
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     * filter for desktop complete session
+     */
+    public function filterDesktopComplete(Request $request) {
+
+        $sessions = Session::filter()->whereIn( 'status', [0,3,4,5,6] )->orderBy( 'date', 'desc' );
+        if (!isset($request->start_date)||!isset($request->end_date)){
+            $sessions ->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
+        }
+        if (isset($request->excel) && $request->excel == 'on') {
+            return (new SessionExport($sessions))->download('sessions.xlsx');
+        }
+        return new SessionCollection($sessions , $sessions->paginate(20));
+    }
+
+    public function desktopConfirm() {
+        $user = auth()->user();
+        if ( $user->isAbleTo('session-desktop-confirm') ) {
+            $title = 'میزکار تایید جلسات';
+            $delete = $user->isAbleTo( 'session-delete' );
+            $type = 'confirm';
+            $url = 'desktop-confirm/filter';
+            return view( 'Admin.session.desktop', compact( 'delete', 'type', 'url' , 'title') );
+        }
+        return abort( 401 );
+    }
+
+    //desktop for confirm session
+    public function filterDesktopConfirm(Request $request) {
+        $sessions = Session::filter()->where( 'status', 2 )->orderBy( 'date', 'desc' );
+        if (isset($request->excel) && $request->excel == 'on') {
+            return (new SessionExport($sessions))->download('sessions.xlsx');
+        }
+        return new SessionCollection( $sessions , $sessions->paginate( 20 ) );
+    }
+
+    public function store( Request $request ) {
+        $input = $request->all();
+
+        $this->validate($request, [
+            'agent_id' => 'required',
+        ]);
+        $input[ 'date' ] = Helper::vertaToMiladi(Helper::numberConverter($input[ 'date' ]));
+        unset($input[ 'check' ]);
+        $session = Session::create( $input );
+        if($request->check)
+        {
+            event( new smsServiceSession( $session->factorItem, $request->date ) );
+        }
+
+        return redirect()->back();
+    }
+    /**
+     * @param Session $session
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update( Session $session, Request $request ) {
+        $validator = \Validator::make($request->all(), [
+            'agent_id' => 'required',
+            'assistant_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $arr = array( 'errors' => 'لطفا تمام مقادیر را پر کنید' , 'status' => true);
+            return Response()->json( $arr );
+        }
+
+        $data = $request->all();
+        $session = Session::find( $data[ 'id' ] );
+        //if selected service tariff for created session
+        if ( isset( $data[ 'factor_item_service_tariff_id' ] ) )
+        {
+            //create session by select multi service tariffs
+            foreach ( $data[ 'factor_item_service_tariff_id' ] as $item ) {
+                $factor_item_service_tariff = FactorItemServiceTariff::where( 'id', $item )->first();
+                if($factor_item_service_tariff->sessions->where('status' , 2)->count())
+                {
+                    $arr = array( 'errors' => 'جلسه تایید نشده برای این درمان وجود دارد.', 'status' => true );
+                    return Response()->json( $arr );
+                }
+                $price = $factor_item_service_tariff ? ( $factor_item_service_tariff->price - $factor_item_service_tariff->discount ) / $factor_item_service_tariff->session_number : 0;
+                $factor_item = $session->factorItem;
+                $agent = $request->agent_id ? User::find( $request->agent_id ) : '';
+                if ( $session->factor_item_service_tariff_id ) {
+                    //create new session if seted service tariff for created session
+                    $session = Session::create( [
+                        'description' => $session->description,
+                        'status' => 2,
+                        'price' => $price,
+                        'laboratory_price' => $session->laboratory_price,
+                        'user_id' => auth()->user()->id,
+                        'agent_id' => isset( $agent->id ) ? $agent->id : null,
+                        'factor_item_service_tariff_id' => $item,
+                        'assistant_id' => $session->assistant_id,
+                        'factor_item_id' => $session->factor_item_id,
+                        'date' => $session->date,
+                        'description_before' => $session->description_before,
+                    ] );
+                } else {
+                    //update created session if not selected service tariff for created session
+                    $session->update( [
+                        'description' => $data[ 'description' ],
+                        'status' => 2,
+                        'price' => $price,
+                        'laboratory_price' => ( float ) str_replace( ',', '', $data[ 'laboratory_price' ] ),
+                        'user_id' => auth()->user()->id,
+                        'agent_id' => isset( $agent->id ) ? $agent->id : null,
+                        'factor_item_service_tariff_id' => $item,
+                        'assistant_id' => $data[ 'assistant_id' ],
+                    ] );
+                }
+                $agent ? $session->factorItemServiceTariff->update(['user_id' => $agent->id]) : '';
+            }
+        } else {
+            $session->update( [
+                'description' => $data[ 'description' ],
+                'status' => 2,
+                'price' => 0,
+                'laboratory_price' => ( float ) str_replace( ',', '', $data[ 'laboratory_price' ] ),
+                'user_id' => auth()->user()->id,
+                'assistant_id' => $data[ 'assistant_id' ],
+            ] );
+            Session::userSessionEndEntry($session);
+        }
+
+        $factor_item = $session->factorItem;
+        $factor_item->update( [
+            'status_factor' => !$factor_item->type || $factor_item->status_factor == 10 ? 6 : $factor_item->status_factor,
+        ] );
+
+        $arr = array( 'msg' => 'باموفقیت ثبت شد', 'status' => true);
+        return Response()->json( $arr );
+    }
+    /**
+     * @param Session $session
+     * @param FactorItemServiceTariff $factor_item_service_tariff
+     * @param User $agent
+     * @return void
+     * calculate agent's income after end factor_item_service_tariff's work
+     */
+    private function calculateEndWork( Session $session, FactorItemServiceTariff $factor_item_service_tariff, User $agent ) {
+        if ( $factor_item_service_tariff->status && $session->agent_id ) {
+            $price = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 )->sum( 'price' );
+            $laboratory_price = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 )->sum( 'laboratory_price' );
+            $product_sessions = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 );
+            $description = '';
+
+            foreach ( $product_sessions as $session ) {
+                $description = $description.'/'.$factor_item_service_tariff->value . ' - ' . $session->description . '- هزینه لابراتوار' . number_format( $session->laboratory_price / 2 ) . '(ریال)';
+            }
+
+            $user_performance = UserPerformance::create( [
+                'factor_item_id' => $session->factor_item_id,
+                'description' => $description,
+                'price' => $price,
+                'tax' => ( $price * ( $agent->employee->percent / 100 ) - ( $laboratory_price / 2 ) ) * ( $agent->employee->tax / 100 ),
+                'ancillary_costs' => $laboratory_price,
+                'date' => $session->date,
+                'callcenter_id' => auth()->user()->id,
+                'user_id' => $session->agent_id,
+            ] );
+
+            foreach ( $product_sessions as $session ) {
+                $session->update( [ 'user_performance_id' => $user_performance->id ] );
+            }
+
+            $resNum = rand( 12, 99 ) . substr( Carbon::now()->timestamp, 6, 11 ) . substr( $agent->phone, 7, 11 );
+            $WalletTransaction = WalletTransaction::create( [
+                'user_id' => $session->agent_id,
+                'reason_id' => $user_performance->id,
+                'resnumber' => $resNum,
+                'price' => $price * ( $agent->employee->percent / 100 ) - ( $laboratory_price / 2 ),
+                'status' => '1',
+                'type' => '1',
+                'created_at' => $user_performance->date,
+            ] );
+
+            $agent ? $agent->update( [ 'wallet' => $agent->wallet + $WalletTransaction->price ] ) : '';
+        }
+    }
+    /**
+     * @param Session $session
+     * @param FactorItemServiceTariff $factor_item_service_tariff
+     * @param User $agent
+     * @return void
+     * calculate agent's income after end session
+     */
+    private function calculateEndSession(Session $session, FactorItemServiceTariff $factor_item_service_tariff, User $agent ) {
+        $user_performance = UserPerformance::create( [
+            'factor_item_id' => $session->factor_item_id,
+            'description' => $factor_item_service_tariff->value . ' - ' . $session->description . '- هزینه لابراتوار' . number_format( $session->laboratory_price / 2 ) . '(ریال)',
+            'price' => $session->price,
+            'ancillary_costs' => $session->laboratory_price,
+            'date' => $session->date,
+            'callcenter_id' => auth()->user()->id,
+            'user_id' => $session->agent_id,
+        ] );
+
+        $resNum = rand( 12, 99 ) . substr( Carbon::now()->timestamp, 6, 11 ) . substr( $agent->phone, 7, 11 );
+
+        $WalletTransaction = WalletTransaction::create( [
+            'user_id' => $session->agent_id,
+            'reason_id' => $user_performance->id,
+            'resnumber' => $resNum,
+            'price' => $session->price * ( $agent->employee->percent / 100 ) - ( $session->laboratory_price / 2 ),
+            'status' => '1',
+            'type' => '1',
+            'created_at' => $session->date,
+        ] );
+        $agent ? $agent->update( [ 'wallet' => $agent->wallet + $WalletTransaction->price ] ) : '';
+    }
+    /**
+     * @param \App\Models\Session $session
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function confirm( Session $session ) {
+        if($session->status == 1)
+        {
+            return redirect()->back()->with( [
+                'failByMessage' => 'این جلسه قبلا تایید شده است.'
+            ] );
+        }
+
+        $factor_item = $session->factorItem;
+        $supervisor_factor_item = $factor_item->supervisor;
+        $is_credit = FactorItem::checkCredit( $supervisor_factor_item, $session->price );
+        if ( !$is_credit ) {
+			return redirect()->back()->with( [
+                'failByMessage' => 'مبلغ پرداختی کاربر کمتر از حد مجاز می باشد'
+            ] );
+        }
+        $agent = $session->agent_id ? User::find( $session->agent_id ) : '';
+        $factor_item_service_tariff = $session->factor_item_service_tariff_id ? $session->factorItemServiceTariff : '';
+        $session->update( [ 'status' => 1 , 'confirmer_id' => auth()->user()->id] );
+        $session_count = $factor_item_service_tariff ? count( $factor_item_service_tariff->sessions->where( 'status', 1 ) ) : 0;
+
+        if ($session_count === ($factor_item_service_tariff ? $factor_item_service_tariff->session_number : '' )) {
+            $factor_item_service_tariff->update( [ 'status' => 1 ] );
+        }
+
+        if ($factor_item_service_tariff && $session->agent_id && isset( $session->agent->employee ) ) {
+            if ( $session->agent->employee->pay_type == 'pay_end_work' ) {
+                $this->calculateEndWork( $session, $factor_item_service_tariff, $agent );
+            } else {
+                $this->calculateEndSession( $session, $factor_item_service_tariff, $agent );
+            }
+        }
+
+        $factor_item = $session->factorItem;
+
+        //update credit file
+        if ( $factor_item->type ) {
+            $total_factor_item = $supervisor_factor_item->totalFactorItem;
+            $total_factor_item->update( [ 'credit' => $total_factor_item->credit - $session->price ] );
+
+            $total_factor_item->factorItems()
+            ->where( 'factoritemable_id', $factor_item->factoritemable_id )
+            ->where( 'factoritemable_type', $factor_item->factoritemable_type )
+            ->update( [
+                'credit' => $supervisor_factor_item->credit - $session->price,
+            ] );
+        }
+
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
+    }
+    /**
+     * @param mixed $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function rejectSession( $id ) {
+        Session::find( $id )->update( [ 'status' => 2 ] );
+        return redirect()->back();
+    }
+    /**
+     * @param \App\Models\Session $session
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse
+     */
+    public function destroy( Session $session ) {
+
+        if ($session->status == 1 && !auth()->user()->isAbleTo('confirmed-session-delete'))
+            {
+                if(\request()->ajax()){
+                        return response(['message'=>'این جلسه تایید شده است.','status'=>'error']);
+                 }else{
+                    return redirect()->back()->with( [
+                        'failByMessage' => 'این جلسه تایید شده است.'
+                    ] );
+                }
+        }
+
+        $user_performance = $session->userPerformance;
+        isset( $session->factorItemServiceTariff ) ? $session->factorItemServiceTariff->update( [ 'status' => 0 ] ) : '';
+        $factor_item = $session->factorItem;
+        $supervisor_factor_item = $factor_item->supervisor;
+        if ( $user_performance ) {
+            //update credit file
+            if ( $supervisor_factor_item->type ) {
+                //$user_performance->factorItem->update( [ 'credit' => $user_performance->factorItem->credit + $user_performance->price ] );
+                $total_factor_item = $supervisor_factor_item->totalFactorItem;
+                $total_factor_item->update( [ 'credit' => $total_factor_item->credit + $user_performance->price ] );
+                $total_factor_item->factorItems()->where( 'factoritemable_id', $supervisor_factor_item->factoritemable_id )->where( 'factoritemable_type', $supervisor_factor_item->factoritemable_type )->update( [
+                    'credit' => $supervisor_factor_item->credit + $user_performance->price,
+                ] );
+            }
+
+            $user_performance->sessions()->delete();
+            $wallet_transaction = $user_performance->walletTransaction;
+            $user_performance->walletTransaction()->delete();
+            $user_performance->delete();
+
+            $wallet_transaction->user->update( [ 'wallet' => $wallet_transaction->user->wallet - $wallet_transaction->price ] );
+        } else {
+            //update credit file
+            if ( $supervisor_factor_item->type && $session->status == 1 ) {
+                //$user_performance->factorItem->update( [ 'credit' => $user_performance->factorItem->credit + $user_performance->price ] );
+                $total_factor_item = $supervisor_factor_item->totalFactorItem;
+                $total_factor_item->update( [ 'credit' => $total_factor_item->credit + $session->price ] );
+                $total_factor_item->factorItems()->where( 'factoritemable_id', $supervisor_factor_item->factoritemable_id )->where( 'factoritemable_type', $supervisor_factor_item->factoritemable_type )->update( [
+                    'credit' => $supervisor_factor_item->credit + $session->price,
+                ] );
+            }
+            $session->delete();
+        }
+        if(\request()->ajax()){
+            return response(['status'=>'success']);
+        }
+        return redirect()->back()->with( [
+            'delete' => 'success'
+        ] );
+    }
+    /**
+     * @param Session $session
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function userSessionStartEntry(Session $session)
+    {
+        Session::userSessionStartEntry($session);
+        return response([
+            'status'=>'success',
+            'message'=>'ورود کاربر با موفقیت ثبت شد .'
+        ]);
+    }
+
+    /**
+     * @param Session $session
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function userSessionEndEntry(Session $session)
+    {
+        Session::userSessionEndEntry($session);
+        return response([
+            'status'=>'success',
+            'message'=>'خروج کاربر با موفقیت ثبت شد .'
+        ]);
+    }
+}

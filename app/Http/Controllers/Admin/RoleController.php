@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Models\Permission;
+use App\Models\Role;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class RoleController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        if (auth()->user()->hasPermission('role'))
+        {
+            $roles = Role::latest()->get();
+            return view('Admin.role.all', compact('roles'));
+        }
+        return abort(401);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        if (auth()->user()->hasPermission('role'))
+        {
+        return view('Admin.role.create');
+        }
+        return abort(401);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request)
+    {
+        $this->validate(request(), [
+            'name' => 'required|string',
+            'display_name' => 'required|string',
+            'description' => 'required|string',
+            'permission_id' => 'required',
+        ]);
+
+        $permissions = $request->input('permission_id');
+        $rol = new Role();
+        $rol->name = $request->input('name');
+        $rol->display_name = $request->input('display_name');
+        $rol->description = $request->input('description');
+        $rol->save();
+
+        $rol->syncPermissions($permissions);
+
+        return redirect(route('role.index'))->with([
+            'create' => 'success',
+        ]);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Role $role
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Role $role)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Role $role
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Role $role)
+    {
+        if (auth()->user()->hasPermission('role'))
+        {
+            return view('Admin.role.edit' , compact('role'));
+        }
+        return abort(401);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Models\Role $role
+     * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function update(Request $request, Role $role)
+    {
+        $this->validate(request(), [
+            'name' => 'required|string',
+            'display_name' => 'required|string',
+            'description' => 'required|string',
+            'permission_id' => 'required',
+        ]);
+
+        $inputs = $request->all();
+        $permissions = $request->input('permission_id');
+
+        unset($inputs['permission_id']);
+        $role->update($inputs);
+
+        $role->syncPermissions($permissions);
+
+        return redirect(route('role.index'))->with([
+            'update' => 'success',
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Role $role
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Role $role)
+    {
+        //
+    }
+}

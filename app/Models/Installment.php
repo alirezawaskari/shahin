@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class  Installment extends Model
+{
+    use SoftDeletes;
+
+    protected $guarded = [];
+
+    public $timestamps = false;
+
+    public function installmentable()
+    {
+        return $this->morphTo();
+    }
+
+    public function service()
+    {
+        return $this->morphTo()->where('installmentable_type',Service::class)->first();
+    }
+    public function category()
+    {
+        return $this->morphTo()->where('installmentable_type',Category::class)->first();
+    }
+    /**
+     * @param mixed $total_price
+     * @param mixed $installment_able //service or category
+     * @return int
+     */
+    public static function getInstallmentNum($total_price, $installment_able)
+    {
+        $installments = $installment_able->installments;
+        foreach ($installments as $installment) {
+            if ($installment->down_interval <= $total_price && $total_price < $installment->high_interval) {
+                return $installment->num;
+            }
+        }
+        return $installments->max('high_interval') <= $total_price ? $installments->max('num') : 1;
+    }
+}

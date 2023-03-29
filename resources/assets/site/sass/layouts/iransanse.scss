@@ -1,0 +1,41 @@
+/* #{$iransanse-path}*/
+
+@font-face {
+  font-family: font;
+  font-style: normal;
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum).eot');
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum).eot?#iefix') format('embedded-opentype'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum).woff2') format('woff2'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum).woff') format('woff'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum).ttf') format('truetype');
+}
+
+@font-face {
+  font-family: lfont;
+  font-style: normal;
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum)Light.eot');
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum)Light.eot?#iefix') format('embedded-opentype'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)Light.woff2') format('woff2'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)Light.woff') format('woff'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: mfont;
+  font-style: normal;
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum)_Medium.eot');
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum)_Medium.eot?#iefix') format('embedded-opentype'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)_Medium.woff2') format('woff2'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)_Medium.woff') format('woff'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)_Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: bfont;
+  font-style: normal;
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum)_Bold.eot');
+  src: url('#{$iransanse-path}/IRANSansWeb(FaNum)_Bold.eot?#iefix') format('embedded-opentype'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)_Bold.woff2') format('woff2'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)_Bold.woff') format('woff'),
+  url('#{$iransanse-path}/IRANSansWeb(FaNum)_Bold.ttf') format('truetype');
+}

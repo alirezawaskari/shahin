@@ -1,0 +1,49 @@
+$color-orange-dark: #c74a20;
+$color-orange: #ff5a1e;
+$color-gray: #f1f1f1;
+$color-red: #ce0c0c;
+$color-green: #1ca600;
+
+.text-orange {
+  color: $color-orange;
+}
+
+
+a.text-orange {
+  color: $color-orange;
+  &:hover, &:focus {
+    color: darken($color-orange, 15);
+  }
+}
+
+.text-green {
+  color: $color-green;
+}
+
+.text-gray {
+  color: $color-orange;
+}
+
+.text-red {
+  color: $color-red;
+}
+
+a.text-gray {
+  color: $color-orange;
+  &:hover, &:focus {
+    color: darken($color-orange, 15);
+  }
+}
+
+.btn-orange {
+  color: $dark;
+  background: $color-orange;
+
+  &:hover, &focus {
+    background: darken($color-orange, 15);
+  }
+}
+
+.bg-gray{
+  background: $color-gray;
+}

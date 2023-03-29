@@ -1,0 +1,25 @@
+.gallery{
+  .nav-pills{
+    .nav-item{
+      border-bottom: 1px solid #cccccc;
+      cursor: pointer;
+      a{
+        color: #858585 !important;
+      }
+    }
+    .nav-item.active{
+
+        border-bottom: 1px solid $color-orange;
+        color: $color-orange !important;
+        background-color: transparent;
+
+    }
+  }
+  .grid-sizer,
+  .element-item { width: 15%; }
+  /* 2 columns wide */
+}
+
+@media screen and (max-width: 986px) {
+
+}

@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Coupon;
+use App\Models\Factor;
+use App\Models\History;
+use App\Models\User;
+use App\Models\Callcenter;
+use Carbon\Carbon;
+use App\Events\fastserviceCallcenter;
+use App\Events\sendlinkFactor;
+use App\Models\Callcenterstatus;
+use App\Models\FinancialPlansType;
+use App\Models\Service;
+use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
+use Illuminate\Http\Request;
+
+class FactorController extends Controller {
+    /**
+    * @param Request $request
+    * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+    * @throws \Illuminate\Validation\ValidationException
+    */
+
+    public function create( Request $request ) {
+        $cart = session()->get( 'cart' );
+        if ( $cart )
+        {
+            $admin_user = User::where( 'level', 'admin' )->where( 'province_id', auth()->user()->province_id )->where( 'admin_representation_id', '!=', null )->first();
+            $admin_user = $admin_user ? $admin_user : User::where( 'id', 11333 )->first();
+            $status = auth()->user()->organization_id && auth()->user()->credit >= $cart[ 'total' ][ 'price' ] + $cart[ 'total' ][ 'price_tax' ] ? true : false;
+            $factor_items = Factor::setFactorItemsInArray($cart[ 'items' ]);
+            $factor = Factor::checkExistSimilarFactor($factor_items , auth()->user());
+            if(!$factor)
+            {
+                $factor = auth()->user()->factors()->create( [
+                    'status' => $cart[ 'total' ][ 'price' ] == 0 ? true : $status,
+                    'confirm' => false,
+                    'price' => $cart[ 'total' ][ 'price' ] + $cart[ 'total' ][ 'price_tax' ],
+                    'tax' => $cart[ 'total' ][ 'price_tax' ],
+                    'task_id'=>isset( $cart[ 'task_id' ] ) ? $cart[ 'task_id' ] : null,
+                    'count' => $cart[ 'total' ][ 'count' ],
+                    'representation_id' => $cart[ 'representation' ] == 0 ? $admin_user->admin_representation_id : $cart[ 'representation' ],
+                    'callcenter_id' => $cart[ 'callcenter' ] == 0 ? null : $cart[ 'callcenter' ],
+                    'type' => auth()->user()->organization_id ? 'credit' : 'online',
+                    'expired_at' => now()->addDay( 3 ),
+                ] );
+                if ( !isset( $cart[ 'task_id' ] ) ) {
+                    self::createTask( $factor );
+                }
+                foreach ( $cart[ 'items' ] as $item ) {
+                    auth()->user()->update( [ 'service_id' => $item['service_id']] );
+                    $financial_plans_type = FinancialPlansType::findOrFail($item[ 'financial_plans_type_id' ]);
+                    $factor_item = $factor->factorItems()->create( [
+                        'supervisor_id' => $factor->user_id,
+                        'factoritemable_id' => $item[ 'service_id' ],
+                        'factoritemable_type' => Service::class,
+                        'financial_plans_type_id' => $item[ 'financial_plans_type_id' ],
+                        'count' => 1,
+                        'type' => $financial_plans_type ? $financial_plans_type::getPaymentType($financial_plans_type->payment_type) : 0,
+                        'price' => $item[ 'price' ],
+                    ] );
+                    $factor_item->update( [ 'supervisor_id' => $factor_item->id ] );
+
+                    if($factor_item->type)
+                    {
+                        //if the factorItem is credit, create the factor totalFactorItem
+                        $total_factor_item = $factor->totalFactorItem()->create([
+                            'factor_id' => $factor->id,
+                            'total_factor_item_status_id' => 0,
+                            'status_mali' => 0,
+                        ]);
+                        $factor_item->update(['total_factor_item_id' => $total_factor_item->id]);
+                    }
+                }
+            }
+
+            //event( new fastserviceCallcenter( auth()->user(), $factor, auth()->user()->family, 'online' ) );
+            //$factor->status ? '' : event( new sendlinkFactor( auth()->user(), $factor, auth()->user()->family, 'online' ) );
+
+            session()->forget( 'cart' );
+
+            return redirect( route( 'factor', [$factor->resnumber ] ) );
+        }
+        return redirect()->back();
+    }
+
+    /**
+    * @param Factor $factor
+    * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    */
+
+    public function index( Factor $factor ) {
+        if ( $factor->status != 1 ) {
+            $factor->load( 'user', 'representation' );
+            return view( 'site.factor', compact( 'factor' ) );
+        }
+        return redirect( route( 'checkout', [$factor->resnumber ] ) );
+    }
+
+    /**
+    * @param Request $request
+    * @return \Illuminate\Http\RedirectResponse
+    * @throws \Illuminate\Validation\ValidationException
+    */
+
+    public function coupon( Request $request ) {
+        $this->validate( $request, [
+            'code' => 'required|exists:coupons,code',
+            'factor_id' => 'required',
+        ] );
+        $factor = Factor::findOrFail( $request->input( 'factor_id' ) );
+        $date = Carbon::now()->toDateString();
+        $coupon = Coupon::whereStatus( true )->where( 'start_at', '<=', $date )->where( 'end_at', '>=', $date )->first();
+
+        if ( $coupon ) {
+            if ( $coupon->capacity > $coupon->reserved ) {
+                $factor->update( [ 'coupon_id' => $coupon->id ] );
+                $coupon->reserved++;
+                $coupon->save();
+            } else {
+                return redirect()->back()->withErrors( [ 'msg' => 'مهلت کد تخفیف به پایان رسیده است!' ] );
+            }
+        } else {
+            return redirect()->back()->withErrors( [ 'msg' => 'کد تخفیف مورد نظر یافت نشد!' ] );
+        }
+        return redirect()->back();
+    }
+
+    /**
+    * @param $factor
+    * @return float|int
+    */
+    private static function discount( $factor ) {
+        $amount = $factor->price;
+        if ( !is_null( $factor->coupon_id ) ) {
+            $amount = $amount - ( $amount * $factor->coupon->discount / 100 );
+        }
+        return $amount;
+    }
+
+    private function createTask( $factor ) {
+        $user = $factor->user;
+        $callcenter_id = self::getCallcenter($user);
+        $task = Callcenter::create( [
+            'reg_id' => $user->id,
+            'user_id' => $callcenter_id,
+            'type' => 0,
+            'representation_id' => $factor->representation_id,
+            'status' => '0'
+        ] );
+        Callcenterstatus::create( [
+            'user_id' => $callcenter_id,
+        ] );
+        $factor->update( [ 'task_id' => $task->id ] );
+    }
+
+    private function getCallcenter($user) {
+        $last_user = Callcenterstatus::latest()->first();
+        $admin_users = User::where( 'level', 'admin' )->where( 'province_id', $user->province_id)->get();
+        foreach ( $admin_users as $u ) {
+            if ( $u->hasRole( 'callcenter' ) ) {
+                $callcenterusers[] = $u->id;
+            }
+        }
+        if ( !isset( $callcenterusers ) ) {
+            $admin_users = User::where( 'level', 'admin' )->where( 'id', '!=', $last_user->id )->where( 'province_id', 5 )->get();
+            foreach ( $admin_users as $u ) {
+                if ( $u->hasRole( 'callcenter' ) ) {
+                    $callcenterusers[] = $u->id;
+                }
+            }
+        }
+        $id = array_random( $callcenterusers );
+        return $id;
+    }
+}

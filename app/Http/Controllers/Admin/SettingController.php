@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Models\Setting;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+
+class SettingController extends AdminController
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $setting = Setting::first();
+        return view('Admin.setting.edit' , compact('setting'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Setting  $setting
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Setting $setting)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Setting  $setting
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Setting $setting)
+    {
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Models\Setting $setting
+     * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function update(Request $request, Setting $setting)
+    {
+        $this->validate(request(), [
+            'title' => 'required',
+            'index_description' => 'required',
+        ]);
+
+        $inputs = $request->all();
+        $logo = $request->file('logo');
+        $img_box_1 = $request->file('img_box_1');
+        $img_box_2 = $request->file('img_box_2');
+        $fav = $request->file('fav');
+        $footer_logo = $request->file('footer_logo');
+
+        if ($img_box_1){
+            $url = $this->upload($img_box_1);
+            $setting->update(['img_box_1' => $url]);
+        }
+        if ($img_box_2){
+            $url = $this->upload($img_box_2);
+            $setting->update(['img_box_2' => $url]);
+        }
+        if ($logo){
+            $logourl = $this->upload($logo);
+            $setting->update(['logo' => $logourl]);
+        }
+        if ($fav){
+            $favurl = $this->upload($fav);
+            $setting->update(['fav' => $favurl]);
+        }
+        if ($footer_logo){
+            $footerlogourl = $this->upload($footer_logo);
+            $setting->update(['footer_logo' => $footerlogourl]);
+        }
+
+        unset($inputs['logo']);
+        unset($inputs['fav']);
+        unset($inputs['footer_logo']);
+        unset($inputs['img_box_1']);
+        unset($inputs['img_box_2']);
+        $setting->update($inputs);
+
+        //cache
+        Cache::flush();
+
+        return redirect(route('dashboard'))->with([
+            'setting_update'=>'success'
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Setting  $setting
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Setting $setting)
+    {
+        //
+    }
+}

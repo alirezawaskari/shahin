@@ -1,0 +1,45 @@
+.header {
+  background: $color-orange;
+  border-bottom: 1px solid $color-orange-dark;
+
+  .profile {
+    img {
+      max-width: 40px;
+    }
+  }
+
+  .nav-link {
+    &.active {
+      background: $color-orange;
+    }
+  }
+
+  .navbar-brand h1{
+    font-family: font;
+    font-size: 14px;
+  }
+
+  .navbar-toggler {
+    background-color: #ffffff;
+  }
+
+  .dropdown-item{
+    &:focus{
+      background-color: $color-orange;
+      color: #ffffff;
+    }
+  }
+}
+
+@media screen and (max-width: 986px) {
+  .navbar-nav.left-nav{
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center;
+
+    .profile{
+      margin-left: 10px;
+    }
+  }
+
+}

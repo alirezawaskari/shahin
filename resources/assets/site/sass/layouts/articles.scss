@@ -1,0 +1,19 @@
+.articles {
+  .article {
+    border: 1px solid #ffffff;
+  }
+
+  .pagination {
+    .page-item {
+      a {
+        background-color: #ff5a1e !important;
+        border-radius: 98px;
+        color: #ffffff !important;
+        padding: 10px 17px;
+        margin: 8px;
+        font-size: 20px;
+      }
+    }
+  }
+
+}

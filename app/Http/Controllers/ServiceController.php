@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Callcenter;
+use App\Models\Service;
+use App\Models\User;
+use App\Models\Factor;
+
+class ServiceController extends Controller
+{
+
+    public function index()
+    {
+        $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
+        return view('site.services.index', compact('services'));
+    }
+
+    public function single(Service $service , User $callcenter , Callcenter $task, Factor $factor=null)
+    {
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
+        //$callcenter=$task->callcenter;
+		$images = $service->galleries;
+	    $is_service = true;
+		$check = false;
+        if (!$service->isShow && !$service->status)
+        {
+            return redirect('/');
+        }
+
+		if ($service->id == 102)
+        {
+            return redirect('/agency');
+        }
+
+
+		$user = auth()->user();
+		if(isset($factor['id']))
+		{
+			$user = $factor->user;
+		}
+        if ($user) {
+            $required = null;
+            $founded = [];
+            $requireServices = [];
+            if (!is_null($service->required) && count($service->required) > 0) {
+                foreach ($service->required as $item) {
+                    $user_factor = $user->factors()->where('service_id', $item)->whereStatus(true)->first();
+                    if ($user_factor) {
+                        array_push($founded, $user_factor->id);
+                    }
+                }
+                $requireServices = Service::find($service->required);
+                $required = false;
+                if (!is_null($founded) && count($founded) == count($service->required)) {
+                    $required = true;
+                }
+            }
+            $check = $user->factors()->whereStatus(true)->whereHas('factorItems', function ($query) use ($service) {
+                $query->where('service_id', $service->id);
+            })->exists();
+
+            if ($check) {
+                if ($service->multiple) {
+                    $check = false;
+                }
+            }
+
+            return view('site.services.single', compact('images' , 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
+        }
+
+        return view('site.services.single', compact('images' , 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
+    }
+}

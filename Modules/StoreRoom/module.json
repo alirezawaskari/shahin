@@ -1,0 +1,13 @@
+{
+    "name": "StoreRoom",
+    "alias": "storeroom",
+    "description": "",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\StoreRoom\\Providers\\StoreRoomServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

@@ -1,0 +1,25 @@
+.login{
+  .login-checkbox{
+    padding-right: 22px;
+
+    &:before{
+      right: 0 !important;
+    }
+    &:after{
+      right: 0 !important;
+    }
+  }
+  .box{
+    border-bottom:1px solid $color-orange;
+    i{
+      font-size: 17px;
+      margin-top: 5px;
+      color:$color-orange
+    }
+  }
+}
+.custom-control-input:checked ~ .custom-control-label::before {
+  color: #fff;
+  border-color: $color-orange !important;
+  background-color: $color-orange !important;
+}

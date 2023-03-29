@@ -1,0 +1,25 @@
+.factor{
+  .factor-section {
+    background: url("/assets/site/images/bg-factor.jpg") no-repeat;
+    background-size: cover;
+  }
+  .overlay{
+    top:0; left:0;
+    bottom: 0;
+    right: 0;
+    background: rgba(233, 233, 233, 0.9);
+    opacity: 0.8;
+  }
+
+  .factor-box{
+    border: 2px solid #cccccc;
+    .overlay{
+      top:0; left:0;
+      bottom: 0;
+      right: 0;
+      background: rgba(233, 233, 233, 0.9);
+      opacity: 0.4;
+    }
+  }
+
+}

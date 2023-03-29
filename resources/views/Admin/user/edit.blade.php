@@ -1,0 +1,325 @@
+@extends('Admin.master')
+
+@section('content')
+<div class="page-header">
+    <a href="{{ url()->previous() }}" class="btn btn-primary">بازگشت</a>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{route('user.update' , [$user->id])}}" enctype="multipart/form-data">
+            @csrf
+            @method('PATCH')
+            @if(auth()->user()->admin_organization_id)
+            <div class="row">
+                <div class="col-12">
+                    @include('Admin.layouts.errors')
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نام</label>
+                    <input value="{{ $user->name }}" type="text" name="name" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نام خانوادگی</label>
+                    <input value="{{ $user->family }}" type="text" name="family" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>موبایل</label>
+                    <input value="{{ $user->phone }}" type="text" class="form-control" disabled="disabled">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کد ملی</label>
+                    <input value="{{ $user->melicode }}" type="text" name="melicode" class="form-control">
+                </div>
+                @role('superadmin')
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کیف پول کاربر</label>
+                    <input value="{{ $user->wallet }}" type="text" name="wallet" class="form-control">
+                </div>
+                @endrole
+                <div class="col-12 col-md-4 mb-3">
+                    <label>رمز عبور جدید</label>
+                    <input type="password" class="form-control" name="password">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>تکرار رمز عبور جدید</label>
+                    <input type="password" class="form-control" name="password_confirmation">
+                </div>
+                @permission('user-edit')
+                <div class="col-12 col-md-4 mb-3">
+                    <button type="submit" class="btn btn-success">ثبت</button>
+                </div>
+                @endpermission
+            </div>
+            @else
+            <div class="row">
+                <div class="col-12">
+                    @include('Admin.layouts.errors')
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نام</label>
+                    <input value="{{ $user->name }}" type="text" name="name" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نام خانوادگی</label>
+                    <input value="{{ $user->family }}" type="text" name="family" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>موبایل</label>
+                    <input value="{{ $user->phone }}" type="text" class="form-control" disabled="disabled">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کد ملی</label>
+                    <input value="{{ $user->melicode }}" type="text" name="melicode" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کد شناسنامه</label>
+                    <input value="{{ $user->shenasnamecode }}" type="text" name="shenasnamecode" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>محل صدور</label>
+                    <input value="{{ $user->issuing }}" type="text" name="issuing" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کد پستی</label>
+                    <input value="{{ $user->postalcode }}" type="text" name="postalcode" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>ایمیل</label>
+                    <input value="{{ $user->email }}" type="text" name="email" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>شماره ثابت</label>
+                    <input value="{{ $user->call }}" type="text" name="address" class="form-control">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>آدرس</label>
+                    <input value="{{ $user->address }}" type="text" name="address" class="form-control">
+                </div>
+                @role('superadmin')
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کیف پول کاربر</label>
+                    <input value="{{ number_format($user->wallet) }}" type="text" name="wallet" class="form-control" oninput="separatePrices(this)">
+                </div>
+                @endrole
+                <div class="col-12 col-md-4 mb-3">
+                    <label>استان</label>
+                    <select class="form-control province_id" name="province_id" id="province_id">
+                        @foreach(\App\Models\Province::get() as $pro)
+                        <option value="{{$pro->id}}" {{ $pro->id == $user->province_id ? 'selected' : '' }}>{{ $pro->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>شهر</label>
+                    <select class="form-control city_id" name="city_id" id="city_id">
+                        @foreach(\App\Models\City::get() as $pro)
+                        <option value="{{$pro->id}}" {{ $pro->id == $user->city_id ? 'selected' : '' }}>{{ $pro->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>جنسیت کاربر</label>
+                    <select class="form-control" name="sex">
+                        <option value="0" {{ $user->sex == 0 ? 'selected' : '' }}>
+                            مرد
+                        </option>
+                        <option value="1" {{ $user->sex == 1 ? 'selected' : '' }}>
+                            زن
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نوع کاربر</label>
+                    <select class="form-control" name="level">
+                        <option value="user" {{ $user->level == 'user' ? 'selected' : '' }}>
+                            کاربر
+                        </option>
+                        <option value="admin" {{ $user->level == 'admin' ? 'selected' : '' }}>
+                            مدیر
+                        </option>
+                        <option value="siteAdmin" {{ $user->level == 'siteAdmin' ? 'selected' : '' }}>
+                            مدیرسایت
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نمایندگی</label>
+                    <select class="form-control" name="admin_representation_id">
+                        <option value="">
+                            بدون نمایندگی (دفتر تهران)
+                        </option>
+                        @foreach($representations as $representation)
+                        <option value="{{ $representation->id }}" {{ $user->admin_representation_id == $representation->id ? 'selected' : '' }}>{{ $representation->fa_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>رمز عبور جدید</label>
+                    <input type="password" class="form-control" name="password">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>تکرار رمز عبور جدید</label>
+                    <input type="password" class="form-control" name="password_confirmation">
+                </div>
+                @role('superadmin')
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نقش کاربر</label>
+                    <select class="form-control" name="role_id">
+                        <option value="0" {{ $user->roles->count() == 0 ? 'selected'  : ''}}>
+                            بدون نقش
+                        </option>
+                        @foreach(\App\Models\Role::get() as $role)
+                        <option value="{{ $role->id }}" {{ $user->roles->count() != 0 && $user->roles[0]->id == $role->id ?  'selected' : '' }}>{{ $role->display_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <a href="{{ route('role.create') }}">
+                        <div class="btn btn-success" id="new-role">ایجاد نقش جدید +</div>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>انتخاب مرکز</label>
+                    <select class="form-control" name="center_id">
+                        <option value="" {{ $user->center_id == null ? 'selected'  : ''}}>
+                            بدون مرکز
+                        </option>
+                        @foreach(\App\Models\Center::get() as $center)
+                        <option value="{{ $center->id }}" {{ $user->center_id != null &&  $user->center_id == $center->id ? 'selected' : '' }}>{{ $center->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endrole
+
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کاربر VIP :</label>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="vipCheck" name="vip" {{ $user->vip && $user->vip->type == 'VIP' ? 'checked' : ''}}>
+                            <label class="custom-control-label" for="vipCheck">این کاربر را به عنوان کاربر VIP  ثبت میکنم.</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>کاربر SOS :</label>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="sosCheck" name="sos" {{ $user->vip && $user->vip->type == 'SOS' ? 'checked' : ''}}>
+                            <label class="custom-control-label" for="sosCheck">این کاربر را به عنوان کاربر SOS  ثبت میکنم.</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card-group">
+                        <div class="col-12 col-md-3">
+                            <div class="card">
+                                @if($user->imgsignature)
+                                <div id="imgsignature_src" class="show">
+                                <a href="{{ asset($user->imgsignature) }}" target="_blank">
+                                    <img src="{{ asset($user->imgsignature) }}" class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imgsignature_src" class="show">
+                                <img class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>امضاء کاربر</label>
+                                    <br>
+                                    <label for="imgsignature" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="imgsignature"  type="file" id="imgsignature" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgsignature" class="path" name="urlimgsignature">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="card">
+                                @if($user->avatar)
+                                <div id="avatar_src" class="show">
+                                <a href="{{ asset($user->avatar) }}" target="_blank">
+                                    <img src="{{ asset($user->avatar) }}"
+                                        class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="avatar_src" class="show">
+                                <img class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>تصویر پرسنلی</label>
+                                    <br>
+                                    <label for="avatar" id="up-label" class="btn badge-secondary"><i
+                                            class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="avatar" type="file" id="avatar"
+                                        class="filestyle file-upload file_upload_ajax file-up"
+                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="avatar" class="path" name="urlavatar">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="card">
+                                @if($user->imgmeli)
+                                <div id="imgmeli_src" class="show">
+                                <a href="{{ asset($user->imgmeli) }}" target="_blank">
+                                    <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imgmeli_src" class="show">
+                                <img class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>کارت ملی</label>
+                                    <br>
+                                    <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="card">
+                                @if($user->imgshenasname)
+                                <div id="imgshenasname_src" class="show">
+                                <a href="{{ asset($user->imgshenasname) }}" target="_blank">
+                                    <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imgshenasname_src" class="show">
+                                <img id="imgshenasname_src" class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>شناسنامه</label>
+                                    <br>
+                                    <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @permission('user-edit')
+                <div class="col-12 col-md-4 mb-3">
+                    <button type="submit" class="btn btn-success">ثبت</button>
+                </div>
+                @endpermission
+            </div>
+            @endif
+        </form>
+    </div>
+</div>
+@stop
+@section('js')
+    <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
+@endsection

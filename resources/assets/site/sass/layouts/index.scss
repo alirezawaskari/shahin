@@ -1,0 +1,32 @@
+.index{
+  .card {
+    overflow: hidden !important;
+    &:hover .card-img-overlay {
+      top: 0;
+    }
+
+    border: 1px solid #ffffff;
+    .card-img-overlay {
+      background: hsla(0, 1%, 11%, 0.75);
+      left: 0;
+      right: 0;
+      top: calc(100% - 80px);
+      transition: box-shadow .6s cubic-bezier(.43, .01, .01, 1), top .6s cubic-bezier(.43, .01, .01, 1), background .6s cubic-bezier(.43, .01, .01, 1);
+    }
+  }
+
+}
+
+
+@media screen and (max-width: 986px) {
+  .card {
+    .card-img-overlay {
+      top: 0 !important;
+    }
+  }
+
+  .carousel-item img{
+    transform: scale(1.35) !important;
+  }
+
+}

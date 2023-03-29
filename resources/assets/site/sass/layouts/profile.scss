@@ -1,0 +1,52 @@
+.profile{
+  .list-group-item{
+    background: #878787;
+    border: 0 !important;
+    border-radius: 50px !important;
+  }
+  .list-group-item.active{
+    background-color: $color-orange !important;
+    border: 0 !important;
+  }
+
+  .profile-box{
+    border: 1px solid #cccccc;
+  }
+  .title-profile-box{
+    background: $color-orange;
+    border-radius: 50px;
+    top: -15px;
+    right: 25px;
+  }
+  .form-control:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #ec6a38;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(236, 106, 56, 0.25);
+  }
+  .img-thumbnail{
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .title-service-box{
+    top: -15px;
+    right: 20px;
+    background: #c4c4c4;
+    border: 1px solid #ffffff;
+  }
+  .more-service{
+    margin-bottom: -30px;
+  }
+
+}
+
+@media screen and (max-width: 986px) {
+  .profile{
+    .name-box{
+      flex-direction: column !important;
+      text-align: center !important;
+    }
+  }
+}

@@ -1,0 +1,82 @@
+body {
+  font-family: font;
+  font-size: 14px;
+  text-align: right;
+  direction: rtl !important;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.font-12 {
+  font-size: 12px;
+}
+
+.font-14 {
+  font-size: 14px;
+}
+
+.font-16 {
+  font-size: 16px;
+}
+
+.font-18 {
+  font-size: 18px;
+}
+
+.bold{
+  font-family: bfont;
+}
+
+.rounded-2x {
+  border-radius: .5rem;
+}
+.rounded-20px{
+  border-radius: 20px;
+}
+
+.z-index-5 {
+  z-index: 5;
+}
+
+.my-breadcrumb {
+  .banner {
+    background-size: cover !important;
+  }
+
+  .overlay {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    opacity: 0.6;
+  }
+}
+
+.cart-count {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+    background: #ffffff;
+}
+
+#area_id{
+    display: none;
+}
+.iziToast-message{
+    font-family: font;
+}
+.pointer{
+    cursor: pointer;
+}
+.success-overly{
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    background: rgba(110, 202, 82, 0.3);
+}

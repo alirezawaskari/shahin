@@ -1,0 +1,30 @@
+.contact{
+  .section {
+    background: url("/assets/site/images/contact-img.png") no-repeat;
+    background-size: cover;
+  }
+  .overlay{
+    top:0; left:0;
+    bottom: 0;
+    right: 0;
+    background:rgba(0,0,0,0.9);
+    opacity: 0.6;
+  }
+
+  .custom-input{
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    &::placeholder{
+      color: #ffffff !important;
+    }
+  }
+  .social{
+    .icon{
+      width: 30px;
+    }
+    .i-icon{
+      font-size: 30px;
+      color: #3ccfff !important;
+    }
+  }
+}
