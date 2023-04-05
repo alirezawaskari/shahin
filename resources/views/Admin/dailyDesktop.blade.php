@@ -271,6 +271,80 @@
         </div>
     </div>
     @endpermission
+    @role('superadmin')
+    <div class="container bg-white">
+        <div class="row justify-content-center">
+            <div class="col-md-5 mt-5">
+                <div class="card">
+                <div class="card-header">
+                    <h3>لیست تمدید ها :</h3>
+                </div>
+                    <div class="card-body">
+                        <table class="table  ">
+                            <tr class="bg-info">
+                                <td class="text-right">
+                                    سرورها
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>سرور مجازی </td>
+                                <td>{{verta($expire_dates['vps_expire_date'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr class="bg-info">
+                                <td class="text-right"> پنل ها</td>
+                                <td></td>
+
+                            </tr>
+                            <tr>
+                                <td>پنل پلسک</td>
+                                <td>{{verta($expire_dates['plesk_expire_date'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr class="bg-info">
+                                <td class="text-right">دامنه ها</td>
+                                <td></td>
+
+                            </tr>
+                            <tr>
+                                <td>lalecard.ir </td>
+                                <td>{{verta($expire_dates['domain_expire_date_lalecard.ir'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>lalecard.com</td>
+                                <td>{{verta($expire_dates['domain_expire_date_lalecard.com'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>ghorfe-online.ir </td>
+                                <td>{{verta($expire_dates['domain_expire_date_ghorfe-online.ir'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>lalehkart.ir  </td>
+                                <td>{{verta($expire_dates['domain_expire_date_lalehkart.ir'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>lalekart.ir  </td>
+                                <td>{{verta($expire_dates['domain_expire_date_lalekart.ir'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>lalemarket.ir </td>
+                                <td>{{verta($expire_dates['domain_expire_date_lalemarket.ir'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>qorfe-online.ir </td>
+                                <td>{{verta($expire_dates['domain_expire_date_qorfe-online.ir'])->format('Y/m/d')}}</td>
+                            </tr>
+                            <tr>
+                                <td>lalebank.com  </td>
+                                <td>{{verta($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d')}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @endrole
 </div>
 @stop
 
