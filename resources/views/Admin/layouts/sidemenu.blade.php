@@ -298,10 +298,6 @@
                     </li>
                     @endpermission
 
-                    @permission('about')
-                    <li><a href="{{ route('about.index') }}"><i class="icon ti-control-record"></i> درباره ما - فروش نقدی | اقساطی </a></li>
-                    @endpermission
-
                     @permission('validation')
                     <li><a href="{{ route('validation.index') }}"><i class="icon ti-control-record"></i> اعتبارسنجی محصولات </a></li>
                     @endpermission
