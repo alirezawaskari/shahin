@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -49,4 +50,18 @@ class Context extends Model
     {
         return Context::whereIn('key',$keys)->get();
     }
+
+    /**
+     * @param Collection $contexts
+     * @return array
+     */
+    public static function convertFetchedContextToKeyValue(Collection $contexts):array
+    {
+       $data=array();
+        foreach ($contexts as $context) {
+            $data[$context->key]=$context->value;
+       }
+        return $data;
+    }
+
 }

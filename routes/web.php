@@ -108,6 +108,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/accounting/filter-installment-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installment-debtors');
     Route::get('/accounting/show/{user}' , [\App\Http\Controllers\Admin\AccountingController::class,'show'])->name('accounting.show');
     Route::get('/', 'AdminController@dashboard');
+    Route::get('/settings', [\App\Http\Controllers\Admin\ContextController::class,'settings'])->name('settings.index');
+    Route::patch('/settings/update-expire-dates', [\App\Http\Controllers\Admin\ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::post('removeImgWorkSample', 'AdminController@removeImgWorkSample');
     Route::post('/service/fetch-serviceitem-by-service', 'ServiceController@fetchServiceItemsByServiceId');
     Route::get('/dailyDesktop', 'AdminController@dailyDesktop');
