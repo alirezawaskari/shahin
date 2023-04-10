@@ -12,7 +12,7 @@ class AgencyCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->updated_at,
+                    'sort_by' => "updated_at",
                     'id' => $item->id,
                     'name' =>  $item->name,
                     'phone' => $item->phone,

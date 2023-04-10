@@ -18,7 +18,7 @@ class UserCollection extends ResourceCollection
          return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->created_at,
+                    'sort_by' => "created_at",
                     'id' => $item->id,
                     'name' => $item->name,
                     'family' => $item->family,

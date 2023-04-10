@@ -24,7 +24,7 @@ class WalletTransactionCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->created_at,
+                    'sort_by' => "created_at",
                     'id' => $item->id,
                     'name' => $item->userPerformance && isset($item->userPerformance->factorItem) ? $item->userPerformance->factorItem->factor->user->name. ' ' . $item->userPerformance->factorItem->factor->user->family : 'ندارد',
                     'phone' => $item->userPerformance && isset($item->userPerformance->factorItem) ? $item->userPerformance->factorItem->factor->user->phone : 'ندارد',

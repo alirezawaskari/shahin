@@ -26,7 +26,7 @@ class TotalFactorItemInstallmentCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->date,
+                    'sort_by' => "date",
                     'id' => $item->id,
                     'total_factor_item_id' => $item->total_factor_item_id,
                     'name' => $item->totalFactoritem ? $item->totalFactoritem->factor->user->name : '',

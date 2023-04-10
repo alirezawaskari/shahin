@@ -1088,7 +1088,7 @@ class FactorItemController extends Controller {
     {
         for ($i = 0; $i < ($request->service_tariff_id ? count($request->service_tariff_id) : 0); $i++) {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
-            $value = $request->value[ $i+1 ];
+            $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
             $price = !is_null( $value ) ? $service_tariff->price*$value : $service_tariff->price;
             $value = !is_null( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : $value;
             $factor_item->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $request->doctor_id[ $i+1 ], 'session_number' => $request->session_number[ $i+1 ], 'treatment_duration' => $request->treatment_duration[ $i+1 ] ] ] );

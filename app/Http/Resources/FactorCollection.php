@@ -26,7 +26,7 @@ class FactorCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->date,
+                    'sort_by' => "date",
                     'id' => $item->id,
                     'name' => $item->user->name. ' ' . $item->user->family,
                     'phone' => $item->user->phone,
@@ -39,7 +39,6 @@ class FactorCollection extends ResourceCollection
                     'representation' => $item->representation ? $item->representation->fa_name : 'م تهران',
                     'organization' => $item->organization ? $item->organization->fa_name : 'ندارد',
                     'confirm' => $item->confirm,
-                    'status_factor' => $this->setStatus($item),
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'date_time' => $this->setDateTime($item),
                     'status' => $item->status,
@@ -97,7 +96,7 @@ class FactorCollection extends ResourceCollection
     {
          $temp = 0;
         foreach ($item->factorItems as $item){
-            $temp = $temp + $item->total_price - isset($item->propery->prepayment_price)?$item->propery->prepayment_price:0;
+            $temp = $temp + $item->total_price - (isset($item->propery)?$item->propery->prepayment_price:0);
         }
         return $temp;
     }
