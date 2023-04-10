@@ -21,7 +21,7 @@ class SessionCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->date,
+                    'sort_by' => "date",
                     'id' => $item->id,
                     'user_id' => isset($item->factorItem) && isset($item->factorItem->factor) ? $item->factorItem->factor->user->id : null,
                     'name' =>  isset($item->factorItem) && isset($item->factorItem->factor) ? ($item->factorItem->factor->user->name.' '.$item->factorItem->factor->user->family) : 'ندارد',

@@ -12,7 +12,7 @@ class ColorCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->created_at,
+                    'sort_by' => "created_at",
                     'id' => $item->id,
                     'title' => $item->title,
                     'color_palette' => $item->color_palette,

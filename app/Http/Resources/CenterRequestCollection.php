@@ -11,7 +11,7 @@ class CenterRequestCollection extends ResourceCollection
         return [
             'data' => $this->collection->map(function ($item) {
                 return [
-                    'sort_by' => $item->created_at,
+                    'sort_by' => "created_at",
                     'id' => $item->id,
                     'subject' => $item->subject,
                     'name' => $item->name,
