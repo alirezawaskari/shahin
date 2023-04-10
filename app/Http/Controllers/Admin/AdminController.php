@@ -436,8 +436,8 @@ class AdminController extends Controller
             $item['count_factoritem_superadmin'] = TotalFactorItem::where('total_factor_item_status_id', 8)->count();
             $item['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
         }
-
-        return view('Admin.dailyDesktop' , compact('item'));
+        $expire_dates=ContextController::fetchExpireDates();
+        return view('Admin.dailyDesktop' , compact('item','expire_dates'));
     }
 
     public function fetchUser(Request $request)

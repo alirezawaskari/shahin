@@ -1,0 +1,97 @@
+@extends('Admin.master')
+
+@section('css')
+@stop
+@section('content')
+    <div class="page-header">
+        <div>
+            <h3>تنظیمات</h3>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">تنظیمات</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="card position-relative">
+        <div class="card-body">
+            <div class="container">
+                <div class="row justify-content-center mt-5">
+                    <div class="col-md-8 ">
+                        <form action="{{route('settings.updateExpireDates')}}" method="post">
+                            @csrf
+                            @method('PATCH')
+                            <div class="form-row border  ">
+                                    <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">موعد تمدید دامنه ها</div>
+                                <div class="col-md-2 form-group">
+                                    <label for="fullName">lalecard.ir</label>
+                                    <input type="text" name="domain_expire_date_lalecard_ir" class="form-control date" value="{{$expire_dates['domain_expire_date_lalecard.ir']}}">
+                                </div>
+                                <div class="col-md-2 form-group">
+                                    <label for="fullName">lalecard.com</label>
+                                    <input type="text" name="domain_expire_date_lalecard_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalecard.com']}}">
+                                </div>
+                             <div class="col-md-2 form-group">
+                                    <label for="fullName">ghorfe-online.ir</label>
+                                    <input type="text" name="domain_expire_date_ghorfe_online_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_ghorfe-online.ir']}}">
+                                </div>
+                             <div class="col-md-2 form-group">
+                                    <label for="fullName">lalehkart.ir</label>
+                                    <input type="text" name="domain_expire_date_lalehkart_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalehkart.ir']}}">
+                                </div>
+                             <div class="col-md-2 form-group">
+                                    <label for="fullName">lalekart.ir</label>
+                                    <input type="text" name="domain_expire_date_lalekart_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalekart.ir']}}">
+                                </div>
+                             <div class="col-md-2 form-group">
+                                    <label for="fullName">lalemarket.ir</label>
+                                    <input type="text" name="domain_expire_date_lalemarket_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalemarket.ir']}}">
+                                </div>
+                             <div class="col-md-2 form-group">
+                                    <label for="fullName">qorfe-online.ir</label>
+                                    <input type="text" name="domain_expire_date_qorfe_online_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_qorfe-online.ir']}}">
+                                </div>
+                             <div class="col-md-2 form-group">
+                                    <label for="fullName">lalebank.com</label>
+                                    <input type="text" name="domain_expire_date_lalebank_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalebank.com']}}">
+                                </div>
+                                <div class="card-header col-md-12 border   text-center border-right-0 border-left-0  ">موعد تمدید سرورها</div>
+                                <div class="col-md-2 form-group">
+                                    <label for="fullName">سرور مجازی رادکام</label>
+                                    <input type="text" name="vps_expire_date" class="form-control date"  value="{{$expire_dates['vps_expire_date']}}">
+                                </div>
+                                <div class="card-header col-md-12 border   text-center border-right-0 border-left-0  ">موعد تمدید پنل ها</div>
+                                <div class="col-md-2 form-group">
+                                    <label for="fullName">پلسک</label>
+                                    <input type="text" name="plesk_expire_date" class="form-control date"  value="{{$expire_dates['plesk_expire_date']}}">
+                                </div>
+                            <div class="form-group col-md-12 ">
+                                <button type="submit" class="btn btn-success">ثبت </button>
+                            </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+@stop
+@section('js')
+    <script>
+    $(document).ready(function () {
+        $(".date").pDatepicker({
+        initialValueType: "gregorian",
+        format: "YYYY/MM/DD",
+        onSelect: "year",
+        timePicker: {
+        enabled: true,
+        meridiem: {
+        enabled: true
+        }
+        }
+        });
+    });
+    </script>
+@stop
