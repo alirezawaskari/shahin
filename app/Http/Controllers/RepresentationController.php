@@ -23,6 +23,7 @@ class RepresentationController extends Controller
     public function single(Representation $representation , Service $service, User $callcenter )
     {
         $user = auth()->user();
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
 
         if ($user) {
             $required = null;
@@ -41,11 +42,11 @@ class RepresentationController extends Controller
                     $required = true;
                 }
             }
-            return view('site.representation.single', compact('callcenter','representation' ,'service', 'required', 'requireServices'));
+            return view('site.representation.single', compact('financial_plans_types' , 'callcenter','representation' ,'service', 'required', 'requireServices'));
         }
 
         $provinces = Province::get();
         $citys = City::get();
-        return view('site.representation.single' , compact('callcenter','representation' , 'service' , 'provinces' , 'citys'));
+        return view('site.representation.single' , compact('financial_plans_types' , 'callcenter','representation' , 'service' , 'provinces' , 'citys'));
     }
 }

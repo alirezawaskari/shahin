@@ -148,8 +148,8 @@
                                             @endif
                                         </tr>
                                         <tr>
-                                           <th> {{ number_format($item->factoritemable->tax) }} درصد مالیات بر ارزش افزوده</th>
-                                           <th>{{ number_format($factor->tax) }} ریال</th>
+                                            <th> {{ number_format($item->factoritemable->tax) }} درصد مالیات بر ارزش افزوده</th>
+                                            <th>{{ number_format($factor->tax) }} ریال</th>
                                         </tr>
                                     @endforeach
                                     </tbody>
