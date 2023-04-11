@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Classes\External\IranSms;
 use App\Events\fastserviceCallcenter;
 use GuzzleHttp\Client;
 use Illuminate\Queue\InteractsWithQueue;
@@ -35,18 +36,8 @@ class ServiceCallcenterSMSNotification
         $link = self::createLink($event);
 
         if (isset($userMobile) && $link) {
-            $headers = [
-                'apikey' => config('services.sms.apikey'),
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ];
-            $client = new Client([
-                'headers' => $headers
-            ]);
             if ($type == "card"){
                 $body = [
-                    'receptor' => $userMobile,
-                    'type' => 1,
-                    'template' => 'callcenterfastservice',
                     'param1' => $event->factor->resnumber,
                     'param2' => 'شماره کارت 5047061090019510 به نام شرکت جانبازان آینده ساز' . '- مبلغ: ' . number_format($price) . ' ریال',
                     'param3' => $callcenter
@@ -54,18 +45,12 @@ class ServiceCallcenterSMSNotification
             }else{
                 if(!is_null($event->factor)){
                 $body = [
-                    'receptor' => $userMobile,
-                    'type' => 1,
-                    'template' => 'callcenterfastservice',
                     'param1' => 'services/'.$service.'/'.$event->task->user_id.'/'.$event->task->id.'/'.$event->factor->resnumber,
 					'param2' => $service,
                     'param3' => $callcenter
                 ];
                 }else{
                     $body = [
-                        'receptor' => $userMobile,
-                        'type' => 1,
-                        'template' => 'callcenterfastservice',
                         'param1' => $link,
                         'param2' => $service->slug,
                         'param3' => $callcenter
@@ -73,9 +58,8 @@ class ServiceCallcenterSMSNotification
                 }
             }
 
-              $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
-                'form_params' => $body
-            ]);
+            IranSms::send('callcenterfastservice',$userMobile,$body);
+
         }
     }
 
