@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Events\checkSmsReminder;
+use App\Events\ExtensionDate;
 use App\Events\fastregisterCallcenter;
 use App\Events\fastregisterorganCallcenter;
 use App\Events\fastserviceCallcenter;
@@ -16,6 +17,7 @@ use App\Events\smsServiceSession;
 use App\Events\successFactor;
 use App\Events\userActivation;
 use App\Events\smsNotAnswer;
+use App\Listeners\ExtensionSmsReminder;
 use App\Listeners\FactorItemActivationSMSNotificaion;
 use App\Listeners\FactorItemStartWorkingSMSNotificaion;
 use App\Listeners\SendSmsCheckReminder;
@@ -33,7 +35,6 @@ use App\Listeners\SendSmsNotAnswer;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -87,6 +88,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         checkSmsReminder::class => [
             SendSmsCheckReminder::class,
+        ],
+        ExtensionDate::class => [
+            ExtensionSmsReminder::class,
         ]
     ];
 

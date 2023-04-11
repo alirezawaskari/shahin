@@ -2,11 +2,8 @@
 
 namespace App\Listeners;
 
+use App\Classes\External\IranSms;
 use App\Events\fastregisterorganCallcenter;
-use GuzzleHttp\Client;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-
 class RegOrganSMSNotification
 {
     /**
@@ -33,24 +30,13 @@ class RegOrganSMSNotification
         $userWallet = $event->user->wallet;
 
         if (isset($userMobile)) {
-            $headers = [
-                'apikey' => config('services.sms.apikey'),
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ];
-            $client = new Client([
-                'headers' => $headers
-            ]);
             $body = [
-                'receptor' => $userMobile,
-                'type' => 1,
-                'template' => 'organizationfastregister',
                 'param1' => $userMobile,
                 'param2' => $pass,
                 'param3' => $userWallet,
             ];
-            $r = $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
-                'form_params' => $body
-            ]);
+            IranSms::send('organizationfastregister',$userMobile,$body);
+
         }
     }
 }

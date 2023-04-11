@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Classes\External\IranSms;
 use App\Events\ticketNotification;
 use GuzzleHttp\Client;
 use Illuminate\Queue\InteractsWithQueue;
@@ -32,24 +33,13 @@ class TicketSMSNotification
         $userMobile = $event->user->phone;
 
         if (isset($userMobile)) {
-            $headers = [
-                'apikey' => config('services.sms.apikey'),
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ];
-            $client = new Client([
-                'headers' => $headers
-            ]);
             $name = $event->user->name .' '. $event->user->family;
 
             $body = [
-                'receptor' => $userMobile,
-                'type' => 1,
-                'template' => 'ticketnotification',
                 'param1' => $name,
             ];
-            $r = $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
-                'form_params' => $body
-            ]);
+            IranSms::send('ticketnotification',$userMobile,$body);
+
         }
     }
 }

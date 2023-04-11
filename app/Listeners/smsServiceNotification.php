@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Classes\External\IranSms;
 use App\Events\smsService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -22,25 +23,13 @@ class smsServiceNotification
         $address = $event->address;
         $date = $event->date;
 
-        $headers = [
-            'apikey' => config('services.sms.apikey'),
-            'Content-Type' => 'application/x-www-form-urlencoded'
-        ];
-        $client = new Client([
-            'headers' => $headers
-        ]);
-
         $message = $address . '،زمان پیشنهادی شما: ' . $date;
 
         $body = [
-            'receptor' => $userMobile,
-            'type' => 1,
-            'template' => 'customservicefactor',
             'param1' => $message,
         ];
+        IranSms::send('customservicefactor',$userMobile,$body);
 
-        $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
-            'form_params' => $body
-        ]);
+
     }
 }

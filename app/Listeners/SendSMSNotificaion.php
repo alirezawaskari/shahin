@@ -2,12 +2,10 @@
 
 namespace App\Listeners;
 
+use App\Classes\External\IranSms;
 use App\Events\userActivation;
 use App\Models\SmsLog;
 use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendSMSNotificaion
 {
@@ -38,28 +36,16 @@ class SendSMSNotificaion
         $pass = $event->pass;
 
         if (isset($userMobile)) {
-            $headers = [
-                'apikey' => config('services.sms.apikey'),
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ];
-            $client = new Client([
-                'headers' => $headers
-            ]);
             $body = [
-                'receptor' => $userMobile,
-                'type' => 1,
-                'template' => 'fastregister',
                 'param1' => $event->user->name.' '.$event->user->family,
                 'param2' => $pass
             ];
-
-            $r = $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
-                'form_params' => $body
-            ]);
+            IranSms::send('fastregister',$userMobile,$body);
             SmsLog::create([
                 'phone'=>$userMobile,
                 'type'=>'login'
             ]);
+
         }
     }
 }

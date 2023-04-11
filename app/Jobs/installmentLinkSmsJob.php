@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Classes\External\IranSms;
 use App\Models\SmsLinkFactorLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -39,26 +40,13 @@ class installmentLinkSmsJob implements ShouldQueue {
             $log->title = 'installmentSms';
             $log->save();
 
-            $headers = [
-                'apikey' => config( 'services.sms.apikey' ),
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ];
-            $client = new Client( [
-                'headers' => $headers
-            ] );
 
             $body = [
-                'receptor' => $this->detail[ 'receptor' ],
-                'type' => 1,
-                'template' => $this->detail[ 'template' ],
                 'param1' => $this->detail[ 'param1' ],
                 'param2' => $this->detail[ 'param2' ],
                 'param3' => config( 'app.url' ).'/pf/' . $this->detail[ 'resnumber' ],
             ];
-
-            $client->request( 'POST', 'http://api.parsasms.com/v2/send/verify', [
-                'form_params' => $body
-            ] );
+            IranSms::send($this->detail[ 'template' ],$this->detail[ 'receptor' ],$body);
         }
     }
 
