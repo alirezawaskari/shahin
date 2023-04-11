@@ -14,11 +14,13 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\VipUser;
 use File;
+use Intervention\Image\Facades\Image;
 use Verta;
 use GuzzleHttp\Client;
 
 class Helper {
-    public static function uploadImage( $file, $path ) {
+
+  /*  public static function uploadImage( $file, $path ) {
         $year = Carbon::now()->year;
         $month = Carbon::now()->month;
 
@@ -28,6 +30,32 @@ class Helper {
         $rand = rand( 1, 999 );
         $filename = "{$rand}_" . $file->getClientOriginalName();
         $file->move( public_path( $filepath ), $filename );
+
+        return $filepath . $filename;
+    }*/
+
+    public static function uploadImage($file, $path)
+    {
+        $year = Carbon::now()->year;
+        $month = Carbon::now()->month;
+        $filepath = "/upload/{$year}/{$month}/{$path}/";
+        $rand = rand(1, 999);
+        $filename = "{$rand}_" . $file->getClientOriginalName();
+        // image max size
+        $max_file_size = 2 * 1024 * 1024;
+        // Image quality
+        $quality = 80;
+        if( $file->getSize() > $max_file_size ) {
+            $image = Image::make($file->getRealPath());
+            $image->resize(null, 1500, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $image->save(public_path($filepath) . $filename, $quality);
+        }
+        else {
+            $file->move(public_path($filepath), $filename);
+        }
 
         return $filepath . $filename;
     }
@@ -294,6 +322,22 @@ class Helper {
             }
         }
         return null;
+    }
+
+    /**
+     * @param $text
+     * @return array|mixed|string|string[]
+     */
+    public static function replaceDateTimeWithPersian($text) {
+        $matches = [];
+        preg_match_all('/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/', $text, $matches);
+        for ($i = 0; $i < count($matches[0]); $i++) {
+            $miladi = Carbon::create($matches[1][$i], $matches[2][$i], $matches[3][$i], $matches[4][$i], $matches[5][$i], $matches[6][$i]);
+            $jalali = Verta::instance($miladi);
+            $persianDateTime = $jalali->format('Y-m-d H:i:s');
+            $text = str_replace($matches[0][$i], $matches[0][$i] . ' (' . $persianDateTime . ')', $text);
+        }
+        return $text;
     }
 
 }
