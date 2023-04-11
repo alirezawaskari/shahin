@@ -19,6 +19,7 @@ use App\Models\WorkSample;
 use Carbon\Carbon;
 use App\Helpers\Helper;
 use DB;
+use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -526,5 +527,25 @@ class AdminController extends Controller
         }
         return ['status' => 'false'];
     }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function showLogs()
+    {
+        if (! auth()->user()->hasRole( 'superadmin' ) )
+            abort(403);
+        $logFile = storage_path('logs/laravel.log');
+
+        $logContents = file_get_contents($logFile);
+        $logLines = explode("\n", $logContents);
+        $logs=array();
+        foreach ($logLines as $lite_item){
+            $logs[]=Helper::replaceDateTimeWithPersian($lite_item);
+        }
+        return view('logs', ['errorLines' => $logs]);
+    }
+
+
 
 }
