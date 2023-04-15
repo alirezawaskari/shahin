@@ -10,6 +10,7 @@ use App\Models\Callcenter;
 use Carbon\Carbon;
 use App\Events\fastserviceCallcenter;
 use App\Events\sendlinkFactor;
+use App\Helpers\Helper;
 use App\Models\Callcenterstatus;
 use App\Models\FinancialPlansType;
 use App\Models\Service;
@@ -142,7 +143,7 @@ class FactorController extends Controller {
 
     private function createTask( $factor ) {
         $user = $factor->user;
-        $callcenter_id = self::getCallcenter($user);
+        $callcenter_id = Helper::getCallcenter($user);
         $task = Callcenter::create( [
             'reg_id' => $user->id,
             'user_id' => $callcenter_id,
@@ -154,25 +155,5 @@ class FactorController extends Controller {
             'user_id' => $callcenter_id,
         ] );
         $factor->update( [ 'task_id' => $task->id ] );
-    }
-
-    private function getCallcenter($user) {
-        $last_user = Callcenterstatus::latest()->first();
-        $admin_users = User::where( 'level', 'admin' )->where( 'province_id', $user->province_id)->get();
-        foreach ( $admin_users as $u ) {
-            if ( $u->hasRole( 'callcenter' ) ) {
-                $callcenterusers[] = $u->id;
-            }
-        }
-        if ( !isset( $callcenterusers ) ) {
-            $admin_users = User::where( 'level', 'admin' )->where( 'id', '!=', $last_user->id )->where( 'province_id', 5 )->get();
-            foreach ( $admin_users as $u ) {
-                if ( $u->hasRole( 'callcenter' ) ) {
-                    $callcenterusers[] = $u->id;
-                }
-            }
-        }
-        $id = array_random( $callcenterusers );
-        return $id;
     }
 }
