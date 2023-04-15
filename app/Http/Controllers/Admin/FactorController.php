@@ -2,22 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Cardservice;
-use App\Models\Constructionservice;
-use App\Models\Dentistryservice;
-use App\Events\fastserviceCallcenter;
 use App\Events\smsService;
 use App\Exports\FactorsExport;
-use App\Models\Employee;
 use App\Models\Factor;
-use App\Models\FactorItem;
-use App\Models\Foodservice;
-use App\Models\Hotelservice;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FactorCollection;
-use App\Models\Insuranceservice;
-use App\Models\Internetservice;
-use App\Models\Service;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Helpers\Helper;
@@ -140,6 +129,7 @@ class FactorController extends Controller
         $user = $factor->user;
         $type = $factor->factorable_type;
         $comments = Helper::userHistories($user);
+        $changes = $factor->audits()->with('user')->get()->last();
         $items = $factor->factorItems->map(function ($item) {
             $temp = [];
             $temp['id'] = $item->id;
@@ -167,7 +157,7 @@ class FactorController extends Controller
             return $temp;
         });
         if($request->ajax()){
-            $view=view('Admin.factor.editAjax', compact('factor', 'user', 'type', 'comments', 'items'))->render();
+            $view=view('Admin.factor.editAjax', compact('factor', 'user', 'type', 'comments', 'items' , 'changes'))->render();
             return response([
                 'data'=>[
                     'view'=> $view

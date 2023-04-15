@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use OwenIt\Auditing\Auditable;
 use Carbon\Carbon;
 use App\Models\Entry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class Session extends Model
+class Session extends Model implements AuditableContract
 {
     use SoftDeletes;
-    protected $dates = ['deleted_at'];
+    use Auditable;
 
+    protected $dates = ['deleted_at'];
 
     /**
      * @var array

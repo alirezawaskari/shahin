@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PhpParser\Node\Stmt\DeclareDeclare;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class Callcenter extends Model
+class Callcenter extends Model implements AuditableContract
 {
-
+    use Auditable;
     protected $guarded = [];
 
     use SoftDeletes;
