@@ -9,6 +9,7 @@
         "ext-zip": "*",
         "artesaos/seotools": "^1.1",
         "cviebrock/eloquent-sluggable": "^10.0",
+        "econea/nusoap": "^0.9.15",
         "guzzlehttp/guzzle": "^7.2",
         "hekmatinasser/verta": "^8.3",
         "intervention/image": "^2.7",
