@@ -30,5 +30,32 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'sparkpost' => [
+        'secret' => env('SPARKPOST_SECRET'),
+    ],
 
+    'stripe' => [
+        'model' => App\Models\User::class,
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook' => [
+            'secret' => env('STRIPE_WEBHOOK_SECRET'),
+            'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
+        ],
+    ],
+
+    'sms' => [
+        'apikey' => 'cpCIuUbmtBhYFw41+kpYs0mSNw+mkN4aZBELwgUMN+A',
+        'linenumber' => '10002622'
+    ],
+
+    'mellat' => [
+        'terminal' => env('MELLAT_TERMINAL'),
+        'username' => env('MELLAT_USERNAME'),
+        'password' => env('MELLAT_PASSWORD'),
+    ],
+
+    'zarinpal' => [
+        'id' => env('ZARIN_ID'),
+    ],
 ];

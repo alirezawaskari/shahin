@@ -5,6 +5,17 @@ use Illuminate\Support\Facades\Facade;
 return [
 
     /*
+   |--------------------------------------------------------------------------
+   | when program is in test status
+   |--------------------------------------------------------------------------
+   |
+   |
+   |
+   */
+
+    'test_status' => false,
+    'test_true_sms_to' =>'09017130719',
+    /*
     |--------------------------------------------------------------------------
     | Application Name
     |--------------------------------------------------------------------------
@@ -70,6 +81,17 @@ return [
     */
 
     'timezone' => 'Asia/Tehran',
+
+    /*
+    |--------------------------------------------------------------------------
+    | extensions sms to
+    |--------------------------------------------------------------------------
+    |
+    |
+    |
+    */
+
+    'extensions_remind_to' => '09017130719',
 
     /*
     |--------------------------------------------------------------------------
@@ -197,7 +219,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         \Artesaos\SEOTools\Providers\SEOToolsServiceProvider::class,
-       \App\Providers\FilterServiceProvider::class
+       \App\Providers\FilterServiceProvider::class,
 
     ],
 

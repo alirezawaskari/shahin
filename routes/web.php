@@ -103,6 +103,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
+    Route::get('/logs' , [\App\Http\Controllers\Admin\AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::get('/accounting/cash-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
     Route::get('/accounting/filter-cash-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cash-debtors');
     Route::get('/accounting/installment-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'installmentDebtorsIndex'])->name('accounting.installment.index');
