@@ -93,6 +93,7 @@
                                 <form action="/fastregister" method="POST" class="my-4">
                                     @csrf
                                     <div class="row">
+                                        <input type="hidden" name="service_id" value="{{ $service->id }}">
                                         <div class="col-12 col-md-6">
                                             <input class="form-control my-2" type="text" name="name" required placeholder="نام"
                                                    value="{{ old('name') }}">
@@ -115,10 +116,10 @@
                                             @endif
                                         </div>
                                         <div class="col-12 col-md-6">
-                                            <select class="form-control my-2" type="int" name="service_id" id="service_id" required>
-                                                @foreach($service->service_items->where('isShow' , true) as $item)
-                                                    <option value="{{ $item->id }}" {{ !$item->status ? 'disabled' : '' }}>{{ $item->title }}</option>
-                                                @endforeach
+                                            <select class="form-control my-2" type="int" name="financial_plans_type_id" id="financial_plans_type_id" required>
+                                                    @foreach($financial_plans_types as $item)
+                                                        <option value="{{ $item->id }}" {{ !$item->status ? 'disabled' : '' }}>{{ $item->title }}</option>
+                                                    @endforeach
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-6">
