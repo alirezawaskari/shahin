@@ -35,7 +35,7 @@ class SuccessFactorSMSNotification
             $body = [
                 'param1' => $resnumber,
             ];
-            IranSms::send('factorsuccess',$userMobile,$body);
+            IranSms::sendSingleSms('factorsuccess',$userMobile,$body);
         }
     }
 }

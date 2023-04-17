@@ -12,7 +12,7 @@ class IranSms
      * @param array $params like : ['param1'=>'example','param2'=>'',..]
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public static function send( string $template,$phone, array $params)
+    public static function sendSingleSms(string $template, $phone, array $params)
     {    $headers = [
         'apikey' => config('services.sms.apikey'),
         'Content-Type' => 'application/x-www-form-urlencoded'
@@ -30,6 +30,22 @@ class IranSms
         $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
             'form_params' => $body
         ]);
-
     }
+
+    /**
+     * @return string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public static function fetchCredit()
+    {
+        $client = new Client();
+        $response = $client->request('POST', 'http://api.ghasedaksms.com/v2/credit', [
+            'headers' => [
+                'apikey' =>config('services.sms.apikey'),
+            ]
+        ]);
+
+        return json_decode($response->getBody()->getContents());
+    }
+
 }

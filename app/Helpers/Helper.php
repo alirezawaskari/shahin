@@ -20,7 +20,7 @@ use GuzzleHttp\Client;
 
 class Helper {
 
-  /*  public static function uploadImage( $file, $path ) {
+    public static function uploadFile( $file, $path ) {
         $year = Carbon::now()->year;
         $month = Carbon::now()->month;
 
@@ -32,7 +32,7 @@ class Helper {
         $file->move( public_path( $filepath ), $filename );
 
         return $filepath . $filename;
-    }*/
+    }
 
     public static function uploadImage($file, $path)
     {

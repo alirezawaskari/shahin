@@ -58,7 +58,7 @@ class ServiceCallcenterSMSNotification
                 }
             }
 
-            IranSms::send('callcenterfastservice',$userMobile,$body);
+            IranSms::sendSingleSms('callcenterfastservice',$userMobile,$body);
 
         }
     }

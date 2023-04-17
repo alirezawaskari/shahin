@@ -38,7 +38,7 @@ class TicketSMSNotification
             $body = [
                 'param1' => $name,
             ];
-            IranSms::send('ticketnotification',$userMobile,$body);
+            IranSms::sendSingleSms('ticketnotification',$userMobile,$body);
 
         }
     }
