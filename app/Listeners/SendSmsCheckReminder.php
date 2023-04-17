@@ -36,7 +36,7 @@ class SendSmsCheckReminder
                 'param2' => number_format($check->amount),
 
             ];
-            IranSms::send('checkremindersms',$user_mobile,$body);
+            IranSms::sendSingleSms('checkremindersms',$user_mobile,$body);
 
         }
     }

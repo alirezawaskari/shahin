@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
 use App\Models\City;
 use App\Models\Contact;
 use App\Models\Factor;
@@ -438,7 +439,9 @@ class AdminController extends Controller
             $item['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
         }
         $expire_dates=ContextController::fetchExpireDates();
-        return view('Admin.dailyDesktop' , compact('item','expire_dates'));
+
+        $iran_sms_credit=IranSms::fetchCredit()->credit;
+        return view('Admin.dailyDesktop' , compact('item','expire_dates','iran_sms_credit'));
     }
 
     public function fetchUser(Request $request)

@@ -37,7 +37,7 @@ class SendSmsSuccessRegisterPayment
                 'param2' => $supporter_family,
 
             ];
-            IranSms::send('sendsmssuccessregisterpayment',$userMobile,$body);
+            IranSms::sendSingleSms('sendsmssuccessregisterpayment',$userMobile,$body);
 
         }
     }

@@ -36,7 +36,7 @@ class SendSmsNotAnswer
                 'param2' => $callcenter,
                 'param3' => $event->unit,
             ];
-            IranSms::send('sendsmsnotanswer',$userMobile,$body);
+            IranSms::sendSingleSms('sendsmsnotanswer',$userMobile,$body);
 
         }
     }

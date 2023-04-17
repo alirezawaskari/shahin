@@ -30,7 +30,7 @@ class smsServiceSessionNotification
             'param2' => $date,
         ];
 
-        IranSms::send('dateservicesession',$userMobile,$body);
+        IranSms::sendSingleSms('dateservicesession',$userMobile,$body);
 
     }
 }
