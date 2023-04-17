@@ -3,364 +3,425 @@
 
 @section('content')
 
-<div class="page-header">
-    <div>
-        <h3>کارتابل روزانه</h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">کارتابل روزانه</li>
-            </ol>
-        </nav>
+    <div class="page-header">
+        <div>
+            <h3>کارتابل روزانه</h3>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">کارتابل روزانه</li>
+                </ol>
+            </nav>
+        </div>
     </div>
-</div>
 
-<div class="row col-12">
-    @role('warehouse-keeper')
-    <div class="col-12 col-lg-4 col-md-4">
-        <div class="card overflow-hidden {{ $item['count_product_storeRoom_expiring'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد محصول درحال انقضا : {{$item['count_product_storeRoom_expiring']}}</h5>
-                    <a href="/dashboard/storeRoom/list-product-expiring" class="btn btn-warning text-white mt-3">مشاهده</a>
+    <div class="row col-12">
+        @role('warehouse-keeper')
+        <div class="col-12 col-lg-4 col-md-4">
+            <div class="card overflow-hidden {{ $item['count_product_storeRoom_expiring'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد محصول درحال انقضا
+                            : {{$item['count_product_storeRoom_expiring']}}</h5>
+                        <a href="/dashboard/storeRoom/list-product-expiring" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-4">
+            <div class="card overflow-hidden {{ $item['count_product_storeRoom_expiring'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد درخواست ها خروج از انبار
+                            : {{$item['count_request']}}</h5>
+                        <a href="/dashboard/request/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @role('filing')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factoritem_filing'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید
+                            : {{$item['count_factoritem_filing']}}</h5>
+                        <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @role('legal')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factoritem_mali_legal'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت اقدام ضمانت
+                            : {{$item['count_factoritem_mali_legal']}}</h5>
+                        <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @role('consulting_contract_affairs')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div
+                class="card overflow-hidden {{ $item['count_factoritem_consulting_contract_affairs'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید
+                            : {{$item['count_factoritem_consulting_contract_affairs']}}</h5>
+                        <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div
+                class="card overflow-hidden {{ $item['count_factoritem_mali_consulting_contract_affairs'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت اقدام ضمانت
+                            : {{$item['count_factoritem_mali_consulting_contract_affairs']}}</h5>
+                        <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @role('mali')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factoritem_mali'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید
+                            : {{$item['count_factoritem_mali']}}</h5>
+                        <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factoritem_mali_mali'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تسویه حساب
+                            : {{$item['count_factoritem_mali_mali']}}</h5>
+                        <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factor_mali'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید : {{$item['count_factor_mali']}}</h5>
+                        <a href="{{ route('purchaseInvoice.desktop') }}"
+                           class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_tickets'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد تیکت جدید جهت بررسی : {{ $item['count_tickets'] }}</h5>
+                        <a href="{{ route('desktop.tickets') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @role('superadmin')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factoritem_superadmin'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید
+                            : {{$item['count_factoritem_superadmin']}}</h5>
+                        <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factoritem_mali_superadmin'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تسویه حساب
+                            : {{$item['count_factoritem_mali_superadmin']}}</h5>
+                        <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factor_superadmin'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید
+                            : {{$item['count_factor_superadmin']}}</h5>
+                        <a href="{{ route('purchaseInvoice.desktop') }}"
+                           class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @role('mali-representation')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div
+                class="card overflow-hidden {{ $item['count_factoritem_mali_representation'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید
+                            : {{$item['count_factoritem_mali_representation']}}</h5>
+                        <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_factor_mali_representation'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید
+                            : {{$item['count_factor_mali_representation']}}</h5>
+                        <a href="{{ route('purchaseInvoice.desktop') }}"
+                           class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @if(auth()->user()->supplier)
+            <div class="col-12 col-lg-4 col-md-12">
+                <div class="card overflow-hidden {{ $item['count_factor_supplier'] > 0 ? 'bg-danger' : '' }}">
+                    <div class="card-body text-center">
+                        <div class="m-b-10">
+                            <h5 class="alert alert-warning"> تعداد درخواست ها فروش جدید
+                                : {{$item['count_factor_supplier']}}</h5>
+                            <a href="{{ route('purchaseInvoice.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
+                        </div>
+                    </div>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
             </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+        @endif
+        @role('superadmin-representation')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div
+                class="card overflow-hidden {{ $item['count_factoritem_superadmin_representation'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید
+                            : {{$item['count_factoritem_superadmin_representation']}}</h5>
+                        <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
         </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-4">
-        <div class="card overflow-hidden {{ $item['count_product_storeRoom_expiring'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد درخواست ها خروج از انبار : {{$item['count_request']}}</h5>
-                    <a href="/dashboard/request/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+        <div class="col-12 col-lg-4 col-md-12">
+            <div
+                class="card overflow-hidden {{ $item['count_factor_superadmin_representation'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید
+                            : {{$item['count_factor_superadmin_representation']}}</h5>
+                        <a href="{{ route('purchaseInvoice.desktop') }}"
+                           class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
+                </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+            </div>
+        </div>
+        @endrole
+        @if(auth()->user()->center)
+            <div class="col-12 col-lg-4 col-md-12">
+                <div class="card overflow-hidden {{ $item['count_factoritem_confirm'] > 0 ? 'bg-danger' : '' }}">
+                    <div class="card-body text-center">
+                        <div class="m-b-10">
+                            <h5 class="alert alert-warning"> تعداد پرونده ها آماده اجرا
+                                : {{$item['count_factoritem_confirm']}}</h5>
+                            <a href="/dashboard/factorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                        </div>
+                    </div>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
             </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endrole
-    @role('filing')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_filing'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید : {{$item['count_factoritem_filing']}}</h5>
-                    <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+        @endif
+        @permission('contact|contact-detail')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_contact'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد پیام ها جدید جهت پاسخ : {{$item['count_contact']}}</h5>
+                        <a href="{{ route('contact.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
                 </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
         </div>
-    </div>
-    @endrole
-    @role('legal')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_mali_legal'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت اقدام ضمانت : {{$item['count_factoritem_mali_legal']}}</h5>
-                    <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+        @endpermission
+        @permission('recruitment_notice')
+        <div class="col-12 col-lg-4 col-md-12">
+            <div class="card overflow-hidden {{ $item['count_resume'] > 0 ? 'bg-danger' : '' }}">
+                <div class="card-body text-center">
+                    <div class="m-b-10">
+                        <h5 class="alert alert-warning"> تعداد رزومه ها جدید جهت پیگیری : {{$item['count_resume']}}</h5>
+                        <a href="/dashboard/resume/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
+                    </div>
                 </div>
+                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
         </div>
-    </div>
-    @endrole
-    @role('consulting_contract_affairs')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_consulting_contract_affairs'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید : {{$item['count_factoritem_consulting_contract_affairs']}}</h5>
-                    <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_mali_consulting_contract_affairs'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت اقدام ضمانت : {{$item['count_factoritem_mali_consulting_contract_affairs']}}</h5>
-                    <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endrole
-    @role('mali')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_mali'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید : {{$item['count_factoritem_mali']}}</h5>
-                    <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_mali_mali'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تسویه حساب : {{$item['count_factoritem_mali_mali']}}</h5>
-                    <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factor_mali'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید : {{$item['count_factor_mali']}}</h5>
-                    <a href="{{ route('purchaseInvoice.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endrole
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_tickets'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد تیکت جدید جهت بررسی : {{ $item['count_tickets'] }}</h5>
-                    <a href="{{ route('desktop.tickets') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @role('superadmin')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_superadmin'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید : {{$item['count_factoritem_superadmin']}}</h5>
-                    <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_mali_superadmin'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تسویه حساب : {{$item['count_factoritem_mali_superadmin']}}</h5>
-                    <a href="/dashboard/totalFactorItem/reports/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factor_superadmin'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید : {{$item['count_factor_superadmin']}}</h5>
-                    <a href="{{ route('purchaseInvoice.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endrole
-    @role('mali-representation')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_mali_representation'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید : {{$item['count_factoritem_mali_representation']}}</h5>
-                    <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factor_mali_representation'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید : {{$item['count_factor_mali_representation']}}</h5>
-                    <a href="{{ route('purchaseInvoice.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endrole
-    @if(auth()->user()->supplier)
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factor_supplier'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد درخواست ها فروش جدید : {{$item['count_factor_supplier']}}</h5>
-                    <a href="{{ route('purchaseInvoice.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endif
-    @role('superadmin-representation')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_superadmin_representation'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها جدید جهت تایید : {{$item['count_factoritem_superadmin_representation']}}</h5>
-                    <a href="/dashboard/totalFactorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factor_superadmin_representation'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد فاکتور ها خرید جدید : {{$item['count_factor_superadmin_representation']}}</h5>
-                    <a href="{{ route('purchaseInvoice.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endrole
-    @if(auth()->user()->center)
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_factoritem_confirm'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پرونده ها آماده اجرا : {{$item['count_factoritem_confirm']}}</h5>
-                    <a href="/dashboard/factorItem/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endif
-    @permission('contact|contact-detail')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_contact'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد پیام ها جدید جهت پاسخ : {{$item['count_contact']}}</h5>
-                    <a href="{{ route('contact.desktop') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endpermission
-    @permission('recruitment_notice')
-    <div class="col-12 col-lg-4 col-md-12">
-        <div class="card overflow-hidden {{ $item['count_resume'] > 0 ? 'bg-danger' : '' }}">
-            <div class="card-body text-center">
-                <div class="m-b-10">
-                    <h5 class="alert alert-warning"> تعداد رزومه ها جدید جهت پیگیری : {{$item['count_resume']}}</h5>
-                    <a href="/dashboard/resume/desktop" class="btn btn-warning text-white mt-3">مشاهده</a>
-                </div>
-            </div>
-            <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
-        </div>
-    </div>
-    @endpermission
-    @role('superadmin')
-    <div class="container bg-white">
-        <div class="row justify-content-center">
-            <div class="col-md-5 mt-5">
-                <div class="card">
-                <div class="card-header">
-                    <h3>لیست تمدید ها :</h3>
-                </div>
-                    <div class="card-body">
-                        <table class="table  ">
-                            <tr class="bg-info">
-                                <td class="text-right">
-                                    سرورها
-                                </td>
-                                <td></td>
-                            </tr>
+        @endpermission
+        @role('superadmin')
+        <div class="container bg-white">
+            <div class="row justify-content-center">
+                <div class="col-md-5 mt-5 border">
+                    <div class="card-header bg-white"><h3>اعتبار نقدی پنل ها :</h3></div>
+                    <div class="card-body table-responsive">
+                        <table class="table">
+                            <thead class="bg-info">
                             <tr>
-                                <td>سرور مجازی </td>
-                                <td>{{verta($expire_dates['vps_expire_date'])->format('Y/m/d')}}</td>
+                                <th class="text-right">عنوان</th>
+                                <th>
+                                    اعتبار
+                                </th>
                             </tr>
-                            <tr class="bg-info">
-                                <td class="text-right"> پنل ها</td>
-                                <td></td>
+                            </thead>
+                            <tbody>
+                            <tr class="{{$iran_sms_credit <= 20000 ? 'table-danger' : 'table-success'}}">
+                                <td>پنل پیامکی IRAN SMS</td>
+                                <td><span >{{number_format($iran_sms_credit).' ریال '}}</span>  </td>
+                            </tr>
 
-                            </tr>
-                            <tr>
-                                <td>پنل پلسک</td>
-                                <td>{{verta($expire_dates['plesk_expire_date'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr class="bg-info">
-                                <td class="text-right">دامنه ها</td>
-                                <td></td>
-
-                            </tr>
-                            <tr>
-                                <td>lalecard.ir </td>
-                                <td>{{verta($expire_dates['domain_expire_date_lalecard.ir'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>lalecard.com</td>
-                                <td>{{verta($expire_dates['domain_expire_date_lalecard.com'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>ghorfe-online.ir </td>
-                                <td>{{verta($expire_dates['domain_expire_date_ghorfe-online.ir'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>lalehkart.ir  </td>
-                                <td>{{verta($expire_dates['domain_expire_date_lalehkart.ir'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>lalekart.ir  </td>
-                                <td>{{verta($expire_dates['domain_expire_date_lalekart.ir'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>lalemarket.ir </td>
-                                <td>{{verta($expire_dates['domain_expire_date_lalemarket.ir'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>qorfe-online.ir </td>
-                                <td>{{verta($expire_dates['domain_expire_date_qorfe-online.ir'])->format('Y/m/d')}}</td>
-                            </tr>
-                            <tr>
-                                <td>lalebank.com  </td>
-                                <td>{{verta($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d')}}</td>
-                            </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-5 mt-5 border" >
+                    <div class="card">
+                        <div class="card-header"><h3>لیست تمدید ها :</h3></div>
+                        <div class="card-body table-responsive">
+                            <table class="table">
+                                <thead class="bg-info">
+                                <tr>
+                                    <th class="text-right">نوع</th>
+                                       <th>
+                                           اعتبار (روز)
+                                       </th>
+                                    <th> تاریخ انقضا (شمسی )</th>
+                                    <th> تاریخ انقضا (میلادی)</th>
+                                </tr>
+                                </thead>
 
+                                <tbody>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['vps_expire_date'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>سرور مجازی</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['vps_expire_date'],false)}}</td>
+                                    <td>{{verta($expire_dates['vps_expire_date'])->format('Y/m/d')}}</td>
+                                    <td>{{ \Carbon\Carbon::make($expire_dates['vps_expire_date'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['plesk_expire_date'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>پنل پلسک</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['plesk_expire_date'],false)}}</td>
+                                    <td>{{verta($expire_dates['plesk_expire_date'])->format('Y/m/d')}}</td>
+                                    <td>{{\Carbon\Carbon::make($expire_dates['plesk_expire_date'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalecard.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه lalecard.ir</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalecard.ir'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_lalecard.ir'])->format('Y/m/d')}}</td>
+                                    <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalecard.ir'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalecard.com'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه lalecard.com</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalecard.com'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_lalecard.com'])->format('Y/m/d')}}</td>
+                                    <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_lalecard.com'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_ghorfe-online.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه ghorfe-online.ir</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_ghorfe-online.ir'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_ghorfe-online.ir'])->format('Y/m/d')}}</td>
+                                    <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_ghorfe-online.ir'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalehkart.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه lalehkart.ir</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalehkart.ir'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_lalehkart.ir'])->format('Y/m/d')}}</td>
+                                    <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_lalehkart.ir'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalekart.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه lalekart.ir</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalekart.ir'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_lalekart.ir'])->format('Y/m/d')}}</td>
+                                    <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalekart.ir'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalemarket.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه lalemarket.ir</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalemarket.ir'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_lalemarket.ir'])->format('Y/m/d')}}</td>
+                                    <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalemarket.ir'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_qorfe-online.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه qorfe-online.ir</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_qorfe-online.ir'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_qorfe-online.ir'])->format('Y/m/d')}}</td>
+                                    <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_qorfe-online.ir'])->format('Y/m/d') }}</td>
+                                </tr>
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalebank.com'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                    <td>دامنه lalebank.com</td>
+                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalebank.com'],false)}}</td>
+                                    <td>{{verta($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d')}}</td>
+                                    <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d') }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        @endrole
     </div>
-    @endrole
-</div>
 @stop
 
 @section('js')
-<script>
-    function openNav() {
-    if(document.getElementById("myNav").style.width == "4%")
-    {
-        document.getElementById("myNav").style.width = "14%";
-        document.getElementById("app").style.width = "86%";
-    }
-    else
-    {
-        document.getElementById("myNav").style.width = "4%";
-        document.getElementById("app").style.width = "96%";
-    }
-}
-</script>
+    <script>
+        function openNav() {
+            if (document.getElementById("myNav").style.width == "4%") {
+                document.getElementById("myNav").style.width = "14%";
+                document.getElementById("app").style.width = "86%";
+            } else {
+                document.getElementById("myNav").style.width = "4%";
+                document.getElementById("app").style.width = "96%";
+            }
+        }
+    </script>
 @endsection
