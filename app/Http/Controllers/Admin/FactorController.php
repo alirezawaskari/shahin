@@ -12,12 +12,14 @@ use Carbon\Carbon;
 use App\Helpers\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Psy\Command\ListCommand\FunctionEnumerator;
 
 class FactorController extends Controller
 {
     public function index()
     {
         $labels = ['پرداخت موفق', 'پرداخت معلق'];
+        $title = "all";
         $user = auth()->user();
         $organ = false;
         $wallets = 0;
@@ -82,20 +84,21 @@ class FactorController extends Controller
             $delete = true;
         }
 
-        return view('Admin.factor.all' , compact('delete' , 'detail' ,'wallets','credits', 'organ','labels' , 'day_values' , 'values'));
+        return view('Admin.factor.all' , compact('title' , 'delete' , 'detail' ,'wallets','credits', 'organ','labels' , 'day_values' , 'values'));
     }
 
     public function desktop()
     {
         $user = auth()->user();
         $desktop = true;
+        $title = "desktop";
 
         $detail = false;
         if ($user->isAbleTo('factor-detail')){
             $detail = true;
         }
 
-        return view('Admin.factor.desktop' , compact('detail', 'desktop'));
+        return view('Admin.factor.desktop' , compact('title' , 'detail', 'desktop'));
     }
 
     public function filter(Request $request)
@@ -396,5 +399,25 @@ class FactorController extends Controller
         }
 
         return ['message' => $message , 'status' => $status];
+    }
+    /**
+     *@return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
+    public function deletedList()
+    {
+        $user = auth()->user();
+        if ($user->isAbleTo('factor-deleted-list')){
+            $title = "deleted_list";
+            return view('Admin.factor.delete' , compact('title'));
+        }
+        return abort(401);
+    }
+    /**
+     *@return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse|\App\Http\Resources\FactorCollection
+     */
+    public function filterDeletedList()
+    {
+        $factors = Factor::onlyTrashed()->filter()->latest();
+        return new FactorCollection($factors,$factors->paginate(20));
     }
 }

@@ -87,6 +87,9 @@
                         @permission('system-income')
                         <li><a href="{{ route('system.income') }}">درآمد ماهانه و سالانه سیستم</a></li>
                         @endpermission
+                        @permission('factor-deleted-list')
+                        <li><a href="{{ route('factor.delete') }}"><i class="icon ti-control-record"></i> <span>سطل زباله</span> </a>
+                        @endpermission
                     </ul>
                 </li>
             @endif

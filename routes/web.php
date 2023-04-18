@@ -159,6 +159,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factor-manager' , 'FactorController@factor_manager');
     Route::post('/factor/sms', 'FactorController@sms')->name('factor.sms');
     Route::get('/factors' , 'FactorController@filter');
+    Route::get('/factor/deleted' , 'FactorController@deletedList')->name('factor.delete');
+    Route::get('/factor/deleted/filter', 'FactorController@filterDeletedList');
     Route::resource('/factor', 'FactorController');
     Route::resource('/category-permission', 'CategoryPermissionController');
     Route::post('/factor-update' , 'FactorController@update');

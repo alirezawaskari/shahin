@@ -74,7 +74,7 @@ $(document).ready(function () {
         }
 
         $('#datatable-json tbody').empty();
-
+        if ($('#datatable-json').data("title") == 'deleted_list') {
         var table = $('#datatable-json').DataTable({
             paging: false,
             searching: false,
@@ -82,61 +82,91 @@ $(document).ready(function () {
             data: data.data,
             columns: [
                 {"data": "sort_by"},
-                // {
-                //     "data": data,
-                //     "render":function (data){
-                //         return `<input type="checkbox" name="id[]" value="${data.id}">`
-                //     }
-                // },
                 {"data": "name"},
                 {"data": "phone"},
-                {"data": "user"},
                 {"data": "price"},
-                {"data": "representation"},
-                {"data": "items"},
-                {"data": "payment_type"},
-                {"data": "date"},
-                {
-                    "data": data,
-                    "render": function (data){
-                        switch (data.status) {
-                            case 0:
-                                return '<span class="badge badge-warning">در انتظار پرداخت</span> ';
-                            case 1:
-                                return '<span class="badge badge-success">پرداخت شده</span> ';
-                            case 2:
-                                return '<span class="badge badge-danger">عودت پرداخت</span>';
-                            case 3:
-                                return '<span class="badge badge-danger">منقضی شده</span>';
-                            case 4:
-                                return '<span class="badge badge-success">عودت واریزی</span>';
-                            case 5:
-                                return '<span class="badge badge-danger">واریز شده</span>';
-                            default:
-                                return ''
-                        }
-                    }
-                },
+                {"data": "delete_user"},
+                {"data": "deleted_at"},
                 {
                     "data": data,
                     "render": function (data) {
-                        let display='none';
-                        if($('#delete').val() == 1){
-                            display='block'
-                        }
                         return `<div data-v-15965e3b="" class="dropdown">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                             <span data-id="${data.resnumber}" class="factor-show dropdown-item pointer"  data-toggle="modal"
-                                data-target="#factorShowModal" >مشاهده</span>
-                            <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
-
+                                data-target="#factorShowModal" >برگرداندن</span>
                         </div></div>`
                     }
                 }
             ],
         });
+        }
+        else
+        {
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                columns: [
+                    {"data": "sort_by"},
+                    // {
+                    //     "data": data,
+                    //     "render":function (data){
+                    //         return `<input type="checkbox" name="id[]" value="${data.id}">`
+                    //     }
+                    // },
+                    {"data": "name"},
+                    {"data": "phone"},
+                    {"data": "user"},
+                    {"data": "price"},
+                    {"data": "representation"},
+                    {"data": "items"},
+                    {"data": "payment_type"},
+                    {"data": "date"},
+                    {
+                        "data": data,
+                        "render": function (data){
+                            switch (data.status) {
+                                case 0:
+                                    return '<span class="badge badge-warning">در انتظار پرداخت</span> ';
+                                case 1:
+                                    return '<span class="badge badge-success">پرداخت شده</span> ';
+                                case 2:
+                                    return '<span class="badge badge-danger">عودت پرداخت</span>';
+                                case 3:
+                                    return '<span class="badge badge-danger">منقضی شده</span>';
+                                case 4:
+                                    return '<span class="badge badge-success">عودت واریزی</span>';
+                                case 5:
+                                    return '<span class="badge badge-danger">واریز شده</span>';
+                                default:
+                                    return ''
+                            }
+                        }
+                    },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            let display='none';
+                            if($('#delete').val() == 1){
+                                display='block'
+                            }
+                            return `<div data-v-15965e3b="" class="dropdown">
+                            <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
+                                <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
+                                <div class="dropdown-menu">
+                                <span data-id="${data.resnumber}" class="factor-show dropdown-item pointer"  data-toggle="modal"
+                                    data-target="#factorShowModal" >مشاهده</span>
+                                <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
+
+                            </div></div>`
+                        }
+                    }
+                ],
+            });
+        }
         //add column count
         table.on('order.dt search.dt', function () {
             table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
@@ -153,49 +183,6 @@ $(document).ready(function () {
             $('#callcenters-box').hide();
         }
     });
-// do action on selected factors / actions : delete or transfer
-//     $('body').on('click', '#do-action',function () {
-//         var token = $('meta[name="csrf-token"]').attr('content');
-//         var form = $('#form-factor-action');
-//         var formData = form.serialize();
-//
-//         swal({
-//             title:  `آیا مطمئن هستید؟`,
-//             icon: "warning",
-//             buttons: {
-//                 confirm: 'بله',
-//                 cancel: 'خیر'
-//             },
-//             dangerMode: true
-//         }).then(res => {
-//             if (res) {
-//                 $.ajax(
-//                     {
-//                         url: '/dashboard/factor-manager',
-//                         type: 'post',
-//                         "_token": token,
-//                         data: formData,
-//                         success: function (response,page) {
-//                             if (response.status=='success'){
-//                                 fetchData(page)
-//                                 swal({
-//                                     title: response.message,
-//                                     icon: "success",
-//                                     button: "باشه",
-//                                 });
-//                             }else {
-//                                 swal({
-//                                     title: "خطا",
-//                                     text: "لطفا نوع عملیات را انتخاب نمایید ",
-//                                     icon: "warning",
-//                                     dangerMode: true,
-//                                 })
-//                             }
-//                         }
-//                     });
-//             }
-//         });
-//     });
 
     $('body').on('change','#title-pay',function() {
        if ($(this).val() != 'all'){
