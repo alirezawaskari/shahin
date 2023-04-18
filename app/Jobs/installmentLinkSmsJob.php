@@ -46,7 +46,7 @@ class installmentLinkSmsJob implements ShouldQueue {
                 'param2' => $this->detail[ 'param2' ],
                 'param3' => config( 'app.url' ).'/pf/' . $this->detail[ 'resnumber' ],
             ];
-            IranSms::send($this->detail[ 'template' ],$this->detail[ 'receptor' ],$body);
+            IranSms::sendSingleSms($this->detail[ 'template' ],$this->detail[ 'receptor' ],$body);
         }
     }
 

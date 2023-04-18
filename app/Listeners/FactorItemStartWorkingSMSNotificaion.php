@@ -37,7 +37,7 @@ class FactorItemStartWorkingSMSNotificaion
                 'param2' => $access,
                 'param3' => 'lalecard.ir/factorItem/'.$resnumber,
             ];
-            IranSms::send('factoritemstartworking',$userMobile,$body);
+            IranSms::sendSingleSms('factoritemstartworking',$userMobile,$body);
 
 
         }

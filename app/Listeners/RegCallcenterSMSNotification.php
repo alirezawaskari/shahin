@@ -34,7 +34,7 @@ class RegCallcenterSMSNotification
                 'param1' => $userMobile,
                 'param2' => $pass,
             ];
-            IranSms::send('callcenterfastregister',$userMobile,$body);
+            IranSms::sendSingleSms('callcenterfastregister',$userMobile,$body);
 
         }
     }

@@ -13,7 +13,7 @@ class CkeditorController extends Controller
     {
         if($request->hasFile('upload')) {
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
-            $url=  Helper::uploadImage($request->file('upload') , 'editor');
+            $url=  Helper::uploadFile($request->file('upload') , 'editor');
             $msg = 'آپلود با موفقیت انجام شد ';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
             @header('Content-type: text/html; charset=utf-8');

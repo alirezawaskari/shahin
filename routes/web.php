@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
+ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -557,7 +557,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/agency-suspend', 'AgencyController@suspend')->name('agency.suspend');
     Route::resource('agency', 'AgencyController');
     Route::resource('agencyType', 'AgencyTypeController');
-    Route::post('/ckeditor/upload', 'CkeditorController@upload')->name('ckeditor.upload');
     //contract
     Route::resource('contract', 'ContractController');
     Route::resource('arrangeContract', 'ArrangeContractController');

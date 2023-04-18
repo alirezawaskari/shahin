@@ -28,7 +28,7 @@ class smsServiceNotification
         $body = [
             'param1' => $message,
         ];
-        IranSms::send('customservicefactor',$userMobile,$body);
+        IranSms::sendSingleSms('customservicefactor',$userMobile,$body);
 
 
     }

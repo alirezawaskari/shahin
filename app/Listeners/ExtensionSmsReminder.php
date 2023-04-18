@@ -28,6 +28,6 @@ class ExtensionSmsReminder
      */
     public function handle(ExtensionDate $event)
     {
-            IranSms::send('extensionsmsreminder',$event->phone,array('param1'=>$event->item));
+            IranSms::sendSingleSms('extensionsmsreminder',$event->phone,array('param1'=>$event->item));
     }
 }

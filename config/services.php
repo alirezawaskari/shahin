@@ -58,4 +58,9 @@ return [
     'zarinpal' => [
         'id' => env('ZARIN_ID'),
     ],
+
+    'negin_sms' => [
+        'user_name' => env('NEGIN_SMS_USER_NAME','username'),
+        'password' => env('NEGIN_SMS_PASSWORD','pass'),
+    ],
 ];

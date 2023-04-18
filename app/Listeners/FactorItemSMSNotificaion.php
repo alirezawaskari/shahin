@@ -33,7 +33,7 @@ class FactorItemSMSNotificaion
 
         if (isset($userMobile)) {
             $name = $event->user->name .' '. $event->user->family;
-            IranSms::send('factoritemactivation',$userMobile,array('param1' => $name, 'param2' => $center));
+            IranSms::sendSingleSms('factoritemactivation',$userMobile,array('param1' => $name, 'param2' => $center));
 
         }
     }

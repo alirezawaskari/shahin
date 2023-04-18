@@ -35,7 +35,7 @@ class RegOrganSMSNotification
                 'param2' => $pass,
                 'param3' => $userWallet,
             ];
-            IranSms::send('organizationfastregister',$userMobile,$body);
+            IranSms::sendSingleSms('organizationfastregister',$userMobile,$body);
 
         }
     }

@@ -40,7 +40,7 @@ class SendSMSNotificaion
                 'param1' => $event->user->name.' '.$event->user->family,
                 'param2' => $pass
             ];
-            IranSms::send('fastregister',$userMobile,$body);
+            IranSms::sendSingleSms('fastregister',$userMobile,$body);
             SmsLog::create([
                 'phone'=>$userMobile,
                 'type'=>'login'
