@@ -303,7 +303,7 @@ class UserController extends AdminController
             $callcenter->restore();
         }
         return redirect()->back()->with([
-            'user_update' => 'success'
+            'update' => 'success'
         ]);
     }
 

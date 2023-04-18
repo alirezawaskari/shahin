@@ -40,6 +40,8 @@ class FactorCollection extends ResourceCollection
                     'organization' => $item->organization ? $item->organization->fa_name : 'ندارد',
                     'confirm' => $item->confirm,
                     'date' => verta($item->created_at)->format('Y/m/d'),
+                    'deleted_at' => verta($item->deleted_at)->format('Y/m/d'),
+                    'delete_user' => $item->deleted_at ? $this->getDeleteUser($item) : null,
                     'date_time' => $this->setDateTime($item),
                     'status' => $item->status,
                     'items' => $this->setItems($item),
@@ -111,5 +113,18 @@ class FactorCollection extends ResourceCollection
             array_push($temp ,  $item->date);
         }
         return implode(',' , $temp);
+    }
+    /**
+     * @param Factor $item
+     * @return string
+     */
+    private function getDeleteUser(Factor $item)
+    {
+        $deleted_log = $item->audits()->where('event' , 'deleted')->latest()->first();
+        $delete_user = 'ثبت نشده';
+        if (!is_null($deleted_log)) {
+            $delete_user = $deleted_log->user->name.' '.$deleted_log->user->family;
+        }
+        return $delete_user;
     }
 }
