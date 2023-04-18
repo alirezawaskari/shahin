@@ -94,8 +94,7 @@ $(document).ready(function () {
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
-                            <span data-id="${data.resnumber}" class="factor-show dropdown-item pointer"  data-toggle="modal"
-                                data-target="#factorShowModal" >برگرداندن</span>
+                            <span data-id="${data.id}" class="factor-restore dropdown-item pointer">برگرداندن</span>
                         </div></div>`
                     }
                 }
@@ -195,6 +194,7 @@ $(document).ready(function () {
            $("#title-pay").val('all');
        }
     });
+
 // delete factor
 $('body').on('click', '.factor-delete',function () {
     var resnumber = $(this).data("id");
@@ -231,6 +231,46 @@ $('body').on('click', '.factor-delete',function () {
                                 icon: "warning",
                                 dangerMode: true,
                             })
+                        }
+                    }
+                });
+        }
+    });
+});
+// restore factor
+$('body').on('click', '.factor-restore',function () {
+    var id = $(this).data("id");
+    var token = $('meta[name="csrf-token"]').attr('content');
+    swal({
+        title:  `آیا مطمئن هستید؟`,
+        icon: "warning",
+        buttons: {
+            confirm: 'بله',
+            cancel: 'خیر'
+        },
+        dangerMode: true
+    }).then(res => {
+        if (res) {
+            $.ajax(
+                {
+                    url: "/dashboard/factor/restore/",
+                    type: 'post',
+                    data: {
+                        "_token": token,
+                        "id": id
+                     },
+                    success: function (data,page){
+                        if (data.status=='success'){
+                            fetchData(page)
+                            swal({
+                                text: "تراکنش با موفقیت برگردانده شد .",
+                                icon: "success",
+                                button: "تایید",
+                                timer:3000,
+                                allowOutsideClick: true
+                            });
+                        }else{
+                            swal("خطا !", data.message,'error')
                         }
                     }
                 });

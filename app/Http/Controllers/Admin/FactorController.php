@@ -420,4 +420,25 @@ class FactorController extends Controller
         $factors = Factor::onlyTrashed()->filter()->latest();
         return new FactorCollection($factors,$factors->paginate(20));
     }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function restore(Request $request)
+    {
+        if(auth()->user()->hasPermission('factor-delete'))
+        {
+            $factor = Factor::onlyTrashed()->find($request->id);
+            $factor->restore();
+            $factor->factorItems()->withTrashed()->restore();
+            Factor::savePayment($factor);
+            if ($request->ajax()) {
+                return response([
+                    'status' => 'success',
+                    'message'=>'عملیات موفق'
+                ]);
+            }
+        }
+    }
 }
+
