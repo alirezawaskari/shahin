@@ -43,4 +43,32 @@ $(document).ready(function () {
         }
     });
 
+    $('#service_id').on('change', function () {
+        var id = $(this).val();
+
+        if (id == 0) {
+          $('#financial_plans_type_id').find('option').remove();
+        }
+
+        if (id != 0) {
+          $.ajax({
+            url: '/service/financialPlansType',
+            type: 'post',
+            dataType: 'json',
+            data: {
+              id: id
+            },
+            success: function success(data) {
+              if (data.count == 'available') {
+                $('#financial_plans_type_id').find('option').remove();
+                $('#financial_plans_type_id').append('<option value="">انتخاب طرح</option>');
+                for (var i = 0; i < data.length; i++) {
+                  $('#financial_plans_type_id').append('<option value="' + data.financial_plans_types[i]['id'] + '">' + data.financial_plans_types[i]['title'] + '</option>');
+                }
+              }
+            }
+          });
+        }
+      });
+
 });

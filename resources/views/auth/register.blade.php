@@ -85,9 +85,17 @@
                                             name="service_id" id="service_id" required>
                                         <option value="">انتخاب نوع خدمت</option>
                                         @foreach($services as $service)
-                                            @foreach($service->service_items->where('isShow' , true) as $item)
-                                                <option value="{{ $item->id }}">{{ $item->title }}</option>
-                                            @endforeach
+                                            <option value="{{ $service->id }}">{{ $service->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group position-relative box">
+                                    <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                            name="financial_plans_type_id" id="financial_plans_type_id" required>
+                                        <option value="">انتخاب نوع طرح</option>
+                                        @foreach($financial_plans_types as $financial_plans_type)
+                                            <option value="{{ $financial_plans_type->id }}">{{ $financial_plans_type->title }}</option>
                                         @endforeach
                                     </select>
                                 </div>

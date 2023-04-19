@@ -47,7 +47,8 @@ class RegisterController extends Controller
         $provinces = Province::get();
         $citys = City::get();
         $services = Service::whereStatus( true )->where( 'isShow', true )->orderBy( 'created_at', 'desc' )->get();
-        return view( 'auth.register', compact( 'provinces', 'citys', 'services' ) );
+        $financial_plans_types = FinancialPlansType::whereStatus( true )->where( 'is_show', true )->get();
+        return view( 'auth.register', compact( 'financial_plans_types' , 'provinces', 'citys', 'services' ) );
     }
     protected function validator( array $data )
  {
