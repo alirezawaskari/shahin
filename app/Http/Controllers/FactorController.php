@@ -95,6 +95,11 @@ class FactorController extends Controller {
     public function index( Factor $factor ) {
         if ( $factor->status != 1 ) {
             $factor->load( 'user', 'representation' );
+            if($factor->representation)
+            {
+                $representation = $factor->representation;
+                return view( 'site.representation.factor', compact( 'factor' , 'representation') );
+            }
             return view( 'site.factor', compact( 'factor' ) );
         }
         return redirect( route( 'checkout', [$factor->resnumber ] ) );
