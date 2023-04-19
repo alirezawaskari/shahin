@@ -189,10 +189,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <p>ملاحضات : </p>
-                        <p>1 - در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت وجه ندارد.
-                        </p>
-                        <p>2 - لطفا پس از پرداخت صفحه را ترک ننمایید و نسبت به تعیین نوبت زمان مراجعه اقدام نمایید. </p>
                         @foreach($factor->factorItems as $item)
                         @if(in_array(trim($item->factoritemable->id) ,
                         App\Models\AgencyType::pluck('service_id')->toArray()) )
