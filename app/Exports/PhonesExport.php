@@ -3,19 +3,17 @@
 namespace App\Exports;
 
 use App\Models\Phone;
-use App\Models\Product;
 use Carbon\Carbon;
-use Hekmatinasser\Verta\Verta;
-use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromQuery;
-use PhpParser\Node\Stmt\Return_;
 
 class PhonesExport implements FromQuery
 {
     use Exportable;
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation|\Illuminate\Database\Query\Builder
+     */
     public function query()
     {
         $query = Phone::query();

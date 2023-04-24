@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\year;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -12,13 +11,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class UsersExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $users;
 
+    /**
+     * @param $users
+     */
     public function __construct($users)
     {
         $this->users = $users;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $this->users = $this->users->get();
@@ -47,11 +56,17 @@ class UsersExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نام', 'نام خانوادگی', 'شناسنامه' , 'تاریخ تولد' , 'کد ملی' , 'موبایل' , 'شماره ثابت' , 'کد پستی' , 'آدرس','تاریخ عضویت','خدمات خریداری شده'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

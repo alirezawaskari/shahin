@@ -2,19 +2,19 @@
 
 namespace App\Exports;
 
-use App\Models\sms;
-use App\Models\User;
-use Hekmatinasser\Verta\Verta;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
-use function PHPSTORM_META\map;
 
 class CenterRequestExport implements FromCollection, ShouldAutoSize, WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $center_requests;
 
     /**
@@ -45,11 +45,17 @@ class CenterRequestExport implements FromCollection, ShouldAutoSize, WithHeading
         return $map_center_requests;
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نام' , 'موضوع' , 'شماره تماس','تاریخ ثبت'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

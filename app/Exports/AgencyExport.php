@@ -2,10 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\Agency;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -13,13 +11,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class AgencyExport implements FromCollection , ShouldAutoSize ,WithHeadings{
 
     use Exportable;
+
+    /**
+     * @var
+     */
     private $agencies;
 
+    /**
+     * @param $agencies
+     */
     public function __construct($agencies)
     {
         $this->agencies = $agencies;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
 
@@ -41,11 +49,17 @@ class AgencyExport implements FromCollection , ShouldAutoSize ,WithHeadings{
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نام', 'کد ملی' ,'موبایل','استان','شهر','توضیحات','تاریخ ثبت'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

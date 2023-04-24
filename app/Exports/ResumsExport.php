@@ -3,8 +3,6 @@
 namespace App\Exports;
 
 use App\Models\Resumes;
-use App\Models\year;
-use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -15,13 +13,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class ResumsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $resumes;
 
+    /**
+     * @param $resumes
+     */
     public function __construct($resumes)
     {
         $this->resumes = $resumes;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $this->resumes = $this->resumes->get();
@@ -37,10 +45,17 @@ class ResumsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return [' نام', 'موبایل','عنوان شغلی'];
     }
+
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

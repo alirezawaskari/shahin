@@ -13,13 +13,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class SessionExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $sessions;
 
+    /**
+     * @param $sessions
+     */
     public function __construct($sessions)
     {
         $this->sessions = $sessions;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $i=0;
@@ -38,17 +48,27 @@ class SessionExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['سریال','نام و نام خانوادگی', 'کد ملی' ,'مبلغ','تاریخ' ];
     }
 
+    /**
+     * @param $item
+     * @return mixed
+     */
     public function setStatus($item)
     {
         return Session::status($item);
     }
 
-   public function registerEvents(): array
+    /**
+     * @return \Closure[]
+     */
+    public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {

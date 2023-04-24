@@ -12,13 +12,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class ServiceTariffExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $serviceTariffs;
 
+    /**
+     * @param $serviceTariffs
+     */
     public function __construct($serviceTariffs)
     {
         $this->serviceTariffs = $serviceTariffs;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $i=0;
@@ -37,13 +47,19 @@ class ServiceTariffExport implements FromCollection , ShouldAutoSize ,WithHeadin
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['سریال','عنوان تعرفه', 'قیمت (ریال)' ,'آخرین ویرایش','تاریخ ثبت' ];
     }
 
 
-   public function registerEvents(): array
+    /**
+     * @return \Closure[]
+     */
+    public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
