@@ -73,7 +73,9 @@
                                         <div class="btn badge-success mb-3">
                                             جمع
                                             فاکتور بدون اعمال تخفیف
-                                            : {{ number_format($factoritem->serviceTariffs()->sum('factor_item_service_tariff.price')) }}
+                                            : {{
+                                            number_format($factoritem->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                                            }}
                                             ریال
                                         </div>
                                     </div>
@@ -127,7 +129,8 @@
                                 @if(isset($item['factor_values'][$form->name]))
                                 <div class="col-md-3 mb-3">
                                     <a href="{{ asset($item['factor_values'][$form->name]) }}" target="_blank">
-                                        <img src="{{ $item['factor_values'][$form->name] }}" class="card-img-top" height="150px">
+                                        <img src="{{ $item['factor_values'][$form->name] }}" class="card-img-top"
+                                            height="150px">
                                     </a>
                                 </div>
                                 @endif
@@ -198,41 +201,63 @@
                         <div class="card-body">
                             <div class="card-body">
                                 <div class="tab-content" id="myTabContent">
-                                    <table class="table table-bordered table-striped table-responsive-md"
-                                        style="font-family: font;">
-                                        <tr>
-                                            <th>تاریخ و ساعت</th>
-                                            <th>شماره دندان</th>
-                                            <th>توضیحات</th>
-                                            <th>پزشک</th>
-                                            <th>دستیار</th>
-                                        </tr>
-                                        @foreach ($sessions->where('status', '!=', false) as $session)
-                                        <tr>
-                                            <td>{{ verta($session->date)->format('%d %B ، %Y - H:i:s') }}
-                                            </td>
-                                            <td>
-                                                @foreach ($item['service_tariffs'] as $service_tariff)
-                                                {{ $session->factor_item_service_tariff_id == $service_tariff->pivot->id
-                                                ? $service_tariff->pivot->value : '' }}
-                                                @endforeach
-                                            </td>
-                                            <td>{{ $session->description }}</td>
-                                            <td>
-                                                @if (isset($session->agent))
-                                                {{ $session->agent->name }}
-                                                {{ $session->agent->family }}
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if (isset($session->assistant))
-                                                {{ $session->assistant->name }}
-                                                {{ $session->assistant->family }}
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </table>
+                                    @foreach($item['factorItems'] as $factoritem)
+                                    <div class="col-12 col-md-12 mb-3">
+                                        جلسات {{ $factoritem->factor->user->name.'
+                                        '.$factoritem->factor->user->family}}
+                                    </div>
+                                    <div class="row col-md-12">
+                                        <table class="table table-bordered table-striped table-responsive-md"
+                                            style="font-family: font;">
+                                            <tr>
+                                                <th>تاریخ و ساعت</th>
+                                                <th>شماره دندان</th>
+                                                <th>توضیحات</th>
+                                                <th>پزشک</th>
+                                                <th>دستیار</th>
+                                                <th>مبلغ (ریال)</th>
+                                            </tr>
+                                            @foreach ($factoritem->sessions->where('status', '!=', false) as $session)
+                                            <tr>
+                                                <td>{{ verta($session->date)->format('%d %B ، %Y - H:i:s') }}
+                                                </td>
+                                                <td>
+                                                    @foreach ($item['service_tariffs'] as $service_tariff)
+                                                    {{ $session->factor_item_service_tariff_id ==
+                                                    $service_tariff->pivot->id
+                                                    ? $service_tariff->pivot->value : '' }}
+                                                    @endforeach
+                                                </td>
+                                                <td>{{ $session->description }}</td>
+                                                <td>
+                                                    @if (isset($session->agent))
+                                                    {{ $session->agent->name }}
+                                                    {{ $session->agent->family }}
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if (isset($session->assistant))
+                                                    {{ $session->assistant->name }}
+                                                    {{ $session->assistant->family }}
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    {{ number_format($session->price) }}
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </table>
+                                        <div class="col-12 mb-2">
+                                            <div class="btn badge-success mb-3 p-2">
+                                                جمع مبلغ جلسات
+                                                :
+                                                {{ number_format($factoritem->sessions->where('status' , '!=' ,
+                                                false)->sum('price')) }}
+                                                ریال
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -315,7 +340,8 @@
                                         action="{{ route('site.factorItem.requestContractSettlement') }}">
                                         @csrf
                                         <div class="row modal-body">
-                                            <input type="hidden" name="item[id]" value="{{ $factorItem->totalFactorItem->id }}">
+                                            <input type="hidden" name="item[id]"
+                                                value="{{ $factorItem->totalFactorItem->id }}">
                                             <div class="col-12 col-md-8 card-body">
                                                 <textarea required class="form-control"
                                                     name="description_request_contract_settlement" id="" cols="30"
@@ -343,8 +369,8 @@
                                                         id="request_contract_settlement"
                                                         class="filestyle file-upload file_upload_ajax file-up"
                                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="request_contract_settlement"
-                                                        class="path" name="urlrequest_contract_settlement">
+                                                    <input type="hidden" id="request_contract_settlement" class="path"
+                                                        name="urlrequest_contract_settlement">
                                                 </div>
                                                 @endif
                                             </div>
