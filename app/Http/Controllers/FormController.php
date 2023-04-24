@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\successFactor;
 use App\Models\Factor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -12,6 +11,10 @@ use Illuminate\Support\Str;
 class FormController extends Controller
 {
 
+    /**
+     * @param $file
+     * @return string
+     */
     public function upload($file)
     {
         $year = Carbon::now()->year;
@@ -26,6 +29,10 @@ class FormController extends Controller
 
     }
 
+    /**
+     * @param Factor $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|void
+     */
     public function form(Factor $factor)
     {
         if ($factor->status) {
@@ -36,6 +43,10 @@ class FormController extends Controller
     }
 
 
+    /**
+     * @param Factor $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|void
+     */
     public function form_edit(Factor $factor)
     {
         if ($factor->status) {
@@ -49,6 +60,11 @@ class FormController extends Controller
         abort(404);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $factor = Factor::findOrFail($request->input('factor_id'));

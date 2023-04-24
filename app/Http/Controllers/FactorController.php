@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
+use App\Models\Callcenter;
+use App\Models\Callcenterstatus;
 use App\Models\Coupon;
 use App\Models\Factor;
-use App\Models\History;
-use App\Models\User;
-use App\Models\Callcenter;
-use Carbon\Carbon;
-use App\Events\fastserviceCallcenter;
-use App\Events\sendlinkFactor;
-use App\Helpers\Helper;
-use App\Models\Callcenterstatus;
 use App\Models\FinancialPlansType;
 use App\Models\Service;
+use App\Models\User;
+use Carbon\Carbon;
 use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
 use Illuminate\Http\Request;
 
@@ -141,7 +138,10 @@ class FactorController extends Controller {
         return $amount;
     }
 
-    private function createTask( $factor ) {
+    /**
+     * @param $factor
+     */
+    private function createTask($factor ) {
         $user = $factor->user;
         $callcenter_id = Helper::getCallcenter($user);
         $task = Callcenter::create( [

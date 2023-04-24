@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 
 class GalleryController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $galleries = Gallery::latest()->get();

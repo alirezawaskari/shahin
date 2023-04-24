@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\FinancialPlansType;
 use App\Models\Service;
 
 class InstallmentController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function showCalculate()
 	{
 		$services = Service::all();

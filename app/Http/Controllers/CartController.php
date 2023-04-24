@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\FinancialPlansType;
 use App\Models\Service;
-use App\Models\ServiceItem;
 use Illuminate\Http\Request;
 
 class CartController extends Controller

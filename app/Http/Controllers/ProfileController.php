@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\User;
 use App\Models\FactorItem;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -75,7 +74,11 @@ class ProfileController extends Controller
         $factors = $user->factors()->latest()->get();
         return view('site.profile.layouts.factor', compact('user' , 'factors'));
     }
-	public function factorItem()
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function factorItem()
     {
         $user = auth()->user();
         $factor_items = FactorItem::whereHas('factor', function($q){
@@ -83,6 +86,10 @@ class ProfileController extends Controller
         })->get();
         return view('site.profile.layouts.factoritem.index', compact('user' , 'factor_items'));
     }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function laleCard()
     {
 		$user = auth()->user();
@@ -227,6 +234,9 @@ class ProfileController extends Controller
         return view('site.profile.layouts.notifications' ,compact('notifications'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function notifications_read()
     {
         $notifications = auth()->user()->readNotifications;

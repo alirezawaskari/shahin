@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Agency;
-use App\Models\City;
-use App\Models\Province;
-use App\Models\Service;
 use App\Models\Factor;
-use App\Models\Area;
 use App\Models\Image;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class AgencyController extends Controller
 {
-     public function index(Factor $factor)
+    /**
+     * @param Factor $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function index(Factor $factor)
      {
 		$check = false;
         $callcenter = user::find('23235');
@@ -61,6 +60,11 @@ class AgencyController extends Controller
         return view('site.agencies.index' , compact('financial_plans_types' , 'factor' , 'callcenter' , 'service' , 'images'));
     }
 
+    /**
+     * @param Service $service
+     * @param User $callcenter
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function single(Service $service , User $callcenter)
     {
         $user = auth()->user();
@@ -97,12 +101,19 @@ class AgencyController extends Controller
         return view('site.agencies.single', compact('callcenter','images' ,'service'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function agency_update()
     {
         return view('site.agencies.index');
     }
 
-     public function store(Request $request)
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function store(Request $request)
     {
             $values = [
                 'name_company' => $request->input('name_company'),

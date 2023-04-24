@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
-use App\Models\Factor;
-use App\Models\Faq;
 use App\Helpers\Helper;
+use App\Models\City;
+use App\Models\Faq;
 use App\Models\Newsletter;
+use App\Models\Organization;
 use App\Models\Phone;
 use App\Models\Service;
 use App\Models\serviceField;
 use App\Models\Slider;
 use App\Models\User;
-use App\Models\Organization;
-use Carbon\Carbon;
-use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
-use PragmaRX\Tracker\Vendor\Laravel\Facade as Tracker;
 
 class HomeController extends Controller
 {
@@ -39,23 +35,41 @@ class HomeController extends Controller
         //dd(Factor::whereType('online')->whereStatus(true)->sum('price'));
         return view('site.home', compact('callcenter','sliders', 'services'));
     }
-	  public function message()
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function message()
     {
         return view('site.message');
     }
-	public function challenge()
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function challenge()
     {
 		 $sliders = Slider::whereStatus(true)->get();
          $services = Service::whereStatus(1)->where('challenge' , true)->orderBy('created_at', 'desc')->get();
         //dd(Factor::whereType('online')->whereStatus(true)->sum('price'));
         return view('site.challenge', compact('sliders', 'services'));
     }
+
+    /**
+     * @param User $callcenter
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function mobile(User $callcenter)
     {
         $sliders = Slider::whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->get();
         $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
         return view('site.mobile', compact('callcenter' ,'sliders', 'services'));
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function newsletter(Request $request)
     {
         $email = $request->input('email');
@@ -107,6 +121,10 @@ class HomeController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function cityselect(Request $request)
     {
         if ($request->ajax()) {
@@ -118,12 +136,18 @@ class HomeController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function faq()
     {
         $faqs = Faq::all();
         return view('site.faq' , compact('faqs'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function representation()
     {
         return view('site.representation.index');
