@@ -4,9 +4,6 @@ namespace App\Listeners;
 
 use App\Classes\External\IranSms;
 use App\Events\fastserviceCallcenter;
-use GuzzleHttp\Client;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ServiceCallcenterSMSNotification
 {
