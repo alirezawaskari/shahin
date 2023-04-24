@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\site;
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Models\AttributeGroup;
-use App\Models\Category;
 use Illuminate\Http\Request;
 
 class AttributeController extends Controller
@@ -28,6 +27,10 @@ class AttributeController extends Controller
     {
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createAttribute($id)
     {
         return view('Admin.site.attribute.create', ['attribute_group_id'=>$id]);
@@ -92,6 +95,10 @@ class AttributeController extends Controller
      * @return \Illuminate\Http\Response
      */
     //show attribute lists in category list by category id
+    /**
+     * @param int $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function show($id)
     {
         $attribute_group = AttributeGroup::find($id);

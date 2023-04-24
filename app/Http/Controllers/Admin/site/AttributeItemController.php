@@ -13,6 +13,10 @@ class AttributeItemController extends Controller
 {
 
 
+    /**
+     * @param $attribute_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createAttributeItem($attribute_id)
     {
         $colors = Color::where('status', 1)->get();
@@ -137,6 +141,10 @@ class AttributeItemController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @return int[]|string[]
+     */
     public function addRequestAttributeItem(Request $request)
     {
         if ($request->attribute_item_title != null && $request->attribute_id) {
@@ -177,6 +185,10 @@ class AttributeItemController extends Controller
     }
 
     //Requested Attribute Items
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function suggest()
     {
         $attribute_items = AttributeItem::where('status',0)->paginate(25);

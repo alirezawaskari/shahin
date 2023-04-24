@@ -12,8 +12,14 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
+    /**
+     * @var Article
+     */
     protected $articles;
 
+    /**
+     * @param Article $articles
+     */
     public function __construct(Article $articles)
     {
         $this->articles = $articles;

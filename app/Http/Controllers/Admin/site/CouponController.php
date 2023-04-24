@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Models\Service;
-use Carbon\Carbon;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class CouponController extends Controller
 {
@@ -216,6 +215,9 @@ class CouponController extends Controller
     }
 
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function discountVarietyProduct()
     {
         $coupons = Coupon::with('couponItems')->whereHas('couponItems', function ($query)  {
@@ -225,6 +227,10 @@ class CouponController extends Controller
         return view('Admin.site.coupon.lists', compact('coupons'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function statusCoupon(Request $request)
     {
         if(isset($request->id)){

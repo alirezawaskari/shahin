@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\site;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
-use App\Models\AttributeItem;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
@@ -48,6 +47,10 @@ class AttributeGroupController extends Controller
         return view('Admin.site.attributeGroup.create', ['parents' => $parents]);
     }
 
+    /**
+     * @param $category_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createByCategory($category_id)
     {
         $category = Category::where('id',$category_id)->select('id','title')->first();
@@ -167,5 +170,5 @@ class AttributeGroupController extends Controller
     }
 
 
-    
+
 }

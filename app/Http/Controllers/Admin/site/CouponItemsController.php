@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\site;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
-use App\Models\AttributeItem;
 use App\Models\Category;
 use App\Models\Center;
 use App\Models\CouponItem;
@@ -15,7 +14,6 @@ use App\Models\ServiceItem;
 use App\Models\StoreRoom;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class CouponItemsController extends Controller
 {
@@ -38,6 +36,10 @@ class CouponItemsController extends Controller
     {
     }
 
+    /**
+     * @param $coupon_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createByCouponId($coupon_id)
     {
         $centers=Center::all(); $services = Category::where('parent_id', 2)->get();
@@ -172,6 +174,10 @@ class CouponItemsController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function findCategoryByProductName(Request $request)
     {
         $center_id=$request->center_id;
@@ -203,6 +209,10 @@ class CouponItemsController extends Controller
         return ['status'=>'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function productAttribute(Request $request)
     {
         if(isset($request->products_ids)){
@@ -234,6 +244,10 @@ class CouponItemsController extends Controller
         return ['status' => 'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function findServiceByCategoryId(Request $request)
     {
         if($request->id != ''){
@@ -243,6 +257,10 @@ class CouponItemsController extends Controller
         return ['status'=>'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function findServiceItem(Request $request)
     {
         if($request->id != ''){

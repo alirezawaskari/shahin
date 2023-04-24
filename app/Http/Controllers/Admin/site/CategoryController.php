@@ -19,12 +19,18 @@ use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $categories = Category::where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
         return view('Admin.site.category.lists', compact('categories'));
     }
 
+    /**
+     *
+     */
     public function create()
     {
         //
@@ -60,6 +66,10 @@ class CategoryController extends Controller
                 ,'all_services','depth','cateDepthOne','family_cat_ids_list'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function store(Request $request)
     {
         if($request->depth = 0 || $request->depth = 1){
@@ -192,6 +202,10 @@ class CategoryController extends Controller
             ]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function edit($id)
     {
         if ($id) {
@@ -249,6 +263,11 @@ class CategoryController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
 
@@ -407,6 +426,10 @@ class CategoryController extends Controller
 
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         if($id){
@@ -460,6 +483,11 @@ class CategoryController extends Controller
     }
 
     //Find a subset of a category
+
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function findChild(Request $request)
     {
         if (isset($request->id)) {
@@ -490,6 +518,11 @@ class CategoryController extends Controller
     }
 
     //Use in menu by category
+
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function changePosition(Request $request)
     {
         $position = $request->position;
@@ -505,6 +538,11 @@ class CategoryController extends Controller
     }
 
     //Use in menu by category
+
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function categoryPosition($id)
     {
         $menu = Menu::where('parent_id',$id)->where('menuable_type', Category::class)
@@ -513,6 +551,11 @@ class CategoryController extends Controller
     }
 
     //remove Category in Menu table
+
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function removeCatMenu(Request $request)
     {
        if(isset($request->id)){
@@ -525,6 +568,11 @@ class CategoryController extends Controller
     }
 
     //search Category use in Store Good and show Category in AttributeGroup
+
+    /**
+     * @param Request $request
+     * @return array
+     */
     public function searchCategory(Request $request)
     {
         $service_cat = Category::where('id',2)->select('id','title')->first();
@@ -544,6 +592,11 @@ class CategoryController extends Controller
     }
 
     //after choose category : display brand and Attribute
+
+    /**
+     * @param Request $request
+     * @return array|null
+     */
     public function findBrand(Request $request)
     {
         $last_category_id=$request->id;

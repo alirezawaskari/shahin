@@ -37,6 +37,9 @@ class CommentController extends Controller
         return view('Admin.site.comments.list', compact('comments','queries','filter'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop()
     {
         $comments=[];
