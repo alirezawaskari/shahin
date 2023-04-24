@@ -188,4 +188,18 @@ class Service extends Model
     {
         return $this->morphOne(Menu::class, 'menuable');
     }
+    /**
+     * @param Service $item
+     * @return mixed
+     */
+    public static function setRepresentation(Service $item)
+    {
+        $representation = $item->representations->first();
+        if($item->isShow)
+        {
+            $representation = null;
+        }
+
+        return $representation->id;
+    }
 }
