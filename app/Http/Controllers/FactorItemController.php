@@ -84,7 +84,7 @@ class FactorItemController extends Controller
         $item['total_price'] = $factorItem->total_price + $factorItem->discount;
         $item['credit'] = $factorItem->credit;
         $item['discount'] = $factorItem->discount;
-        $item['extra_pay'] = $factorItem->type ? TotalFactorItem::getExtraPay($factorItem->totalFactorItem) : 0;
+        $item['extra_pay'] = $factorItem->type ? TotalFactorItem::getExtraPay($factorItem->supervisor->totalFactorItem) : 0;
         $item['prepayment']['price'] = $factorItem->property ? $factorItem->property->prepayment_price : 0;
         $item['price_difference'] = $factorItem->property ? $factorItem->property->price_difference : 0;
         $item['installments_price'] = $factorItem->installments_price;

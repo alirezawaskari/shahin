@@ -610,6 +610,7 @@ Route::get('/mobile', 'HomeController@mobile')->name('mobile');
 Route::get('/mobile/link/{callcenter}', 'HomeController@mobile');
 Route::post('/newsletter', 'HomeController@newsletter')->name('newsletter');
 Route::post('/phone', 'HomeController@phone')->name('phone');
+Route::post('/service/financialPlansType', 'ServiceController@getFinancialPlansType');
 Route::get('/services', 'ServiceController@index')->name('services');
 Route::get('/services/{service}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}', 'ServiceController@single');
@@ -689,4 +690,5 @@ Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController
 
 //Front Ajax
 Route::post('/city/select', 'HomeController@cityselect');
+
 Route::post('/dashboard/installment/calculate', 'Admin\TotalFactorItemInstallmentController@calculate');

@@ -730,8 +730,8 @@
                             <label>نوع ضمانت</label>
                             <br>
                             @foreach ($item['guarantee_types_list'] as $key => $guarantee_type)
-                            {{ $totalFactorItem::GuaranteeTYPE[$guarantee_type] }} <input type="radio" name="guarantee_type" value="{{ $key }}" {{
-                                $item['guarantee_type']==$key ? 'checked' : '' }}>
+                            {{ $totalFactorItem::GuaranteeTYPE[$guarantee_type] }} <input type="radio" name="guarantee_type" value="{{ $guarantee_type }}" {{
+                                $item['guarantee_type']==$guarantee_type ? 'checked' : '' }}>
                             @endforeach
                         </div>
                     </div>

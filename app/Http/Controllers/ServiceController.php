@@ -6,6 +6,7 @@ use App\Models\Callcenter;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\Factor;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
@@ -70,5 +71,20 @@ class ServiceController extends Controller
         }
 
         return view('site.services.single', compact('images' , 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
+    }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
+    public function getFinancialPlansType(Request $request)
+    {
+        if ($request->ajax()) {
+            $service = Service::find($request->input('id'));
+			$count = $service->financialPlansTypes->where('status' , true)->where('is_show' , true)->count();
+            if ($count > 0) {
+                $financial_plans_types = $service->financialPlansTypes->where('status' , true)->where('is_show' , true);
+                return response()->json(['count' => 'available', 'financial_plans_types' => $financial_plans_types , 'length' => $count]);
+            }
+        }
     }
 }

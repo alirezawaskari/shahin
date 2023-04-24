@@ -137,7 +137,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
         //header site
-        view()->composer(['site.layouts.header' , 'site.organization.layouts.header' , 'site.rules' , 'site.organization.master'  , 'site.master' , 'site.organization.footer' , 'site.layouts.footer' , 'site.organization.index' ,'site.home' ,'site.mobile', 'front.login' ,'site.services.single' , 'site.contact' , 'site.factor' , 'site.agency' , 'site.about' , 'site.checkout'], function ($view) {
+        view()->composer(['site.layouts.header' , 'site.organization.layouts.header' , 'site.rules' , 'site.organization.master'  , 'site.master' , 'site.organization.footer' , 'site.layouts.footer' , 'site.representation.factor', 'site.organization.index' ,'site.home' ,'site.mobile', 'front.login' ,'site.services.single' , 'site.contact' , 'site.factor' , 'site.agency' , 'site.about' , 'site.checkout'], function ($view) {
 
             $menus = Cache::remember('menus', Carbon::now()->addMinute(60), function () {
                return Menu::where('parent_id', 0)->orderBy('sort' , 'asc')->get();

@@ -350,7 +350,10 @@ class CallcenterController extends Controller
                     //create facorItem for categories
                     $create_category_factor_item_result = self::createCategoryFactorItems($create_service_factor_item_result, $request, $categories, $cash_factor, $credit_factor, $mobile_supervisor);
                     $payment_type = self::getPaymentType($cash_factor, $credit_factor);
-
+                    //get cash factor representaation for change factor representaion
+                    $cash_factor ? self::getFactorRepresentation($cash_factor) : '';
+                    //get credit factor representaation for change factor representaion
+                    $credit_factor ? self::getFactorRepresentation($credit_factor) : '';
                     self::updateFactorFieldIsSupervisorType($create_category_factor_item_result, $cash_factor, $credit_factor);
                     self::updateCallcenterFieldIsOnlinePayTypeFactor($task, $payment_type);
                     self::updateCallcenterFieldIsZeroPriceFacotr($task, $result_sum_price_factors);
@@ -824,7 +827,7 @@ class CallcenterController extends Controller
             //create cash factorItems
             $service_financial_plans_type = FinancialPlansType::findOrFail($service_financial_plans_types[$i]);
             $service_pay_type = $service_financial_plans_type::getPaymentType($service_financial_plans_type->payment_type);
-
+            $service = Service::find($services[$i]);
             if($services[$i] != 'all' && $service_pay_type == '0')
             {
                 $factor_item = $cash_factor->factorItems()->create([
@@ -832,7 +835,7 @@ class CallcenterController extends Controller
                     'factoritemable_type' => Service::class,
                     'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
                     'count' => 1,
-                    'price' => $payment_type == "supervisor" ? 0 : Service::find($services[$i])->price + (Service::find($services[$i])->price * Service::find($services[$i])->tax) / 100,
+                    'price' => $payment_type == "supervisor" ? 0 : $service->price + ($service->price * $service->tax) / 100,
                     'center_id' => auth()->user()->center_id ? auth()->user()->center_id : null,
                     'type' => $service_pay_type,
                     'purchase_type' => $request->service_purchase_type[$i],
@@ -1091,6 +1094,33 @@ class CallcenterController extends Controller
             'status'=>'Unauthorized',
             'messages'=>'شما مجاز به انجام این کار نیستید'
         ]);
+    }
+    /**
+     * @param Factor $factor
+     * @return void
+     */
+    private function getFactorRepresentation(Factor $factor)
+    {
+        $factor_items = $factor->factorItems;
+        foreach($factor_items as $item)
+        {
+            $representation = Service::setRepresentation($item->factoritemable);
+            if($representation == null)
+            {
+                break;
+            }
+        }
+        self::changeFactorRepresentation($factor , $representation);
+    }
+    /**
+     * @param Factor $factor
+     * @param int $representation
+     * @return void
+     */
+    private function changeFactorRepresentation(Factor $factor , $representation)
+    {
+        //change the factor representation if it has not been set before
+        $factor->representation ? '' : $factor->update(['representation_id' => $representation]);
     }
 }
 
