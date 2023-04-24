@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Factor;
 use App\Models\Groupsms;
 use App\Models\Phone;
-use App\Models\User;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
@@ -68,6 +67,7 @@ class SendGroupsms extends Command
                                 array_push($phones , $factor->user->phone);
                             }
                         }
+
                         $phones = implode("," , array_unique($phones));
                     }else{
                         //all
