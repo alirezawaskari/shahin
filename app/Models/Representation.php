@@ -15,6 +15,9 @@ class Representation extends Model
     protected $guarded = [];
 
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'sms_code' => 'array'
     ];
@@ -66,6 +69,9 @@ class Representation extends Model
         return $this->hasMany(Factor::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function tickets()
     {
         return $this->hasMany(Ticket::class , 'ticketable_id');

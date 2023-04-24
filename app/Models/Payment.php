@@ -15,10 +15,17 @@ class Payment extends Model
      */
     protected $guarded = [];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function factoritem()
     {
         return $this->belongsTo(FactorItem::class , 'factor_item_id');
     }
+
+    /**
+     *
+     */
     protected static function boot()
     {
         parent::boot();
@@ -27,6 +34,10 @@ class Payment extends Model
             $model->resnumber = self::makeUniqueTracking();
         });
     }
+
+    /**
+     * @return string
+     */
     private static function makeUniqueTracking()
     {
         do {
@@ -35,6 +46,10 @@ class Payment extends Model
         } while (!is_null($found));
         return $resNumber;
     }
+
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'resnumber';

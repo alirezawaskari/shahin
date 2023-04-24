@@ -8,34 +8,63 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ChangeStoreRoom extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
+    /**
+     * @var string[]
+     */
     protected $fillable=['product_id','request_id','changestoreroomable_id','changestoreroomable_type','number','user_id','type'];
 
+    /**
+     *
+     */
     const TYPE = [
         '0' => 'خروج',
         '1' => 'ورود',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function changestoreroomable()
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function request()
     {
         return $this->belongsTo(Request::class);
     }
 
+    /**
+     * @param $product_id
+     * @param $changestoreroomable_id
+     * @param $changestoreroomable_type
+     * @param $number
+     * @param $type
+     */
     public static function createChangeStoreRoom($product_id, $changestoreroomable_id, $changestoreroomable_type, $number, $type)
     {
         $has_change = ChangeStoreRoom::where('product_id', $product_id)->where('changestoreroomable_id', $changestoreroomable_id)
@@ -48,6 +77,10 @@ class ChangeStoreRoom extends Model
     }
 
 
+    /**
+     * @param $storeRoom
+     * @return string|null
+     */
     public static function storeRoomProductAddress($storeRoom)
     {
         $request_rec = Request::find($storeRoom->request_id);

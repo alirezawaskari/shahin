@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class LogMessage extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
 }

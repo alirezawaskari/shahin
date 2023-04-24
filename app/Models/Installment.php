@@ -9,19 +9,35 @@ class  Installment extends Model
 {
     use SoftDeletes;
 
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function installmentable()
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return Model|\Illuminate\Database\Eloquent\Relations\MorphTo|object|null
+     */
     public function service()
     {
         return $this->morphTo()->where('installmentable_type',Service::class)->first();
     }
+
+    /**
+     * @return Model|\Illuminate\Database\Eloquent\Relations\MorphTo|object|null
+     */
     public function category()
     {
         return $this->morphTo()->where('installmentable_type',Category::class)->first();

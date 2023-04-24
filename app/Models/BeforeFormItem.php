@@ -6,11 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class BeforeFormItem extends Model
 {
-   protected $guarded = [];
+    /**
+     * @var array
+     */
+    protected $guarded = [];
 
-   public $timestamps = false;
+    /**
+     * @var bool
+     */
+    public $timestamps = false;
 
-   public function beforeformitemable()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function beforeformitemable()
    {
       return $this->morphTo();
    }

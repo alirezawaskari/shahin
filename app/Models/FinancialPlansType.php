@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class FinancialPlansType extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
     /**
      * @var array
@@ -14,6 +16,9 @@ class FinancialPlansType extends Model
     protected $casts = [
         'guarantee_type' => 'array',
     ];
+    /**
+     *type of payment
+     */
     const TYPE = [
         'cash' => 'پرداخت نقدی',
         'installment' => 'پرداخت اقساطی',

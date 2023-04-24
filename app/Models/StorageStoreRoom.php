@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class StorageStoreRoom extends Model
 {
-    public static function getStorageStoreRoom($id,$field)
+    /**
+     * @param $id
+     * @param $field
+     * @return string
+     */
+    public static function getStorageStoreRoom($id, $field)
     {
         if($id){ $cat=StorageStoreRoom::find($id); if($cat){ return $cat->$field;} }
         return '';

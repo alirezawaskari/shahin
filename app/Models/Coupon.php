@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Factor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -17,6 +16,9 @@ class Coupon extends Model
      * @var array
      */
     protected $dates = ['deleted_at'];
+    /**
+     * @var string[]
+     */
     protected $fillable=['title','code','discount','capacity','reserved','status','start_at','end_at','pay_type','purchase_type'];
 
     /**
@@ -28,6 +30,9 @@ class Coupon extends Model
     }
 
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function couponItems()
     {
         return $this->hasMany(CouponItem::class);

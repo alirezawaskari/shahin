@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notify extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 }

@@ -12,24 +12,42 @@ class Pack extends Model
     use SoftDeletes,Sluggable;
 //        ,Taggable;
 
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
+    /**
+     * @var string[]
+     */
     protected $fillable=['title','slug','is_show','description','image','review'];
 
+    /**
+     * @return \string[][]
+     */
     public function sluggable(): array
     {return ['slug' => ['source' => 'title']];}
 
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function products()
     {
         return $this->belongsToMany(Product::class,'pack_products')
             ->withPivot('id')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function galleries()
     {
         return $this->morphMany(Gallery::class, 'galleryable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function storeRooms()
     {
         return $this->belongsToMany(StoreRoom::class,'pack_store_room')
@@ -41,6 +59,9 @@ class Pack extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function centers()
     {
         return $this->belongsToMany(Center::class, 'center_pack')

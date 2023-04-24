@@ -8,8 +8,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Check extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $guarded=['id'];
 
+    /**
+     *
+     */
     const TITLE = [
         'installment' => 'قسط',
         'guaranty' => 'ضمانت',
@@ -38,16 +45,26 @@ class Check extends Model
         return $this->morphMany(File::class, 'fileable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function histories()
     {
         return $this->morphMany(History::class, 'historiable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function checkable()
     {
         return $this->morphTo();
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $exporter=request()->exporter;

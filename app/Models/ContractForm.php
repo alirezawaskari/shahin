@@ -6,10 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContractForm extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     *list of type for contractForm
+     */
     const TYPE = [
         'number' => 'فیلد عددی',
         'text' => 'فیلد متنی',
@@ -21,6 +30,9 @@ class ContractForm extends Model
         'date' => 'تاریخ',
     ];
 
+    /**
+     *list of value
+     */
     const VALUE = [
         'check' => 'چک',
         'certificate' => 'گواهی کسر از حقوق',
@@ -28,6 +40,9 @@ class ContractForm extends Model
         'all' => 'مشترک'
     ];
 
+    /**
+     *list levels of contractForm
+     */
     const LEVEL = [
         'basic_documents' => 'مدارک اولیه',
         'original_documents' => 'مدارک اصلی',
@@ -37,6 +52,9 @@ class ContractForm extends Model
         'description_request_contract_settlement' => 'توضیحات تسویه حساب',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function beforeformitems()
     {
         return $this->morphMany(BeforeFormItem::class, 'beforeformitemable');

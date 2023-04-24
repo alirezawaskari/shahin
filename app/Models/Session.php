@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use OwenIt\Auditing\Auditable;
 use Carbon\Carbon;
-use App\Models\Entry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class Session extends Model implements AuditableContract
@@ -14,6 +13,9 @@ class Session extends Model implements AuditableContract
     use SoftDeletes;
     use Auditable;
 
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -21,6 +23,9 @@ class Session extends Model implements AuditableContract
      */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
         /**
@@ -81,30 +86,49 @@ class Session extends Model implements AuditableContract
         return $this->belongsTo(FactorItemServiceTariff::class, 'factor_item_service_tariff_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function factorItem()
     {
         return $this->belongsTo(FactorItem::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function userPerformance()
     {
         return $this->belongsTo(UserPerformance::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class , 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function agent()
     {
         return $this->belongsTo(User::class, 'agent_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function confirmer()
     {
         return $this->belongsTo(User::class , 'confirmer_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function assistant()
     {
         return $this->belongsTo(User::class, 'assistant_id');
@@ -118,6 +142,10 @@ class Session extends Model implements AuditableContract
         return $this->morphMany(Entry::class, 'entryable');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');
@@ -212,6 +240,10 @@ class Session extends Model implements AuditableContract
         return $query;
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function status($status)
     {
         return [

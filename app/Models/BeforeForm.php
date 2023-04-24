@@ -6,14 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class BeforeForm extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'data_display_level' => 'array',
     ];
 
+    /**
+     *
+     */
     const TYPE = [
         'number' => 'فیلد عددی',
         'text' => 'فیلد متنی',
@@ -33,6 +45,9 @@ class BeforeForm extends Model
     ];
 
 
+    /**
+     *
+     */
     const DATA_DISPLAY_LEVEL = [
         'site' => 'سایت',
         'panel_user_info' => 'اطلاعات مرتبط با کاربر',
@@ -43,6 +58,9 @@ class BeforeForm extends Model
         'panel_print_form' => 'پرینت فرم ثبت نام',
         'panel_show_file' => 'بازدید پرونده',
     ];
+    /**
+     *
+     */
     const LEVEL_SAVE_DATA = [
         'user' => 'ذخیره در جدول کاربران',
         'factor_item' => 'ذخیره در جدول پرونده ها در فیلدهای تعریف شده',
@@ -50,16 +68,26 @@ class BeforeForm extends Model
         'null' => 'درجایی ذخیره نمی شود'
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function beforeformable()
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function beforeformitems()
     {
         return $this->morphMany(BeforeFormItem::class, 'beforeformitemable');
     }
 
+    /**
+     * @param null $data_save_level
+     * @return string|string[]
+     */
     public static function getLevelSaveData($data_save_level=null)
     {
         if (!is_null($data_save_level)){
@@ -69,6 +97,10 @@ class BeforeForm extends Model
         }
     }
 
+    /**
+     * @param null $data_display_level
+     * @return string|string[]
+     */
     public static function getDataDisplayLevel($data_display_level=null)
     {
         if (!is_null($data_display_level)){

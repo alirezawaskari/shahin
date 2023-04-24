@@ -7,13 +7,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
     use SoftDeletes;
+
+    /**
+     *
+     */
     const TYPE = [
         'pay_end_work' => 'پرداخت بعد از اتمام کار',
         'pay_end_session' => 'پرداخت با تکمیل جلسه',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class , 'user_id');
@@ -25,11 +35,19 @@ class Employee extends Model
     {
         return $this->hasMany(self::class, 'parent_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function card()
     {
         return $this->belongsTo(Card::class , 'card_id');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');

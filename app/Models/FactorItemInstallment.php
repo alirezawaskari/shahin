@@ -15,22 +15,35 @@ class FactorItemInstallment extends Model
      */
     protected $guarded = [];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function factoritem()
     {
         return $this->belongsTo(FactorItem::class , 'factor_item_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function factor()
     {
         return $this->belongsTo(Factor::class , 'factor_id');
     }
 
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'resnumber';
     }
 
-	protected static function getExtraPay($item)
+    /**
+     * @param $item
+     * @return string
+     */
+    protected static function getExtraPay($item)
     {
         $factor_item = $item->factoritem;
         $temp = '';
@@ -42,7 +55,13 @@ class FactorItemInstallment extends Model
         return $temp;
     }
 
-    //get status installment
+
+
+    /**
+     * get status installment
+     * @param $status
+     * @return string
+     */
     protected static function status($status)
     {
         switch($status)

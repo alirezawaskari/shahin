@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class TotalFactorItemInstallment extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -32,6 +35,9 @@ class TotalFactorItemInstallment extends Model
         return $this->belongsTo(Factor::class , 'factor_id');
     }
 
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'resnumber';
@@ -68,6 +74,10 @@ class TotalFactorItemInstallment extends Model
         ][$status];
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');

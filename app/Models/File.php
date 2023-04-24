@@ -8,5 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class File extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $guarded=['id'];
 }

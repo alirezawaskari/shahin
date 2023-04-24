@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class UserCreditDetail extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -15,8 +19,14 @@ class UserCreditDetail extends Model
      */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     *
+     */
     const TYPE = [
         'increase' => 'افزایش اعتبار',
         'decrease' => 'کاهش اعتبار',

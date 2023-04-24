@@ -10,52 +10,89 @@ class ProductStoreRoom extends Model
 {
     use SoftDeletes;
 
+    /**
+     * @var array
+     */
     protected $guarded = [];
-	
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at' , 'created_at' , 'updated_at' , 'expire_date'];
 
+    /**
+     * @var string
+     */
     protected $table = 'product_store_room';
 
-	const STORAGE = [
+    /**
+     *
+     */
+    const STORAGE = [
         '0' => 'قفسه',
         '1' => 'یخچال',
     ];
-	
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function purchase_invoice()
     {
         return $this->belongsTo(PurchaseInvoice::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function product_storeRoom()
     {
         return $this->belongsTo(Product::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function main_unit()
     {
         return $this->belongsTo(CountingUnit::class, 'main_unit_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function sub_unit()
     {
         return $this->belongsTo(CountingUnit::class, 'sub_unit_id');
     }
 
-	public function product()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function product()
     {
         return $this->belongsTo(Product::class);
     }
-	
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function store_room()
     {
         return $this->belongsTo(StoreRoom::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function category_store_room()
     {
         return $this->belongsTo(CategoryStoreRoom::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');
@@ -103,6 +140,9 @@ class ProductStoreRoom extends Model
         return $query;
     }
 
+    /**
+     * @return array
+     */
     protected static function productStoreRoomExpiring()
     {
         $product_storeRoom_expiring = [];
@@ -121,6 +161,10 @@ class ProductStoreRoom extends Model
         return $product_storeRoom_expiring;
     }
 
+    /**
+     * @param $id
+     * @return string|void
+     */
     public static function findStoreRoomName($id)
     {
         $p_a = ProductAttribute::find($id);

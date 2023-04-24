@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Gallery extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
     use SoftDeletes;
@@ -14,11 +17,17 @@ class Gallery extends Model
 
     protected $dates = ['deleted_at'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function gallerycategory()
     {
         return $this->belongsTo(GalleryCategory::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function galleryable()
     {
         return $this->morphTo();

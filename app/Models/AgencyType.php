@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AgencyType extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $fillable=['user_id','title','en_title','slug','image','total_price','prepayment','content','is_show'];
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -25,11 +32,17 @@ class AgencyType extends Model
         return $this->hasMany(agency::class);
     }
 
+    /**
+     * @return \string[][]
+     */
     public function sluggable(): array
     {
         return ['slug' => ['source' => 'en_title']];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function galleries()
     {
         return $this->morphMany(Gallery::class, 'galleryable');

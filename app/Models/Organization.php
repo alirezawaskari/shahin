@@ -15,12 +15,18 @@ class Organization extends Model
     protected $guarded = [];
 
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'organ_code' => 'array',
 		'sms_code' => 'array',
         'document' => 'array'
     ];
 
+    /**
+     *types of organization
+     */
     const TYPE = [
         'referred' => 'مراجعه کننده',
         'contracting_party' => 'طرف قرارداد',
@@ -91,6 +97,10 @@ class Organization extends Model
         return $this->hasMany(User::class ,'admin_organization_id');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');
@@ -109,6 +119,10 @@ class Organization extends Model
         return $query;
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function status($status)
     {
         return [
@@ -118,6 +132,10 @@ class Organization extends Model
         ][$status];
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function getClassByStatus($status)
     {
         return [

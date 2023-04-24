@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class SmsLog extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded=array();
 
 }

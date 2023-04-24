@@ -2,102 +2,164 @@
 
 namespace App\Models;
 
-use App\Models\Brand;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
+    /**
+     * @var string[]
+     */
     protected $fillable=['title','subTitle','en_title','slug','isActive','displayOrder','min_credit'
         ,'max_credit','percent','price','tax','minimum_discount'];
 
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
     //start relationShip
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function permission()
     {
         return $this->belongsTo(Permission::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function financialPlansTypeItems()
     {
         return $this->morphMany(FinancialPlansTypeItem::class , 'financialplanstypeItemable');
     }
-    
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function beforeforms()
     {
         return $this->morphMany(BeforeForm::class, 'beforeformable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function factoritems()
     {
         return $this->morphMany(FactorItem::class, 'factoritemable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function centers()
     {
         return $this->morphMany(Center::class, 'centerable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function installments()
     {
         return $this->morphMany(Installment::class , 'installmentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function products()
     {
         return $this->belongsToMany(Product::class)->withPivot('id')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function related()
     {
         return $this->belongsToMany(Category::class,'related_category','category_id','related_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function galleries()
     {
         return $this->morphMany(Gallery::class, 'galleryable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function brands()
     {
         return $this->belongsToMany(Brand::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function attributeGroups()
     {
         return $this->hasMany(AttributeGroup::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function sliders()
     {
         return $this->hasMany(Slider::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function attributes()
     {
         return $this->hasMany(Attribute::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function menu()
     {
         return $this->morphMany(Menu::class, 'menuable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function couponItems()
     {
         return $this->morphMany(CouponItem::class, 'couponitemable');
     }
 
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function childs()
     {
         return $this->hasMany(Category::class,'parent_id','id') ;
     }
 
     //category by category many to many
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function similarGroups()
     {
         return $this->belongsToMany(Category::class,'similar_groups', 'similarable_id',
@@ -106,6 +168,10 @@ class Category extends Model
     }
 
     //category by service many to many
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function similarGroupsServices()
     {
         return $this->belongsToMany(Service::class,'similar_groups','similarable_id',
@@ -115,6 +181,10 @@ class Category extends Model
 
 
     //category_article by category many to many
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function similarGroupsCategoriesArticle()
     {
         return $this->belongsToMany(Category::class,'similar_groups','similarable_id',
@@ -124,13 +194,24 @@ class Category extends Model
 
 
     //Get information from a column of a category - in many files
-    public static function findCategory($id,$field){
+
+    /**
+     * @param $id
+     * @param $field
+     * @return string
+     */
+    public static function findCategory($id, $field){
         $cat=Category::find($id);
         if($cat){ return $cat->$field ;}
         return '';
     }
 
     //Display the names of a child's parent - use in subCategory.blade
+
+    /**
+     * @param $cat_id
+     * @return string
+     */
     public static function findPath($cat_id)
     {
         $res='';
@@ -144,6 +225,11 @@ class Category extends Model
         }
         return $res;
     }
+
+    /**
+     * @param $cat_id
+     * @return mixed
+     */
     public static function countChild($cat_id)
     {
         $count = Category::where('parent_id',$cat_id)->count();
@@ -151,6 +237,11 @@ class Category extends Model
     }
 
     //This category has children or not - in many files
+
+    /**
+     * @param $id
+     * @return int|null
+     */
     public static function hasChild($id){
         if($id != null){
             $cat=Category::find($id);
@@ -167,6 +258,11 @@ class Category extends Model
 
 
     //The last category of a product category - use in ProductController
+
+    /**
+     * @param $product
+     * @return mixed|null
+     */
     public static function latestCategory($product)
     {
         $category_ids = $product->categories()->pluck('category_id');
@@ -179,6 +275,10 @@ class Category extends Model
     }
 
     //Get all childless categories - use AttributeGroupController and brandController
+
+    /**
+     * @return array
+     */
     public static function lastCategory()
     {
         $res=[];
@@ -194,7 +294,12 @@ class Category extends Model
     }
 
     //To show the parents of the category in the category search - use in CategoryController
-    public static function findFather($id,$category_center_id)
+
+    /**
+     * @param $id
+     * @param $category_center_id
+     */
+    public static function findFather($id, $category_center_id)
     {
         $c = Category::find($id);
         $path=explode('/',$c->path);
@@ -209,7 +314,12 @@ class Category extends Model
         }
     }
 
-    public static function category($id,$field)
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function category($id, $field)
     {
         $category=Category::select('id',$field)->where('id',$id)->first();
         if(isset($category->$field)) return $category->$field;
@@ -217,6 +327,11 @@ class Category extends Model
     }
 
     //To get the parents of a category - use in ProductController
+
+    /**
+     * @param $id
+     * @return string[]
+     */
     public static function findAllFather($id)
     {
         $c = Category::find($id);
@@ -225,6 +340,11 @@ class Category extends Model
     }
 
     //Get all categories by depth = 2 - use ProductController
+
+    /**
+     * @param $center_id
+     * @return array
+     */
     public static function categoryDepth($center_id)
     {
         $category_lists = [] ;

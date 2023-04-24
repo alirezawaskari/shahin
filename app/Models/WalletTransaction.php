@@ -7,31 +7,54 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WalletTransaction extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     *types of walletTransaction
+     */
     const TYPE = [
         '1' => 'واریز',
         '2' => 'برداشت',
     ];
 
+    /**
+     *status of walletTransaction
+     */
     const STATUS = [
         '0' => 'انجام نشده',
         '1' => 'انجام شده',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function userPerformance()
     {
         return $this->belongsTo(UserPerformance::class , 'reason_id');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $phone = request('phone');

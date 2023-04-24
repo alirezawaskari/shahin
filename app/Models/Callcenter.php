@@ -2,36 +2,54 @@
 
 namespace App\Models;
 
-use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use PhpParser\Node\Stmt\DeclareDeclare;
+use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class Callcenter extends Model implements AuditableContract
 {
     use Auditable;
+
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
     use SoftDeletes;
 
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at' , 'create'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function sms()
     {
         return $this->belongsTo(sms::class, 'sms_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function callcenter()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function register()
     {
         return $this->belongsTo(User::class, 'reg_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function reason()
     {
         return $this->belongsTo(Reason::class);
@@ -277,6 +295,10 @@ class Callcenter extends Model implements AuditableContract
         return $this->morphMany(History::class, 'historiable');
     }
 
+    /**
+     * @param $type
+     * @return string
+     */
     protected static function type($type)
     {
         //get type callcenter
@@ -289,6 +311,10 @@ class Callcenter extends Model implements AuditableContract
         ][$type];
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function status($status)
     {
         return [

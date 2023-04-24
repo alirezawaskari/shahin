@@ -13,8 +13,14 @@ class CenterRequest extends Model {
     */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     *
+     */
     const TYPE = [
         'seller' => 'فروشنده',
         'producer' => 'تولید کننده',
@@ -22,38 +28,63 @@ class CenterRequest extends Model {
         'service_provider' => 'خدمات دهنده'
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function service() {
         return $this->belongsTo( Service::class );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user() {
         return $this->belongsTo( User::class );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function center()
     {
         return $this->hasOne(Center::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function center_category() {
         return $this->belongsTo( CenterCategory::class, 'center_category_id' );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function province() {
         return $this->belongsTo( Province::class, 'province_id' );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function galleries()
     {
         return $this->morphMany(Gallery::class , 'galleryable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function histories()
     {
         return $this->morphMany(History::class , 'historiable');
     }
 
-    public function scopeFilter( $query ) {
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query ) {
         $name = request( 'name' );
         $subject = request( 'subject' );
         $phone = request( 'phone' );
@@ -103,7 +134,12 @@ class CenterRequest extends Model {
 
         return $query;
     }
-    public static function status( $status ) {
+
+    /**
+     * @param $status
+     * @return string
+     */
+    public static function status($status ) {
         switch( $status ) {
             case 0:
             return 'جدید';
