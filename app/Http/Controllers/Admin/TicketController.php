@@ -19,11 +19,17 @@ use App\Models\Employee;
 
 class TicketController extends Controller
 {
+    /**
+     *
+     */
     public function index()
     {
         //
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function sendTicket()
     {
         $employees = Employee::all();
@@ -33,6 +39,9 @@ class TicketController extends Controller
         return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function receivedTicket()
     {
         $employees = Employee::all();
@@ -42,6 +51,9 @@ class TicketController extends Controller
         return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop()
     {
         $employees = Employee::all();
@@ -51,6 +63,9 @@ class TicketController extends Controller
         return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
     }
 
+    /**
+     * @return TicketCollection
+     */
     public function filterSend()
     {
         $tickets = Ticket::filter()->where('user_id', auth()->user()->id)->latest();
@@ -58,6 +73,9 @@ class TicketController extends Controller
         return new TicketCollection($tickets->paginate(20));
     }
 
+    /**
+     * @return TicketCollection
+     */
     public function filterReceived()
     {
         $tickets = auth()->user()->tickets()->filter()->latest();
@@ -67,12 +85,18 @@ class TicketController extends Controller
         return new TicketCollection($tickets->paginate(20));
     }
 
+    /**
+     * @return TicketCollection
+     */
     public function filterDesktop()
     {
         $tickets = auth()->user()->tickets()->filter()->where('status' , false);
         return new TicketCollection($tickets->paginate(20));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $cards = Card::all();
@@ -84,6 +108,11 @@ class TicketController extends Controller
         return view('Admin.ticket.create', compact('cards', 'representations', 'centers' , 'presentores'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -175,12 +204,20 @@ class TicketController extends Controller
     }
 
 
+    /**
+     * @param Ticket $ticket
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function show(Ticket $ticket)
     {
         $cards = Card::all();
         return view('Admin.ticket.show', compact('ticket', 'cards'));
     }
 
+    /**
+     * @param Ticket $ticket
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(Ticket $ticket)
     {
         $cards = Card::all();
@@ -193,6 +230,12 @@ class TicketController extends Controller
         return view('Admin.ticket.edit', compact('ticket', 'cards', 'answers', 'representations', 'centers' , 'presentores'));
     }
 
+    /**
+     * @param Request $request
+     * @param Ticket $ticket
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, Ticket $ticket)
     {
         $this->validate(request(), [
@@ -226,6 +269,10 @@ class TicketController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function refer(Request $request)
     {
         $inputs = $request->all();
@@ -297,6 +344,10 @@ class TicketController extends Controller
         ]);
     }
 
+    /**
+     * @param Ticket $contact
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Ticket $contact)
     {
         $contact->delete();
@@ -305,6 +356,10 @@ class TicketController extends Controller
         ]);
     }
 
+    /**
+     * @param $file
+     * @return string
+     */
     private function upload($file)
     {
         $year = Carbon::now()->year;

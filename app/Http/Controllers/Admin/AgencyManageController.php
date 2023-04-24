@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\AgencySite;
 use App\Models\AgencySiteTemplate;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Unique;
+
 
 class AgencyManageController extends Controller
 {
     # create
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create ()
     {
         $data['agency_site_templates'] = AgencySiteTemplate::get();
@@ -20,6 +23,12 @@ class AgencyManageController extends Controller
     }
 
     # store
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store (Request $request)
     {
         $this->validate($request, [

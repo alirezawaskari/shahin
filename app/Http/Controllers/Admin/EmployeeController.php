@@ -18,6 +18,9 @@ use Illuminate\Validation\Rule;
 
 class EmployeeController extends AdminController
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index()
     {
         $user = auth()->user();
@@ -39,6 +42,9 @@ class EmployeeController extends AdminController
     }
 
 
+    /**
+     * @return EmployeeCollection
+     */
     public function filter()
     {
         $employees = Employee::filter()->orderBy('updated_at', 'desc');
@@ -68,6 +74,10 @@ class EmployeeController extends AdminController
         return new EmployeeCollection($employees->paginate(20));
     }
 
+    /**
+     * @param Employee $employee
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(Employee $employee)
     {
         $representations = Representation::whereStatus(true)->get();
@@ -75,6 +85,12 @@ class EmployeeController extends AdminController
         return view('Admin.employee.edit', compact('employee', 'representations','employees'));
     }
 
+    /**
+     * @param Request $request
+     * @param Employee $employee
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, Employee $employee)
     {
 
@@ -152,6 +168,10 @@ class EmployeeController extends AdminController
         ]);
     }
 
+    /**
+     * @param Employee $employee
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function financialReport(Employee $employee)
     {
         $user = $employee->user;
@@ -185,11 +205,21 @@ class EmployeeController extends AdminController
         return view('Admin.employee.financialReport', compact('item', 'items', 'user', 'employee'));
     }
 
+    /**
+     * @param User $user
+     * @param $key
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function walletTransaction(User $user, $key)
     {
         return view('Admin.employee.walletTransaction', compact('user', 'key'));
     }
 
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return WalletTransactionCollection
+     */
     public function walletTransactionFilter(Request $request, User $user)
     {
         $data_access_date = $user->employee->data_access_date;
@@ -203,6 +233,11 @@ class EmployeeController extends AdminController
         return new WalletTransactionCollection($wallet_transactions, $wallet_transactions->paginate(20));
     }
 
+    /**
+     * @param User $user
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function performanceDetail(User $user, Request $request)
     {
         $data_access_date = $user->employee->data_access_date;

@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
 use App\Models\Groupsms;
 use App\Models\Service;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use function PHPSTORM_META\elementType;
 
 class GroupsmsController extends Controller
 {
@@ -142,17 +141,29 @@ class GroupsmsController extends Controller
     }
 
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function single()
     {
         return view('Admin.groupsms.single');
     }
 
 
+    /**
+     * @param Groupsms $groupsms
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function singleEdit(Groupsms $groupsms)
     {
         return view('Admin.groupsms.singleUpdate', compact('groupsms'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function singleStore(Request $request)
     {
         $this->validate($request, [
@@ -174,6 +185,11 @@ class GroupsmsController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function sendConsent(Request $request)
     {
         $this->validate($request, [
@@ -195,6 +211,11 @@ class GroupsmsController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function groupsmsPhone(Request $request)
     {
         $this->validate($request, [
@@ -220,6 +241,12 @@ class GroupsmsController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @param Groupsms $groupsms
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function groupsmsPhoneUpdate(Request $request, Groupsms $groupsms)
     {
         $this->validate($request, [

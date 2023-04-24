@@ -50,11 +50,21 @@ class CountingUnitController extends Controller
         ]);
     }
 
+    /**
+     * @param CountingUnit $countingUnit
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(CountingUnit $countingUnit)
     {
         return view('Admin.countingunit.edit' , compact('countingUnit'));
     }
 
+    /**
+     * @param Request $request
+     * @param CountingUnit $countingUnit
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, CountingUnit $countingUnit)
     {
         $this->validate(request(), [
@@ -69,6 +79,9 @@ class CountingUnitController extends Controller
         ]);
     }
 
+    /**
+     * @param Role $role
+     */
     public function destroy(Role $role)
     {
         //

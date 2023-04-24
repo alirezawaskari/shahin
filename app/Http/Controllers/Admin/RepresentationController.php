@@ -10,18 +10,29 @@ use App\Helpers\Helper;
 
 class RepresentationController extends AdminController
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $representations = Representation::latest()->get();
         return view('Admin.representation.all', compact('representations'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $services = Service::where('status' , true)->get();
         return view('Admin.representation.create' , compact('services'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -67,6 +78,10 @@ class RepresentationController extends AdminController
         ]);
     }
 
+    /**
+     * @param Representation $representation
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(Representation $representation)
     {
 //        $services = Service::status()->get();
@@ -75,6 +90,12 @@ class RepresentationController extends AdminController
         return view('Admin.representation.edit' ,compact('representation' , 'services' , 'provinces'));
     }
 
+    /**
+     * @param Request $request
+     * @param Representation $representation
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, Representation $representation)
     {
         $this->validate(request(), [
@@ -122,6 +143,10 @@ class RepresentationController extends AdminController
         ]);
     }
 
+    /**
+     * @param Representation $representation
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function destroy(Representation $representation)
     {
         $representation->delete();

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\PurchaseInvoiceInstallment;
 
 class PurchaseInvoiceInstallmentController extends Controller
 {
+    /**
+     * @param PurchaseInvoiceInstallment $purchaseInvoiceInstallment
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(PurchaseInvoiceInstallment $purchaseInvoiceInstallment)
     {
         $purchase_invoice = $purchaseInvoiceInstallment->purchaseInvoice;

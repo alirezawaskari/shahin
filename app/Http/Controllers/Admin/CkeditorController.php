@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CkeditorController extends Controller
 {
+    /**
+     * @param Request $request
+     */
     public function upload(Request $request)
     {
         if($request->hasFile('upload')) {

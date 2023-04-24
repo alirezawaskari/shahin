@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\ChangeStoreRoom;
 use App\Models\StoreRoom;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class ChangeStoreRoomController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|string
+     */
     public function index(Request $request)
     {
         $change_store_room = ChangeStoreRoom::orderBy('id', 'DESC');

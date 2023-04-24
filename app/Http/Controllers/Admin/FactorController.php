@@ -4,17 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\smsService;
 use App\Exports\FactorsExport;
-use App\Models\Factor;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FactorCollection;
-use App\Models\User;
-use Carbon\Carbon;
-use App\Helpers\Helper;
+use App\Models\Factor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class FactorController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $labels = ['پرداخت موفق', 'پرداخت معلق'];
@@ -85,6 +86,9 @@ class FactorController extends Controller
         return view('Admin.factor.all' , compact('delete' , 'detail' ,'wallets','credits', 'organ','labels' , 'day_values' , 'values'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop()
     {
         $user = auth()->user();
@@ -98,6 +102,10 @@ class FactorController extends Controller
         return view('Admin.factor.desktop' , compact('detail', 'desktop'));
     }
 
+    /**
+     * @param Request $request
+     * @return FactorCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
 
@@ -109,6 +117,10 @@ class FactorController extends Controller
         return new FactorCollection($factors,$factors->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return FactorCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterDesktop(Request $request)
     {
         $factors = Factor::where('status', 1)->where('confirm' , 0)->filter()->latest();
@@ -119,12 +131,20 @@ class FactorController extends Controller
         return new FactorCollection($factors->get(),$factors->paginate(20));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         return view('Admin.factor.create');
     }
 
-    public function edit(Factor $factor,Request $request)
+    /**
+     * @param Factor $factor
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function edit(Factor $factor, Request $request)
     {
         $user = $factor->user;
         $type = $factor->factorable_type;
@@ -254,6 +274,11 @@ class FactorController extends Controller
         ] );
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function factor_manager(Request $request)
     {
         $this->validate($request , [
@@ -271,6 +296,9 @@ class FactorController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     */
     public function offer(Request $request)
     {
         if ($request->ajax()) {
@@ -282,6 +310,9 @@ class FactorController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     */
     public function onner(Request $request)
     {
         if ($request->ajax()) {
@@ -293,6 +324,10 @@ class FactorController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|void
+     */
     public function sms(Request $request)
     {
         if ($request->ajax()) {
@@ -304,6 +339,11 @@ class FactorController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function comment(Request $request)
     {
         $this->validate($request, [
@@ -351,6 +391,11 @@ class FactorController extends Controller
         return view('Admin.factor.systemIncome',compact('factors'));
     }
 
+    /**
+     * @param $inputs
+     * @param $factor
+     * @return string[]
+     */
     private function savePaymentRepresentation($inputs , $factor)
     {
         if(auth()->user()->wallet - $inputs['price'] >= 0)
@@ -373,6 +418,12 @@ class FactorController extends Controller
         return ['message' => $message , 'status' => $status];
     }
 
+    /**
+     * @param $request
+     * @param $factor
+     * @param $inputs
+     * @return string[]
+     */
     private function changeStatusToPaid($request , $factor , $inputs)
     {
         if(auth()->user()->representation_id)

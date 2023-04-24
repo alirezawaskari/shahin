@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -12,12 +14,18 @@ use App\Models\Service;
 
 class FinancialPlansTypeController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $financial_plans_types = FinancialPlansType::all();
         return view('Admin.financialplanstype.all' , compact(['financial_plans_types']));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $categories = Category::where('isActive' , true)->get();
@@ -27,7 +35,7 @@ class FinancialPlansTypeController extends Controller
     }
     /**
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -48,6 +56,10 @@ class FinancialPlansTypeController extends Controller
         ]);
     }
 
+    /**
+     * @param FinancialPlansType $financialPlansType
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(FinancialPlansType $financialPlansType)
     {
         $categories = Category::where('isActive' , true)->get();
@@ -58,7 +70,7 @@ class FinancialPlansTypeController extends Controller
     /**
      * @param FinancialPlansType $financialPlansType
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(FinancialPlansType $financialPlansType , Request $request)
     {
@@ -80,7 +92,7 @@ class FinancialPlansTypeController extends Controller
     }
     /**
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|void
+     * @return JsonResponse|void
      * this function is used set financialPlansType by select item // item includs service or category
      */
     public function setFinancialPlansTypeByItem(Request $request)
@@ -109,7 +121,7 @@ class FinancialPlansTypeController extends Controller
     }
     /**
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|void
+     * @return JsonResponse|void
      * this function is used set financialPlansType by select item // item includs service or category
      */
     public function setFinancialPlansTypeByPaymentType(Request $request)

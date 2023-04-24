@@ -77,6 +77,10 @@ class ProductValidationController extends Controller
         return response(['status'=>'false']);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function getValidation(Request $request)
     {
         if(isset($request->product_id) && isset($request->field) &&

@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends AdminController
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $user = auth()->user();
@@ -44,6 +47,9 @@ class UserController extends AdminController
         return view('Admin.user.all' , compact('delete' , 'create', 'organ','can_manual_login'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $representations = Representation::whereStatus(true)->get();
@@ -51,6 +57,11 @@ class UserController extends AdminController
         return view('Admin.user.create', compact('representations' , 'organizations'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -92,6 +103,10 @@ class UserController extends AdminController
         ]);
     }
 
+    /**
+     * @param User $user
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function show(User $user)
     {
         $factors = $user->factors()->whereStatus(true)->get();
@@ -99,12 +114,22 @@ class UserController extends AdminController
         return view('Admin.user.show', compact('user', 'factors', 'total'));
     }
 
+    /**
+     * @param User $user
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(User $user)
     {
         $representations = Representation::whereStatus(true)->get();
         return view('Admin.user.edit', compact('user', 'representations'));
     }
 
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, User $user)
     {
         $this->validate(request(), [
@@ -177,6 +202,11 @@ class UserController extends AdminController
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function user_manager(Request $request)
     {
         $this->validate($request , [
@@ -203,6 +233,10 @@ class UserController extends AdminController
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function cityselect(Request $request)
     {
         if ($request->ajax()) {
@@ -214,6 +248,10 @@ class UserController extends AdminController
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function userselect(Request $request)
     {
         if ($request->ajax()) {
@@ -225,6 +263,10 @@ class UserController extends AdminController
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function work(Request $request)
     {
         $status = $request->input('status');
@@ -257,6 +299,10 @@ class UserController extends AdminController
         }
     }
 
+    /**
+     * @param Request $request
+     * @return UserCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
         $users = User::filter()->latest();
@@ -268,6 +314,9 @@ class UserController extends AdminController
         return new UserCollection($users->paginate(20));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function admin()
     {
         if (auth()->user()->admin_representation) {
@@ -278,6 +327,9 @@ class UserController extends AdminController
         return view('Admin.user.admin', compact('users'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function delete()
     {
         $users = User::onlyTrashed()->latest()->paginate(20);
@@ -338,6 +390,10 @@ class UserController extends AdminController
         return response(['status'=>'success','message'=>'کاربر با موفقیت حذف گردید !']);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function sendPassword(Request $request)
     {
 
@@ -354,6 +410,10 @@ class UserController extends AdminController
         return response(['status' => 'error' , 'message' => 'شماره مورد نظر در سامانه وجود ندارد']);
     }
 
+    /**
+     * @param User $user
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function creditDetail(User $user)
     {
         if(auth()->user()->isAbleTo('user-credit-detail'))

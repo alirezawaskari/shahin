@@ -3,26 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\totalFactorItemInstallmentsExport;
-use App\Helpers\Helper;
 use App\Helpers\CalculationHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CheckResource;
 use App\Http\Resources\TotalFactorItemInstallmentCollection;
 use App\Models\Category;
-use App\Models\Check;
+use App\Models\FinancialPlansType;
+use App\Models\Installment;
+use App\Models\Service;
 use App\Models\TotalFactorItemInstallment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\Service;
-use App\Models\FactorItem;
-use App\Models\FinancialPlansType;
-use App\Models\Installment;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use PhpParser\Node\Stmt\DeclareDeclare;
 
 class TotalFactorItemInstallmentController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index()
     {
         if (auth()->user()->hasPermission('file-report-installments')) {
@@ -31,6 +28,10 @@ class TotalFactorItemInstallmentController extends Controller
         return abort(401);
     }
 
+    /**
+     * @param Request $request
+     * @return TotalFactorItemInstallmentCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
         $installments = TotalFactorItemInstallment::whereDate('date', '<', Carbon::now()->toDateString())->where('status', '0')->orderBy('date', 'desc')->filter();
@@ -41,6 +42,9 @@ class TotalFactorItemInstallmentController extends Controller
         return new TotalFactorItemInstallmentCollection($installments, $installments->paginate(20));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function showCalculate()
     {
         $services = Service::all();

@@ -8,40 +8,46 @@ use App\Models\Attribute;
 use App\Models\AttributeGroup;
 use App\Models\AttributeItem;
 use App\Models\Brand;
-use App\Models\CategoryNews;
+use App\Models\Category;
 use App\Models\CategoryStoreRoom;
 use App\Models\Center;
 use App\Models\ChangeStoreRoom;
 use App\Models\CountingUnit;
 use App\Models\CouponItem;
-use App\Models\ProductValidation;
-use App\Models\Review;
 use App\Models\Gallery;
 use App\Models\Product;
 use App\Models\ProductAttribute;
+use App\Models\Review;
 use App\Models\StorageStoreRoom;
 use App\Models\StoreRoom;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Validation;
-use Carbon\Carbon;
+use Cviebrock\EloquentSluggable\Services\SlugService;
+use File;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
-use App\Models\Category;
-use File;
-use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
+    /**
+     * @var
+     */
     protected $products;
 
+    /**
+     * @param Product $products
+     */
     public function __construct(Product $products)
     {
         $this->product = $products;
     }
 
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function find()
     {
         return view('Admin.product.findProduct');
@@ -131,12 +137,23 @@ class ProductController extends Controller
     }
 
     //create Materials By Values
+
+    /**
+     * @param $type
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createMaterialsByValues($type, $id)
     {
         return $this->handleCreateMaterials($type, $id);
     }
 
 
+    /**
+     * @param $type
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function handleCreateMaterials($type, $id)
     {
         $page_title = 'ایجاد محصول مواد اولیه';
@@ -353,12 +370,24 @@ class ProductController extends Controller
     }
 
     //create Good By Values
+
+    /**
+     * @param $type
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createByValues($type, $id)
     {
         return $this->handleCreateGood($type, $id);
     }
 
     //handle create Good
+
+    /**
+     * @param $type
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function handleCreateGood($type, $id)
     {
         $store_room_id = null;
@@ -396,6 +425,12 @@ class ProductController extends Controller
     }
 
     //store good
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Exception
+     */
     public function store(Request $request)
     {
         $insertByStoreRoom = 0;
@@ -1088,6 +1123,11 @@ class ProductController extends Controller
     }
 
     //remove Image product of database
+
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function removeImgGallery(Request $request)
     {
         if (isset($request->gallery_id)) {
@@ -1104,6 +1144,11 @@ class ProductController extends Controller
     }
 
     //remove Review product of database
+
+    /**
+     * @param Request $request
+     * @return bool[]|false[]
+     */
     public function removeReview(Request $request)
     {
         if (isset($request->id)) {
@@ -1118,6 +1163,10 @@ class ProductController extends Controller
     //start transfer product
 
     //search transfer product - return category of center
+    /**
+     * @param Request $request
+     * @return array[]
+     */
     public function searchTransferProduct(Request $request)
     {
         $child_categories = [];
@@ -1129,6 +1178,10 @@ class ProductController extends Controller
         return ['child' => $child_categories];
     }
 
+    /**
+     * @param Request $request
+     * @return array|void
+     */
     public function selectTransferProduct(Request $request)
     {
         if (User::checkManager() != null) {
@@ -1164,6 +1217,11 @@ class ProductController extends Controller
     }
 
     //New seller for the goods in the form of transfer
+
+    /**
+     * @param Request $request
+     * @return bool[]|false[]
+     */
     public function centerSellToo(Request $request)
     {
         //center by manager center
@@ -1185,6 +1243,11 @@ class ProductController extends Controller
 
     //end transfer product
 
+    /**
+     * @param $id
+     * @param $status_id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function status($id, $status_id)
     {
         $product = Product::find($id);
@@ -1201,17 +1264,34 @@ class ProductController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param $product_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function visit($product_id)
     {
         return $this->handleVisitGood(null, null, $product_id);
     }
 
     //create Good By Values
+
+    /**
+     * @param $type
+     * @param $id
+     * @param $product_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function visitByValues($type, $id, $product_id)
     {
         return $this->handleVisitGood($type, $id, $product_id);
     }
 
+    /**
+     * @param $type
+     * @param $id
+     * @param $product_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function handleVisitGood($type, $id, $product_id)
     {
         $store_room_id = null;
@@ -1293,6 +1373,10 @@ class ProductController extends Controller
             'similar_products_available', 'product_by_center','product_validations_count'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function assignSimilarProduct(Request $request)
     {
         $product = Product::find($request->id);
@@ -1308,6 +1392,10 @@ class ProductController extends Controller
         return response(['status' => 400]);
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function getProduct(Request $request)
     {
         $product = Product::select('id', 'message', 'status')->where('id', $request->id)->first();
@@ -1317,6 +1405,10 @@ class ProductController extends Controller
         return $product->message;
     }
 
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function removeImageProduct(Request $request)
     {
         if (isset($request->id)) {
@@ -1333,6 +1425,10 @@ class ProductController extends Controller
         return ['status' => 'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return string[]|null
+     */
     public function saveChangeVisitProduct(Request $request)
     {
         if (isset($request->id)) {
@@ -1352,6 +1448,11 @@ class ProductController extends Controller
         return null;
     }
 
+    /**
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|void
+     */
     public function editInformation($id, Request $request)
     {
         $request['no_stock'] = isset($request['no_stock']) ? $request['no_stock'] : 0;
@@ -1431,6 +1532,10 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return bool[]|false[]
+     */
     public function removeImageCreated(Request $request)
     {
         if (isset($request->image_name_good)) {

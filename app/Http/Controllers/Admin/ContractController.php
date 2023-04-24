@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
 use App\Models\Contract;
 use App\Models\ContractHistory;
 use Illuminate\Http\Request;

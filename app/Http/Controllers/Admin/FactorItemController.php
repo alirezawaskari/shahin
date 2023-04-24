@@ -3,35 +3,33 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Events\factorItemStartWorking;
-use App\Http\Resources\CheckResource;
-use App\Models\Check;
-use App\Models\TotalFactorItemInstallment;
-use Illuminate\Support\Facades\Hash;
-use App\Events\smsService;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
+use App\Events\smsService;
 use App\Exports\FactorItemsExport;
 use App\Helpers\CalculationHelper;
+use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\CheckResource;
+use App\Http\Resources\FactorItemCollection;
 use App\Models\Factor;
 use App\Models\FactorItem;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\FactorItemCollection;
 use App\Models\FactorItemProduct;
-use App\Models\User;
+use App\Models\FactorItemServiceTariff;
+use App\Models\FinancialPlansType;
 use App\Models\Product;
+use App\Models\Service;
+use App\Models\ServiceTariff;
+use App\Models\Session;
 use App\Models\Tariff;
+use App\Models\TotalFactorItem;
+use App\Models\User;
 use App\Models\UserPerformance;
 use App\Models\WalletTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use App\Helpers\Helper;
-use App\Models\ServiceTariff;
-use App\Models\FactorItemServiceTariff;
-use App\Models\FinancialPlansType;
-use App\Models\Session;
-use App\Models\TotalFactorItem;
-use App\Models\Service;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
@@ -40,19 +38,29 @@ use Illuminate\Support\Str;
 class FactorItemController extends Controller {
 
     //all factorItems list
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index() {
         $title = 'فهرست پرونده ها';
         $url = 'filter';
         return view( 'Admin.factoritem.all' , compact('title' , 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop() {
         $title = 'میزکار پرونده ها';
         $url = 'desktop/filter';
         return view( 'Admin.factoritem.all' , compact('title' , 'url'));
     }
 
-    public function show( FactorItem $factorItem ) {
+    /**
+     * @param FactorItem $factorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
+    public function show(FactorItem $factorItem ) {
         if($factorItem->type)
         {
             return redirect()->to('/dashboard/totalFactorItem/'.$factorItem->supervisor->total_factor_item_id);
@@ -75,7 +83,11 @@ class FactorItemController extends Controller {
         return view( 'Admin.factoritem.show', compact('item', 'center_agents', 'factorItem', 'user' ) );
     }
 
-    public function edit( FactorItem $factorItem ) {
+    /**
+     * @param FactorItem $factorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function edit(FactorItem $factorItem ) {
         $admin_users = User::where('center_id', $factorItem->center_id)->where('center_id', '!=' , null)->whereHas('employee', function ($query) {
             $query->where('show_status', 1);
         })->get();
@@ -99,7 +111,11 @@ class FactorItemController extends Controller {
         return view( 'Admin.factoritem.edit', compact('item' , 'tariffs' , 'assistants', 'center_agents', 'products', 'center_service_tariffs', 'factorItem', 'user' ) );
     }
 
-    public function filter( Request $request ) {
+    /**
+     * @param Request $request
+     * @return FactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function filter(Request $request ) {
         $factor_items = FactorItem::filter()->latest();
 
         if ( $request->exel == 'on' ) {
@@ -109,7 +125,11 @@ class FactorItemController extends Controller {
         return new FactorItemCollection( $factor_items->paginate( 20 ) );
     }
 
-    public function filterDesktop( Request $request ) {
+    /**
+     * @param Request $request
+     * @return FactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function filterDesktop(Request $request ) {
         if ( auth()->user()->center_id ) {
             $factor_items = FactorItem::where( 'status_factor', 10 )->filter();
         }

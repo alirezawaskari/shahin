@@ -99,6 +99,9 @@ class NewsletterController extends Controller
         ]);
     }
 
+    /**
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function exel()
     {
         $emails = Newsletter::latest()->get();

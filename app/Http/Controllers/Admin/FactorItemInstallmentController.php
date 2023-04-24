@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\FactorItemInstallment;
+use App\Models\Installment;
+use App\Models\Service;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\Service;
-use App\Models\FactorItem;
-use App\Models\Installment;
 
 class FactorItemInstallmentController extends Controller
 {
-	public function index()
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function index()
 	{
 		// $total = 0;
         // $installments = FactorItemInstallment::whereBetween('date', [Helper::vertaTocarbon(verta()->startMonth()), Helper::vertaTocarbon(verta()->endMonth()->addDays(1))])->get();
@@ -48,13 +50,20 @@ class FactorItemInstallmentController extends Controller
 		return view('Admin.factoriteminstallment.all', compact('installments', 'total_price'));
 	}
 
-	public function showCalculate()
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function showCalculate()
 	{
 		$services = Service::all();
 		return view('Admin.factoriteminstallment.calculate', compact('services'));
 	}
 
-	public function calculate(Request $request)
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function calculate(Request $request)
 	{
 		$inputs = $request->all();
 		$service = Service::find($inputs['service']);
@@ -96,7 +105,11 @@ class FactorItemInstallmentController extends Controller
 		return response(['message' => $message, 'success' => $item]);
 	}
 
-	private function calculateByTotalPrice($inputs)
+    /**
+     * @param $inputs
+     * @return array
+     */
+    private function calculateByTotalPrice($inputs)
 	{
 		$total_price = (float) str_replace(',', '', $inputs['total_price']);
 		$service = Service::find($inputs['service']);
@@ -117,7 +130,11 @@ class FactorItemInstallmentController extends Controller
 		return $item;
 	}
 
-	private function calculateByPrepayment($inputs)
+    /**
+     * @param $inputs
+     * @return array
+     */
+    private function calculateByPrepayment($inputs)
 	{
 		$prepayment = (float) str_replace(',', '', $inputs['prepayment']);
 		$service = Service::find($inputs['service']);
@@ -141,7 +158,11 @@ class FactorItemInstallmentController extends Controller
 		return $item;
 	}
 
-	private function calculateByInstallment($inputs)
+    /**
+     * @param $inputs
+     * @return array
+     */
+    private function calculateByInstallment($inputs)
 	{
 		$installments_price = (float) str_replace(',', '', $inputs['installments_price']);
 		$service_id = $inputs['service'];

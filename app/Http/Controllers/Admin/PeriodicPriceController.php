@@ -12,7 +12,6 @@ use App\Models\CouponItem;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\User;
-use Carbon\Carbon;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
 use Morilog\Jalali\CalendarUtils;
@@ -175,6 +174,10 @@ class PeriodicPriceController extends Controller
      * @return \Illuminate\Http\Response
      */
     //store in session
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function store(Request $request)
     {
         $request->session()->forget('product_attribute_id');
@@ -182,6 +185,10 @@ class PeriodicPriceController extends Controller
         return redirect('/dashboard/periodicPricesProduct/completeSelection');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function completeSelection(Request $request)
     {
         $product_attribute_ids = session('product_attribute_id');
@@ -238,6 +245,12 @@ class PeriodicPriceController extends Controller
     }
 
     //store in coupon and coupon Item
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     * @throws \Exception
+     */
     public function storeProductIds(Request $request)
     {
         $center_id = null;
@@ -400,6 +413,11 @@ class PeriodicPriceController extends Controller
 
 
     //remove of session
+
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function removeProductAttribute(Request $request)
     {
         $product_attribute_ids = session('product_attribute_id');
@@ -413,6 +431,10 @@ class PeriodicPriceController extends Controller
         return ['status' => 'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function deleteProductAttribute(Request $request)
     {
         if (isset($request->id)) {
@@ -427,6 +449,10 @@ class PeriodicPriceController extends Controller
         return ['status' => 'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return array
+     */
     public function checkDate(Request $request)
     {
         if (isset($request->id) && isset($request->start_date) && isset($request->end_date)) {

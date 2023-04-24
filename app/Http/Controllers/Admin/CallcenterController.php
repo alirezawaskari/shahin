@@ -2,42 +2,39 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Area;
-use App\Models\Callcenter;
-use App\Models\Center;
-use App\Models\Employee;
-use App\Models\FactorItem;
 use App\Events\fastserviceCallcenter;
-use App\Events\fastregisterCallcenter;
 use App\Events\sendlinkFactor;
+use App\Events\smsNotAnswer;
 use App\Exports\CallcenterExport;
 use App\Helpers\Helper;
-use App\Models\Factor;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CallcenterCollection;
 use App\Models\Agency;
-use App\Models\Province;
+use App\Models\Area;
+use App\Models\Callcenter;
+use App\Models\Category;
+use App\Models\Center;
+use App\Models\Factor;
+use App\Models\FactorItem;
+use App\Models\FinancialPlansType;
 use App\Models\Organization;
-use App\Models\RecruitmentNotice;
+use App\Models\Province;
 use App\Models\Reason;
+use App\Models\RecruitmentNotice;
 use App\Models\Representation;
-use App\Models\ServiceItem;
-use App\Models\User;
 use App\Models\Role;
 use App\Models\Service;
-use App\Models\Category;
-use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Events\fastregisterorganCallcenter;
-use App\Events\smsNotAnswer;
-use App\Models\FinancialPlansType;
-use App\Models\Phone;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class CallcenterController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $title = 'فهرست درخواست ها';
@@ -49,6 +46,9 @@ class CallcenterController extends Controller
         return view('Admin.callcenter.all' , compact('title' ,'delete','url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop()
     {
         $title = 'میزکار درخواست ها';
@@ -60,6 +60,9 @@ class CallcenterController extends Controller
          return view('Admin.callcenter.all' , compact('title' ,'delete', 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function suspension()
     {
         $title = 'فهرست درخواست های معلق';
@@ -71,6 +74,9 @@ class CallcenterController extends Controller
         return view('Admin.callcenter.all' , compact('title' ,'delete', 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function paid()
     {
         $title = 'فهرست درخواست های پرداخت شده';
@@ -82,6 +88,10 @@ class CallcenterController extends Controller
         return view('Admin.callcenter.all' , compact('title' ,'delete', 'url'));
     }
 
+    /**
+     * @param Request $request
+     * @return CallcenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
         $callcenters = Callcenter::filter()->latest();
@@ -93,6 +103,11 @@ class CallcenterController extends Controller
     }
 
     //desktop for callcenter
+
+    /**
+     * @param Request $request
+     * @return CallcenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterDesktop(Request $request)
     {
         $callcenters = Callcenter::filter()->where('user_id' , auth()->user()->id)->whereIn('status' , [0 , 4 , 6])->latest();
@@ -103,6 +118,10 @@ class CallcenterController extends Controller
         return new CallcenterCollection($callcenters->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return CallcenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterSuspension(Request $request)
     {
         $callcenters = Callcenter::filter()->whereIn('status', [1 , 2 , 9])->latest();
@@ -112,6 +131,10 @@ class CallcenterController extends Controller
         return new CallcenterCollection($callcenters->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return CallcenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterPaid(Request $request)
     {
         $callcenters = Callcenter::filter()->where('status', 3)->latest();
@@ -121,7 +144,11 @@ class CallcenterController extends Controller
         return new CallcenterCollection($callcenters->paginate(20));
     }
 
-    //useless method
+
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function tasks_requires()
     {
         $user = auth()->user();
@@ -191,6 +218,10 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function taskDetail(Request $request)
     {
         $task = Callcenter::find($request->id);
@@ -230,6 +261,9 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function sendLink()
     {
         $provinces = Province::all();
@@ -253,6 +287,10 @@ class CallcenterController extends Controller
         return view('Admin.callcenter.sendLink', compact('provinces','service_categories','product_categories'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function fetchUser(Request $request)
     {
 
@@ -294,6 +332,11 @@ class CallcenterController extends Controller
     }
 
     //create & send link factor
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|void
+     */
     public function registerForm(Request $request)
     {
         $status = self::getStatusFactorByPayType($request->payment_type);
@@ -375,6 +418,10 @@ class CallcenterController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function statusForm(Request $request)
     {
        $validate = Validator::make($request->all(), [
@@ -440,6 +487,10 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function transfer_form(Request $request)
     {
         $validate=Validator::make($request->all(), [
@@ -472,6 +523,10 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function task_transfer(Request $request)
     {
        $validation = Validator::make($request->all(), [
@@ -509,6 +564,10 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @param Callcenter $callcenter
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function destroy(Callcenter $callcenter)
     {
         if (auth()->user()->isAbleTo('callcenter-delete')) {
@@ -530,12 +589,19 @@ class CallcenterController extends Controller
 
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function delete()
     {
         $callcenters = Callcenter::onlyTrashed()->latest()->paginate(20);
         return view('Admin.callcenter.delete', compact('callcenters'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore(Request $request)
     {
         $callcenter = Callcenter::onlyTrashed()->where('id', $request->id)->first();
@@ -546,6 +612,9 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @return string
+     */
     private function getType()
     {
         if(auth()->user()->hasPermission('influencer-marketing'))
@@ -559,11 +628,20 @@ class CallcenterController extends Controller
         return '2';
     }
 
+    /**
+     * @param $payment_type
+     * @return bool
+     */
     private function getStatusFactorByPayType($payment_type)
     {
         return $payment_type == 'supervisor' || $payment_type == 'online' ? false : true;
     }
 
+    /**
+     * @param $cash_factor
+     * @param $credit_factor
+     * @return string
+     */
     private function getPaymentType($cash_factor , $credit_factor)
     {
         $payment_type = $cash_factor ? $cash_factor->type : '';
@@ -572,6 +650,11 @@ class CallcenterController extends Controller
         return $payment_type;
     }
 
+    /**
+     * @param $request
+     * @return mixed
+     * @throws \Illuminate\Validation\ValidationException
+     */
     private function createUser($request)
     {
         $this->validate($request, [
@@ -602,6 +685,12 @@ class CallcenterController extends Controller
         return $user;
     }
 
+    /**
+     * @param $request
+     * @param $user
+     * @param $payment_type
+     * @return mixed
+     */
     private function createTask($request , $user , $payment_type)
     {
         $id = Helper::getCallcenter($user->province_id);
@@ -644,6 +733,10 @@ class CallcenterController extends Controller
         return $callcenter;
     }
 
+    /**
+     * @param $request
+     * @param $task
+     */
     private function syncTaskItems($request , $task)
     {
 
@@ -653,6 +746,12 @@ class CallcenterController extends Controller
         $task->services()->attach($request->service);
     }
 
+    /**
+     * @param $request
+     * @param $services
+     * @param $categories
+     * @return array
+     */
     private function getSumPriceFactorItems($request , $services , $categories)
     {
         $cash_price_tax = 0;
@@ -746,6 +845,16 @@ class CallcenterController extends Controller
         return $result;
     }
 
+    /**
+     * @param $request
+     * @param $user
+     * @param $callcenter
+     * @param $services
+     * @param $payment_type
+     * @param $result_factor_items
+     * @param $status
+     * @return mixed
+     */
     private function createCreditFactor($request , $user , $callcenter , $services  , $payment_type , $result_factor_items , $status)
     {
         $price = $result_factor_items['credit_price'] + $result_factor_items['credit_price_tax'];
@@ -781,6 +890,16 @@ class CallcenterController extends Controller
         return $credit_factor;
     }
 
+    /**
+     * @param $request
+     * @param $user
+     * @param $callcenter
+     * @param $services
+     * @param $payment_type
+     * @param $result_factor_items
+     * @param $status
+     * @return mixed
+     */
     private function createCashFactor($request , $user , $callcenter , $services , $payment_type , $result_factor_items , $status)
     {
         $price = $result_factor_items['cash_price'] + $result_factor_items['cash_price_tax'];
@@ -809,6 +928,14 @@ class CallcenterController extends Controller
         return $cash_factor;
     }
 
+    /**
+     * @param $request
+     * @param $services
+     * @param $cash_factor
+     * @param $credit_factor
+     * @param $mobile_supervisor
+     * @return array
+     */
     private function createServiceFactorItems($request , $services , $cash_factor , $credit_factor , $mobile_supervisor)
     {
         $service_financial_plans_types = $request->service_financial_plans_type;
@@ -870,6 +997,15 @@ class CallcenterController extends Controller
         return ['cash_factor_status' => $cash_factor_result['cash_factor_status'] , 'cash_factor_price' => $cash_factor_result['cash_factor_price'] , 'credit_factor_status' => $credit_factor_result['credit_factor_status'] , 'credit_factor_price' => $credit_factor_result['credit_factor_price']];
     }
 
+    /**
+     * @param $result
+     * @param $request
+     * @param $categories
+     * @param $cash_factor
+     * @param $credit_factor
+     * @param $mobile_supervisor
+     * @return array
+     */
     private function createCategoryFactorItems($result , $request , $categories , $cash_factor , $credit_factor , $mobile_supervisor )
     {
         $category_financial_plans_types = $request->category_financial_plans_type;
@@ -929,6 +1065,12 @@ class CallcenterController extends Controller
         return ['cash_factor_status' => $cash_factor_result['cash_factor_status'] , 'cash_factor_price' => $cash_factor_result['cash_factor_price'] , 'credit_factor_status' => $credit_factor_result['credit_factor_status'] , 'credit_factor_price' => $credit_factor_result['credit_factor_price']];
     }
 
+    /**
+     * @param $callcenter
+     * @param $result_factor_items
+     * @param $cash_factor
+     * @param $credit_factor
+     */
     private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor)
     {
         if ($result_factor_items['cash_price']) {
@@ -964,6 +1106,11 @@ class CallcenterController extends Controller
         }
     }
 
+    /**
+     * @param $request
+     * @param $client
+     * @param $task
+     */
     private function sendSmsLinkSite($request , $client , $task)
     {
         $task->histories()->create([
@@ -978,6 +1125,12 @@ class CallcenterController extends Controller
         }
     }
 
+    /**
+     * @param $cash_factor
+     * @param $mobile_supervisor
+     * @param $factor_item
+     * @return array
+     */
     private function getCashFactorFieldIsSupervisorType($cash_factor , $mobile_supervisor , $factor_item)
     {
         $result = FactorItem::setSupervisor($mobile_supervisor , $factor_item);
@@ -995,6 +1148,12 @@ class CallcenterController extends Controller
         return ['cash_factor_status' => $cash_factor_status , 'cash_factor_price' => $cash_factor_price];
     }
 
+    /**
+     * @param $credit_factor
+     * @param $mobile_supervisor
+     * @param $factor_item
+     * @return array
+     */
     private function getCreditFactorFieldIsSupervisorType($credit_factor , $mobile_supervisor , $factor_item)
     {
         $result = FactorItem::setSupervisor($mobile_supervisor , $factor_item);
@@ -1014,6 +1173,11 @@ class CallcenterController extends Controller
         return ['credit_factor_status' => $credit_factor_status , 'credit_factor_price' => $credit_factor_price];
     }
 
+    /**
+     * @param $result
+     * @param $cash_factor
+     * @param $credit_factor
+     */
     private function updateFactorFieldIsSupervisorType($result , $cash_factor , $credit_factor)
     {
         $cash_factor ? $cash_factor->update([
@@ -1027,6 +1191,10 @@ class CallcenterController extends Controller
         ]) : '';
     }
 
+    /**
+     * @param $callcenter
+     * @param $result_factor_items
+     */
     private function updateCallcenterFieldIsZeroPriceFacotr($callcenter , $result_factor_items)
     {
         //update the callcenter status to paid(status == 3) when the factor price is zero.
@@ -1036,6 +1204,10 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @param $callcenter
+     * @param $payment_type
+     */
     private function updateCallcenterFieldIsOnlinePayTypeFactor($callcenter , $payment_type)
     {
         $callcenter->update([
@@ -1044,6 +1216,9 @@ class CallcenterController extends Controller
         ]);
     }
 
+    /**
+     * @param $callcenter
+     */
     private function createHistoryForOtherRequestType($callcenter)
     {
         $callcenter->histories()->create([

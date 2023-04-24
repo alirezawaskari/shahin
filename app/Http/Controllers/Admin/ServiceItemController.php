@@ -12,11 +12,19 @@ use App\Http\Controllers\Controller;
 class ServiceItemController extends Controller
 {
 
+    /**
+     * @param $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createByService($service)
     {
         return view('Admin.serviceItem.create', compact(['service']));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function store(Request $request)
     {
         $request->validate(['title' => 'required', 'price' => 'required',
@@ -74,12 +82,20 @@ class ServiceItemController extends Controller
         return view('Admin.serviceItem.create', ['service_id'=>$id]);
     }
 
+    /**
+     * @param $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function serviceItemList($service)
     {
         $service_items=ServiceItem::where('service_id',$service->id)->orderBy('id','DESC')->paginate(15);
         return view('Admin.serviceItem.list', compact(['service_items' ,'service']));
     }
 
+    /**
+     * @param ServiceItem $serviceItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function edit(ServiceItem $serviceItem)
     {
         if ($serviceItem) {
@@ -88,6 +104,11 @@ class ServiceItemController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @param $service_item
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function update(Request $request, $service_item)
     {
         $request->validate(['title' => 'required', 'price' => 'required',
@@ -142,6 +163,10 @@ class ServiceItemController extends Controller
 
     }
 
+    /**
+     * @param ServiceItem $serviceItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function destroy(ServiceItem $serviceItem)
     {
         if ($serviceItem) {
@@ -166,6 +191,10 @@ class ServiceItemController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function selectByService(Request $request)
     {
        if ($request->ajax()) {

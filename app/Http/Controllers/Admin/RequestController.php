@@ -311,6 +311,10 @@ class RequestController extends Controller
         return redirect('/dashboard/request')->with(['delete' => 'success']);
     }
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function productByStoreRoom(Request $request)
     {
         if (isset($request->store_room_id) && isset($request->type)) {
@@ -322,7 +326,12 @@ class RequestController extends Controller
         return ['status' => 'false', 'products' => ''];
     }
 
-    public function handleProducts($store_room_id,$type)
+    /**
+     * @param $store_room_id
+     * @param $type
+     * @return array|void
+     */
+    public function handleProducts($store_room_id, $type)
     {
         //material
         if($type == 0){
@@ -375,6 +384,11 @@ class RequestController extends Controller
     }
 
 
+    /**
+     * @param $id
+     * @param $status
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function changeStatusRequest($id, $status)
     {
         $request = \App\Models\Request::find($id);
@@ -455,6 +469,10 @@ class RequestController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function rejectedStatusRequest(Request $request)
     {
         if (isset($request->id) && isset($request->message) && $request->id != '' && $request->message != '') {
@@ -467,6 +485,10 @@ class RequestController extends Controller
         return ['status' => 'false'];
     }
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function stockProduct(Request $request)
     {
         $lists = [];
@@ -540,6 +562,13 @@ class RequestController extends Controller
         return ['status' => 'false'];
     }
 
+    /**
+     * @param $product_id
+     * @param $changestoreroomable_id
+     * @param $changestoreroomable_type
+     * @param $number
+     * @param $type
+     */
     public function ChangeStoreRoom($product_id, $changestoreroomable_id, $changestoreroomable_type, $number, $type)
     {
         $has_change = ChangeStoreRoom::where('product_id', $product_id)->where('changestoreroomable_id', $changestoreroomable_id)

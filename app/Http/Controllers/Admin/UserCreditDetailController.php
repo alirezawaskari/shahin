@@ -8,6 +8,12 @@ use App\Models\User;
 
 class UserCreditDetailController extends Controller
 {
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\RedirectResponse|\never
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request , User $user)
     {
         if(auth()->user()->isAbleTo('edit-user-credit'))

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\PhonesExport;
-use App\Models\Phone;
-use App\Models\Factor;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Phone;
+use Illuminate\Http\Request;
 
 class PhoneController extends Controller
 {
@@ -90,7 +89,12 @@ class PhoneController extends Controller
             'delete' => 'success'
         ]);
     }
-	public function phoneFilter(Request $request)
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function phoneFilter(Request $request)
 	{
 		if($request->type == "all")
 		{
@@ -108,10 +112,19 @@ class PhoneController extends Controller
         }
         return view('Admin.phone.all' , compact('phones' , 'count'));
 	}
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
 		return (new PhonesExport(request('type') , request('start_time') , request('final_time')))->download('phones.xlsx');
     }
+
+    /**
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function exel()
     {
         $phones = Phone::latest()->get();

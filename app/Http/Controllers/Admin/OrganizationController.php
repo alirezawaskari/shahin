@@ -2,37 +2,51 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Helper;
+use App\Http\Resources\OrganizationCollection;
 use App\Models\Organization;
 use App\Models\Representation;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Helpers\Helper;
 use Illuminate\Support\Facades\Hash;
-use App\Events\fastregisterorganCallcenter;
-use App\Http\Resources\OrganizationCollection;
 use Illuminate\Validation\Rule;
 
 class OrganizationController extends AdminController {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index() {
         $organizations = Organization::latest()->get();
         $delete = auth()->user()->isAbleTo( 'organization-delete' );
         return view( 'Admin.organization.all', compact( 'organizations' ,'delete') );
     }
 
+    /**
+     * @return OrganizationCollection
+     */
     public function filter() {
         $organizations = Organization::filter()->whereNull('parent_id')->orderBy( 'updated_at', 'desc' );
 
         return new OrganizationCollection( $organizations->paginate( 20 ) );
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create(Request $request) {
         $services = Service::where('status' , true)->get();
         $parent= Organization::find($request->parent_id);
         return view( 'Admin.organization.create', compact('parent', 'services' ) );
     }
 
-    public function store( Request $request ) {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request ) {
         $this->validate( request(), [
             'fa_name' => 'required|string',
             'en_name' => 'required|string',
@@ -90,13 +104,23 @@ class OrganizationController extends AdminController {
         ] );
     }
 
-    public function edit( Organization $organization ) {
+    /**
+     * @param Organization $organization
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function edit(Organization $organization ) {
 //        $services = Service::status()->get();
         $services = Service::all();
         return view( 'Admin.organization.edit', compact( 'organization', 'services' ) );
     }
 
-    public function update( Request $request, Organization $organization ) {
+    /**
+     * @param Request $request
+     * @param Organization $organization
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function update(Request $request, Organization $organization ) {
         $this->validate( request(), [
             'fa_name' => 'required|string',
             'en_name' => 'required|string',
@@ -174,13 +198,21 @@ class OrganizationController extends AdminController {
         return redirect()->back();
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createUser() {
         $representations = Representation::whereStatus( true )->get();
         $organizations = Organization::whereStatus( true )->get();
         return view( 'Admin.organization.createUser', compact( 'representations', 'organizations' ) );
     }
 
-    public function storeUser( Request $request ) {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function storeUser(Request $request ) {
         $user = User::where( 'phone', $request->phone )->first();
         $inputs = $request->all();
 
