@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Agency;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ArticleCollection extends ResourceCollection
 {
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
@@ -25,3 +28,4 @@ class ArticleCollection extends ResourceCollection
         ];
     }
 }
+

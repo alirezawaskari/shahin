@@ -7,14 +7,25 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class CheckCollection extends ResourceCollection
 {
+    /**
+     * @var
+     */
     public $checks;
 
+    /**
+     * @param $checks
+     * @param $collection
+     */
     public function __construct($checks, $collection)
     {
         parent::__construct($collection);
         $this->checks = $checks;
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
 
@@ -49,3 +60,4 @@ class CheckCollection extends ResourceCollection
     }
 
 }
+

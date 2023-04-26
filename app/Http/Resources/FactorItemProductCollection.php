@@ -8,6 +8,10 @@ use App\Models\Product;
 
 class FactorItemProductCollection extends ResourceCollection
 {
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
@@ -33,3 +37,4 @@ class FactorItemProductCollection extends ResourceCollection
         ];
     }
 }
+

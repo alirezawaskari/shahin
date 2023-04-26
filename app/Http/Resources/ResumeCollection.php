@@ -6,6 +6,11 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ResumeCollection extends ResourceCollection
 {
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
@@ -25,6 +30,9 @@ class ResumeCollection extends ResourceCollection
         ];
     }
 
+    /**
+     * @return mixed
+     */
     private function setPerDelete()
     {
         return auth()->user()->isAbleTo('resume-delete');

@@ -15,12 +15,21 @@ class FactorCollection extends ResourceCollection
      * @return array
      */
     public $factors;
+
+    /**
+     * @param $factors
+     * @param $collection
+     */
     public function __construct($factors , $collection)
     {
         parent::__construct($collection);
         $this->factors = $factors;
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
@@ -55,11 +64,17 @@ class FactorCollection extends ResourceCollection
         ];
     }
 
+    /**
+     * @return mixed
+     */
     public function setPerDetail()
     {
         return auth()->user()->isAbleTo('factor-detail');
     }
 
+    /**
+     * @return mixed
+     */
     public function setPerDelete()
     {
         return auth()->user()->isAbleTo('factor-delete');
@@ -113,3 +128,4 @@ class FactorCollection extends ResourceCollection
         return implode(',' , $temp);
     }
 }
+

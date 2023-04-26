@@ -8,14 +8,26 @@ use App\Models\Session;
 
 class SessionCollection extends ResourceCollection
 {
+
+    /**
+     * @var
+     */
     public $sessions;
 
+    /**
+     * @param $sessions
+     * @param $collection
+     */
     public function __construct($sessions , $collection)
     {
         parent::__construct($collection);
         $this->sessions = $sessions;
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
