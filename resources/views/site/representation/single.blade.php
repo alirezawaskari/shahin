@@ -1,7 +1,7 @@
 @extends('site.representation.master')
-@section('title')
-{{$representation->fa_name}}
-@endsection
+@section('title'){{ $service->title }}@endsection
+@section('description'){{ $service->description }}@endsection
+
 @section('content')
 <div class="container">
     <div class="service">
