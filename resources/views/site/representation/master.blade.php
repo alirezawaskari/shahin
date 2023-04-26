@@ -18,8 +18,11 @@
 </head>
 <body>
 
-@yield('content')
+    @include('site.representation.header')
 
+    @yield('content')
+
+    @include('site.representation.footer')
 <script src="{{asset('assets/site/js/app.js')}}"></script>
 <script src="{{asset('assets/js/persian-date.min.js')}}"></script>
 <script src="{{asset('assets/js/persian-datepicker.min.js')}}"></script>
