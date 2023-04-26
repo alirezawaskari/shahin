@@ -1,6 +1,15 @@
 <?php
 
- use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\AccountingController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ContextController;
+use App\Http\Controllers\Admin\site\ArticleController;
+use App\Http\Controllers\Admin\site\BrandController;
+use App\Http\Controllers\Admin\site\CategoryArticleController;
+use App\Http\Controllers\Admin\site\ColorController;
+use App\Http\Controllers\Admin\site\NewsController;
+use App\Http\Controllers\Auth\RegisterController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,8 +30,8 @@ use Illuminate\Support\Facades\Artisan;
 Auth::routes();
 Route::get('/pass1word/reset', 'Auth\ResetPasswordController@resetform')->name('reset_pass_form');
 Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('reset_pass');
-Route::get('/register/check-user-is-register',[\App\Http\Controllers\Auth\RegisterController::class,'checkUserIsRegister']);
-Route::get('/login_by_mobile',[\App\Http\Controllers\Auth\RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
+Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
+Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', 'Auth\RegisterController@fastregister');
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
@@ -30,7 +39,7 @@ Route::post('/fastregister', 'Auth\RegisterController@fastregister');
 //Reset & Command Routes
 Route::group([], function () {
 
-    Route::get('/factor-item/a-transfer', [\App\Http\Controllers\Admin\AccountingController::class,'transfer']);
+    Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
 
     Route::get('/clear-cache', function () {
         Artisan::call('cache:clear');
@@ -103,15 +112,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
-    Route::get('/logs' , [\App\Http\Controllers\Admin\AdminController::class,'showLogs'])->name('admin.showLogs');
-    Route::get('/accounting/cash-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
-    Route::get('/accounting/filter-cash-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cash-debtors');
-    Route::get('/accounting/installment-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'installmentDebtorsIndex'])->name('accounting.installment.index');
-    Route::get('/accounting/filter-installment-debtors' , [\App\Http\Controllers\Admin\AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installment-debtors');
-    Route::get('/accounting/show/{user}' , [\App\Http\Controllers\Admin\AccountingController::class,'show'])->name('accounting.show');
+    Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
+    Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
+    Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cash-debtors');
+    Route::get('/accounting/installment-debtors' , [AccountingController::class,'installmentDebtorsIndex'])->name('accounting.installment.index');
+    Route::get('/accounting/filter-installment-debtors' , [AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installment-debtors');
+    Route::get('/accounting/show/{user}' , [AccountingController::class,'show'])->name('accounting.show');
     Route::get('/', 'AdminController@dashboard');
-    Route::get('/settings', [\App\Http\Controllers\Admin\ContextController::class,'settings'])->name('settings.index');
-    Route::patch('/settings/update-expire-dates', [\App\Http\Controllers\Admin\ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
+    Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
+    Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::post('removeImgWorkSample', 'AdminController@removeImgWorkSample');
     Route::post('/service/fetch-serviceitem-by-service', 'ServiceController@fetchServiceItemsByServiceId');
     Route::get('/dailyDesktop', 'AdminController@dailyDesktop');
@@ -122,8 +131,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/summernote-image' , 'AdminController@summernote_image');
     Route::post('/uploadImage', 'AdminController@uploadImage');
     Route::post('/uploadPhotosTemporarily', 'AdminController@uploadPhotosTemporarily');
-    Route::get('/context/site-rules',[\App\Http\Controllers\Admin\ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
-    Route::patch('/context/site-rules',[\App\Http\Controllers\Admin\ContextController::class, 'updateSiteRules'])->name('siteRules.update');
+    Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
+    Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
     Route::get('/callcenter/suspension', 'CallcenterController@suspension')->name('callcenter.suspension');
     Route::get('/callcenter/suspension/filter' , 'CallcenterController@filterSuspension');
@@ -264,7 +273,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/seller/filter', 'EmployeeController@sellerFilter')->name('seller.filter');
     Route::get('/employee-financial-report/{employee}' , 'EmployeeController@financialReport')->name('employee.financial.report');
     Route::get('/employee-wallet/{user}/{key}' , 'EmployeeController@walletTransaction')->name('employee.wallet');
-    Route::get('/employee-performance-detail/{user}' , 'EmployeeController@performanceDetail')->name('employee.performanceDetail');;
+    Route::get('/employee-performance-detail/{user}' , 'EmployeeController@performanceDetail')->name('employee.performanceDetail');
     Route::get('/employee-performance-detail-filter/{user}' , 'EmployeeController@performanceDetailFilter');
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::resource('employee' , 'EmployeeController');
@@ -330,13 +339,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
         Route::get('/attributeRequest/suggest', 'AttributeItemController@suggest')->name('attributeRequest.suggest');
 
         //brand
-        Route::get('/brand/filter', [\App\Http\Controllers\Admin\site\BrandController::class,'filter'])->name('brand.filter');
+        Route::get('/brand/filter', [BrandController::class,'filter'])->name('brand.filter');
         Route::resource('/brand', 'BrandController');
         Route::get('/createByCatId/{id}', 'BrandController@createByCatId')->name('brand.createByCatId');
         Route::get('/statusBrand/{brand}', 'BrandController@statusBrand')->name('statusBrand');
         Route::post('/findBrand', 'CategoryController@findBrand');
 
-        Route::get('/color/filter', [\App\Http\Controllers\Admin\site\ColorController::class,'filter'])->name('color.filter');
+        Route::get('/color/filter', [ColorController::class,'filter'])->name('color.filter');
         Route::resource('/color', 'ColorController');
         Route::post('/searchCategory', 'CategoryController@searchCategory');
 
@@ -344,12 +353,12 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
         //remove image slider of category in edit
         Route::post('/removeImgSlider', 'SliderController@removeImgSlider');
 
-        Route::get('/categoryArticle/filter', [\App\Http\Controllers\Admin\site\CategoryArticleController::class,'filter'])->name('categoryArticle.filter');
+        Route::get('/categoryArticle/filter', [CategoryArticleController::class,'filter'])->name('categoryArticle.filter');
         Route::resource('/categoryArticle', 'CategoryArticleController');
-        Route::get('/article/filter', [\App\Http\Controllers\Admin\site\ArticleController::class,'filter'])->name('article.filter');
+        Route::get('/article/filter', [ArticleController::class,'filter'])->name('article.filter');
         Route::resource('/article', 'ArticleController');
 
-        Route::get('/news/filter', [\App\Http\Controllers\Admin\site\NewsController::class,'filter'])->name('news.filter');
+        Route::get('/news/filter', [NewsController::class,'filter'])->name('news.filter');
         Route::resource('/news', 'NewsController');
         Route::resource('/categoryNews', 'CategoryNewsController');
 
