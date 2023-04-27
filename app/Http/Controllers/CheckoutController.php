@@ -57,11 +57,10 @@ class CheckoutController extends Controller
     {
         $validator = Validator::make($request->items, [
             '*.id' => array('required',Rule::exists('factor_items','id')),
-            '*.center' =>  array('required',Rule::exists('centers','id')),
-            '*.type'    => array('required',Rule::in(0,1)),
+            '*.center' =>  array(Rule::exists('centers','id')),
+            '*.type'    => array(Rule::in(0,1)),
             '*.guarantee_type'=> array('nullable',Rule::in('check','certificate','promissorynote')),
         ]);
-
         if ($validator->fails()) {
            throw new \Exception('[request value is invalid] '.implode('_',$validator->errors()->all()));
         }
@@ -71,8 +70,8 @@ class CheckoutController extends Controller
                     abort(403);
                 }
 
-                FactorItem::changeType($factor_item, $item['type']);
-                if ($item['type']){
+                isset($item['type']) ? FactorItem::changeType($factor_item, $item['type']) : '';
+                if (isset($item['type']) && $item['type']){
                     $factor_item=FactorItem::find($factor_item->id);
                     $factor_item->totalFactorItem->update([
                         'guarantee_type' => $item['guarantee_type'] ,
@@ -167,6 +166,24 @@ class CheckoutController extends Controller
                         }
                         $values = Arr::add($values, $form->name, $url);
                     }
+                }
+            }
+            elseif ( $form->type == 'multi_file' ) {
+                if ( isset( $item[$form->name] ) ) {
+                    $images = isset( $values[$form->name] ) ? $values[$form->name] : [];
+                    $files = $item[ 'url' . $form->name ];
+                    foreach ( $files as $file ) {
+                        if ( $file ) {
+                            if ( isset( $images ) ) {
+                                $url = Helper::moveImage($file,'document');
+                                $images[] = $url;
+                            }
+                        }
+                    }
+                    if (isset($values[$form->name])) {
+                        $values[$form->name] = $images;
+                    }
+                    $values = Arr::add( $values, $form->name, $images );
                 }
             } else {
                 if (isset($item[$form->name])) {

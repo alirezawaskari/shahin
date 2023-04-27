@@ -200,6 +200,6 @@ class Service extends Model
             $representation = null;
         }
 
-        return $representation->id;
+        return $representation ? $representation->id : null;
     }
 }
