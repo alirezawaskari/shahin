@@ -8,6 +8,12 @@ Trait TableAttach
 {
 
     # create update table attach
+    /**
+     * @param $disk
+     * @param $directory
+     * @param $inputName
+     * @param $tableField
+     */
     public function createUpdateTableAttach($disk, $directory, $inputName, $tableField)
     {
         # check file
@@ -40,6 +46,13 @@ Trait TableAttach
         $this->save();
     }
 
+    /**
+     * @param $disk
+     * @param $directory
+     * @param $tableField
+     * @param $default
+     * @return array
+     */
     public function getTableAttach($disk, $directory, $tableField, $default)
     {
         $output = ["has" => false, "url" => ""];
@@ -56,6 +69,11 @@ Trait TableAttach
         return $output;
     }
 
+    /**
+     * @param $disk
+     * @param $directory
+     * @param $tableField
+     */
     public function deleteTableAttach($disk, $directory, $tableField)
     {
         $storage = Storage::disk($disk);
@@ -73,6 +91,9 @@ Trait TableAttach
         }
     }
 
+    /**
+     *
+     */
     protected static function boot()
     {
         parent::boot();

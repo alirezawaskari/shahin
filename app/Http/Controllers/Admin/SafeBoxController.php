@@ -16,18 +16,29 @@ use Illuminate\Support\Facades\Cache;
 
 class SafeBoxController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $safe_boxes = SafeBox::all();
         return view('Admin.SafeBox.all', compact('safe_boxes'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $representations = Representation::whereStatus(true)->get();
         return view('Admin.storeroom.create' , compact('representations'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -43,16 +54,28 @@ class SafeBoxController extends Controller
         ]);
     }
 
+    /**
+     * @param Menu $menu
+     */
     public function show(Menu $menu)
     {
         //
     }
 
+    /**
+     * @param StoreRoom $storeRoom
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(StoreRoom $storeRoom)
     {
         $representations = Representation::whereStatus(true)->get();
         return view('Admin.storeroom.edit', compact('storeRoom' , 'representations'));
     }
+
+    /**
+     * @param StoreRoom $storeRoom
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createProduct(StoreRoom $storeRoom)
     {
         $products = Product::where('type' , '!=' , 2)->get();
@@ -62,7 +85,13 @@ class SafeBoxController extends Controller
 		$store_room_products = $storeRoom->product_storeRoom;
         return view('Admin.storeroom.product', compact('store_room_products','storeRoom' , 'products' , 'parents', 'category_store_rooms', 'counting_units'));
     }
-	 public function storeProduct(Request $request , StoreRoom $storeRoom)
+
+    /**
+     * @param Request $request
+     * @param StoreRoom $storeRoom
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function storeProduct(Request $request , StoreRoom $storeRoom)
     {
         $input = $request->all();
         $v = Verta::parse(self::numberConverter($input['expire_date']));
@@ -74,6 +103,13 @@ class SafeBoxController extends Controller
             'purchase_invoice_update' => 'success'
         ]);
     }
+
+    /**
+     * @param Request $request
+     * @param StoreRoom $storeRoom
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, StoreRoom $storeRoom)
     {
         $this->validate(request(), [
@@ -92,6 +128,10 @@ class SafeBoxController extends Controller
         ]);
     }
 
+    /**
+     * @param Menu $menu
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Menu $menu)
     {
         if ($menu->getChild()->get()->count() > 0) {
@@ -119,6 +159,9 @@ class SafeBoxController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     */
     public function sort(Request $request)
     {
         if ($request->ajax()) {
@@ -131,6 +174,10 @@ class SafeBoxController extends Controller
         }
     }
 
+    /**
+     * @param $number
+     * @return array|string|string[]
+     */
     public function numberConverter($number)
     {
         $persian = array('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹');

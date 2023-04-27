@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\FactorItem;
 use App\Models\Installment;
 use App\Models\Service;
 use Illuminate\Http\Request;
-use function GuzzleHttp\Promise\all;
 
 class InstallmentController extends Controller
 {
@@ -87,6 +85,10 @@ class InstallmentController extends Controller
 
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createService($id)
     {
         $installmentable_id = $id;
@@ -95,6 +97,10 @@ class InstallmentController extends Controller
             'installmentable_type' => $installmentable_type]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function serviceInstallment($id)
     {
         //lists of service-installment
@@ -207,6 +213,10 @@ class InstallmentController extends Controller
         //
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function finishInstallment(Request $request)
     {
         if (isset($request->service_id)) {

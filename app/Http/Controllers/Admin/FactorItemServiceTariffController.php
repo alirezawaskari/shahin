@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\FactorItem;
 use App\Models\FactorItemServiceTariff;
@@ -11,7 +10,11 @@ use Illuminate\Support\Facades\Log;
 
 class FactorItemServiceTariffController extends Controller
 {
-    public function destroy( FactorItemServiceTariff $factorItemServiceTariff)
+    /**
+     * @param FactorItemServiceTariff $factorItemServiceTariff
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(FactorItemServiceTariff $factorItemServiceTariff)
     {
         $factor_item_service_tariff = $factorItemServiceTariff;
         $factor_item = $factor_item_service_tariff->factorItem;

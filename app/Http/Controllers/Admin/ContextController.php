@@ -13,6 +13,9 @@ class ContextController extends Controller
 {
     use SiteRules;
 
+    /**
+     *array list of domain expire date key
+     */
     const DOMAINS_EXPIRE_DATE_KEYS = array(
         'domain_expire_date_lalecard.ir',
         'domain_expire_date_lalecard.com',
@@ -24,6 +27,9 @@ class ContextController extends Controller
         'domain_expire_date_lalebank.com',
     );
 
+    /**
+     *array lis of other expire date keys
+     */
     const OTHER_EXPIRE_DATE_KEYS = array(
         'vps_expire_date',
         'plesk_expire_date',

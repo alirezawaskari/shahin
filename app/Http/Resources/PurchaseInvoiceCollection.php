@@ -7,8 +7,16 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PurchaseInvoiceCollection extends ResourceCollection
 {
+
+    /**
+     * @var
+     */
     private $total_purchase_invoices;
 
+    /**
+     * @param $total_purchase_invoices
+     * @param $collection
+     */
     public function __construct($total_purchase_invoices , $collection)
     {
         parent::__construct($collection);

@@ -7,6 +7,11 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class PerformanceDetailCollection extends ResourceCollection
 {
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [

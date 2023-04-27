@@ -6,6 +6,10 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Str;
 class ContactCollection extends ResourceCollection
 {
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
@@ -24,3 +28,4 @@ class ContactCollection extends ResourceCollection
         ];
     }
 }
+

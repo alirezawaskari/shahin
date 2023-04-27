@@ -4,62 +4,52 @@ newCategoryLink();
 var send_link_var = $('#sendLink').html();
 $("#sendLink").empty();
 
+//add new service link to the send link page with self counter
 function newServiceLink() {
     ct++;
-    var div1 = document.createElement('div');
-    div1.id = ct;
+    var div1 = $('<div>').prop({id: ct}).addClass('row');
     var delLink = '<a class="text-white" href="javascript:delServiceLink(' + ct + ')"><div class="btn badge-red"><i class="fa fa-trash" aria-hidden="true"></i></div></a>';
 
-    div1.innerHTML = document.getElementById('newservicetpl').innerHTML;
-    div1.classList.add("row");
-    document.getElementById('newservice').appendChild(div1);
-    div1.children[4].id = "delete" + ct;
-    document.getElementById('delete' + ct).innerHTML = delLink;
+    div1.html($('#newservicetpl').html());
+    $('#newservice').append(div1);
+    div1.children().eq(4).prop('id', 'delete' + ct).html(delLink);
 
-    $("div#" + ct).children("div.service_category").children("select#service_category_id1")[0].id = "service_category_id" + ct;
-    document.getElementById('service_category_id' + ct).onchange = undefined;
-    $('#service_category_id' + ct).change(function () {
+    div1.children('.service_category').children('#service_category_id1').prop('id', 'service_category_id' + ct).off('change').on('change', function () {
         selectByCategory(this.id, this.value);
     });
 
-    $("div#" + ct).children("div.service").children("select#service_id1")[0].id = "service_id" + ct;
-    document.getElementById('service_id' + ct).onchange = undefined;
-    $('#service_id' + ct).change(function () {
-        getFinancialPlansTypeByItem(this.id, this.value , 'service');
+    div1.children('.service').children('#service_id1').prop('id', 'service_id' + ct).off('change').on('change', function () {
+        getFinancialPlansTypeByItem(this.id, this.value, 'service');
     });
 
-    $("div#" + ct).children("div.financial_plans_type").children("select#financial_plans_type_id1")[0].id = "financial_plans_type_id" + ct;
-
-    $("div#" + ct).children("div.service_purchase_type").children("select#service_purchase_type1")[0].id = "service_purchase_type" + ct;
+    div1.children('.financial_plans_type').children('#financial_plans_type_id1').prop('id', 'financial_plans_type_id' + ct);
+    div1.children('.service_purchase_type').children('#service_purchase_type1').prop('id', 'service_purchase_type' + ct);
 
     getDataRequired(ct);
 }
 
+//add new category link to the send link page with self counter
 function newCategoryLink() {
     ct++;
-    var div1 = document.createElement('div');
-    div1.id = ct;
+    var div1 = $('<div>').prop({id: ct}).addClass('row');
     var delLink = '<a class="text-white" href="javascript:delCategoryLink(' + ct + ')"><div class="btn badge-red"><i class="fa fa-trash" aria-hidden="true"></i></div></a>';
 
-    div1.innerHTML = document.getElementById('newcategorytpl').innerHTML;
-    div1.classList.add("row");
-    document.getElementById('newcategory').appendChild(div1);
-    div1.children[3].id = "delete" + ct;
-    document.getElementById('delete' + ct).innerHTML = delLink;
+    div1.html($('#newcategorytpl').html());
+    $('#newcategory').append(div1);
+    div1.children().eq(3).prop('id', 'delete' + ct).html(delLink);
 
-    $("div#" + ct).children("div.product_category").children("select#product_category_id1")[0].id = "product_category_id" + ct;
+    div1.children('.product_category').children('#product_category_id1').prop('id', 'product_category_id' + ct);
 
-    $("div#" + ct).children("div.financial_plans_type").children("select#financial_plans_type_id1")[0].id = "financial_plans_type_id" + ct;
-    document.getElementById('financial_plans_type_id' + ct).onchange = undefined;
-    $('#financial_plans_type_id' + ct).change(function () {
-        getFinancialPlansTypeByItem(this.id, this.value , 'category');
+    div1.children('.financial_plans_type').children('#financial_plans_type_id1').prop('id', 'financial_plans_type_id' + ct).off('change').on('change', function () {
+        getFinancialPlansTypeByItem(this.id, this.value, 'category');
     });
 
-    $("div#" + ct).children("div.category_purchase_type").children("select#category_purchase_type1")[0].id = "category_purchase_type" + ct;
+    div1.children('.category_purchase_type').children('#category_purchase_type1').prop('id', 'category_purchase_type' + ct);
 
     getDataRequired(ct);
 }
 
+// delete service link
 function delServiceLink(eleId) {
     d = document;
     var ele = d.getElementById(eleId);
@@ -67,6 +57,7 @@ function delServiceLink(eleId) {
     parentEle.removeChild(ele);
 }
 
+// delete category link
 function delCategoryLink(eleId) {
     d = document;
     var ele = d.getElementById(eleId);
@@ -74,13 +65,10 @@ function delCategoryLink(eleId) {
     parentEle.removeChild(ele);
 }
 
-function getFinancialPlansTypeByItem(id, value , type) {
-    if(type == 'category')
-    {
+function getFinancialPlansTypeByItem(id, value, type) {
+    if (type == 'category') {
         id = id.slice(19);
-    }
-    else if(type == 'service')
-    {
+    } else if (type == 'service') {
         id = id.slice(10);
     }
 
@@ -105,7 +93,8 @@ function getFinancialPlansTypeByItem(id, value , type) {
                 if (data.count == 'available') {
                     $('#financial_plans_type_id' + id).find('option').remove();
                     for (var i = 0; i < data.financial_plans_types.length; i++) {
-                        $('#financial_plans_type_id' + id).append('<option value="' + data.financial_plans_types[i]['id'] + '">' + data.financial_plans_types[i]['label'] + '</option>');
+                        $(`#financial_plans_type_id${id}`).append(`<option value="${data.financial_plans_types[i].id}">${data.financial_plans_types[i].label}</option>`);
+
                     }
                 }
             }
@@ -140,43 +129,61 @@ function selectByCategory(id, value) {
     }
 }
 
+//fill service and category form
 function getDataRequired(id) {
     $.ajax({
         url: '/dashboard/tasks-requires',
         type: 'get',
         dataType: 'json',
-        success: function success(data) {
-            $('#service_id' + id).find('option').remove();
-            $('#service_id' + id).append('<option selected disabled>انتخاب خدمات</option>');
-            for (var i = 0; i < data.data.services.length; i++) {
-                $('#service_id' + id).append('<option value="' + data.data.services[i]['id'] + '">' + data.data.services[i]['label'] + '</option>');
+        success: function (data) {
+            var serviceOptions = $(`#service_id${id}`).find('option');
+            serviceOptions.remove();
+            serviceOptions.append('<option selected disabled>انتخاب خدمات</option>');
+            for (var service of data.data.services) {
+                var option = `<option value="${service.id}">${service.label}</option>`;
+                serviceOptions.append(option);
             }
-            $('#category_id' + id).find('option').remove();
-            $('#category_id' + id).append('<option value="all">انتخاب دسته بندی</option>');
-            for (var i = 0; i < data.data.categories.length; i++) {
-                $('#category_id' + id).append('<option value="' + data.data.categories[i]['id'] + '">' + data.data.categories[i]['label'] + '</option>');
+
+            var categoryOptions = $(`#category_id${id}`).find('option');
+            categoryOptions.remove();
+            categoryOptions.append('<option value="all">انتخاب دسته بندی</option>');
+            for (var category of data.data.categories) {
+                var option = `<option value="${category.id}">${category.label}</option>`;
+                categoryOptions.append(option);
             }
-            $('#callcenter_id').find('option').remove();
-            $('#callcenter_id').append('<option value="all">انتخاب پشتیبان</option>');
-            for (var i = 0; i < data.data.callcenters.length; i++) {
-                $('#callcenter_id').append('<option value="' + data.data.callcenters[i]['id'] + '">' + data.data.callcenters[i]['name'] + ' ' + data.data.callcenters[i]['family'] + '</option>');
+
+            var callcenterOptions = $('#callcenter_id').find('option');
+            callcenterOptions.remove();
+            callcenterOptions.append('<option value="all">انتخاب پشتیبان</option>');
+            for (var callcenter of data.data.callcenters) {
+                var option = `<option value="${callcenter.id}">${callcenter.name} ${callcenter.family}</option>`;
+                callcenterOptions.append(option);
             }
-            $('#center_id').find('option').remove();
-            $('#center_id').append('<option value="all">انتخاب مرکز</option>');
-            for (var i = 0; i < data.data.centers.length; i++) {
-                $('#center_id').append('<option value="' + data.data.centers[i]['id'] + '">' + data.data.centers[i]['title'] + '</option>');
+
+            var centerOptions = $('#center_id').find('option');
+            centerOptions.remove();
+            centerOptions.append('<option value="all">انتخاب مرکز</option>');
+            for (var center of data.data.centers) {
+                var option = `<option value="${center.id}">${center.title}</option>`;
+                centerOptions.append(option);
             }
-            $('#representation_id').find('option').remove();
-            $('#representation_id').append('<option value="all">انتخاب نمایندگی</option>');
-            for (var i = 0; i < data.data.representations.length; i++) {
-                $('#representation_id').append('<option value="' + data.data.representations[i]['id'] + '">' + data.data.representations[i]['fa_name'] + '</option>');
+
+            var representationOptions = $('#representation_id').find('option');
+            representationOptions.remove();
+            representationOptions.append('<option value="all">انتخاب نمایندگی</option>');
+            for (var representation of data.data.representations) {
+                var option = `<option value="${representation.id}">${representation.fa_name}</option>`;
+                representationOptions.append(option);
             }
-            $('#organization_id').find('option').remove();
-            $('#organization_id').append('<option value="all">انتخاب سازمان</option>');
-            for (var i = 0; i < data.data.organizations.length; i++) {
-                $('#organization_id').append('<option value="' + data.data.organizations[i]['id'] + '">' + data.data.organizations[i]['fa_name'] + '</option>');
+
+            var organizationOptions = $('#organization_id').find('option');
+            organizationOptions.remove();
+            organizationOptions.append('<option value="all">انتخاب سازمان</option>');
+            for (var organization of data.data.organizations) {
+                var option = `<option value="${organization.id}">${organization.fa_name}</option>`;
+                organizationOptions.append(option);
             }
-        }
+        },
     });
 }
 
@@ -227,9 +234,9 @@ function fillSendLinkTasksTableBody(tasks) {
     $('#send-link-tasks-tbody').empty()
     $.each(tasks.data, function (index, value) {
         status_badge = getBadgeOfCallCenterStatus(value.status)
-        description='';
-        if (value.service!=null){
-            description=value.service;
+        description = '';
+        if (value.service != null) {
+            description = value.service;
         }
         $('#send-link-tasks-tbody').append(`
         <tr>
@@ -246,9 +253,9 @@ function fillInProgressTableBody(tasks) {
     $('#in-progress-tasks-tbody').empty()
     $.each(tasks.data, function (index, value) {
         status_badge = getBadgeOfCallCenterStatus(value.status)
-        description='';
-        if (value.service!=null){
-            description=value.service;
+        description = '';
+        if (value.service != null) {
+            description = value.service;
         }
         $('#in-progress-tasks-tbody').append(`
         <tr>
@@ -306,31 +313,31 @@ function generateDataTableUserHistories(data) {
 
 function generateDataTableUserFactors(data) {
     $('#data-table-factors tbody').empty();
-    var i=1;
+    var i = 1;
     $.each(data, function (index, value) {
-      let factor_status_badge='';
-         switch (value.status) {
+        let factor_status_badge = '';
+        switch (value.status) {
             case 0:
-                factor_status_badge= '<span class="badge badge-warning">در انتظار پرداخت</span> ';
+                factor_status_badge = '<span class="badge badge-warning">در انتظار پرداخت</span> ';
                 break;
             case 1:
-                factor_status_badge= '<span class="badge badge-success">پرداخت شده</span> ';
+                factor_status_badge = '<span class="badge badge-success">پرداخت شده</span> ';
                 break;
             case 2:
-                factor_status_badge= '<span class="badge badge-danger">عودت پرداخت</span>';
+                factor_status_badge = '<span class="badge badge-danger">عودت پرداخت</span>';
                 break;
             case 3:
-                factor_status_badge= '<span class="badge badge-danger">منقضی شده</span>';
+                factor_status_badge = '<span class="badge badge-danger">منقضی شده</span>';
                 break;
             case 4:
-                factor_status_badge= '<span class="badge badge-success">عودت واریزی</span>';
+                factor_status_badge = '<span class="badge badge-success">عودت واریزی</span>';
                 break;
             case 5:
-                factor_status_badge= '<span class="badge badge-danger">واریز شده</span>';
+                factor_status_badge = '<span class="badge badge-danger">واریز شده</span>';
                 break;
             default:
-                factor_status_badge= ''
-                 break;
+                factor_status_badge = ''
+                break;
         }
         $('#data-table-factors tbody').append(`
         <tr>
@@ -345,7 +352,7 @@ function generateDataTableUserFactors(data) {
         </tr>
         `)
     });
-  }
+}
 
 //setting for loading send link modal
 $(document).on('show.bs.modal', '.modal', function () {
@@ -368,11 +375,11 @@ $('#btnGroupDrop1').on('click', function () {
 //on change request type in create task
 $("body").on('change', '#requestType', function () {
     if ($(this).val() == 'link') {
-        $('#linkRequest').css('display', 'block');
-        $('#otherRequest').css('display', 'none');
+        $('#linkRequest').show();
+        $('#otherRequest').hide();
     } else {
-        $('#otherRequest').css('display', 'block');
-        $('#linkRequest').css('display', 'none');
+        $('#otherRequest').show();
+        $('#linkRequest').hide();
     }
 });
 
@@ -381,29 +388,19 @@ $("body").on('click', '.task-status', function () {
     var div1 = document.createElement('div');
     div1.innerHTML = send_link_var;
     $("#sendLink").append(div1);
-    $("#historyBtn").css('display', 'none');
-    $("#requestType").css('display', 'none');
+    $("#historyBtn, #requestType").hide();
 })
 
 $("body").on('click', '.fast-service', function () {
-    $(".financial_plans_type").hide()
-    $(".service_purchase_type").hide()
-    $(".factor-payment-type").hide()
-    $(".category_purchase_type").hide()
+    $(".financial_plans_type, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
     $("#register_type").val('send_link_site');
 })
 
 $(document).on('change', '#send-factor', function () {
     if (this.checked) {
-        $(".financial_plans_type").show()
-        $(".service_purchase_type").show()
-        $(".factor-payment-type").show()
-        $(".category_purchase_type").show()
+        $(".financial_plans_type, .service_purchase_type, .factor-payment-type, .category_purchase_type").show();
     } else {
-        $(".financial_plans_type").hide()
-        $(".service_purchase_type").hide()
-        $(".factor-payment-type").hide()
-        $(".category_purchase_type").hide()
+        $(".financial_plans_type, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
     }
 });
 
@@ -425,7 +422,7 @@ $('body').on('change', '#province', function () {
                 .empty()
                 .append('<option value="all">انتخاب شهر</option>');
             $.each(data.cities, function (i, d) {
-                $('#cities').append('<option value="' + d.id + '">' + d.name + '</option>');
+                $('#cities').append(`<option value="${d.id}">${d.name}</option>`);
             });
         }
     });

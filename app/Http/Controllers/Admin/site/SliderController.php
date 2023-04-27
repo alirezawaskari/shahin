@@ -4,23 +4,32 @@ namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Slider;
 use Illuminate\Http\Request;
 
 class SliderController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $sliders = Slider::where('type',"0")->orderBy('id', 'DESC')->paginate(15);
         return view('Admin.site.slider.list', ['sliders' => $sliders]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         return view('Admin.site.slider.create');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $request->validate(['title' => 'required',
@@ -44,11 +53,18 @@ class SliderController extends Controller
             ->with(['create' => 'success']);
     }
 
+    /**
+     * @param $id
+     */
     public function show($id)
     {
         //
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function edit($id)
     {
         if ($id) {
@@ -58,6 +74,11 @@ class SliderController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         $request->validate(['title' => 'required',
@@ -85,6 +106,10 @@ class SliderController extends Controller
 
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         if ($id) {
@@ -101,6 +126,10 @@ class SliderController extends Controller
     }
 
 
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function removeImgSlider(Request $request)
     {
         if (isset($request->slider_id)) {

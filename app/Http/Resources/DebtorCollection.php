@@ -40,6 +40,11 @@ class DebtorCollection extends ResourceCollection
             })
         ];
     }
+
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \int[][]
+     */
     public function with($request)
     {
         return [
@@ -49,8 +54,12 @@ class DebtorCollection extends ResourceCollection
         ];
     }
 
+    /**
+     * @return mixed
+     */
     public function setDeletePermission()
     {
         return auth()->user()->isAbleTo('user-delete');
     }
 }
+

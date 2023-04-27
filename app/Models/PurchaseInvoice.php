@@ -9,55 +9,93 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseInvoice extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'factor_image' => 'array',
         'values' => 'array',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function center()
     {
         return $this->belongsTo(Center::class, 'center_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function representation()
     {
         return $this->belongsTo(Representation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function product_storeRoom()
     {
         return $this->hasMany(ProductStoreRoom::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function supplier()
     {
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function purchaseInvoiceInstallments()
     {
         return $this->hasMany(PurchaseInvoiceInstallment::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function purchaseInvoiceFactors()
     {
         return $this->hasMany(PurchaseInvoiceFactor::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function reports()
     {
         return $this->hasMany(ReportPurchaseInvoice::class);
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function status($status)
     {
         return [
@@ -75,6 +113,10 @@ class PurchaseInvoice extends Model
         ][$status];
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function getClassByStatus($status)
     {
         return [
@@ -92,6 +134,10 @@ class PurchaseInvoice extends Model
         ][$status];
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $id = request('id');
@@ -119,6 +165,10 @@ class PurchaseInvoice extends Model
         return $query;
     }
 
+    /**
+     * @param $type
+     * @return string|void
+     */
     public static function type($type)
     {
         if ($type == 0) {

@@ -21,16 +21,26 @@ class Agency extends Model
         'values' => 'array'
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function agencyType()
     {
         return $this->belongsTo(AgencyType::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function histories()
     {
         return $this->morphMany(History::class , 'historiable');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');
@@ -69,6 +79,11 @@ class Agency extends Model
         return $query;
     }
 
+    /**
+     * @param $user
+     * @param $service
+     * @return bool
+     */
     protected static function createUpdate($user , $service)
     {
         if(Agency::where('phone' , $user->phone)->first())
@@ -90,6 +105,10 @@ class Agency extends Model
         return true;
     }
 
+    /**
+     * @param $service
+     * @return int|void
+     */
     protected static function getAgencyType($service)
     {
         if($service == 17)
@@ -115,6 +134,11 @@ class Agency extends Model
     }
 
     //get status agency
+
+    /**
+     * @param $status
+     * @return string
+     */
     protected static function status($status)
     {
         //get status factor

@@ -10,6 +10,10 @@ use Carbon\Carbon;
 class TotalFactorItem extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -17,6 +21,9 @@ class TotalFactorItem extends Model
      */
     protected $guarded = [];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'contract_values' => 'array',
         'factor_values' => 'array',
@@ -24,6 +31,9 @@ class TotalFactorItem extends Model
         'price_difference' => 'array',
     ];
 
+    /**
+     *
+     */
     const GuaranteeTYPE = [
         'check' => 'چک',
         'certificate' => 'گواهی کسراز حقوق',
@@ -87,6 +97,10 @@ class TotalFactorItem extends Model
         return $this->morphMany(History::class , 'historiable');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $phone = request('phone');

@@ -4,17 +4,19 @@ namespace App\Exports;
 
 use App\Models\sms;
 use App\Models\User;
-use Hekmatinasser\Verta\Verta;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
-use function PHPSTORM_META\map;
 
 class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $tasks;
 
     /**
@@ -73,6 +75,11 @@ class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
         return $map_tasks;
     }
 
+    /**
+     * @param $phone
+     * @param $item
+     * @return string|void
+     */
     public function setService($phone , $item)
     {
         $user = User::wherePhone($phone)->first();
@@ -110,7 +117,13 @@ class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
             return 'ندارد';
         }
     }
-	public function setPrice($phone , $item)
+
+    /**
+     * @param $phone
+     * @param $item
+     * @return string|void
+     */
+    public function setPrice($phone , $item)
     {
         $user = User::wherePhone($phone)->first();
         if ($user){
@@ -141,11 +154,18 @@ class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
             return 'ندارد';
         }
     }
+
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نوع' , 'شماره پیامک شده' , 'شماره کاربر ثبت نامی' ,'کالسنتر' ,'نوع خدمت','مبلغ' ,'وضعیت','توضیحات','تاریخ یادآوری','زمان یادآوری','تاریخ ثبت'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

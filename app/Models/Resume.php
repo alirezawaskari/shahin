@@ -6,20 +6,36 @@ use Illuminate\Database\Eloquent\Model;
 
 class Resume extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function recruitment_notice()
     {
         return $this->belongsTo(RecruitmentNotice::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function histories()
     {
         return $this->morphMany(History::class, 'historiable');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');
@@ -60,6 +76,10 @@ class Resume extends Model
         return $query;
     }
 
+    /**
+     * @param $status
+     * @return string
+     */
     public static function status($status)
     {
         switch ($status) {

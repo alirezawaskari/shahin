@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Callcenter;
 use App\Models\City;
-use App\Events\fastserviceCallcenter;
-use App\Models\Province;
-use App\Models\Organization;
-use App\Models\Service;
-use App\Models\Slider;
-use App\Models\User;
 use App\Models\Factor;
+use App\Models\Organization;
+use App\Models\Province;
+use App\Models\Service;
+use App\Models\User;
 
 class OrganizationController extends Controller
 {
+    /**
+     * @param Organization $organization
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index(Organization $organization)
     {
         if ($organization->status){
@@ -23,6 +25,14 @@ class OrganizationController extends Controller
         }
        return abort(404);
     }
+
+    /**
+     * @param Organization $organization
+     * @param Service $service
+     * @param User $callcenter
+     * @param Factor $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function single(Organization $organization , Service $service , User $callcenter , Factor $factor)
     {
         $user = auth()->user();

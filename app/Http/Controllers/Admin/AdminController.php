@@ -3,29 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
+use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\Contact;
 use App\Models\Factor;
-use App\Models\PurchaseInvoice;
-use App\Models\Resume;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\FactorCollection;
-use App\Models\Service;
 use App\Models\FactorItem;
-use App\Models\ProductStoreRoom;
-use App\Models\User;
+use App\Models\PurchaseInvoice;
 use App\Models\Representation;
+use App\Models\Resume;
+use App\Models\Service;
 use App\Models\TotalFactorItem;
+use App\Models\User;
 use App\Models\WorkSample;
 use Carbon\Carbon;
-use App\Helpers\Helper;
 use DB;
-use Hekmatinasser\Verta\Verta;
 use Illuminate\Http\Request;
+
 
 class AdminController extends Controller
 {
-    public function uploadImage( Request $request ) {
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function uploadImage(Request $request ) {
         $file = $request->file;
         $path = $request->path;
         $year = Carbon::now()->year;
@@ -41,6 +43,12 @@ class AdminController extends Controller
     }
 
     //upload img to temp folder
+
+    /**
+     * @param Request $request
+     * @return array|false[]
+     * @throws \Exception
+     */
     public function uploadPhotosTemporarily(Request $request)
     {
         if (isset($request->file)) {
@@ -68,6 +76,10 @@ class AdminController extends Controller
     }
 
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function dashboard(Request $request)
     {
         $percent_employee = auth()->user()->employee->percent/100;
@@ -355,6 +367,10 @@ class AdminController extends Controller
         return view('Admin.index', compact('totalMonthFactorCount', 'totalMonthFactorPaidCount','link','callcenter_users','callcenters' , 'services' , 'representations','type','service_name','service_count','label_month', 'label_week', 'factor_week', 'factor_month', 'user_month', 'user_week','totalUser', 'totalDayUser', 'totalDayFactor', 'totalDayFactorPrice','totalDayFactorPriceOrgan','totalYesterdayFactorPrice', 'totalWeekFactorPrice' ,'totalMonthFactorPrice','totalSixMonthFactorPrice', 'totalMonthFactor','totalBeforeMonthFactorPrice', 'totalYearFactorPrice', 'totalAllFactorPrice' ,'totalMonthUser'));
     }
 
+    /**
+     * @param $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function setLink($service)
     {
         $representation = auth()->user()->admin_representation;
@@ -372,6 +388,10 @@ class AdminController extends Controller
         return response(['message' => $message, 'link' => $link]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function dailyDesktop()
     {
         $item = [];
@@ -444,12 +464,20 @@ class AdminController extends Controller
         return view('Admin.dailyDesktop' , compact('item','expire_dates','iran_sms_credit'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function fetchUser(Request $request)
     {
         $users = User::where('family', 'LIKE', '%' . $request->value . '%')->orWhere('phone', $request->value)->get();
         return response(['operator' => true, 'data' => $users]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function cities(Request $request)
     {
         return response([
@@ -457,6 +485,10 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function user(Request $request)
     {
         $user = User::where('phone', $request->phone)->get();
@@ -507,15 +539,27 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function summernote_image(Request $request)
     {
         return $this->upload($request->image);
     }
 
-    public function uploadFile( Request $request ) {
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function uploadFile(Request $request ) {
         return Helper::uploadImage( $request->file, $request->path );
     }
 
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function removeImgWorkSample(Request $request)
     {
         if (isset($request->work_sample_id)) {

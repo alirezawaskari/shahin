@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
 use App\Models\AttributeGroup;
-use App\Models\Center;
 use App\Models\Category;
-use App\Models\Gallery;
+use App\Models\Center;
+use App\Models\CenterRequest;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Validation;
-use Illuminate\Http\Request;
-use App\Models\CenterCategory;
-use App\Models\CenterRequest;
-use App\Models\Tariff;
 use Cviebrock\EloquentSluggable\Services\SlugService;
+use Illuminate\Http\Request;
 
 class CenterController extends AdminController
 {

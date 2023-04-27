@@ -5,11 +5,10 @@ namespace App\Jobs;
 use App\Classes\External\IranSms;
 use App\Models\SmsLinkFactorLog;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use GuzzleHttp\Client;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class installmentLinkSmsJob implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -21,7 +20,10 @@ class installmentLinkSmsJob implements ShouldQueue {
     */
     private $detail;
 
-    public function __construct( $detail ) {
+    /**
+     * @param $detail
+     */
+    public function __construct($detail ) {
         $this->detail = $detail;
     }
 
@@ -50,6 +52,11 @@ class installmentLinkSmsJob implements ShouldQueue {
         }
     }
 
+    /**
+     * @param $phone
+     * @param $title
+     * @return mixed
+     */
     private function checkAlreadySendSmsLog($phone , $title)
     {
         return SmsLinkFactorLog::where('phone' , $phone)->where('title' , $title)->whereDate('created_at', '=', date('Y-m-d'))->exists();

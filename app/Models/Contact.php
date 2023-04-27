@@ -6,22 +6,38 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contact extends Model
 {
-   protected $guarded = [];
+    /**
+     * @var array
+     */
+    protected $guarded = [];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'files' => 'array',
     ];
 
-   public function card()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function card()
    {
       return $this->belongsTo(Card::class, 'card_id');
    }
 
-   public function responder()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function responder()
    {
       return $this->belongsTo(User::class, 'responder_id');
    }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');

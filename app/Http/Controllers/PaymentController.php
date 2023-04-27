@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\successFactor;
-use App\Events\sendlinkFactor;
-use App\Models\Factor;
-use App\Models\FactorItem;
-use App\Models\Payment;
 use App\FactorItemInstallment;
 use App\Lib\zarinpal;
+use App\Models\Factor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use nusoap_client;
 
 class PaymentController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|void
+     */
     public function pay(Request $request)
     {
         $factor = Factor::findOrFail($request->input('factor_id'));
@@ -59,6 +58,10 @@ class PaymentController extends Controller
        }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|string
+     */
     public function callback(Request $request)
     {
         $Authority = $request->get('Authority') ;
@@ -98,6 +101,11 @@ class PaymentController extends Controller
         }
         return redirect(route('factor', [$factor->resnumber]));
     }
+
+    /**
+     * @param Factor $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function fastpay(Factor $factor)
     {
         if ($factor && $factor->status != 1) {
@@ -108,6 +116,9 @@ class PaymentController extends Controller
         }
     }
 
+    /**
+     * @param $factor
+     */
     private static function sendSMS($factor)
     {
         //event(new successFactor($factor->user, $factor->resnumber));
@@ -120,6 +131,11 @@ class PaymentController extends Controller
 			  }
 		  }*/
     }
+
+    /**
+     * @param $factor
+     * @param $payment
+     */
     private static function setGiftStatus($factor, $payment)
     {
         /*   foreach ($factor->gifts as $gift) {
@@ -129,6 +145,11 @@ class PaymentController extends Controller
 			   ]);
 		   }*/
     }
+
+    /**
+     * @param $factor
+     * @return float|int
+     */
     private static function discount($factor)
     {
         $amount = $factor->price;

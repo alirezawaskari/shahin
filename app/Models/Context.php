@@ -10,10 +10,16 @@ class Context extends Model
 {
     use SoftDeletes;
 
+    /**
+     *key of rules body
+     */
     const SITE_RULES_KEYS = [
         'site_rules_body'
     ];
 
+    /**
+     * @var string[]
+     */
     protected $guarded=['id'];
 
     /**

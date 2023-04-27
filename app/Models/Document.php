@@ -50,6 +50,10 @@ class Document extends Model
         }
     }
 
+    /**
+     * @param $status_mali
+     * @return string|void
+     */
     protected static function statusMali($status_mali)
     {
         //get status mali file
@@ -70,7 +74,10 @@ class Document extends Model
         }
     }
 
-	protected static function checkInstallments(FactorItem $factorItem)
+    /**
+     * @param FactorItem $factorItem
+     */
+    protected static function checkInstallments(FactorItem $factorItem)
     {
         $expire_installments = count($factorItem->FactorItemInstallments->where('status', 0)->where('date', '<', Carbon::now()));
         if(!$expire_installments)

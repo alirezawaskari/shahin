@@ -5,22 +5,25 @@ namespace App\Helpers;
 use App\Models\Agency;
 use App\Models\Attribute;
 use App\Models\AttributeGroup;
-use App\Models\Callcenterstatus;
 use App\Models\Category;
 use App\Models\CategoryArticle;
 use App\Models\Product;
-use App\Models\ServiceItem;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Models\VipUser;
+use Carbon\Carbon;
 use File;
+use GuzzleHttp\Client;
 use Intervention\Image\Facades\Image;
 use Verta;
-use GuzzleHttp\Client;
 
 class Helper {
 
-    public static function uploadFile( $file, $path ) {
+    /**
+     * @param $file
+     * @param $path
+     * @return string
+     */
+    public static function uploadFile($file, $path ) {
         $year = Carbon::now()->year;
         $month = Carbon::now()->month;
 
@@ -34,6 +37,12 @@ class Helper {
         return $filepath . $filename;
     }
 
+
+    /**
+     * @param $file
+     * @param $path
+     * @return string
+     */
     public static function uploadImage($file, $path)
     {
         $year = Carbon::now()->year;
@@ -60,7 +69,11 @@ class Helper {
         return $filepath . $filename;
     }
 
-    public static function deleteImage( $file ) {
+    /**
+     * @param $file
+     * @return string
+     */
+    public static function deleteImage($file ) {
         if ( \File::exists( public_path( $file ) ) ) {
             \File::delete( public_path( $file ) );
             return 'true';
@@ -68,7 +81,12 @@ class Helper {
         return 'false';
     }
 
-    public static function user( $id, $field ) {
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function user($id, $field ) {
         if ( $id ) {
             $rec = User::find( $id );
             if ( $rec ) {
@@ -78,7 +96,11 @@ class Helper {
         return null;
     }
 
-    public static function iconIsItOrNot( $value ) {
+    /**
+     * @param $value
+     * @return string
+     */
+    public static function iconIsItOrNot($value ) {
         if ( $value != '' && $value == 1 ) {
             return '<i class="fa fa-check" aria-hidden="true"></i>' ;
         } else if ( $value == 0 ) {
@@ -87,22 +109,38 @@ class Helper {
         return '<i class="fa fa-minus" aria-hidden="true"></i>' ;
     }
 
-    public static function vertaTocarbon( $date ) {
+    /**
+     * @param $date
+     * @return string
+     */
+    public static function vertaTocarbon($date ) {
         return Carbon::instance( $date->DateTime() )->toDateString();
     }
 
-    public static function vertaToMiladi( $date ) {
+    /**
+     * @param $date
+     * @return mixed
+     */
+    public static function vertaToMiladi($date ) {
         $v = Verta::parse( Helper::numberConverter( $date ) );
         return $v->formatGregorian( 'Y-m-d H:i:s' );
     }
 
-    public static function numberConverter( $number ) {
+    /**
+     * @param $number
+     * @return array|string|string[]
+     */
+    public static function numberConverter($number ) {
         $persian = array( '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹' );
         $num = range( 0, 9 );
         return str_replace( $persian, $num, $number );
     }
 
-    public static function userHistories( $register ) {
+    /**
+     * @param $register
+     * @return array
+     */
+    public static function userHistories($register ) {
         $user = auth()->user();
         $histories = [];
         $histories_sort = [];
@@ -152,6 +190,11 @@ class Helper {
         return $histories_sort;
     }
 
+    /**
+     * @param $histories
+     * @param $item_histories
+     * @return mixed
+     */
     public static function historyCollection($histories , $item_histories) {
         foreach ( $item_histories as $history ) {
             $histories[] = [
@@ -165,7 +208,12 @@ class Helper {
 
         return $histories;
     }
-    public static function vipUser( $vip, $user ) {
+
+    /**
+     * @param $vip
+     * @param $user
+     */
+    public static function vipUser($vip, $user ) {
         if ( $vip ) {
             VipUser::firstOrCreate( [ 'user_id' => $user, 'type' => 'VIP' ] );
             VipUser::where( 'user_id', $user )->where( 'type', 'SOS' )->delete();
@@ -174,7 +222,11 @@ class Helper {
         }
     }
 
-    public static function sosUser( $sos, $user ) {
+    /**
+     * @param $sos
+     * @param $user
+     */
+    public static function sosUser($sos, $user ) {
         if ( $sos ) {
             VipUser::firstOrCreate( [ 'user_id' => $user, 'type' => 'SOS' ] );
             VipUser::where( 'user_id', $user )->where( 'type', 'VIP' )->delete();
@@ -205,7 +257,12 @@ class Helper {
          return $admin_user_id;
     }
 
-    public static function moveImage( $temp_path, $image_path ) {
+    /**
+     * @param $temp_path
+     * @param $image_path
+     * @return string
+     */
+    public static function moveImage($temp_path, $image_path ) {
         //image_path=>must be format = > 'upload/test/'
         $img_detail = explode( '/', $temp_path );
         if ( isset( $img_detail[ 3 ] ) )$year = $img_detail[ 3 ];
@@ -224,7 +281,11 @@ class Helper {
         return '';
     }
 
-    public static function isItOrNot( $value ) {
+    /**
+     * @param $value
+     * @return string
+     */
+    public static function isItOrNot($value ) {
         if ( $value != '' && $value == 1 ) {
             return 'دارد' ;
         } else if ( $value == 0 ) {
@@ -233,7 +294,11 @@ class Helper {
         return '';
     }
 
-    public static function activeOrNot( $value ) {
+    /**
+     * @param $value
+     * @return string
+     */
+    public static function activeOrNot($value ) {
         if ( $value != '' && $value == 1 ) {
             return 'فعال' ;
         } else if ( $value == 0 ) {
@@ -242,7 +307,12 @@ class Helper {
         return '';
     }
 
-    public static function attributeGroups( $id, $field ) {
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function attributeGroups($id, $field ) {
         if ( $id ) {
             $rec = AttributeGroup::find( $id );
             if ( $rec ) {
@@ -252,7 +322,12 @@ class Helper {
         return null;
     }
 
-    public static function attribute( $id, $field ) {
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function attribute($id, $field ) {
         if ( $id ) {
             $rec = Attribute::find( $id );
             if ( $rec ) {
@@ -262,7 +337,12 @@ class Helper {
         return null;
     }
 
-    public static function categoryArticle( $id, $field ) {
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function categoryArticle($id, $field ) {
         if ( $id ) {
             $rec = CategoryArticle::find( $id );
             if ( $rec ) {
@@ -272,7 +352,11 @@ class Helper {
         return null;
     }
 
-    public static function convert( $string ) {
+    /**
+     * @param $string
+     * @return array|string|string[]
+     */
+    public static function convert($string ) {
         $persian = [ '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹' ];
         $arabic = [ '٩', '٨', '٧', '٦', '٥', '٤', '٣', '٢', '١', '٠' ];
 
@@ -283,7 +367,13 @@ class Helper {
         return $englishNumbersOnly;
     }
 
-    public static function sms( $phones, $message ) {
+    /**
+     * @param $phones
+     * @param $message
+     * @return string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public static function sms($phones, $message ) {
         $headers = [
             'apikey' => 'cpCIuUbmtBhYFw41+kpYs0mSNw+mkN4aZBELwgUMN+A',
             'Content-Type' => 'application/x-www-form-urlencoded'
@@ -303,7 +393,12 @@ class Helper {
         return 'true';
     }
 
-    public static function product( $id, $field ) {
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function product($id, $field ) {
         if ( $id ) {
             $rec = Product::where( 'id', $id )->first();
             if ( $rec && isset( $rec->$field ) ) {
@@ -313,7 +408,12 @@ class Helper {
         return null;
     }
 
-    public static function rootCategoryByProductId( $id, $field ) {
+    /**
+     * @param $id
+     * @param $field
+     * @return null
+     */
+    public static function rootCategoryByProductId($id, $field ) {
         $field_val = self::product( $id, $field );
         if ( $id ) {
             $rec = Category::where( 'id', $field_val )->select( 'id', 'title' )->first();

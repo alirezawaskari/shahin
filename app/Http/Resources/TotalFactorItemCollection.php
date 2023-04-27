@@ -2,12 +2,15 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
-use App\Models\FactorItem;
 use App\Models\TotalFactorItem;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class TotalFactorItemCollection extends ResourceCollection
 {
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return array
+     */
     public function toArray($request)
     {
         return [
@@ -50,14 +53,26 @@ class TotalFactorItemCollection extends ResourceCollection
             ]
         ];
     }
+
+    /**
+     * @return mixed
+     */
     private function setPerDetail()
     {
         return auth()->user()->isAbleTo('file-detail');
     }
+
+    /**
+     * @return mixed
+     */
     private function setPerEdit()
     {
         return auth()->user()->isAbleTo('file-edit');
     }
+
+    /**
+     * @return mixed
+     */
     private function setPerShow()
     {
         return auth()->user()->isAbleTo('file-show');

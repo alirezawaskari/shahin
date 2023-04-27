@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Classes\External\IranSms;
 use App\Events\ExtensionDate;
 use App\Events\smsNotAnswer;
- use GuzzleHttp\Client;
 
 class ExtensionSmsReminder
 {

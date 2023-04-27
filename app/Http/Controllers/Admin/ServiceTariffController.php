@@ -13,6 +13,9 @@ use App\Models\Tariff;
 
 class ServiceTariffController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $service_tariffs = ServiceTariff::all();
@@ -24,6 +27,9 @@ class ServiceTariffController extends Controller
 		return view('Admin.servicetariff.all' , compact('service_tariffs'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $centers = Center::where('status' , true)->get();
@@ -35,10 +41,18 @@ class ServiceTariffController extends Controller
         return view('Admin.servicetariff.create' , compact(['centers' , 'tariffs']));
     }
 
+    /**
+     *
+     */
     public function show()
     {
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -66,12 +80,20 @@ class ServiceTariffController extends Controller
         ]);
     }
 
-    public function edit( ServiceTariff $serviceTariff ) {
+    /**
+     * @param ServiceTariff $serviceTariff
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function edit(ServiceTariff $serviceTariff ) {
         $service = $serviceTariff->centers->first()->centerable;
         $tariffs = $service->tariffs;
         return view( 'Admin.servicetariff.edit', compact( 'serviceTariff' , 'tariffs') );
     }
 
+    /**
+     * @param Request $request
+     * @return ServiceTariffCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request ) {
         $service_tariffs = ServiceTariff::filter($request)->latest();
         if (isset($request->excel) && $request->excel == 'on') {
@@ -80,6 +102,12 @@ class ServiceTariffController extends Controller
         return new ServiceTariffCollection( $service_tariffs->paginate( 20 ));
     }
 
+    /**
+     * @param Request $request
+     * @param ServiceTariff $serviceTariff
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, ServiceTariff $serviceTariff)
     {
         $this->validate(request(), [
@@ -97,6 +125,10 @@ class ServiceTariffController extends Controller
         ]);
     }
 
+    /**
+     * @param ServiceTariff $serviceTariff
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(ServiceTariff $serviceTariff)
     {
         $serviceTariff->delete();
@@ -105,6 +137,10 @@ class ServiceTariffController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function selectByTariff(Request $request)
     {
        if ($request->ajax()) {
@@ -119,6 +155,10 @@ class ServiceTariffController extends Controller
        }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function getSessionNumber(Request $request)
     {
        if ($request->ajax()) {

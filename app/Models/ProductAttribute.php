@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -40,7 +39,7 @@ class ProductAttribute extends Model
     {
         return $this->hasMany(AttributeItem::class);
     }
-    
+
     public function couponItems()
     {
         return $this->morphMany(CouponItem::class, 'couponitemable');

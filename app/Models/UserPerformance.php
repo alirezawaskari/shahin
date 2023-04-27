@@ -11,6 +11,10 @@ class UserPerformance extends Model implements AuditableContract
 {
     use Auditable;
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -18,6 +22,9 @@ class UserPerformance extends Model implements AuditableContract
      */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
     /**
@@ -29,26 +36,42 @@ class UserPerformance extends Model implements AuditableContract
         return $this->belongsTo(FactorItem::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function callcenter()
     {
         return $this->belongsTo(User::class, 'callcenter_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function walletTransaction()
     {
         return $this->hasOne(WalletTransaction::class , 'reason_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function sessions()
     {
         return $this->hasMany(Session::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $phone = request('phone');
@@ -105,7 +128,14 @@ class UserPerformance extends Model implements AuditableContract
         return $query;
     }
 
-    public static function hasUserInviteByType($id,$type,$identifier_code,$user_id)
+    /**
+     * @param $id
+     * @param $type
+     * @param $identifier_code
+     * @param $user_id
+     * @return false|\Illuminate\Database\Eloquent\HigherOrderBuilderProxy|mixed
+     */
+    public static function hasUserInviteByType($id, $type, $identifier_code, $user_id)
     {
         $user_identifier = User::where('identifier_code',$identifier_code)->select('id','phone')->first();
 

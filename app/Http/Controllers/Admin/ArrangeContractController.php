@@ -23,6 +23,10 @@ class ArrangeContractController extends Controller
         //
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function arrangeContractList($id)
     {
         $arrange_contracts=[];
@@ -38,6 +42,10 @@ class ArrangeContractController extends Controller
         return view('Admin.arrangeContract.all', compact('arrange_contracts','contract_id'));
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function arrangeContractListDesktop($id)
     {
         $arrange_contracts=[];
@@ -177,7 +185,12 @@ class ArrangeContractController extends Controller
         //
     }
 
-    public function status($id,$status)
+    /**
+     * @param $id
+     * @param $status
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function status($id, $status)
     {
         $arrange_contract=ArrangeContract::find($id);
         if($arrange_contract) {

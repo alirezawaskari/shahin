@@ -2,23 +2,21 @@
 
 namespace App\Providers;
 
+use App\Menu;
 use App\Models\Banner;
 use App\Models\BannerLocation;
-use App\Models\ClothesService;
-use App\Models\Callcenter;
 use App\Models\Cardservice;
 use App\Models\Category;
 use App\Models\Center;
 use App\Models\CenterCategory;
+use App\Models\ClothesService;
 use App\Models\Constructionservice;
 use App\Models\Dentistryservice;
-use App\Models\Factor;
 use App\Models\Foodservice;
 use App\Models\Hotelservice;
 use App\Models\Insuranceservice;
 use App\Models\Internetservice;
 use App\Models\Legalservice;
-use App\Menu;
 use App\Models\Physiotherapyservice;
 use App\Models\Service;
 use App\Models\Setting;

@@ -14,6 +14,9 @@ class UserRequest extends Model
      */
     protected $guarded = [];
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
     /**

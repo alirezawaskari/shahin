@@ -6,10 +6,13 @@ use App\Models\RecruitmentNotice;
 use App\Models\Resume;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class RecruitmentNoticeController extends Controller
 {
+    /**
+     * @param $file
+     * @return string
+     */
     public function upload($file)
     {
         $year = Carbon::now()->year;
@@ -22,11 +25,21 @@ class RecruitmentNoticeController extends Controller
         $file->move(public_path($filepath), $filename);
         return $filepath . $filename;
     }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $recruitment_notices = RecruitmentNotice::where('status' , 1)->orderBy('updated_at' , 'desc')->get();
         return view('site.recruitmentNotice', compact('recruitment_notices'));
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function send_resume(Request $request)
     {
         $this->validate(request(), [

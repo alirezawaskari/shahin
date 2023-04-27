@@ -9,6 +9,10 @@ $(document).ready(function () {
     $("body").on('click', '#site-information-submit', function () {
         updateService('site-information-form')
     })
+    $("body").on('click', '#rules-submit', function () {
+
+        updateRules()
+    })
     $("body").on('click', '#question-information-submit', function () {
         updateService('question-information-form')
     })
@@ -39,6 +43,7 @@ $(document).ready(function () {
     CKEDITOR.replace( 'left_content',ck_uploader) ;
     CKEDITOR.replace('content',ck_uploader) ;
     CKEDITOR.replace( 'demo', ck_uploader);
+    CKEDITOR.replace( 'service_rules', ck_uploader);
 
     // work_sample
     $(document).on('click', '.remove_work_sample', function () {
@@ -153,6 +158,28 @@ function updateTextInformation(){
                 $('.transfer_message_box').empty();
                 $.each(response.messages, function (i, val) {
                     $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
+                });
+            }
+        }
+    });
+}
+//update rules of service
+function updateRules(){
+    // var rules = CKEDITOR.instances.rules.getData();
+    const rules = CKEDITOR.instances.service_rules.getData();
+
+    $.ajax({
+        url: $('#rules-form').attr("action"),
+        data: {
+            update_type:'rules',
+            rules:rules,
+        },
+        type : 'PATCH',
+        success: function (response) {
+            if (response.status == 'success') {
+                swal(response.messages[0], {
+                    icon: "success",
+                    button: "باشه"
                 });
             }
         }

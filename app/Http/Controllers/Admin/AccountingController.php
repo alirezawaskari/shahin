@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\DebtorUsersExport;
-use App\Exports\totalFactorItemInstallmentsExport;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DebtorCollection;
@@ -13,14 +12,11 @@ use App\Models\ContractForm;
 use App\Models\FactorItem;
 use App\Models\FactorItemAttributes;
 use App\Models\TotalFactorItem;
-use App\Models\TotalFactorItemInstallment;
 use App\Models\User;
 use Carbon\Carbon;
 use phpDocumentor\Reflection\Types\Collection;
 
-/**
- *
- */
+
 class AccountingController extends  Controller
 {
     /**

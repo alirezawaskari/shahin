@@ -10,6 +10,11 @@ use App\Models\User;
 
 class RepresentationController extends Controller
 {
+    /**
+     * @param Representation $representation
+     * @param User $callcenter
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index(Representation $representation , User $callcenter)
     {
         if ($representation->status){
@@ -20,6 +25,12 @@ class RepresentationController extends Controller
     }
 
 
+    /**
+     * @param Representation $representation
+     * @param Service $service
+     * @param User $callcenter
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function single(Representation $representation , Service $service, User $callcenter )
     {
         $user = auth()->user();

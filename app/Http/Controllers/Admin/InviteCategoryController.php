@@ -127,6 +127,11 @@ class InviteCategoryController extends Controller
     }
 
     //use in InviteCategory
+
+    /**
+     * @param Request $request
+     * @return string[]
+     */
     public function searchTitleProduct(Request $request)
     {
         $view_result = '';

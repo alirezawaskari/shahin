@@ -8,15 +8,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Brand extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
+    /**
+     * @var string[]
+     */
     protected $fillable=['title','title_en','description','type','logo','link','registration_form','request_by','status'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function categories()
     {
         return $this->belongsToMany(Category::class);
     }
 
-    public static function getBrand($id,$field)
+    /**
+     * @param $id
+     * @param $field
+     * @return string
+     */
+    public static function getBrand($id, $field)
     {
         if($id != null){$brand=Brand::find($id);if($brand) return $brand->$field;}
         return '';

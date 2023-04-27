@@ -2,8 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\year;
-use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -14,13 +12,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class totalFactorItemInstallmentsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $total_factor_item_installments;
 
+    /**
+     * @param $total_factor_item_installments
+     */
     public function __construct($total_factor_item_installments)
     {
         $this->total_factor_item_installments = $total_factor_item_installments;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $this->total_factor_item_installments = $this->total_factor_item_installments->get();
@@ -38,11 +46,17 @@ class totalFactorItemInstallmentsExport implements FromCollection , ShouldAutoSi
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نام', 'نام خانوادگی', 'موبایل', 'مبلغ قسط(ریال)','سر رسید قسط'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

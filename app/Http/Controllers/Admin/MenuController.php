@@ -157,6 +157,9 @@ class MenuController extends Controller
     }
 
 
+    /**
+     * @param Request $request
+     */
     public function sort(Request $request)
     {
         if ($request->ajax()) {

@@ -11,12 +11,22 @@ use Illuminate\Http\Request;
 class ServiceController extends Controller
 {
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
         return view('site.services.index', compact('services'));
     }
 
+    /**
+     * @param Service $service
+     * @param User $callcenter
+     * @param Callcenter $task
+     * @param Factor|null $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function single(Service $service , User $callcenter , Callcenter $task, Factor $factor=null)
     {
         $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();

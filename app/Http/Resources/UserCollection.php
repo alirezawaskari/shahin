@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class UserCollection extends ResourceCollection
 {
+
     /**
      * Transform the resource collection into an array.
      *
@@ -38,6 +39,9 @@ class UserCollection extends ResourceCollection
         ];
     }
 
+    /**
+     * @return mixed
+     */
     private function setDeletePermission()
     {
         return auth()->user()->isAbleTo('user-delete');

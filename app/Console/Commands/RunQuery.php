@@ -2,18 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Models\BeforeForm;
 use App\Models\BeforeFormItem;
 use App\Models\Center;
 use App\Models\ContractForm;
-use Illuminate\Console\Command;
-use App\Models\FactorItemInstallment;
-use App\Models\TotalFactorItem;
 use App\Models\Factor;
 use App\Models\FactorItem;
-use App\Models\TotalFactorItemContractSettlement;
+use App\Models\FactorItemInstallment;
+use App\Models\TotalFactorItem;
 use App\Models\TotalFactorItemInstallment;
 use CreateTotalFactorItemContractSettlement;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class RunQuery extends Command {
@@ -101,6 +99,7 @@ class RunQuery extends Command {
         //fill total_factor_item table for installment factor_items
         $factor_items = FactorItem::where( 'type', 1 )->where( 'total_factor_item_id', null )->get();
         foreach ( $factor_items as $factor_item ) {
+
             if($factor_item->id == $factor_item->supervisor_id)
             {
                 $total_factor_item = TotalFactorItem::create( [

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InviteCategory;
 use App\Models\UserInvite;
-use Illuminate\Http\Request;
 
 class UserInviteController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $user_invites=UserInvite::orderBy('id','DESC')->paginate(15);

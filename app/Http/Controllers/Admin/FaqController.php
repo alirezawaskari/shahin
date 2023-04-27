@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Faq;
-use function GuzzleHttp\Promise\all;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Faq;
+use Illuminate\Http\Request;
+
 
 class FaqController extends Controller
 {

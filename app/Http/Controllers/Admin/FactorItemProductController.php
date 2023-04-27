@@ -3,25 +3,27 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\FactorItemsExport;
-use App\Models\FactorItem;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FactorItemProductCollection;
-use App\Models\FactorItemProduct;
-use App\Models\User;
-use App\Models\Province;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Helpers\Helper;
 use App\Models\Category;
+use App\Models\FactorItem;
+use App\Models\FactorItemProduct;
+use Illuminate\Http\Request;
 
 class FactorItemProductController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $categories = Category::all();
         return view('Admin.factoritemproduct.all' , compact('categories'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop()
     {
         $user = auth()->user();
@@ -39,6 +41,10 @@ class FactorItemProductController extends Controller
         return view('Admin.factoritem.suspension', compact('detail', 'edit'));
     }
 
+    /**
+     * @param Request $request
+     * @return FactorItemProductCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
         $factor_items = FactorItemProduct::filter()->latest();
@@ -50,6 +56,10 @@ class FactorItemProductController extends Controller
         return new FactorItemProductCollection($factor_items->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return FactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterDesktop(Request $request)
     {
         if (auth()->user()->center_id) {

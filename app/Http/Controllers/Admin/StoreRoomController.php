@@ -2,36 +2,37 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\StoreRoom;
-use App\Models\Representation;
-use App\Models\Product;
-use App\Models\CountingUnit;
-use App\Models\CategoryStoreRoom;
-use App\Models\ProductStoreRoom;
-use App\Models\User;
-use Carbon\Carbon;
-use Couchbase\DesignDocument;
-use Hekmatinasser\Verta\Facades\Verta;
-use Illuminate\Support\Facades\Cache;
+use App\Exports\ProductStoreRoomExport;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\Center;
-use App\Models\Gallery;
+use App\Models\CategoryStoreRoom;
+use App\Models\CountingUnit;
+use App\Models\Product;
+use App\Models\ProductStoreRoom;
+use App\Models\Representation;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\StorageStoreRoom;
+use App\Models\StoreRoom;
 use App\Models\Tag;
+use App\Models\User;
 use App\Models\Validation;
+use Carbon\Carbon;
+use Couchbase\DesignDocument;
 use Cviebrock\EloquentSluggable\Services\SlugService;
+use Hekmatinasser\Verta\Facades\Verta;
 use Illuminate\Http\Request;
-use App\Exports\ProductStoreRoomExport;
+use Illuminate\Support\Facades\Cache;
 use phpDocumentor\Reflection\DocBlock\Tags\Author;
 
 class StoreRoomController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $user = User::find(\Auth::user()->id);
@@ -53,6 +54,11 @@ class StoreRoomController extends Controller
     }
 
     //Subset of a warehouse
+
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function subWarehouses($id)
     {
         $parent=StoreRoom::find($id);
@@ -61,6 +67,9 @@ class StoreRoomController extends Controller
         return view('Admin.storeRoom.subWarehouses',compact('store_rooms','parent_name'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $representations = Representation::whereStatus(true)->get();
@@ -74,6 +83,10 @@ class StoreRoomController extends Controller
         return view('Admin.storeRoom.create', compact('representations','store_rooms','users'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function store(Request $request)
     {
         $request->validate(['name' => 'required','address'=> 'required'],
@@ -91,6 +104,10 @@ class StoreRoomController extends Controller
         ]);
     }
 
+    /**
+     * @param StoreRoom $storeRoom
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function edit(StoreRoom $storeRoom)
     {
         if ($storeRoom) {
@@ -105,6 +122,12 @@ class StoreRoomController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @param StoreRoom $storeRoom
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, StoreRoom $storeRoom)
     {
         $this->validate(request(), [
@@ -123,7 +146,13 @@ class StoreRoomController extends Controller
     }
 
     //Products of each warehouse and products by internal_use true
-    public function storeRoomGood($id,Request $request)
+
+    /**
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\Response|string|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function storeRoomGood($id, Request $request)
     {
         $storeRoom=StoreRoom::find($id);
         $category_store_rooms = CategoryStoreRoom::all();
@@ -206,6 +235,11 @@ class StoreRoomController extends Controller
             ,'main_units'=>$main_units,'page_link'=>$page_link,'category_store_rooms'=>$category_store_rooms]);
     }
 
+    /**
+     * @param $id
+     * @param $product_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function editStoreRoomGood($id, $product_id)
     {
         $product = Product::find($product_id);
@@ -251,7 +285,13 @@ class StoreRoomController extends Controller
     }
 
     //show material product with product_store_room for list
-    public function storeRoomMaterial($id,Request $request)
+
+    /**
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\Response|string|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function storeRoomMaterial($id, Request $request)
     {
         $storeRoom=StoreRoom::find($id);
         $products_store_room=$storeRoom->products()
@@ -334,7 +374,13 @@ class StoreRoomController extends Controller
     }
 
     //show material product with product_store_room for edit
-    public function editStoreRoomMaterial($id,$product_id)
+
+    /**
+     * @param $id
+     * @param $product_id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
+    public function editStoreRoomMaterial($id, $product_id)
     {
         if ($id) {
             $product = Product::find($product_id);
@@ -355,6 +401,12 @@ class StoreRoomController extends Controller
     }
 
     //update product good/material and product_store_room
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function productStoreRoomUpdate(Request $request, $id)
     {
         $request['reference_price']=str_replace(',','',$request->reference_price);
@@ -599,7 +651,13 @@ class StoreRoomController extends Controller
     }
 
     //show store Room Information in modal and edit it in seller modal
-    public function productStoreRoomByProductId($product_id,$id)
+
+    /**
+     * @param $product_id
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
+    public function productStoreRoomByProductId($product_id, $id)
     {
         if ($id && $product_id) {
             $product=Product::find($product_id);
@@ -626,6 +684,12 @@ class StoreRoomController extends Controller
     }
 
     //show store Room Information in modal and update it in seller modal
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse|void
+     */
     public function updatePivotProductStoreRoom(Request $request, $id)
     {
         if (\Auth::user()->isAbleTo('product-detail')) {
@@ -704,7 +768,12 @@ class StoreRoomController extends Controller
         }
     }
 
-    public function destroyProductStoreRoom(Request $request,$id)
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroyProductStoreRoom(Request $request, $id)
     {
 
         if ($id) {

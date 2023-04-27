@@ -13,13 +13,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class CheckExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $checks;
 
+    /**
+     * @param $checks
+     */
     public function __construct($checks)
     {
         $this->checks = $checks;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $i=0;
@@ -38,6 +48,9 @@ class CheckExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return [
@@ -49,12 +62,19 @@ class CheckExport implements FromCollection , ShouldAutoSize ,WithHeadings
         ];
     }
 
+    /**
+     * @param $item
+     * @return string
+     */
     public function setStatus($item)
     {
         return Check::status($item);
     }
 
-   public function registerEvents(): array
+    /**
+     * @return \Closure[]
+     */
+    public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {

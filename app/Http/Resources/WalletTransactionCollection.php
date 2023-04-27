@@ -6,8 +6,16 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class WalletTransactionCollection extends ResourceCollection
 {
+
+    /**
+     * @var
+     */
     private $wallet_transactions;
 
+    /**
+     * @param $wallet_transactions
+     * @param $collection
+     */
     public function __construct($wallet_transactions , $collection)
     {
         parent::__construct($collection);

@@ -6,28 +6,47 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
-     protected $guarded = [];
+    /**
+     * @var array
+     */
+    protected $guarded = [];
 
-     protected $casts = [
+    /**
+     * @var string[]
+     */
+    protected $casts = [
           'file' => 'array',
      ];
 
-     public function users()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
      {
           return $this->belongsToMany(User::class);
      }
 
-     public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
      {
           return $this->belongsTo(User::class, 'user_id');
      }
 
-     public function answers()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function answers()
      {
           return $this->hasMany(TicketAnswer::class)->orderBy('id', 'ASC');
      }
 
-     public function scopeFilter($query)
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
      {
           $title = request('title');
           $user = request('user');
@@ -43,7 +62,11 @@ class Ticket extends Model
           return $query;
      }
 
-     public static function setReceiver($ticket)
+    /**
+     * @param $ticket
+     * @return string
+     */
+    public static function setReceiver($ticket)
      {
           $temp = [];
           $receivers = $ticket->users;

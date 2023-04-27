@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class CategoryController extends AdminController
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public function child(Request $request)
     {
 

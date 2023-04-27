@@ -22,6 +22,9 @@ use App\Models\PurchaseInvoiceFactor;
 use Illuminate\Support\Arr;
 
 class PurchaseInvoiceController extends Controller {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index() {
         $user = auth()->user();
         $delete = false;
@@ -37,6 +40,9 @@ class PurchaseInvoiceController extends Controller {
         return abort( 401 );
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function desktop() {
         $user = auth()->user();
         $delete = false;
@@ -52,6 +58,9 @@ class PurchaseInvoiceController extends Controller {
         return abort( 401 );
     }
 
+    /**
+     * @return PurchaseInvoiceCollection
+     */
     public function filter() {
         $user = auth()->user();
         $purchase_invoices = PurchaseInvoice::filter()->latest();
@@ -63,6 +72,9 @@ class PurchaseInvoiceController extends Controller {
         return new PurchaseInvoiceCollection( $purchase_invoices, $purchase_invoices->paginate( 20 ) );
     }
 
+    /**
+     * @return PurchaseInvoiceCollection
+     */
     public function filterDesktop() {
         $user = auth()->user();
         if ( $user->hasPermission( 'purchase-invoice' ) ) {
@@ -87,13 +99,20 @@ class PurchaseInvoiceController extends Controller {
         return new PurchaseInvoiceCollection( $purchase_invoices, $purchase_invoices->paginate( 20 ) );
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create() {
         $representations = Representation::whereStatus( true )->get();
         $suppliers = Supplier::all();
         return view( 'Admin.purchaseinvoice.create', compact( 'representations', 'suppliers' ) );
     }
 
-    public function store( Request $request ) {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function store(Request $request ) {
         $inputs =  $request->all();
 
         $purchase_invoices = PurchaseInvoice::create( $inputs );
@@ -106,7 +125,11 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function edit( PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function edit(PurchaseInvoice $purchaseInvoice ) {
         $user = auth()->user();
         $reports = $purchaseInvoice->reports;
         $representations = Representation::whereStatus( true )->get();
@@ -120,7 +143,12 @@ class PurchaseInvoiceController extends Controller {
         return view( 'Admin.purchaseinvoice.edit', compact('financial_factors' , 'purchase_invoice_factors' , 'installments', 'parents', 'reports', 'user', 'purchaseInvoice', 'representations', 'suppliers', 'status', 'status_class' ) );
     }
 
-    public function update( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function update(Request $request, PurchaseInvoice $purchaseInvoice ) {
         if ( auth()->user()->hasRole( 'supplier' || 'mali' ) ) {
             $purchaseInvoice->update( [
                 'status' => 1,
@@ -170,7 +198,12 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function confirm( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function confirm(Request $request, PurchaseInvoice $purchaseInvoice ) {
         //approve the factor and register the signature of the mali manager
         if ( auth()->user()->hasRole( 'mali' ) ) {
             $values = $purchaseInvoice->values ? $purchaseInvoice->values : [];
@@ -229,7 +262,11 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function createProduct( PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function createProduct(PurchaseInvoice $purchaseInvoice ) {
         $products = Product::where( 'type', '!=', 2 )->latest()->get();
         $category_store_rooms = CategoryStoreRoom::all();
         $store_rooms = StoreRoom::all();
@@ -240,7 +277,13 @@ class PurchaseInvoiceController extends Controller {
         return view( 'Admin.purchaseinvoice.product', compact( 'purchase_invoice_products', 'purchaseInvoice', 'products', 'parents', 'store_rooms', 'category_store_rooms', 'counting_units' ) );
     }
 
-    public function storeProduct( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function storeProduct(Request $request, PurchaseInvoice $purchaseInvoice ) {
         $this->validate( request(), [
             'storage_num' => 'required',
             'row_num' => 'required',
@@ -262,7 +305,12 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function sendProduct( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function sendProduct(Request $request, PurchaseInvoice $purchaseInvoice ) {
         //upload factor post image
         if ( $request->url_post_image ) {
             $purchaseInvoice->update( [ 'post_image' => Helper::moveImage($request->url_post_image,'document'), 'postage' => Helper::numberConverter( ( float ) str_replace( ',', '', $request->postage ) ), 'status' => 6 ] );
@@ -273,7 +321,12 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function saveReport( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function saveReport(Request $request, PurchaseInvoice $purchaseInvoice ) {
         $purchaseInvoice->reports()->create( [
             'user_id' => auth()->user()->id,
             'report' => nl2br( $request->input( 'report' ) ),
@@ -284,14 +337,23 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function reject( PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function reject(PurchaseInvoice $purchaseInvoice ) {
         $purchaseInvoice->update( [ 'status' => 10 ] );
         return redirect( route( 'purchaseInvoice.index' ) )->with( [
             'update' => 'success'
         ] );
     }
 
-    public function changeStatus( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function changeStatus(Request $request, PurchaseInvoice $purchaseInvoice ) {
         $purchaseInvoice->update( $request->all() );
 
         return redirect( route( 'purchaseInvoice.index' ) )->with( [
@@ -299,7 +361,11 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function destroy( PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function destroy(PurchaseInvoice $purchaseInvoice ) {
         if ( auth()->user()->isAbleTo( 'purchase-invoice-delete' ) ) {
             $purchaseInvoice->delete();
             return response( [
@@ -316,7 +382,12 @@ class PurchaseInvoiceController extends Controller {
         }
     }
 
-    private function createInstallments( $payments, $purchaseInvoice ) {
+    /**
+     * @param $payments
+     * @param $purchaseInvoice
+     * @return bool
+     */
+    private function createInstallments($payments, $purchaseInvoice ) {
         for ( $i =  1; $i < ( $payments[ 'price' ] ? count( $payments[ 'price' ] ) : 0 );
         $i++ ) {
 
@@ -330,7 +401,12 @@ class PurchaseInvoiceController extends Controller {
         return true;
     }
 
-    public function savePayment( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function savePayment(Request $request, PurchaseInvoice $purchaseInvoice ) {
         $user = $purchaseInvoice->supplier->user_id;
 
         $factor = new Factor();
@@ -357,7 +433,12 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    public function returnPayment( Request $request, PurchaseInvoice $purchaseInvoice ) {
+    /**
+     * @param Request $request
+     * @param PurchaseInvoice $purchaseInvoice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function returnPayment(Request $request, PurchaseInvoice $purchaseInvoice ) {
         $user = $purchaseInvoice->supplier->user_id;
 
         $factor = new Factor();
@@ -384,7 +465,11 @@ class PurchaseInvoiceController extends Controller {
         ] );
     }
 
-    private function savePaidInstallments( $purchase_invoice, $factor ) {
+    /**
+     * @param $purchase_invoice
+     * @param $factor
+     */
+    private function savePaidInstallments($purchase_invoice, $factor ) {
         $extra_pay_price = $purchase_invoice->extra_pay;
         $un_paid_installment = $purchase_invoice->purchaseInvoiceInstallments()->where( 'status', 0 )->orderBy( 'id', 'ASC' )->first();
         if ( $un_paid_installment && $factor->price + $extra_pay_price >= $un_paid_installment->price ) {
@@ -414,6 +499,10 @@ class PurchaseInvoiceController extends Controller {
         $purchase_invoice->update(['extra_pay' => $extra_pay_price]);
     }
 
+    /**
+     * @param $purchase_invoice
+     * @param $factor
+     */
     private function returnPaidInstallments($purchase_invoice, $factor)
     {
         $extra_pay_price = $purchase_invoice->extra_pay;
@@ -444,6 +533,10 @@ class PurchaseInvoiceController extends Controller {
         $purchase_invoice->update(['extra_pay' => $extra_pay_price]);
     }
 
+    /**
+     * @param $purchase_invoice_factors
+     * @return array
+     */
     private function getSumPricePaidFactors($purchase_invoice_factors)
     {
         $paid_factors = $purchase_invoice_factors->where('factor.status' , 5)->sum('factor.price');

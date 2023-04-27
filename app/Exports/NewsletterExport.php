@@ -2,10 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\Agency;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -13,13 +11,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class NewsletterExport implements FromCollection , ShouldAutoSize ,WithHeadings{
 
     use Exportable;
+
+    /**
+     * @var
+     */
     private $emails;
 
+    /**
+     * @param $emails
+     */
     public function __construct($emails)
     {
         $this->emails = $emails;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $emails = $this->emails->map(function ($item) {
@@ -33,11 +41,17 @@ class NewsletterExport implements FromCollection , ShouldAutoSize ,WithHeadings{
         return $emails;
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['ایمیل','تاریخ ثبت'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

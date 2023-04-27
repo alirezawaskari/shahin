@@ -6,18 +6,30 @@ use Illuminate\Database\Eloquent\Model;
 
 class TicketAnswer extends Model
 {
-   protected $guarded = [];
+    /**
+     * @var array
+     */
+    protected $guarded = [];
 
-   protected $casts = [
+    /**
+     * @var string[]
+     */
+    protected $casts = [
      'file' => 'array',
    ];
 
-   public function ticket()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function ticket()
    {
         return $this->belongsTo(Ticket::class);
    }
 
-   public function user()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
    {
         return $this->belongsTo(User::class);
    }

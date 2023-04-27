@@ -114,6 +114,10 @@ class BrandController extends Controller
         return view('Admin.site.brand.list', compact('brands','id'));
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function createByCatId($id)
     {
         $category=Category::where('id',$id)->select('id','title')->first();

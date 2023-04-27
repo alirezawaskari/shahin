@@ -21,11 +21,18 @@ class AboutController extends Controller
         return view('Admin.about.list', ['abouts' => $abouts]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         return view('Admin.about.create');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -69,11 +76,18 @@ class AboutController extends Controller
     }
 
 
+    /**
+     * @param $id
+     */
     public function show($id)
     {
         //
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function edit($id)
     {
         if ($id) {
@@ -83,6 +97,11 @@ class AboutController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function update(Request $request, $id)
     {
 
@@ -134,6 +153,9 @@ class AboutController extends Controller
         ]);
     }
 
+    /**
+     * @param $id
+     */
     public function destroy($id)
     {
         //

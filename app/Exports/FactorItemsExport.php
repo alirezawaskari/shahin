@@ -2,8 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\year;
-use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -14,13 +12,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class FactorItemsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $factorItems;
 
+    /**
+     * @param $factorItems
+     */
     public function __construct($factorItems)
     {
         $this->factorItems = $factorItems;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $this->factorItems = $this->factorItems->get();
@@ -44,10 +52,18 @@ class FactorItemsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نام', 'نام خانوادگی', 'موبایل', 'خدمات ','جمع کل خرید' , 'تسهیلات(ریال)' , 'پیش پرداخت(ریال)' , 'مبلغ قسط(ریال)', 'تعداد اقساط','تعداد اقساط پرداخت شده','تاریخ شروع و پایان'];
     }
+
+    /**
+     * @param $item
+     * @return mixed
+     */
     public function setAddress($item)
     {
         foreach ($item->factorItems as $factor_item){
@@ -55,6 +71,11 @@ class FactorItemsExport implements FromCollection , ShouldAutoSize ,WithHeadings
         }
         return $temp;
     }
+
+    /**
+     * @param $item
+     * @return string|void
+     */
     public function startEndDate($item)
     {
         if(isset($item->toalFactorItemInstallments))
@@ -63,6 +84,11 @@ class FactorItemsExport implements FromCollection , ShouldAutoSize ,WithHeadings
             return $temp;
         }
     }
+
+    /**
+     * @param $item
+     * @return string
+     */
     public function setItems($item)
     {
         $temp = [];
@@ -76,6 +102,10 @@ class FactorItemsExport implements FromCollection , ShouldAutoSize ,WithHeadings
         }
         return implode(',' , $temp);
     }
+
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

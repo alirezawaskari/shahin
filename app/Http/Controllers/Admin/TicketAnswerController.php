@@ -11,6 +11,11 @@ use App\Http\Controllers\Controller;
 class TicketAnswerController extends Controller
 {
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -46,6 +51,10 @@ class TicketAnswerController extends Controller
         ]);
     }
 
+    /**
+     * @param $file
+     * @return string
+     */
     private function upload($file)
     {
         $year = Carbon::now()->year;

@@ -2,9 +2,7 @@
 
 namespace App\Exports;
 
-use App\Factor;
-use App\year;
-use Carbon\Carbon;
+
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;

@@ -14,17 +14,29 @@ class  Product extends Model
 {
     use Sluggable,SoftDeletes;
 //    use Taggable;
+    /**
+     *type of products
+     */
     const TYPE = [
         '0' => 'مواد اولیه مصرفی',
         '1' => 'کالا',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @var string[]
+     */
     protected $fillable=['name','en_name','slug','brand_id','isShow','is_sale','internal_use','review'
         ,'root_category_id','type','status', 'center_id','description','length','width','height','weight',
         'reference_price','message','status'];
 
+    /**
+     *status of products
+     */
     const STATUS = [
         '1' => 'پیش نویس',
         '2' => 'بررسی مجدد',
@@ -36,25 +48,41 @@ class  Product extends Model
         '8' => 'حذف',
     ];
 
+    /**
+     * @return \string[][]
+     */
     public function sluggable(): array
     {return ['slug' => ['source' => 'name']];}
 
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'slug';
     }
 
     //start relationShip
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function categories()
     {
         return $this->belongsToMany(Category::class)->withPivot('id')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function factor_items()
     {
         return $this->belongsToMany('App\FactorItem')->withTimestamps()->withPivot('value' , 'id' ,'session_number' , 'treatment_duration' , 'user_id' , 'status' , 'price' , 'discount' , 'grouping');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function attributes()
     {
         return $this->belongsToMany(Attribute::class , 'product_attributes')
@@ -63,12 +91,18 @@ class  Product extends Model
                 ,'seller_code');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function centers()
     {
         return $this->belongsToMany(Center::class, 'center_product')
             ->withPivot('id','user_id','purchase_type','pay_type','price','stock')->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function storeRooms()
     {
         return $this->belongsToMany(StoreRoom::class,'product_store_room')
@@ -80,46 +114,75 @@ class  Product extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function galleries()
     {
         return $this->morphMany(Gallery::class, 'galleryable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function changeStoreRooms()
     {
         return $this->hasMany(ChangeStoreRoom::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function productAttributes()
     {
         return $this->hasMany(ProductAttribute::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function productValidations()
     {
         return $this->hasMany(ProductValidation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function users()
     {
         return $this->hasMany(User::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeStatus($query)
     {
         return $query->whereStatus(false);
     }
 
+    /**
+     * @param $item
+     * @return string|void
+     */
     protected static function productSize($item)
     {
         $height = $item->height;
@@ -143,14 +206,23 @@ class  Product extends Model
         }
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function pack()
     {
         return $this->belongsTo(Pack::class);
     }
-    //end relationShip
 
-    //Remove deleted tags and add new tags - use in ProductController and CenterController
-    public static function UpdateTag($list_tags_product,$request_tags,$product)
+
+
+    /**
+     * Remove deleted tags and add new tags - use in ProductController and CenterController
+     * @param $list_tags_product
+     * @param $request_tags
+     * @param $product
+     */
+    public static function UpdateTag($list_tags_product, $request_tags, $product)
     {
         if ($list_tags_product != []) {
             if ($list_tags_product && $request_tags) {
@@ -165,8 +237,15 @@ class  Product extends Model
         }
     }
 
-    // store new images - use in ProductController and CenterController
-    public static function storeImagesProduct($image_path,$multiple_image,$product){
+
+
+    /**
+     * store new images - use in ProductController and CenterController
+     * @param $image_path
+     * @param $multiple_image
+     * @param $product
+     */
+    public static function storeImagesProduct($image_path, $multiple_image, $product){
         if (isset($image_path)) {
             if (\File::exists(public_path($product->image))) {
                 \File::delete(public_path($product->image));
@@ -188,6 +267,13 @@ class  Product extends Model
     }
 
     //use in ProductController
+
+    /**
+     * @param $request
+     * @param $product
+     * @param $productattributeable_id
+     * @param $productattributeable_type
+     */
     public static function saveReviewsGood($request, $product, $productattributeable_id, $productattributeable_type)
     {
         if (is_array($productattributeable_id)) {
@@ -239,6 +325,12 @@ class  Product extends Model
         }
     }
 
+    /**
+     * @param $request
+     * @param $product
+     * @param $productattributeable_id
+     * @param $productattributeable_type
+     */
     public static function saveAttributeGood($request, $product, $productattributeable_id, $productattributeable_type)
     {
         //attribute
@@ -288,6 +380,12 @@ class  Product extends Model
 
     }
 
+    /**
+     * @param $request
+     * @param $product
+     * @param $productattributeable_id
+     * @param $productattributeable_type
+     */
     public static function updateAttributeGood($request, $product, $productattributeable_id, $productattributeable_type)
     {
         if (isset($request['attribute_multi']) && $request['attribute_multi'] != null) {
@@ -359,6 +457,10 @@ class  Product extends Model
 
     }
 
+    /**
+     * @param $request
+     * @param $product
+     */
     public static function saveImageGood($request, $product)
     {
         if (isset($request->image_name_good)) {
@@ -394,6 +496,9 @@ class  Product extends Model
         }
     }
 
+    /**
+     * @param $request
+     */
     public static function validationStoreRoomGood($request)
     {
         $request->validate(
@@ -450,6 +555,9 @@ class  Product extends Model
         );
     }
 
+    /**
+     * @param $request
+     */
     public static function validationCenterGoodAdmin($request)
     {
         $request->validate([
@@ -475,6 +583,10 @@ class  Product extends Model
         );
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public static function countPriceProduct($id)
     {
         $product=Product::find($id);
@@ -482,7 +594,12 @@ class  Product extends Model
         return $count;
     }
 
-    public static function messageStatus($id,$status_id)
+    /**
+     * @param $id
+     * @param $status_id
+     * @return string|null
+     */
+    public static function messageStatus($id, $status_id)
     {
         if($status_id == 7){
             $msg = 'کالای شما با کالایی که قبلا در سایت وجود داشته با شماره';
@@ -494,7 +611,12 @@ class  Product extends Model
         return null;
     }
 
-    public static function showErrorProduct($field,$product_validation)
+    /**
+     * @param $field
+     * @param $product_validation
+     * @return null
+     */
+    public static function showErrorProduct($field, $product_validation)
     {
         $product_validation = $product_validation->where('field',$field)->first();
         if(isset($product_validation) && $product_validation->validation)
@@ -503,6 +625,9 @@ class  Product extends Model
             return null;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function brand()
     {
         return $this->belongsTo(Brand::class);
@@ -550,6 +675,11 @@ class  Product extends Model
 
 
     //use in edit product
+    /**
+     * @param $date
+     * @return string|null
+     * @throws \Exception
+     */
     public static function dateToMiladi($date)
     {
         if($date != null){

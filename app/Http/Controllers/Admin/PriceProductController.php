@@ -197,6 +197,10 @@ class PriceProductController extends Controller
         return response('false');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function storeWithoutAttr(Request $request)
     {
         $request['price'] = str_replace(',', '', $request->price);
@@ -349,6 +353,10 @@ class PriceProductController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function pricesList($id)
     {
         $product = Product::find($id);
@@ -374,6 +382,10 @@ class PriceProductController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function pricesListWithoutAttribute($id)
     {
         $product = Product::find($id);
@@ -452,6 +464,11 @@ class PriceProductController extends Controller
     }
 
     //Update several product_attribute fields
+
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function updateProductAttribute(Request $request)
     {
         if(isset($request->product_attribute_id)){
@@ -477,6 +494,11 @@ class PriceProductController extends Controller
     }
 
     //return several product_attribute fields
+
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function returnProductAttribute(Request $request)
     {
         if(isset($request->product_attribute_id)){

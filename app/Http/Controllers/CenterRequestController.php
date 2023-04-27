@@ -3,18 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
-use App\Models\Center;
 use App\Models\CenterCategory;
 use App\Models\CenterRequest;
 use Illuminate\Http\Request;
 
 class CenterRequestController extends Controller
 {
+    /**
+     *
+     */
     public function index()
     {
         //
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         $categories = CenterCategory::where('type' , 'category')->get();
@@ -22,6 +27,11 @@ class CenterRequestController extends Controller
         return view('site.centerRequest', compact('categories', 'services'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [

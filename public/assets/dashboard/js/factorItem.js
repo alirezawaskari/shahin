@@ -27,11 +27,12 @@ $("body").on('change', '#title', function (event) {
 
 var ct = 0;
 
+
 function setMobile() {
-    if (document.getElementById('customCheck').checked) {
-        document.getElementById('mobile_supervisor').style.display = 'block';
+    if ($('#customCheck').is(':checked')) {
+        $('#mobile_supervisor').show();
     } else {
-        document.getElementById('mobile_supervisor').style.display = 'none';
+        $('#mobile_supervisor').hide();
     }
 }
 
@@ -114,15 +115,15 @@ function updateSession(ele) {
 }
 
 function printDiv(divName) {
-    $('.margin-change-box').hide()
+    $('.margin-change-box').hide();
     setInterval(function () {
-        $('.margin-change-box').show()
+        $('.margin-change-box').show();
     }, 1000);
-    var printContents = document.getElementById(divName).innerHTML;
-    var originalContents = document.body.innerHTML;
-    document.body.innerHTML = printContents;
+    var printContents = $('#' + divName).html();
+    var originalContents = $('body').html();
+    $('body').html(printContents);
     window.print();
-    document.body.innerHTML = originalContents;
+    $('body').html(originalContents);
 }
 
 function job() {
@@ -130,41 +131,24 @@ function job() {
     var typeWorkplace = $('#typeWorkplace').val();
 
     if (jobType == 'homemaker') {
-        $('#divJobName').css('display', 'none');
-        $('#divPensionaryType').css('display', 'none');
-        $('#divCompanyName').css('display', 'none');
-        $('#divProvince').css('display', 'none');
-        $('#divOrganName').css('display', 'none');
-        $('#divTypeWorkplace').css('display', 'none');
+        $('#divJobName,#divPensionaryType,#divCompanyName,#divProvince,#divOrganName,#divTypeWorkplace').hide();
     }
     if (jobType == 'freelance') {
-        $('#divJobName').css('display', 'block');
-        $('#divPensionaryType').css('display', 'none');
-        $('#divCompanyName').css('display', 'none');
-        $('#divProvince').css('display', 'none');
-        $('#divOrganName').css('display', 'none');
-        $('#divTypeWorkplace').css('display', 'none');
+        $('#divJobName').show();
+        $('#divPensionaryType,#divCompanyName,#divProvince,#divOrganName,#divTypeWorkplace').hide();
     }
     if (jobType == 'pensionary') {
-        $('#divJobName').css('display', 'block');
-        $('#divPensionaryType').css('display', 'block');
-        $('#divCompanyName').css('display', 'none');
-        $('#divProvince').css('display', 'none');
-        $('#divOrganName').css('display', 'none');
-        $('#divTypeWorkplace').css('display', 'none');
+        $('#divJobName,#divPensionaryType').show();
+        $('#divCompanyName,#divProvince,#divOrganName,#divTypeWorkplace').hide();
     }
     if (jobType == 'employee') {
-        $('#divTypeWorkplace').css('display', 'block');
-        $('#divPensionaryType').css('display', 'none');
-        $('#divJobName').css('display', 'none');
+        $('#divTypeWorkplace').show();
         if (typeWorkplace == 'governmental') {
-            $('#divCompanyName').css('display', 'none');
-            $('#divProvince').css('display', 'block');
-            $('#divOrganName').css('display', 'block');
+            $('#divProvince,#divOrganName').show();
+            $('#divCompanyName,#divJobName,#divPensionaryType').hide();
         } else {
-            $('#divCompanyName').css('display', 'block');
-            $('#divProvince').css('display', 'none');
-            $('#divOrganName').css('display', 'none');
+            $('#divCompanyName').show();
+            $('#divJobName,#divPensionaryType,#divProvince,#divOrganName').hide();
         }
     }
 }
@@ -175,11 +159,11 @@ $("body").on('change', '.job', function (event) {
 
 function catType(catType, id) {
     if (catType == "category") {
-        document.getElementById('category' + id).style.display = 'block';
-        document.getElementById('service' + id).style.display = 'none';
+        $('#category' + id).show();
+        $('#service' + id).hide();
     } else {
-        document.getElementById('category' + id).style.display = 'none';
-        document.getElementById('service' + id).style.display = 'block';
+        $('#category' + id).hide();
+        $('#service' + id).show();
     }
 }
 

@@ -8,8 +8,16 @@ use Carbon\Carbon;
 
 class TotalFactorItemInstallmentCollection extends ResourceCollection
 {
+
+    /**
+     * @var
+     */
     private $total_factor_item_installments;
 
+    /**
+     * @param $total_factor_item_installments
+     * @param $collection
+     */
     public function __construct($total_factor_item_installments , $collection)
     {
         parent::__construct($collection);

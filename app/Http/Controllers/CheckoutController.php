@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\smsService;
 use App\Helpers\Helper;
-use App\Models\Factor;
-use App\Models\User;
-use App\Models\FactorItem;
 use App\Models\ContractForm;
-use Carbon\Carbon;
+use App\Models\Factor;
+use App\Models\FactorItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +14,10 @@ use Illuminate\Validation\Rule;
 
 class CheckoutController extends Controller
 {
+    /**
+     * @param Factor $factor
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index(Factor $factor)
     {
         $user = auth()->user();
@@ -150,6 +152,10 @@ class CheckoutController extends Controller
         ]);
     }
 
+    /**
+     * @param $item
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function formData($item)
     {
         $factor_item = FactorItem::find($item['id']);

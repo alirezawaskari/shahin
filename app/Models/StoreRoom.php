@@ -6,30 +6,54 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreRoom extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
+    /**
+     * @var string[]
+     */
     protected $fillable=['warehouse_keeper_id','parent_id','name','manager','code','address','representation_id','lat','lon'];
 
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function representation()
     {
         return $this->belongsTo(Representation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function warehouse_keeper()
     {
         return $this->belongsTo(User::class , 'warehouse_keeper_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function product_storeRoom()
     {
         return $this->hasMany(ProductStoreRoom::class);
     }
 
-    public static function getStoreRoom($id,$field)
+    /**
+     * @param $id
+     * @param $field
+     * @return string
+     */
+    public static function getStoreRoom($id, $field)
     {
         if($id){ $store_room=StoreRoom::find($id); if($store_room){ return $store_room->$field;} }
         return '';
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function products()
     {
         return $this->belongsToMany(Product::class)
@@ -41,6 +65,10 @@ class StoreRoom extends Model
             ->withTimestamps();
     }
 
+    /**
+     * @param $productattributeable_id
+     * @return string|null
+     */
     public static function storeRoomName($productattributeable_id)
     {
         $product_store_room = ProductStoreRoom::find($productattributeable_id);

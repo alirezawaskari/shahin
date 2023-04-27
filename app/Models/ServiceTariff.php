@@ -10,8 +10,14 @@ class ServiceTariff extends Model
 {
     use Sluggable,SoftDeletes;
 
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @return \string[][]
+     */
     public function sluggable():array
     {
         return [
@@ -21,31 +27,50 @@ class ServiceTariff extends Model
         ];
     }
 
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'slug';
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function centers()
     {
         return $this->belongsToMany(Center::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function tariff()
     {
         return $this->belongsTo(Tariff::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function factor_items()
     {
         return $this->belongsToMany(FactorItem::class)->withTimestamps()->whereNull('factor_item_service_tariff.deleted_at')->withPivot('value' , 'id' ,'session_number' , 'treatment_duration' , 'user_id' , 'status' , 'price' , 'discount' , 'grouping');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function users()
     {
         return $this->hasMany(User::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $tariff_id = request('tariff_id');
@@ -73,6 +98,10 @@ class ServiceTariff extends Model
         return $query;
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeStatus($query)
     {
         return $query->whereStatus(false);

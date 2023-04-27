@@ -22,6 +22,10 @@ class NewsController extends Controller
         return view('Admin.site.news.list');
     }
 
+    /**
+     * @param Request $request
+     * @return NewsCollection
+     */
     public function filter(Request $request)
     {
         $news=News::query();

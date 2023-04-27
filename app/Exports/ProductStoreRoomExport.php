@@ -2,10 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\ProductStoreRoom;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -13,13 +11,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class ProductStoreRoomExport implements FromCollection , ShouldAutoSize ,WithHeadings{
 
     use Exportable;
+
+    /**
+     * @var
+     */
     private $products_store_room;
 
+    /**
+     * @param $products_store_room
+     */
     public function __construct($products_store_room)
     {
         $this->products_store_room = $products_store_room;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $this->products_store_room = $this->products_store_room;
@@ -40,12 +48,18 @@ class ProductStoreRoomExport implements FromCollection , ShouldAutoSize ,WithHea
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
 //        return ['نام'];
         return ['نام', 'قفسه-سطر-ستون', 'واحد اصلی' , 'نوع محصول','موجودی اولیه','موجودی','تاریخ ثبت'];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

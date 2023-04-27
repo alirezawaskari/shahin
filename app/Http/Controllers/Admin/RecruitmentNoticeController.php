@@ -6,11 +6,12 @@ use App\Helpers\Helper;
 use App\Models\Province;
 use App\Models\RecruitmentNotice;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Arr;
 
 class RecruitmentNoticeController extends AdminController
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index()
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
@@ -20,6 +21,9 @@ class RecruitmentNoticeController extends AdminController
         return abort(401);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function create()
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
@@ -29,6 +33,11 @@ class RecruitmentNoticeController extends AdminController
         return abort(401);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -50,6 +59,10 @@ class RecruitmentNoticeController extends AdminController
         ]);
     }
 
+    /**
+     * @param RecruitmentNotice $recruitmentNotice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function edit(RecruitmentNotice $recruitmentNotice)
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
@@ -59,6 +72,12 @@ class RecruitmentNoticeController extends AdminController
         return abort(401);
     }
 
+    /**
+     * @param Request $request
+     * @param RecruitmentNotice $recruitmentNotice
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, RecruitmentNotice $recruitmentNotice)
     {
         $this->validate(request(), [
@@ -78,6 +97,10 @@ class RecruitmentNoticeController extends AdminController
         return redirect()->back();
     }
 
+    /**
+     * @param RecruitmentNotice $recruitmentNotice
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\never
+     */
     public function destroy(RecruitmentNotice $recruitmentNotice)
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {

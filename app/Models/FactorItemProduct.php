@@ -9,33 +9,55 @@ class FactorItemProduct extends Model
 {
     use SoftDeletes;
 
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function factor_item()
     {
         return $this->belongsTo(FactorItem::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function sessions()
     {
         return $this->hasMany(Session::class , 'factor_item_service_tariff_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function attribute_item()
     {
         return $this->belongsTo(AttributeItem::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function productAttribute()
     {
         return $this->belongsTo(ProductAttribute::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $category = request('category');

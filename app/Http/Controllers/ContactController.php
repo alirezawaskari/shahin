@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Cache;
 
 class ContactController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
 
@@ -22,11 +25,19 @@ class ContactController extends Controller
         return view('site.contact', compact('contact', 'cards'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function job()
     {
         return view('site.job');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function savecontact(Request $request)
     {
         $this->validate(request(), [

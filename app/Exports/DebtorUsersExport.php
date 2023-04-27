@@ -12,13 +12,23 @@ use Maatwebsite\Excel\Events\AfterSheet;
 class DebtorUsersExport implements FromCollection , ShouldAutoSize ,WithHeadings
 {
     use Exportable;
+
+    /**
+     * @var
+     */
     private $users;
 
+    /**
+     * @param $users
+     */
     public function __construct($users)
     {
         $this->users = $users;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $this->users = $this->users->get();
@@ -37,6 +47,9 @@ class DebtorUsersExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     }
 
+    /**
+     * @return string[]
+     */
     public function headings(): array
     {
         return ['نام',
@@ -47,6 +60,9 @@ class DebtorUsersExport implements FromCollection , ShouldAutoSize ,WithHeadings
             ];
     }
 
+    /**
+     * @return \Closure[]
+     */
     public function registerEvents(): array
     {
         return [

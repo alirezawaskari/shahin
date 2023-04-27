@@ -13,18 +13,28 @@ use Carbon\Carbon;
 
 class WalletTransactionController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $transactions = WalletTransaction::where('reason_id' , null)->where('type' , 0)->where('user_id' , '!=' , 28120)->latest()->get();
         return view('Admin.wallet.all' , compact('transactions'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function show()
     {
         $transactions = WalletTransaction::where('status' , 2)->latest()->paginate(20);
         return view('Admin.wallet.all' , compact('transactions'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $user = Employee::find($request->input('employee_id'))->user;
@@ -64,6 +74,10 @@ class WalletTransactionController extends Controller
         ]);
     }
 
+    /**
+     * @param WalletTransaction $wallet
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function wallet_update(WalletTransaction $wallet)
     {
         $wallet->user->update(['wallet' => $wallet->user->wallet +  $wallet->price ]);
@@ -73,6 +87,10 @@ class WalletTransactionController extends Controller
         ]);
     }
 
+    /**
+     * @param WalletTransaction $wallet
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(WalletTransaction $wallet)
     {
         $wallet->delete();

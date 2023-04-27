@@ -9,7 +9,6 @@ use App\Models\Center;
 use App\Models\CountingUnit;
 use App\Models\Gallery;
 use App\Models\Pack;
-use App\Models\Product;
 use App\Models\StorageStoreRoom;
 use App\Models\StoreRoom;
 use App\Models\Tag;
@@ -174,6 +173,9 @@ class PackController extends Controller
 
     }
 
+    /**
+     * @param $request
+     */
     public function storeValidationStoreRoom($request)
     {
         $request->validate(
@@ -223,7 +225,11 @@ class PackController extends Controller
         );
     }
 
-    public function storeValidationCenter($request,$packByCenter)
+    /**
+     * @param $request
+     * @param $packByCenter
+     */
+    public function storeValidationCenter($request, $packByCenter)
     {
         //center by manager center
         if($packByCenter == true) {
@@ -430,7 +436,11 @@ class PackController extends Controller
         return redirect("/dashboard/pack");
     }
 
-    public function updateValidationCenter($request,$pack_by_center)
+    /**
+     * @param $request
+     * @param $pack_by_center
+     */
+    public function updateValidationCenter($request, $pack_by_center)
     {
         if ($pack_by_center == 1) {
             $request->validate([
@@ -463,6 +473,9 @@ class PackController extends Controller
     }
 
 
+    /**
+     * @param $request
+     */
     public function updateValidationStoreRoom($request)
     {
         $request->validate(
@@ -551,6 +564,10 @@ class PackController extends Controller
     }
 
 
+    /**
+     * @param Request $request
+     * @return array|string[]
+     */
     public function getProductsPack(Request $request)
     {
         if (isset($request->type) && $request->type =='center') {

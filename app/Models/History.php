@@ -18,6 +18,10 @@ class History extends Model
     {
         return $this->morphTo();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function reason()
     {
         return $this->belongsTo(Reason::class);
@@ -38,6 +42,11 @@ class History extends Model
     }
 
     //get status history
+
+    /**
+     * @param $status
+     * @return string
+     */
     protected static function status($status)
     {
         switch($status)

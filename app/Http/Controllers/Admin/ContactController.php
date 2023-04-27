@@ -11,6 +11,9 @@ use App\Http\Resources\ContactCollection;
 
 class ContactController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index()
     {
         $title = 'فهرست پیام ها';
@@ -28,6 +31,9 @@ class ContactController extends Controller
         return abort(401);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function desktop()
     {
         $title = 'میزکار پیام ها';
@@ -45,6 +51,9 @@ class ContactController extends Controller
         return abort(401);
     }
 
+    /**
+     * @return ContactCollection
+     */
     public function filter()
     {
         $contacts = Contact::filter()->where('card_id', auth()->user()->roles->first()->card_id)->orderBy('status' , 'ASC')->latest();
@@ -55,18 +64,30 @@ class ContactController extends Controller
         return new ContactCollection($contacts->paginate(20));
     }
 
+    /**
+     * @return ContactCollection
+     */
     public function filterDsktop()
     {
         $contacts = Contact::filter()->where('card_id', auth()->user()->roles->first()->card_id)->orderBy('status' , 'ASC')->where('status' , 0)->latest();
         return new ContactCollection($contacts->paginate(20));
     }
 
+    /**
+     * @param Contact $contact
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(Contact $contact)
     {
         $cards = Card::all();
         return view('Admin.contact.edit', compact('contact' , 'cards'));
     }
 
+    /**
+     * @param Request $request
+     * @param Contact $contact
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function update(Request $request, Contact $contact)
     {
         $input = $request->all();
@@ -85,6 +106,10 @@ class ContactController extends Controller
         ]);
     }
 
+    /**
+     * @param Contact $contact
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function destroy(Contact $contact)
     {
         if (auth()->user()->isAbleTo('contact-delete')) {

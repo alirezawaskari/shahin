@@ -56,6 +56,7 @@ class CreateServicesTable extends Migration
             $table->text('img_box_1')->nullable()->default(NULL);
             $table->text('img_box_3')->nullable()->default(NULL);
             $table->text('txt_box_1')->nullable()->default(NULL);
+            $table->text('rules')->nullable()->default(NULL);
             $table->text('session_attributes')->nullable()->default(NULL);
             $table->integer('confirm')->default(0);
             $table->integer('star')->nullable()->default(NULL);

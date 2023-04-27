@@ -11,11 +11,18 @@ use App\Models\Center;
 
 class CenterRequestController extends AdminController
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         return view('Admin.centerRequest.all');
     }
 
+    /**
+     * @param Request $request
+     * @return CenterRequestCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request) {
 
         $center_requests = CenterRequest::filter()->latest();
@@ -27,11 +34,19 @@ class CenterRequestController extends AdminController
         return new CenterRequestCollection( $center_requests->paginate( 20 ) );
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         return view('Admin.centerRequest.create');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         $input = $request->all();
@@ -61,11 +76,18 @@ class CenterRequestController extends AdminController
         ]);
     }
 
+    /**
+     * @param CenterRequest $centerRequest
+     */
     public function show(CenterRequest $centerRequest)
     {
         //
     }
 
+    /**
+     * @param CenterRequest $centerRequest
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(CenterRequest $centerRequest)
     {
         $center_request = $centerRequest;
@@ -76,6 +98,12 @@ class CenterRequestController extends AdminController
         return view('Admin.centerRequest.edit' , compact('galleries' , 'comments' , 'center_request'));
     }
 
+    /**
+     * @param Request $request
+     * @param CenterRequest $centerRequest
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, CenterRequest $centerRequest)
     {
         $this->validate(request(), [
@@ -117,12 +145,20 @@ class CenterRequestController extends AdminController
         ]);
     }
 
+    /**
+     * @param CenterRequest $centerRequest
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function serviceTariffs(CenterRequest $centerRequest)
     {
         $service_tariffs = $centerRequest->service_tariffs;
         return view('Admin.centerRequest.tariff' , compact('service_tariffs'));
     }
 
+    /**
+     * @param CenterRequest $centerRequest
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function destroy(CenterRequest $centerRequest)
     {
         if(auth()->user()->isAbleTo('center-request-delete'))

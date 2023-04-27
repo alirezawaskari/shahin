@@ -8,10 +8,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Review extends Model
 {
     use SoftDeletes;
-      protected $dates = ['deleted_at'];
 
-      protected $fillable=['product_id','type','text','reviewable_id','reviewable_type'];
+    /**
+     * @var string[]
+     */
+    protected $dates = ['deleted_at'];
 
+    /**
+     * @var string[]
+     */
+    protected $fillable=['product_id','type','text','reviewable_id','reviewable_type'];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function reviewable()
     {
         return $this->morphTo();

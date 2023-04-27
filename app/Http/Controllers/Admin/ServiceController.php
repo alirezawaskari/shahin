@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Helper;
 use App\Http\Resources\ServiceItemCollection;
 use App\Models\AskedQuestion;
 use App\Models\BeforeForm;
@@ -11,9 +12,6 @@ use App\Models\Menu;
 use App\Models\Service;
 use App\Models\WorkSample;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use App\Helpers\Helper;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -141,6 +139,10 @@ class ServiceController extends AdminController
         ]);
     }
 
+    /**
+     * @param Service $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function edit(Service $service)
     {
         $all_categories = Category::select('id','title')->get();
@@ -188,10 +190,16 @@ class ServiceController extends AdminController
                  return $this->deleteSingleQuestion($request,$service);
              case "session_titles":
                  return $this->insertSessionTitles($request,$service);
+             case "rules":
+                 return $this->updateRules($request,$service);
         }
     }
 
 
+    /**
+     * @param Service $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function destroy(Service $service)
     {
         $service->delete();
@@ -200,6 +208,10 @@ class ServiceController extends AdminController
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function form(Request $request)
     {
         $service = Service::find($request->service);
@@ -207,18 +219,30 @@ class ServiceController extends AdminController
         return response(['operator' => true]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
     public function fetchForm(Request $request)
     {
         $service = Service::find($request->service);
         return response(['operator' => true , 'after' => $service->after_fields]);
     }
 
+    /**
+     * @param Service $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function before_form(Service $service)
     {
         $forms = $service->beforeforms()->get();
         return view('Admin.service.form' , compact('forms' , 'service'));
     }
 
+    /**
+     * @param Service $service
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function before_form_create(Service $service)
     {
        $data_display_levels=BeforeForm::getDataDisplayLevel();
@@ -227,17 +251,29 @@ class ServiceController extends AdminController
         return view('Admin.beforeform.create' , compact('service','data_display_levels','level_save_data','before_formable'));
     }
 
+    /**
+     * @param BeforeForm $beforeForm
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function before_form_item(BeforeForm $beforeForm)
     {
         $items = $beforeForm->beforeformitems()->get();
         return view('Admin.service.formitem' , compact('items' , 'beforeForm'));
     }
 
+    /**
+     * @param BeforeForm $beforeForm
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function before_form_item_create(BeforeForm $beforeForm)
     {
         return view('Admin.beforeformitem.create' , compact('beforeForm'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public static function selectByCategory(Request $request)
     {
         if ($request->ajax()) {
@@ -564,6 +600,14 @@ class ServiceController extends AdminController
                 'session_attributes'=>array('session_titles'=>$request->session_titles)
             ));
         }
+        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+    }
+
+    private function updateRules(Request $request, Service $service)
+    {
+        $service->update(array(
+            'rules'=>$request->rules,
+        ));
         return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
     }
 }

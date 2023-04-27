@@ -16,6 +16,10 @@
                        aria-controls="home" aria-selected="true"><i class="fa fa-list"></i> اطلاعات اولیه</a>
                 </li>
                 <li class="nav-item  flex-fill text-center nav-item-service">
+                    <a class="nav-link  " id="firstData-tab" data-toggle="tab" href="#rules" role="tab"
+                       aria-controls="rules" aria-selected="true"><i class="fa fa-file-text-o"></i> قوانین</a>
+                </li>
+                <li class="nav-item  flex-fill text-center nav-item-service">
                     <a class="nav-link" id="text-tab" data-toggle="tab" href="#profile" role="tab"
                        aria-controls="profile" aria-selected="false"><i class="fa fa-text-height"></i> متن</a>
                 </li>
@@ -142,10 +146,9 @@
                                     <label>پیش نیاز ها</label>
 
                                     <select class="form-control select2" name="required[]" multiple>
-                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as
-                                        $ser)
-                                            <option value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->required ?? []) ?
-                            'selected' : '' }}>{{ $ser->title }}</option>
+                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
+                                            <option
+                                                value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->required ?? []) ?  'selected' : '' }}>{{ $ser->title }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -194,15 +197,33 @@
                                 <div class="col-12 col-md-6 mb-3">
                                     <label>خدمات رایگان همراه این خدمت</label>
                                     <select class="form-control select2" name="gift[]" multiple>
-                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as
-                                        $ser)
-                                            <option value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->gift ?? []) ? 'selected' :
-                            '' }}>{{ $ser->title }}</option>
+                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
+                                            <option value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->gift ?? []) ? 'selected' :'' }}>{{ $ser->title }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-12 mb-3">
                                     <span class="btn btn-success" id="basic-information-submit">ثبت تغییرات</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!--__________________________________________-->
+                <div class="tab-pane fade  " id="rules" role="tabpanel" aria-labelledby="firstData-tab">
+                    <div class="container m-top-40">
+                        <form action="{{route('service.update' , [$service->slug ])}}"
+                              id="rules-form">
+                            <input type="hidden" name="update_type" value="rules">
+                            <div class="row">
+
+                                <div class="col-12 col-md-12 mb-3">
+                                    <label>متن </label>
+                                    <textarea class="form-control" name="service_rules">{!!$service->rules !!} </textarea>
+                                </div>
+
+                                <div class="col-12 col-md-12 mb-3">
+                                    <span class="btn btn-success" id="rules-submit">ثبت تغییرات</span>
                                 </div>
                             </div>
                         </form>
@@ -390,8 +411,8 @@
                                     <select name="similar_categories[]" title="" class="selectMulti form-control"
                                             multiple="multiple">
                                         @foreach($all_categories as $all_category)
-                                            <option value="{{$all_category->id}}" {{ in_array(trim($all_category->id) , $similar_categories)
-                            ? 'selected' : '' }}
+                                            <option
+                                                value="{{$all_category->id}}" {{ in_array(trim($all_category->id) , $similar_categories) ? 'selected' : '' }}
                                             >{{$all_category->title}}</option>
                                         @endforeach
                                     </select>
@@ -549,53 +570,56 @@
                 <div class="tab-pane fade" id="sessionTitles-data" role="tabpanel" aria-labelledby="sessionTitles-tab">
                     <div class="container m-top-40">
                         <div class="row">
-                        <div class="form-row card border rounded col-md-6">
-                            <div class="card-header">
-                                افزودن عنوان جدید
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group col-md-8">
-                                    <input type="text" class="form-control" id="new-session-title-input" required
-                                           placeholder="عنوان را وارد نمایید...">
-
+                            <div class="form-row card border rounded col-md-6">
+                                <div class="card-header">
+                                    افزودن عنوان جدید
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="card-body">
+                                    <div class="form-group col-md-8">
+                                        <input type="text" class="form-control" id="new-session-title-input" required
+                                               placeholder="عنوان را وارد نمایید...">
+
+                                    </div>
+                                    <div class="form-group col-md-6">
                                 <span class="btn btn-info form-control"
                                       id="add-session-title-input">افزودن </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                         <div class="row">
                             <div class="col-md-6">
-                            <div class="card border rounded">
-                                <div class="card-header">
-                                    ویرایش عناوین
-                                </div>
-                                <div class="card-body">
-                                    <form action="{{route('service.update' , [$service->slug ])}}" id="session-titles-form">
-                                        <input type="hidden" name="update_type" value="session_titles">
-                                        <div class="form-row">
-                                            <div class="form-group col-md-8">
-                                                <ul id="sortable" class="list-group shadow-sm">
-                                                    @if(is_array($service->session_attributes) && isset($service->session_attributes['session_titles']))
-                                                        @foreach($service->session_attributes['session_titles'] as $item)
-                                                            <li class="list-group-item" style="cursor: pointer" data-name="{{$item}}">
-                                                                {{$item}}
-                                                                <i class="fa fa-trash  text-danger trash-title float-right btn btn-sm btn-outline-warning"></i>
-                                                            </li>
-                                                        @endforeach
-                                                    @endif
-                                                </ul>
+                                <div class="card border rounded">
+                                    <div class="card-header">
+                                        ویرایش عناوین
+                                    </div>
+                                    <div class="card-body">
+                                        <form action="{{route('service.update' , [$service->slug ])}}"
+                                              id="session-titles-form">
+                                            <input type="hidden" name="update_type" value="session_titles">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-8">
+                                                    <ul id="sortable" class="list-group shadow-sm">
+                                                        @if(is_array($service->session_attributes) && isset($service->session_attributes['session_titles']))
+                                                            @foreach($service->session_attributes['session_titles'] as $item)
+                                                                <li class="list-group-item" style="cursor: pointer"
+                                                                    data-name="{{$item}}">
+                                                                    {{$item}}
+                                                                    <i class="fa fa-trash  text-danger trash-title float-right btn btn-sm btn-outline-warning"></i>
+                                                                </li>
+                                                            @endforeach
+                                                        @endif
+                                                    </ul>
+                                                </div>
+                                                <div class="form-group col-md-12">
+                                                    <span class="btn btn-success"
+                                                          id="session-titles-submit">ثبت تغییرات</span>
+                                                </div>
                                             </div>
-                                            <div class="form-group col-md-12">
-                                                <span class="btn btn-success" id="session-titles-submit">ثبت تغییرات</span>
-                                            </div>
-                                        </div>
 
-                                    </form>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
                             </div>
                         </div>
 

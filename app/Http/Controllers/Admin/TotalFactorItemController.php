@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Events\sendlinkFactor;
 use App\Events\factorItemActivation;
+use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
-use App\Models\Check;
-use App\Models\Factor;
-use App\Models\FactorItem;
-use App\Models\Impunity;
-use App\Models\TotalFactorItem;
-use App\Models\ContractForm;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TotalFactorItemCollection;
-use App\Models\User;
+use App\Http\Resources\TotalFactorItemInstallmentCollection;
+use App\Models\ContractForm;
+use App\Models\Factor;
+use App\Models\FactorItem;
+use App\Models\FinancialPlansType;
+use App\Models\Impunity;
 use App\Models\Province;
-use App\Models\TotalFactorItemInstallment;
+use App\Models\TotalFactorItem;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-
 use phpDocumentor\Reflection\Types\Object_;
 use UxWeb\SweetAlert\SweetAlert;
 use Verta;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use App\Helpers\Helper;
-use App\Http\Resources\TotalFactorItemInstallmentCollection;
-use App\Models\FinancialPlansType;
 
 class TotalFactorItemController extends Controller
 {
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function index()
     {
         $title = 'فهرست پرونده های اقساطی';
@@ -38,6 +38,9 @@ class TotalFactorItemController extends Controller
         return view('Admin.totalfactoritem.all', compact('title', 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktop()
     {
         $title = 'میزکار پرونده های اقساطی';
@@ -46,6 +49,10 @@ class TotalFactorItemController extends Controller
     }
 
     //show detail installments file
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function reports()
     {
         $title = 'گزارش مالی پرونده ها';
@@ -53,6 +60,9 @@ class TotalFactorItemController extends Controller
         return view('Admin.totalfactoritem.report', compact('title', 'url'));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function desktopReports()
     {
         $title = 'میزکار گزارش مالی پرونده ها';
@@ -60,6 +70,10 @@ class TotalFactorItemController extends Controller
         return view('Admin.totalfactoritem.report', compact('title', 'url'));
     }
 
+    /**
+     * @param TotalFactorItem $totalFactorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function show(TotalFactorItem $totalFactorItem)
     {
         //show detail file
@@ -169,6 +183,10 @@ class TotalFactorItemController extends Controller
         return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items','installments','checks'));
     }
 
+    /**
+     * @param TotalFactorItem $totalFactorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
+     */
     public function installments(TotalFactorItem $totalFactorItem)
     {
         //checking the permission of show installments
@@ -235,6 +253,10 @@ class TotalFactorItemController extends Controller
         return view('Admin.totalfactoritem.installment', compact('comments', 'item', 'items' ,'user', 'totalFactorItem', 'expire_installments', 'installments'));
     }
 
+    /**
+     * @param Request $request
+     * @return TotalFactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filter(Request $request)
     {
         $total_factor_items = TotalFactorItem::filter()->latest();
@@ -245,6 +267,10 @@ class TotalFactorItemController extends Controller
         return new TotalFactorItemCollection($total_factor_items->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return TotalFactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterDesktop(Request $request)
     {
         if (auth()->user()->hasRole('mali')) {
@@ -274,6 +300,10 @@ class TotalFactorItemController extends Controller
         return new TotalFactorItemCollection($total_factor_items->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return TotalFactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterReport(Request $request)
     {
         $total_factor_items = TotalFactorItem::where('status_mali', '!=', 0)->filter()->latest();
@@ -289,6 +319,10 @@ class TotalFactorItemController extends Controller
         return new TotalFactorItemCollection($total_factor_items->paginate(20));
     }
 
+    /**
+     * @param Request $request
+     * @return TotalFactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterDesktopReport(Request $request)
     {
         if (auth()->user()->hasRole('mali')) {
@@ -1197,6 +1231,10 @@ class TotalFactorItemController extends Controller
         return $installments['data'];
     }
 
+    /**
+     * @param TotalFactorItem $totalFactorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function checks(TotalFactorItem $totalFactorItem)
     {
         $checks=$totalFactorItem->checks;

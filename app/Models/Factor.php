@@ -31,6 +31,9 @@ class Factor extends Model implements AuditableContract
         'after_values' => 'array'
     ];
 
+    /**
+     *types of factor
+     */
     const TYPE = [
         'online' => 'آنلاین',
         'card' => 'کارت به کارت',
@@ -49,6 +52,9 @@ class Factor extends Model implements AuditableContract
         'check' => 'چک',
     ];
 
+    /**
+     *title of factors
+     */
     const TITLE = [
         'register' => 'هزینه ثبت نام',
         'installment' => 'قسط',
@@ -62,6 +68,9 @@ class Factor extends Model implements AuditableContract
         'registeration_debt' => 'اختلاف هزینه ثبت نام', //diff registeration price by change financialPlansType
     ];
 
+    /**
+     *
+     */
     protected static function boot()
     {
         parent::boot();
@@ -72,6 +81,11 @@ class Factor extends Model implements AuditableContract
     }
 
     //set unique resnumber for each factor when createing.
+
+    /**
+     * @param $model
+     * @return string
+     */
     private static function makeUniqueTracking($model)
     {
         do {
@@ -126,7 +140,9 @@ class Factor extends Model implements AuditableContract
     }
 
 
-
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'resnumber';
@@ -264,6 +280,10 @@ class Factor extends Model implements AuditableContract
         return $this->belongsTo(Address::class, 'address_id');
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $resnumber = request('resnumber');

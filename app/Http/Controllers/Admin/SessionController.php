@@ -18,6 +18,9 @@ use App\Http\Resources\SessionCollection;
 
 class SessionController extends Controller {
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function index() {
         $user = auth()->user();
         if ( $user->isAbleTo(['session-detail','session']) ) {
@@ -28,7 +31,11 @@ class SessionController extends Controller {
         return abort( 401 );
     }
 
-    public function filter(Request  $request) {
+    /**
+     * @param Request $request
+     * @return SessionCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function filter(Request $request) {
         if ( auth()->user()->isAbleTo( 'session' ) ) {
             $sessions = Session::filter()->where( 'agent_id', auth()->user()->id )->orderBy( 'date', 'desc' )->where( 'status', '!=', 0 );
         } elseif (auth()->user()->isAbleTo( 'session-detail')) {
@@ -43,6 +50,10 @@ class SessionController extends Controller {
 
 
     //desktop for complete sessions
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function desktopComplete() {
         $user = auth()->user();
         if ( $user->isAbleTo( 'session-desktop-complete' ) ) {
@@ -72,6 +83,9 @@ class SessionController extends Controller {
         return new SessionCollection($sessions , $sessions->paginate(20));
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
+     */
     public function desktopConfirm() {
         $user = auth()->user();
         if ( $user->isAbleTo('session-desktop-confirm') ) {
@@ -85,6 +99,11 @@ class SessionController extends Controller {
     }
 
     //desktop for confirm session
+
+    /**
+     * @param Request $request
+     * @return SessionCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function filterDesktopConfirm(Request $request) {
         $sessions = Session::filter()->where( 'status', 2 )->orderBy( 'date', 'desc' );
         if (isset($request->excel) && $request->excel == 'on') {
@@ -93,7 +112,12 @@ class SessionController extends Controller {
         return new SessionCollection( $sessions , $sessions->paginate( 20 ) );
     }
 
-    public function store( Request $request ) {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request ) {
         $input = $request->all();
 
         $this->validate($request, [

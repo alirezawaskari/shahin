@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
+use App\Models\ContractForm;
 use App\Models\Coupon;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\ServiceItem;
-use App\Models\ContractForm;
-use App\Models\User;
-use App\Models\Setting;
-use Carbon\Carbon;
-use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
-use App\Helpers\Helper;
 use App\Models\TotalFactorItem;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class FactorItemController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     public function create(Request $request)
     {
         $cart = session()->get('cart');
@@ -41,6 +46,10 @@ class FactorItemController extends Controller
         return redirect(route('factor', [$factor->resnumber]));
     }
 
+    /**
+     * @param FactorItem $factorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function index(FactorItem $factorItem)
     {
         if (!$factorItem->status) {
@@ -50,6 +59,10 @@ class FactorItemController extends Controller
         return redirect(route('profile.factor'));
     }
 
+    /**
+     * @param FactorItem $factorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function show(FactorItem $factorItem)
     {
         $expire_installments = $factorItem->factorItemInstallments->where('status', 0)->where('date', '<', Carbon::now());
@@ -105,6 +118,11 @@ class FactorItemController extends Controller
         return view('site.profile.layouts.factoritem.show', compact('expire_installments', 'paid_installments' ,'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item'));
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function coupon(Request $request)
     {
         $this->validate($request, [
@@ -128,6 +146,11 @@ class FactorItemController extends Controller
         }
         return redirect()->back();
     }
+
+    /**
+     * @param $factor
+     * @return float|int
+     */
     private static function discount($factor)
     {
         $amount = $factor->price;
@@ -137,7 +160,11 @@ class FactorItemController extends Controller
         return $amount;
     }
 
-	public function requestContractSettlement(Request $request)
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function requestContractSettlement(Request $request)
     {
         $total_factor_item = TotalFactorItem::find($request->item['id']);
         if(!in_array($total_factor_item->status_mali , [7,6,8,9]))
@@ -160,7 +187,12 @@ class FactorItemController extends Controller
             'failByMessage' => 'درخواست تسویه حساب قبلا ثبت شده است.'
         ]);
     }
-	public function formData($item)
+
+    /**
+     * @param $item
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function formData($item)
     {
         $factor_item = FactorItem::find($item['id']);
         $values = $factor_item->factor_values ? $factor_item->factor_values : [];
@@ -265,6 +297,10 @@ class FactorItemController extends Controller
         return response('true');
     }
 
+    /**
+     * @param Request $request
+     * @return string
+     */
     public function uploadSingleImage(Request $request)
     {
         return Helper::uploadImage($request->file , 'document');

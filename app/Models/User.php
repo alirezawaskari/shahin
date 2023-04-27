@@ -16,12 +16,21 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
 
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'sms_code' => 'array',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'name',
         'family',
@@ -76,10 +85,16 @@ class User extends Authenticatable
         'work',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $hidden = [
         'password', 'remember_token', 'melicode', 'shenasnamecode', 'serialcharacter', 'serialtop', 'serialbottom', 'imgmeli', 'imgshenasname', 'avatar', 'imgsignature', 'token', 'api_token',
     ];
 
+    /**
+     *
+     */
     protected static function boot()
     {
         parent::boot();
@@ -91,6 +106,9 @@ class User extends Authenticatable
         });
     }
 
+    /**
+     * @return string
+     */
     private static function makeUniqueToken()
     {
         do {
@@ -100,147 +118,242 @@ class User extends Authenticatable
         return $token;
     }
 
+    /**
+     * @return string
+     */
     private static function makeUniqueApiToken()
     {
        return Str::random(60);
     }
 
+    /**
+     * @return bool
+     */
     public function isAdmin()
     {
         return $this->level == 'admin' ? true : false;
     }
 
+    /**
+     * @return bool
+     */
     public function isActive()
     {
         return $this->active == '1' ? true : false;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function factors()
     {
         return $this->hasMany(Factor::class)->orderBy('created_at' , 'Desc');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function creditDetails()
     {
         return $this->hasMany(UserCreditDetail::class)->orderBy('created_at' , 'Desc');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function sessions()
     {
         return $this->hasMany(Session::class , 'agent_id')->orderBy('date', 'ASC');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function requests()
     {
         return $this->hasMany(Request::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function factoritemproducts()
     {
         return $this->hasMany(FactorItemProduct::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function roles()
     {
         return $this->belongsToMany(Role::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function tickets()
     {
         return $this->belongsToMany(Ticket::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function tasks()
     {
         return $this->hasMany(Callcenter::class, 'user_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function service()
     {
         return $this->belongsTo(Service::class, 'service_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function employee()
     {
         return $this->hasOne(Employee::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function vip()
     {
         return $this->hasOne(VipUser::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function store_room()
     {
         return $this->hasOne(StoreRoom::class , 'warehouse_keeper_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function supplier()
     {
         return $this->hasOne(Supplier::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function center()
     {
         return $this->belongsTo(Center::class, 'center_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function province()
     {
         return $this->belongsTo(Province::class, 'province_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function city()
     {
         return $this->belongsTo(City::class, 'city_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function callcenters()
     {
         return $this->hasMany(Callcenter::class , 'reg_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function callcenter()
     {
         return $this->belongsTo(Callcenter::class, 'reg_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function articles()
     {
         return $this->hasMany(Article::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function wallets()
     {
         return $this->hasMany(WalletTransaction::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function works()
     {
         return $this->hasMany(Work::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function representation()
     {
         return $this->belongsTo(Representation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function admin_representation()
     {
         return $this->belongsTo(Representation::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function organization()
     {
         return $this->belongsTo(Organization::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function histories()
     {
         return $this->hasMany(History::class , 'user_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function admin_organization()
     {
         return $this->belongsTo(Organization::class , 'admin_organization_id');
     }
 
+    /**
+     * @param $query
+     * @param $month
+     */
     public function scopeSpanningUser($query, $month)
     {
         $query->selectRaw('monthname(created_at) month , count(*) published')
@@ -249,6 +362,10 @@ class User extends Authenticatable
             ->latest();
     }
 
+    /**
+     * @param $query
+     * @param $dates
+     */
     public function scopeSpanningWeekUser($query, $dates)
     {
         $query->selectRaw('DATE(created_at) as date , count(*) published')
@@ -257,6 +374,10 @@ class User extends Authenticatable
             ->latest();
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $name = request('name');
@@ -354,17 +475,30 @@ class User extends Authenticatable
         return $query;
     }
 
+    /**
+     * @return bool
+     */
     public function getIsAdminAttribute()
     {
         return $this->level == 'admin' ? true : false;
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     protected static function getUser($id)
     {
         $user = User::find($id);
         return $user;
     }
 
+    /**
+     * @param User $user
+     * @param $price
+     * @param $password
+     * @return array
+     */
     protected static function checkWallet(User $user , $price , $password)
     {
         if (Hash::check($password , $user->password))
@@ -379,6 +513,13 @@ class User extends Authenticatable
         return ['success' => false , 'message' => 'رمز عبور وارد شده صحیح نمی باشد'];
     }
 
+    /**
+     * @param User $user
+     * @param $price
+     * @param $password
+     * @param $title
+     * @return array
+     */
     protected static function checkCredit(User $user , $price , $password , $title)
     {
         if (Hash::check($password , $user->password))
@@ -399,6 +540,9 @@ class User extends Authenticatable
         return ['success' => false , 'message' => 'رمز عبور وارد شده صحیح نمی باشد'];
     }
 
+    /**
+     * @return null
+     */
     public static function checkManager()
     {
         $user = \Auth::user();
@@ -408,6 +552,10 @@ class User extends Authenticatable
             return null;
     }
 
+    /**
+     * @param $center_id
+     * @return int
+     */
     public static function hasDoctor($center_id)
     {
         $users_count=User::with('roles')->whereHas('roles', function ($query)  {
@@ -416,6 +564,10 @@ class User extends Authenticatable
         return $users_count;
     }
 
+    /**
+     * @param User $user
+     * @return array
+     */
     public static function fetchDebtItemCount(User $user)
     {
         $debt=array();
@@ -464,6 +616,10 @@ class User extends Authenticatable
         return $totalDebts;
     }
 
+    /**
+     * @param $gender
+     * @return string
+     */
     public static function getGenderTitle($gender)
     {
         return [

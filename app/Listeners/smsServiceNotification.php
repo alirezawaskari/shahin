@@ -4,9 +4,7 @@ namespace App\Listeners;
 
 use App\Classes\External\IranSms;
 use App\Events\smsService;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Arr;
 
 class smsServiceNotification
 {

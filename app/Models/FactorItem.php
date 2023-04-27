@@ -11,6 +11,10 @@ use Illuminate\Support\Arr;
 class FactorItem extends Model
 {
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
     /**
@@ -18,6 +22,9 @@ class FactorItem extends Model
      */
     protected $guarded = [];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'values' => 'array',
         'factor_values' => 'array',
@@ -28,78 +35,123 @@ class FactorItem extends Model
         'price_difference' => 'array',
     ];
 
+    /**
+     *types of guarantees for factorItem
+     */
     const GuaranteeTYPE = [
         'check' => 'چک',
         'certificate' => 'گواهی کسراز حقوق',
         'promissorynote' => 'سفته',
     ];
 
+    /**
+     *purchase type of service
+     */
     const PurchaseTYPE = [
         '0' => 'آنلاین',
         '1' => 'حضوری',
     ];
 
+    /**
+     *type of pay many by customer
+     */
     const TYPE = [
         '0' => 'نقدی',
         '1' => 'اقساطی',
     ];
 
-    //@return \Illuminate\Database\Eloquent\Relations\MorphTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function factoritemable()
     {
         return $this->morphTo();
     }
-    //@return \Illuminate\Database\Eloquent\Relations\MorphMany
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function histories()
     {
         return $this->morphMany(History::class , 'historiable');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function factor()
     {
         return $this->belongsTo(Factor::class);
     }
-    //@return \Illuminate\Database\Eloquent\Relations\HasMany
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function factors()
     {
         return $this->hasMany(Factor::class)->orderby('created_at');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\HasMany
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function sessions()
     {
         return $this->hasMany(Session::class)->orderBy('date');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\HasMany
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function userPerformances()
     {
         return $this->hasMany(UserPerformance::class)->orderBy('date');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function supporter()
     {
         return $this->belongsTo(User::class, 'supporter_id');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function supervisor()
     {
         return $this->belongsTo(FactorItem::class, 'supervisor_id');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\HasMany
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function factorItemInstallments()
     {
         return $this->hasMany(FactorItemInstallment::class)->orderBy('date', 'ASC');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\HasMany
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function products()
     {
         return $this->hasMany(FactorItemProduct::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function serviceTariffs()
     {
         return $this->belongsToMany(ServiceTariff::class)->withTimestamps()->whereNull('factor_item_service_tariff.deleted_at')->withPivot('value', 'id', 'session_number', 'treatment_duration', 'user_id', 'status', 'price', 'discount' , 'grouping');
     }
 
+    /**
+     *
+     */
     protected static function boot()
     {
         parent::boot();
@@ -109,6 +161,9 @@ class FactorItem extends Model
         });
     }
 
+    /**
+     * @return string
+     */
     private static function makeUniqueTracking()
     {
         do {
@@ -118,26 +173,41 @@ class FactorItem extends Model
         return $resNumber;
     }
 
+    /**
+     * @return string
+     */
     public function getRouteKeyName()
     {
         return 'resnumber';
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function serviceItem()
     {
         return $this->belongsTo(ServiceItem::class);
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function financialPlansType()
     {
         return $this->belongsTo(FinancialPlansType::class);
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function center()
     {
         return $this->belongsTo(Center::class);
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function totalFactorItem()
     {
         return $this->belongsTo(TotalFactorItem::class);
@@ -149,12 +219,19 @@ class FactorItem extends Model
     {
         return $this->morphOne(FactorItemAttributes::class, 'factor_item_attributable');
     }
-    //@return \Illuminate\Database\Eloquent\Relations\BelongsTo
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function card()
     {
         return $this->belongsTo(Card::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $resnumber = request('resnumber');
@@ -914,6 +991,9 @@ class FactorItem extends Model
         return 'ثبت نشده';
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function checks()
     {
         return $this->morphMany(Check::class, 'checkable');

@@ -7,18 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class CouponItem extends Model
 {
+    /**
+     * @var string[]
+     */
     protected $fillable=['coupon_id','couponitemable_id','couponitemable_type','center_id'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
     public function couponitemable()
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function coupon()
     {
         return $this->belongsTo(Coupon::class);
     }
 
+    /**
+     * @param $product_attribute_id
+     * @return int
+     */
     public static function hasCouponByProductAttributeId($product_attribute_id)
     {
         $able_to_edit=1;

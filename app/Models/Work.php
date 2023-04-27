@@ -8,16 +8,30 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Work extends Model
 {
+    /**
+     * @var array
+     */
     protected $guarded = [];
 
     use SoftDeletes;
+
+    /**
+     * @var string[]
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeFilter($query)
     {
         $date = request('time');
