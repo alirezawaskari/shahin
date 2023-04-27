@@ -102,13 +102,13 @@ class RegisterController extends Controller
         }
         Callcenter::create( [
             'reg_id' => $user->id,
-            'user_id' => array_random( $callcenterusers )->id,
+            'user_id' => array_rand( $callcenterusers )->id,
             'type' => 0,
             'status' => '0',
             'representation_id' => Arr::has( $data, 'representation' ) ? $data[ 'representation' ] : null
         ] );
         Callcenterstatus::create( [
-            'user_id' => array_random( $callcenterusers )->id,
+            'user_id' => array_rand( $callcenterusers )->id,
         ] );
 
         return $user;
@@ -192,7 +192,7 @@ class RegisterController extends Controller
                     }
                 }
             }
-            $id = array_random( $callcenterusers );
+            $id = array_rand( $callcenterusers );
             if ( $request->input( 'callcenter_id' ) )
  {
                 $user_link = User::find( $request->input( 'callcenter_id' ) );
