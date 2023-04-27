@@ -190,6 +190,8 @@ class ServiceController extends AdminController
                  return $this->deleteSingleQuestion($request,$service);
              case "session_titles":
                  return $this->insertSessionTitles($request,$service);
+             case "rules":
+                 return $this->updateRules($request,$service);
         }
     }
 
@@ -598,6 +600,14 @@ class ServiceController extends AdminController
                 'session_attributes'=>array('session_titles'=>$request->session_titles)
             ));
         }
+        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+    }
+
+    private function updateRules(Request $request, Service $service)
+    {
+        $service->update(array(
+            'rules'=>$request->rules,
+        ));
         return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
     }
 }

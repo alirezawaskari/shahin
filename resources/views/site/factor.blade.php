@@ -24,7 +24,8 @@
                         @endif
                     </div>
                     @if(now() > $factor->expired_at)
-                        <p class="text-danger font-18 text-center">فاکتور: {{ $factor->resnumber }} منقضی شده است و امکان پرداخت وجود ندارد، لطفا سفارش جدید ثبت نمایید یا با پشتیبانی تماس بگیرید.</p>
+                        <p class="text-danger font-18 text-center">فاکتور: {{ $factor->resnumber }} منقضی شده است و
+                            امکان پرداخت وجود ندارد، لطفا سفارش جدید ثبت نمایید یا با پشتیبانی تماس بگیرید.</p>
                         <p class="font-18 text-center text-dark">پشتیبانی: 09429000029</p>
                     @else
                         <div class="col-12">
@@ -33,11 +34,11 @@
                                     <img class="w-50" src="/assets/site/images/footer-logo.png" alt="">
                                 </div>
                                 <div class="col-12 col-md-4 d-flex align-items-center justify-content-center">
-                                @if(isset($factor->factorItems[0]))
-                                    <h5 class="my-0">صورتحساب قطعی فروش کالا و خدمات</h5>
-                                @else
-                                    <h5 class="my-0">قبض پرداخت اقساط و دیون</h5>
-                                @endif                                </div>
+                                    @if(isset($factor->factorItems[0]))
+                                        <h5 class="my-0">صورتحساب قطعی فروش کالا و خدمات</h5>
+                                    @else
+                                        <h5 class="my-0">قبض پرداخت اقساط و دیون</h5>
+                                    @endif                                </div>
                                 <div class="col-12 col-md-4 d-flex align-items-center justify-content-center">
                                     <span>تاریخ: {{ verta(\Carbon\Carbon::now())->format('%d %B ، %Y') }}</span>
                                 </div>
@@ -76,12 +77,12 @@
                                         <span>آدرس نمایندگی: {{ $factor->representation->address }}</span>
                                     </div>
                                 </div>
-							@else
-							<div class="row mb-3">
-                                <div class="col-12  d-flex align-items-center">
-                                    <span>نشانی کامل: {{ $setting->address }}</span>
+                            @else
+                                <div class="row mb-3">
+                                    <div class="col-12  d-flex align-items-center">
+                                        <span>نشانی کامل: {{ $setting->address }}</span>
+                                    </div>
                                 </div>
-                            </div>
                             @endif
 
                         </div>
@@ -116,67 +117,73 @@
                             </div>
                         </div>
                         <div class="col-12 mt-5">
-                        @if(isset($factor->factorItems[0]))
-                            <p class="text-center font-18 bold">مشخصات کالا یا خدمات مورد معامله</p>
-                            <div class="table-responsive">
-                                <table class="table bg-white rounded">
-                                    <thead>
-                                    <tr class="bg-gray text-orange">
-                                        <th scope="col">خدمت</th>
-                                        <th scope="col">مبلغ</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                            @if(isset($factor->factorItems[0]))
+                                <p class="text-center font-18 bold">مشخصات کالا یا خدمات مورد معامله</p>
+                                <div class="table-responsive">
+                                    <table class="table bg-white rounded">
+                                        <thead>
+                                        <tr class="bg-gray text-orange">
+                                            <th scope="col">خدمت</th>
+                                            <th scope="col">مبلغ</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($factor->factorItems as $item)
+                                            <tr>
+                                                @if(!is_null($item->financialPlansType))
+                                                    <th>
+                                                        {{--                                                    {{ $item->financialPlansType->title }}--}}
+                                                        {{  $item->factoritemable->factor_title.'-'.$item->financialPlansType->title}}
+                                                    </th>
+                                                    <th class="pay-invoice">
+                                                        {{ number_format($item->financialPlansType->price) }} ریال
+                                                    </th>
+                                                @else
+                                                    <th>
+                                                        {{ $item->factoritemable->title.'-'. $item->factoritemable->factor_title}}
+                                                    </th>
+                                                    <th class="pay-invoice">
+                                                        {{ number_format($item->factoritemable->price) .' ریال' }}
+                                                        {{ $item->factoritemable->price == 0 ? '(هدیه)' : '' }}
+                                                    </th>
+                                                @endif
+                                            </tr>
+                                            <tr>
+                                                <th> {{ number_format($item->factoritemable->tax) }} درصد مالیات بر ارزش
+                                                    افزوده
+                                                </th>
+                                                <th>{{ number_format($factor->tax) }} ریال</th>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                    <p>ملاحضات : </p>
+                                    <p>1 - در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت
+                                        وجه ندارد.</p>
+                                    <p>2 - لطفا پس از پرداخت صفحه را ترک ننمایید و نسبت به تعیین نوبت زمان مراجعه اقدام
+                                        نمایید. </p>
                                     @foreach($factor->factorItems as $item)
-                                        <tr>
-                                            @if(!is_null($item->financialPlansType))
-                                                <th>
-                                                    {{ $item->financialPlansType->title }}
-{{--                                                    {{ $item->financialPlansType->title .'-'. $item->factoritemable->factor_title}}--}}
-                                                </th>
-                                                <th class="pay-invoice">
-                                                    {{ number_format($item->financialPlansType->price) }} ریال
-                                                </th>
-                                            @else
-                                                <th>
-                                                    {{ $item->factoritemable->title.'-'. $item->factoritemable->factor_title}}
-                                                </th>
-                                                <th class="pay-invoice">
-                                                    {{ number_format($item->factoritemable->price) .' ریال' }}
-                                                    {{ $item->factoritemable->price == 0 ? '(هدیه)' : '' }}
-                                                </th>
-                                            @endif
-                                        </tr>
-                                        <tr>
-                                            <th> {{ number_format($item->factoritemable->tax) }} درصد مالیات بر ارزش افزوده</th>
-                                            <th>{{ number_format($factor->tax) }} ریال</th>
-                                        </tr>
+                                        @if(in_array(trim($item->factoritemable->id) , App\Models\AgencyType::pluck('service_id')->toArray())                            )
+                                            <p>3-پرداخت مابقی هزینه فاکتور فوق بصورت چک رمزدار طی 72 ساعت قابل اجرا بوده
+                                                و پس از انقضای این مدت شرکت هیچگونه تعهدی در قبال این فاکتور ندارد.</p>
+                                        @endif
                                     @endforeach
-                                    </tbody>
-                                </table>
-                                <p>ملاحضات : </p>
-								<p>1 - در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت وجه ندارد.</p>
-								<p>2 - لطفا پس از پرداخت صفحه را ترک ننمایید و نسبت به تعیین نوبت زمان مراجعه اقدام نمایید. </p>
-				            @foreach($factor->factorItems as $item)
-                            @if(in_array(trim($item->factoritemable->id) , App\Models\AgencyType::pluck('service_id')->toArray())                            )
-					            <p>3-پرداخت مابقی هزینه فاکتور فوق بصورت چک رمزدار طی 72 ساعت قابل اجرا بوده و پس از انقضای این مدت شرکت هیچگونه تعهدی در قبال این فاکتور ندارد.</p>
-				            @endif
-                            @endforeach
-                        @endif
-                            <div class="col-12 d-flex justify-content-center justify-content-md-end align-items-center my-3">
+                                    @endif
+                                    <div
+                                        class="col-12 d-flex justify-content-center justify-content-md-end align-items-center my-3">
                                      <span class="bold font-14 my-0 py-0 mx-2">کل: {{ number_format($factor->price) }}
                                                 ریال</span>
-                                    @if(!is_null($factor->coupon))
-                                        <span class="bold font-13 my-0 py-0 mx-2 text-danger">تخفیف: {{ number_format($factor->price * $factor->coupon->discount / 100) }}
+                                        @if(!is_null($factor->coupon))
+                                            <span class="bold font-13 my-0 py-0 mx-2 text-danger">تخفیف: {{ number_format($factor->price * $factor->coupon->discount / 100) }}
                                                 ریال</span>
 
-                                        <span class="bold font-13 my-0 py-0 mx-2">قابل پرداخت: {{ number_format($factor->price - ($factor->price * $factor->coupon->discount / 100)) }}
+                                            <span class="bold font-13 my-0 py-0 mx-2">قابل پرداخت: {{ number_format($factor->price - ($factor->price * $factor->coupon->discount / 100)) }}
                                                 ریال</span>
-                                    @endif
+                                        @endif
 
-                                    <span class="bold font-12 my-0 py-0 text-red" id="offprice"></span>
+                                        <span class="bold font-12 my-0 py-0 text-red" id="offprice"></span>
+                                    </div>
                                 </div>
-                            </div>
                         </div>
                         <div class="col-12">
                             <div class="row">
@@ -197,14 +204,17 @@
                                                 <span class="text-danger font-12">{{ $error }}</span>
                                             @endforeach
                                         @endif
-                                        <a target="_blank" href="{{ asset('images/IMG-20191230-WA0000.jpg') }}"><p class="mt-3">مشاهده گواهی ارزش افزوده</p></a>
+                                        <a target="_blank" href="{{ asset('images/IMG-20191230-WA0000.jpg') }}"><p
+                                                class="mt-3">مشاهده گواهی ارزش افزوده</p></a>
                                     </div>
                                 </div>
 
                                 <div class="col-12 col-md-6 justify-content-end align-items-center">
                                     <div class="row d-flex align-items-center justify-content-center">
-                                        <div class="col-12 d-flex justify-content-center flex-column align-items-center">
-                                            <form action="{{route('pay')}}" method="post" class="d-flex flex-column justify-content-center align-items-center">
+                                        <div
+                                            class="col-12 d-flex justify-content-center flex-column align-items-center">
+                                            <form action="{{route('pay')}}" method="post"
+                                                  class="d-flex flex-column justify-content-center align-items-center">
                                                 @csrf
                                                 <input name="coupon" id="couponinputwallet" type="hidden" value="">
                                                 <input name="factor_id" type="hidden" value="{{ $factor->id }}">
@@ -215,31 +225,74 @@
                                                     '5047061065198174'
                                                         به نام سید مصطفی میرحسینی واریز نموده و فیش واریزی را از طریق واتس اپ امور مالی ارسال فرمایید .
                                                 </span> --}}
-                                                <p class="mb-0">انتخاب روش پرداخت:</p>
-                                                <div class="btn-group btn-group-toggle mt-3" data-toggle="buttons">
-                                                   <label class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
-                                                       <input type="radio" name="payment" id="option1" value="online" autocomplete="off" checked>
-                                                      <span class="font-14">پرداخت از طریق کارت شتاب</span>
-                                                   </label>
 
-                                                    @auth
-                                                        @if($factor->user->wallet >= $factor->price)
-                                                            <label class="rounded btn btn-outline-warning text-dark mx-2 d-flex flex-column align-items-center justify-content-center pointer">
-                                                                <input type="radio" name="payment" value="wallet" id="option2" autocomplete="off">
-                                                                <span class="font-12">کسر {{ number_format($factor->coupon ? $factor->price - ($factor->price * $factor->coupon->discount / 100 ) : $factor->price) }} ریال از کیف شما</span>
-                                                                <span class="font-12">موجودی شما: {{ number_format($factor->user->wallet) }} ریال</span>
-                                                            </label>
-                                                        @else
-                                                            <button type="button" class="rounded btn btn-secondary disabled d-flex flex-column align-items-center justify-content-center" disabled>
-                                                                <span class="font-12">کسر {{ number_format($factor->coupon ? $factor->price - ($factor->price * $factor->coupon->discount / 100 ) : $factor->price) }} ریال از کیف شما</span>
-                                                                <span class="font-12">موجودی شما: {{ number_format($factor->user->wallet) }} ریال</span>
-                                                            </button>
-                                                        @endif
-                                                    @endauth
+                                                <div class="card border-warning">
+                                                    <div class="card-header bg-warning text-white">
+                                                        <strong style="color: black!important;">توجه</strong>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="alert alert-info"> جهت ادامه عملیات پرداخت ابتدا
+                                                            قوانین را مطالعه نموده و سپس
+                                                            <strong>پذیرش قوانین </strong>
+                                                            را انتخاب نمایید .
+                                                        </div>
+                                                        <button type="button" class="btn btn-outline-primary"
+                                                                data-toggle="modal" data-target=".bd-example-modal-lg">
+                                                            مطالعه قوانین
+                                                        </button>
 
+                                                        <div class="form-check mt-3">
+                                                            <hr>
+                                                            <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+                                                            <input style="cursor: pointer" class=" form-check-input" type="checkbox" value="" id="accept-rules">
+                                                            <label  style="cursor: pointer" class=" form-check-label mr-3" for="accept-rules">پذیرش قوانین</label>
+                                                            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <input id="btn_factor" type="submit" value="جهت پرداخت اینجا کلیک کنید" class="btn btn-success font-14 my-2 btn-block">
-                                                {{-- <input id="btn_factor" type="submit" value=" پرداخت , دریافت شماره کارت جهت پرداخت" class="btn btn-success font-14 my-2 btn-block"> --}}
+
+                                                <div class="card" id="payments-box" style="display: none">
+                                                    <div class="card-header">
+                                                        <h5 class="mb-0">انتخاب روش پرداخت:</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="btn-group btn-group-toggle mt-3" data-toggle="buttons">
+
+                                                            <br>
+                                                            <label
+                                                                class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
+                                                                <input type="radio" name="payment" id="option1"
+                                                                       value="online" autocomplete="off" checked>
+                                                                <span class="font-14">پرداخت از طریق کارت شتاب</span>
+                                                            </label>
+                                                            @auth
+                                                                @if($factor->user->wallet >= $factor->price)
+                                                                    <label
+                                                                        class="rounded btn btn-outline-warning text-dark mx-2 d-flex flex-column align-items-center justify-content-center pointer">
+                                                                        <input type="radio" name="payment" value="wallet"
+                                                                               id="option2" autocomplete="off">
+                                                                        <span class="font-12">کسر {{ number_format($factor->coupon ? $factor->price - ($factor->price * $factor->coupon->discount / 100 ) : $factor->price) }} ریال از کیف شما</span>
+                                                                        <span class="font-12">موجودی شما: {{ number_format($factor->user->wallet) }} ریال</span>
+                                                                    </label>
+                                                                @else
+                                                                    <button type="button"
+                                                                            class="rounded btn btn-secondary disabled d-flex flex-column align-items-center justify-content-center"
+                                                                            disabled>
+                                                                        <span class="font-12">کسر {{ number_format($factor->coupon ? $factor->price - ($factor->price * $factor->coupon->discount / 100 ) : $factor->price) }} ریال از کیف شما</span>
+                                                                        <span class="font-12">موجودی شما: {{ number_format($factor->user->wallet) }} ریال</span>
+                                                                    </button>
+                                                                @endif
+                                                            @endauth
+
+                                                        </div>
+                                                        <input id="btn_factor" type="submit"
+                                                               value="جهت پرداخت اینجا کلیک کنید"
+                                                               class="btn btn-success font-14 my-2 btn-block">
+                                                        {{-- <input id="btn_factor" type="submit" value=" پرداخت , دریافت شماره کارت جهت پرداخت" class="btn btn-success font-14 my-2 btn-block"> --}}
+
+                                                    </div>
+                                                </div>
                                             </form>
                                         </div>
                                     </div>
@@ -266,9 +319,68 @@
                                 </div>
                             </div>
                         </div>
+
                     @endif
                 </div>
             </div>
         </div>
     </div>
+
+
+    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+
+            <div class="modal-content">
+                <div class="bg-white modal-header">
+                    <h4>قوانین</h4>
+                </div>
+                <div class="accordion" id="accordionExample">
+
+                @foreach($factor->factorItems as $item)
+
+                    <!-- Panel Two -->
+                        <div class="card">
+                            <div class="card-header text-center" id="headingTwo">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link collapsed  " type="button" data-toggle="collapse"
+                                            data-target="#collapseTwo" aria-expanded="false"
+                                            aria-controls="collapseTwo">
+                                        {{  $item->factoritemable->factor_title}}
+                                    </button>
+                                </h2>
+                            </div>
+
+                            <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo"
+                                 data-parent="#accordionExample">
+                                <div class="card-body text-right">
+                                    {!!$item->factoritemable->rules!!}
+                                </div>
+                            </div>
+                            @endforeach
+
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                </div>
+            </div>
+
+        </div>
+        @endsection
+        @section('js')
+            <script>
+                $(document).ready(function () {
+                    $('#accept-rules').prop('checked', false);
+
+                    $('#accept-rules').change(function () {
+                        if (this.checked) {
+                            $('#payments-box').slideDown();
+                        } else {
+                            $('#payments-box').slideUp();
+                        }
+                    });
+                });
+            </script>
 @endsection
