@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <meta name="token" content="{{ csrf_token() }}">
     <meta name="description" content="@yield('description','شبکه خدمات رفاهی لاله سامانه هوشمند یکپارچه اقتصادی با هدف کاهش هزینه های زندگی مردم عزیز کشورمان و ایجاد رقابت بین تولید کنندگان و خدمات دهندگان')">
+    <meta name="author" content="خدمات درمانی - رفاهی لاله">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    {!! SEO::generate() !!}
+    <meta name="google-site-verification" content="2LiK03QLZtoxWosDgNx_gXH9ffVfCJmTiMduAI643K8" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133477056-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-5SCCYKP8ZJ');
+    </script>
     <link rel="icon" href="{{asset('assets/site/images/fav.png')}}" type="image/png">
 
     <title>@yield('title','لاله کارت')</title>
