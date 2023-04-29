@@ -97,6 +97,14 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="col-md-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="invalidCheck2"  oninvalid="this.setCustomValidity('لطفا در صورت تایید انتخاب نمایید ')" required>
+                                            <label class="form-check-label mr-3" for="invalidCheck2" >
+                                               توضیحات مربوط به خدمت درخواستی را مطالعه نمودم
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary text-white px-3 mt-2 btn-block">ثبت نام جدید دریافت خدمت
                                         </button>
@@ -157,5 +165,5 @@
 @endsection
 @section('js')
     <script src="/assets/site/js/fix-number.js?v=1"></script>
-    <script src="/assets/site/js/get-service.js?v=1"></script>
+    <script src="/assets/site/js/get-service.js?v=1.1"></script>
 @endsection

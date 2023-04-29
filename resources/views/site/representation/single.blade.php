@@ -183,9 +183,20 @@
 
 @section('footer')
 <script>
-    $('#date').persianDatepicker({
-            format: 'YYYY/MM/D',
-            autoClose: true,
+    $(document).ready(function () {
+        $('#service-description-check').prop('checked', false);
+        $('#service-description-check').change(function () {
+            if (this.checked) {
+                $('#step-two-cover').slideUp();
+            } else {
+                $('#step-two-cover').slideDown();
+            }
         });
+    });
+    $('#date').persianDatepicker({
+        format: 'YYYY/MM/D',
+        autoClose: true,
+    });
+
 </script>
 @endsection
