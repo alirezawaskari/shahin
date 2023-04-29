@@ -226,33 +226,33 @@
                                                         به نام سید مصطفی میرحسینی واریز نموده و فیش واریزی را از طریق واتس اپ امور مالی ارسال فرمایید .
                                                 </span> --}}
 
-                                                <div class="card border-warning">
-                                                    <div class="card-header bg-warning text-white">
-                                                        <strong style="color: black!important;">توجه</strong>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <div class="alert alert-info"> جهت ادامه عملیات پرداخت ابتدا
-                                                            قوانین را مطالعه نموده و سپس
-                                                            <strong>پذیرش قوانین </strong>
-                                                            را انتخاب نمایید .
-                                                        </div>
-                                                        <button type="button" class="btn btn-outline-primary"
-                                                                data-toggle="modal" data-target=".bd-example-modal-lg">
-                                                            مطالعه قوانین
-                                                        </button>
+{{--                                                <div class="card border-warning">--}}
+{{--                                                    <div class="card-header bg-warning text-white">--}}
+{{--                                                        <strong style="color: black!important;">توجه</strong>--}}
+{{--                                                    </div>--}}
+{{--                                                    <div class="card-body">--}}
+{{--                                                        <div class="alert alert-info">--}}
+{{--                                                            جهت دریافت خدمت در صورتی که توضیحات خدمت درخواستی را مطالعه نموده اید--}}
+{{--                                                            <strong>پذیرش قوانین </strong>--}}
+{{--                                                            را انتخاب نمایید .--}}
+{{--                                                        </div>--}}
+{{--                                                        <button type="button" class="btn btn-outline-primary"--}}
+{{--                                                                data-toggle="modal" data-target=".bd-example-modal-lg">--}}
+{{--                                                            مطالعه قوانین--}}
+{{--                                                        </button>--}}
 
-                                                        <div class="form-check mt-3">
-                                                            <hr>
-                                                            <i class="fa fa-angle-double-left" aria-hidden="true"></i>
-                                                            <input style="cursor: pointer" class=" form-check-input" type="checkbox" value="" id="accept-rules">
-                                                            <label  style="cursor: pointer" class=" form-check-label mr-3" for="accept-rules">پذیرش قوانین</label>
-                                                            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+{{--                                                        <div class="form-check mt-3">--}}
+{{--                                                            <hr>--}}
+{{--                                                            <i class="fa fa-angle-double-left" aria-hidden="true"></i>--}}
+{{--                                                            <input style="cursor: pointer" class=" form-check-input" type="checkbox" value="" id="accept-rules">--}}
+{{--                                                            <label  style="cursor: pointer" class=" form-check-label mr-3" for="accept-rules">پذیرش قوانین</label>--}}
+{{--                                                            <i class="fa fa-angle-double-right" aria-hidden="true"></i>--}}
 
-                                                        </div>
-                                                    </div>
-                                                </div>
+{{--                                                        </div>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
 
-                                                <div class="card" id="payments-box" style="display: none">
+                                                <div class="card" id="payments-box" >
                                                     <div class="card-header">
                                                         <h5 class="mb-0">انتخاب روش پرداخت:</h5>
                                                     </div>
