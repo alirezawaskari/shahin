@@ -39,7 +39,7 @@
 <script src="{{asset('assets/site/js/app.js')}}"></script>
 <script src="{{asset('assets/js/persian-date.min.js')}}"></script>
 <script src="{{asset('assets/js/persian-datepicker.min.js')}}"></script>
-@yield('footer')
+
 <div class="position-fixed d-none d-md-block" style="right: 5px; bottom: 0;color: gray">
     ارتباط با کارشناسان
     <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
@@ -119,5 +119,6 @@
 {{--        </div>--}}
 {{--     </div>--}}
 </div>
+    @yield('footer')
 </body>
 </html>

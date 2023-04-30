@@ -1,11 +1,22 @@
 $(document).ready(function () {
-    var regexname= /^09[0-9][0-9]{8}$/;
+
+    $('#service-description-check').prop('checked', false);
+    $('#service-description-check').change(function () {
+        if (this.checked) {
+            $('#step-two-cover').slideUp();
+        } else {
+            $('#step-two-cover').slideDown();
+        }
+    });
+
+
+    var regexname = /^09[0-9][0-9]{8}$/;
     $("#check_register").submit(function (event) {
         var phone = $('#phone_number').val()
-        phone=fixNumbers(phone);
+        phone = fixNumbers(phone);
         if (!phone.match(regexname)) {
             alert('لطفا شماره موبایل را درست وارد نمایید !');
-        }else {
+        } else {
             var form = $(this);
             var formData = form.serialize();
             $.ajax({
@@ -34,7 +45,7 @@ $(document).ready(function () {
         event.preventDefault();
     });
 
-$("#registerForm").submit(function (event) {
+    $("#registerForm").submit(function (event) {
         var phone = $('#user_service_phone').val()
         if (!phone.match(regexname)) {
             alert('لطفا شماره موبایل را درست وارد نمایید !');
