@@ -96,7 +96,7 @@
                     @if (isset($factorItem['factor_values'][$form->name]) && in_array('site' , $form->data_display_level))
                     <tr>
                         <td>
-                            {{ $form->help }}
+                            {{ $form->placeholder }}
                         </td>
                         <td>
                             @if ($form->type == 'multi-select')
@@ -104,6 +104,11 @@
                             @elseif($form->type == 'file')
                             <a href="{{ asset($factorItem['factor_values'][$form->name]) }}" class="btn btn-primary"
                                 target="_blank">مشاهده</a>
+                            @elseif($form->type == 'multi_file')
+                            @foreach($factorItem['factor_values'][$form->name] as $image)
+                                <a href="{{ asset($image) }}" class="btn btn-primary"
+                                    target="_blank">مشاهده</a>
+                            @endforeach
                             @else
                             {{ $factorItem['factor_values'][$form->name] }}
                             @endif

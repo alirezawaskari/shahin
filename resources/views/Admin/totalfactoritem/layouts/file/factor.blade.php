@@ -24,11 +24,13 @@
                     @foreach ($factoritem['factorItems'] as $factor_item)
                     <div class="card-header row col-12 col-md-12 mb-3">
                         <div class="col-md-8">
-                            <h5>{{ $factor_item['factoritemable']->title . ($factor_item['center'] ? ' ( '.$factor_item['center']->title.' ) ' : '').' - '. $factoritem['financial_plans_type'] }}</h5>
+                            <h5>{{ $factor_item['factoritemable']->title . ($factor_item['center'] ? ' (
+                                '.$factor_item['center']->title.' ) ' : '').' - '. $factoritem['financial_plans_type']
+                                }}</h5>
                         </div>
                         <div class="col-md-2">
-                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal" data-target="#changeFinancialPlansTypeModal"><i
-                                    class="fa fa-edit"></i> تغییر طرح</a>
+                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
+                                data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
                         </div>
                         <div class="col-md-2">
                             <a class="btn border border-secondary mr-3 box-shadow-info"
@@ -62,8 +64,8 @@
                                     <th>تاریخ ثبت</th>
                                     <th>اقدام</th>
                                 </tr>
-                            @php($factor_item->serviceTariffs=$factor_item->serviceTariffs->sortBy('pivot.value'))
-                            @foreach ($factor_item->serviceTariffs as $key => $service_tariff)
+                                @php($factor_item->serviceTariffs=$factor_item->serviceTariffs->sortBy('pivot.value'))
+                                @foreach ($factor_item->serviceTariffs as $key => $service_tariff)
                                 <tr>
                                     <td>{{ $key+1 }}</td>
                                     <td>
@@ -102,11 +104,12 @@
                                     </td>
                                     <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}</td>
                                     <td>
-                                        <a data-toggle="modal" data-target="#sessionModal_{{ $service_tariff->pivot->id }}"
+                                        <a data-toggle="modal"
+                                            data-target="#sessionModal_{{ $service_tariff->pivot->id }}"
                                             class="btn border border-secondary bg-white">جلسات</a>
-                                        <div id="sessionModal_{{ $service_tariff->pivot->id }}" tabindex="-1" role="dialog"
-                                            aria-labelledby="myExtraLargeModalLabel" class="modal fade show"
-                                            style="padding-right: 17px;" aria-hidden="true">
+                                        <div id="sessionModal_{{ $service_tariff->pivot->id }}" tabindex="-1"
+                                            role="dialog" aria-labelledby="myExtraLargeModalLabel"
+                                            class="modal fade show" style="padding-right: 17px;" aria-hidden="true">
                                             <div class="modal-dialog modal-xl">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -120,10 +123,14 @@
                                                             <table
                                                                 class="table table-bordered table-striped table-responsive-md">
                                                                 <tr>
-                                                                    @if(!is_null($factor_item->factoritemable->session_attributes) && isset($factor_item->factoritemable->session_attributes['session_titles']) )
-                                                                        @foreach($factor_item->factoritemable->session_attributes['session_titles'] as $session_title)
-                                                                            <th>{{$session_title}}</th>
-                                                                        @endforeach
+                                                                    @if(!is_null($factor_item->factoritemable->session_attributes)
+                                                                    &&
+                                                                    isset($factor_item->factoritemable->session_attributes['session_titles'])
+                                                                    )
+                                                                    @foreach($factor_item->factoritemable->session_attributes['session_titles']
+                                                                    as $session_title)
+                                                                    <th>{{$session_title}}</th>
+                                                                    @endforeach
                                                                     @else
                                                                     <th>تاریخ و ساعت</th>
                                                                     <th>شماره دندان</th>
@@ -140,7 +147,9 @@
                                                                     @endpermission
                                                                     @endif
                                                                 </tr>
-                                                                @foreach ($factor_item->sessions->where('factor_item_service_tariff_id' , $service_tariff->pivot->id) as $session)
+                                                                @foreach
+                                                                ($factor_item->sessions->where('factor_item_service_tariff_id'
+                                                                , $service_tariff->pivot->id) as $session)
                                                                 <tr>
                                                                     <td>{{ verta($session->date)->format('%d %B ، %Y -
                                                                         H:i:s') }}
@@ -275,8 +284,8 @@
                                     <th>تاریخ ثبت</th>
                                     <th>اقدام</th>
                                 </tr>
-                            @php($factor_item->serviceTariffs=$factor_item->serviceTariffs->sortBy('pivot.value'))
-                            @foreach ($factor_item->serviceTariffs as $key => $service_tariff)
+                                @php($factor_item->serviceTariffs=$factor_item->serviceTariffs->sortBy('pivot.value'))
+                                @foreach ($factor_item->serviceTariffs as $key => $service_tariff)
                                 <tr>
                                     <td>{{ $key+1 }}</td>
                                     <td>
@@ -309,11 +318,12 @@
                                     </td>
                                     <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}</td>
                                     <td>
-                                        <a data-toggle="modal" data-target="#sessionModal_{{ $service_tariff->pivot->id }}"
+                                        <a data-toggle="modal"
+                                            data-target="#sessionModal_{{ $service_tariff->pivot->id }}"
                                             class="btn border border-secondary bg-white">جلسات</a>
-                                        <div id="sessionModal_{{ $service_tariff->pivot->id }}" tabindex="-1" role="dialog"
-                                            aria-labelledby="myExtraLargeModalLabel" class="modal fade show"
-                                            style="padding-right: 17px;" aria-hidden="true">
+                                        <div id="sessionModal_{{ $service_tariff->pivot->id }}" tabindex="-1"
+                                            role="dialog" aria-labelledby="myExtraLargeModalLabel"
+                                            class="modal fade show" style="padding-right: 17px;" aria-hidden="true">
                                             <div class="modal-dialog modal-xl">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -341,7 +351,9 @@
                                                                     <th>اقدام</th>
                                                                     @endpermission
                                                                 </tr>
-                                                                @foreach ($factor_item->sessions->where('factor_item_service_tariff_id' , $service_tariff->pivot->id) as $session)
+                                                                @foreach
+                                                                ($factor_item->sessions->where('factor_item_service_tariff_id'
+                                                                , $service_tariff->pivot->id) as $session)
                                                                 <tr>
                                                                     <td>{{ verta($session->date)->format('%d %B ، %Y -
                                                                         H:i:s') }}
@@ -540,18 +552,17 @@
                         @endforeach
                         @endif
                         @break
-                        @case('multi_file')
+                        @case('file')
                         @if (isset($factor_item['factor_values'][$form->name]))
-                        @foreach ($factor_item['factor_values'][$form->name] as $image)
                         <div class="col-md-3 mb-3">
-                            <a href="{{ asset($image) }}" target="_blank">
-                                <img src="{{ $image }}" class="card-img-top" height="150px">
+                            <a href="{{ asset($factor_item['factor_values'][$form->name])) }}" target="_blank">
+                                <img src="{{ $factor_item['factor_values'][$form->name]) }}" class="card-img-top"
+                                    height="150px">
                             </a>
                         </div>
-                        @endforeach
                         @endif
                         @break
-                        @case('file')
+                        @case('multi_file')
                         @if (isset($factor_item['factor_values'][$form->name]))
                         @foreach ($factor_item['factor_values'][$form->name] as $image)
                         <div class="col-md-3 mb-3">
@@ -599,7 +610,7 @@
                                     $factoritem['price_difference']['total'] : 0)) }} </p>
                                 @else
                                 <input class="form-control" value="{{ number_format($factoritem['total_price']) }}"
-                                name="totalPrice" oninput="separatePrices(this)">
+                                    name="totalPrice" oninput="separatePrices(this)">
                                 @endif
                             </div>
                             @if($item['confirm'])
@@ -644,10 +655,10 @@
                             <div class="col-12 col-md-12 mb-3">
                                 <label> نوع پرداخت</label>
                                 <br>
-                                نقد <input type="radio" name="type" value="0" {{ $factoritem['type']=='0'
-                                    ? 'checked' : '' }}>
-                                اقساط<input type="radio" name="type" value="1" {{ $factoritem['type']=='1'
-                                    ? 'checked' : '' }}>
+                                نقد <input type="radio" name="type" value="0" {{ $factoritem['type']=='0' ? 'checked'
+                                    : '' }}>
+                                اقساط<input type="radio" name="type" value="1" {{ $factoritem['type']=='1' ? 'checked'
+                                    : '' }}>
                             </div>
                         </div>
                         @permission('financial-info-file-edit')
@@ -677,10 +688,10 @@
                         </div>
                         @if($item['confirm'])
                         <div class="col-12 col-md-3 mb-3" data-toggle="tooltip" data-placement="bottom"
-                        title="مبلغ کل اعتباری که کاربر از مجموعه دریافت  کرده است.">
-                        <label>مبلغ کل اعتبار پرونده(ریال)</label>
-                        <p class="form-control border-success">
-                            {{ number_format($item['total_price']) }} </p>
+                            title="مبلغ کل اعتباری که کاربر از مجموعه دریافت  کرده است.">
+                            <label>مبلغ کل اعتبار پرونده(ریال)</label>
+                            <p class="form-control border-success">
+                                {{ number_format($item['total_price']) }} </p>
                         </div>
                         @endif
                         <div class="col-12 col-md-3 mb-2">
@@ -730,7 +741,8 @@
                             <label>نوع ضمانت</label>
                             <br>
                             @foreach ($item['guarantee_types_list'] as $key => $guarantee_type)
-                            {{ $totalFactorItem::GuaranteeTYPE[$guarantee_type] }} <input type="radio" name="guarantee_type" value="{{ $guarantee_type }}" {{
+                            {{ $totalFactorItem::GuaranteeTYPE[$guarantee_type] }} <input type="radio"
+                                name="guarantee_type" value="{{ $guarantee_type }}" {{
                                 $item['guarantee_type']==$guarantee_type ? 'checked' : '' }}>
                             @endforeach
                         </div>
@@ -740,5 +752,25 @@
                 </form>
             </div>
         </div>
+    </div>
+</div>
+<div class="mb-3 p-4 alert-warning row col-md-12">
+    <p>متقاضی محترم : درصورت ابلاغ آمادگی از سوی شخصیت حقوقی (شرکت ها) مدارک مربوط به شخص حقوقی در غیر اینصورت مدارک مربوط به شخص حقیقی رو بارگذاری کنید.</p>
+    <div class="col-md-6">
+        <h5>شخص حقوقی :</h5>
+        <ul>
+            <li>کارت ملی صاحبین امضاء</li>
+            <li> شناسنامه صاحبین امضاء</li>
+            <li> آگهی تاسیس</li>
+            <li> روزنامه رسمی آخرین تغییرات</li>
+            <li> رتبه پیمانکاری (درصورت وجود)</li>
+            <li> نامه اعلام آمادگی </li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h5>شخص حقیقی :</h5>
+        <ul>
+            <li> نامه اعلام آمادگی </li>
+        </ul>
     </div>
 </div>
