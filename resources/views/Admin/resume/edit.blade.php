@@ -40,10 +40,22 @@
                     <input type="text" value="{{ $resume->email }}" class="form-control" name="email">
                 </div>
 
-
                 <div class="col-12 col-md-4 mb-3">
                     <label>موبایل</label>
                     <input type="text" value="{{ $resume->phone }}" class="form-control" name="phone" required>
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
+                    <label>سابقه بیمه(درصورت داشتن بیمه براساس ماه)</label>
+                    <input type="number" value="{{ $resume->bime_history }}" name="bime_history" class="form-control" min="0" required>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label>نوع شغل درخواستی</label>
+                    <input type="text" value="{{ $resume->work_type }}" name="work_type" class="form-control" required>
+                </div>
+                <div class="col-12 mb-3">
+                    <label>سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)</label>
+                    <textarea name="work_history" class="form-control" required>{{ $resume->work_history }}</textarea>
                 </div>
 
                 <div class="col-12 col-md-6 mb-3">

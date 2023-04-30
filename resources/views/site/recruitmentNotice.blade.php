@@ -43,20 +43,33 @@
                                     <input type="hidden" name="recruitment_notice_id" value="{{ $recruitment_notice->id }}">
                                     <div class="col-12 mt-4">
                                         <div class="form-row">
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <input type="text" name="name" placeholder="نام و نام خانوادگی" class="form-control ml-2 mb-2 bg-light custom-input font-14" required>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-4">
                                                 <input type="text" name="phone" placeholder="تلفن همراه" class="form-control no-snip mb-2 bg-light custom-input font-14" required>
                                             </div>
+                                            <div class="col-4">
+                                                <input type="text" name="email" placeholder="ایمیل" class="form-control ml-2 mb-2 bg-light custom-input font-14">
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <input type="text" name="email" placeholder="ایمیل" class="form-control ml-2 mb-2 bg-light custom-input font-14">
+                                        <div class="form-row mb-2">
+                                            <div class="col-6">
+                                                <input type="number" name="bime_history" class="form-control no-resize bg-light custom-input font-14" min="0" placeholder="سابقه بیمه(درصورت داشتن بیمه براساس ماه)" required>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" name="work_type" class="form-control no-resize bg-light custom-input font-14" placeholder="نوع شغل درخواستی" required>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <textarea name="text" class="form-control no-resize bg-light custom-input font-14" rows="6" placeholder="توضیحات" required></textarea>
+                                        <div class="form-row mb-2">
+                                            <div class="col-6">
+                                                <textarea name="work_history" class="form-control no-resize bg-light custom-input font-14" rows="6" placeholder="سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)" required></textarea>
+                                            </div>
+                                            <div class="col-6">
+                                                <textarea name="text" class="form-control no-resize bg-light custom-input font-14" rows="6" placeholder="توضیحات مربوطه" required></textarea>
+                                            </div>
                                         </div>
-                                        <div class="form-row">
+                                        <div class="form-row mb-2">
 											<label> آپلود رزومه :</label>
 											<br>
                                             <input type="file" name="resume" id="file" accept=".pdf,.jpg,.jpeg">
