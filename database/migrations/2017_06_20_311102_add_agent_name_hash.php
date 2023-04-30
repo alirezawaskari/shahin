@@ -1,7 +1,7 @@
 <?php
 
-use PragmaRX\Tracker\Support\Migration;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Agent;
+use Illuminate\Database\Migrations\Migration;
 
 class AddAgentNameHash extends Migration
 {
