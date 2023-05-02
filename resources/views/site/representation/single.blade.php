@@ -32,11 +32,11 @@
                             @endforeach
                         </div>
                         @else
-                        @include('site.representation.add_to_cart' , ['service' => $service , 'representation' =>
+                        @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' =>
                         $representation->id, 'callcenter' => $callcenter->id])
                         @endif
                         @else
-                        @include('site.representation.add_to_cart' , ['service' => $service , 'representation' =>
+                        @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' =>
                         $representation->id, 'callcenter' => $callcenter->id])
                         @endif
                     </div>

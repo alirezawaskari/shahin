@@ -1,13 +1,9 @@
 @if($financial_plans_types)
     <div class="card mb-3">
         <div class="card-header bg-primary text-white">
-            <h6 class="mb-0">فرم ثبت درخواست خدمت :</h6>
+            <h6 class="mb-0">فرم تایید شرایط و مقررات :</h6>
         </div>
         <div class="card-body">
-            <h6 class="card-title mb-4">در صورت انتخاب طرح مورد نظر برای پرداخت اقساط یا نقد مدارک و تضامین لازم را
-                بررسی و آماده نمائید.</h6>
-
-
             <div class="row">
                 <div class="col-md-12 alert alert-success">
                     <strong>
@@ -29,7 +25,7 @@
                     <strong>
                         مرحله دوم :
                     </strong>
-                    انتخاب طرح مورد علاقه
+                    انتخاب گزینه مورد نظر
                 </div>
                 <div class="row" id="step-two-box" style="position: relative ;width: 100%">
 
