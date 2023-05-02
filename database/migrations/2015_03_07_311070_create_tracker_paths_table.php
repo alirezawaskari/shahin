@@ -1,6 +1,7 @@
 <?php
 
-use PragmaRX\Tracker\Support\Migration;
+
+use Illuminate\Database\Migrations\Migration;
 
 class CreateTrackerPathsTable extends Migration
 {

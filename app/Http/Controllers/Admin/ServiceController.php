@@ -233,7 +233,7 @@ class ServiceController extends AdminController
      * @param Service $service
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function before_form(Service $service)
+    public function beforeForm(Service $service)
     {
         $forms = $service->beforeforms()->get();
         return view('Admin.service.form' , compact('forms' , 'service'));
@@ -243,7 +243,7 @@ class ServiceController extends AdminController
      * @param Service $service
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function before_form_create(Service $service)
+    public function beforeFormCreate(Service $service)
     {
        $data_display_levels=BeforeForm::getDataDisplayLevel();
        $level_save_data=BeforeForm::getLevelSaveData();
@@ -255,7 +255,7 @@ class ServiceController extends AdminController
      * @param BeforeForm $beforeForm
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function before_form_item(BeforeForm $beforeForm)
+    public function beforeFormItem(BeforeForm $beforeForm)
     {
         $items = $beforeForm->beforeformitems()->get();
         return view('Admin.service.formitem' , compact('items' , 'beforeForm'));
@@ -265,7 +265,7 @@ class ServiceController extends AdminController
      * @param BeforeForm $beforeForm
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function before_form_item_create(BeforeForm $beforeForm)
+    public function beforeFormItemCreate(BeforeForm $beforeForm)
     {
         return view('Admin.beforeformitem.create' , compact('beforeForm'));
     }

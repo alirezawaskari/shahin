@@ -2,21 +2,24 @@
 
 @section('content')
     <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">ویرایش </h5>
+        </div>
         <div class="card-body">
-            <form class="form-horizontal" role="form" method="post" action="{{route('before_form.update',['id'=>$beforeForm->id])}}">
+            <form class="form-horizontal" role="form" method="post" action="{{route('before_form.update',[ $beforeForm->id])}}">
                 @csrf
                 @method('PATCH')
                 @include('Admin.layouts.errors')
                 <div class="row">
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>placeholder</label>
                         <input type="text" value="{{ $beforeForm->placeholder }}"
                                class="form-control"
-                               name="placeholder" required>
+                               name="placeholder"  >
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>name</label>
                         <input type="text" value="{{ $beforeForm->name }}"
@@ -24,15 +27,31 @@
                                name="name" required>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>value</label>
                         <input type="text" value="{{ $beforeForm->value }}"
                                class="form-control"
                                name="value">
                     </div>
+                    <div class="col-12 col-md-3 mb-3">
+                        <label>محل نمایش فیلد</label>
+                        <select name="data_display_level[]" id="data-display-name" class="form-control select2 " multiple="multiple">
+                            @foreach($data_display_levels as $key=>$value)
+                             <option {{ in_array($key, $beforeForm->data_display_level) ? 'selected' : '' }} value="{{$key}}">{{$value}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 mb-3">
+                        <label>محل ذخیره فیلد</label>
+                        <select name="data_save_level" id="" class="form-control">
+                            @foreach($level_save_data as $key => $value)
 
-                    <div class="col-12 col-md-6 mb-3">
+                                <option {{$beforeForm->data_save_level==$key?'selected':''}} value="{{$key}}">{{$value}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>help</label>
                         <input type="text" value="{{ $beforeForm->help }}"
@@ -40,7 +59,7 @@
                                name="help" required>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>class</label>
                         <input type="text" value="{{ $beforeForm->class }}"
@@ -48,7 +67,7 @@
                                name="class">
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>required</label>
                         <select class="form-control" name="required">
@@ -58,7 +77,7 @@
                     </div>
 
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>type</label>
                         <select class="form-control" name="type">
                             @foreach(\App\Models\BeforeForm::TYPE as $key => $type)

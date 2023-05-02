@@ -2,37 +2,30 @@
 
 @section('content')
     <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">ایجاد  </h5>
+        </div>
         <div class="card-body">
             <form class="form-horizontal" role="form" method="post" action="{{route('before_form.store')}}">
                 @csrf
                 @include('Admin.layouts.errors')
                 <div class="row">
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>placeholder</label>
                         <input type="text" value="{{old('placeholder')}}"
                                class="form-control"
                                name="placeholder" required>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>name</label>
                         <input type="text" value="{{old('name')}}"
                                class="form-control"
                                name="name" required>
                     </div>
-
-{{--                    <div class="col-12 col-md-6 mb-3">--}}
-
-{{--                        <label>value</label>--}}
-{{--                        <input type="text" value="{{old('value')}}"--}}
-{{--                               class="form-control"--}}
-{{--                               name="value">--}}
-{{--                    </div>--}}
-
-
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>محل نمایش فیلد</label>
                         <select name="data_display_level" id="data-display-name" class="form-control" multiple="multiple">
                             @foreach($data_display_levels as $key=>$value)
@@ -42,7 +35,7 @@
                     </div>
 
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>محل ذخیره فیلد</label>
                         <select name="data_save_level" id="" class="form-control">
@@ -52,7 +45,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>help</label>
                         <input type="text" value="{{old('help')}}"
@@ -60,7 +53,7 @@
                                name="help" required>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
 
                         <label>class</label>
                         <input type="text" value="{{old('class')}}"
@@ -68,7 +61,7 @@
                                name="class" required>
                     </div>
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>required</label>
                         <select class="form-control" name="required">
                             <option value="0">غیر اجباری</option>
@@ -77,7 +70,7 @@
                     </div>
 
 
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>required</label>
                         <select class="form-control" name="type">
                             @foreach(\App\Models\BeforeForm::TYPE as $key => $type)
