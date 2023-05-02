@@ -72,7 +72,7 @@
                 <div class="card-body text-center">
                     <h5 class="title-box">لینک دعوت شما</h5>
                     <div class="d-flex align-items-center justify-content-center m-b-10">
-                       <input class="form-control" id="link" value="{{ $link }}" name="link">
+                       <input class="form-control" id="link" value="{{ $link }}" name="link" readonly>
                     </div>
                     <div class="d-flex align-items-center justify-content-center m-b-10">
                         <select class="form-control" name="service" id="service" onchange="linkUser()">
@@ -293,11 +293,38 @@
 @section('js')
     <script>
         function myFunction() {
-            var copyText = document.getElementById("link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999)
-            document.execCommand("copy");
+                $.ajax({
+                    type: 'POST',
+                    url: '/dashboard/short-link',
+                    data: {
+                        original_link : $('#link').val()
+                    },
+                    success: function (data) {
+                        $('#link').val(data.short_link)
+                        var copyText = document.getElementById("link");
+                        copyText.select();
+                        copyText.setSelectionRange(0, 99999)
+                        document.execCommand("copy");
+                        swal({
+                            text: "لینک کوتاه ایجاد و کپی گردید .",
+                            icon: "success",
+                            button: "تایید",
+                            allowOutsideClick: true
+                        });
+                    },
+                    error: function (data) {
+                        swal({
+                            title: "خطا ",
+                            text: "خطایی رخ داده !",
+                            icon: "error",
+                            button: "باشه",
+                        });
+                    }
+                });
+
+
         }
+
         function linkUser() {
         service = document.getElementById("service").value;
         $.ajax({

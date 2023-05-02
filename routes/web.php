@@ -39,6 +39,7 @@ Route::post('/fastregister', 'Auth\RegisterController@fastregister');
 //Reset & Command Routes
 Route::group([], function () {
 
+    Route::get('/l/{link}', [\App\Http\Controllers\Admin\ShortLinkController::class,'redirect']);
     Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
 
     Route::get('/clear-cache', function () {
@@ -158,6 +159,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/task-transfer' , 'CallcenterController@task_transfer');
     Route::post('/callcenter/closeTask' , 'CallcenterController@closeTask');
     Route::resource('callcenter', 'CallcenterController');
+    Route::get('short-link/filter', 'ShortLinkController@filter');
+    Route::resource('short-link', 'ShortLinkController');
     //factor
     Route::get('/factor/desktop' , 'FactorController@desktop')->name('factor.desktop');
     Route::get('/system-income' , 'FactorController@systemIncome')->name('system.income');
