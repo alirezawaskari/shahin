@@ -153,6 +153,15 @@
                                             name="items[{{ $key }}][{{ $form->name }}]">
                                         </div>
                                         @break
+                                        @case('textarea')
+                                        <div class="col-12 mb-2">
+                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
+                                            <textarea class="form-control {{ $form->class }}" {{
+                                                $form->required == true ? 'required' : '' }} placeholder="{{
+                                            $form->placeholder }}"
+                                            name="items[{{ $key }}][{{ $form->name }}]" row="6">{{ $form->value }}</textarea>
+                                        </div>
+                                        @break
                                         @case('select')
                                         <div class="col-12 col-md-6 mb-2">
                                             <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
