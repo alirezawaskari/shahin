@@ -91,13 +91,14 @@ class FactorController extends Controller {
 
     public function index( Factor $factor ) {
         if ( $factor->status != 1 ) {
+            $debt_price = self::setDebtPriceByFactorTitle($factor);
             $factor->load( 'user', 'representation' );
             if($factor->representation)
             {
                 $representation = $factor->representation;
-                return view( 'site.representation.factor', compact( 'factor' , 'representation') );
+                return view( 'site.representation.factor', compact( 'factor' , 'representation' , 'debt_price') );
             }
-            return view( 'site.factor', compact( 'factor' ) );
+            return view( 'site.factor', compact( 'factor' , 'debt_price') );
         }
         return redirect( route( 'checkout', [$factor->resnumber ] ) );
     }
@@ -160,5 +161,30 @@ class FactorController extends Controller {
             'user_id' => $callcenter_id,
         ] );
         $factor->update( [ 'task_id' => $task->id ] );
+    }
+    /**
+     * @param Factor $factor
+     * @return string
+     */
+    private function setDebtPriceByFactorTitle(Factor $factor)
+    {
+        $debt_price = 0;
+        switch ($factor->title) {
+            case 'factor':
+                $debt_price = $factor->factorItem->property->prepayment_debt;
+                break;
+            case 'prepayment':
+                $debt_price = $factor->totalFactorItem->property->prepayment_debt;
+                break;
+            case 'price_difference':
+                $debt_price = $factor->totalFactorItem->property->price_difference_debt;
+                break;
+            case 'installment':
+                $debt_price = $factor->totalFactorItem->totalFactorItemInstallments->where('status', 0)->sum('price');
+                break;
+            default:
+                $debt_price = 0;
+        }
+        return number_format($debt_price - $factor->price > 0 ? $debt_price - $factor->price : 0);
     }
 }

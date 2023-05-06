@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\totalFactorItemInstallmentsExport;
 use App\Helpers\CalculationHelper;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CheckResource;
 use App\Http\Resources\TotalFactorItemInstallmentCollection;
@@ -74,18 +75,18 @@ class TotalFactorItemInstallmentController extends Controller
         }
         $inputs['prepayment_percent'] = self::getPrepaymentPercent($inputs);
 		if ($request->type == 'calculateByTotalPrice') {
-			if ((float) str_replace(',', '', $inputs['total_price']) > $inputs['category']->installments->max('high_interval')) {
+			if ((float) str_replace(',', '', Helper::numberConverter($inputs['total_price'])) > $inputs['category']->installments->max('high_interval')) {
 				$message = 'مبلغ وارد شده بیش از حد مجاز است.';
 				return response(['message' => $message, 'success' => '']);
 			}
-            if ((float) str_replace(',', '', $inputs['total_price']) < $inputs['category']->installments->min('down_interval')) {
+            if ((float) str_replace(',', '', Helper::numberConverter($inputs['total_price'])) < $inputs['category']->installments->min('down_interval')) {
 				$message = 'مبلغ وارد شده کمتر از حد مجاز است.';
 				return response(['message' => $message, 'success' => '']);
 			}
 			$item = $this->calculateByTotalPrice($inputs);
 		}
 		elseif ($request->type == 'calculateByPrepayment') {
-			if ((float) str_replace(',', '', $inputs['prepayment']) > $inputs['category']->installments->max('high_interval')) {
+			if ((float) str_replace(',', '', Helper::numberConverter($inputs['prepayment'])) > $inputs['category']->installments->max('high_interval')) {
 				$message = 'مبلغ وارد شده بیش از حد مجاز است.';
 				return response(['message' => $message, 'success' => '']);
 			}
@@ -93,7 +94,7 @@ class TotalFactorItemInstallmentController extends Controller
 		}
 		elseif ($request->type == 'calculateByInstallment') {
 			$item = $this->calculateByInstallment($inputs);
-            if ((float) str_replace(',', '', $item['installments_price']) < $inputs['category']->installments->min('down_installment_price')) {
+            if ((float) str_replace(',', '', Helper::numberConverter($item['installments_price'])) < $inputs['category']->installments->min('down_installment_price')) {
 				$message = 'مبلغ وارد شده کمتر از حد مجاز است.';
 				return response(['message' => $message, 'success' => '']);
 			}
@@ -109,7 +110,7 @@ class TotalFactorItemInstallmentController extends Controller
      */
 	private function calculateByTotalPrice($inputs)
 	{
-		$total_price = (float) str_replace(',', '', $inputs['total_price']);
+		$total_price = (float) str_replace(',', '', Helper::numberConverter($inputs['total_price']));
  		$prepayment = $total_price * ($inputs['prepayment_percent']);
         $inputs['installments_num'] = self::getInstallmentNum($inputs , $total_price);
         $wage = ($total_price - $prepayment) * ($inputs['category']->wage_percent / 100) / 12 * $inputs['installments_num'];
@@ -133,7 +134,7 @@ class TotalFactorItemInstallmentController extends Controller
      */
 	private function calculateByPrepayment($inputs)
 	{
-		$prepayment = (float) str_replace(',', '', $inputs['prepayment']);
+		$prepayment = (float) str_replace(',', '', Helper::numberConverter($inputs['prepayment']));
  		$total_price = ($prepayment * ((100 - $inputs['prepayment_percent']))) / ($inputs['prepayment_percent']) + $prepayment;
 		if ($total_price > $inputs['category']->installments->max('high_interval')) {
 			$total_price = $inputs['category']->installments->max('high_interval');
@@ -160,7 +161,7 @@ class TotalFactorItemInstallmentController extends Controller
      */
 	private function calculateByInstallment($inputs)
 	{
-		$installments_price = (float) str_replace(',', '', $inputs['installments_price']);
+		$installments_price = (float) str_replace(',', '', Helper::numberConverter($inputs['installments_price']));
  		$installments = $inputs['category']->installments;
 		$installments_num = $installments->max('high_installment_price') < $installments_price ? $installments->max('num') : 1;
 		foreach ($installments as $installment) {

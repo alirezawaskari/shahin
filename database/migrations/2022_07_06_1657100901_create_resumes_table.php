@@ -15,7 +15,9 @@ class CreateResumesTable extends Migration
 		$table->string('name');
 		$table->string('email')->nullable()->default(NULL);
 		$table->string('phone');
-		$table->text('text')->nullable()->default(NULL);
+        $table->integer('bime_history')->default('0');
+		$table->text('work_type')->nullable()->default(NULL);
+		$table->text('work_history')->nullable()->default(NULL);
 		$table->text('description')->nullable()->default(NULL);
 		$table->text('resume')->nullable()->default(NULL);
 		$table->integer('recruitment_notice_id');

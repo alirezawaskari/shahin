@@ -131,7 +131,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/fetch-user' , 'AdminController@user');
     Route::post('/summernote-image' , 'AdminController@summernote_image');
     Route::post('/uploadImage', 'AdminController@uploadImage');
-    Route::post('/uploadPhotosTemporarily', 'AdminController@uploadPhotosTemporarily');
     Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
     Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
@@ -683,6 +682,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/notifications/read', 'ProfileController@notifications_read')->name('profile.notifications.read');
     Route::post('/profile', 'ProfileController@update')->name('profile.update');
     Route::post('/useravatar', 'ProfileController@useravatar')->name('useravatar');
+    Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily');
 });
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/payment/{payment}', 'FactorItemController@index')->name('payment');

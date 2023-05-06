@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Carbon\Carbon;
 
 class installmentLinkSmsJob implements ShouldQueue {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -59,6 +60,6 @@ class installmentLinkSmsJob implements ShouldQueue {
      */
     private function checkAlreadySendSmsLog($phone , $title)
     {
-        return SmsLinkFactorLog::where('phone' , $phone)->where('title' , $title)->whereDate('created_at', '=', date('Y-m-d'))->exists();
+        return SmsLinkFactorLog::where('phone' , $phone)->where('title' , $title)->whereDate('created_at', Carbon::today())->exists();
     }
 }

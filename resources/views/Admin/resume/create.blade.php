@@ -26,6 +26,19 @@
                 </div>
 
                 <div class="col-12 col-md-6 mb-3">
+                    <label>سابقه بیمه(درصورت داشتن بیمه براساس ماه)</label>
+                    <input type="number" name="bime_history" class="form-control" min="0" required>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                    <label>نوع شغل درخواستی</label>
+                    <input type="text" name="work_type" class="form-control" required>
+                </div>
+                <div class="col-12 mb-3">
+                    <label>سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)</label>
+                    <textarea name="work_history" class="form-control" required></textarea>
+                </div>
+
+                <div class="col-12 col-md-6 mb-3">
                     <label>متن پیام</label>
                     <textarea type="text" class="form-control" name="text">{{ old('text') }}</textarea>
                 </div>
@@ -97,5 +110,5 @@
 </form>
 @stop
 @section('js')
-<script src="{{asset('assets/dashboard/js/factorItem.js')}}"></script>
+<script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
 @endsection
