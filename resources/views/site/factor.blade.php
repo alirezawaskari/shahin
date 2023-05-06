@@ -157,17 +157,71 @@
                                         @endforeach
                                         </tbody>
                                     </table>
-                                    <p>ملاحضات : </p>
+                                    <p>ملاحظات : </p>
                                     <p>1 - در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت
                                         وجه ندارد.</p>
-                                    <p>2 - لطفا پس از پرداخت صفحه را ترک ننمایید و نسبت به تعیین نوبت زمان مراجعه اقدام
-                                        نمایید. </p>
+                                    <p>2 - پس از پرداخت این فاکتور صفحه سایت را ترک ننمائید و جهت ادامه روند پرونده فرم اطلاعات یا بارگذاری مدارک را کامل نمائید.</p>
                                     @foreach($factor->factorItems as $item)
                                         @if(in_array(trim($item->factoritemable->id) , App\Models\AgencyType::pluck('service_id')->toArray())                            )
-                                            <p>3-پرداخت مابقی هزینه فاکتور فوق بصورت چک رمزدار طی 72 ساعت قابل اجرا بوده
-                                                و پس از انقضای این مدت شرکت هیچگونه تعهدی در قبال این فاکتور ندارد.</p>
+                                            <p>3 - پرداخت این فاکتور تائید یا رد شرایط مالی شما نبوده و طبق تعاریف مالی و حقوقی مندرج در پرونده زیر نظر واحد مربوطه بایست همکاری گردد.</p>
                                         @endif
                                     @endforeach
+                                    @elseif(isset($factor->factorItem))
+                                    <p class="text-center font-18 bold">مشخصات کالا یا خدمات مورد معامله</p>
+                                    <div class="table-responsive">
+                                        <table class="table bg-white rounded">
+                                            <thead>
+                                            <tr class="bg-gray text-orange">
+                                                <th scope="col">خدمت</th>
+                                                <th scope="col">مبلغ</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>
+                                                        {{ $factor->factorItem->factoritemable->title.' - باقیمانده هزینه '. $debt_price .' ریال (با احتساب پرداخت این فاکتور) ' }}
+                                                    </th>
+                                                    <th class="pay-invoice">
+                                                        {{ number_format($factor->price) .' ریال' }}
+                                                    </th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <p>ملاحظات : </p>
+                                        <p>1 - در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت
+                                            وجه ندارد.</p>
+                                            <p>2 - پس از پرداخت این فاکتور صفحه سایت را ترک ننمائید و جهت ادامه روند پرونده فرم اطلاعات یا بارگذاری مدارک را کامل نمائید.</p>
+                                            @if(in_array(trim($factor->factorItem->factoritemable->id) , App\Models\AgencyType::pluck('service_id')->toArray())                            )
+                                            <p>3 - پرداخت این فاکتور تائید یا رد شرایط مالی شما نبوده و طبق تعاریف مالی و حقوقی مندرج در پرونده زیر نظر واحد مربوطه بایست همکاری گردد.</p>
+                                            @endif
+                                            @elseif(isset($factor->totalFactorItem))
+                                            <p class="text-center font-18 bold">مشخصات کالا یا خدمات مورد معامله</p>
+                                            <div class="table-responsive">
+                                                <table class="table bg-white rounded">
+                                                    <thead>
+                                                    <tr class="bg-gray text-orange">
+                                                        <th scope="col">خدمت</th>
+                                                        <th scope="col">مبلغ</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>
+                                                                @foreach ($factor->totalFactorItem->factorItems as $item)
+                                                                {{ $item->factoritemable->title .' - '}}
+                                                                @endforeach
+                                                                {{ ' باقیمانده هزینه '. $debt_price .' ریال (با احتساب پرداخت این فاکتور) '}}
+                                                            </th>
+                                                            <th class="pay-invoice">
+                                                                {{ number_format($factor->price) .' ریال' }}
+                                                            </th>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p>ملاحظات : </p>
+                                                <p>1 - در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت
+                                                    وجه ندارد.</p>
+                                                <p>2 - پس از پرداخت این فاکتور صفحه سایت را ترک ننمائید و جهت ادامه روند پرونده فرم اطلاعات یا بارگذاری مدارک را کامل نمائید.</p>
                                     @endif
                                     <div
                                         class="col-12 d-flex justify-content-center justify-content-md-end align-items-center my-3">
