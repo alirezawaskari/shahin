@@ -53,7 +53,10 @@ class BeforeFormController extends Controller
      */
     public function edit(BeforeForm $beforeForm)
     {
-        return view('Admin.beforeform.edit' , compact('beforeForm'));
+
+        $level_save_data=BeforeForm::getLevelSaveData();
+        $data_display_levels=BeforeForm::getDataDisplayLevel();
+        return view('Admin.beforeform.edit' , compact('beforeForm','level_save_data','data_display_levels'));
     }
 
     /**
@@ -67,7 +70,7 @@ class BeforeFormController extends Controller
     public function update(Request $request, BeforeForm $beforeForm)
     {
         $this->validate($request , [
-            'placeholder' => 'required|string',
+            'placeholder' => 'nullable|string',
             'name' => 'nullable|string',
             'value' => 'nullable|string',
             'help' => 'nullable|string',

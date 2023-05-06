@@ -39,6 +39,7 @@ Route::post('/fastregister', 'Auth\RegisterController@fastregister');
 //Reset & Command Routes
 Route::group([], function () {
 
+    Route::get('/l/{link}', [\App\Http\Controllers\Admin\ShortLinkController::class,'redirect']);
     Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
 
     Route::get('/clear-cache', function () {
@@ -157,6 +158,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/task-transfer' , 'CallcenterController@task_transfer');
     Route::post('/callcenter/closeTask' , 'CallcenterController@closeTask');
     Route::resource('callcenter', 'CallcenterController');
+    Route::get('short-link/filter', 'ShortLinkController@filter');
+    Route::resource('short-link', 'ShortLinkController');
     //factor
     Route::get('/factor/desktop' , 'FactorController@desktop')->name('factor.desktop');
     Route::get('/system-income' , 'FactorController@systemIncome')->name('system.income');
@@ -396,10 +399,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('/inviteCategory', 'InviteCategoryController');
     Route::post('/searchTitleProduct', 'InviteCategoryController@searchTitleProduct');
 
-    Route::get('/service_before_form/{service}', 'ServiceController@before_form')->name('service.before.form');
-    Route::get('/service_before_form_create/{service}', 'ServiceController@before_form_create')->name('service.before.form.create');
-    Route::get('/service_before_form_item/{beforeform}', 'ServiceController@before_form_item')->name('service.before.form.item');
-    Route::get('/service_before_form_item_create/{beforeform}', 'ServiceController@before_form_item_create')->name('service.before.form.item.create');
+    Route::get('/service_before_form/{service}', 'ServiceController@beforeForm')->name('service.before.form');
+    Route::get('/service_before_form_create/{service}', 'ServiceController@beforeFormCreate')->name('service.before.form.create');
+    Route::get('/service_before_form_item/{beforeform}', 'ServiceController@beforeFormItem')->name('service.before.form.item');
+    Route::get('/service_before_form_item_create/{beforeform}', 'ServiceController@beforeFormItemCreate')->name('service.before.form.item.create');
     Route::post('/service/form', 'ServiceController@form');
     Route::post('/service/fetchForm', 'ServiceController@fetchForm');
     Route::resource('before_form', 'BeforeFormController')->except(['index', 'create', 'show']);
