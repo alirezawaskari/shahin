@@ -6,6 +6,7 @@ use App\Events\smsService;
 use App\Exports\FactorsExport;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AuditCollection;
 use App\Http\Resources\FactorCollection;
 use App\Models\Factor;
 use Illuminate\Http\Request;
@@ -152,7 +153,7 @@ class FactorController extends Controller
         $user = $factor->user;
         $type = $factor->factorable_type;
         $comments = Helper::userHistories($user);
-        $changes = $factor->audits()->with('user')->get()->last();
+        $changes = $factor->audits()->with('user')->get();
         $items = $factor->factorItems->map(function ($item) {
             $temp = [];
             $temp['id'] = $item->id;

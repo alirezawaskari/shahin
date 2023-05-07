@@ -399,7 +399,7 @@ class CallcenterController extends Controller
                     $credit_factor ? self::getFactorRepresentation($credit_factor) : '';
                     self::updateFactorFieldIsSupervisorType($create_category_factor_item_result, $cash_factor, $credit_factor);
                     self::updateCallcenterFieldIsOnlinePayTypeFactor($task, $payment_type);
-                    self::updateCallcenterFieldIsZeroPriceFacotr($task, $result_sum_price_factors);
+                    self::updateCallcenterFieldIsZeroPriceFactor($task, $result_sum_price_factors);
                 }
 
                 //send sms for online factors
@@ -1198,11 +1198,11 @@ class CallcenterController extends Controller
      * @param $callcenter
      * @param $result_factor_items
      */
-    private function updateCallcenterFieldIsZeroPriceFacotr($callcenter , $result_factor_items)
+    private function updateCallcenterFieldIsZeroPriceFactor($callcenter , $result_factor_items)
     {
         //update the callcenter status to paid(status == 3) when the factor price is zero.
         $callcenter->update([
-            'status' => !$result_factor_items['credit_price'] && !$result_factor_items['cash_price'] ? 3 : $callcenter->status,
+            'status' => !$result_factor_items['credit_price'] && !$result_factor_items['cash_price'] ? 10 : $callcenter->status,
             'user_id' => !$result_factor_items['credit_price'] && !$result_factor_items['cash_price'] ? auth()->user()->id : $callcenter->user_id,
         ]);
     }
