@@ -614,6 +614,8 @@ function getBadgeOfCallCenterStatus(status){
             return '<span class="badge badge-dark">بایگانی</span>'
         case 9:
             return '<span class="badge badge-dark">منقضی شده</span>'
+        case 10:
+            return '<span class="badge badge-success">اقدام شده</span>'
         default:
             return ''
     }

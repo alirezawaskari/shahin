@@ -328,6 +328,7 @@ class Callcenter extends Model implements AuditableContract
             '7' => 'عودت پرداخت',
             '8' => 'بایگانی',
             '9' => 'منقضی شده',
+            '10' => 'اقدام شده',
         ][$status];
     }
     /**
