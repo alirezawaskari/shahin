@@ -172,7 +172,7 @@ class FactorController extends Controller {
         $debt_price = 0;
         switch ($factor->title) {
             case 'factor':
-                $debt_price = $factor->factorItem->property->prepayment_debt;
+                $debt_price = $factor->factorItem ? $factor->factorItem->property->prepayment_debt : 0;
                 break;
             case 'prepayment':
                 $debt_price = $factor->totalFactorItem->property->prepayment_debt;

@@ -123,12 +123,8 @@
                                                             <table
                                                                 class="table table-bordered table-striped table-responsive-md">
                                                                 <tr>
-                                                                    @if(!is_null($factor_item->factoritemable->session_attributes)
-                                                                    &&
-                                                                    isset($factor_item->factoritemable->session_attributes['session_titles'])
-                                                                    )
-                                                                    @foreach($factor_item->factoritemable->session_attributes['session_titles']
-                                                                    as $session_title)
+                                                                    @if(!is_null($factor_item->factoritemable->session_attributes) && isset($factor_item->factoritemable->session_attributes['session_titles']))
+                                                                    @foreach($factor_item->factoritemable->session_attributes['session_titles'] as $session_title)
                                                                     <th>{{$session_title}}</th>
                                                                     @endforeach
                                                                     @else
@@ -147,7 +143,7 @@
                                                                     @endpermission
                                                                     @endif
                                                                 </tr>
-                                                                @foreach ($factor_item->sessions->where('factor_item_service_tariff_id', $service_tariff->pivot->id) as $session)
+                                                                @foreach($factor_item->sessions->where('factor_item_service_tariff_id' , $service_tariff->pivot->id) as $session)
                                                                 <tr>
                                                                     <td>{{ verta($session->date)->format('%d %B ، %Y -
                                                                         H:i:s') }}
@@ -349,7 +345,7 @@
                                                                     <th>اقدام</th>
                                                                     @endpermission
                                                                 </tr>
-                                                                @foreach ($factor_item->sessions->where('factor_item_service_tariff_id', $service_tariff->pivot->id) as $session)
+                                                                @foreach($factor_item->sessions->where('factor_item_service_tariff_id' , $service_tariff->pivot->id) as $session)
                                                                 <tr>
                                                                     <td>{{ verta($session->date)->format('%d %B ، %Y -
                                                                         H:i:s') }}
@@ -551,8 +547,8 @@
                         @case('file')
                         @if (isset($factor_item['factor_values'][$form->name]))
                         <div class="col-md-3 mb-3">
-                            <a href="{{ asset($factor_item['factor_values'][$form->name])}}" target="_blank">
-                                <img src="{{ $factor_item['factor_values'][$form->name]}}" class="card-img-top"
+                            <a href="{{ asset($factor_item['factor_values'][$form->name]) }}" target="_blank">
+                                <img src="{{ $factor_item['factor_values'][$form->name] }}" class="card-img-top"
                                     height="150px">
                             </a>
                         </div>
