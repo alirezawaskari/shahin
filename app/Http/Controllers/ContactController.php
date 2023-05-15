@@ -42,7 +42,7 @@ class ContactController extends Controller
     {
         $this->validate(request(), [
             'name' => 'required|string',
-            'phone' => 'required',
+            'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'card_id' => 'required',
             'text' => 'required',
             'images.*' => 'mimes:jpg,jpeg,png,bmp'
