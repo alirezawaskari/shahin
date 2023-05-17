@@ -21,23 +21,27 @@
                         @if($service->special == 1)
                         <h6 class="text-green my-2 font-16">این خدمات ویژه شهر های تهران و کرج می باشد</h6>
                         @endif
-                        @if(!is_null($required))
-                        @if($required == false)
-                        <div class="rol2">
-                            <p>برای خرید این خدمت باید ابتدا خدمات زیر را خریداری نمایید.</p>
-                            @foreach($requireServices as $ser)
-                            <a href="/{{$representation->slug}}/{{$ser->slug}}" class="btn btn-orange text-white mb-2">
-                                {{ $ser->title }}
-                            </a>
-                            @endforeach
+                        @if(isset($check) && !$check)
+                            @if(!is_null($required))
+                                @if($required == false)
+                                    <div class="rol2">
+                                        <p>برای خرید این خدمت باید ابتدا خدمات زیر را خریداری نمایید.</p>
+                                        @foreach($requireServices as $ser)
+                                            <a href="/{{$representation->slug}}/{{$ser->slug}}" class="btn btn-orange text-white mb-2">
+                                                {{ $ser->title }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' => $representation->id, 'callcenter' => $callcenter->id])
+                                @endif
+                            @else
+                                @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' => $representation->id, 'callcenter' => $callcenter->id])
+                            @endif
+                        @else
+                        <div class="card p-4">
+                            <h6 class="text-danger">شما قبلا در این خدمت ثبت نام کرده اید و امکان ثبت نام مجدد وجود ندارد.</h6>
                         </div>
-                        @else
-                        @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' =>
-                        $representation->id, 'callcenter' => $callcenter->id])
-                        @endif
-                        @else
-                        @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' =>
-                        $representation->id, 'callcenter' => $callcenter->id])
                         @endif
                     </div>
                     <div class="d-none d-md-block col-md-6 pl-0 text-left">

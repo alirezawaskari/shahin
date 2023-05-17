@@ -6,6 +6,7 @@ use App\Models\Factor;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class Factorsms extends Command
 {
@@ -73,7 +74,7 @@ class Factorsms extends Command
             }
         }
         //change factor status && task status to the expired after the factor expiration
-        $expire_factors = Factor::whereDate('expired_at', '<' , Carbon::now()->toDateString())->where('status' , '0')->take(100)->get();
+        $expire_factors = Factor::where(DB::raw("(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))"), '<=', now())->where('status' , '0')->take(100)->get();
         foreach ($expire_factors as $factor) {
             $factor->update([
                 'remember' => 3,

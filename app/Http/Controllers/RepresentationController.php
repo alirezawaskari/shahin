@@ -53,7 +53,16 @@ class RepresentationController extends Controller
                     $required = true;
                 }
             }
-            return view('site.representation.single', compact('financial_plans_types' , 'callcenter','representation' ,'service', 'required', 'requireServices'));
+            $check = $user->factors()->whereStatus(true)->whereHas('factorItems', function ($query) use ($service) {
+                $query->where('factoritemable_id', $service->id);
+            })->exists();
+
+            if ($check) {
+                if ($service->multiple) {
+                    $check = false;
+                }
+            }
+            return view('site.representation.single', compact('financial_plans_types' , 'callcenter','representation' ,'service', 'required', 'requireServices' , 'check'));
         }
 
         $provinces = Province::get();

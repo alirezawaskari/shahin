@@ -68,7 +68,7 @@ class ServiceController extends Controller
                 }
             }
             $check = $user->factors()->whereStatus(true)->whereHas('factorItems', function ($query) use ($service) {
-                $query->where('service_id', $service->id);
+                $query->where('factoritemable_id', $service->id);
             })->exists();
 
             if ($check) {

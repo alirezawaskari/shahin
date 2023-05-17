@@ -20,8 +20,6 @@
                             </thead>
                             <tbody>
                                 @foreach($factors as $factor)
-                                @if($factor->status == false && now() > $factor->expired_at)
-                                @else
                                 <tr>
                                     <td class="text-center">
                                         {{ $factor::setItems($factor) }}
@@ -48,7 +46,6 @@
                                         @endif
                                     </td>
                                 </tr>
-                                @endif
                                 @endforeach
                             </tbody>
                         </table>
