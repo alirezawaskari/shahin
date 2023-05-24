@@ -61,15 +61,36 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        $representation = auth()->user()->level;
-        if ($representation == 'admin') {
-            return redirect('dashboard/dailyDesktop');
-        }
-        if ($representation == 'organ') {
-            return redirect('profile');
-        }
-        if ($request->has('representation')) {
-            return redirect()->back();
+
+        $lastPage = session()->get('last_page');
+//       dd($lastPage);
+//        $representation = auth()->user()->level;
+//        if ($representation == 'admin') {
+//            if ($lastPage) {
+//                return redirect($lastPage);
+//            } else {
+//                return redirect('dashboard/dailyDesktop');
+//            }
+//        }
+//        if ($representation == 'organ') {
+//            if ($lastPage) {
+//                return redirect($lastPage);
+//            } else {
+//                return redirect('profile');
+//            }
+//        }
+//        if ($request->has('representation')) {
+//            if ($lastPage) {
+//                return redirect($lastPage);
+//            } else {
+//                return redirect()->back();
+//            }
+//        }
+
+        if ($lastPage) {
+            return redirect($lastPage);
+        } else {
+            return redirect('/cart');
         }
     }
 }

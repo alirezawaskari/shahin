@@ -104,7 +104,7 @@ Route::group([], function () {
 });
 
 //Admin Routes
-Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
+Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['SaveLastPage','auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
 
     Route::get('/run-query', function () {
