@@ -59,16 +59,10 @@ class CenterController extends AdminController
 
         $center_request = CenterRequest::create($item);
         //create center
-        Center::create( [
-            'centerable_id'=> $centerable_id,
-            'centerable_type'=> $centerable_type,
-            'status'=> $request->status,
-            'representation_id' => auth()->user()->admin_representation_id,
-            'center_request_id' => $center_request->id,
-            'title'=> $request->title,
-            'description'=> $request->description,
-            'address'=> $request->address,
-        ] );
+        $this->createCenter($centerable_id, $centerable_type, $request, $center_request);
+        //create user
+
+        //create task (callCenter)
 
         return redirect( route( 'center.index' ) )->with( [
             'create' => 'success',
@@ -363,6 +357,27 @@ class CenterController extends AdminController
         $centers = Center::select('id', 'title')->where('title', '!=', null)
             ->where('centerable_type', Category::class)->get();
         return ['centers' => $centers];
+    }
+
+    /**
+     * @param mixed $centerable_id
+     * @param string $centerable_type
+     * @param Request $request
+     * @param $center_request
+     * @return void
+     */
+    public function createCenter(mixed $centerable_id, string $centerable_type, Request $request, $center_request): void
+    {
+        Center::create([
+            'centerable_id' => $centerable_id,
+            'centerable_type' => $centerable_type,
+            'status' => $request->status,
+            'representation_id' => auth()->user()->admin_representation_id,
+            'center_request_id' => $center_request->id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'address' => $request->address,
+        ]);
     }
 
 }

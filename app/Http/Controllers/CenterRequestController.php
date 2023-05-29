@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Helper;
 use App\Models\CenterCategory;
 use App\Models\CenterRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CenterRequestController extends Controller
@@ -36,7 +37,9 @@ class CenterRequestController extends Controller
     {
         $this->validate(request(), [
             'name' => 'required|string',
-            'phone' => 'required',
+            'family' => 'required|string',
+            'subject' => 'required|string',
+            'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
             'description' => 'required',
         ]);
 
@@ -48,19 +51,32 @@ class CenterRequestController extends Controller
         {
             $center_category_id = $request->service ? $request->service : 30;
         }
+        //check if user not exist -> create user
+        $user=User::where('phone',$request->phone)->first();
+        if (is_null($user)){
+            //create user
+            $user = \App\Http\Controllers\Admin\CenterRequestController::createUser($request);
+        }
 
-        $center_request = CenterRequest::create([
-            'center_category_id'=> $center_category_id,
-            'phone'=> $request->phone,
-            'status'=> 0,
-            'type'=> $request->type,
-            'name'=> $request->name,
-            'subject'=> $request->subject,
-            'description'=> $request->description,
-            'city_id'=> $request->city_id,
-            'province_id'=> $request->province_id,
+        //create task (callCenter)
+        \App\Http\Controllers\Admin\CenterRequestController::createTask($user,$request);
+
+        $center_request =\App\Http\Controllers\Admin\CenterRequestController::createCenterRequest($center_category_id, $request);
+
+        $this->storeFiles($request, $center_request);
+
+        return redirect()->back()->with([
+            'center_success' => 'success'
         ]);
+    }
 
+    /**
+     * @param Request $request
+     * @param $center_request
+     * @return void
+     */
+    public function storeFiles(Request $request, $center_request): void
+    {
         $file_center = $request->urlfile;
         $alt = $request->alt;
         if ($file_center) {
@@ -68,15 +84,32 @@ class CenterRequestController extends Controller
             foreach ($files as $key => $file) {
                 if ($file) {
                     if (isset($file_center)) {
-                        $url = Helper::moveImage($file,'document');
-                        $center_request->galleries()->create(['title' => $alt[$key] , 'image' => $url]);
+                        $url = Helper::moveImage($file, 'document');
+                        $center_request->galleries()->create(['title' => $alt[$key], 'image' => $url]);
                     }
                 }
             }
         }
-
-        return redirect()->back()->with([
-            'center_success' => 'success'
-        ]);
     }
+
+//    /**
+//     * @param mixed $center_category_id
+//     * @param Request $request
+//     * @return mixed
+//     */
+//    public function createCenterRequest(mixed $center_category_id, Request $request)
+//    {
+//        $center_request = CenterRequest::create([
+//            'center_category_id' => $center_category_id,
+//            'phone' => $request->phone,
+//            'status' => 0,
+//            'type' => $request->type,
+//            'name' => $request->name. ' ' . $request->family,
+//            'subject' => $request->subject,
+//            'description' => $request->description,
+//            'city_id' => $request->city_id,
+//            'province_id' => $request->province_id,
+//        ]);
+//        return $center_request;
+//    }
 }
