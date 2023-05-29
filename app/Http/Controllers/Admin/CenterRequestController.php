@@ -57,7 +57,7 @@ class CenterRequestController extends AdminController
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
-            'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
+            'phone' => 'numeric|required|unique:users|regex:/(09)[0-9]{9}/|digits:11|',
             'description' => 'required',
             'product_category' => "required_if:cat_type,==,category",
             'service_category' => "required_if:cat_type,==,service",
