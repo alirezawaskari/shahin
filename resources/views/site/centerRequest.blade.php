@@ -99,8 +99,13 @@
                                         <br>
                                         <div class="form-row">
                                             <div class="col-12 col-md-6 mb-3">
-                                                <label>نام و نام خانوادگی</label>
-                                                <input type="text" name="name" placeholder="نام و نام خانوادگی"
+                                                <label>نام </label>
+                                                <input type="text" name="name" required placeholder="نام "
+                                                    class="form-control">
+                                            </div>
+                                            <div class="col-12 col-md-6 mb-3">
+                                                <label>  نام خانوادگی</label>
+                                                <input type="text" name="family" required placeholder="نام خانوادگی"
                                                     class="form-control">
                                             </div>
                                             <div class="col-12 col-md-6 mb-3">
@@ -132,7 +137,7 @@
 
                                             <div class="col-12 col-md-6">
                                                 <label>موضوع</label>
-                                                <input name="subject" class="form-control"
+                                                <input name="subject" required class="form-control"
                                                     placeholder="موضوع شغل خود را وارد نمایید">
                                             </div>
 
