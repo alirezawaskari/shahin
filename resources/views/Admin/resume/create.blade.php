@@ -1,19 +1,19 @@
 @extends('Admin.master')
-
 @section('content')
-
 <form class="form-horizontal" role="form" method="post" action="{{route('resume.store')}}">
     @csrf
     <div class="card">
         <div class="card-body">
             @include('Admin.layouts.errors')
             <div class="row">
-
                 <div class="col-12 col-md-4 mb-3">
                     <label>نام</label>
                     <input type="text" class="form-control" name="name" value="{{ old('name') }}" required>
                 </div>
-
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نام خانوادگی </label>
+                    <input type="text" class="form-control" name="family" value="{{ old('family') }}" required>
+                </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>ایمیل</label>
                     <input type="text" class="form-control" name="email" value="{{ old('email') }}">

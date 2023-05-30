@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Callcenter;
 use App\Models\Resume;
 use App\Models\Card;
 use App\Models\RecruitmentNotice;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\ResumeCollection;
 use App\Http\Controllers\Controller;
 use App\Exports\ResumsExport;
 use App\Helpers\Helper;
+use Illuminate\Support\Facades\Hash;
 
 class ResumeController extends Controller
 {
@@ -88,8 +91,10 @@ class ResumeController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate(request(), [
             'name' => 'required|string',
+            'family' => 'required|string',
             'phone' => ['required', 'digits:11'],
             'email' => 'nullable|email',
             'text' => 'nullable|string',
@@ -104,9 +109,20 @@ class ResumeController extends Controller
               'resume_success' => 'error'
             ]);
 		}
+        //check if user not exist -> create user
+        $user = User::where('phone', $request->phone)->first();
+        if (is_null($user)) {
+            //create user
+            $user = $this->createUser($request);
+        }
 
+        if ($request->status==0 || $request->status==5 ||$request->status==1 ){
+            $this->createTask($user,$recruitment_notice);
+        }
         $inputs['resume'] = $request->urlresume;
 		unset($inputs['urlresume']);
+        $inputs['name']=$request->name.' '.$request->family;
+        unset($inputs['family']);
         $resume = Resume::create($inputs);
 
         if ($request->urlresume) {
@@ -178,5 +194,46 @@ class ResumeController extends Controller
         }
             return response(['status'=>'error']);
 
+    }
+    /**
+     * @param $request
+     * @return mixed
+     */
+    private function createUser($request)
+    {
+        $pass = rand(12345, 99999);
+        $phone = Helper::numberConverter($request->phone);
+
+        return User::create([
+            'name' => $request->name,
+            'family' => $request->family,
+            'phone' => $phone,
+            'password' => Hash::make($pass),
+            'active' => true,
+            'level' => 'user',
+        ]);
+    }
+    /**
+     * @param $user
+     * @return void
+     */
+    private function createTask(User $user,RecruitmentNotice $recruitmentNotice): void
+    {
+        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
+            $query->where('name', 'superadmin');
+        })->first()->id;
+
+        $description = "جویای کار،
+          عنوان شغلی:
+         {$recruitmentNotice->title}";
+        Callcenter::create([
+            'reg_id' => $user->id,
+            'user_id' => $callcenter_user_id,
+            'agent_id' => null,
+            'type' => 0,
+            'request_type' => 'other',
+            'status' => 0,
+            'description' => $description
+        ]);
     }
 }
