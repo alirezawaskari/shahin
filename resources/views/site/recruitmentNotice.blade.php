@@ -44,7 +44,10 @@
                                     <div class="col-12 mt-4">
                                         <div class="form-row">
                                             <div class="col-4">
-                                                <input type="text" name="name" placeholder="نام و نام خانوادگی" class="form-control ml-2 mb-2 bg-light custom-input font-14" required>
+                                                <input type="text" name="name" placeholder="نام" class="form-control ml-2 mb-2 bg-light custom-input font-14" required>
+                                            </div>
+                                            <div class="col-4">
+                                                <input type="text" name="family" placeholder=" نام خانوادگی" class="form-control ml-2 mb-2 bg-light custom-input font-14" required>
                                             </div>
                                             <div class="col-4">
                                                 <input type="text" name="phone" placeholder="تلفن همراه" class="form-control no-snip mb-2 bg-light custom-input font-14" required>

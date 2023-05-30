@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Models\CenterCategory;
-use App\Models\CenterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -39,7 +38,7 @@ class CenterRequestController extends Controller
             'name' => 'required|string',
             'family' => 'required|string',
             'subject' => 'required|string',
-            'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
+            'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'description' => 'required',
         ]);
 
