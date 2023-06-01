@@ -15,9 +15,16 @@ class SaveLastPageMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $except_url=array( url('login') , url('/') , url('/logout') );
-        if ( ! in_array(url()->current(), $except_url) ){
-            session()->put('last_page', url()->current());
+        $except_url=array(
+            url('login') ,
+            url('/') ,
+            url('/logout'),
+            url('/dashboard/users'),
+            url('/dashboard/callcenter/desktop/filter'),
+            url('/dashboard/tasks-requires'),
+            );
+        if ( ! in_array(url()->current(), $except_url) && auth()->check()){
+            session()->put('last_page'.auth()->user()->id, url()->current());
         }
 
         return $next($request);
