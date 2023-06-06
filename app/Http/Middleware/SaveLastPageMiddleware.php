@@ -19,11 +19,8 @@ class SaveLastPageMiddleware
             url('login') ,
             url('/') ,
             url('/logout'),
-            url('/dashboard/users'),
-            url('/dashboard/callcenter/desktop/filter'),
-            url('/dashboard/tasks-requires'),
             );
-        if ( ! in_array(url()->current(), $except_url) && auth()->check()){
+        if ( ! in_array(url()->current(), $except_url) && auth()->check() && ! $request->ajax()){
             session()->put('last_page'.auth()->user()->id, url()->current());
         }
 
