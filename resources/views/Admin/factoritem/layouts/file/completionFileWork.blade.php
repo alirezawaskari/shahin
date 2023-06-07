@@ -37,7 +37,18 @@
             </div>
         </div>
         <div class="col-12">
-            <p>تذکر : آپلود تصویر برای اتمام پرونده الزامی است.</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="alert alert-dark">تذکر : درصورت اتمام کار دکمه پرینت فرم را انتخاب و پس از  پرینت و امضای فرم توسط کاربر تصویر را آپلود نمایید .</p>
+                        </div>
+                        <div class="col-md-12">
+                            <p class="alert alert-dark" >تذکر : آپلود تصویر برای اتمام پرونده الزامی است.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         @endif
         @endforeach

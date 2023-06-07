@@ -63,12 +63,17 @@
                     <div class="form-row">
                         <div class="col-12 col-md-4 mb-3">
                             <label>موضوع</label>
-                            <input name="subject" class="form-control" placeholder="موضوع درخواست خود را وارد نمایید">
+                            <input name="subject" class="form-control" required placeholder="موضوع درخواست خود را وارد نمایید">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>نام و نام خانوادگی</label>
-                            <input type="text" name="name" placeholder="نام و نام خانوادگی" class="form-control">
+                            <label>نام  </label>
+                            <input type="text" name="name" placeholder="نام " class="form-control">
                         </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label> نام خانوادگی</label>
+                            <input type="text" name="family" placeholder="  نام خانوادگی" class="form-control">
+                        </div>
+
                         <div class="col-12 col-md-4 mb-3">
                             <label>شماره موبایل</label>
                             <input type="number" name="phone" placeholder="شماره موبایل" class="form-control">

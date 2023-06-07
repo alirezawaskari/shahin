@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\CenterRequestExport;
 use App\Helpers\Helper;
 use App\Http\Resources\CenterRequestCollection;
+use App\Models\Callcenter;
 use App\Models\CenterRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Center;
+use Illuminate\Support\Facades\Hash;
 
 class CenterRequestController extends AdminController
 {
@@ -23,7 +26,8 @@ class CenterRequestController extends AdminController
      * @param Request $request
      * @return CenterRequestCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function filter(Request $request) {
+    public function filter(Request $request)
+    {
 
         $center_requests = CenterRequest::filter()->latest();
 
@@ -31,7 +35,7 @@ class CenterRequestController extends AdminController
             return (new CenterRequestExport($center_requests))->download('centerRequest.xlsx');
         }
 
-        return new CenterRequestCollection( $center_requests->paginate( 20 ) );
+        return new CenterRequestCollection($center_requests->paginate(20));
     }
 
     /**
@@ -52,13 +56,14 @@ class CenterRequestController extends AdminController
         $input = $request->all();
         $this->validate(request(), [
             'name' => 'required|string',
-            'phone' => 'required',
+            'family' => 'required|string',
+            'phone' => 'numeric|required|unique:users|regex:/(09)[0-9]{9}/|digits:11|',
             'description' => 'required',
             'product_category' => "required_if:cat_type,==,category",
             'service_category' => "required_if:cat_type,==,service",
         ]);
 
-        if ( $request->cat_type == 'category' ) {
+        if ($request->cat_type == 'category') {
             $center_category_id = $request->product_category;
         } else {
             $center_category_id = $request->service_category;
@@ -68,8 +73,17 @@ class CenterRequestController extends AdminController
         unset($input['product_category']);
         unset($input['service_category']);
         unset($input['cat_type']);
+        //check if user not exist -> create user
+        $user = User::where('phone', $request->phone)->first();
+        if (is_null($user)) {
+            //create user
+            $user = self::createUser($request);
+        }
+        //create task (callCenter)
+        self::createTask($user);
 
-        CenterRequest::create($input);
+//        CenterRequest::create($input);
+        self::createCenterRequest($center_category_id, $request);
 
         return redirect(route('centerRequest.index'))->with([
             'create' => 'success',
@@ -92,10 +106,10 @@ class CenterRequestController extends AdminController
     {
         $center_request = $centerRequest;
         $histories = [];
-        $comments = $center_request->histories ? Helper::historyCollection($histories , $center_request->histories) : [];
+        $comments = $center_request->histories ? Helper::historyCollection($histories, $center_request->histories) : [];
         $galleries = $centerRequest->galleries;
 
-        return view('Admin.centerRequest.edit' , compact('galleries' , 'comments' , 'center_request'));
+        return view('Admin.centerRequest.edit', compact('galleries', 'comments', 'center_request'));
     }
 
     /**
@@ -116,7 +130,7 @@ class CenterRequestController extends AdminController
 
         $input = $request->all();
         $representation = auth()->user()->admin_representation_id;
-        if ( $request->cat_type == 'category' ) {
+        if ($request->cat_type == 'category') {
             $center_category_id = $input['product_category'];
         } else {
             $center_category_id = $input['service_category'];
@@ -129,9 +143,8 @@ class CenterRequestController extends AdminController
 
         $centerRequest->update($input);
 
-        if($centerRequest->status == 1)
-        {
-            Center::firstOrCreate(['representation_id' => $representation, 'center_request_id' => $centerRequest->id , 'status' => 1]);
+        if ($centerRequest->status == 1) {
+            Center::firstOrCreate(['representation_id' => $representation, 'center_request_id' => $centerRequest->id, 'status' => 1]);
         }
 
         $centerRequest->histories()->create([
@@ -152,7 +165,7 @@ class CenterRequestController extends AdminController
     public function serviceTariffs(CenterRequest $centerRequest)
     {
         $service_tariffs = $centerRequest->service_tariffs;
-        return view('Admin.centerRequest.tariff' , compact('service_tariffs'));
+        return view('Admin.centerRequest.tariff', compact('service_tariffs'));
     }
 
     /**
@@ -161,22 +174,93 @@ class CenterRequestController extends AdminController
      */
     public function destroy(CenterRequest $centerRequest)
     {
-        if(auth()->user()->isAbleTo('center-request-delete'))
-        {
+        if (auth()->user()->isAbleTo('center-request-delete')) {
             $centerRequest->delete();
             return response([
                 'operator' => true,
-                'status'=>'success',
-                'message'=>'درخواست با موفقیت حذف شد'
+                'status' => 'success',
+                'message' => 'درخواست با موفقیت حذف شد'
             ]);
-        }
-        else
-        {
+        } else {
             return response([
                 'operator' => true,
-                'status'=>'unauthorized',
-                'message'=>'شما مجاز به انجام این کار نیستید.'
+                'status' => 'unauthorized',
+                'message' => 'شما مجاز به انجام این کار نیستید.'
             ]);
         }
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public static function createUser(Request $request)
+    {
+        $pass = rand(12345, 99999);
+        $phone = Helper::numberConverter($request->phone);
+
+        return User::create([
+            'name' => $request->name,
+            'family' => $request->family,
+            'phone' => $phone,
+            'province_id' => $request->province_id,
+            'city_id' => $request->city_id,
+            'password' => Hash::make($pass),
+            'active' => true,
+            'level' => 'user',
+        ]);
+    }
+
+    /**
+     * @param $user
+     * @return void
+     */
+    public static function createTask(User $user, Request $request): void
+    {
+        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
+            $query->where('name', 'superadmin');
+        })->first()->id;
+        $center_description = '';
+        if (isset($request->description) && $request->description != '') {
+            $center_description = $request->description;
+        }
+        $description = "درخواست مرکز ،
+          موضوع :
+         {$request->subject}،
+         توضیحات درخواست دهنده :
+         {$center_description}،
+         ";
+        Callcenter::create([
+            'reg_id' => $user->id,
+            'user_id' => $callcenter_user_id,
+            'agent_id' => null,
+            'type' => 0,
+            'request_type' => 'other',
+            'status' => 0,
+            'description' => $description
+
+        ]);
+    }
+
+
+    /**
+     * @param mixed $center_category_id
+     * @param Request $request
+     * @return mixed
+     */
+    public static function createCenterRequest(mixed $center_category_id, Request $request)
+    {
+        $center_request = CenterRequest::create([
+            'center_category_id' => $center_category_id,
+            'phone' => $request->phone,
+            'status' => 0,
+            'type' => $request->type,
+            'name' => $request->name . ' ' . $request->family,
+            'subject' => $request->subject,
+            'description' => $request->description,
+            'city_id' => $request->city_id,
+            'province_id' => $request->province_id,
+        ]);
+        return $center_request;
     }
 }
