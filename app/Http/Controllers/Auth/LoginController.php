@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LoginController extends Controller
@@ -61,15 +62,59 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
+
+        $lastPage = session()->get('last_page'.auth()->user()->id);
+
+
         $representation = auth()->user()->level;
         if ($representation == 'admin') {
-            return redirect('dashboard/dailyDesktop');
+            if ($lastPage) {
+                return redirect($lastPage);
+            } else {
+                return redirect('dashboard/dailyDesktop');
+            }
         }
         if ($representation == 'organ') {
-            return redirect('profile');
+            if ($lastPage) {
+                return redirect($lastPage);
+            } else {
+                return redirect('profile');
+            }
         }
         if ($request->has('representation')) {
-            return redirect()->back();
+            if ($lastPage) {
+                return redirect($lastPage);
+            } else {
+                return redirect()->back();
+            }
         }
+        if ($lastPage) {
+            return redirect($lastPage);
+        } else {
+            return redirect('/cart');
+        }
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        $this->guard()->logout();
+
+       // $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        if ($response = $this->loggedOut($request)) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+            ? new JsonResponse([], 204)
+            : redirect('/');
     }
 }
