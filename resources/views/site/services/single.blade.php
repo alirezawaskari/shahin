@@ -99,8 +99,8 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="invalidCheck2"  oninvalid="this.setCustomValidity('لطفا در صورت تایید انتخاب نمایید ')" required>
-                                            <label class="form-check-label mr-3" for="invalidCheck2" >
+                                            <input style="cursor: pointer" class="form-check-input form-control border border-warning" type="checkbox" value="" id="invalidCheck2"   required>
+                                            <label class="form-check-label mr-3 alert alert-dark" for="invalidCheck2" >
                                                توضیحات مربوط به خدمت درخواستی را مطالعه نمودم
                                             </label>
                                         </div>
