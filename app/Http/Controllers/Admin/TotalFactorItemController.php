@@ -1116,7 +1116,7 @@ class TotalFactorItemController extends Controller
             $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
             $fator_item_collections->update([
-                'status_factor' => $request->status_factor
+                'status_factor' => $request->status
             ]);
         }
         if ($total_factor_item->confirm) {
