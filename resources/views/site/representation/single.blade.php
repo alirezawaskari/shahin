@@ -41,6 +41,9 @@
                         @else
                         <div class="card p-4">
                             <h6 class="text-danger">شما قبلا در این خدمت ثبت نام کرده اید و امکان ثبت نام مجدد وجود ندارد.</h6>
+                            @if(!is_null($factor))
+                                <a href="{{url('/checkout/'.$factor->resnumber)}}"><span class="btn btn-primary">مشاهده پرونده</span></a>
+                            @endif
                         </div>
                         @endif
                     </div>
