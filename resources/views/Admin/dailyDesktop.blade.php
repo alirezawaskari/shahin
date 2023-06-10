@@ -315,7 +315,11 @@
                             <tbody>
                             <tr class="{{$iran_sms_credit <= 20000 ? 'table-danger' : 'table-success'}}">
                                 <td>پنل پیامکی IRAN SMS</td>
-                                <td><span >{{number_format($iran_sms_credit).' ریال '}}</span>  </td>
+                                @if($iran_sms_credit_error)
+                                    <td><span class=" alert alert-warning" >عدم دسترسی به اطلاعات IRAN SMS</span>  </td>
+                                @else
+                                    <td><span >{{number_format($iran_sms_credit).' ریال '}}</span>  </td>
+                                @endif
                             </tr>
 
                             </tbody>

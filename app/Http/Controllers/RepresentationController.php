@@ -57,12 +57,18 @@ class RepresentationController extends Controller
                 $query->where('factoritemable_id', $service->id);
             })->exists();
 
+            $factor=null;
+
             if ($check) {
                 if ($service->multiple) {
                     $check = false;
                 }
+                $factor=  $user->factors()->whereStatus(true)->whereHas('factorItems', function ($query) use ($service) {
+                    $query->where('factoritemable_id', $service->id);
+                })->first();
             }
-            return view('site.representation.single', compact('financial_plans_types' , 'callcenter','representation' ,'service', 'required', 'requireServices' , 'check'));
+
+            return view('site.representation.single', compact('financial_plans_types' , 'callcenter','representation' ,'service', 'required', 'requireServices' , 'check','factor'));
         }
 
         $provinces = Province::get();
