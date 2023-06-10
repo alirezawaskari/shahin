@@ -133,19 +133,19 @@
                         <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
                     </div>
                     <div class="modal-body">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-md-12 text-center">
-                                   <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">
-                                </div>
-                            </div>
-                        </div>
-                       {{-- <h6  >
+{{--                        <div class="container">--}}
+{{--                            <div class="row">--}}
+{{--                                <div class="col-md-12 text-center">--}}
+{{--                                   <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+                        <h6  >
                             <strong>
                                 به لاله خوش آمدید.
-                            </strong>--}}
+                            </strong>
                         </h6>
-                        <p class="text-center font-weight-bolder">هدایای عیدانه بی نظیر لاله با تبریک به مناسبت ایام فرارسیدن سال نو خورشیدی به شما عزیزان با هدایای ویژه لاله ، یک سال رایگان از لاله سنتر 1 ، مجموعه کاملی از تمامی خدمات و کالای اقساطی با حمل و نقل رایگان و مزایای ویژه و VIP استفاده نمائید. </p>
+
                     </div>
                     <div class="row col-12">
                         <div class="mb-1 p-1">
