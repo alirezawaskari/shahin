@@ -145,7 +145,8 @@
                                         @break
                                         @case('text')
                                         <div class="col-12 col-md-6 mb-2">
-                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
+                                            {!! $form->help !!}
+{{--                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>--}}
                                             <input type="text" class="form-control {{ $form->class }}" {{
                                                 $form->required == true ? 'required' : '' }} placeholder="{{
                                             $form->placeholder }}"
@@ -399,8 +400,12 @@
                                                     @break
                                                     @case('text')
                                                     <div class="col-12 col-md-3 mb-2">
-                                                        <label for="item[{{ $contract_form->name }}]">{{
-                                                            $contract_form->help }}</label>
+
+                                                        {!! $contract_form->help !!}
+{{--                                                        <label for="item[{{ $contract_form->name }}]">--}}
+
+{{--                                                            {{--}}
+{{--                                                            $contract_form->help }}</label>--}}
                                                         <input type="text"
                                                             class="form-control {{ $contract_form->class }}" {{
                                                             $contract_form->required == true ? 'required' : '' }}
