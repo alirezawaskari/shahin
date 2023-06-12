@@ -1,7 +1,5 @@
 @extends('Admin.master')
-
 @section('content')
-
 <div class="page-header">
     <div>
         <h3>لیست فیلد ها</h3>
@@ -37,15 +35,20 @@
             <tbody>
 
                 @foreach($forms as $form)
-
                 <tr>
                     <td>{{ $form->name }}</td>
                     <td>{{ $form->placeholder }}</td>
                     <td>{{ \App\Models\BeforeForm::TYPE[$form->type]}}</td>
-                    <td>{{ $form->help }}</td>
-
+                    <td> {!! $form->help !!}</td>
                     <td>{{ $form->data_save_level }}</td>
-                    <td>{{is_array($form->data_display_level)? implode( ' _ ',$form->data_display_level) :''}}</td>
+                    <td>
+{{--                        {{is_array($form->data_display_level)? implode( ' | ',$form->data_display_level) :''}}--}}
+                        @if(is_array($form->data_display_level))
+                        @foreach($form->data_display_level as $item)
+                            {!! '('.\App\Models\BeforeForm::DATA_DISPLAY_LEVEL[$item].' | '.$item.')'.'<br>' !!}
+                            @endforeach
+                        @endif
+                    </td>
                     <td>
                         @if($form->beforeformitems()->exists())
                             <i class="fa fa-check text-success"></i>
@@ -79,7 +82,6 @@
         @include('Admin.layouts.pagination')
     </div>
 </div>
-
 @endsection
 
 @section('js')

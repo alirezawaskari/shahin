@@ -27,7 +27,7 @@
                     </div>
                     <div class="col-12 col-md-3 mb-3">
                         <label>محل نمایش فیلد</label>
-                        <select name="data_display_level" id="data-display-name" class="form-control" multiple="multiple">
+                        <select name="data_display_level[]" id="data-display-name" class="form-control" multiple="multiple">
                             @foreach($data_display_levels as $key=>$value)
                                 <option value="{{$key}}">{{$value}}</option>
                             @endforeach
@@ -45,12 +45,15 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-3 mb-3">
+                    <div class="col-12 col-md-12 mb-12">
 
                         <label>help</label>
-                        <input type="text" value="{{old('help')}}"
-                               class="form-control"
-                               name="help" required>
+                        <textarea required name="help">
+                            {{old('help')}}
+                        </textarea>
+{{--                        <input type="text" value="{{old('help')}}"--}}
+{{--                               class="form-control"--}}
+{{--                               name="help" required>--}}
                     </div>
 
                     <div class="col-12 col-md-3 mb-3">
@@ -93,6 +96,10 @@
     </div>
 @stop
 @section('js')
+    <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
+    <script>
+        CKEDITOR.replace('help',ck_uploader)
+    </script>
     <script>
         $(document).ready(function () {
             $('#data-display-name').select2({

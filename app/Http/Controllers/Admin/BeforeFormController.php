@@ -19,6 +19,7 @@ class BeforeFormController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate($request , [
            'placeholder' => 'required|string',
            'name' => 'nullable|string',
@@ -32,9 +33,9 @@ class BeforeFormController extends Controller
            'beforeformable_id' => 'required',
            'beforeformable_type' => 'required',
         ]);
-
+//            return $request->all();
         BeforeForm::create($request->all());
-        alert()->success('','عملیات موفق')->cancelButton('باشه');
+        alert()->success('','عملیات موفق');
         if ($request->beforeformable_type == Service::class){
             return redirect()->to('/dashboard/service_before_form/' . Service::find($request->beforeformable_id)->slug)->with([
                 'before_form_create' => 'success'
@@ -53,7 +54,6 @@ class BeforeFormController extends Controller
      */
     public function edit(BeforeForm $beforeForm)
     {
-
         $level_save_data=BeforeForm::getLevelSaveData();
         $data_display_levels=BeforeForm::getDataDisplayLevel();
         return view('Admin.beforeform.edit' , compact('beforeForm','level_save_data','data_display_levels'));

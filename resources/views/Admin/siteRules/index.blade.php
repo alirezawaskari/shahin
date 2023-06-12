@@ -30,11 +30,8 @@
 @stop
 
 @section('js')
-
 <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
-
 <script>
     CKEDITOR.replace('body',ck_uploader)
 </script>
-
 @endsection
