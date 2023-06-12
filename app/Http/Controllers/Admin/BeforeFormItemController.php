@@ -31,7 +31,7 @@ class BeforeFormItemController extends Controller
            'beforeformitemable_type'=>$request->beforeformitemable_type]
        );
 
-            alert()->success('','عملیات موفق')->cancelButton('باشه');
+            alert()->success('','عملیات موفق');
             return redirect()->back();
     }
 

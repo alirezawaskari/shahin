@@ -46,17 +46,16 @@
                         <label>محل ذخیره فیلد</label>
                         <select name="data_save_level" id="" class="form-control">
                             @foreach($level_save_data as $key => $value)
-
                                 <option {{$beforeForm->data_save_level==$key?'selected':''}} value="{{$key}}">{{$value}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-3">
+                    <div class="col-12 col-md-12 mb-12">
 
                         <label>help</label>
-                        <input type="text" value="{{ $beforeForm->help }}"
-                               class="form-control"
-                               name="help" required>
+                        <textarea name="help">
+                            {{ $beforeForm->help }}
+                        </textarea>
                     </div>
 
                     <div class="col-12 col-md-3 mb-3">
@@ -98,3 +97,9 @@
         </div>
     </div>
 @stop
+@section('js')
+<script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
+<script>
+    CKEDITOR.replace('help',ck_uploader)
+</script>
+@endsection
