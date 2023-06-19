@@ -92,7 +92,10 @@ $(document).ready(function () {
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
                                     <a target="_blank" href="../../dashboard/resume/${data.id}/edit">
-                                        <button type="button" class="dropdown-item pointer">ویرایش</button></a>`;
+                                        <button type="button" class="dropdown-item pointer">ویرایش</button></a>
+                                                      <a target="_blank" href="../../dashboard/resume/${data.id}">
+                                        <button type="button" class="dropdown-item pointer">مشاهده</button></a>
+                                    `;
                         if (data.per_delete){
                             output=output+ ` <button  data-id="${data.id}" class="resume_delete dropdown-item pointer">حذف</button>
                                 </div>

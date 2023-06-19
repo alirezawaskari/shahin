@@ -46,6 +46,15 @@ class ResumeController extends Controller
     }
 
     /**
+     * @param Resume $resume
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function show(Resume $resume)
+    {
+        return view('Admin.resume.show',compact('resume'));
+    }
+
+    /**
      * @param Request $request
      * @return ResumeCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
