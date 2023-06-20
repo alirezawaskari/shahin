@@ -35,7 +35,7 @@ class RecruitmentNoticeController extends Controller
      */
     public function index()
     {
-        $recruitment_notices = RecruitmentNotice::where('status' , 1)->orderBy('updated_at' , 'desc')->get();
+        $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
         return view('site.recruitmentNotice', compact('recruitment_notices'));
     }
 
@@ -46,24 +46,25 @@ class RecruitmentNoticeController extends Controller
      */
     public function send_resume(Request $request)
     {
+
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
             'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'email' => 'nullable|email',
             'text' => 'nullable|string',
-			'recruitment_notice_id' => 'required',
+            'recruitment_notice_id' => 'required',
             'resume' => 'mimes:pdf,jpg,jpeg|max:10000',
         ]);
         $inputs = $request->all();
-		$recruitment_notice = RecruitmentNotice::find($inputs['recruitment_notice_id']);
+        $recruitment_notice = RecruitmentNotice::find($inputs['recruitment_notice_id']);
 
-		if (is_null($recruitment_notice)) {
+        if (is_null($recruitment_notice)) {
             $status = 404;
             return redirect()->back()->with([
-              'resume_success' => 'error'
+                'resume_success' => 'error'
             ]);
-		}
+        }
 
         unset($inputs['resume']);
 
@@ -73,10 +74,10 @@ class RecruitmentNoticeController extends Controller
             //create user
             $user = $this->createUser($request);
         }
-        $this->createTask($user,$recruitment_notice);
+        $this->createTask($user, $recruitment_notice);
         $resume = $this->createResume($request);
 
-        if ($request->file('resume')){
+        if ($request->file('resume')) {
             $file = $this->upload($request->file('resume'));
             $resume->update(['resume' => $file]);
         }
@@ -91,10 +92,9 @@ class RecruitmentNoticeController extends Controller
      */
     public function createResume($request)
     {
-        $bime_history=0;
-        if (!is_null( $request->mibe_history))
-        {
-            $bime_history=$request->mibe_history;
+        $bime_history = 0;
+        if (!is_null($request->mibe_history)) {
+            $bime_history = $request->mibe_history;
         }
         $resume = Resume::create([
             'recruitment_notice_id' => $request->recruitment_notice_id,
@@ -104,7 +104,43 @@ class RecruitmentNoticeController extends Controller
             'bime_history' => $bime_history,
             'work_type' => $request->work_type,
             'work_history' => $request->work_history,
-            'text' => $request->text
+            'text' => $request->text,
+            'detail' =>[
+                "number_shenasname" => $request->input('number_shenasname'),
+                "birth_certificate_issuing_place" => $request->input('birth_certificate_issuing_place'),
+                "national_number" => $request->input('national_number'),
+                "religion" => $request->input('religion'),
+                "nationality" => $request->input('nationality'),
+                "marital_status" => $request->input('marital_status'),
+                "sex" => $request->input('sex'),
+                "address" => $request->input('address'),
+                "housing_situation" => $request->input('housing_situation'),
+                "telephone" => $request->input('telephone'),
+                "military_service_status" => $request->input('military_service_status'),
+                "exemption_military_service_" => $request->input('exemption_military_service_'),
+                "exemption_military_service_type" => $request->input('exemption_military_service_type'),
+                "exemption_military_service_end_date" => $request->input('exemption_military_service_end_date'),
+                "military_service_location" => $request->input('military_service_location'),
+                "military_service_end_date" => $request->input('military_service_end_date'),
+                "degree_of_education" => $request->input('degree_of_education'),
+                "field_of_Study" => $request->input('field_of_Study'),
+                "total_average" => $request->input('total_average'),
+                "education_location" => $request->input('education_location'),
+                "education_end_date" => $request->input('education_end_date'),
+                "cooperation_type" => $request->input('cooperation_type'),
+                "description_half_time" => $request->input('description_half_time'),
+                "en_lang_quality" => $request->input('en_lang_quality'),
+                "computer_skill" => $request->input('computer_skill'),
+                "start_work_date" => $request->input('start_work_date'),
+                "rights_requested" => $request->input('rights_requested'),
+                "busy_now" => $request->input('busy_now'),
+                "can_guarantee" => $request->input('can_guarantee'),
+                "guarantee" => $request->input('guarantee'),
+                "relative_family_type" => $request->input('relative_family_type'),
+                "relative_family_name" => $request->input('relative_family_name'),
+                "relative_family_part" => $request->input('relative_family_part'),
+                "accept_rules" => $request->input('accept_rules')
+            ]
         ]);
         return $resume;
     }
@@ -132,7 +168,7 @@ class RecruitmentNoticeController extends Controller
      * @param $user
      * @return void
      */
-    private function createTask(User $user,RecruitmentNotice $recruitmentNotice): void
+    private function createTask(User $user, RecruitmentNotice $recruitmentNotice): void
     {
         $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
             $query->where('name', 'superadmin');
