@@ -22,11 +22,11 @@
         @if(auth()->check() && auth()->user()->organization_id)
             <img src="{{ auth()->user()->organization->image }}" class="d-block w-100" height="580px">
         @else
-            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
+            <div id="carouselExampleControls" style="padding-right: 5%;padding-left:  5% " class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner main-slider" >
                     @foreach($sliders as $slider)
                         <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                            <a href="{{ $slider->link }}"><img src="{{ $slider->img }}" class="d-block w-100" alt="{{ $slider->title }}"></a>
+                            <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
                         </div>
                     @endforeach
                 </div>
@@ -41,34 +41,47 @@
             </div>
         @endif
         {{--category--}}
-        <div class="wrapper h-li">
-            <nav class="menu-wrapper">
-                <ul>
+            <div style="padding: 5px" >
+                <div class="row ">
                     @foreach($services as $service)
-                        <li class="menu-li-md">
+                        <div class="col-md-2 col-sm-4 col-4 d-flex flex-column align-items-center text-center justify-content-center">
                             <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
                                 <img class="rounded-circle ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="50px">
-                                <p class="text-dark text-center mt-1 mr-n4 font-weight-bolder">{{ $service->app_title }}</p>
+                                <p class="text-dark mt-1 font-weight-bolder">{{ $service->app_title }}</p>
                             </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </nav>
-        </div>
-        {{--Services--}}
-        <div class="service-section bg-gray py-2">
-            <div class="container">
-                <div class="row">
-                    @foreach($services as $service)
-                        <article class="col-4 overflow-hidden pr-1 pl-1 mb-2">
-                            <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
-                                <img src="{{ $service->image_app }}" class="card-img" alt="{{ $service->title }}">
-                            </a>
-                        </article>
+                        </div>
                     @endforeach
                 </div>
+
             </div>
-        </div>
+{{--        <div class="wrapper h-li">--}}
+{{--            <nav class="menu-wrapper">--}}
+{{--                <ul>--}}
+{{--                    @foreach($services as $service)--}}
+{{--                        <li class="menu-li-md">--}}
+{{--                            <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">--}}
+{{--                                <img class="rounded-circle ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="50px">--}}
+{{--                                <p class="text-dark text-center mt-1 mr-n4 font-weight-bolder">{{ $service->app_title }}</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                    @endforeach--}}
+{{--                </ul>--}}
+{{--            </nav>--}}
+{{--        </div>--}}
+        {{--Services--}}
+{{--        <div class="service-section bg-gray py-2">--}}
+{{--            <div class="container">--}}
+{{--                <div class="row">--}}
+{{--                    @foreach($services as $service)--}}
+{{--                        <article class="col-4 overflow-hidden pr-1 pl-1 mb-2">--}}
+{{--                            <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">--}}
+{{--                                <img src="{{ $service->image_app }}" class="card-img" alt="{{ $service->title }}">--}}
+{{--                            </a>--}}
+{{--                        </article>--}}
+{{--                    @endforeach--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
         {{--Register--}}
         <div class="register-section py-4">
@@ -121,10 +134,9 @@
                         {!! $setting->index_description !!}
                     </div>
                 </div>
-
             </div>
         </div>
-        <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+    {{--    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
              class="modal fade phone-modal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -133,14 +145,15 @@
                         <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
                     </div>
                     <div class="modal-body">
-{{--                        <div class="container">--}}
-{{--                            <div class="row">--}}
-{{--                                <div class="col-md-12 text-center">--}}
-{{--                                   <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-                        <h6  >
+--}}{{--                        <div class="container">--}}{{--
+--}}{{--                            <div class="row">--}}{{--
+--}}{{--                                <div class="col-md-12 text-center">--}}{{--
+--}}{{--                                   <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">--}}{{--
+--}}{{--                                </div>--}}{{--
+--}}{{--                            </div>--}}{{--
+--}}{{--                        </div>--}}{{--
+                        <h6>
+                        <h6>
                             <strong>
                                 به لاله خوش آمدید.
                             </strong>
@@ -158,10 +171,10 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <script type="text/javascript">
-            if (screen.width <= 699) {
-                document.location.href = "mobile";
-            }
-        </script>
+        </div>--}}
+{{--        <script type="text/javascript">--}}
+{{--            if (screen.width <= 699) {--}}
+{{--                document.location.href = "mobile";--}}
+{{--            }--}}
+{{--        </script>--}}
 @endsection
