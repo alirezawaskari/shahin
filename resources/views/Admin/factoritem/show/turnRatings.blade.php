@@ -99,7 +99,7 @@
                             {{ $form->placeholder }}
                         </td>
                         <td>
-                            @if ($form->type == 'multi-select')
+                            @if ($form->type == 'multi-select' && isset($factorItem['factor_values'][$form->name])&&is_array($factorItem['factor_values'][$form->name]) )
                             {{ implode(',', $factorItem['factor_values'][$form->name]) }}
                             @elseif($form->type == 'file')
                             <a href="{{ asset($factorItem['factor_values'][$form->name]) }}" class="btn btn-primary"

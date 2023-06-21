@@ -59,7 +59,7 @@
                     <div class="col-12 col-md-3 mb-3">
 
                         <label>class</label>
-                        <input type="text" value="{{old('class')}}"
+                        <input type="text" value="class"
                                class="form-control"
                                name="class" required>
                     </div>

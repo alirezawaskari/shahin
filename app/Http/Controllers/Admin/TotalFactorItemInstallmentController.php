@@ -110,6 +110,7 @@ class TotalFactorItemInstallmentController extends Controller
      */
 	private function calculateByTotalPrice($inputs)
 	{
+
 		$total_price = (float) str_replace(',', '', Helper::numberConverter($inputs['total_price']));
  		$prepayment = $total_price * ($inputs['prepayment_percent']);
         $inputs['installments_num'] = self::getInstallmentNum($inputs , $total_price);

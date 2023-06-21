@@ -135,7 +135,7 @@ class UserController extends AdminController
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
-            'wallet' => 'required',
+//            'wallet' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
         $inputs = $request->all();

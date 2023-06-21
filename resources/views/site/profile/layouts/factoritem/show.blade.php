@@ -107,7 +107,7 @@
                                 </div>
                                 @case('factor-image')
                                 <div class="row">
-                                    @if(count($item['factor_image']) > 0)
+                                    @if(is_array($item['factor_image'])&&count($item['factor_image']) > 0)
                                     @foreach($item['factor_image'] as $image)
                                     <div class="card col-md-3">
                                         <a href="{{ asset($image) }}" target="_blank">
