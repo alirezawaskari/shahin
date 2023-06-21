@@ -21,6 +21,16 @@ class SliderController extends Controller
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
+    public function indexOldSite()
+    {
+        $sliders = Slider::whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        return view('Admin.site.slider.list', ['sliders' => $sliders]);
+    }
+
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         return view('Admin.site.slider.create');
@@ -99,7 +109,7 @@ class SliderController extends Controller
             $s->img = Helper::moveImage($request->image_path,'slider');
             $s->save();
         }
-
+        return redirect()->back();
         return redirect()
             ->route('slider.index')
             ->with(['update' => 'success']);

@@ -366,6 +366,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
         Route::post('/searchCategory', 'CategoryController@searchCategory');
 
         Route::resource('/slider', 'SliderController');
+        Route::get('/slider-old', 'SliderController@indexOldSite');//sliders of old site
         //remove image slider of category in edit
         Route::post('/removeImgSlider', 'SliderController@removeImgSlider');
 
