@@ -214,7 +214,9 @@
             </li>
             @endpermission
 
-
+            @permission('contact|contact-detail')
+            <li><a href="{{ route('contact.index') }}"><i class="icon ti-control-record"></i> <span>تماس با ما</span> </a></li>
+            @endpermission
             <li><a href="#"><i class="icon ti-control-record"></i><span>سایت</span> </a>
                 <ul>
                     @permission('product-detail')
@@ -425,9 +427,6 @@
             @endpermission
             @permission('newsletter')
             <li><a href="{{ route('newsletter.index') }}"><i class="icon ti-control-record"></i> <span>ایمیل ها</span> </a></li>
-            @endpermission
-			@permission('contact|contact-detail')
-            <li><a href="{{ route('contact.index') }}"><i class="icon ti-control-record"></i> <span>تماس با ما</span> </a></li>
             @endpermission
             @permission('update_site_rules')
             <li><a href="{{ route('siteRules.index') }}"><i class="icon ti-control-record"></i> <span>قوانین سایت</span> </a></li>
