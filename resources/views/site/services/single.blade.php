@@ -99,7 +99,7 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-check">
-                                            <input style="cursor: pointer" class="form-check-input form-control border border-warning" type="checkbox" value="" id="invalidCheck2"   required>
+                                            {{--<input style="cursor: pointer" class="form-check-input form-control border border-warning" type="checkbox" value="" id="invalidCheck2"   required>--}}
                                             <label class="form-check-label mr-3 alert alert-dark" for="invalidCheck2" >
                                                توضیحات مربوط به خدمت درخواستی را مطالعه نمودم
                                             </label>
