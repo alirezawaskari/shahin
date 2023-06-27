@@ -410,7 +410,7 @@ class CallcenterController extends Controller
                     $credit_factor ? Factor::savePayment($credit_factor) : '';
                 }
             }elseif (is_array($services) && count($services)>0){
-                self::sendSmsLinkSite($request , $client , $task);
+                self::sendSmsLinkSite($request , $client , $task,$services);
             }
             Helper::vipUser($request->vip, $client->id);
             Helper::sosUser($request->sos, $client->id);
@@ -1110,13 +1110,14 @@ class CallcenterController extends Controller
      * @param $client
      * @param $task
      */
-    private function sendSmsLinkSite($request , $client , $task)
+    private function sendSmsLinkSite($request , $client , $task,array $services)
     {
+        $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
         $task->histories()->create([
             'user_id' => auth()->user()->id,
             'callcenter_id' => $task->user_id,
             'status' => 0,
-            'description' => 'لینک سایت جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .',
+            'description' => "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .",
         ]);
         $services=Service::whereIn('id',$request->service)->get();
         foreach ($services as $service ){
