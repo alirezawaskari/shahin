@@ -2,6 +2,13 @@
 @section('title')
     خدمات درمانی - رفاهی لاله
 @endsection
+@section('header')
+    <style>
+        .active{
+            background: white;
+        }
+    </style>
+@endsection
 @section('content')
     <div class="index">
         @auth
@@ -22,10 +29,10 @@
         @if(auth()->check() && auth()->user()->organization_id)
             <img src="{{ auth()->user()->organization->image }}" class="d-block w-100" height="580px">
         @else
-            <div id="carouselExampleControls" style="padding-right: 5%;padding-left:  5% " class="carousel slide" data-ride="carousel">
+            <div id="carouselExampleControls" style="padding-right: 5%;padding-left:  5% " class="carousel slide d-none d-sm-block" data-ride="carousel">
                 <div class="carousel-inner main-slider" >
                     @foreach($sliders as $slider)
-                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
                             <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
                         </div>
                     @endforeach
@@ -39,6 +46,27 @@
                     <span class="sr-only">Next</span>
                 </a>
             </div>
+
+                <div id="carouselExampleIndicators" class="carousel slide d-block d-sm-none" data-ride="carousel">
+
+                    <div class="carousel-inner">
+
+                        @foreach($sliders_mobile as $slider)
+                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
+                                <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
+                            </div>
+                        @endforeach
+
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
         @endif
         {{--category--}}
             <div style="padding: 5px" >
@@ -46,7 +74,7 @@
                     @foreach($services as $service)
                         <div class="col-md-2 col-sm-4 col-4 d-flex flex-column align-items-center text-center justify-content-center">
                             <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
-                                <img class="rounded-circle ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="50px">
+                                <img class="ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="74px">
                                 <p class="text-dark mt-1 font-weight-bolder">{{ $service->app_title }}</p>
                             </a>
                         </div>
@@ -84,7 +112,7 @@
 {{--        </div>--}}
 
         {{--Register--}}
-        <div class="register-section py-4">
+ {{--       <div class="register-section py-4">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12 col-md-5 py-5 my-auto mr-auto text-justify">
@@ -96,10 +124,10 @@
                 </div>
 
             </div>
-        </div>
+        </div>--}}
 
         {{--section--}}
-        <div class="register-section py-4">
+      {{--  <div class="register-section py-4">
             <div class="container-fluid">
                 <div class="row">
                     <div class="d-none d-md-block col-md-6 pr-0 text-right">
@@ -111,10 +139,10 @@
                 </div>
 
             </div>
-        </div>
+        </div>--}}
 
         {{--video--}}
-        <div class="video-section py-5 bg-gray">
+{{--        <div class="video-section py-5 bg-gray">
             <div class="container">
                 <div class="row py-5">
                     <div class="col-12 col-md-6 my-auto mr-auto text-justify">
@@ -125,17 +153,17 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>--}}
         {{--section--}}
-        <div class="video-section py-5">
+  {{--      <div class="video-section py-5">
             <div class="container">
                 <div class="row py-5">
                     <div class="col-12">
-                        {!! $setting->index_description !!}
+--}}{{--                        {!! $setting->index_description !!}--}}{{--
                     </div>
                 </div>
             </div>
-        </div>
+        </div>--}}
     {{--    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
              class="modal fade phone-modal">
             <div class="modal-dialog" role="document">
@@ -177,4 +205,52 @@
 {{--                document.location.href = "mobile";--}}
 {{--            }--}}
 {{--        </script>--}}
+
+            <div class="container">
+                <div class="row justify-content-center ">
+                    نقل قول مشتریان
+                </div>
+                <div id="feedback-carousel" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="row justify-content-center">
+                                <div class="col-md-8 shadow p-3 mb-5 bg-white rounded">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="card-text">با توجه به قیمت، خدمات جراحی زیبایی بسیار خوبی رو ارائه دادن. حتی از توقعاتم بیشتر بود .</p>
+                                            <p class="card-subtitle mb-2 text-muted">تاریخ ارسال: ۲۵ خرداد ۱۴۰۰</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item ">
+                            <div class="row justify-content-center ">
+                                <div class="col-md-8 shadow p-3 mb-5 bg-white rounded">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="card-text">از خدمت دندانپزشکی اقساطی بسیار راضی بودم ، کار پزشک حرف نداشت .</p>
+                                            <p class="card-subtitle mb-2 text-muted">تاریخ ارسال: 12 مهر 1401</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <a class="carousel-control-prev" href="#feedback-carousel" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#feedback-carousel" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+
+
+
+
 @endsection

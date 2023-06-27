@@ -404,7 +404,7 @@ class CallcenterController extends Controller
 
                 //send sms for online factors
                 if ($payment_type == 'online') {
-                    self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor);
+                    self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor,$services,$categories);
                 } else {
                     $cash_factor ? Factor::savePayment($cash_factor) : '';
                     $credit_factor ? Factor::savePayment($credit_factor) : '';
@@ -1074,21 +1074,17 @@ class CallcenterController extends Controller
      * @param $cash_factor
      * @param $credit_factor
      */
-    private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor)
+    private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor,$services,$categories)
     {
+
+         $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
+
         if ($result_factor_items['cash_price']) {
             //if created task now send link site
 
             event(new sendlinkFactor($callcenter->register, $cash_factor, auth()->user()->family ,'online'));
             $callcenter->update([
                 'status' => $callcenter->status == 1 ? 1 : 0,
-            ]);
-
-            $callcenter->histories()->create([
-                'user_id' => auth()->user()->id,
-                'callcenter_id' => auth()->user()->id,
-                'status' => 1,
-                'description' => 'لینک ارسال گردید و در انتظار پرداخت قرار دارد',
             ]);
         }
 
@@ -1099,14 +1095,14 @@ class CallcenterController extends Controller
             $callcenter->update([
                 'status' => $callcenter->status == 1 ? 1 : 0,
             ]);
-
-            $callcenter->histories()->create([
-                'user_id' => auth()->user()->id,
-                'callcenter_id' => auth()->user()->id,
-                'status' => 1,
-                'description' => 'لینک ارسال گردید و در انتظار پرداخت قرار دارد',
-            ]);
         }
+        $callcenter->histories()->create([
+            'user_id' => auth()->user()->id,
+            'callcenter_id' => auth()->user()->id,
+            'status' => 1,
+            'description' => "لینک  {$services_title} ارسال گردید و در انتظار پرداخت قرار دارد",
+        ]);
+
     }
 
     /**
