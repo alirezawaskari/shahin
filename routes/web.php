@@ -367,6 +367,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
         Route::resource('/slider', 'SliderController');
         Route::get('/slider-old', 'SliderController@indexOldSite');//sliders of old site
+        Route::get('/slider-mobile-old', 'SliderController@indexMobileOldSite');//mobile sliders of old site
+        Route::get('/slider-mobile-old-create', 'SliderController@createMobileOld')->name('slider.mobile.old.create');//sliders of old mobile crate
+        Route::post('/store-slider-mobile-old', 'SliderController@storeOldSliderMobile')->name('slider.mobile.old.store');//store sliders of old mobile site
         //remove image slider of category in edit
         Route::post('/removeImgSlider', 'SliderController@removeImgSlider');
 

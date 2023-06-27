@@ -35,7 +35,7 @@
                                                 </td>
                                                 <td class="text-center">
                                                     <a href="/factorItem/{{$factor_item->resnumber}}" class="btn btn-success py-1">مشاهده</a>
-                                                    <a href="/checkout/{{$factor_item->factor->resnumber}}" class="btn btn-primary py-1">ویرایش </a>
+                                                    <a href="/checkout/{{$factor_item->factor->resnumber}}" class="btn btn-primary py-1">بارگذاری مدارک </a>
                                                 </td>
 
                                             </tr>

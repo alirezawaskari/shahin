@@ -40,6 +40,10 @@ class FinancialPlansTypeController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+
+        if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
+            $input['number_pay_steps']=null;
+        }
         unset($input['service']);
         unset($input['category']);
         unset($input['_token']);
@@ -75,6 +79,10 @@ class FinancialPlansTypeController extends Controller
     public function update(FinancialPlansType $financialPlansType , Request $request)
     {
         $input = $request->all();
+
+        if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
+            $input['number_pay_steps']=null;
+        }
         unset($input['service']);
         unset($input['category']);
         unset($input['_token']);

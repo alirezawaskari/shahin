@@ -12,6 +12,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     {!! SEO::generate() !!}
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133477056-1"></script>
+    <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -48,15 +49,15 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     @yield('footer')
-    @yield('footer')
+{{--    @yield('footer')--}}
 
-    <div class="position-fixed d-none d-md-block" style="left: 0; bottom: 0;">
-        <img src="../../images/logo.png" alt="" onclick="window.open('https://ecunion.ir/verify/lalecard.ir?token=85848845e539a3c460cf', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=450, height=630, top=30')" style="cursor:pointer">
-        <img referrerpolicy="origin" id = 'jxlzfukznbqergvjnbqefukz' style = 'cursor:pointer' onclick = 'window.open("https://logo.samandehi.ir/Verify.aspx?id=162326&p=rfthgvkauiwkxlaouiwkgvka", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")' alt = 'logo-samandehi' src = 'https://logo.samandehi.ir/logo.aspx?id=162326&p=nbpdwlbqodrfqftiodrfwlbq' />
-        <a target="_blank" href="https://trustseal.enamad.ir/?id=40920&amp;Code=6abmm9WQ9521uXon0exd"><img src="https://Trustseal.eNamad.ir/logo.aspx?id=40920&amp;Code=6abmm9WQ9521uXon0exd" alt="" style="cursor:pointer" id="6abmm9WQ9521uXon0exd"></a>
-		<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+{{--    <div class="position-fixed d-none d-md-block" style="left: 0; bottom: 0;">--}}
+{{--        <img src="../../images/logo.png" alt="" onclick="window.open('https://ecunion.ir/verify/lalecard.ir?token=85848845e539a3c460cf', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=450, height=630, top=30')" style="cursor:pointer">--}}
+{{--        <img referrerpolicy="origin" id = 'jxlzfukznbqergvjnbqefukz' style = 'cursor:pointer' onclick = 'window.open("https://logo.samandehi.ir/Verify.aspx?id=162326&p=rfthgvkauiwkxlaouiwkgvka", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")' alt = 'logo-samandehi' src = 'https://logo.samandehi.ir/logo.aspx?id=162326&p=nbpdwlbqodrfqftiodrfwlbq' />--}}
+{{--        <a target="_blank" href="https://trustseal.enamad.ir/?id=40920&amp;Code=6abmm9WQ9521uXon0exd"><img src="https://Trustseal.eNamad.ir/logo.aspx?id=40920&amp;Code=6abmm9WQ9521uXon0exd" alt="" style="cursor:pointer" id="6abmm9WQ9521uXon0exd"></a>--}}
+{{--		<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>--}}
 
-    </div>
+{{--    </div>--}}
     <div class="position-fixed d-none - d-md-block" style="left: 120px;bottom: 0;">
     </div>
 {{--    </div>--}}

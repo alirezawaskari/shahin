@@ -1,5 +1,4 @@
 @extends('Admin.master')
-
 @section('content')
 
     <div class="page-header">
@@ -18,6 +17,7 @@
             </button>
             <div aria-labelledby="btnGroupDrop1" x-placement="bottom-start" class="dropdown-menu dropdown-menu-list">
                 <a href="{{route('slider.create')}}" class="dropdown-item">ایجاد </a>
+                <a href="{{route('slider.mobile.old.create')}}" class="dropdown-item">ایجاد اسلایدر موبایل</a>
             </div>
         </div>
     </div>

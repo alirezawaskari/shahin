@@ -43,7 +43,7 @@
                     </div>
 
                 </div>
-				<a class="btn btn-success text-white py-1 mt-3 mb-3" href="{{ route('profile.wallet') }}">افزایش
+				<a style="display: none" class="btn btn-success text-white py-1 mt-3 mb-3" href="{{ route('profile.wallet') }}">افزایش
                             موجودی</a>
                 <h6 class="text-black-50 mb-2">درصد تکمیل اطلاعات کاربری شما </h6>
                 <div class="progress">
