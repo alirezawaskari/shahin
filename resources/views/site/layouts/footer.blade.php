@@ -48,58 +48,7 @@
     <div class="copy-right position-relative">
         {{--        <img src="{{asset('/assets/site/images/copy-right3.svg')}}" class="position-absolute cover-img"--}}
         {{--             draggable="false">--}}
-        <div class="container py-md-5" style="display: block">
-            <div class="row py-md-5">
-                <div class="d-md-block d-none position-fixed col-12" style="left: 0; bottom: 0;">
-                    <div class="row mt-2" style="font-size:10px;">
-                        <div class="col-1 mr-5 mb-n1">
-                            <a href="/contact">
-                                <img class="rounded-circle" src="/img/payment.jpg" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder">ارسال فیش</p>
-                            </a>
-                        </div>
-                        <div class="col-1 mb-n1">
-                            <a href="{{ route('profile.factorItem')}}">
-                                <img class="rounded-circle" src="/img/order.png" width="55px">
-                                <p class="text-dark mr-1 font-weight-bolder">پرونده های من</p>
-                            </a>
-                        </div>
-                        <div class="col-1">
-                            <a href="{{ route('site.help') }}">
-                                <img class="rounded-circle" src="/img/help.png" width="60px">
-                                <p class="text-dark mr-3 font-weight-bolder">راهنما</p>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="wrapper logo d-block d-md-none position-fixed col-12 bg-white bt-1" style="left: 0; bottom: 0;">
-                <div class="row mt-2" style="font-size:10px;">
-                    <div class="col-3">
 
-                    </div>
-
-                    <div class="col-3">
-                        <a href="/contact">
-                            <img class="rounded-circle" src="/img/payment.jpg" width="50px">
-                            <p class="text-dark mr-1 font-weight-bolder">ارسال فیش</p>
-                        </a>
-                    </div>
-                    <div class="col-3">
-                        <a href="{{ route('profile.factorItem')}}">
-                            <img class="rounded-circle" src="/img/order.png" width="55px">
-                            <p class="text-dark mr-1 font-weight-bolder">پرونده های من</p>
-                        </a>
-                    </div>
-                    <div class="col-3">
-                        <a href="{{ route('site.help') }}">
-                            <img class="rounded-circle" src="/img/help.png" width="60px">
-                            <p class="text-dark mr-3 font-weight-bolder">راهنما</p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div style="padding-right: 50px;padding-left: 50px">
             <div class="row ">
                 <div class="col-md-3">
@@ -109,13 +58,13 @@
                                 ارتباط با ما :
                             </h6>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-12 mt-2">
                             <strong>
                                 آدرس :
                             </strong>
                             <span>{{ $setting->address }}</span>
                         </div>
-                        <div class="col-md-12 pt-3">
+                        <div class="col-md-12 mt-2">
                             <strong>
                                 تلفن تماس :
                             </strong>
@@ -138,27 +87,27 @@
                                 دسترسی سریع :
                             </h6>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/">
                                 <span>خانه</span>
                             </a>
                         </div>
-                        <div class="col-md-12 ">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/help">
                                 <span>قوانین سایت</span>
                             </a>
                         </div>
-                        <div class="col-md-12 ">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/services">
                                 <span>خدمات</span>
                             </a>
                         </div>
-                        <div class="col-md-12 ">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/contact">
                                 <span>تماس با ما</span>
                             </a>
                         </div>
-                        <div class="col-md-12 ">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/about">
                                 <span>درباره ما</span>
                             </a>
@@ -173,17 +122,27 @@
                                 لینک های مفید :
                             </h6>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/articles">
                                 <span>مقالات</span>
                             </a>
                         </div>
-                        <div class="col-md-12 ">
+                        <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/calculate">
                                 <span>محاسبه اقساط </span>
                             </a>
                         </div>
-
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="{{ route('profile.factorItem')}}">
+                                <span>پرونده های من</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <i class="fa fa-question" aria-hidden="true"></i>
+                            <a class="text-dark" href="{{ route('site.help') }}">
+                                <span>راهنما</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3 row align-items-end">
@@ -192,12 +151,12 @@
                             {!! $setting->enamad !!}
                         </div>
                         <div class="col-md-4">
-                            <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer'
+                            <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer;display: none'
                                  onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=162326&p=rfthgvkauiwkxlaouiwkgvka", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
                                  alt='logo-samandehi'
                                  src='https://logo.samandehi.ir/logo.aspx?id=162326&p=nbpdwlbqodrfqftiodrfwlbq'/>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4" style="display: none">
 
                             <img src="../../images/logo.png" alt="logo_ecunion"
                                  onclick="window.open('https://ecunion.ir/verify/lalecard.ir?token=85848845e539a3c460cf', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=430, height=630, top=30')"
@@ -220,7 +179,6 @@
                                     <a href="{{ $setting->aparat }}">
                                         <img src="{{asset('assets/site/images/socialmedia/aparat.png')}}" width="40px" alt="">
                                     </a>
-
                                 </div>
                             </div>
                         </div>
@@ -231,6 +189,58 @@
         </div>
     </div>
     </div>
+    </div>
+    <div class="container py-md-5" style="display: block">
+        <div class="row py-md-5">
+            <div class="d-md-block d-none position-fixed col-12" style="left: 0; bottom: 0;display: none">
+                <div class="row mt-2" style="font-size:10px;">
+                    <div class="col-1 mr-5 mb-n1">
+                        <a href="/contact">
+                            <img class="rounded-circle" src="/img/payment.jpg" width="50px">
+                            <p class="text-dark mr-1 font-weight-bolder">تماس با ما</p>
+                        </a>
+                    </div>
+                    <div class="col-1 mb-n1">
+                        <a href="{{ route('profile.factorItem')}}">
+                            <img class="rounded-circle" src="/img/order.png" width="55px">
+                            <p class="text-dark mr-1 font-weight-bolder">پرونده های من</p>
+                        </a>
+                    </div>
+                    <div class="col-1">
+                        <a href="{{ route('site.help') }}">
+                            <img class="rounded-circle" src="/img/help.png" width="60px">
+                            <p class="text-dark mr-3 font-weight-bolder">راهنما</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wrapper logo d-block d-md-none position-fixed col-12 bg-white bt-1" style="left: 0; bottom: 0;">
+            <div class="row mt-2" style="font-size:10px;">
+                <div class="col-3">
+
+                </div>
+
+                <div class="col-3">
+                    <a href="/contact">
+                        <img class="rounded-circle" src="/img/payment.jpg" width="50px">
+                        <p class="text-dark mr-1 font-weight-bolder"> تماس با ما</p>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="{{ route('profile.factorItem')}}">
+                        <img class="rounded-circle" src="/img/order.png" width="55px">
+                        <p class="text-dark mr-1 font-weight-bolder">پرونده های من</p>
+                    </a>
+                </div>
+                <div class="col-3">
+                    <a href="{{ route('site.help') }}">
+                        <img class="rounded-circle" src="/img/help.png" width="60px">
+                        <p class="text-dark mr-3 font-weight-bolder">راهنما</p>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </footer>
 
