@@ -23,9 +23,12 @@ class FactorController extends Controller {
 
     public function create( Request $request ) {
         $cart = session()->get( 'cart' );
+
         if ( $cart )
         {
-            $admin_user = User::where( 'level', 'admin' )->where( 'province_id', auth()->user()->province_id )->where( 'admin_representation_id', '!=', null )->first();
+//            $admin_user = User::where( 'level', 'admin' )->where( 'province_id', auth()->user()->province_id )->where( 'admin_representation_id', '==', null )->first();
+             $admin_user = User::where( 'level', 'admin' )->where( 'province_id', auth()->user()->province_id )->where( 'admin_representation_id', '==', 0 )->first();
+
             $admin_user = $admin_user ? $admin_user : User::where( 'id', 11333 )->first();
             $status = auth()->user()->organization_id && auth()->user()->credit >= $cart[ 'total' ][ 'price' ] + $cart[ 'total' ][ 'price_tax' ] ? true : false;
             $factor_items = Factor::setFactorItemsInArray($cart[ 'items' ]);
