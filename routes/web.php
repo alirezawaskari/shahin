@@ -315,6 +315,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/userCreditDeetailStore/{user}' , 'UserCreditDetailController@store')->name('userCreditDetail.store');
     //role
     Route::get('/role-create' , 'RoleController@create')->name('role.create')->middleware('SaveLastPage');
+    Route::get('/role/get-user-by-role' , 'RoleController@getUserByRole')->name('role.getUser')->middleware('SaveLastPage');
     Route::resource('role', 'RoleController');
     Route::resource('permission', 'PermissionController');
     //ticket
