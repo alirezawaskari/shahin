@@ -102,20 +102,39 @@
                             <div class="row">
                                 @include('Admin.layouts.errors')
 
+
+
                                 <div class="col-12 mb-3">
                                     <label>توضیحات مربوطه</label>
                                     <textarea type="text" class="form-control" name="content"></textarea>
                                 </div>
 
-                                <div class="col-12 col-md-3 mb-2">
-                                    <label>واحد مربوطه</label>
-                                    <select class="form-control" name="card_id">
+                                <div class="col-12 col-md-6 mb-2">
+                                    <label>نقش مربوطه</label>
+                                    <select class="form-control select2" name="role" id="role" required>
                                         <option value="all">انتخاب کنید</option>
-                                        @foreach($cards as $card)
-                                        <option value="{{ $card->id }}">{{ $card->title }}</option>
+                                        @foreach(\App\Models\Role::all() as $role)
+                                            <option value="{{ $role->id }}" >{{ $role->display_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-12 col-md-6 mb-2">
+                                    <label>کاربر مربوطه</label>
+                                    <select class="form-control" name="receiver_id" id="users" required>
+                                        <option value="all">انتخاب کنید</option>
+                                    </select>
+                                </div>
+
+
+{{--                                <div class="col-12 col-md-3 mb-2">--}}
+{{--                                    <label>واحد مربوطه</label>--}}
+{{--                                    <select class="form-control" name="card_id">--}}
+{{--                                        <option value="all">انتخاب کنید</option>--}}
+{{--                                        @foreach($cards as $card)--}}
+{{--                                        <option value="{{ $card->id }}">{{ $card->title }}</option>--}}
+{{--                                        @endforeach--}}
+{{--                                    </select>--}}
+{{--                                </div>--}}
 
                                 @permission('representation-ticket')
                                 <div class="col-12 col-md-3 mb-2">
@@ -193,4 +212,30 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+<script>
+    $(document).ready(function () {
+
+        $('#role').on('change', function () {
+            var id = $(this).val();
+            $.ajax({
+                url: '/dashboard/role/get-user-by-role',
+                type: 'get',
+                data: {
+                    "id": id,
+                },
+                success: function (data) {
+                    $('#users')
+                        .empty()
+                        .append('<option value="all">انتخاب دریافت کننده</option>')
+                    ;
+                    $.each(data.data.users, function (i, d) {
+                        $('#users').append('<option value="' + d.id + '">' + d.name + " "+  d.family + '</option>');
+                    });
+                }
+            });
+        });
+
+
+    })
+</script>
 @endsection

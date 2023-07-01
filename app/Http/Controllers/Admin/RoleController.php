@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -23,6 +24,19 @@ class RoleController extends Controller
         return abort(401);
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function getUserByRole(Request $request)
+    {
+        $users=User::whereHas('roles',function ($q)use($request){
+            $q->where('id',$request->id);
+        })->select('id','name','family')->where('level','admin')->get();
+        return response([
+            'data' => array('users'=>$users),
+        ]);
+    }
     /**
      * Show the form for creating a new resource.
      *
