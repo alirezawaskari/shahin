@@ -6,9 +6,11 @@ use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
-
-class TotalFactorItem extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class TotalFactorItem extends Model implements AuditableContract
 {
+    use Auditable;
     use SoftDeletes;
 
     /**
