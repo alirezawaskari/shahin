@@ -91,9 +91,9 @@ class CheckController extends Controller
                 'description' => $request->description,
             ]);
         //upload check images
-
         if ($request->file('check_front_image')) {
-           $front_image=File::where('title','front')->where('fileable_type',Check::class)->first();
+           $front_image=File::where('title','front')->where('fileable_type',Check::class)->where('fileable_id',$check->id)->first();
+
             if (!is_null($front_image)) {
                 Helper::deleteImage(public_path($front_image->path));
                 $front_image->delete();
@@ -102,7 +102,7 @@ class CheckController extends Controller
 
         }
         if ($request->file('check_back_image')) {
-            $back_image=File::where('title','back')->where('fileable_type',Check::class)->first();
+            $back_image=File::where('title','back')->where('fileable_type',Check::class)->where('fileable_id',$check->id)->first();
             if (!is_null($back_image)) {
                 Helper::deleteImage(public_path($back_image->path));
                 $back_image->delete();
