@@ -49,7 +49,7 @@
                                 @endswitch
                             </td>
                             <td> @foreach( $check->files as $file)
-                                    <a href="{{$file->path}}" target="_blank"> <img src="{{$file->path}}" width="70px" alt=""></a>
+                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}" width="70px" alt=""></a>
                                 @endforeach
 
                             </td>
@@ -81,7 +81,7 @@
                                      @endpermission
 
                                      @permission('update-status-check')
-                                        <button   type="button" class="  list-check-status btn btn-outline-primary" data-check_id="{{$check->id}}" data-front_image="{{$check->files->where('title','front')->first()->path}}" data-toggle="modal" data-target="#statusCheckModal">وضعیت</button>
+                                        <button   type="button" class="  list-check-status btn btn-outline-primary" data-check_id="{{$check->id}}" data-front_image="{{$check->files->where('title','front')->first()->path??''}}" data-toggle="modal" data-target="#statusCheckModal">وضعیت</button>
                                     @endpermission
 
                                      @permission('delete-check')
