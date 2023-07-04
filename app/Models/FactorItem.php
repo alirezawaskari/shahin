@@ -7,9 +7,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
-
-class FactorItem extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class FactorItem extends Model implements AuditableContract
 {
+    use Auditable;
     use SoftDeletes;
 
     /**
