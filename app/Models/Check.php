@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class Check extends Model
+class Check extends Model implements AuditableContract
 {
+    use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
 
     /**
@@ -23,7 +25,7 @@ class Check extends Model
     ];
 
     /**
-     *statuses of check
+     * statuses of check
      * @param $status
      * @return string
      */

@@ -3,27 +3,27 @@
         <ul>
             <li><a class="active" href="#"><i class="icon ti-home"></i> <span>داشبورد</span> </a>
                 <ul>
-                    <li><a href="/dashboard"><i class="icon ti-control-record"></i> <span>گزارشات مالی</span> </a></li>
-                    <li><a href="/dashboard/dailyDesktop"><i class="icon ti-control-record"></i> <span>کارتابل روزانه</span> </a></li>
+                    <li><a href="/dashboard"> <span>گزارشات مالی</span> </a></li>
+                    <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>
             @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>درخواست ها</span> </a>
                 <ul>
                     @permission('callcenter-detail|influencer-marketing|in-person-registration')
-                    <li><a href="{{ route('callcenter.index') }}"><i class="icon ti-control-record"></i> <span>درخواست ها</span> </a></li>
+                    <li><a href="{{ route('callcenter.index') }}"> <span>درخواست ها</span> </a></li>
                     @endpermission
                     @permission('callcenter-desktop')
-                    <li><a href="{{ route('callcenter.desktop') }}"><i class="icon ti-control-record"></i> <span>میزکار درخواست ها</span> </a></li>
+                    <li><a href="{{ route('callcenter.desktop') }}"> <span>میزکار درخواست ها</span> </a></li>
                     @endpermission
                     @permission('callcenter-paid')
-                    <li><a href="{{ route('callcenter.paid') }}"><i class="icon ti-control-record"></i> <span>پرداخت شده ها</span> </a>
+                    <li><a href="{{ route('callcenter.paid') }}"> <span>پرداخت شده ها</span> </a>
                     @endpermission
                     @permission('callcenter-suspension')
-                    <li><a href="{{ route('callcenter.suspension') }}"><i class="icon ti-control-record"></i> <span>معلق ها</span> </a>
+                    <li><a href="{{ route('callcenter.suspension') }}"> <span>معلق ها</span> </a>
                     @endpermission
                     @permission('callcenter-delete')
-                    <li><a href="{{ route('callcenter.delete') }}"><i class="icon ti-control-record"></i> <span>سطل زباله</span> </a>
+                    <li><a href="{{ route('callcenter.delete') }}"> <span>سطل زباله</span> </a>
                     @endpermission
                 </ul>
             </li>
@@ -31,22 +31,10 @@
             @permission('installment-calculate')
 			<li><a href="#"><i class="icon ti-control-record"></i> <span>محاسبه اقساط</span> </a>
                 <ul>
-                    <li><a href="{{ url('dashboard/totalFactorItem/calculate')}}"><i class="icon ti-control-record"></i> <span>محاسبه اقساط</span> </a></li>
+                    <li><a href="{{ url('dashboard/totalFactorItem/calculate')}}"> <span>محاسبه اقساط</span> </a></li>
                 </ul>
             </li>
 			@endpermission
-
-            @permission('user_wallet')
-                <li><a href="#"><i class="icon ti-control-record"></i> <span>حسابداری من</span> </a>
-                    <ul>
-                        <li><a href="{{ route('employee.financial.report' , [ auth()->user()->employee->id]) }}">عملکرد ماهانه</a></li>
-                        <li><a href="{{ route('employee.wallet' , [ auth()->user()->id , 'key' => 'all']) }}">جزئیات گزارش مالی</a></li>
-						@permission('user_performance_detail')
-						<li><a href="{{ route('employee.performanceDetail' , [ auth()->user()->id]) }}">کلیات گزارش مالی</a></li>
-					    @endpermission
-                    </ul>
-                </li>
-            @endpermission
             @permission('user-detail|employee-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>کاربران</span> </a>
                 <ul>
@@ -71,13 +59,26 @@
             @endpermission
             @permission('factor|factor-detail|callcenter-supporter')
             @if(auth()->user()->admin_organization_id)
-                <li><a href="#"><i class="icon ti-control-record"></i> <span>تراکنش ها</span> </a>
+                <li><a href="#"><i class="icon ti-control-record"></i> <span>امور مالی</span> </a>
                     <ul>
                         <li><a href="{{ route('factor.index') }}">فهرست تراکنش ها </a></li>
                     </ul>
                 </li>
+
+                @permission('user_wallet')
+                <li><a href="#"><i class="icon ti-control-record"></i> <span>حسابداری من</span> </a>
+                    <ul>
+                        <li><a href="{{ route('employee.financial.report' , [ auth()->user()->employee->id]) }}">عملکرد ماهانه</a></li>
+                        <li><a href="{{ route('employee.wallet' , [ auth()->user()->id , 'key' => 'all']) }}">جزئیات گزارش مالی</a></li>
+                        @permission('user_performance_detail')
+                        <li><a href="{{ route('employee.performanceDetail' , [ auth()->user()->id]) }}">کلیات گزارش مالی</a></li>
+                        @endpermission
+                    </ul>
+                </li>
+                @endpermission
+
             @else
-                <li><a href="#"><i class="icon ti-control-record"></i> <span>تراکنش ها</span> </a>
+                <li><a href="#"><i class="icon ti-control-record"></i> <span>امور مالی</span> </a>
                     <ul>
                         <li><a href="{{ route('factor.index') }}">فهرست تراکنش ها </a></li>
                         <li><a href="{{ route('WalletTransaction.index') }}">فهرست شارژ کیف پول </a></li>
@@ -90,6 +91,17 @@
                         @permission('factor-deleted-list')
                         <li><a href="{{ route('factor.delete') }}"><i class="icon ti-control-record"></i> <span>سطل زباله</span> </a>
                         @endpermission
+                        @permission('user_wallet')
+                        <li><a href="#"><i class="icon ti-control-record"></i> <span>حسابداری من</span> </a>
+                            <ul>
+                                <li><a href="{{ route('employee.financial.report' , [ auth()->user()->employee->id]) }}">عملکرد ماهانه</a></li>
+                                <li><a href="{{ route('employee.wallet' , [ auth()->user()->id , 'key' => 'all']) }}">جزئیات گزارش مالی</a></li>
+                                @permission('user_performance_detail')
+                                <li><a href="{{ route('employee.performanceDetail' , [ auth()->user()->id]) }}">کلیات گزارش مالی</a></li>
+                                @endpermission
+                            </ul>
+                        </li>
+                        @endpermission
                     </ul>
                 </li>
             @endif
@@ -98,12 +110,12 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>جلسات</span> </a>
                 <ul>
                     @permission('session-desktop-confirm')
-                    <li><a href="{{ route('session.desktop.confirm') }}"><i class="icon ti-control-record"></i> <span>میزکار تایید جلسات</span></a></li>
+                    <li><a href="{{ route('session.desktop.confirm') }}"> <span>میزکار تایید جلسات</span></a></li>
                     @endpermission
                     @permission('session-desktop-complete')
-                    <li><a href="{{ route('session.desktop.complete') }}"><i class="icon ti-control-record"></i> <span>میزکار مراجعات</span></a></li>
+                    <li><a href="{{ route('session.desktop.complete') }}">  <span>میزکار مراجعات</span></a></li>
                     @endpermission
-					   <li><a href="{{ route('session.index') }}"><i class="icon ti-control-record"></i> <span> جلسات</span></a></li>
+					   <li><a href="{{ route('session.index') }}"> <span> جلسات</span></a></li>
                 </ul>
             </li>
             @endpermission

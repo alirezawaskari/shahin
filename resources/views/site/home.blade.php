@@ -68,6 +68,22 @@
                     </a>
                 </div>
         @endif
+            <a href="/services/business-agency">
+                <div class="container">
+                    <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
+                        <div class="col-md-6">
+                            <h5 class="   text-warning gift-title" style="color: #de295a !important">
+                                <img src="https://kalasakht.com/upload/png-11.png" style="width: 50px" alt="">
+                                از لاله عیدی بگیرید <img src="https://usagif.com/wp-content/uploads/gift-36.gif" style="width: 40px" alt="">
+                            </h5>
+                            <p class="lead text-dark">
+                                <strong class="text-danger">ویژه :</strong>
+                                اعطای مجوز به تولیدکنندگان، خدمات‌دهندگان و فروشندگان محترم.</p>
+                            <p class="text-dark">دریافت مجوز ایجاد شعب لاله در سراسر کشور.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
         {{--category--}}
             <div style="padding: 5px" >
                 <div class="row ">
@@ -75,13 +91,14 @@
                         <div class="col-md-2 col-sm-4 col-4 d-flex flex-column align-items-center text-center justify-content-center">
                             <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
                                 <img class="ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="74px">
-                                <p class="text-dark mt-1 font-weight-bolder">{{ $service->app_title }}</p>
+                                <p class="text-dark mt-1 font-weight-bolder">{{ $service->title }}</p>
                             </a>
                         </div>
                     @endforeach
                 </div>
 
             </div>
+
 {{--        <div class="wrapper h-li">--}}
 {{--            <nav class="menu-wrapper">--}}
 {{--                <ul>--}}
@@ -254,3 +271,4 @@
 
 
 @endsection
+
