@@ -45,10 +45,10 @@
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th>حد پایین</th>
-                    <th>حد بالا</th>
-                    <th>مبلغ حد پایین</th>
-                    <th>مبلغ حد بالا</th>
+                    <th>مبلغ حد پایین جمع کل</th>
+                    <th>مبلغ حد بالا جمع کل</th>
+                    <th>مبلغ حد پایین اقساط</th>
+                    <th>مبلغ حد بالا اقساط</th>
                     <th>تعداد</th>
                     <th>اقدام</th>
                 </tr>

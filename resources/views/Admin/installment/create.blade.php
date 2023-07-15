@@ -35,17 +35,17 @@
                         @endif
                     </div>
                     <div class="col-12 col-md-6 mb-3">
-                        <label>حد پایین *</label>
+                        <label>حد پایین جمع کل *</label>
                         <input type="text" name="down_interval" id="currency-field" value="{{old('down_interval')}}"
-                               class="form-control" data-type="currency" placeholder="لطفا حد پایین را وارد کنید">
+                               class="form-control" data-type="currency" placeholder="لطفا حد پایین جمع کل را وارد کنید">
                         @if($errors->has('down_interval'))
                             <span class="help-block sub-error"> {{$errors->first('down_interval')}} </span>
                         @endif
                     </div>
                     <div class="col-12 col-md-6 mb-3">
-                        <label>حد بالا *</label>
+                        <label>حد بالا جمع کل *</label>
                         <input type="text" name="high_interval" id="currency-field" value="{{old('high_interval')}}"
-                               class="form-control" data-type="currency" placeholder="لطفا حد بالا را وارد کنید">
+                               class="form-control" data-type="currency" placeholder="لطفا حد بالا جمع کل را وارد کنید">
                         @if($errors->has('high_interval'))
                             <span class="help-block sub-error"> {{$errors->first('high_interval')}} </span>
                         @endif
