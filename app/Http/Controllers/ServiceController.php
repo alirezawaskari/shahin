@@ -94,7 +94,7 @@ class ServiceController extends Controller
             $service = Service::find($request->input('id'));
 			$count = $service->financialPlansTypes->where('status' , true)->where('is_show' , true)->count();
             if ($count > 0) {
-                $financial_plans_types = $service->financialPlansTypes->where('status' , true)->where('is_show' , true);
+                $financial_plans_types = $service->financialPlansTypes->where('status' , true)->where('is_show' , true)->unique();
                 return response()->json(['count' => 'available', 'financial_plans_types' => $financial_plans_types , 'length' => $count]);
             }
         }
