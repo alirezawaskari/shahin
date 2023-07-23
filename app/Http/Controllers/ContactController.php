@@ -17,10 +17,7 @@ class ContactController extends Controller
      */
     public function index()
     {
-
-        $contact = Cache::remember('contact', Carbon::now()->addMinute(60), function () {
-            return Contactsetting::first();
-        });
+        $contact = Contactsetting::first();
         $cards = Card::where('is_show' , true)->get();
         return view('site.contact', compact('contact', 'cards'));
     }
