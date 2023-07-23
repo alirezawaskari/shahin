@@ -15,8 +15,19 @@ class CreateChecksTable extends Migration
     {
         Schema::create('checks', function (Blueprint $table) {
             $table->increments('id');
+
+            $table->unsignedInteger('applicantable_id');
+            $table->string('applicantable_type');
+
             $table->unsignedInteger('checkable_id');
             $table->string('checkable_type');
+
+            $table->unsignedInteger('exportable_id');
+            $table->string('exportable_type');
+
+            $table->unsignedInteger('paytoble_id');
+            $table->string('paytoable_type');
+
             $table->tinyInteger('status');
             $table->double('amount');
             $table->unsignedInteger('creator_id');

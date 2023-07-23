@@ -382,6 +382,7 @@ class Helper {
             'headers' => $headers
         ] );
         $body = [
+            //30005006003675
             'sender' => '10002622',
             'receptor' => $phones,
             'message' => $message
