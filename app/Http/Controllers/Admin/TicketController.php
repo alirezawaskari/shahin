@@ -195,8 +195,10 @@ class TicketController extends Controller
             }
 			$ticket->update(['file' => $temp]);
         }
-
-        event(new ticketNotification(User::find($request->receiver_id) , $ticket));
+        if ($request->receiver_id != 'all')
+        {
+            event(new ticketNotification(User::find($request->receiver_id) , $ticket));
+        }
 //        foreach($ticket->users as $user)
 //		{
 //		    event(new ticketNotification($user , $ticket));
