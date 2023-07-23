@@ -192,5 +192,9 @@ return array(
         'check_back_image' => 'تصویر پشت چک',
         'exporter' => 'صادر کننده',
         'amount' => 'مبلغ',
+        'receiver_phone'=>'شماره موبایل دریافت کننده',
+        'receiver_name'=>'نام دریافت کننده',
+        'receiver_family'=>'نام خانوادگی دریافت کننده',
+        'receiver_id'=>'شناسه دریافت کننده',
     ),
 );

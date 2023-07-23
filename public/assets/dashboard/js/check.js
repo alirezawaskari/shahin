@@ -79,8 +79,20 @@ $(document).ready(function () {
                 {"data": "sort_by"},
                 {"data": "number_amount"},
                 {"data": "jalali_date"},
-                {"data": "exporter"},
-                {"data": "pay_to"},
+                {"data": data,
+                "render":function (data){
+                    return `${data.applicant_fullname}<br>${data.applicant_phone}`
+
+                }},
+                {"data": data,
+                    "render":function (data){
+                        return `${data.exporter_fullname}<br>${data.exporter_phone}`
+                    }},
+                {"data": data,
+                    "render":function (data){
+                        return `${data.pay_to_fullname}<br>${data.pay_to_phone}`
+
+                    }},
                 {"data": "serial_code"},
                 {
                     "data": data,
@@ -95,6 +107,27 @@ $(document).ready(function () {
                         }
                     }
                 },
+                {"data":data,
+                    "render":function (data){
+                        if (data.front_image!=''){
+                            return  `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>`
+                        }
+                        if (data.back_image!='') {
+                            return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
+                        }
+                    }
+                },
+                {"data": "description"},
+                {"data": data,
+                    "render" :function (data){
+                        if (data.asset_transaction == null){
+                            return 'لاله'
+                        }else {
+                            return  ` ${data.asset_transaction.receiver_name}<br>${data.asset_transaction.receiver_phone} `
+                        }
+                    }
+                },
+
                 {
                     "data": data,
                     "render": function (data){
@@ -112,18 +145,9 @@ $(document).ready(function () {
                         }
                     }
                 },
-                {"data":data,
-                    "render":function (data){
 
-                        if (data.front_image!=''){
-                            return  `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>`
-                        }
-                        if (data.back_image!='') {
-                            return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
-                        }
-                    }
-                },
-                {"data": "description"},
+
+
                 {
                     "data": data,
                     "render": function (data) {
@@ -152,15 +176,44 @@ $(document).ready(function () {
     }
 
 
+});
+//---------------------on change status -------------------
 
+$("#check-change-status").on("change", function () {
+    if($(this).val()==11){
+        $('#receiver-box').slideDown();
+    }else{
+        $('#receiver-box').slideUp();
+    }
+});
 
-
+//--------------------SELECT PROVINCE OF EXPORTER--------------------
+$('#exporter_province_id').on('change', function () {
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var id = $(this).val();
+    $.ajax({
+        url: '/city/select',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            "_token": token,
+            "id": id,
+        },
+        success: function (data) {
+            $('#exporter_city_id')
+                .empty()
+                .append('<option value="all">انتخاب شهر</option>')
+            ;
+            $.each(data.cities, function (i, d) {
+                $('#exporter_city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
+            });
+        }
+    });
 });
 
 $(document).ready(function () {
     //----------------------store check ---------------
     $("body").on('click', '#submit-check-btn', function () {
-       $(this).hide();
         $('#check-store-error-box').empty();
         var token = $('meta[name="csrf-token"]').attr('content');
         var check_form_data = new FormData();
@@ -173,13 +226,29 @@ $(document).ready(function () {
             check_form_data.append('check_back_image', back_image);
         }
         check_form_data.append('amount', $('#check-amount').val());
+        //---exporter user data ---
+        check_form_data.append('exporter_id', $('#exporter-id').val());
+        check_form_data.append('exporter_phone', $('#check-exporter-phone').val());
+        check_form_data.append('exporter_name', $('#exporter_name').val());
+        check_form_data.append('exporter_family', $('#exporter-family').val());
+        check_form_data.append('exporter_province_id', $('#exporter_province_id').val());
+        check_form_data.append('exporter_city_id', $('#exporter_city_id').val());
+        //---pay to user data ---
+        check_form_data.append('pay_to_id', $('#pay-to-id').val());
+        check_form_data.append('pay_to_phone', $('#check-payto-phone').val());
+        check_form_data.append('pay_to_name', $('#pay_to_name').val());
+        check_form_data.append('pay_to_family', $('#pay_to_family').val())
+        check_form_data.append('pay_toprovince_id', $('#province_id').val());
+        check_form_data.append('pay_to_city', $('#city_id').val());
+        //--- other data of store check form ---
         check_form_data.append('date', $('#check-date').val());
         check_form_data.append('description', $('#check-description').val());
-        check_form_data.append('exporter', $('#check-exporter').val());
-        check_form_data.append('pay_to', $('#check-pay-to').val());
+        // check_form_data.append('exporter', $('#check-exporter').val());
+        // check_form_data.append('pay_to', $('#check-pay-to').val());
         check_form_data.append('total_factor_item_id', $('#total-factor-item-id').val());
         check_form_data.append('title', $('#check-title').val());
         check_form_data.append('serial_code', $('#serial-code').val());
+        check_form_data.append('applicant_id', $('#applicant-id').val());
         $.ajax(
             {
                 type: "post",
@@ -233,6 +302,7 @@ $(document).ready(function () {
         $('#edit-check-amount').val(  check_tag.data('amount')  )
         $('#edit-check-date').val(check_tag.data('jdate'))
         $('#edit-check-exporter').val(check_tag.data('exporter'))
+        $('#edit-check-applicant').val(check_tag.data('applicant'))
         $('#edit-check-pay-to').val(check_tag.data('pay_to'))
         $('#edit-check-description').val(check_tag.data('description'))
         $('#edit-check-id').val(check_tag.data('check_id'))
@@ -372,6 +442,66 @@ $(document).ready(function () {
         }
     });
     // --------------------end delete check------------------
+    $('#add-new-check-btn').on('click',function (){
+        searchUser( $("#check-exporter-phone").val(),'exporter')
+        searchUser( $("#check-payto-phone").val(),'pay_to')
+    });
+
 })
 
-
+//---------------------fetch user -----------------------
+function searchUser(search,type) {
+    if (search.length === 11) {
+        $('.loading_send_link').css('display', 'block');
+        $.ajax({
+            type: "GET",
+            url: "/dashboard/callcenter/fetchUser",
+            data: {
+                phone: search,
+            }
+        }).done(function (data) {
+            if (type == 'exporter'){
+                $(".exporter_name").attr('value', data.data.user.name ? data.data.user.name : '');
+                $(".exporter_id").attr('value', data.data.user.id ? data.data.user.id : '');
+                $(".exporter_family").attr('value', data.data.user.family ? data.data.user.family : '');
+                $(".exporter_province_id").val(data.data.user.province_id);
+                $(".exporter_city_id").val(data.data.user.city_id).change();
+                if (!data.data.user.name) {
+                    //clear value of exporter_id
+                     $(".exporter_id").attr('value','');
+                     //refresh city
+                     $("#exporter_city_id").empty();
+                    $('.exporter_error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
+                } else {
+                    $('.exporter_error_user').text('');
+                }
+            }else if (type== 'pay_to'){
+                $(".pay_to_name").attr('value', data.data.user.name ? data.data.user.name : '');
+                $(".pay_to_id").attr('value', data.data.user.id ? data.data.user.id : '');
+                $(".pay_to_family").attr('value', data.data.user.family ? data.data.user.family : '');
+                $(".pay_to_province_id").val(data.data.user.province_id);
+                $(".pay_to_city_id").val(data.data.user.city_id).change();
+                if (!data.data.user.name) {
+                    //clear value of exporter_id
+                     $(".pay_to_id").attr('value','');
+                    //refresh city
+                    $("#city_id").empty();
+                    $('.pay_to_error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
+                } else {
+                    $('.pay_to_error_user').text('');
+                }
+            }else if (type== 'receiver'){
+                $(".receiver_name").attr('value', data.data.user.name ? data.data.user.name : '');
+                $(".receiver_id").attr('value', data.data.user.id ? data.data.user.id : '');
+                $(".receiver_family").attr('value', data.data.user.family ? data.data.user.family : '');
+                if (!data.data.user.name) {
+                    //clear value of exporter_id
+                     $(".receiver_id").attr('value','');
+                    $('.receiver_error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
+                } else {
+                    $('.receiver_error_user').text('');
+                }
+            }
+        });
+    }
+}

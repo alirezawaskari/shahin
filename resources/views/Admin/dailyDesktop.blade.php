@@ -345,63 +345,63 @@
                                 </thead>
 
                                 <tbody>
-                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['vps_expire_date'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['vps_expire_date'], false) <= 4 ? 'table-danger' : 'table-success'}}">
                                     <td>سرور مجازی</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['vps_expire_date'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['vps_expire_date'],false))}}</td>
                                     <td>{{verta($expire_dates['vps_expire_date'])->format('Y/m/d')}}</td>
                                     <td>{{ \Carbon\Carbon::make($expire_dates['vps_expire_date'])->format('Y/m/d') }}</td>
                                 </tr>
-                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['plesk_expire_date'], false) <= 7 ? 'table-danger' : 'table-success'}}">
+                                <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['plesk_expire_date'], false) <= 4 ? 'table-danger' : 'table-success'}}">
                                     <td>پنل پلسک</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['plesk_expire_date'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['plesk_expire_date'],false))}}</td>
                                     <td>{{verta($expire_dates['plesk_expire_date'])->format('Y/m/d')}}</td>
                                     <td>{{\Carbon\Carbon::make($expire_dates['plesk_expire_date'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalecard.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه lalecard.ir</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalecard.ir'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalecard.ir'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_lalecard.ir'])->format('Y/m/d')}}</td>
                                     <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalecard.ir'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalecard.com'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه lalecard.com</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalecard.com'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalecard.com'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_lalecard.com'])->format('Y/m/d')}}</td>
                                     <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_lalecard.com'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_ghorfe-online.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه ghorfe-online.ir</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_ghorfe-online.ir'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_ghorfe-online.ir'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_ghorfe-online.ir'])->format('Y/m/d')}}</td>
                                     <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_ghorfe-online.ir'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalehkart.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه lalehkart.ir</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalehkart.ir'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalehkart.ir'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_lalehkart.ir'])->format('Y/m/d')}}</td>
                                     <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_lalehkart.ir'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalekart.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه lalekart.ir</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalekart.ir'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalekart.ir'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_lalekart.ir'])->format('Y/m/d')}}</td>
                                     <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalekart.ir'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalemarket.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه lalemarket.ir</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalemarket.ir'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalemarket.ir'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_lalemarket.ir'])->format('Y/m/d')}}</td>
                                     <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalemarket.ir'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_qorfe-online.ir'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه qorfe-online.ir</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_qorfe-online.ir'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_qorfe-online.ir'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_qorfe-online.ir'])->format('Y/m/d')}}</td>
                                     <td>{{\Carbon\Carbon::make($expire_dates['domain_expire_date_qorfe-online.ir'])->format('Y/m/d') }}</td>
                                 </tr>
                                 <tr class="{{\Carbon\Carbon::now()->diffInDays($expire_dates['domain_expire_date_lalebank.com'], false) <= 7 ? 'table-danger' : 'table-success'}}">
                                     <td>دامنه lalebank.com</td>
-                                    <td style="direction: ltr">{{\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalebank.com'],false)}}</td>
+                                    <td style="direction: ltr">{{number_format(\Carbon\Carbon::today()->diffInDays($expire_dates['domain_expire_date_lalebank.com'],false))}}</td>
                                     <td>{{verta($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d')}}</td>
                                     <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d') }}</td>
                                 </tr>

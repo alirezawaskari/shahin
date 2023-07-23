@@ -72,9 +72,9 @@
                 <div class="container">
                     <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
                         <div class="col-md-6">
-                            <h5 class="   text-warning gift-title" style="color: #de295a !important">
+                            <h5 class="   text-warning" style="color: #de295a !important">
                                 <img src="https://kalasakht.com/upload/png-11.png" style="width: 50px" alt="">
-                                از لاله عیدی بگیرید <img src="https://usagif.com/wp-content/uploads/gift-36.gif" style="width: 40px" alt="">
+                                از لاله هدیه بگیرید <img src="https://usagif.com/wp-content/uploads/gift-36.gif" style="width: 40px" alt="">
                             </h5>
                             <p class="lead text-dark">
                                 <strong class="text-danger">ویژه :</strong>
@@ -266,9 +266,5 @@
                     </a>
                 </div>
             </div>
-
-
-
-
 @endsection
 

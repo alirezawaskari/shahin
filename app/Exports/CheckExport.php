@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Check;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -32,14 +33,27 @@ class CheckExport implements FromCollection , ShouldAutoSize ,WithHeadings
      */
     public function collection()
     {
+
         $i=0;
         $this->checks = $this->checks->get();
         $checks = $this->checks->map(function ($item,$i) {
+            $applicant = User::find($item->applicantable_id);
+            $exporter = User::find($item->exportable_id);
+            $pay_to = User::find($item->paytoable_id);
             $temp = [];
+
             $temp['number'] = ++$i;
             $temp['date'] = verta($item->date)->format('%Y/%m/%d ');
-            $temp['exporter'] = $item->exporter;
-            $temp['pay_to'] =$item->pay_to;
+
+            $temp['applicant'] =$applicant->name.' '.$applicant->family;
+            $temp['applicant_phone'] =$applicant->phone;
+
+            $temp['exporter'] = $exporter->name.' '.$exporter->family;
+            $temp['exporter_phone'] = $exporter->phone;
+
+            $temp['pay_to'] = $pay_to->name.' '.$pay_to->family;
+            $temp['pay_to_phone'] =$pay_to->phone;
+
             $temp['amount'] =number_format($item->amount);
             return $temp;
         });
@@ -55,9 +69,13 @@ class CheckExport implements FromCollection , ShouldAutoSize ,WithHeadings
     {
         return [
             '#',
-            'تاریخ',
-            'صادر کننده',
+            ' تاریخ وصول',
+            'متقاضی',
+            'موبایل متقاضی',
+            'صادر کننده' ,
+            'موبایل صادر کننده' ,
             'در وجه' ,
+            'موبایل صادر شده در وجه' ,
             'مبلغ(ریال)',
         ];
     }

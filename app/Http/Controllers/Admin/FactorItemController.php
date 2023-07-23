@@ -227,6 +227,7 @@ class FactorItemController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateInformation( Request $request ) {
+
         $data = $request->item;
 
         $validator = \Validator::make( $data, [
@@ -727,9 +728,9 @@ class FactorItemController extends Controller {
                             if ( $image ) {
                                 $url = Helper::moveImage($item['url' . $form->name],'document');
                                 if ( isset( $values[ $form->name ] ) ) {
-                                    $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
-                                    $values[ $form->name ] = $url;
+                                      $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
                                 }
+                                $values[ $form->name ] = $url;
                                 User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $url ] );
                             }
                         }

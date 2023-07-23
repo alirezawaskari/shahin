@@ -71,11 +71,12 @@ class SessionCollection extends ResourceCollection
             return $item->description_before;
         }
     }
+
     /**
-     * @param Session $item
+     * @param $item
      * @return string
      */
-    public function setStatus(Session $item)
+    public function setStatus($item)
     {
         return Session::status($item);
     }
