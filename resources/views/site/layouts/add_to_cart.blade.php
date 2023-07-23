@@ -30,7 +30,7 @@
                 <div class="row" id="step-two-box" style="position: relative ;width: 100%">
                     @if( request()->segment(1)!= 'lagestic' &&  request()->segment(2)!= 'business-agency'&&  request()->segment(2)!= 'Permanent-employment' )
                         <div class="col-md-12">
-                            <div class="alert alert-danger m-5" role="alert">
+                            <div class="alert alert-danger" role="alert">
                                 کاربر گرامی لطفا توجه فرمائید، که در صورت انتخاب یکی از طرح های زیر و
                                 <span class="badge badge-success">"تکمیل فرایند ثبت نام"</span>
                                 فاکتور رسمی سجا با شناسه اقتصادی و نماد اعتماد الکترونیکی صادر میگردد لذا در صورتی که نیاز به اخذ خدمات قرض الحسنه بدون سود، بهره و بدون ضامن ندارید، با توجه به این مهم که هم اینک مردم عزیز به این خدمات نیاز ضروری دارند و سهمیه ها محدود است اقدام به تکمیل فرآیند ثبت نام ننمائید.
