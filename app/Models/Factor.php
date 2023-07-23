@@ -1138,8 +1138,9 @@ class Factor extends Model implements AuditableContract
      */
     public static function checkExistSimilarFactor($factor_items , User $user)
     {
+
         $result = Factor::where('user_id', $user->id)->where('status', 0)
-        ->whereIn('title', ['register' , 'factor'])->get()->map(function ($item) use ($factor_items) {
+        ->where('expired_at','>',now())->whereIn('title', ['register' , 'factor'])->get()->map(function ($item) use ($factor_items) {
             $result['status'] = false;
             foreach($factor_items as $factor_item)
             {
