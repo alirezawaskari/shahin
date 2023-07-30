@@ -57,13 +57,6 @@ Route::group([], function () {
          dd((collect($get_method_routes)->pluck('uri'))->toArray());
     });
 
-    Route::get('/carbon', function () {
-
-         $date= \Carbon\Carbon::today()->toDateString();
-
-    });
-
-
     Route::get('/clear-config', function () {
         Artisan::call('config:clear');
     });
