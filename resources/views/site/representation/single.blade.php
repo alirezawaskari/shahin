@@ -3,7 +3,7 @@
 @section('description'){{ $service->description }}@endsection
 
 @section('content')
-<div class="container">
+<div class=" ">
     <div class="service">
         <div class="header-representation">
             <div class="container-fluid">
@@ -182,6 +182,17 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            @foreach($service->workSamples as $item)
+                <div class="col-4">
+                    <a href="{{$item->image}}" target="_blank">
+                    <img src="{{$item->image}}" class="img-fluid" style="width: 400px ; height: 250px" alt="">
+                    </a>
+                </div>
+            @endforeach
         </div>
     </div>
 </div>
