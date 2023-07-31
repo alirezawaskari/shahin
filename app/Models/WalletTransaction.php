@@ -23,6 +23,8 @@ class WalletTransaction extends Model
      *types of walletTransaction
      */
     const TYPE = [
+        //0 => when create factor and pay amount to employee
+        '0' => 'پرداخت به کاربر',
         '1' => 'واریز',
         '2' => 'برداشت',
     ];
