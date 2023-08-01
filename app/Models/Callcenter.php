@@ -159,6 +159,7 @@ class Callcenter extends Model implements AuditableContract
         }
 
         if (isset($description) && trim($description) != '') {
+            $query->where('description', 'LIKE', '%'.$description.'%');
             $query->whereHas('histories', function ($query) use ($description) {
                 $query->where('description', 'LIKE', '%'.$description.'%');
             });

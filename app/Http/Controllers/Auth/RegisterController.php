@@ -117,6 +117,7 @@ class RegisterController extends Controller
 
     public function fastregister( Request $request )
  {
+
         session( [ 'login_request_link' => url()->previous() ] );
         $inputs = $request->all();
         $inputs[ 'phone' ] = Helper::numberConverter( $inputs[ 'phone' ] );
@@ -208,6 +209,9 @@ class RegisterController extends Controller
                 'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,
                 'status' => '0'
             ] );
+            if ($request->service_id){
+                $task->services()->attach(array($request->service_id));
+            }
             Callcenterstatus::create( [
                 'user_id' => $request->input( 'callcenter_id' ) != null ? $request->input( 'callcenter_id' ) : $id,
             ] );
