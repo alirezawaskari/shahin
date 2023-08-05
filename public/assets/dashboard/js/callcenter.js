@@ -288,6 +288,13 @@ $(document).ready(function () {
         $("#cities").val($(this).data('city')).change();
         $('#exampleModalLabel').empty();
         let status_badge= getBadgeOfCallCenterStatus($(this).data('status'))
+        let vip_label = '';
+        let sos_label = '';
+        if ($(this).data('vip')=='VIP')
+           vip_label = "ثروتمند/توانمند";
+
+        if ($(this).data('sos'))
+            sos_label='فقیر/کم توان';
         $('#exampleModalLabel').append(`
                                <div class="col-md-3">
                                 شماره موبایل:
@@ -299,10 +306,10 @@ $(document).ready(function () {
 
                                 </div>
                                <div class="col-md-2">
-                                vip & sos :
+                                وضعیت توانمندی :
                                 <span id="type-badge">
-                                   <span class="badge badge-red">${$(this).data('vip')}</span>
-                                <span class="badge badge-red">${$(this).data('sos')}</span>
+                                   <span class="badge badge-red">${vip_label}</span>
+                                <span class="badge badge-red">${sos_label}</span>
                                 </span>
 
                                 </div>

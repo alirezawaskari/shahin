@@ -53,8 +53,8 @@ class CallcenterCollection extends ResourceCollection
                 'province_id' => $user->province_id,
                 'city_id' => $user->city_id,
                 'register_status' => true,
-                'vip' => $user->vip && $user->vip->type == 'VIP' ? 'VIP' : '',
-                'sos' => $user->vip && $user->vip->type == 'SOS' ? 'SOS' : '',
+                'vip' => $user->vip && $user->vip->type == 'VIP' ? 'ثروتمند/توانمند' : '',
+                'sos' => $user->vip && $user->vip->type == 'SOS' ? 'فقیر/کم‌توان' : '',
             ];
         } else {
             return [

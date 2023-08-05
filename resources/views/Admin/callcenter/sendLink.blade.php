@@ -73,13 +73,13 @@
                         <div class="col-md-2 mt-3 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input vipCheck" id="vipCheck" name="vip">
-                                <label class="custom-control-label" for="vipCheck">VIP</label>
+                                <label class="custom-control-label" for="vipCheck">ثروتمند/توانمند</label>
                             </div>
                         </div>
                         <div class="col-md-3 mt-2 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input sosCheck" id="sosCheck" name="sos">
-                                <label class="custom-control-label" for="sosCheck">SOS</label>
+                                <label class="custom-control-label" for="sosCheck">فقیر/کم توان</label>
                             </div>
                         </div>
 
