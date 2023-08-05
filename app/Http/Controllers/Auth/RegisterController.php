@@ -101,13 +101,16 @@ class RegisterController extends Controller
                 $callcenterusers[] = $u;
             }
         }
-        Callcenter::create( [
+        $task=Callcenter::create([
             'reg_id' => $user->id,
             'user_id' => array_rand( $callcenterusers )->id,
             'type' => 0,
             'status' => '0',
             'representation_id' => Arr::has( $data, 'representation' ) ? $data[ 'representation' ] : null
-        ] );
+        ]);
+        if (isset( $data[ 'service_id' ])&& !is_null($data[ 'service_id' ])){
+            $task->services()->attach($data['service_id']);
+        }
         Callcenterstatus::create( [
             'user_id' => array_rand( $callcenterusers )->id,
         ] );
