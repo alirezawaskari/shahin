@@ -19,7 +19,7 @@ class CreateFinancialPlansTypesTable extends Migration
             $table->integer('applicant_id')->unsigned();
             $table->foreign('applicant_id')->references('id')->on('users');
             $table->string('title' , 200);
-            $table->bigInteger('price');
+            $table->bigInteger('price')->default(0);
             $table->integer('prepayment_percent')->default(0);
             $table->integer('discount_percent')->nullable()->default(0);
             $table->text('guarantee_type')->nullable();
