@@ -52,6 +52,13 @@
                                      name="endDate"></date-picker>
                     </div>
                     <div class="col-12 col-md-3 mb-2">
+                        <select id="has-factor" name="has_factor" class="form-control">
+                            <option value="">فاکتور</option>
+                            <option value="1">دارد</option>
+                            <option value="0">ندارد</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 mb-2">
                         <select name="type[]" id="task_type" class="custom-select" multiple="multiple">
                             <option value="1">پیامک</option>
                             <option value="0">سایت</option>

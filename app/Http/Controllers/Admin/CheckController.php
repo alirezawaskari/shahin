@@ -9,9 +9,11 @@ use App\Models\Check;
 use App\Models\Factor;
 use App\Models\File;
 use App\Models\TotalFactorItem;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -25,8 +27,9 @@ class CheckController extends Controller
      */
     public function index()
     {
-        $can_update_status_check  = auth()->user()->isAbleTo( 'update-status-check' );
-        return view('Admin.check.all',compact('can_update_status_check'));
+
+        $can_update_status_check = auth()->user()->isAbleTo('update-status-check');
+        return view('Admin.check.all', compact('can_update_status_check'));
     }
 
     /**
@@ -35,11 +38,11 @@ class CheckController extends Controller
      */
     public function filter(Request $request)
     {
-        $checks=  Check::filter()->orderBy('date', 'desc');
+        $checks = Check::filter()->orderBy('date', 'desc');
         if (isset($request->excel) && $request->excel == 'on') {
-           return (new CheckExport($checks))->download('checks.xlsx');
+            return (new CheckExport($checks))->download('checks.xlsx');
         }
-        return new CheckCollection( $checks , $checks->paginate( 20 ) );
+        return new CheckCollection($checks, $checks->paginate(20));
     }
 
 
@@ -56,16 +59,7 @@ class CheckController extends Controller
             return abort(403);
         }
         //validate
-        $validator = Validator::make($request->all(), [
-            'amount' => ['required'],
-            'date' => ['required'],
-            'description' => ['nullable'],
-            'exporter' => ['required'],
-            'serial_code' => ['required'],
-            'pay_to' => ['required'],
-            'check_front_image' => ['mimes:png,jpg,jpeg'],
-            'check_back_image' => ['mimes:png,jpg,jpeg']
-        ]);
+        $validator = $this->validateUpdateCheck($request);
 
         if ($validator->fails()) {
             return response(['status' => 'error', 'messages' => $validator->messages()->all()]);
@@ -78,9 +72,6 @@ class CheckController extends Controller
         //update
         $check->update([
             'amount' => $request->amount,
-            'creator_id' => auth()->user()->id,
-            'exporter' => $request->exporter,
-            'pay_to' => $request->pay_to,
             'serial_code' => $request->serial_code,
             'date' => $request->date,
             'title' => $request->title,
@@ -91,9 +82,9 @@ class CheckController extends Controller
                 'description' => $request->description,
             ]);
         //upload check images
-
         if ($request->file('check_front_image')) {
-           $front_image=File::where('title','front')->where('fileable_type',Check::class)->first();
+            $front_image = File::where('title', 'front')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
+
             if (!is_null($front_image)) {
                 Helper::deleteImage(public_path($front_image->path));
                 $front_image->delete();
@@ -102,14 +93,14 @@ class CheckController extends Controller
 
         }
         if ($request->file('check_back_image')) {
-            $back_image=File::where('title','back')->where('fileable_type',Check::class)->first();
+            $back_image = File::where('title', 'back')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
             if (!is_null($back_image)) {
                 Helper::deleteImage(public_path($back_image->path));
                 $back_image->delete();
             }
             $this->uploadCheckBackImage($check, $request->file('check_back_image'));
         }
-        return response(['status' => 'success', 'data' =>  $check ]);
+        return response(['status' => 'success', 'data' => $check]);
 
     }
 
@@ -125,7 +116,7 @@ class CheckController extends Controller
             return abort(403);
         }
 
-        $auth_user=auth()->user();
+        $auth_user = auth()->user();
 //        $auth_user_full_name=$auth_user->name.' '.$auth_user->family;
 //        $check->histories()->create([
 //            'description'=>"  چک حذف گردید ، شناسه و نام کاربر حذف کننده :"." $auth_user_full_name _".$auth_user->id
@@ -143,21 +134,12 @@ class CheckController extends Controller
      */
     public function store(Request $request)
     {
+
         if (!auth()->user()->isAbleTo('store-check')) {
             return abort(403);
         }
         //validate
-        $validator = Validator::make($request->all(), [
-            'amount' => ['required'],
-            'date' => ['required'],
-            'serial_code' => ['required'],
-            'description' => ['nullable'],
-            'exporter' => ['required'],
-            'pay_to' => ['required'],
-            'total_factor_item_id' => ['required', 'integer','exists:total_factor_items,id'],
-            'check_front_image' => ['required', 'mimes:png,jpg,jpeg'],
-            'check_back_image' => ['mimes:png,jpg,jpeg']
-        ]);
+        $validator = $this->validateStoreCheck($request);
 
         if ($validator->fails()) {
             return response(['status' => 'error', 'messages' => $validator->messages()->all()]);
@@ -166,8 +148,14 @@ class CheckController extends Controller
         if (TotalFactorItem::find($request->total_factor_item_id)->confirm == 1) {
             return abort(403);
         }
-        //find case: |is factorItem or totalFactorItem|
 
+        //find exporter and payer user
+        is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id) : $exporter = User::find($request->exporter_id);
+        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id) : $pay_to = User::find($request->pay_to_id);
+
+        $applicant = User::find($request->applicant_id);
+
+        //find case: |is factorItem or totalFactorItem|
         $total_factor_item = TotalFactorItem::find($request->total_factor_item_id);
 
         //fix request
@@ -179,8 +167,12 @@ class CheckController extends Controller
         $check = Check::create([
             'amount' => $request->amount,
             'creator_id' => auth()->user()->id,
-            'exporter' => $request->exporter,
-            'pay_to' => $request->pay_to,
+            'exportable_id' => $exporter->id,
+            'exportable_type' => $exporter::class,
+            'applicantable_id' => $applicant->id,
+            'applicantable_type' => $applicant::class,
+            'paytoable_id' => $pay_to->id,
+            'paytoable_type' => $pay_to::class,
             'serial_code' => $request->serial_code,
             'date' => $request->date,
             'title' => $request->title,
@@ -208,6 +200,13 @@ class CheckController extends Controller
     /**
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     * sample request
+     *  "check_id" => "11"
+     * "status" => "11"
+     * "receiver_phone" => "09858595896"
+     * "receiver_name" => "علی"
+     * "receiver_id" => "31550"
+     * "receiver_family" => "علیزاده"
      */
     public function updateStatus(Request $request)
     {
@@ -215,11 +214,12 @@ class CheckController extends Controller
             return abort(403);
         }
         //validate
-        $error_messages=$this->validateUpdateStatus($request);
-        if (count($error_messages)>0) {
+        $error_messages = $this->validateUpdateStatus($request);
+        if (count($error_messages) > 0) {
             return response(['status' => 'error', 'messages' => $error_messages]);
         }
-        $check=Check::find($request->check_id);
+        $check = Check::find($request->check_id);
+
 
         switch ($request->status) {
             case 1:
@@ -230,6 +230,10 @@ class CheckController extends Controller
                 break;
             case 3:
                 $this->returnCheck($check);
+                break;
+            case 11:
+                $receiver = $this->getOrCreateReceiver($request);
+                $this->assignmentCheck($check, $receiver);
                 break;
         }
 
@@ -264,31 +268,37 @@ class CheckController extends Controller
      * @param Request $request
      * @return array
      */
-    private function validateUpdateStatus(Request $request):array
+    private function validateUpdateStatus(Request $request): array
     {
         $validator = Validator::make($request->all(), [
             'check_id' => ['required', 'exists:checks,id'],
-            'status' => ['required',Rule::in(array(0,1,2,3))],
+            'status' => ['required', Rule::in(array(0, 1, 2, 3, 11))],
+            'receiver_id' => 'nullable|exists:users,id',
+            'receiver_phone' => 'required_if:receiver_id,null|required_if:status,4|regex:/(09)[0-9]{9}/|digits:11',
+            'receiver_name' => 'required_if:receiver_id,null|required_if:status,4|string',
+            'receiver_family' => 'required_if:receiver_id,null|required_if:status,4|string',
         ]);
 
-        $error_messages=array();
+        $error_messages = array();
         if ($validator->fails()) {
             return $validator->messages()->all();
         }
 
-        $check=Check::find($request->check_id);
-        if (in_array($request->status,array(1,2)) && $check->date > Carbon::tomorrow()){
-            $error_messages[]='هنوز زمان وصول چک نرسیده است .';
+        $check = Check::find($request->check_id);
+        if (in_array($request->status, array(1, 2)) && $check->date > Carbon::tomorrow()) {
+            $error_messages[] = 'هنوز زمان وصول چک نرسیده است .';
         }
-
-        if ($request->status == 3 && $check->title!= 'guaranty'){
-            $error_messages[]='عودت چک تنها شامل چک های ضمانت میباشد.';
+        if ($request->status == 3 && $check->title != 'guaranty') {
+            $error_messages[] = 'عودت چک تنها شامل چک های ضمانت میباشد.';
         }
-        if ($request->status == 2 && $check->status== 2 ){
-            $error_messages[]='این وضعیت قبلا ثبت شده است.';
+        if ($request->status == 2 && $check->status == 2) {
+            $error_messages[] = 'این وضعیت قبلا ثبت شده است.';
         }
-        if (in_array($request->status,array(2,3,1))    && $check->status == 1){
-            $error_messages[]='درخواست نامعتبر است  "این چک قبلا وصول شده است "';
+        if (in_array($request->status, array(2, 3, 1)) && $check->status == 1) {
+            $error_messages[] = 'درخواست نامعتبر است  "این چک قبلا وصول شده است "';
+        }
+        if ($request->status == 4 && $check->title == 'guaranty') {
+            $error_messages[] = 'خرج نمودن چک ، شامل چک های ضمانت نمی باشد.';
         }
 
         return $error_messages;
@@ -300,9 +310,9 @@ class CheckController extends Controller
     private function receiptCheck(Check $check)
     {
         $check->update([
-            'status'=>1
+            'status' => 1
         ]);
-        if ($check->title == 'installment'){
+        if ($check->title == 'installment') {
             //crated factor
             $factor = new Factor();
             $factor->title = 'installment';
@@ -326,7 +336,7 @@ class CheckController extends Controller
     private function bouncedCheck(Check $check)
     {
         $check->update([
-           'status'=>2
+            'status' => 2
         ]);
 //        $history_text=" چک برگشت خورد ، شناسه و نام کاربر ثبت کننده برگشت :";
 //        $this->storeCheckActionHistory($check,$history_text);
@@ -338,21 +348,118 @@ class CheckController extends Controller
     private function returnCheck(Check $check)
     {
         $check->update([
-            'status'=>3
+            'status' => 3
         ]);
 //        $history_text="  چک عودت داده شد ، شناسه و نام کاربر ثبت کننده عودت:";
 //        $this->storeCheckActionHistory($check,$history_text);
     }
 
     /**
+     * @param Request $request
+     * @return \Illuminate\Validation\Validator
+     */
+    private function validateStoreCheck(Request $request): \Illuminate\Validation\Validator
+    {
+        return Validator::make($request->all(), [
+            'applicant_id' => 'nullable|numeric|exists:users,id',
+            'exporter_id' => 'nullable|numeric|exists:users,id',
+            'exporter_phone' => 'required_if:exporter_id,null|regex:/(09)[0-9]{9}/|digits:11',
+            'exporter_name' => 'required_if:exporter_id,null|string',
+            'exporter_family' => 'required_if:exporter_id,null|string',
+            'exporter_province_id' => 'required_if:exporter_id,null|numeric|exists:provinces,id',
+            'exporter_city_id' => 'required_if:exporter_id,null|numeric|exists:cities,id',
+            'pay_to_id' => 'nullable|numeric|exists:users,id',
+            'pay_to_phone' => 'required_if:pay_to_id,null|regex:/(09)[0-9]{9}/|digits:11',
+            'pay_to_name' => 'required_if:pay_to_id,null|string',
+            'pay_to_family' => 'required_if:pay_to_id,null|string',
+            'pay_to_province_id' => 'required_if:pay_to_id,null|numeric|exists:provinces,id',
+            'pay_to_city' => 'required_if:pay_to_id,null|numeric|exists:cities,id',
+            'amount' => ['required'],
+            'date' => ['required'],
+            'serial_code' => ['required'],
+            'description' => ['nullable'],
+            'total_factor_item_id' => ['required', 'integer', 'exists:total_factor_items,id'],
+            'check_front_image' => ['required', 'mimes:png,jpg,jpeg'],
+            'check_back_image' => ['mimes:png,jpg,jpeg']
+        ]);
+    }
+
+    /**
      * @param Check $check
      * @param string $description
      */
-    private function storeCheckActionHistory(Check $check, string $description){
-        $auth_user=auth()->user();
-        $auth_user_full_name=$auth_user->name.' '.$auth_user->family;
+    private function storeCheckActionHistory(Check $check, string $description)
+    {
+        $auth_user = auth()->user();
+        $auth_user_full_name = $auth_user->name . ' ' . $auth_user->family;
         $check->histories()->create([
-            'description'=>$description." $auth_user_full_name _".$auth_user->id
+            'description' => $description . " $auth_user_full_name _" . $auth_user->id
         ]);
+    }
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    private function createUser($phone, $name, $family, $province_id, $city_id)
+    {
+        $pass = rand(12345, 99999);
+        $phone = Helper::numberConverter($phone);
+
+        return User::create([
+            'name' => $name,
+            'family' => $family,
+            'phone' => $phone,
+            'password' => Hash::make($pass),
+            'active' => true,
+            'level' => 'user',
+            'province_id ' => $province_id,
+            'city_id' => $city_id
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Validation\Validator
+     */
+    private function validateUpdateCheck(Request $request): \Illuminate\Validation\Validator
+    {
+        return Validator::make($request->all(), [
+            'amount' => ['required'],
+            'date' => ['required'],
+            'description' => ['nullable'],
+            'serial_code' => ['required'],
+            'check_front_image' => ['mimes:png,jpg,jpeg'],
+            'check_back_image' => ['mimes:png,jpg,jpeg']
+        ]);
+    }
+
+
+    /**
+     * @param Check $check
+     * @param User $receiver
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    private function assignmentCheck(Check $check, User $receiver)
+    {
+        return $check->assetTransactions()->create([
+            'receiverable_id' => $receiver->id,
+            'receiverable_type' => get_class($receiver),
+            'created_by' => auth()->user()->id
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    private function getOrCreateReceiver(Request $request)
+    {
+       if (isset($request->receiver_id)){
+           $receiver=User::find($request->receiver_id);
+       }else{
+           $receiver=$this->createUser($request->receiver_phone,$request->receiver_name,$request->receiver_family,null,null);
+       }
+       return $receiver;
     }
 }

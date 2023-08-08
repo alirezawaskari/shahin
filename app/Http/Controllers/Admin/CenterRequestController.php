@@ -246,9 +246,8 @@ class CenterRequestController extends AdminController
     /**
      * @param mixed $center_category_id
      * @param Request $request
-     * @return mixed
      */
-    public static function createCenterRequest(mixed $center_category_id, Request $request)
+    public static function createCenterRequest($center_category_id, Request $request)
     {
         $center_request = CenterRequest::create([
             'center_category_id' => $center_category_id,

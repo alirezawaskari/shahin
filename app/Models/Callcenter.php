@@ -89,6 +89,7 @@ class Callcenter extends Model implements AuditableContract
         $serviceCategory = request('service_category');
         $subServiceCategory = request('sub_service_category');
         $serviceItems = request('service_items');
+        $has_factor = request('has_factor');
 
         if (isset($status) && !is_null($status) && is_array($status)) {
             $query->whereIn('status',$status);
@@ -141,6 +142,14 @@ class Callcenter extends Model implements AuditableContract
             $query->whereHas('register', function ($query) use ($name) {
                 $query->where('name', 'LIKE', '%'.$name.'%');
             });
+        }
+
+        if (isset($has_factor) && trim($has_factor) != '') {
+                if ($has_factor == 1 ){
+                    $query->whereHas('factors');
+                }elseif ($has_factor == 0){
+                    $query->where('request_type', 'link')->doesntHave('factors');
+                }
         }
 
         if (isset($family) && trim($family) != '') {

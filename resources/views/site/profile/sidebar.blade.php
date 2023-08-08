@@ -5,14 +5,14 @@
                 href="{{ route('profile') }}">اطلاعات کاربری</a>
            {{-- <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.service' ? 'active' : '' }}"
                href="{{ route('profile.service') }}">خدمات</a>--}}
-            <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.wallet' ? 'active' : '' }}"
+            <a style="display: none" class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.wallet' ? 'active' : '' }}"
                href="{{ route('profile.wallet') }}">مشاهده و افزایش اعتبار</a>
             <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.factor' ? 'active' : '' }}"
              href="{{ route('profile.factor') }}">پرداخت های انجام شده</a>
 			 <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.factorItem' ? 'active' : '' }}"
-             href="{{ route('profile.factorItem') }}">پرونده های شما</a>
+             href="{{ route('profile.factorItem') }}">پرونده های من</a>
             <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.notifications' ? 'active' : '' }}"
-               href="{{ route('profile.notifications') }}">پیام های شما</a>
+               href="{{ route('profile.notifications') }}">پیام های من</a>
 
             <a href="{{ route('logout') }}" class="list-group-item list-group-item-action my-1 text-white text-center font-16 bg-dark"
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

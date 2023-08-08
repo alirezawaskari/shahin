@@ -10,13 +10,15 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">مبلغ (ریال)</th>
-                        <th scope="col">تاریخ وصول</th>
-                        <th scope="col">صادر کننده</th>
-                        <th scope="col">در وجه</th>
+                        <th scope="col">تاریخ وصول </th>
+                        <th scope="col">متقاضی </th>
+                        <th scope="col">صادر کننده </th>
+                        <th scope="col">در وجه </th>
                         <th scope="col">شماره سریال</th>
                         <th scope="col">موضوع</th>
                         <th scope="col">تصاویر</th>
                         <th scope="col">توضیحات</th>
+                        <th scope="col">در اختیار</th>
                         <th scope="col">وضعیت</th>
                     </tr>
                     </thead>
@@ -27,8 +29,18 @@
                             <th scope="row">{{$i++}}</th>
                             <td>{{number_format($check->amount)}}</td>
                             <td>{{verta($check->date)->format('Y/m/d')}}</td>
-                            <td>{{$check->exporter}}</td>
-                            <td>{{$check->pay_to}}</td>
+                            <td>{{$check->applicantable->name . ' '.$check->applicantable->family}}
+                                <br>
+                                {{$check->applicantable->phone}}
+                            </td>
+                            <td>{{$check->exportable->name . ' '.$check->exportable->family}}
+                                <br>
+                                {{$check->exportable->phone}}
+                            </td>
+                            <td>{{$check->paytoable->name . ' '.$check->paytoable->family}}
+                                <br>
+                                {{$check->paytoable->phone}}
+                            </td>
                             <td>{{$check->serial_code}}</td>
                             <td>
                                 @switch($check->title)
@@ -44,12 +56,15 @@
                             </td>
                             <td>
                                 @foreach($check->files as $file)
-                                    <a href="{{$file->path}}" target="_blank"> <img src="{{$file->path}}" width="70px"
-                                                                                    alt=""></a>
+                                    <a href="{{$file->path}}" target="_blank"> <img src="{{$file->path}}" width="70px" alt=""></a>
                                 @endforeach
-
                             </td>
                             <td>{{$check->histories->count()>0?$check->histories->last()->description :''}}</td>
+                            <td>
+                                {{$check->assetTransactions()->exists()?$check->assetTransactions->last()->receiverable->name.' '.$check->assetTransactions->last()->receiverable->family:'لاله'}}
+                                <br>
+                                {{$check->assetTransactions()->exists()?$check->assetTransactions->last()->receiverable->phone:''}}
+                            </td>
                             <td>
                                 @switch ($check->status)
                                 @case(0)

@@ -77,7 +77,7 @@ class FinancialPlansType extends Model
      */
     public static function getFinancialPlansTypeByItem($item)
     {
-        return $item->financialPlansTypes()->where('status' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
+        return $item->financialPlansTypes()->where('status' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
     }
     /**
      * @param mixed $item // category or service

@@ -107,7 +107,7 @@ class FilterServiceProvider extends ServiceProvider
             'services' => $services->map(function ($item) {
                 $temp = [];
                 $temp['id'] = $item->id;
-                $temp['label'] = $item->title . ' - ' . number_format($item->price) . ' ریال';
+                $temp['label'] = $item->title /*. ' - ' . number_format($item->price) . ' ریال'*/;
                 return $temp;
             }),
             'service_categories' => $service_categories->map(function ($item) {

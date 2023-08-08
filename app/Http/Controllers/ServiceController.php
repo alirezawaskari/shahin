@@ -29,7 +29,9 @@ class ServiceController extends Controller
      */
     public function single(Service $service , User $callcenter , Callcenter $task, Factor $factor=null)
     {
-        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
+        $questions=$service->askedQuestions;
+
         //$callcenter=$task->callcenter;
 		$images = $service->galleries;
 	    $is_service = true;
@@ -77,10 +79,10 @@ class ServiceController extends Controller
                 }
             }
 
-            return view('site.services.single', compact('images' , 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
+            return view('site.services.single', compact('images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
 
-        return view('site.services.single', compact('images' , 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
+        return view('site.services.single', compact('images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
     }
     /**
      * @param \Illuminate\Http\Request $request
@@ -92,7 +94,7 @@ class ServiceController extends Controller
             $service = Service::find($request->input('id'));
 			$count = $service->financialPlansTypes->where('status' , true)->where('is_show' , true)->count();
             if ($count > 0) {
-                $financial_plans_types = $service->financialPlansTypes->where('status' , true)->where('is_show' , true);
+                $financial_plans_types = $service->financialPlansTypes->where('status' , true)->where('is_show' , true)->unique();
                 return response()->json(['count' => 'available', 'financial_plans_types' => $financial_plans_types , 'length' => $count]);
             }
         }

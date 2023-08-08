@@ -404,13 +404,13 @@ class CallcenterController extends Controller
 
                 //send sms for online factors
                 if ($payment_type == 'online') {
-                    self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor);
+                    self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor,$services,$categories);
                 } else {
                     $cash_factor ? Factor::savePayment($cash_factor) : '';
                     $credit_factor ? Factor::savePayment($credit_factor) : '';
                 }
             }elseif (is_array($services) && count($services)>0){
-                self::sendSmsLinkSite($request , $client , $task);
+                self::sendSmsLinkSite($request , $client , $task,$services);
             }
             Helper::vipUser($request->vip, $client->id);
             Helper::sosUser($request->sos, $client->id);
@@ -1074,21 +1074,17 @@ class CallcenterController extends Controller
      * @param $cash_factor
      * @param $credit_factor
      */
-    private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor)
+    private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor,$services,$categories)
     {
+
+         $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
+
         if ($result_factor_items['cash_price']) {
             //if created task now send link site
 
             event(new sendlinkFactor($callcenter->register, $cash_factor, auth()->user()->family ,'online'));
             $callcenter->update([
                 'status' => $callcenter->status == 1 ? 1 : 0,
-            ]);
-
-            $callcenter->histories()->create([
-                'user_id' => auth()->user()->id,
-                'callcenter_id' => auth()->user()->id,
-                'status' => 1,
-                'description' => 'لینک ارسال گردید و در انتظار پرداخت قرار دارد',
             ]);
         }
 
@@ -1099,14 +1095,14 @@ class CallcenterController extends Controller
             $callcenter->update([
                 'status' => $callcenter->status == 1 ? 1 : 0,
             ]);
-
-            $callcenter->histories()->create([
-                'user_id' => auth()->user()->id,
-                'callcenter_id' => auth()->user()->id,
-                'status' => 1,
-                'description' => 'لینک ارسال گردید و در انتظار پرداخت قرار دارد',
-            ]);
         }
+        $callcenter->histories()->create([
+            'user_id' => auth()->user()->id,
+            'callcenter_id' => auth()->user()->id,
+            'status' => 1,
+            'description' => "لینک  {$services_title} ارسال گردید و در انتظار پرداخت قرار دارد",
+        ]);
+
     }
 
     /**
@@ -1114,13 +1110,14 @@ class CallcenterController extends Controller
      * @param $client
      * @param $task
      */
-    private function sendSmsLinkSite($request , $client , $task)
+    private function sendSmsLinkSite($request , $client , $task,array $services)
     {
+        $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
         $task->histories()->create([
             'user_id' => auth()->user()->id,
             'callcenter_id' => $task->user_id,
             'status' => 0,
-            'description' => 'لینک سایت جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .',
+            'description' => "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .",
         ]);
         $services=Service::whereIn('id',$request->service)->get();
         foreach ($services as $service ){

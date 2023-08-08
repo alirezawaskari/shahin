@@ -21,9 +21,36 @@ class SliderController extends Controller
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
+    public function indexOldSite()
+    {
+        $sliders = Slider::whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        return view('Admin.site.slider.list', ['sliders' => $sliders]);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function indexMobileOldSite()
+    {
+        $sliders = Slider::whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        return view('Admin.site.slider.list', ['sliders' => $sliders]);
+    }
+
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function create()
     {
         return view('Admin.site.slider.create');
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function createMobileOld()
+    {
+        return view('Admin.site.slider.createMobileOld');
     }
 
     /**
@@ -51,6 +78,30 @@ class SliderController extends Controller
         return redirect()
             ->route('slider.index')
             ->with(['create' => 'success']);
+    }
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeOldSliderMobile(Request $request)
+    {
+        $request->validate(['title' => 'required',
+            'image' => 'required',
+            'link' => 'required',
+            ],
+            ['title.required' => 'لطفا عنوان را وارد کنید',
+                'image.required' => 'لطفا عکس را وارد کنید',
+                'link.required' => 'لطفا لینک را وارد کنید',
+            ]
+        );
+        $request['type'] = 4;
+        $s = Slider::create($request->all());
+        if(isset( $request->image_path)) {
+            $s->img = Helper::moveImage($request->image_path,'slider');
+            $s->save();
+        }
+
+        return redirect()->back()->with(['create' => 'success']);
     }
 
     /**
@@ -99,7 +150,7 @@ class SliderController extends Controller
             $s->img = Helper::moveImage($request->image_path,'slider');
             $s->save();
         }
-
+        return redirect()->back();
         return redirect()
             ->route('slider.index')
             ->with(['update' => 'success']);

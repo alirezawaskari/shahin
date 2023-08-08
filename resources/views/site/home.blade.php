@@ -2,6 +2,13 @@
 @section('title')
     خدمات درمانی - رفاهی لاله
 @endsection
+@section('header')
+    <style>
+        .active{
+            background: white;
+        }
+    </style>
+@endsection
 @section('content')
     <div class="index">
         @auth
@@ -22,11 +29,11 @@
         @if(auth()->check() && auth()->user()->organization_id)
             <img src="{{ auth()->user()->organization->image }}" class="d-block w-100" height="580px">
         @else
-            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
+            <div id="carouselExampleControls" style="padding-right: 5%;padding-left:  5% " class="carousel slide d-none d-sm-block" data-ride="carousel">
+                <div class="carousel-inner main-slider" >
                     @foreach($sliders as $slider)
-                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                            <a href="{{ $slider->link }}"><img src="{{ $slider->img }}" class="d-block w-100" alt="{{ $slider->title }}"></a>
+                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
+                            <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
                         </div>
                     @endforeach
                 </div>
@@ -39,39 +46,90 @@
                     <span class="sr-only">Next</span>
                 </a>
             </div>
+
+                <div id="carouselExampleIndicators" class="carousel slide d-block d-sm-none" data-ride="carousel">
+
+                    <div class="carousel-inner">
+
+                        @foreach($sliders_mobile as $slider)
+                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
+                                <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
+                            </div>
+                        @endforeach
+
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
         @endif
+            <a href="/services/business-agency">
+                <div class="container">
+                    <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
+                        <div class="col-md-6">
+                            <h5 class="   text-warning" style="color: #de295a !important">
+                                <img src="https://kalasakht.com/upload/png-11.png" style="width: 50px" alt="">
+                                از لاله هدیه بگیرید <img src="https://usagif.com/wp-content/uploads/gift-36.gif" style="width: 40px" alt="">
+                            </h5>
+                            <p class="lead text-dark">
+                                <strong class="text-danger">ویژه :</strong>
+                                اعطای مجوز به تولیدکنندگان، خدمات‌دهندگان و فروشندگان محترم.</p>
+                            <p class="text-dark">دریافت مجوز ایجاد شعب لاله در سراسر کشور.</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
         {{--category--}}
-        <div class="wrapper h-li">
-            <nav class="menu-wrapper">
-                <ul>
+            <div style="padding: 5px" >
+                <div class="row ">
                     @foreach($services as $service)
-                        <li class="menu-li-md">
+                        <div class="col-md-2 col-sm-4 col-4 d-flex flex-column align-items-center text-center justify-content-center">
                             <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
-                                <img class="rounded-circle ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="50px">
-                                <p class="text-dark text-center mt-1 mr-n4 font-weight-bolder">{{ $service->app_title }}</p>
+                                <img class="ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="74px">
+                                <p class="text-dark mt-1 font-weight-bolder">{{ $service->title }}</p>
                             </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </nav>
-        </div>
-        {{--Services--}}
-        <div class="service-section bg-gray py-2">
-            <div class="container">
-                <div class="row">
-                    @foreach($services as $service)
-                        <article class="col-4 overflow-hidden pr-1 pl-1 mb-2">
-                            <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
-                                <img src="{{ $service->image_app }}" class="card-img" alt="{{ $service->title }}">
-                            </a>
-                        </article>
+                        </div>
                     @endforeach
                 </div>
+
             </div>
-        </div>
+
+{{--        <div class="wrapper h-li">--}}
+{{--            <nav class="menu-wrapper">--}}
+{{--                <ul>--}}
+{{--                    @foreach($services as $service)--}}
+{{--                        <li class="menu-li-md">--}}
+{{--                            <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">--}}
+{{--                                <img class="rounded-circle ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="50px">--}}
+{{--                                <p class="text-dark text-center mt-1 mr-n4 font-weight-bolder">{{ $service->app_title }}</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                    @endforeach--}}
+{{--                </ul>--}}
+{{--            </nav>--}}
+{{--        </div>--}}
+        {{--Services--}}
+{{--        <div class="service-section bg-gray py-2">--}}
+{{--            <div class="container">--}}
+{{--                <div class="row">--}}
+{{--                    @foreach($services as $service)--}}
+{{--                        <article class="col-4 overflow-hidden pr-1 pl-1 mb-2">--}}
+{{--                            <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">--}}
+{{--                                <img src="{{ $service->image_app }}" class="card-img" alt="{{ $service->title }}">--}}
+{{--                            </a>--}}
+{{--                        </article>--}}
+{{--                    @endforeach--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
 
         {{--Register--}}
-        <div class="register-section py-4">
+ {{--       <div class="register-section py-4">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12 col-md-5 py-5 my-auto mr-auto text-justify">
@@ -83,10 +141,10 @@
                 </div>
 
             </div>
-        </div>
+        </div>--}}
 
         {{--section--}}
-        <div class="register-section py-4">
+      {{--  <div class="register-section py-4">
             <div class="container-fluid">
                 <div class="row">
                     <div class="d-none d-md-block col-md-6 pr-0 text-right">
@@ -98,10 +156,10 @@
                 </div>
 
             </div>
-        </div>
+        </div>--}}
 
         {{--video--}}
-        <div class="video-section py-5 bg-gray">
+{{--        <div class="video-section py-5 bg-gray">
             <div class="container">
                 <div class="row py-5">
                     <div class="col-12 col-md-6 my-auto mr-auto text-justify">
@@ -112,19 +170,18 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>--}}
         {{--section--}}
-        <div class="video-section py-5">
+  {{--      <div class="video-section py-5">
             <div class="container">
                 <div class="row py-5">
                     <div class="col-12">
-                        {!! $setting->index_description !!}
+--}}{{--                        {!! $setting->index_description !!}--}}{{--
                     </div>
                 </div>
-
             </div>
-        </div>
-        <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+        </div>--}}
+    {{--    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
              class="modal fade phone-modal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -133,19 +190,20 @@
                         <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
                     </div>
                     <div class="modal-body">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-md-12 text-center">
-                                   <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">
-                                </div>
-                            </div>
-                        </div>
-                       {{-- <h6  >
+--}}{{--                        <div class="container">--}}{{--
+--}}{{--                            <div class="row">--}}{{--
+--}}{{--                                <div class="col-md-12 text-center">--}}{{--
+--}}{{--                                   <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">--}}{{--
+--}}{{--                                </div>--}}{{--
+--}}{{--                            </div>--}}{{--
+--}}{{--                        </div>--}}{{--
+                        <h6>
+                        <h6>
                             <strong>
                                 به لاله خوش آمدید.
-                            </strong>--}}
+                            </strong>
                         </h6>
-                        <p class="text-center font-weight-bolder">هدایای عیدانه بی نظیر لاله با تبریک به مناسبت ایام فرارسیدن سال نو خورشیدی به شما عزیزان با هدایای ویژه لاله ، یک سال رایگان از لاله سنتر 1 ، مجموعه کاملی از تمامی خدمات و کالای اقساطی با حمل و نقل رایگان و مزایای ویژه و VIP استفاده نمائید. </p>
+
                     </div>
                     <div class="row col-12">
                         <div class="mb-1 p-1">
@@ -158,10 +216,55 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <script type="text/javascript">
-            if (screen.width <= 699) {
-                document.location.href = "mobile";
-            }
-        </script>
+        </div>--}}
+{{--        <script type="text/javascript">--}}
+{{--            if (screen.width <= 699) {--}}
+{{--                document.location.href = "mobile";--}}
+{{--            }--}}
+{{--        </script>--}}
+
+            <div class="container">
+                <div class="row justify-content-center ">
+                    نقل قول مشتریان
+                </div>
+                <div id="feedback-carousel" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="row justify-content-center">
+                                <div class="col-md-8 shadow p-3 mb-5 bg-white rounded">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="card-text">با توجه به قیمت، خدمات جراحی زیبایی بسیار خوبی رو ارائه دادن. حتی از توقعاتم بیشتر بود .</p>
+                                            <p class="card-subtitle mb-2 text-muted">تاریخ ارسال: ۲۵ خرداد ۱۴۰۰</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item ">
+                            <div class="row justify-content-center ">
+                                <div class="col-md-8 shadow p-3 mb-5 bg-white rounded">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="card-text">از خدمت دندانپزشکی اقساطی بسیار راضی بودم ، کار پزشک حرف نداشت .</p>
+                                            <p class="card-subtitle mb-2 text-muted">تاریخ ارسال: 12 مهر 1401</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <a class="carousel-control-prev" href="#feedback-carousel" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#feedback-carousel" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
 @endsection
+

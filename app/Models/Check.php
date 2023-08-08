@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class Check extends Model
+class Check extends Model implements AuditableContract
 {
+    use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
 
     /**
@@ -23,7 +25,7 @@ class Check extends Model
     ];
 
     /**
-     *statuses of check
+     * statuses of check
      * @param $status
      * @return string
      */
@@ -33,7 +35,7 @@ class Check extends Model
             '0' => 'در انتظار وصول',
             '1' => 'وصول شده',
             '2' => 'برگشت خورده',
-            '3' => 'عودت داده شده',
+            '3' => 'عودت داده شده'
         ][$status];
     }
 
@@ -60,6 +62,27 @@ class Check extends Model
     {
         return $this->morphTo();
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function applicantable()
+    {
+        return $this->morphTo();
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function exportable()
+    {
+        return $this->morphTo();
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function paytoable()
+    {
+        return $this->morphTo();
+    }
 
     /**
      * @param $query
@@ -75,6 +98,72 @@ class Check extends Model
         $phone = request('phone');
         $status=request()->status;
         $serial_code=request()->serial_code;
+
+        $exporter_name=request()->exporter_name;
+        $exporter_family=request()->exporter_family;
+        $exporter_phone=request()->exporter_phone;
+
+        $pay_to_name=request()->pay_to_name;
+        $pay_to_family=request()->pay_to_family;
+        $pay_to_phone=request()->pay_to_phone;
+
+        $applicant_name=request()->applicant_name;
+        $applicant_family=request()->applicant_family;
+        $applicant_phone=request()->applicant_phone;
+        //------------------ exporter queries ---------------------
+        if (isset($exporter_name) && trim($exporter_name) != '') {
+                $query->whereHas('exportable', function ($query)use($exporter_name){
+                    $query->where('name', 'LIKE', '%' . $exporter_name. '%');
+                });
+        }
+
+        if (isset($exporter_family) && trim($exporter_family) != '') {
+                $query->whereHas('exportable', function ($query)use($exporter_family){
+                    $query->where('family', 'LIKE', '%' . $exporter_family. '%');
+                });
+        }
+
+        if (isset($exporter_phone) && trim($exporter_phone) != '') {
+                $query->whereHas('exportable', function ($query)use($exporter_phone){
+                    $query->where('phone', $exporter_phone);
+                });
+        }
+        //----------------pay to queries-----------------
+        if (isset($pay_to_name) && trim($pay_to_name) != '') {
+                $query->whereHas('paytoable', function ($query)use($pay_to_name){
+                    $query->where('name', 'LIKE', '%' . $pay_to_name. '%');
+                });
+        }
+
+        if (isset($pay_to_family) && trim($pay_to_family) != '') {
+                $query->whereHas('paytoable', function ($query)use($pay_to_family){
+                    $query->where('family', 'LIKE', '%' . $pay_to_family. '%');
+                });
+        }
+
+        if (isset($pay_to_phone) && trim($pay_to_phone) != '') {
+                $query->whereHas('paytoable', function ($query)use($pay_to_phone){
+                    $query->where('phone',$pay_to_phone);
+                });
+        }
+        //---------------- applicant queries-----------------
+        if (isset($applicant_name) && trim($applicant_name) != '') {
+                $query->whereHas('applicantable', function ($query)use($applicant_name){
+                    $query->where('name', 'LIKE', '%' . $applicant_name. '%');
+                });
+        }
+
+        if (isset($applicant_family) && trim($applicant_family) != '') {
+                $query->whereHas('applicantable', function ($query)use($applicant_family){
+                    $query->where('family', 'LIKE', '%' . $applicant_family. '%');
+                });
+        }
+
+        if (isset($applicant_phone) && trim($applicant_phone) != '') {
+                $query->whereHas('applicantable', function ($query)use($applicant_phone){
+                    $query->where('phone', $applicant_phone );
+                });
+        }
 
         if (isset($exporter) && trim($exporter) != '') {
                 $query->where('exporter', 'LIKE', '%' . $exporter. '%');
@@ -106,7 +195,13 @@ class Check extends Model
         }
         return $query;
     }
-
+    /**
+     * Get all of the video's assetTransactions.
+     */
+    public function assetTransactions()
+    {
+        return $this->morphMany(AssetTransactions::class, 'assetable');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

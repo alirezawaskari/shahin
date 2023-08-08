@@ -17,6 +17,12 @@ class Resume extends Model
     public $timestamps = false;
 
     /**
+     * @var string[]
+     */
+    protected $casts = [
+        'detail' => 'array',
+    ];
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function recruitment_notice()

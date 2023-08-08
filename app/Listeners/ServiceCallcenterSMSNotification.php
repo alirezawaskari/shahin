@@ -56,14 +56,13 @@ class ServiceCallcenterSMSNotification
             }
 
             IranSms::sendSingleSms('callcenterfastservice',$userMobile,$body);
-
         }
     }
 
     private function createLink($event)
     {
         $link = "";
-        $representation = $event->service->representations->first();
+        $representation = $event->service->representations->where('status',1)->first();
         if($event->service->isShow)
         {
             $link = 'services/'.$event->service->slug.'/'.$event->task->user_id.'/'.$event->task->id;

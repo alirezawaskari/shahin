@@ -27,7 +27,7 @@ class CreateFactorItemAttributesTable extends Migration
             $table->double('price_difference_total')->default(0);
             $table->double('price_difference_debt')->default(0);
             $table->double('registeration_debt')->default(0);
-
+            $table->softDeletes();
             $table->timestamps();
         });
     }

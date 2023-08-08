@@ -431,7 +431,7 @@ class AdminController extends Controller
             $item['count_factoritem_superadmin'] = 0;
             $item['count_factor_mali_representation'] = PurchaseInvoice::where('status', 1)->where('representation_id', auth()->user()->admin_representation->id)->count();
             $item['count_factor_superadmin_representation'] = PurchaseInvoice::where('status', 2)->where('representation_id', auth()->user()->admin_representation->id)->count();
-            $item['count_factoritem_mali_representation'] = TotalFactorItem::where('total_factor_item_status_id', 11)->whereHas('center', function($q){
+     /*       $item['count_factoritem_mali_representation'] = TotalFactorItem::where('total_factor_item_status_id', 11)->whereHas('center', function($q){
                 $q->where('representation_id', auth()->user()->admin_representation->id);
             })->count();
             $item['count_factoritem_superadmin_representation'] = TotalFactorItem::where('total_factor_item_status_id', 12)->whereHas('center', function($q){
@@ -439,7 +439,10 @@ class AdminController extends Controller
             })->count();
             $item['count_factoritem_filing'] = FactorItem::where('status_factor', 9)->whereHas('center', function($q){
                 $q->where('representation_id', auth()->user()->admin_representation->id);
-            })->count();
+            })->count();*/
+            $item['count_factoritem_mali_representation'] = TotalFactorItem::where('total_factor_item_status_id', 11)->count();
+            $item['count_factoritem_superadmin_representation'] = TotalFactorItem::where('total_factor_item_status_id', 12)->count();
+            $item['count_factoritem_filing'] = FactorItem::where('status_factor', 9)->count();
         } else {
             $item['count_factor_mali_representation'] = 0;
             $item['count_factor_superadmin_representation'] = 0;
@@ -459,9 +462,15 @@ class AdminController extends Controller
             $item['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
         }
         $expire_dates=ContextController::fetchExpireDates();
+        $iran_sms_credit =0;
+        $iran_sms_credit_error=false;
+        try {
+            $iran_sms_credit=IranSms::fetchCredit()->credit;
+        }catch (\Exception $e){
+            $iran_sms_credit_error=true;
+        }
 
-        $iran_sms_credit=IranSms::fetchCredit()->credit;
-        return view('Admin.dailyDesktop' , compact('item','expire_dates','iran_sms_credit'));
+        return view('Admin.dailyDesktop' , compact('item','expire_dates','iran_sms_credit','iran_sms_credit_error'));
     }
 
     /**
