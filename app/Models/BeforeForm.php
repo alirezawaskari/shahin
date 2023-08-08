@@ -42,6 +42,7 @@ class BeforeForm extends Model
         'rules' => 'مفاد قرارداد',
         'total-price' => 'جمع کل فاکتور',
         'factor-image' => 'تصویر فاکتور',
+        'factor_building' => 'فاکتور خدمات ساختمانی',
     ];
 
 
