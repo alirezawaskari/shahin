@@ -862,7 +862,8 @@ class FactorItemController extends Controller {
     public function returnPayment( Request $request ) {
         $factor_item = FactorItem::find( $request->input( 'id' ) );
         $prepayment_paid = FactorItem::getPrepaymentPaid($factor_item);
-        $prepayment_price_used = FactorItem::getSessionsSumPrice($factor_item , 'all');
+        $factor_item_discount_price = $factor_item->discount;
+        $prepayment_price_used = FactorItem::getSessionsSumPrice($factor_item , 'all') + $factor_item_discount_price;
         $price =  (float) str_replace(',', '', Helper::numberConverter($request->input('price')));
         $prepayment['prepayment_debt']=$factor_item->property->prepayment_debt;
 
