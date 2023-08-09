@@ -71,7 +71,7 @@
 </div>
 @if ($factorItem['type'])
 <h5 class="card-title"><i data-toggle="modal" data-target="#helpModal" class="fa fa-question-circle"
-    style="font-size:38px;"></i>وضعیت مالی پرونده ( اقساطی {{ ($factorItem['confirm'] ? '-
+    style="font-size:38px;"></i>وضعیت مالی پرونده ( اقساطی {{ ($item['confirm'] ? '-
 تایید شده' : '- منتظر تایید') }} - <a class="text-primary">{{ $factorItem['financial_plans_type'] }}</a>)</h5>
 @else
 <h5 class="card-title"><i data-toggle="modal" data-target="#helpModal" class="fa fa-question-circle"
