@@ -298,9 +298,9 @@
                                                                        class="form-control"></textarea>
                                     </div>
                                     <input type="hidden" class="task" name="task" value="">
-                                    <label> VIP </label>
+                                    <label> ثروتمند/توانمند </label>
                                     <input type="checkbox" name="vip" id="custom-check-vip" class="mr-2 ml-2"> <label>
-                                        SOS </label>
+                                        فقیر/کم توان </label>
                                     <input type="checkbox" name="sos" id="custom-check-sos" class="mr-2">
                                     <input value="ثبت" class="btn btn-success border-0 btn-block" id="submit-status">
                                 </div>
