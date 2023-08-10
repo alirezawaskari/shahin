@@ -46,17 +46,6 @@ Route::group([], function () {
         Artisan::call('cache:clear');
     });
 
-    Route::get('/routes', function () {
-        $routes =Route::getRoutes();
-        $get_method_routes = array();
-        foreach ($routes as $item) {
-            if ($item->methods()[0] == 'GET'){
-                $get_method_routes[]=$item;
-            }
-        }
-         dd((collect($get_method_routes)->pluck('uri'))->toArray());
-    });
-
     Route::get('/clear-config', function () {
         Artisan::call('config:clear');
     });
@@ -188,6 +177,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('/category-permission', 'CategoryPermissionController');
     Route::post('/factor-update' , 'FactorController@update');
     //check
+    Route::get('/check/repair' , 'CheckController@repair');
     Route::get('/check/filter' , 'CheckController@filter');
     Route::post('/check/update-status' , 'CheckController@updateStatus');
     Route::resource('/check', 'CheckController');

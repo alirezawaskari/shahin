@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\userActivation;
 use App\Exports\CheckExport;
 use App\Helpers\Helper;
 use App\Http\Resources\CheckCollection;
@@ -27,8 +28,7 @@ class CheckController extends Controller
      */
     public function index()
     {
-
-        $can_update_status_check = auth()->user()->isAbleTo('update-status-check');
+         $can_update_status_check = auth()->user()->isAbleTo('update-status-check');
         return view('Admin.check.all', compact('can_update_status_check'));
     }
 
@@ -115,12 +115,6 @@ class CheckController extends Controller
         if (!auth()->user()->isAbleTo('delete-check') || $check->checkable->confirm == 1) {
             return abort(403);
         }
-
-        $auth_user = auth()->user();
-//        $auth_user_full_name=$auth_user->name.' '.$auth_user->family;
-//        $check->histories()->create([
-//            'description'=>"  چک حذف گردید ، شناسه و نام کاربر حذف کننده :"." $auth_user_full_name _".$auth_user->id
-//        ]);
         $check->delete();
         return response(['status' => 'success']);
     }
@@ -338,8 +332,6 @@ class CheckController extends Controller
         $check->update([
             'status' => 2
         ]);
-//        $history_text=" چک برگشت خورد ، شناسه و نام کاربر ثبت کننده برگشت :";
-//        $this->storeCheckActionHistory($check,$history_text);
     }
 
     /**
@@ -350,8 +342,7 @@ class CheckController extends Controller
         $check->update([
             'status' => 3
         ]);
-//        $history_text="  چک عودت داده شد ، شناسه و نام کاربر ثبت کننده عودت:";
-//        $this->storeCheckActionHistory($check,$history_text);
+
     }
 
     /**
@@ -461,5 +452,33 @@ class CheckController extends Controller
            $receiver=$this->createUser($request->receiver_phone,$request->receiver_name,$request->receiver_family,null,null);
        }
        return $receiver;
+    }
+
+    public function repair()
+    {
+        $checks = Check::all();
+        $user_receiver= User::find(63);
+        foreach ($checks as $check){
+            $check_owner = $check->checkable->factor->user;
+            if (is_null($check->applicantable_id)){
+                $check->update([
+                    'applicantable_id'=>$check_owner->id,
+                    'applicantable_type'=>get_class($check_owner)
+                ]);
+            }
+            if (is_null($check->exportable_id)){
+                $check->update([
+                    'exportable_id'=>$check_owner->id,
+                    'exportable_type'=>get_class($check_owner)
+                ]);
+            }
+            if (is_null($check->paytoable_id )){
+                $check->update([
+                    'paytoable_id'=>$user_receiver->id,
+                    'paytoable_type'=>get_class($user_receiver)
+                ]);
+            }
+        }
+        return Check::all();
     }
 }
