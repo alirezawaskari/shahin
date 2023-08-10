@@ -221,6 +221,11 @@ function searchUser(search) {
                 $('.error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
             } else {
                 $('.error_user').text('');
+                if (data.data.user.sex == 0){
+                    $("#male-gender").prop("checked", true);
+                }else{
+                    $("#female-gender").prop("checked", true);
+                }
             }
             generateDataTableUserHistories(data.data.histories);
             generateDataTableUserFactors(data.data.factors);
