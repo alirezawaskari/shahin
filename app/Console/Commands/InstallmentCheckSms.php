@@ -42,7 +42,7 @@ class InstallmentCheckSms extends Command
     {
         $checks = Check::whereDate('date',Carbon::today()->addDays(3))->where('title','installment')->get();
         foreach ($checks as $check){
-            event(new checkSmsReminder( $check->checkable->factor->user,$check));
+            event(new checkSmsReminder( $check->applicantable->phone,$check));
         }
     }
 }
