@@ -192,20 +192,20 @@
                 @endrole
 
                 <div class="col-12 col-md-4 mb-3">
-                    <label>کاربر VIP :</label>
+                    <label>کاربر ثروتمند/توانمند :</label>
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="vipCheck" name="vip" {{ $user->vip && $user->vip->type == 'VIP' ? 'checked' : ''}}>
-                            <label class="custom-control-label" for="vipCheck">این کاربر را به عنوان کاربر VIP  ثبت میکنم.</label>
+                            <label class="custom-control-label" for="vipCheck">این کاربر را به عنوان کاربر ثروتمند/توانمند  ثبت میکنم.</label>
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>کاربر SOS :</label>
+                    <label>کاربر فقیر/کم توان :</label>
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="sosCheck" name="sos" {{ $user->vip && $user->vip->type == 'SOS' ? 'checked' : ''}}>
-                            <label class="custom-control-label" for="sosCheck">این کاربر را به عنوان کاربر SOS  ثبت میکنم.</label>
+                            <label class="custom-control-label" for="sosCheck">این کاربر را به عنوان کاربر کاربر فقیر/کم توان  ثبت میکنم.</label>
                         </div>
                     </div>
                 </div>

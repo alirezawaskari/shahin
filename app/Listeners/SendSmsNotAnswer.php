@@ -28,13 +28,14 @@ class SendSmsNotAnswer
     public function handle(smsNotAnswer $event)
     {
         $userMobile = $event->user->phone;
-        $callcenter = $event->callcenter->family;
-
+        //$callcenter = $event->callcenter->family;
+        $callcenter = auth()->user()->family;
         if (isset($userMobile)) {
             $body = [
                 'param1' => verta(Carbon::now())->format('Y/m/d H:i:s'),
                 'param2' => $callcenter,
                 'param3' => $event->unit,
+                'param4' => auth()->user()->phone
             ];
             IranSms::sendSingleSms('sendsmsnotanswer',$userMobile,$body);
 

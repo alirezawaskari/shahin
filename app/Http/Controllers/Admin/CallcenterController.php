@@ -348,6 +348,10 @@ class CallcenterController extends Controller
         //create new user
         if (!$client) {
             $client = self::createUser($request);
+        }else{
+            $client->update([
+                'sex'=>$request->gender
+            ]);
         }
         $payment_type = $request->payment_type != null ? $request->payment_type : 'online';
         if ($client) {
@@ -663,6 +667,7 @@ class CallcenterController extends Controller
         $this->validate($request, [
             'name' => 'string|required',
             'family' => 'string|required',
+            'gender'=>Rule::in(array(0,1)),
             'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
             'province' => 'required',
             'city' => 'required',
@@ -681,6 +686,7 @@ class CallcenterController extends Controller
             'password' => Hash::make($pass),
             'active' => true,
             'level' => 'user',
+            'sex' => $request->gender,
             'callcenter_id' => auth()->user()->id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
         ]);

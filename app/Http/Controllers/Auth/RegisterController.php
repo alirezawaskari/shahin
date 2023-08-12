@@ -101,13 +101,16 @@ class RegisterController extends Controller
                 $callcenterusers[] = $u;
             }
         }
-        Callcenter::create( [
+        $task=Callcenter::create([
             'reg_id' => $user->id,
             'user_id' => array_rand( $callcenterusers )->id,
             'type' => 0,
             'status' => '0',
             'representation_id' => Arr::has( $data, 'representation' ) ? $data[ 'representation' ] : null
-        ] );
+        ]);
+        if (isset( $data[ 'service_id' ])&& !is_null($data[ 'service_id' ])){
+            $task->services()->attach($data['service_id']);
+        }
         Callcenterstatus::create( [
             'user_id' => array_rand( $callcenterusers )->id,
         ] );
@@ -117,6 +120,7 @@ class RegisterController extends Controller
 
     public function fastregister( Request $request )
  {
+
         session( [ 'login_request_link' => url()->previous() ] );
         $inputs = $request->all();
         $inputs[ 'phone' ] = Helper::numberConverter( $inputs[ 'phone' ] );
@@ -208,6 +212,9 @@ class RegisterController extends Controller
                 'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,
                 'status' => '0'
             ] );
+            if ($request->service_id){
+                $task->services()->attach(array($request->service_id));
+            }
             Callcenterstatus::create( [
                 'user_id' => $request->input( 'callcenter_id' ) != null ? $request->input( 'callcenter_id' ) : $id,
             ] );
