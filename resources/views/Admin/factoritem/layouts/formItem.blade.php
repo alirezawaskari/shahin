@@ -6,7 +6,7 @@
 <div class="row treatment_plan d-none" id="treatment_plan">
     <div class="col-12 col-md-3 mb-3">
         <label>شماره دندان</label>
-        <input type="number" name="dentist_number[]" class="form-control" placeholder="شماره دندان" min="1" max="32">
+        <input type="text" name="dentist_number[]" class="form-control" placeholder="شماره دندان">
     </div>
     <div class="col-12 col-md-3 mb-3">
         <label>موقعیت دندان</label>
