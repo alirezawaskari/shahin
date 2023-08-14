@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Models\CenterCategory;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CenterRequestController extends Controller
 {
@@ -37,6 +38,7 @@ class CenterRequestController extends Controller
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
+            'gender' => ['required',Rule::in(array(0,1))],
             'subject' => 'required|string',
             'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'description' => 'required',

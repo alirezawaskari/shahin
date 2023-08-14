@@ -203,6 +203,7 @@ class CenterRequestController extends AdminController
             'name' => $request->name,
             'family' => $request->family,
             'phone' => $phone,
+            'sex' =>  $request->gender,
             'province_id' => $request->province_id,
             'city_id' => $request->city_id,
             'password' => Hash::make($pass),
@@ -210,6 +211,7 @@ class CenterRequestController extends AdminController
             'level' => 'user',
         ]);
     }
+
 
     /**
      * @param $user
