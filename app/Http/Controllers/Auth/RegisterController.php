@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
  {
@@ -120,7 +121,6 @@ class RegisterController extends Controller
 
     public function fastregister( Request $request )
  {
-
         session( [ 'login_request_link' => url()->previous() ] );
         $inputs = $request->all();
         $inputs[ 'phone' ] = Helper::numberConverter( $inputs[ 'phone' ] );
@@ -129,6 +129,7 @@ class RegisterController extends Controller
             'family' => 'required|string',
             'province_id' => 'required|numeric',
             'city_id' => 'required|numeric',
+            'gender' =>[ 'required',Rule::in(array(1,0))],
             'area_id' => 'nullable|numeric',
             'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
         ] );
@@ -147,6 +148,7 @@ class RegisterController extends Controller
             'province_id' => $request->input( 'province_id' ),
             'city_id' => $request->input( 'city_id' ),
             'area_id' => $request->input( 'area_id' ),
+            'sex' => $request->gender,
             'active' => 1,
             'password' => Hash::make( $pass ),
             'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,

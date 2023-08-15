@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class RecruitmentNoticeController extends Controller
 {
@@ -53,6 +54,7 @@ class RecruitmentNoticeController extends Controller
             'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'email' => 'nullable|email',
             'text' => 'nullable|string',
+            'sex' => ['string',Rule::in(array('خانم','آقا'))],
             'recruitment_notice_id' => 'required',
             'resume' => 'mimes:pdf,jpg,jpeg|max:10000',
         ]);
@@ -153,13 +155,16 @@ class RecruitmentNoticeController extends Controller
     {
         $pass = rand(12345, 99999);
         $phone = Helper::numberConverter($request->phone);
-
+        $gender = 0;
+        if ($request->sex == 'خانم')
+            $gender=1;
         return User::create([
             'name' => $request->name,
             'family' => $request->family,
             'phone' => $phone,
             'password' => Hash::make($pass),
             'active' => true,
+            'sex' => $gender,
             'level' => 'user',
         ]);
     }

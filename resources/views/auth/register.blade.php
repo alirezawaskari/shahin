@@ -38,6 +38,15 @@
                                            placeholder="نام خانوادگی">
                                 </div>
                                 <div class="form-group position-relative box">
+                                    <label for="gender" class="position-absolute"><i class="fas fa-user"></i></label>
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                            name="gender" id="gender" required>
+                                        <option value="" disabled selected>جنسیت</option>
+                                        <option value="0">آقا</option>
+                                        <option value="1">خانم</option>
+                                    </select>
+                                </div>
+                                <div class="form-group position-relative box">
                                     <label for="phone" class="position-absolute"><i
                                             class="fas fa-mobile-alt"></i></label>
                                     <input id="phone_register" type="text"
@@ -56,6 +65,7 @@
                                         @endforeach
                                     </select>
                                 </div>
+
 
                                 <div class="form-group position-relative box">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>

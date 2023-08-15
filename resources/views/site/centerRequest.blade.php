@@ -108,6 +108,15 @@
                                                 <input type="text" name="family" required placeholder="نام خانوادگی"
                                                     class="form-control">
                                             </div>
+                                            <div class="col-12 col-md-6">
+                                                <label> جنسیت</label>
+                                                <select class="form-control my-2" type="int" name="gender"
+                                                        id="gender" required>
+                                                    <option value="" disabled selected>جنسیت</option>
+                                                    <option value="0">آقا</option>
+                                                    <option value="1">خانم</option>
+                                                </select>
+                                            </div>
                                             <div class="col-12 col-md-6 mb-3">
                                                 <label>شماره موبایل</label>
                                                 <input type="number" name="phone" placeholder="شماره موبایل"

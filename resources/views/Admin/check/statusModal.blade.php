@@ -60,6 +60,21 @@
                                             <span class="d-block text-red text-left">{{ $errors->first('family')}}</span>
                                         @endif
                                     </div>
+                                <div class="form-group col-md-4">
+                                    <label>جنسیت</label>
+                                    <div class="form-check">
+                                        <input type="radio" name="receiver_gender" id="receiver-female-gender" value="1" class="form-check-input receiver_gender" style="cursor: pointer;">
+                                        <label for="receiver-female-gender" class="form-check-label ">
+                                            خانم
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" name="receiver_gender" id="receiver-male-gender" checked="checked" value="0" class="form-check-input receiver_gender" style="cursor: pointer;">
+                                        <label
+                                            for="receiver-male-gender" class="form-check-label">
+                                            آقا
+                                        </label></div>
+                                </div>
                                 </div>
 
                             <div class="col-md-12">
