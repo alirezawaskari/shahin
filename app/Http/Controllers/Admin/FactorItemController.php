@@ -213,7 +213,7 @@ class FactorItemController extends Controller {
              ]);
          }
 
-        if ( isset( $request->center_id ) && $request->check ) {
+        if ( $request->check ) {
             $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
             event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
         }
