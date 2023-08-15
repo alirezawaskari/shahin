@@ -42,7 +42,7 @@
                 </div>
 
 
-                @permission('representation-ticket')
+              {{--  @permission('representation-ticket')
                 <div class="col-12 col-md-4 mb-2">
                     <label>عامل مربوطه</label>
                     <select class="form-control select2" name="representation_id[]" multiple>
@@ -73,7 +73,7 @@
                         @endforeach
                     </select>
                 </div>
-                @endpermission
+                @endpermission--}}
 
                 <div class="col-12 mb-3">
                     <label>متن درخواست</label>
