@@ -182,6 +182,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/check/update-status' , 'CheckController@updateStatus');
     Route::resource('/check', 'CheckController');
     Route::post('/check/update/{check}', 'CheckController@update')->name('check.update');
+    //treasury
+    Route::get('/treasury/index' , 'TreasuryController@index')->name('treasury.index');
     //total factor item
     Route::post('/totalFactorItem/suspension', 'TotalFactorItemController@suspension')->name('totalFactorItem.suspension');
     Route::get('/totalFactorItem/desktop', 'TotalFactorItemController@desktop')->name('totalFactorItem.desktop');
