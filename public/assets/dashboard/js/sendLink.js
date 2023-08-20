@@ -227,6 +227,11 @@ function searchUser(search) {
                     $("#female-gender").prop("checked", true);
                 }
             }
+            if(data.data.user.conduct == "challenging")
+                $("#challenging").prop("checked", true);
+            else
+                $("#challenging").prop("checked", false);
+
             generateDataTableUserHistories(data.data.histories);
             generateDataTableUserFactors(data.data.factors);
             fillInProgressTableBody(data.data.tasks)

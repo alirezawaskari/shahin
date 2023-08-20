@@ -1,10 +1,15 @@
-
 $(document).ready(function () {
-
-
 
     $('#select_status').select2({
         placeholder: "انتخاب وضعیت"
+    });
+
+    $('#user_agents').select2({
+        placeholder: "انتخاب بازاریاب"
+    });
+
+    $('#user_callcenter').select2({
+        placeholder: "انتخاب کالسنتر"
     });
 
 
@@ -180,15 +185,10 @@ $(document).ready(function () {
                 {
                     "data": data,
                     "render": function (data) {
-                        return `<span class="badge badge-red">${data.name.vip}</span>`
+                        return `<span class="badge badge-red">${data.name.conduct}</span><span class="badge badge-red">${data.name.vip}</span><span class="badge badge-red">${data.name.sos}</span>`
                     }
                 },
                 {
-                    "data": data,
-                    "render": function (data) {
-                        return `<span class="badge badge-red">${data.name.sos}</span>`
-                    }
-                }, {
                     "data": data,
                     "render": function (data) {
                         let display='none';
@@ -199,8 +199,8 @@ $(document).ready(function () {
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
-                            <span class="dropdown-item pointer task-status" data-id="${data.id}" data-name="${data.name.name}"  data-family="${data.name.family}" data-province="${data.name.province_id}" data-city="${data.name.city_id}" data-phone="${data.phone}" data-sos="${data.name.sos}"
-                            data-vip="${data.name.vip}" data-agent="${data.agent}" data-status="${data.status}"  data-toggle="modal" data-target=".bd-example-modal-lg">وضعیت</span>
+                            <span class="dropdown-item pointer task-status" data-id="${data.id}" data-name="${data.name.name}"  data-gender="${data.name.sex}"  data-family="${data.name.family}" data-province="${data.name.province_id}" data-city="${data.name.city_id}" data-phone="${data.phone}" data-sos="${data.name.sos}"
+                            data-vip="${data.name.vip}" data-conduct="${data.name.conduct}" data-agent="${data.agent}" data-status="${data.status}"  data-toggle="modal" data-target=".bd-example-modal-lg">وضعیت</span>
                             <span style="display: ${display}"  data-id="${data.id}" class="task-delete dropdown-item pointer">حذف</span>
                         </div></div>`
                     }
@@ -268,15 +268,24 @@ $(document).ready(function () {
         $('#remember-description').val('');
         $('#custom-check-vip').prop( "checked", false );
         $('#custom-check-sos').prop( "checked", false );
+        $('#challenging').prop( "checked", false );
         $("#reason-remember").prop("selectedIndex", 0).val();
         $('#phone').attr('value', $(this).data('phone'));
-        if ( $(this).data('vip')=='VIP'){
+        if ( $(this).data('vip')=='ثروتمند/توانمند'){
             $('#custom-check-vip').prop( "checked", true );
             $('#vipCheck').prop( "checked", true );
         }
-        if ( $(this).data('sos')=='SOS'){
+        if ( $(this).data('sos')=='فقیر/کم ‌توان'){
             $('#custom-check-sos').prop( "checked", true );
             $('#sosCheck').prop( "checked", true );
+        }
+        if ( $(this).data('conduct')=='چالش انگیز'){
+            $('#challenging').prop( "checked", true );
+        }
+        if ( $(this).data('gender')=='0'){
+            $('#male-gender').prop( "checked", true );
+        }else {
+            $('#female-gender').prop( "checked", true );
         }
         $('.modal_status_message_box').empty();
         $('#sendLinkForm').append(`<input type="hidden" name="task" value="${$(this).data('id')}">`);

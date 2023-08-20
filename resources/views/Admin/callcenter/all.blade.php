@@ -105,15 +105,13 @@
                     @include('Admin.filter.productServiceFilterInputs')
                     @permission('callcenter-detail')
                     <div class="col-12 col-md-3 mb-2">
-                        <select name="user" class="custom-select select2">
-                            <option value="all">انتخاب کالسنتر</option>
+                        <select  name="users[]" multiple="multiple" class="custom-select select2" id="user_callcenter">
                             @foreach($callcenters as $item)
                                 <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2"><select name="agent" class="custom-select select2">
-                            <option value="all">انتخاب بازاریاب</option>
+                    <div class="col-12 col-md-3 mb-2"><select name="agents[]" multiple="multiple" id="user_agents" class="custom-select select2">
                             @foreach($callcenters as $item)
                                 <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
                             @endforeach
@@ -205,8 +203,7 @@
                         <th>موضوع درخواست</th>
                         <th>وضعیت</th>
                         <th>تاریخ</th>
-                        <th>ثروتمند/توانمند</th>
-                        <th>فقیر/کم توان</th>
+                        <th>شرایط ویژه</th>
                         <th>اقدام</th>
                     </tr>
                     </thead>

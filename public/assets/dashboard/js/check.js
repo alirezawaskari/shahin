@@ -115,6 +115,7 @@ $(document).ready(function () {
                         if (data.back_image!='') {
                             return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
                         }
+                        return '';
                     }
                 },
                 {"data": "description"},
@@ -145,8 +146,6 @@ $(document).ready(function () {
                         }
                     }
                 },
-
-
 
                 {
                     "data": data,

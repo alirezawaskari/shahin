@@ -47,7 +47,7 @@ class AgencyController extends Controller
     {
         $agencies = Agency::filter()->orderBy('updated_at', 'desc');
 
-		if (\request('exel') != null){
+        if (\request()->exel == 'on') {
             return (new AgencyExport($agencies))->download('agencies.xlsx');
         }
 

@@ -83,6 +83,8 @@ class User extends Authenticatable
         'home_phone',
         'work_phone',
         'work',
+        'conduct',
+        'gender_fix'
     ];
 
     /**
