@@ -462,15 +462,7 @@ class AdminController extends Controller
             $item['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
         }
         $expire_dates=ContextController::fetchExpireDates();
-        $iran_sms_credit =0;
-        $iran_sms_credit_error=false;
-        try {
-            $iran_sms_credit=IranSms::fetchCredit()->credit;
-        }catch (\Exception $e){
-            $iran_sms_credit_error=true;
-        }
-
-        return view('Admin.dailyDesktop' , compact('item','expire_dates','iran_sms_credit','iran_sms_credit_error'));
+        return view('Admin.dailyDesktop' , compact('item','expire_dates'));
     }
 
     /**
