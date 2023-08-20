@@ -313,13 +313,13 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr class="{{$iran_sms_credit <= 20000 ? 'table-danger' : 'table-success'}}">
+                            <tr id="tr-iran-sms" class="table-success">
                                 <td>پنل پیامکی IRAN SMS</td>
-                                @if($iran_sms_credit_error)
-                                    <td><span class=" alert alert-warning" >عدم دسترسی به اطلاعات IRAN SMS</span>  </td>
-                                @else
-                                    <td><span >{{number_format($iran_sms_credit).' ریال '}}</span>  </td>
-                                @endif
+
+                                    <td><span id="iran-sms-credit"></span>
+                                        <i style="display: none;padding-right: 10px" class=" fetch-iran-sms-credit-success fa fa-check-square" ></i>
+                                        <i class="fetch-iran-sms-credit  fa fa-refresh" style="cursor: pointer;padding-right: 10px"></i> </td>
+
                             </tr>
 
                             </tbody>
@@ -417,6 +417,8 @@
 @stop
 
 @section('js')
+    <script src="/assets/dashboard/js/layouts.js"></script>
+    <script src="/assets/dashboard/js/dailyDesktop.js"></script>
     <script>
         function openNav() {
             if (document.getElementById("myNav").style.width == "4%") {
