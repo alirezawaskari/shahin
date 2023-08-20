@@ -97,6 +97,12 @@
                                 <label class="custom-control-label" for="sosCheck">فقیر/کم توان</label>
                             </div>
                         </div>
+                        <div class="col-md-6 mt-2 mb-3">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input challenging-check" id="challenging" name="challenging">
+                                <label class="custom-control-label" for="challenging">چالش انگیز</label>
+                            </div>
+                        </div>
 
                         <div class="col-md-3 mt-2 mb-3" id="checkbox-send-factor">
                             <hr>

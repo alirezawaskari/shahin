@@ -88,6 +88,7 @@ class CreateUsersTable extends Migration
             $table->string('part')->nullable()->default(NULL);
             $table->integer('lalecard')->default('0');
             $table->string('shaba_number',110)->nullable()->default(NULL);
+            $table->string('conduct',100)->nullable();
             $table->rememberToken();
 
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

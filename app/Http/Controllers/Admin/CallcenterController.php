@@ -339,6 +339,7 @@ class CallcenterController extends Controller
      */
     public function registerForm(Request $request)
     {
+
         $status = self::getStatusFactorByPayType($request->payment_type);
         $price = 0;
         $cash_factor = [];
@@ -349,10 +350,15 @@ class CallcenterController extends Controller
         if (!$client) {
             $client = self::createUser($request);
         }else{
+            $conduct=null;
+            if ($request->challenging)
+              $conduct='challenging';
             $client->update([
-                'sex'=>$request->gender
+                'sex'=>$request->gender,
+                'conduct'=>$conduct
             ]);
         }
+
         $payment_type = $request->payment_type != null ? $request->payment_type : 'online';
         if ($client) {
             //sum price factor cash or credit
@@ -664,18 +670,21 @@ class CallcenterController extends Controller
      */
     private function createUser($request)
     {
+
         $this->validate($request, [
             'name' => 'string|required',
             'family' => 'string|required',
             'gender'=>Rule::in(array(0,1)),
             'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
             'province' => 'required',
-            'city' => 'required',
+            'city' => 'required'
         ]);
 
         $pass = rand(12345, 99999);
         $phone = Helper::numberConverter($request->phone);
-
+        $challenging= null;
+        if ($request->challenging)
+            $challenging='challenging';
         $user = User::create([
             'name' => $request->name,
             'family' => $request->family,
@@ -687,6 +696,7 @@ class CallcenterController extends Controller
             'active' => true,
             'level' => 'user',
             'sex' => $request->gender,
+            'conduct' => $challenging,
             'callcenter_id' => auth()->user()->id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
         ]);
