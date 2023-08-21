@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 class TreasuryController extends Controller
 {
-    public function index()
+    public function calendar()
     {
           $checks=Check::all();
 //            dd(date('d-m-Y', strtotime($checks->date)));
-            return view('Admin.treasury.index',compact('checks'));
+            return view('Admin.treasury.calendar',compact('checks'));
         }
 }

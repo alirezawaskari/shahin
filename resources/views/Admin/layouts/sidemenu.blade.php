@@ -89,7 +89,19 @@
                         <li><a href="{{ route('system.income') }}">درآمد ماهانه و سالانه سیستم</a></li>
                         @endpermission
 
-                        <li><a href="{{ route('treasury.index') }}">خزانه</a></li>
+
+
+                        <li><a href="#"><i class="icon ti-control-record"></i> <span>خزانه</span> </a>
+                            <ul>
+{{--                                @permission('treasury.calendar')--}}
+                                <li><a  href="{{ route('treasury.calendar') }}">تقویم</a></li>
+{{--                                @endpermission--}}
+{{--                                @permission('list-check')--}}
+                                <li><a href="{{ route('check.index') }}">چک ها</a></li>
+{{--                                @endpermission--}}
+                            </ul>
+                        </li>
+
 
                         @permission('factor-deleted-list')
                         <li><a href="{{ route('factor.delete') }}"><i class="icon ti-control-record"></i> <span>سطل زباله</span> </a>

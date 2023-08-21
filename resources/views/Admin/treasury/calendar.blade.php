@@ -4,12 +4,6 @@
     <link rel="stylesheet" href="{{asset('assets/script/fullcalendar/main.min.css')}}">
     <style>
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
-            font-size: 14px;
-        }
 
         #top {
             background: #eee;
@@ -66,7 +60,7 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
                 },
-                initialDate: '2023-08-19',
+                initialDate: new Date(),
                 locale: initialLocaleCode,
                 buttonIcons: false, // show the prev/next text
                 navLinks: true, // can click day/week names to navigate views
@@ -75,64 +69,10 @@
                 events: [
                     @foreach($checks as $check)
                     {
-                      title: '{{$check->id}}',
+                      title: '{{'چک :'.$check->applicantable->name.' '.$check->applicantable->family.'['.number_format($check->amount).' ریال '.']'}}',
                       'start': '{{date('Y-m-d', strtotime($check->date))}}'
                     },
                     @endforeach
-                    {
-                        title: 'All Day Event',
-                        start: '2023-08-19'
-                    },
-                    {
-                        title: 'Long Event',
-                        start: '2023-11-07',
-                        end: '2023-11-10'
-                    },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2021-11-11T16:00:00'
-                    },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2021-11-16T16:00:00'
-                    },
-                    {
-                        title: 'Conference',
-                        start: '2021-11-11',
-                        end: '2021-11-13'
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2021-11-12T10:30:00',
-                        end: '2021-11-12T12:30:00'
-                    },
-                    {
-                        title: 'Lunch',
-                        start: '2021-11-12T12:00:00'
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2021-11-12T14:30:00'
-                    },
-                    {
-                        title: 'Happy Hour',
-                        start: '2021-11-12T17:30:00'
-                    },
-                    {
-                        title: 'Dinner',
-                        start: '2021-11-12T20:00:00'
-                    },
-                    {
-                        title: 'Birthday Party',
-                        start: '2021-11-13T07:00:00'
-                    },
-                    {
-                        title: 'Click for Google',
-                        url: 'http://google.com/',
-                        start: '2021-11-28'
-                    }
                 ]
             });
 
