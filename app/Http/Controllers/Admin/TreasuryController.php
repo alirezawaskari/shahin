@@ -10,8 +10,10 @@ class TreasuryController extends Controller
 {
     public function calendar()
     {
-          $checks=Check::all();
-//            dd(date('d-m-Y', strtotime($checks->date)));
+        if (!auth()->user()->isAbleTo('treasury-calendar')) {
+            return abort(403);
+        }
+            $checks=Check::all();
             return view('Admin.treasury.calendar',compact('checks'));
         }
 }

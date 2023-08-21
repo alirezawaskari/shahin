@@ -28,6 +28,9 @@ class CheckController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->isAbleTo('list-check')) {
+            return abort(403);
+        }
          $can_update_status_check = auth()->user()->isAbleTo('update-status-check');
         return view('Admin.check.all', compact('can_update_status_check'));
     }
