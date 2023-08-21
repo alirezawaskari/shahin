@@ -85,6 +85,9 @@ class SMSController extends Controller
         //
     }
 
+    /**
+     * fetch sms credit
+     */
     public function fetchSmsCredit()
     {
         $iran_sms_credit =0;
