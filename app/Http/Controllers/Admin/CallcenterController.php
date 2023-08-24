@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
 use App\Events\fastserviceCallcenter;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
@@ -27,6 +28,8 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -1252,6 +1255,7 @@ class CallcenterController extends Controller
     public function closeTask(Request $request)
     {
         $task = Callcenter::find($request->task);
+
         if(auth()->user()->isAbleTo('close-task'))
         {
             $task->histories()->create([
@@ -1267,6 +1271,13 @@ class CallcenterController extends Controller
             else
             {
                 $task->register->callcenters()->whereIn('status',[0,1,2,4,6])->update(['status' => 5]);
+            }
+            if ($request->sms_close_task){
+                try {
+                    IranSms::sendSingleSms('closetask',$task->register->phone,['param1'=>auth()->user()->phone,'param2'=>URL::to('/profile')]);
+                }catch (\Exception $e){
+                    Log::error($e->getMessage());
+                }
             }
 
             return response([

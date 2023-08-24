@@ -385,6 +385,14 @@
                                     </div>
                                     <div class="col-12 mb-3">
                                         <div class="form-check">
+                                        <input style="cursor: pointer" type="checkbox" name="sms_close_task" class="form-check-input" id="sms-close-task">
+                                        <label style="cursor: pointer"  class="form-check-label" for="sms-close-task">پیامک بسته شدن
+                                            درخواست و محرومیت ۲ ماهه از خدمات لاله به کابر ارسال گردد.</label>
+                                        </div>
+                                        <hr>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check">
                                             <input class="form-check-input" type="radio" name="close_task_type"
                                                    id="flexRadioDefault1" value="this_task" checked>
                                             <label class="form-check-label" for="flexRadioDefault1">
