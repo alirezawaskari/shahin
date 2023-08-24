@@ -342,7 +342,6 @@ class CallcenterController extends Controller
      */
     public function registerForm(Request $request)
     {
-
         $status = self::getStatusFactorByPayType($request->payment_type);
         $price = 0;
         $cash_factor = [];
@@ -524,12 +523,12 @@ class CallcenterController extends Controller
             'user_id' => $request->callcenter,
             'representation_id' => $callcenter->admin_representation_id,
         ]);
-
+        $auth_user =  auth()->user();
         $task->histories()->create([
             'user_id' => auth()->user()->id,
             'callcenter_id' => $request->callcenter,
             'status' => $task->status,
-            'description' => 'انتقال به همکار دیگر',
+            'description' => "درخواست توسط همکار $auth_user->name  $auth_user->family  به همکار $callcenter->name $callcenter->family انتقال پیدا کرد ",
         ]);
 
         return response([
