@@ -208,5 +208,6 @@ return array(
         'pay_to_family'=>'نام خانوادگی  گیرنده ',
         'pay_to_id'=>'شناسه  گیرنده ',
         'pay_to_province_id'=>'استان  گیرنده ',
+        'category_id'=>'دسته بندی',
     ),
 );
