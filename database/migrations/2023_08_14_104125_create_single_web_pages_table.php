@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('fa_name' , 191);
             $table->string('en_name' , 191);
+            $table->string('agent_id' , 191);
             $table->string('slug' , 191);
             $table->text('image');
             $table->integer('status')->default(true);
