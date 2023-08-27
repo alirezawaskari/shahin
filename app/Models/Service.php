@@ -128,7 +128,13 @@ class Service extends Model
     {
         return $this->belongsToMany(Representation::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function singleWebPages()
+    {
+        return $this->belongsToMany(SingleWebPage::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
