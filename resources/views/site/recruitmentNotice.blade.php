@@ -25,12 +25,31 @@
 
                         </div>
                         <h5 class="mt-5">همکاری و استخدام</h5>
+                        <div class="row">
+                            <div class="col-md-4 alert alert-warning">
+                                لطفا ابتدا استان مورد نظر خود را انتخاب نمایید .
+                            </div>
+                        </div>
+
                         @foreach($errors->all() as $error)
                             <div class="alert alert-danger" role="alert">
                                 {{ $error }}
                             </div>
                         @endforeach
-                        @foreach($recruitment_notices as $recruitment_notice)
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        @foreach($recruitment_notices as $province_id => $province_recruitment_notices)
+                                <li class="nav-item  flex-fill text-center nav-item-service">
+                                    <a class="nav-link  " id="firstData-tab" data-toggle="tab" href="#province_{{$province_id}}" role="tab"
+                                       aria-controls="home" aria-selected="true"> {{'استان '. \App\Models\Province::find($province_id)->name}}</a>
+                                </li>
+                        @endforeach
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            @php($i=1)
+                        @foreach($recruitment_notices as $province_id => $province_recruitment_notices)
+                            <div class="tab-pane fade {{$i == 1?"show active":''}}" id="province_{{$province_id}}" role="tabpanel" aria-labelledby="firstData-tab">
+                                @php($i++)
+                            @foreach($province_recruitment_notices as $recruitment_notice )
                             <button class="accordion text-right mb-2">{{ $recruitment_notice->title .' - '. $recruitment_notice->province->name}}</button>
                             <div class="panel">
                                 <div class="card-body overflow-auto" >
@@ -105,7 +124,7 @@
                                         <div class="form-row mb-2">
                                             <div class="col-6">
                                                 <label>*سابقه بیمه</label>
-                                                <input type="number" name="bime_history" class="form-control" min="0" placeholder="سابقه بیمه(درصورت داشتن بیمه براساس ماه)"  required>
+                                                <input type="number" name="bime_history" class="form-control" min="0" value="0" placeholder="سابقه بیمه(درصورت داشتن بیمه براساس ماه)"  required>
                                             </div>
                                             <div class="col-6">
                                                 <label>نوع شغل درخواستی</label>
@@ -334,7 +353,10 @@
                                     </div>
                                 </form>
                             </div>
+                            @endforeach
+                            </div>
                         @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
