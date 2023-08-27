@@ -26,7 +26,7 @@
                         </div>
                         <h5 class="mt-5">همکاری و استخدام</h5>
                         <div class="row">
-                            <div class="col-md-4 alert alert-warning">
+                            <div class="col-md-4 alert alert-dark">
                                 لطفا ابتدا استان مورد نظر خود را انتخاب نمایید .
                             </div>
                         </div>
