@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Models\Callcenter;
+use App\Models\Province;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
 use App\Models\User;
@@ -36,7 +37,7 @@ class RecruitmentNoticeController extends Controller
      */
     public function index()
     {
-        $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
+        $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get()->groupBy('province_id');
         return view('site.recruitmentNotice', compact('recruitment_notices'));
     }
 
