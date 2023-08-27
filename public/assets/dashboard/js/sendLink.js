@@ -398,6 +398,8 @@ $("body").on('click', '.task-status', function () {
     var div1 = document.createElement('div');
     div1.innerHTML = send_link_var;
     $("#sendLink").append(div1);
+    $("#close-task-description").val('');
+    $("#send-link-factor-tab").click();
     $("#historyBtn, #requestType").hide();
 })
 
