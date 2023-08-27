@@ -21006,5 +21006,32 @@ a.lightbox-close:after {
         border-radius: 50px;
     }
 }
+.nav-tabs .nav-item .nav-link {
+    background-color: #08a2ac;
+    color: #FFF;
+}
 
+.nav-tabs .nav-item {
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    padding-bottom: 5px;
+}
 
+.nav-tabs .nav-item .nav-link.active {
+    color: #f3eded;
+    border-top: solid 5px #f9f5fa;
+    font-size: 17px;
+}
+
+.tab-content {
+    border: 1px solid #dee2e6;
+    border-top: transparent;
+    padding: 15px;
+}
+
+.tab-content .tab-pane {
+    background-color: #FFF;
+
+    min-height: 200px;
+    height: auto;
+}
