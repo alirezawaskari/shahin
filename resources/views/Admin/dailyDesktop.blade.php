@@ -328,7 +328,7 @@
                 </div>
             </div>
             <div class="row justify-content-center">
-                <div class="col-md-5 mt-5 border" >
+                <div class="col-md-8 mt-5 border" >
                     <div class="card">
                         <div class="card-header"><h3>لیست تمدید ها :</h3></div>
                         <div class="card-body table-responsive">
@@ -405,6 +405,29 @@
                                     <td>{{verta($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d')}}</td>
                                     <td>{{ \Carbon\Carbon::make($expire_dates['domain_expire_date_lalebank.com'])->format('Y/m/d') }}</td>
                                 </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-header"><h3>طرح های در حال انقضا :</h3></div>
+                        <div class="card-body table-responsive">
+                            <table class="table">
+                                <thead class="bg-info">
+                                        <tr>
+                                            <th class="text-right">عنوان</th>
+                                            <th>
+                                                اعتبار (روز)
+                                            </th>
+                                            <th> تاریخ انقضا (شمسی )</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($near_end_date_financial_plans as $item)
+                                        <tr  class="{{\Carbon\Carbon::now()->diffInDays($item->end_date, false) <= 4 ? 'table-danger' : 'table-success'}}">
+                                            <td>{{$item->title}}</td>
+                                            <td>{{number_format(\Carbon\Carbon::today()->diffInDays($item->end_date,false))}}</td>
+                                            <td>{{verta($item->end_date)->format('Y/m/d')}}</td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
