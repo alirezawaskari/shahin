@@ -20,6 +20,7 @@ use App\Models\WorkSample;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 
 class AdminController extends Controller
@@ -466,8 +467,12 @@ class AdminController extends Controller
         $expire_dates = null;
         $near_end_date_financial_plans = null;
         if (auth()->user()->hasRole('superadmin')){
-            $expire_dates=ContextController::fetchExpireDates();
-            $near_end_date_financial_plans = FinancialPlansType::whereDate('end_date','>=',Carbon::now()->subDays(5))->whereDate('end_date','<',Carbon::now()->addDays(10))->get();
+            $expire_dates= Cache::remember('expire_dates', Carbon::now()->addHours(12), function() {
+                return ContextController::fetchExpireDates();
+            });
+            $near_end_date_financial_plans= Cache::remember('near_end_date_financial_plans',  Carbon::now()->addHours(12), function() {
+                return FinancialPlansType::whereDate('end_date','>=',Carbon::now()->subDays(5))->whereDate('end_date','<',Carbon::now()->addHours(12))->get();
+            });
         }
 
         return view('Admin.dailyDesktop' , compact('item','expire_dates','near_end_date_financial_plans'));

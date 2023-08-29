@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
 use App\Models\Service;
+use Illuminate\Support\Facades\Cache;
 
 class FinancialPlansTypeController extends Controller
 {
@@ -39,6 +40,7 @@ class FinancialPlansTypeController extends Controller
      */
     public function store(Request $request)
     {
+        Cache::forget('near_end_date_financial_plans');
         $input = $request->all();
 
         if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
@@ -78,6 +80,7 @@ class FinancialPlansTypeController extends Controller
      */
     public function update(FinancialPlansType $financialPlansType , Request $request)
     {
+        Cache::forget('near_end_date_financial_plans');
         $input = $request->all();
 
         if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
