@@ -408,7 +408,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="card-header"><h3>طرح های در حال انقضا :</h3></div>
+                        <div class="card-header"><h3>طرح های در حال انقضا و منقضی شده 10 روز اخیر:</h3></div>
                         <div class="card-body table-responsive">
                             <table class="table">
                                 <thead class="bg-info">
