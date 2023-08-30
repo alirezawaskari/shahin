@@ -471,7 +471,7 @@ class AdminController extends Controller
                 return ContextController::fetchExpireDates();
             });
             $near_end_date_financial_plans= Cache::remember('near_end_date_financial_plans',  Carbon::now()->addHours(12), function() {
-                return FinancialPlansType::whereDate('end_date','>=',Carbon::now()->subDays(5))->whereDate('end_date','<',Carbon::now()->addHours(12))->get();
+                return FinancialPlansType::whereDate('end_date','>=',Carbon::now()->subDays(10))->whereDate('end_date','<',Carbon::now()->addHours(12))->get();
             });
         }
 
