@@ -140,4 +140,20 @@ class Center extends Model
         if($center) return $center->$field;
         return null;
     }
+    /**
+     * Get all of the categories that are assigned this center.
+     */
+    public function categories()
+    {
+        return $this->morphedByMany(Category::class, 'centerable');
+    }
+
+    /**
+     * Get all of the services that are assigned this center.
+     */
+    public function services()
+    {
+        return $this->morphedByMany(Service::class, 'centerable');
+    }
+
 }

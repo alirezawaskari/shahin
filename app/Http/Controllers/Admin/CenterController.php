@@ -39,7 +39,7 @@ class CenterController extends AdminController
         $this->validate( request(), [
             'title' => 'required|string',
             'address' => 'required',
-        ] );
+        ]);
 
         //create centerRequest
         $item = $request->item;

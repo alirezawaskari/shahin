@@ -34,7 +34,7 @@ class UserCollection extends ResourceCollection
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setDeletePermission(),
                     'task_count' => Callcenter::where('user_id', $item->id)->count(),
-                    'conduct' => $this->conduct
+                    'conduct' => $item->conduct
                 ];
             })
         ];
