@@ -25,5 +25,11 @@ class Slider extends Model
     {
         return $this->belongsTo(Category::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation()
+    {
+        return $this->belongsTo(Representation::class);
+    }
 }
