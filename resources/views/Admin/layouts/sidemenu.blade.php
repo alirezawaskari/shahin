@@ -376,6 +376,13 @@
                 </ul>
             </li>
             @endpermission
+            @permission('single_web_page')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>تک صفحه ها</span> </a>
+                <ul>
+                    <li><a href="{{ route('singleWebPage.index') }}">فهرست تک صفحه ها</a></li>
+                </ul>
+            </li>
+            @endpermission
 			@permission('contract')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>قراردادها</span> </a>
                 <ul>

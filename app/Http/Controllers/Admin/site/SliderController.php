@@ -101,10 +101,14 @@ class SliderController extends Controller
             ]
         );
         $request['type'] = 4;
-        $s = Slider::create($request->all());
+        $slider = Slider::create($request->all());
         if(isset( $request->image_path)) {
-            $s->img = Helper::moveImage($request->image_path,'slider');
-            $s->save();
+            $slider->img = Helper::moveImage($request->image_path,'slider');
+            $slider->save();
+        }
+        if(auth()->user()->admin_representation_id)
+        {
+            $slider->update(['representation_id' => auth()->user()->admin_representation_id]);
         }
 
         return redirect()->back()->with(['create' => 'success']);
