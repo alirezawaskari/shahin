@@ -63,7 +63,11 @@
                         </li>
                         @endif
                         <li class="nav-item">
+                            @if (session()->has('representation'))
+                            <a class="nav-link text-dark" href="/representation/{{ session()->get('representation') }}">خانه</a>
+                            @else
                             <a class="nav-link text-dark" href="/">خانه</a>
+                            @endif
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="{{ route('site.help') }}">قوانین سایت</a>
@@ -80,9 +84,13 @@
                                 aria-labelledby="navbarDropdownMenuLink">
                                 @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
                                 true)->orderBy('created_at', 'desc')->get() as $item)
+                                @if (session()->has('representation'))
+                                <a class="dropdown-item text-orange py-2" href="{{ url('representation/'.session()->get('representation').'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
+                                @else
                                 <a class="dropdown-item text-orange py-2"
-                                    href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
-                                    $item->title }}</a>
+                                href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
+                                $item->title }}</a>
+                                @endif
                                 @endforeach
                             </div>
                         </li>
