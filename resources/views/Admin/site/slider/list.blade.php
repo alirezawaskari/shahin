@@ -29,6 +29,7 @@
                 <tr>
                     <th>عکس</th>
                     <th>عنوان</th>
+                    <th>نمایندگی</th>
                     <th>اقدام</th>
                 </tr>
                 </thead>
@@ -41,7 +42,7 @@
                             @endif
                         </td>
                         <td>{{$item->title}} </td>
-
+                        <td>{{$item->representation ? $item->representation->fa_name : 'نمایندگی کل'}} </td>
                         <td>
                             <div data-v-15965e3b="" class="dropdown">
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
