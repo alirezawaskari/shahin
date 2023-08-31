@@ -115,6 +115,7 @@ $(document).ready(function () {
                         if (data.back_image!='') {
                             return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
                         }
+                        return '';
                     }
                 },
                 {"data": "description"},
@@ -145,8 +146,6 @@ $(document).ready(function () {
                         }
                     }
                 },
-
-
 
                 {
                     "data": data,
@@ -231,6 +230,7 @@ $(document).ready(function () {
         check_form_data.append('exporter_phone', $('#check-exporter-phone').val());
         check_form_data.append('exporter_name', $('#exporter_name').val());
         check_form_data.append('exporter_family', $('#exporter-family').val());
+        check_form_data.append('exporter_gender', $('.exporter_gender').val());
         check_form_data.append('exporter_province_id', $('#exporter_province_id').val());
         check_form_data.append('exporter_city_id', $('#exporter_city_id').val());
         //---pay to user data ---
@@ -238,6 +238,7 @@ $(document).ready(function () {
         check_form_data.append('pay_to_phone', $('#check-payto-phone').val());
         check_form_data.append('pay_to_name', $('#pay_to_name').val());
         check_form_data.append('pay_to_family', $('#pay_to_family').val())
+        check_form_data.append('pay_to_gender', $('.pay_to_gender').val())
         check_form_data.append('pay_toprovince_id', $('#province_id').val());
         check_form_data.append('pay_to_city', $('#city_id').val());
         //--- other data of store check form ---
@@ -464,8 +465,13 @@ function searchUser(search,type) {
                 $(".exporter_name").attr('value', data.data.user.name ? data.data.user.name : '');
                 $(".exporter_id").attr('value', data.data.user.id ? data.data.user.id : '');
                 $(".exporter_family").attr('value', data.data.user.family ? data.data.user.family : '');
-                $(".exporter_province_id").val(data.data.user.province_id);
-                $(".exporter_city_id").val(data.data.user.city_id).change();
+                $(".exporter_province_id").val(data.data.user.province_id).change();
+                  data.data.user.sex == 1?$("#exporter-female-gender").prop('checked', true):$("#exporter-male-gender").prop('checked', true);
+                setTimeout(function(){
+                    $(".exporter_city_id").val(data.data.user.city_id).change();
+                }, 2000);
+
+
                 if (!data.data.user.name) {
                     //clear value of exporter_id
                      $(".exporter_id").attr('value','');
@@ -479,8 +485,12 @@ function searchUser(search,type) {
                 $(".pay_to_name").attr('value', data.data.user.name ? data.data.user.name : '');
                 $(".pay_to_id").attr('value', data.data.user.id ? data.data.user.id : '');
                 $(".pay_to_family").attr('value', data.data.user.family ? data.data.user.family : '');
-                $(".pay_to_province_id").val(data.data.user.province_id);
-                $(".pay_to_city_id").val(data.data.user.city_id).change();
+                $(".pay_to_province_id").val(data.data.user.province_id).change();
+                 data.data.user.sex == 1?$("#pay-to-female-gender").prop('checked', true):$("#pay-to-male-gender").prop('checked', true);
+                setTimeout(function(){
+                    $(".pay_to_city_id").val(data.data.user.city_id).change();
+                }, 1000);
+
                 if (!data.data.user.name) {
                     //clear value of exporter_id
                      $(".pay_to_id").attr('value','');
@@ -494,6 +504,7 @@ function searchUser(search,type) {
                 $(".receiver_name").attr('value', data.data.user.name ? data.data.user.name : '');
                 $(".receiver_id").attr('value', data.data.user.id ? data.data.user.id : '');
                 $(".receiver_family").attr('value', data.data.user.family ? data.data.user.family : '');
+                data.data.user.sex == 1?$("#receiver-female-gender").prop('checked', true):$("#receiver-male-gender").prop('checked', true);
                 if (!data.data.user.name) {
                     //clear value of exporter_id
                      $(".receiver_id").attr('value','');

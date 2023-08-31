@@ -313,13 +313,13 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr class="{{$iran_sms_credit <= 20000 ? 'table-danger' : 'table-success'}}">
+                            <tr id="tr-iran-sms" class="table-success">
                                 <td>پنل پیامکی IRAN SMS</td>
-                                @if($iran_sms_credit_error)
-                                    <td><span class=" alert alert-warning" >عدم دسترسی به اطلاعات IRAN SMS</span>  </td>
-                                @else
-                                    <td><span >{{number_format($iran_sms_credit).' ریال '}}</span>  </td>
-                                @endif
+
+                                    <td><span id="iran-sms-credit"></span>
+                                        <i style="display: none;padding-right: 10px" class=" fetch-iran-sms-credit-success fa fa-check-square" ></i>
+                                        <i class="fetch-iran-sms-credit  fa fa-refresh" style="cursor: pointer;padding-right: 10px"></i> </td>
+
                             </tr>
 
                             </tbody>
@@ -328,7 +328,7 @@
                 </div>
             </div>
             <div class="row justify-content-center">
-                <div class="col-md-5 mt-5 border" >
+                <div class="col-md-8 mt-5 border" >
                     <div class="card">
                         <div class="card-header"><h3>لیست تمدید ها :</h3></div>
                         <div class="card-body table-responsive">
@@ -408,6 +408,29 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="card-header"><h3>طرح های در حال انقضا و منقضی شده 10 روز اخیر:</h3></div>
+                        <div class="card-body table-responsive">
+                            <table class="table">
+                                <thead class="bg-info">
+                                        <tr>
+                                            <th class="text-right">عنوان</th>
+                                            <th>
+                                                اعتبار (روز)
+                                            </th>
+                                            <th> تاریخ انقضا (شمسی )</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($near_end_date_financial_plans as $item)
+                                        <tr  class="{{\Carbon\Carbon::now()->diffInDays($item->end_date, false) <= 4 ? 'table-danger' : 'table-success'}}">
+                                            <td>{{$item->title}}</td>
+                                            <td>{{number_format(\Carbon\Carbon::today()->diffInDays($item->end_date,false))}}</td>
+                                            <td>{{verta($item->end_date)->format('Y/m/d')}}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -417,6 +440,8 @@
 @stop
 
 @section('js')
+    <script src="/assets/dashboard/js/layouts.js"></script>
+    <script src="/assets/dashboard/js/dailyDesktop.js"></script>
     <script>
         function openNav() {
             if (document.getElementById("myNav").style.width == "4%") {

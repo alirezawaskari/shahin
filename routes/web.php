@@ -45,24 +45,6 @@ Route::group([], function () {
         Artisan::call('cache:clear');
     });
 
-    Route::get('/routes', function () {
-        $routes =Route::getRoutes();
-        $get_method_routes = array();
-        foreach ($routes as $item) {
-            if ($item->methods()[0] == 'GET'){
-                $get_method_routes[]=$item;
-            }
-        }
-         dd((collect($get_method_routes)->pluck('uri'))->toArray());
-    });
-
-    Route::get('/carbon', function () {
-
-         $date= \Carbon\Carbon::today()->toDateString();
-
-    });
-
-
     Route::get('/clear-config', function () {
         Artisan::call('config:clear');
     });
@@ -131,6 +113,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
         ]);
     });
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
+    Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
     Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cash-debtors');
     Route::get('/accounting/installment-debtors' , [AccountingController::class,'installmentDebtorsIndex'])->name('accounting.installment.index');
@@ -194,10 +177,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('/category-permission', 'CategoryPermissionController');
     Route::post('/factor-update' , 'FactorController@update');
     //check
+    Route::get('/check/repair' , 'CheckController@repair');
     Route::get('/check/filter' , 'CheckController@filter');
     Route::post('/check/update-status' , 'CheckController@updateStatus');
     Route::resource('/check', 'CheckController');
     Route::post('/check/update/{check}', 'CheckController@update')->name('check.update');
+    //treasury
+    Route::get('/treasury/index' , 'TreasuryController@calendar')->name('treasury.calendar');
     //total factor item
     Route::post('/totalFactorItem/suspension', 'TotalFactorItemController@suspension')->name('totalFactorItem.suspension');
     Route::get('/totalFactorItem/desktop', 'TotalFactorItemController@desktop')->name('totalFactorItem.desktop');

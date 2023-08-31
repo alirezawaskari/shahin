@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
  {
@@ -101,13 +102,16 @@ class RegisterController extends Controller
                 $callcenterusers[] = $u;
             }
         }
-        Callcenter::create( [
+        $task=Callcenter::create([
             'reg_id' => $user->id,
             'user_id' => array_rand( $callcenterusers )->id,
             'type' => 0,
             'status' => '0',
             'representation_id' => Arr::has( $data, 'representation' ) ? $data[ 'representation' ] : null
-        ] );
+        ]);
+        if (isset( $data[ 'service_id' ])&& !is_null($data[ 'service_id' ])){
+            $task->services()->attach($data['service_id']);
+        }
         Callcenterstatus::create( [
             'user_id' => array_rand( $callcenterusers )->id,
         ] );
@@ -125,6 +129,7 @@ class RegisterController extends Controller
             'family' => 'required|string',
             'province_id' => 'required|numeric',
             'city_id' => 'required|numeric',
+            'gender' =>[ 'required',Rule::in(array(1,0))],
             'area_id' => 'nullable|numeric',
             'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
         ] );
@@ -143,6 +148,7 @@ class RegisterController extends Controller
             'province_id' => $request->input( 'province_id' ),
             'city_id' => $request->input( 'city_id' ),
             'area_id' => $request->input( 'area_id' ),
+            'sex' => $request->gender,
             'active' => 1,
             'password' => Hash::make( $pass ),
             'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,
@@ -208,6 +214,9 @@ class RegisterController extends Controller
                 'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,
                 'status' => '0'
             ] );
+            if ($request->service_id){
+                $task->services()->attach(array($request->service_id));
+            }
             Callcenterstatus::create( [
                 'user_id' => $request->input( 'callcenter_id' ) != null ? $request->input( 'callcenter_id' ) : $id,
             ] );

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
 use App\Models\sms;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -82,5 +83,20 @@ class SMSController extends Controller
     public function destroy(sms $sms)
     {
         //
+    }
+
+    /**
+     * fetch sms credit
+     */
+    public function fetchSmsCredit()
+    {
+        $iran_sms_credit =0;
+        $iran_sms_credit_error=false;
+        try {
+            $iran_sms_credit=IranSms::fetchCredit()->credit;
+        }catch (\Exception $e){
+            $iran_sms_credit_error=true;
+        }
+        return response([ 'data' => ['iran_sms_credit'=>$iran_sms_credit,'iran_sms_credit_error' => $iran_sms_credit_error]]);
     }
 }

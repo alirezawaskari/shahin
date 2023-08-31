@@ -31,7 +31,7 @@ class AgencyExport implements FromCollection , ShouldAutoSize ,WithHeadings{
     public function collection()
     {
 
-        $this->agencies = $this->agencies;
+        $this->agencies = $this->agencies->get();
         $factors2 = $this->agencies->map(function ($item) {
             $temp = [];
             $temp['user_name'] = $item->name;

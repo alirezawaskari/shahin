@@ -9,6 +9,7 @@ use App\Models\City;
 use App\Models\Contact;
 use App\Models\Factor;
 use App\Models\FactorItem;
+use App\Models\FinancialPlansType;
 use App\Models\PurchaseInvoice;
 use App\Models\Representation;
 use App\Models\Resume;
@@ -19,6 +20,7 @@ use App\Models\WorkSample;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 
 class AdminController extends Controller
@@ -461,16 +463,19 @@ class AdminController extends Controller
             $item['count_factoritem_superadmin'] = TotalFactorItem::where('total_factor_item_status_id', 8)->count();
             $item['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
         }
-        $expire_dates=ContextController::fetchExpireDates();
-        $iran_sms_credit =0;
-        $iran_sms_credit_error=false;
-        try {
-            $iran_sms_credit=IranSms::fetchCredit()->credit;
-        }catch (\Exception $e){
-            $iran_sms_credit_error=true;
+
+        $expire_dates = null;
+        $near_end_date_financial_plans = null;
+        if (auth()->user()->hasRole('superadmin')){
+            $expire_dates= Cache::remember('expire_dates', Carbon::now()->addHours(12), function() {
+                return ContextController::fetchExpireDates();
+            });
+            $near_end_date_financial_plans= Cache::remember('near_end_date_financial_plans',  Carbon::now()->addHours(12), function() {
+                return FinancialPlansType::whereDate('end_date','>=',Carbon::now()->subDays(10))->whereDate('end_date','<',Carbon::now()->addHours(12))->get();
+            });
         }
 
-        return view('Admin.dailyDesktop' , compact('item','expire_dates','iran_sms_credit','iran_sms_credit_error'));
+        return view('Admin.dailyDesktop' , compact('item','expire_dates','near_end_date_financial_plans'));
     }
 
     /**

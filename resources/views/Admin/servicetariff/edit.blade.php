@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-body">
             <form class="form-horizontal" role="form" method="post"
-                  action="{{route('serviceTariff.update' , ['slug' => $serviceTariff->slug])}}"
+                  action="{{route('serviceTariff.update' ,  $serviceTariff->slug )}}"
                   enctype="multipart/form-data">
                 @csrf
                 @method('PATCH')

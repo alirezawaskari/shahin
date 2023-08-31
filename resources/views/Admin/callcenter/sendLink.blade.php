@@ -4,7 +4,7 @@
         <div class="row text-dark">
             <div class="col-12 col-md-6">
                 <div class="card">
-                    <div class="card-body searchUser">
+                    <div class="card-body searchUser row">
                         <div class="col-12 row">
                             <div class="col-12 col-md-9 mb-3 mt-3">
                                 <input class="phone form-control my-2" type="text" name="phone" required
@@ -25,7 +25,7 @@
                         </div>
                         <p class="text-danger text-center error_user"></p>
 
-                        <div class="col-12 mb-3 mt-3">
+                        <div class="col-6 mb-3 mt-3">
                             <input class="form-control my-2 name" type="text" id="name" name="name" required
                                 placeholder="نام" value="{{ old('name') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
                             @if ($errors->has('name'))
@@ -34,7 +34,7 @@
                             @endif
                         </div>
 
-                        <div class="col-12 mb-3 mt-3">
+                        <div class="col-6 mb-3 mt-3">
                             <input class="form-control my-2 family" type="text" id="family" name="family" required
                                 placeholder="نام خانوادگی" value="{{ old('family') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
                             @if ($errors->has('family'))
@@ -43,7 +43,7 @@
                             @endif
                         </div>
 
-                        <div class="col-12 mb-3 mt-3">
+                        <div class="col-6 mb-3 mt-3">
                             <select class="form-control my-2 province_id" type="int" name="province" id="province"
                                 required>
                                 <option value="">انتخاب استان</option>
@@ -54,7 +54,7 @@
                             </select>
                         </div>
 
-                        <div class="col-12 mb-3 mt-3">
+                        <div class="col-6 mb-3 mt-3">
                             <select class="form-control my-2 city_id" type="int" name="city" id="cities" required>
                                 <option value="">انتخاب شهر</option>
                                 @foreach(\App\Models\City::all() as $city)
@@ -63,23 +63,44 @@
                             </select>
                         </div>
 
-                        <div class="col-12 mb-3 mt-3">
+                        <div class="col-6 mb-3 mt-3">
+                            <div class="form-check" >
+                                <input style="cursor: pointer" class="form-check-input" type="radio" name="gender" id="female-gender" value="1">
+                                <label class="form-check-label" for="female-gender">
+                                    خانم
+                                </label>
+                            </div>
+                            <div class="form-check" >
+                                <input style="cursor: pointer" class="form-check-input" type="radio" name="gender" id="male-gender" checked value="0">
+                                <label class="form-check-label" for="male-gender">
+                                  آقا
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-6 mb-3 mt-3">
                             <select class="form-control my-2" type="int" name="request_type" id="requestType" required>
                                 <option value="link">نوع درخواست کاربر - ارسال لینک</option>
                                 <option value="other">نوع درخواست کاربر - سایر</option>
                             </select>
                         </div>
 
-                        <div class="col-md-2 mt-3 mb-3">
+                        <div class="col-md-6 mt-3 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input vipCheck" id="vipCheck" name="vip">
-                                <label class="custom-control-label" for="vipCheck">VIP</label>
+                                <label class="custom-control-label" for="vipCheck">ثروتمند/توانمند</label>
                             </div>
                         </div>
-                        <div class="col-md-3 mt-2 mb-3">
+                        <div class="col-md-6 mt-2 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input sosCheck" id="sosCheck" name="sos">
-                                <label class="custom-control-label" for="sosCheck">SOS</label>
+                                <label class="custom-control-label" for="sosCheck">فقیر/کم توان</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-2 mb-3">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input challenging-check" id="challenging" name="challenging">
+                                <label class="custom-control-label" for="challenging">چالش انگیز</label>
                             </div>
                         </div>
 
@@ -87,7 +108,7 @@
                             <hr>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="send-factor" name="send_factor" value="1" >
-                                <label class="form-check-label">ارسال فاکتور</label>
+                                <label class="form-check-label" for="send-factor">ارسال فاکتور</label>
                             </div>
                         </div>
                     </div>

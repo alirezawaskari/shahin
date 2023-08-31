@@ -109,18 +109,21 @@ $(document).ready(function () {
     $("form").submit(function (event) {
         var form = $(this);
         var formData = form.serialize();
-        $.ajax({
-            type: "GET",
-            url: "/dashboard/agency/filter",
-            data: formData,
-            dataType: "json",
-            encode: true,
-        }).done(function (data) {
-            $('#pagination-demo').remove();
-            $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-            createTable(data);
-        });
-
+        if ($('#exel').prop('checked') == false) {
+            $.ajax({
+                type: "GET",
+                url: "/dashboard/agency/filter",
+                data: formData,
+                dataType: "json",
+                encode: true,
+            }).done(function (data) {
+                $('#pagination-demo').remove();
+                $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
+                createTable(data);
+            });
+        }else {
+            form.submit();
+        }
         event.preventDefault();
     });
 });

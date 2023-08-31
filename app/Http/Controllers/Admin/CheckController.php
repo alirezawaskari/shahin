@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\userActivation;
 use App\Exports\CheckExport;
 use App\Helpers\Helper;
 use App\Http\Resources\CheckCollection;
@@ -27,8 +28,10 @@ class CheckController extends Controller
      */
     public function index()
     {
-
-        $can_update_status_check = auth()->user()->isAbleTo('update-status-check');
+        if (!auth()->user()->isAbleTo('list-check')) {
+            return abort(403);
+        }
+         $can_update_status_check = auth()->user()->isAbleTo('update-status-check');
         return view('Admin.check.all', compact('can_update_status_check'));
     }
 
@@ -115,12 +118,6 @@ class CheckController extends Controller
         if (!auth()->user()->isAbleTo('delete-check') || $check->checkable->confirm == 1) {
             return abort(403);
         }
-
-        $auth_user = auth()->user();
-//        $auth_user_full_name=$auth_user->name.' '.$auth_user->family;
-//        $check->histories()->create([
-//            'description'=>"  چک حذف گردید ، شناسه و نام کاربر حذف کننده :"." $auth_user_full_name _".$auth_user->id
-//        ]);
         $check->delete();
         return response(['status' => 'success']);
     }
@@ -134,7 +131,6 @@ class CheckController extends Controller
      */
     public function store(Request $request)
     {
-
         if (!auth()->user()->isAbleTo('store-check')) {
             return abort(403);
         }
@@ -150,8 +146,8 @@ class CheckController extends Controller
         }
 
         //find exporter and payer user
-        is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id) : $exporter = User::find($request->exporter_id);
-        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id) : $pay_to = User::find($request->pay_to_id);
+        is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id, $request->exporter_gender) : $exporter = User::find($request->exporter_id);
+        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id, $request->gender) : $pay_to = User::find($request->pay_to_id);
 
         $applicant = User::find($request->applicant_id);
 
@@ -277,6 +273,7 @@ class CheckController extends Controller
             'receiver_phone' => 'required_if:receiver_id,null|required_if:status,4|regex:/(09)[0-9]{9}/|digits:11',
             'receiver_name' => 'required_if:receiver_id,null|required_if:status,4|string',
             'receiver_family' => 'required_if:receiver_id,null|required_if:status,4|string',
+            'receiver_gender' => ['required', Rule::in(array(0, 1))],
         ]);
 
         $error_messages = array();
@@ -338,8 +335,6 @@ class CheckController extends Controller
         $check->update([
             'status' => 2
         ]);
-//        $history_text=" چک برگشت خورد ، شناسه و نام کاربر ثبت کننده برگشت :";
-//        $this->storeCheckActionHistory($check,$history_text);
     }
 
     /**
@@ -350,8 +345,7 @@ class CheckController extends Controller
         $check->update([
             'status' => 3
         ]);
-//        $history_text="  چک عودت داده شد ، شناسه و نام کاربر ثبت کننده عودت:";
-//        $this->storeCheckActionHistory($check,$history_text);
+
     }
 
     /**
@@ -366,12 +360,14 @@ class CheckController extends Controller
             'exporter_phone' => 'required_if:exporter_id,null|regex:/(09)[0-9]{9}/|digits:11',
             'exporter_name' => 'required_if:exporter_id,null|string',
             'exporter_family' => 'required_if:exporter_id,null|string',
+            'exporter_gender' => ['required',Rule::in(array(0,1))],
             'exporter_province_id' => 'required_if:exporter_id,null|numeric|exists:provinces,id',
             'exporter_city_id' => 'required_if:exporter_id,null|numeric|exists:cities,id',
             'pay_to_id' => 'nullable|numeric|exists:users,id',
             'pay_to_phone' => 'required_if:pay_to_id,null|regex:/(09)[0-9]{9}/|digits:11',
             'pay_to_name' => 'required_if:pay_to_id,null|string',
             'pay_to_family' => 'required_if:pay_to_id,null|string',
+            'pay_to_gender' =>['required',Rule::in(array(0,1))],
             'pay_to_province_id' => 'required_if:pay_to_id,null|numeric|exists:provinces,id',
             'pay_to_city' => 'required_if:pay_to_id,null|numeric|exists:cities,id',
             'amount' => ['required'],
@@ -401,7 +397,7 @@ class CheckController extends Controller
      * @param $request
      * @return mixed
      */
-    private function createUser($phone, $name, $family, $province_id, $city_id)
+    private function createUser($phone, $name, $family, $province_id, $city_id,$gender)
     {
         $pass = rand(12345, 99999);
         $phone = Helper::numberConverter($phone);
@@ -410,6 +406,7 @@ class CheckController extends Controller
             'name' => $name,
             'family' => $family,
             'phone' => $phone,
+            'sex' => $gender,
             'password' => Hash::make($pass),
             'active' => true,
             'level' => 'user',
@@ -458,8 +455,36 @@ class CheckController extends Controller
        if (isset($request->receiver_id)){
            $receiver=User::find($request->receiver_id);
        }else{
-           $receiver=$this->createUser($request->receiver_phone,$request->receiver_name,$request->receiver_family,null,null);
+           $receiver=$this->createUser($request->receiver_phone,$request->receiver_name,$request->receiver_family,null,null,$request->receiver_gender);
        }
        return $receiver;
+    }
+
+    public function repair()
+    {
+        $checks = Check::all();
+        $user_receiver= User::find(63);
+        foreach ($checks as $check){
+            $check_owner = $check->checkable->factor->user;
+            if (is_null($check->applicantable_id)){
+                $check->update([
+                    'applicantable_id'=>$check_owner->id,
+                    'applicantable_type'=>get_class($check_owner)
+                ]);
+            }
+            if (is_null($check->exportable_id)){
+                $check->update([
+                    'exportable_id'=>$check_owner->id,
+                    'exportable_type'=>get_class($check_owner)
+                ]);
+            }
+            if (is_null($check->paytoable_id )){
+                $check->update([
+                    'paytoable_id'=>$user_receiver->id,
+                    'paytoable_type'=>get_class($user_receiver)
+                ]);
+            }
+        }
+        return Check::all();
     }
 }

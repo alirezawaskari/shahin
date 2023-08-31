@@ -105,15 +105,13 @@
                     @include('Admin.filter.productServiceFilterInputs')
                     @permission('callcenter-detail')
                     <div class="col-12 col-md-3 mb-2">
-                        <select name="user" class="custom-select select2">
-                            <option value="all">انتخاب کالسنتر</option>
+                        <select  name="users[]" multiple="multiple" class="custom-select select2" id="user_callcenter">
                             @foreach($callcenters as $item)
                                 <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2"><select name="agent" class="custom-select select2">
-                            <option value="all">انتخاب بازاریاب</option>
+                    <div class="col-12 col-md-3 mb-2"><select name="agents[]" multiple="multiple" id="user_agents" class="custom-select select2">
                             @foreach($callcenters as $item)
                                 <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
                             @endforeach
@@ -205,8 +203,7 @@
                         <th>موضوع درخواست</th>
                         <th>وضعیت</th>
                         <th>تاریخ</th>
-                        <th>vip</th>
-                        <th>sos</th>
+                        <th>شرایط ویژه</th>
                         <th>اقدام</th>
                     </tr>
                     </thead>
@@ -298,9 +295,9 @@
                                                                        class="form-control"></textarea>
                                     </div>
                                     <input type="hidden" class="task" name="task" value="">
-                                    <label> VIP </label>
+                                    <label> ثروتمند/توانمند </label>
                                     <input type="checkbox" name="vip" id="custom-check-vip" class="mr-2 ml-2"> <label>
-                                        SOS </label>
+                                        فقیر/کم توان </label>
                                     <input type="checkbox" name="sos" id="custom-check-sos" class="mr-2">
                                     <input value="ثبت" class="btn btn-success border-0 btn-block" id="submit-status">
                                 </div>
@@ -385,6 +382,14 @@
                                                                        placeholder="دلیل بستن درخواست"
                                                                        name="description"
                                                                        class="form-control"></textarea>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check">
+                                        <input style="cursor: pointer" type="checkbox" name="sms_close_task" class="form-check-input" id="sms-close-task">
+                                        <label style="cursor: pointer"  class="form-check-label" for="sms-close-task">پیامک بسته شدن
+                                            درخواست و محرومیت ۲ ماهه از خدمات لاله به کابر ارسال گردد.</label>
+                                        </div>
+                                        <hr>
                                     </div>
                                     <div class="col-12 mb-3">
                                         <div class="form-check">

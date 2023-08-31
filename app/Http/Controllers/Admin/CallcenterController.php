@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
 use App\Events\fastserviceCallcenter;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
@@ -27,6 +28,8 @@ use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -348,7 +351,16 @@ class CallcenterController extends Controller
         //create new user
         if (!$client) {
             $client = self::createUser($request);
+        }else{
+            $conduct=null;
+            if ($request->challenging)
+              $conduct='challenging';
+            $client->update([
+                'sex'=>$request->gender,
+                'conduct'=>$conduct
+            ]);
         }
+
         $payment_type = $request->payment_type != null ? $request->payment_type : 'online';
         if ($client) {
             //sum price factor cash or credit
@@ -511,12 +523,12 @@ class CallcenterController extends Controller
             'user_id' => $request->callcenter,
             'representation_id' => $callcenter->admin_representation_id,
         ]);
-
+        $auth_user =  auth()->user();
         $task->histories()->create([
             'user_id' => auth()->user()->id,
             'callcenter_id' => $request->callcenter,
             'status' => $task->status,
-            'description' => 'انتقال به همکار دیگر',
+            'description' => "درخواست توسط همکار $auth_user->name  $auth_user->family  به همکار $callcenter->name $callcenter->family انتقال پیدا کرد ",
         ]);
 
         return response([
@@ -660,17 +672,21 @@ class CallcenterController extends Controller
      */
     private function createUser($request)
     {
+
         $this->validate($request, [
             'name' => 'string|required',
             'family' => 'string|required',
+            'gender'=>Rule::in(array(0,1)),
             'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
             'province' => 'required',
-            'city' => 'required',
+            'city' => 'required'
         ]);
 
         $pass = rand(12345, 99999);
         $phone = Helper::numberConverter($request->phone);
-
+        $challenging= null;
+        if ($request->challenging)
+            $challenging='challenging';
         $user = User::create([
             'name' => $request->name,
             'family' => $request->family,
@@ -681,6 +697,8 @@ class CallcenterController extends Controller
             'password' => Hash::make($pass),
             'active' => true,
             'level' => 'user',
+            'sex' => $request->gender,
+            'conduct' => $challenging,
             'callcenter_id' => auth()->user()->id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
         ]);
@@ -1236,6 +1254,7 @@ class CallcenterController extends Controller
     public function closeTask(Request $request)
     {
         $task = Callcenter::find($request->task);
+
         if(auth()->user()->isAbleTo('close-task'))
         {
             $task->histories()->create([
@@ -1251,6 +1270,13 @@ class CallcenterController extends Controller
             else
             {
                 $task->register->callcenters()->whereIn('status',[0,1,2,4,6])->update(['status' => 5]);
+            }
+            if ($request->sms_close_task){
+                try {
+                    IranSms::sendSingleSms('closetask',$task->register->phone,['param1'=>auth()->user()->phone,'param2'=>URL::to('/profile')]);
+                }catch (\Exception $e){
+                    Log::error($e->getMessage());
+                }
             }
 
             return response([

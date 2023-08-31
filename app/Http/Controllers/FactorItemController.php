@@ -84,8 +84,12 @@ class FactorItemController extends Controller
         $item['contract_values'] = $factorItem->contract_values;
         $item['factor_image'] = $factorItem->factor_image;
         $item['status_factor'] = $factorItem->status_factor;
-		$item['status_mali'] = $factorItem->status_mali;
-		$item['status_mali_text'] = FactorItem::statusMali($factorItem->status_mali);
+		$item['status_mali'] = $factorItem->totalFactorItem->status_mali??$factorItem->status_mali;
+	  //$item['status_mali'] = $factorItem->status_mali;
+      //$item['status_mali_text'] = FactorItem::statusMali($factorItem->status_mali);
+		$item['status_mali_text'] = isset($factorItem->totalFactorItem)?FactorItem::statusMali($factorItem->totalFactorItem->status_mali): FactorItem::statusMali($factorItem->status_mali);
+
+
         $item['status_user'] = FactorItem::statusFactor($factorItem->status_factor);
         $item['confirms'] = $factorItem->confirms;
         $item['center'] = $factorItem->center;

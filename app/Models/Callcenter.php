@@ -78,8 +78,8 @@ class Callcenter extends Model implements AuditableContract
         $startDate = request('startDate');
         $endDate = request('endDate');
         $status = request('status');
-        $user = request('user');
-        $agent = request('agent');
+        $users = request('users');
+        $agents = request('agents');
         $service = request('service');
         $representation = request('representation');
         $province = request('province');
@@ -159,6 +159,7 @@ class Callcenter extends Model implements AuditableContract
         }
 
         if (isset($description) && trim($description) != '') {
+            $query->where('description', 'LIKE', '%'.$description.'%');
             $query->whereHas('histories', function ($query) use ($description) {
                 $query->where('description', 'LIKE', '%'.$description.'%');
             });
@@ -267,12 +268,14 @@ class Callcenter extends Model implements AuditableContract
                 }
             }
 
-            if (isset($user) && trim($user) != '' && $user != 'all') {
-                $query->where('user_id', $user);
+            if (isset($users) && count($users) > 0) {
+                $query->whereIn('user_id',$users);
             }
-            if (isset($agent) && trim($agent) != '' && $agent != 'all') {
-                $query->where('agent_id', $agent);
+
+            if (isset($agents) && count($agents) > 0) {
+                $query->whereIn('agent_id',$agents);
             }
+
         }
         elseif(auth()->user()->hasPermission('callcenter'))
         {

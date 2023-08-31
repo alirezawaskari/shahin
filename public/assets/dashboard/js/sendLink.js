@@ -221,7 +221,17 @@ function searchUser(search) {
                 $('.error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
             } else {
                 $('.error_user').text('');
+                if (data.data.user.sex == 0){
+                    $("#male-gender").prop("checked", true);
+                }else{
+                    $("#female-gender").prop("checked", true);
+                }
             }
+            if(data.data.user.conduct == "challenging")
+                $("#challenging").prop("checked", true);
+            else
+                $("#challenging").prop("checked", false);
+
             generateDataTableUserHistories(data.data.histories);
             generateDataTableUserFactors(data.data.factors);
             fillInProgressTableBody(data.data.tasks)
@@ -388,6 +398,8 @@ $("body").on('click', '.task-status', function () {
     var div1 = document.createElement('div');
     div1.innerHTML = send_link_var;
     $("#sendLink").append(div1);
+    $("#close-task-description").val('');
+    $("#send-link-factor-tab").click();
     $("#historyBtn, #requestType").hide();
 })
 

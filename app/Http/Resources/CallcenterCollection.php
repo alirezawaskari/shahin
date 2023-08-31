@@ -53,8 +53,10 @@ class CallcenterCollection extends ResourceCollection
                 'province_id' => $user->province_id,
                 'city_id' => $user->city_id,
                 'register_status' => true,
-                'vip' => $user->vip && $user->vip->type == 'VIP' ? 'VIP' : '',
-                'sos' => $user->vip && $user->vip->type == 'SOS' ? 'SOS' : '',
+                'vip' => $user->vip && $user->vip->type == 'VIP' ? 'ثروتمند/توانمند' : '',
+                'sos' => $user->vip && $user->vip->type == 'SOS' ? 'فقیر/کم ‌توان' : '',
+                'conduct' => $this->getConductTitle($user),
+                'sex' => $user->sex
             ];
         } else {
             return [
@@ -66,6 +68,8 @@ class CallcenterCollection extends ResourceCollection
                 'register_status' => false,
                 'vip' => '',
                 'sos' => '',
+                'conduct' => '',
+                'sex' => '',
             ];
         }
     }
@@ -132,5 +136,14 @@ class CallcenterCollection extends ResourceCollection
     private function setDeletePermission()
     {
         return auth()->user()->isAbleTo('callcenter-delete');
+    }
+
+    private function getConductTitle($user)
+    {
+        if ($user->conduct == 'challenging'){
+            return 'چالش انگیز';
+        }else{
+            return '';
+        }
     }
 }

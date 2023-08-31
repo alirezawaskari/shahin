@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Context;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ContextController extends Controller
 {
@@ -60,6 +61,7 @@ class ContextController extends Controller
      */
     public function updateExpireDates(Request $request)
     {
+        Cache::forget('expire_dates');
         $requests = array(
             'domain_expire_date_lalecard.ir' => $request->domain_expire_date_lalecard_ir,
             'domain_expire_date_lalecard.com' => $request->domain_expire_date_lalecard_com,

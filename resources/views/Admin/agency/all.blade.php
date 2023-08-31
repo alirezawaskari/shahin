@@ -1,7 +1,6 @@
 @extends('Admin.master')
 
 @section('content')
-
 <div class="page-header">
     <div>
         <h3>فهرست درخواست عاملیت</h3>
@@ -18,7 +17,7 @@
 </div>
 <div class="card">
     <div class="card-body">
-        <form role="form" id="form">
+        <form role="form" id="form" action="/dashboard/agency/filter" method="get">
             <div class="row">
                 <div class="col-12 col-md-3 mb-2">
                     <input type="text" class="form-control" name="name" placeholder="نام" />

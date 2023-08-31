@@ -33,7 +33,8 @@ class UserCollection extends ResourceCollection
                     'organization' => $item->organization ? $item->organization->fa_name : 'ندارد',
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setDeletePermission(),
-                    'task_count' => Callcenter::where('user_id', $item->id)->count()
+                    'task_count' => Callcenter::where('user_id', $item->id)->count(),
+                    'conduct' => $this->conduct
                 ];
             })
         ];
