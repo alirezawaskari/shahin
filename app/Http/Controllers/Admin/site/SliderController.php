@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\Representation;
 use App\Models\Slider;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class SliderController extends Controller
      */
     public function index()
     {
-        $sliders = Slider::where('type',"0")->orderBy('id', 'DESC')->paginate(15);
+        $sliders = Slider::orderBy('id', 'DESC')->paginate(15);
         return view('Admin.site.slider.list', ['sliders' => $sliders]);
     }
 
@@ -42,7 +43,8 @@ class SliderController extends Controller
      */
     public function create()
     {
-        return view('Admin.site.slider.create');
+        $representations = Representation::where('status' , true)->get();
+        return view('Admin.site.slider.create' , compact('representations'));
     }
 
     /**
@@ -50,7 +52,8 @@ class SliderController extends Controller
      */
     public function createMobileOld()
     {
-        return view('Admin.site.slider.createMobileOld');
+        $representations = Representation::where('status' , true)->get();
+        return view('Admin.site.slider.createMobileOld' , compact('representations'));
     }
 
     /**
@@ -69,12 +72,15 @@ class SliderController extends Controller
             ]
         );
         $request['type'] = 0;
-        $s = Slider::create($request->all());
+        $slider = Slider::create($request->all());
         if(isset( $request->image_path)) {
-            $s->img = Helper::moveImage($request->image_path,'slider');
-            $s->save();
+            $slider->img = Helper::moveImage($request->image_path,'slider');
+            $slider->save();
         }
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $slider->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect()
             ->route('slider.index')
             ->with(['create' => 'success']);
@@ -120,7 +126,8 @@ class SliderController extends Controller
     {
         if ($id) {
             $slider = Slider::find($id);
-            return view('Admin.site.slider.edit', ['slider' => $slider]);
+            $representations = Representation::where('status' , true)->get();
+            return view('Admin.site.slider.edit', ['slider' => $slider , 'representations' => $representations]);
         }
         return redirect()->back();
     }

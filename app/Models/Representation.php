@@ -59,9 +59,14 @@ class Representation extends Model
     {
         return $this->belongsToMany(Service::class);
     }
-
-
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function sliders()
+    {
+        return $this->hasMany(Slider::class);
+    }
+     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function factors()

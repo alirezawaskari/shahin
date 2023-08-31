@@ -63,7 +63,11 @@
                         </li>
                         @endif
                         <li class="nav-item">
+                            @if (session()->has('representation'))
+                            <a class="nav-link text-dark" href="/representation/{{ session()->get('representation')->slug }}">خانه</a>
+                            @else
                             <a class="nav-link text-dark" href="/">خانه</a>
+                            @endif
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="{{ route('site.help') }}">قوانین سایت</a>
@@ -80,9 +84,13 @@
                                 aria-labelledby="navbarDropdownMenuLink">
                                 @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
                                 true)->orderBy('created_at', 'desc')->get() as $item)
+                                @if (session()->has('representation'))
+                                <a class="dropdown-item text-orange py-2" href="{{ url('representation/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
+                                @else
                                 <a class="dropdown-item text-orange py-2"
-                                    href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
-                                    $item->title }}</a>
+                                href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
+                                $item->title }}</a>
+                                @endif
                                 @endforeach
                             </div>
                         </li>
@@ -199,8 +207,8 @@
 
                     <ul class="d-none d-lg-flex navbar-nav mr-0 pr-0 pr-md-3 pt-2 nav-after">
                         <li class="nav-item mr-3">
-                            <a href="tel:{{ $setting->call }}" class="nav-link text-dark">
-                                <span>{{ $setting->call }}</span>
+                            <a href="tel:{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}" class="nav-link text-dark">
+                                <span>{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}</span>
                                 <i class="fa fa-phone"></i>
                             </a>
                         </li>

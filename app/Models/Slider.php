@@ -16,7 +16,7 @@ class Slider extends Model
     /**
      * @var string[]
      */
-    protected $fillable=['img','title','link','type','category_id'];
+    protected $fillable=['img','title','link','type','category_id','representation_id'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -25,5 +25,11 @@ class Slider extends Model
     {
         return $this->belongsTo(Category::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation()
+    {
+        return $this->belongsTo(Representation::class);
+    }
 }

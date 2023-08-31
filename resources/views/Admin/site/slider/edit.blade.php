@@ -13,7 +13,7 @@
                   enctype="multipart/form-data">
                 {{csrf_field()}}   {{ method_field('PATCH') }}
                 <div class="row">
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-4 mb-3">
                         <label>عنوان *</label>
                         <input type="text" class="form-control" placeholder="لطفا عنوان را وارد کنید"
                                name="title"
@@ -22,7 +22,7 @@
                             <span class="help-block sub-error  "> {{$errors->first('title')}} </span>
                         @endif
                     </div>
-                    <div class="col-12 col-md-6 mb-3">
+                    <div class="col-12 col-md-4 mb-3">
                         <label>لینک *</label>
                         <input type="text" class="form-control" placeholder="لطفا لینک را وارد کنید"
                                name="link"
@@ -31,6 +31,17 @@
                             <span class="help-block sub-error  "> {{$errors->first('link')}} </span>
                         @endif
                     </div>
+                    @if(!auth()->user()->admin_representation_id)
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی *</label>
+                        <select name="representation_id" class="custom-select">
+                            @foreach($representations as $representation)
+                                <option value="{{ $slider->representation_id == null ? 'selected' : '' }}">نمایندگی کل</option>
+                                <option value="{{$representation->id}}" {{ $slider->representation_id == $representation->id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
                     <br/> <br/>
                     <div class="col-12 col-md-12 mb-5">
                         <label> عکس ذخیره شده :</label>

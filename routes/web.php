@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Artisan;
 
-
 //Auth Routes
 Auth::routes();
 Route::get('/pass1word/reset', 'Auth\ResetPasswordController@resetform')->name('reset_pass_form');
@@ -481,6 +480,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/organization/items', 'OrganizationController@items')->name('organization.items');
     Route::resource('organization', 'OrganizationController');
     Route::resource('representation', 'RepresentationController');
+    //singleWebPage
+    Route::resource('singleWebPage', 'SingleWebPageController');
     //center
     Route::get('/center-service/{center}' , 'CenterController@service')->name('center.service');
     Route::get('/center/filter', 'CenterController@filter')->name('center.filter');
@@ -659,7 +660,6 @@ Route::post('/rate', 'ArticleController@rate');
 Route::get('/faq', 'HomeController@faq');
 Route::get('/calculate', 'InstallmentController@showCalculate');
 
-
 //Payment
 Route::post('/pay', 'PaymentController@pay')->name('pay');
 Route::post('/payPrepayment', 'PaymentController@payPrepayment')->name('payPrepayment');
@@ -693,21 +693,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/useravatar', 'ProfileController@useravatar')->name('useravatar');
     Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily');
 });
+
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/payment/{payment}', 'FactorItemController@index')->name('payment');
 Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 
-//profile
-
 //organization & representation
 Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
-Route::get('/{representation}', 'RepresentationController@index');
-Route::get('/{representation}/link/{callcenter}', 'RepresentationController@index');
-Route::get('/{representation}/{service}', 'RepresentationController@single');
-Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController@single');
+Route::get('representation/{representation}', 'RepresentationController@index');
+Route::get('representation/{representation}/link/{callcenter}', 'RepresentationController@index');
+Route::get('representation/{representation}/{service}', 'RepresentationController@single');
+Route::get('representation/{representation}/{service}/{callcenter}', 'RepresentationController@single');
+
+//singleWebPage
+Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
+Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
 
 //Front Ajax
 Route::post('/city/select', 'HomeController@cityselect');

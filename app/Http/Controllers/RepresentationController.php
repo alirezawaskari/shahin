@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Callcenter;
 use App\Models\City;
+use App\Models\Factor;
 use App\Models\Province;
 use App\Models\Representation;
 use App\Models\Service;
@@ -17,9 +19,13 @@ class RepresentationController extends Controller
      */
     public function index(Representation $representation , User $callcenter)
     {
+        session()->put('representation', $representation);
         if ($representation->status){
+            $sliders = $representation->sliders()->whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->get();
+            $sliders_mobile = $representation->sliders()->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
             $representation->load('services');
-            return view('site.representation.index', compact('callcenter','representation'));
+            $services = $representation->services;
+            return view('site.representation.index', compact('representation' , 'callcenter','sliders', 'services','sliders_mobile'));
         }
        return abort(404);
     }
@@ -31,20 +37,41 @@ class RepresentationController extends Controller
      * @param User $callcenter
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function single(Representation $representation , Service $service, User $callcenter )
+    public function single(Representation $representation , Service $service, User $callcenter , Callcenter $task, Factor $factor=null )
     {
-        $user = auth()->user();
-        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
+        session()->put('representation', $representation);
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
+        $questions=$service->askedQuestions;
 
+        //$callcenter=$task->callcenter;
+		$images = $service->galleries;
+	    $is_service = true;
+		$check = false;
+        if (!$service->isShow && !$service->status)
+        {
+            return redirect('/');
+        }
+
+		if ($service->id == 102)
+        {
+            return redirect('/agency');
+        }
+
+
+		$user = auth()->user();
+		if(isset($factor['id']))
+		{
+			$user = $factor->user;
+		}
         if ($user) {
             $required = null;
             $founded = [];
             $requireServices = [];
             if (!is_null($service->required) && count($service->required) > 0) {
                 foreach ($service->required as $item) {
-                    $factor = $user->factors()->where('service_id', $item)->whereStatus(true)->first();
-                    if ($factor){
-                        array_push($founded , $factor->id);
+                    $user_factor = $user->factors()->where('service_id', $item)->whereStatus(true)->first();
+                    if ($user_factor) {
+                        array_push($founded, $user_factor->id);
                     }
                 }
                 $requireServices = Service::find($service->required);
@@ -57,22 +84,15 @@ class RepresentationController extends Controller
                 $query->where('factoritemable_id', $service->id);
             })->exists();
 
-            $factor=null;
-
             if ($check) {
                 if ($service->multiple) {
                     $check = false;
                 }
-                $factor=  $user->factors()->whereStatus(true)->whereHas('factorItems', function ($query) use ($service) {
-                    $query->where('factoritemable_id', $service->id);
-                })->first();
             }
 
-            return view('site.representation.single', compact('financial_plans_types' , 'callcenter','representation' ,'service', 'required', 'requireServices' , 'check','factor'));
+            return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor', 'representation' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
 
-        $provinces = Province::get();
-        $citys = City::get();
-        return view('site.representation.single' , compact('financial_plans_types' , 'callcenter','representation' , 'service' , 'provinces' , 'citys'));
-    }
+        return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor' , 'representation' , 'callcenter','service', 'financial_plans_types' ,'task'));
+       }
 }

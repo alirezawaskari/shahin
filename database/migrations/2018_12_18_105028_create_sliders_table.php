@@ -24,6 +24,8 @@ class CreateSlidersTable extends Migration
             $table->integer('status')->default('1');
             $table->integer('category_id')->nullable()->default(NULL);
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->integer('representation_id')->nullable()->default(NULL);
+            $table->foreign('representation_id')->references('id')->on('representations')->onDelete('cascade');
 
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 		    $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
