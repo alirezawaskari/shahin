@@ -45,10 +45,9 @@
                 </a>
             </div>
 
-                <div id="carouselExampleIndicators" class="carousel slide d-block d-sm-none" data-ride="carousel">
+                <div id="carouselExampleIndicators" class="carousel slide d-block" data-ride="carousel">
 
                     <div class="carousel-inner">
-
                         @foreach($sliders_mobile as $slider)
                             <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
                                 <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
