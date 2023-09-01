@@ -98,8 +98,6 @@
                                     href="{{ url('/Permanent-employment') }}">استخدام و تامین نیروی انسانی</a>
                                 <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/centerRequest/create') }}">همکاری با فروشندگان و خدمات دهندگان</a>
-                                <a class="dropdown-item text-orange py-2"
-                                    href="{{ url('/services/business-agency') }}">اعطای مجوز نمایندگی</a>
                             </div>
                         </li>
                         {{-- <li class="nav-item">--}}
