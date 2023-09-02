@@ -45,7 +45,7 @@
             </a>
         </div>
 
-            <div id="carouselExampleIndicators" style="padding-right: 5%;padding-left:  5% " class="carousel slide" data-ride="carousel">
+            <div id="carouselExampleIndicators" class="carousel slide d-block d-sm-none" data-ride="carousel">
 
                 <div class="carousel-inner">
 
@@ -65,22 +65,7 @@
                     <span class="sr-only">Next</span>
                 </a>
             </div>
-            <a href="/services/business-agency">
-                <div class="container">
-                    <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
-                        <div class="col-md-6">
-                            <h5 class="   text-warning" style="color: #de295a !important">
-                                <img src="https://kalasakht.com/upload/png-11.png" style="width: 50px" alt="">
-                                از لاله هدیه بگیرید <img src="https://usagif.com/wp-content/uploads/gift-36.gif" style="width: 40px" alt="">
-                            </h5>
-                            <p class="lead text-dark">
-                                <strong class="text-danger">ویژه :</strong>
-                                اعطای مجوز به تولیدکنندگان، خدمات‌دهندگان و فروشندگان محترم.</p>
-                            <p class="text-dark">دریافت مجوز ایجاد شعب لاله در سراسر کشور.</p>
-                        </div>
-                    </div>
-                </div>
-            </a>
+
         {{--category--}}
             <div style="padding: 5px" >
                 <div class="row ">
