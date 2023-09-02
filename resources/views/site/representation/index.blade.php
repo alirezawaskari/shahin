@@ -27,43 +27,44 @@
         @endauth
         {{--Carousel--}}
 
-            <div id="carouselExampleControls" style="padding-right: 5%;padding-left:  5% " class="carousel slide d-none d-sm-block" data-ride="carousel">
-                <div class="carousel-inner main-slider" >
-                    @foreach($sliders as $slider)
+        <div id="carouselExampleControls" style="padding-right: 5%;padding-left:  5% " class="carousel slide d-none d-sm-block" data-ride="carousel">
+            <div class="carousel-inner main-slider" >
+                @foreach($sliders as $slider)
+                    <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
+                        <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
+                    </div>
+                @endforeach
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+
+            <div id="carouselExampleIndicators" style="padding-right: 5%;padding-left:  5% " class="carousel slide" data-ride="carousel">
+
+                <div class="carousel-inner">
+
+                    @foreach($sliders_mobile as $slider)
                         <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
                             <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
                         </div>
                     @endforeach
+
                 </div>
-                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="sr-only">Previous</span>
                 </a>
-                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="sr-only">Next</span>
                 </a>
             </div>
-
-                <div id="carouselExampleIndicators" class="carousel slide d-block" data-ride="carousel">
-
-                    <div class="carousel-inner">
-                        @foreach($sliders_mobile as $slider)
-                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}  " >
-                                <a href="{{ $slider->link }}"><img src="{{ $slider->img }}"   class="d-block w-100" alt="{{ $slider->title }}"></a>
-                            </div>
-                        @endforeach
-
-                    </div>
-                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
             <a href="/services/business-agency">
                 <div class="container">
                     <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
@@ -95,48 +96,5 @@
 
             </div>
 
-            <div class="container">
-                <div class="row justify-content-center ">
-                    نقل قول مشتریان
-                </div>
-                <div id="feedback-carousel" class="carousel slide" data-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="row justify-content-center">
-                                <div class="col-md-8 shadow p-3 mb-5 bg-white rounded">
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            <p class="card-text">با توجه به قیمت، خدمات جراحی زیبایی بسیار خوبی رو ارائه دادن. حتی از توقعاتم بیشتر بود .</p>
-                                            <p class="card-subtitle mb-2 text-muted">تاریخ ارسال: ۲۵ خرداد ۱۴۰۰</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="carousel-item ">
-                            <div class="row justify-content-center ">
-                                <div class="col-md-8 shadow p-3 mb-5 bg-white rounded">
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            <p class="card-text">از خدمت دندانپزشکی اقساطی بسیار راضی بودم ، کار پزشک حرف نداشت .</p>
-                                            <p class="card-subtitle mb-2 text-muted">تاریخ ارسال: 12 مهر 1401</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <a class="carousel-control-prev" href="#feedback-carousel" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#feedback-carousel" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
-            </div>
 @endsection
 
