@@ -60,8 +60,9 @@ class ArticleController extends Controller
     public function create()
     {
         $category = CategoryArticle::all();
+        $representations = Representation::where('status' , true)->get();
         $tags = Tag::all();
-        return view('Admin.site.article.create', ['category' => $category, 'tags' => $tags]);
+        return view('Admin.site.article.create', ['category' , 'tags' , 'representations']);
     }
 
     /**
@@ -85,6 +86,7 @@ class ArticleController extends Controller
 
         $request['user_id'] = $request->user()->id;
         $article = Article::create($request->all());
+        $article->representations()->sync($request->input('representation_id'));
 
         if(isset($request->image_path)) {
             $article->image = Helper::moveImage($request->image_path,'article');
@@ -109,7 +111,9 @@ class ArticleController extends Controller
             $article= Article::find($id);
             $category = CategoryArticle::all();
             $tags = Tag::pluck('name');
-            return view('Admin.site.article.edit', ['article' => $article, 'category' => $category, 'tags' => $tags]);
+            $representations = Representation::where('status' , true)->get();
+
+            return view('Admin.site.article.edit', ['representations' , 'article', 'category', 'tags']);
         }
         return redirect()->back();
     }
@@ -138,6 +142,7 @@ class ArticleController extends Controller
         $request['status'] = isset($request['status']) ? $request['status'] : 0;
         $article = Article::find($id);
         $article->update($request->all());
+        $article->representations()->sync($request->input('representation_id'));
 
         if(isset( $request->image_path)) {
             if (\File::exists(public_path($article->image))) {

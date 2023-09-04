@@ -61,7 +61,13 @@ class Article extends Model
     {
         return $this->belongsTo(CategoryArticle::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function representations()
+    {
+        return $this->belongsToMany(Representation::class);
+    }
     /**
      * @param $status
      * @return string
