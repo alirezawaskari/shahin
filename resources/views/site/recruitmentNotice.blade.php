@@ -55,7 +55,7 @@
                                 <div class="card-body overflow-auto" >
                                     {!! $recruitment_notice->description !!}
                                 </div>
-                                <form action="/send_resume" method="post" enctype="multipart/form-data">
+                                <form action="/send_resume"  method="post" enctype="multipart/form-data" class="form-resume">
                                     @csrf
                                     <input type="hidden" name="recruitment_notice_id" value="{{ $recruitment_notice->id }}">
                                     <div class="col-md-12">
@@ -68,19 +68,19 @@
                                             <div class="col-md-12">
                                                 <div class="alert alert-dark">مشخصات شخصی</div>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-md-3">
                                                 <label>* نام</label>
                                                 <input type="text" name="name" placeholder="نام" class="form-control" required>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-md-3">
                                                 <label for="">*نام خانوادگی</label>
                                                 <input type="text" name="family" placeholder=" نام خانوادگی" class="form-control " required>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-md-3">
                                                 <label>*تلفن همراه</label>
                                                 <input type="text" name="phone" placeholder="تلفن همراه" class="form-control" required>
                                             </div>
-                                            <div class="col-3">
+                                            <div class="col-md-3">
                                                 <label for="">ایمیل</label>
                                                 <input type="text" name="email" placeholder="ایمیل" class="form-control" >
                                             </div>
@@ -122,17 +122,17 @@
                                             </div>
                                         </div>
                                         <div class="form-row mb-2">
-                                            <div class="col-6">
+                                            <div class="col-md-6">
                                                 <label>*سابقه بیمه</label>
                                                 <input type="number" name="bime_history" class="form-control" min="0" value="0" placeholder="سابقه بیمه(درصورت داشتن بیمه براساس ماه)"  required>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-md-6">
                                                 <label>نوع شغل درخواستی</label>
                                                 <input type="text" name="work_type" value="{{ $recruitment_notice->title }}" class="form-control " readonly placeholder="نوع شغل درخواستی" required>
                                             </div>
                                         </div>
                                         <div class="form-row mb-2">
-                                            <div class="col-12">
+                                            <div class="col-md-12">
                                                 <label>در صورتی که توضیحی دارید در کادر ذیل وارد نمایید:</label>
                                                 <textarea  name="text" class="form-control " rows="6" placeholder="توضیحات مربوطه"  ></textarea>
                                             </div>
@@ -204,7 +204,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <label>معدل کل:</label>
-                                                <input name="total_average" class="form-control" type="number" >
+                                                <input name="total_average" class="form-control" >
                                             </div>
                                             <div class="col-md-4">
                                                 <label>نام و آدرس محل دریافت مدرک تحصیلی :</label>
@@ -324,7 +324,6 @@
                                                 <label>قسمت:</label>
                                                 <input name="relative_family_part" class="form-control" >
                                             </div>
-
                                             <div class="col-md-12">
                                                 <div class="alert alert-dark"> تایید صحت اطلاعات وارده: </div>
                                             </div>
@@ -348,7 +347,7 @@
                                             <div class="col-md-12">
                                                 <p>توجه : کاربر گرامی در صورت داشتن فایل رزومه جداگانه   لطفا رزومه را با فرمت pdf,jpg,jpeg آپلود کنید.</p>
                                             </div>
-                                            <input type="submit" value="ارسال درخواست" class="btn btn-success mr-2">
+                                            <input type="submit" value="ارسال درخواست" class="btn btn-success mr-2 send-resume-btn">
                                         </div>
                                     </div>
                                 </form>
@@ -367,10 +366,11 @@
     @elseif(session()->get('resume_success')=='error')
         <span id="contact_error"></span>
     @endif
+@endsection
+@section('js')
     <script>
         var acc = document.getElementsByClassName("accordion");
         var i;
-
         for (i = 0; i < acc.length; i++) {
             acc[i].addEventListener("click", function() {
                 this.classList.toggle("active");
@@ -384,6 +384,35 @@
         }
     </script>
     <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
-
+    <script>
+        //to do move script to single file
+        $(document).ready(function () {
+            $("form.form-resume").submit(function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '/send_resume',
+                    type: 'POST',
+                    data: formData,
+                    success: function (data) {
+                        if (data.status=='success'){
+                            swal({
+                                text: "با موفقیت ارسال شد .",
+                                icon: "success",
+                                button: "تایید",
+                                timer:4000,
+                                allowOutsideClick: true
+                            });
+                            setTimeout(location.reload(), 4000);
+                        }else{
+                            swal("خطا!",  data.messages.join('\n'),'error')
+                        }
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            });
+        })
+    </script>
 @endsection
-
