@@ -82,16 +82,17 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right text-right mt-3 "
                                 aria-labelledby="navbarDropdownMenuLink">
-                                @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
-                                true)->orderBy('created_at', 'desc')->get() as $item)
                                 @if (session()->has('representation'))
+                                @foreach(session()->get('representation')->services->where('status' , true) as $item)
                                 <a class="dropdown-item text-orange py-2" href="{{ url('representation/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
+                                @endforeach
                                 @else
-                                <a class="dropdown-item text-orange py-2"
+                                @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
+                                true)->orderBy('created_at', 'desc')->get() as $item)                                <a class="dropdown-item text-orange py-2"
                                 href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
                                 $item->title }}</a>
-                                @endif
                                 @endforeach
+                                @endif
                             </div>
                         </li>
                         <li class="nav-item dropdown">
@@ -108,8 +109,10 @@
                                     href="{{ url('/Permanent-employment') }}">استخدام و تامین نیروی انسانی</a>
                                 <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/centerRequest/create') }}">همکاری با فروشندگان و خدمات دهندگان</a>
-                                <a class="dropdown-item text-orange py-2"
+                                    @if (!session()->has('representation'))
+                                    <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/services/business-agency') }}">اعطای مجوز نمایندگی</a>
+                                    @endif
                             </div>
                         </li>
                         {{-- <li class="nav-item">--}}

@@ -78,8 +78,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right text-right mt-3 "
                                 aria-labelledby="navbarDropdownMenuLink">
-                                @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
-                                true)->orderBy('created_at', 'desc')->get() as $item)
+                                @foreach(session()->get('representation')->services->where('status' , true) as $item)
                                 <a class="dropdown-item text-orange py-2" href="{{ url('representation/'.$representation->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
                                 @endforeach
                             </div>
@@ -98,8 +97,6 @@
                                     href="{{ url('/Permanent-employment') }}">استخدام و تامین نیروی انسانی</a>
                                 <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/centerRequest/create') }}">همکاری با فروشندگان و خدمات دهندگان</a>
-                                <a class="dropdown-item text-orange py-2"
-                                    href="{{ url('/services/business-agency') }}">اعطای مجوز نمایندگی</a>
                             </div>
                         </li>
                         {{-- <li class="nav-item">--}}
@@ -197,8 +194,8 @@
 
                     <ul class="d-none d-lg-flex navbar-nav mr-0 pr-0 pr-md-3 pt-2 nav-after">
                         <li class="nav-item mr-3">
-                            <a href="tel:{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}" class="nav-link text-dark">
-                                <span>{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}</span>
+                            <a href="tel:{{ session()->has('representation') ? session()->get('representation')->call : $setting->call }}" class="nav-link text-dark">
+                                <span>{{ session()->has('representation') ? session()->get('representation')->call : $setting->call }}</span>
                                 <i class="fa fa-phone"></i>
                             </a>
                         </li>

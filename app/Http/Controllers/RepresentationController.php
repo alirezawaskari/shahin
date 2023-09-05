@@ -21,7 +21,7 @@ class RepresentationController extends Controller
     {
         session()->put('representation', $representation);
         if ($representation->status){
-            $sliders = $representation->sliders()->whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->get();
+            $sliders = $representation->sliders()->whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
             $sliders_mobile = $representation->sliders()->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
             $representation->load('services');
             $services = $representation->services;
