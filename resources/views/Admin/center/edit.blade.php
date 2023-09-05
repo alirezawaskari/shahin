@@ -31,10 +31,11 @@
                         </option>
                         @endforeach
                     </select>
-                    <select class="form-control mb-3" name="service" id="service">
-                        <option selected disabled>انتخاب خدمت مربوطه</option>
+{{--                    @dd($center->services->where('id',2)->count())--}}
+                    <select class="form-control mb-3 select2" multiple="multiple" name="services[]" id="service">
+                        <option  disabled>انتخاب خدمت مربوطه</option>
                         @foreach ($services as $service)
-                        <option value="{{ $service->id }}" {{ $service->id == $center->centerable_id ? 'selected' :
+                        <option value="{{ $service->id }}" {{$center->services->where('id',$service->id )->count()==1?'selected' :
                             '' }}>{{ $service->title }}
                         </option>
                         @endforeach
@@ -181,7 +182,13 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/center.js') }}"></script>
-
+<script>
+    $(document).ready(function() {
+        $('.services-select').select2({
+            placeholder: "انتخاب خدمت مربوطه"
+        });
+    });
+</script>
 @if (session()->get('center_success') == 'success')
 <span id="contact_success"></span>
 @elseif(session()->get('center_error')=='success')

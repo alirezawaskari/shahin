@@ -26,14 +26,13 @@
                             </option>
                             @endforeach
                         </select>
-                        <select class="form-control mb-3" name="service" id="service">
+                        <select  class="form-control mb-3 services-select"  multiple="multiple" name="service[]" id="service">
                             <option selected disabled>انتخاب خدمت مربوطه</option>
                             @foreach ($services as $service)
                             <option value="{{ $service->id }}">{{ $service->title }}
                             </option>
                             @endforeach
                         </select>
-
                         <select class="form-control mb-3" name="item[product_category]" id="product_category">
                             <option selected disabled>انتخاب دسته بندی محصول مربوطه</option>
                             @foreach ($product_categories as $product_category)
@@ -156,7 +155,11 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/center.js') }}"></script>
-
+<script>
+    $(document).ready(function() {
+        $('.services-select').select2();
+    });
+</script>
 @if (session()->get('center_success') == 'success')
 <span id="contact_success"></span>
 @elseif(session()->get('center_error')=='success')
