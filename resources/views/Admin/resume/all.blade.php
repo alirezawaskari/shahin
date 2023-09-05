@@ -56,6 +56,14 @@
                                      name="endDate"></date-picker>
                     </div>
                     <div class="col-12 col-md-3 mb-2">
+                        <select name="province" id="province_id" class="custom-select select2" >
+                            <option value="all">انتخاب استان</option>
+                            @foreach($provinces as $province)
+                                <option value="{{$province->id}}">{{$province->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 mb-2">
                         <div class="custom-control custom-switch mt-2">
                             <input type="checkbox" class="custom-control-input" name="excel" id="excel">
                             <label class="custom-control-label" for="excel">خروجی اکسل</label>
@@ -67,7 +75,6 @@
                         </button>
                     </div>
                 </div>
-
             </form>
         </div>
     </div>
