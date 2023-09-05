@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Callcenter;
+use App\Models\Province;
 use App\Models\Resume;
 use App\Models\Card;
 use App\Models\RecruitmentNotice;
@@ -25,10 +26,11 @@ class ResumeController extends Controller
 
         if (auth()->user()->hasPermission('resume'))
         {
+            $provinces =Province::all();
             if (auth()->user()->isAbleTo('resume-delete')){
                 $delete = true;
             }
-            return view('Admin.resume.all' , compact('delete'));
+            return view('Admin.resume.all' , compact('delete','provinces'));
         }
         return abort(401);
     }
