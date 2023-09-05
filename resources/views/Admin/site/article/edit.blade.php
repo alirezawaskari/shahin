@@ -11,14 +11,14 @@
                 @include('Admin.layouts.errors')
                 <div class="row">
 
-                    <div class="col-12 col-md-5 mb-4">
+                    <div class="col-12 col-md-4 mb-4">
                         <label>عنوان</label>
                         <input type="text" value="{{$article->title}}" class="form-control" name="title"  placeholder="لطفا عنوان را وارد کنید">
                         @if($errors->has('title'))<span
                                 class="help-block sub-error  ">{{$errors->first('title')}}</span>@endif
                     </div>
 
-                    <div class="col-12 col-md-5 mb-4">
+                    <div class="col-12 col-md-4 mb-4">
                         <label>دسته بندی *</label>
                         <select class="form-control" name="category_article_id">
                             <option value="">لطفا انتخاب کنید</option>
@@ -30,7 +30,16 @@
                         @if($errors->has('category_article_id'))<span
                                 class="help-block sub-error  ">{{$errors->first('category_article_id')}}</span>@endif
                     </div>
-
+                    @if(!auth()->user()->admin_representation_id)
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی</label>
+                        <select name="representation_id" class="custom-select select2">
+                            @foreach($representations as $representation)
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
                     <div class="col-12 col-md-2 mb-4">
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
                         <div class="checkbox">

@@ -50,6 +50,13 @@ class Resume extends Model
         $endDate = request('endDate');
         $job_title = request('job_title');
         $status = request('status');
+        $province = request('province');
+
+        if (isset($province) && trim($province) != 'all') {
+            $query->whereHas('recruitment_notice',function ($query)use($province){
+                $query->where('province_id',$province);
+            });
+        }
 
         if (isset($name) && trim($name) != '') {
             $query->where('name', 'LIKE', '%' . $name . '%');
