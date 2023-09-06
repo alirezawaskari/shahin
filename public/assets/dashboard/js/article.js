@@ -1,4 +1,4 @@
-$(document).ready(function () {
+ $(document).ready(function () {
 
     fetchData(1);
     var first_load=true;
@@ -89,6 +89,7 @@ $(document).ready(function () {
                     }
                  }
                 },
+                {"data":"created_at"},
                 {
                     "data": data,
                     "render": function (data) {
