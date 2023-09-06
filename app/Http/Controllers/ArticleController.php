@@ -17,16 +17,14 @@ class ArticleController extends Controller
     public function articles()
     {
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $articles = Cache::remember('article-' . $currentPage, Carbon::now()->addMinute(30), function(){
-            return Article::whereStatus(1)->latest()->paginate(10);
-        });
+
         if(session()->has('representation'))
         {
-            $articles = Cache::remember('article-' . $currentPage, Carbon::now()->addMinute(30), function(){
-                return session()->get('representation')->articles()->whereStatus(1)->latest()->paginate(10);
-            });
+            $articles = session()->get('representation')->articles()->latest()->paginate(10);
         }
-
+        else{
+            $articles = Article::whereStatus(1)->latest()->paginate(10);
+        }
         return view('site.articles.index' , compact('articles'));
     }
 
