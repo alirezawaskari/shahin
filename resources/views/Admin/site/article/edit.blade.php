@@ -33,9 +33,9 @@
                     @if(!auth()->user()->admin_representation_id)
                     <div class="col-12 col-md-4 mb-3">
                         <label>نمایندگی</label>
-                        <select name="representation_id" class="custom-select select2">
+                        <select name="representation_id" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
-                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                                <option value="{{$representation->id}}" {{ in_array(trim($representation->id) , $article->representations()->pluck('id')->toArray()) ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -45,7 +45,7 @@
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="status" value="1"
-                                       @if($article->status == 1) checked @endif>نمایش در سایت
+                                       @if($article->status == 1) checked @endif>نمایش در سایت نمایندگی کل
                             </label>
                             @if($errors->has('status'))<span
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif

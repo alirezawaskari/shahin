@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleCollection;
 use App\Models\Article;
+use App\Models\Representation;
 use App\Models\CategoryArticle;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class ArticleController extends Controller
         $category = CategoryArticle::all();
         $representations = Representation::where('status' , true)->get();
         $tags = Tag::all();
-        return view('Admin.site.article.create', ['category' , 'tags' , 'representations']);
+        return view('Admin.site.article.create', compact(['category' , 'tags' , 'representations']));
     }
 
     /**
@@ -113,7 +114,7 @@ class ArticleController extends Controller
             $tags = Tag::pluck('name');
             $representations = Representation::where('status' , true)->get();
 
-            return view('Admin.site.article.edit', ['representations' , 'article', 'category', 'tags']);
+            return view('Admin.site.article.edit', compact(['representations' , 'article', 'category', 'tags']));
         }
         return redirect()->back();
     }
