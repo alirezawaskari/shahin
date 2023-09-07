@@ -18,6 +18,8 @@ class CreateRecruitmentNoticesTable extends Migration
 		$table->text('image')->nullable()->default(NULL);
 		$table->integer('province_id')->unsigned();
         $table->foreign('province_id')->references('id')->on('provinces')->onDelete('cascade');
+        $table->integer('representation_id')->unsigned();
+        $table->foreign('representation_id')->references('id')->on('representations')->onDelete('cascade');
 
         $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));

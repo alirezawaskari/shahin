@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\Helper;
 use App\Models\Province;
 use App\Models\RecruitmentNotice;
+use App\Models\Representation;
 use Illuminate\Http\Request;
 
 class RecruitmentNoticeController extends AdminController
@@ -28,7 +29,8 @@ class RecruitmentNoticeController extends AdminController
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
             $provinces = Province::all();
-            return view('Admin.recruitmentnotice.create', compact('provinces'));
+            $representations = Representation::where('status' , true)->get();
+            return view('Admin.recruitmentnotice.create', compact('provinces' , 'representations'));
         }
         return abort(401);
     }
@@ -52,8 +54,11 @@ class RecruitmentNoticeController extends AdminController
         }
         unset($inputs['urlimage']);
 
-        RecruitmentNotice::create($inputs);
-
+        $recruitment_notice = RecruitmentNotice::create($inputs);
+        if(auth()->user()->admin_representation_id)
+        {
+            $recruitment_notice->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect(route('recruitmentNotice.index'))->with([
             'create' => 'success'
         ]);
@@ -67,7 +72,8 @@ class RecruitmentNoticeController extends AdminController
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
             $provinces = Province::all();
-            return view('Admin.recruitmentnotice.edit', compact('recruitmentNotice', 'provinces'));
+            $representations = Representation::where('status' , true)->get();
+            return view('Admin.recruitmentnotice.edit', compact('recruitmentNotice', 'provinces' , 'representations'));
         }
         return abort(401);
     }
