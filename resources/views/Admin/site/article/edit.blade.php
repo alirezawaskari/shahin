@@ -39,7 +39,6 @@
                             @endforeach
                         </select>
                     </div>
-                    @endif
                     <div class="col-12 col-md-2 mb-4">
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
                         <div class="checkbox">
@@ -51,6 +50,7 @@
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
                         </div>
                     </div>
+                    @endif
 
                     <div class="col-12 col-md-2 mb-3">
                         <label> عکس ذخیره شده :</label>

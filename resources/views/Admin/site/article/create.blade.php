@@ -37,6 +37,17 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="status" value="1"
+                                       @if(old('status') == 1) checked @endif>نمایش در سایت نمایندگی کل
+                            </label>
+                            @if($errors->has('status'))<span
+                                    class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
+                        </div>
+                    </div>
                     @endif
                     <div class="col-12 col-md-6 mb-4">
                         <label>عکس *</label>
@@ -50,18 +61,6 @@
                         @if($errors->has('image'))
                             <span class="help-block sub-error  "> {{$errors->first('image')}} </span>
                         @endif
-                    </div>
-
-                    <div class="col-12 col-md-6 mb-4">
-                        <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="status" value="1"
-                                       @if(old('status') == 1) checked @endif>نمایش در سایت نمایندگی کل
-                            </label>
-                            @if($errors->has('status'))<span
-                                    class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
-                        </div>
                     </div>
 
                     <div class="col-12 col-md-12 mb-4">
