@@ -39,7 +39,7 @@ class CenterController extends AdminController
         $this->validate( request(), [
             'title' => 'required|string',
             'address' => 'required',
-        ] );
+        ]);
 
         //create centerRequest
         $item = $request->item;
@@ -104,6 +104,7 @@ class CenterController extends AdminController
             'description' => $request->description,
             'address' => $request->address,
         ] );
+        $center->services()->sync($request->services);
 
         return redirect( route( 'center.index' ) )->with( [
             'update' => 'success',

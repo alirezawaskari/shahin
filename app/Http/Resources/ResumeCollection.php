@@ -23,7 +23,7 @@ class ResumeCollection extends ResourceCollection
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'resume' => $item->resume ? $item->resume : '',
 					'status' => $item->status,
-                    'job_title' => isset($item->recruitment_notice) ? $item->recruitment_notice->title : 'ندارد',
+                    'job_title' => isset($item->recruitment_notice) ? $item->recruitment_notice->title.' _ '.$item->recruitment_notice->province->name : 'ندارد',
                     'per_delete' => $this->setPerDelete(),
                 ];
             })
