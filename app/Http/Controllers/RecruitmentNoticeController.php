@@ -131,6 +131,7 @@ class RecruitmentNoticeController extends Controller
                 "number_shenasname" => $request->input('number_shenasname'),
                 "birth_certificate_issuing_place" => $request->input('birth_certificate_issuing_place'),
                 "national_number" => $request->input('national_number'),
+                "date_of_birth" => $request->input('date_of_birth'),
                 "religion" => $request->input('religion'),
                 "nationality" => $request->input('nationality'),
                 "marital_status" => $request->input('marital_status'),

@@ -26,6 +26,7 @@
                         <h5 class="mb-4 alert alert-primary">اطلاعات شخصی</h5>
                         <ul class="list-group mb-4">
                             <li class="list-group-item"><strong>شماره شناسنامه: </strong>{{ $resume->detail['number_shenasname'] ??''}}</li>
+                            <li class="list-group-item"><strong>تاریخ تولد: </strong>{{ $resume->detail['date_of_birth'] ??''}}</li>
                             <li class="list-group-item"><strong>محل صدور شناسنامه: </strong>{{ $resume->detail['birth_certificate_issuing_place'] ??''}}</li>
                             <li class="list-group-item"><strong>کد ملی: </strong>{{ $resume->detail['national_number']??'' }}</li>
                             <li class="list-group-item"><strong>دین: </strong>{{ $resume->detail['religion']??'' }}</li>
@@ -37,7 +38,7 @@
                             <li class="list-group-item"><strong>وضعیت مسکن: </strong>{{ $resume->detail['housing_situation']??''}}</li>
                             <li class="list-group-item"><strong>تلفن: </strong>{{ $resume->detail['telephone'] }}</li>
                             <li class="list-group-item"><strong>وضعیت خدمت سربازی: </strong>{{ $resume->detail['military_service_status']??'' }}</li>
-                            <li class="list-group-item"><strong>معافیت از خدمت سربازی: </strong>{{ $resume->detail['exemption_military_service_'] ??''}}</li>
+                            <li class="list-group-item"><strong>معافیت از خدمت سربازی: </strong>{{ $resume->detail['exemption_military_service'] ??''}}</li>
                             <li class="list-group-item"><strong>نوع معافیت از خدمت سربازی: </strong>{{ $resume->detail['exemption_military_service_type']??'' }}</li>
                             <li class="list-group-item"><strong>تاریخ پایان معافیت از خدمت سربازی: </strong>{{ $resume->detail['exemption_military_service_end_date']??'' }}</li>
                             <li class="list-group-item"><strong>محل خدمت سربازی: </strong>{{ $resume->detail['military_service_location']??'' }}</li>

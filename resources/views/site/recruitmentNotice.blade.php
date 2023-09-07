@@ -89,6 +89,10 @@
                                                 <input name="number_shenasname" class="form-control" required >
                                             </div>
                                             <div class="col-md-2">
+                                                <label>*تاریخ تولد</label>
+                                                <input name="date_of_birth" class="form-control" required >
+                                            </div>
+                                            <div class="col-md-2">
                                                 <label>*محل صدور</label>
                                                 <input name="birth_certificate_issuing_place" class="form-control" required >
                                             </div>
