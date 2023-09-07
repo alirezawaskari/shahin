@@ -38,6 +38,10 @@ class RecruitmentNoticeController extends Controller
     public function index()
     {
         $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get()->groupBy('province_id');
+        if(session()->has('representation'))
+        {
+            $recruitment_notices = session()->get('representation')->recruitmentNotices()->get()->groupBy('province_id');
+        }
         return view('site.recruitmentNotice', compact('recruitment_notices'));
     }
 
