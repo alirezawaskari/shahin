@@ -21,5 +21,11 @@ class RecruitmentNotice extends Model
     {
         return $this->belongsTo(Province::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation()
+    {
+        return $this->belongsTo(Representation::class);
+    }
 }

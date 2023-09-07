@@ -73,6 +73,13 @@ class Representation extends Model
     {
         return $this->hasMany(Slider::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function recruitmentNotices()
+    {
+        return $this->hasMany(RecruitmentNotice::class);
+    }
      /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

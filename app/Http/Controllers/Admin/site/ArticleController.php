@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleCollection;
 use App\Models\Article;
+use App\Models\Representation;
 use App\Models\CategoryArticle;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class ArticleController extends Controller
         $category = CategoryArticle::all();
         $representations = Representation::where('status' , true)->get();
         $tags = Tag::all();
-        return view('Admin.site.article.create', ['category' , 'tags' , 'representations']);
+        return view('Admin.site.article.create', compact(['category' , 'tags' , 'representations']));
     }
 
     /**
@@ -86,8 +87,8 @@ class ArticleController extends Controller
 
         $request['user_id'] = $request->user()->id;
         $article = Article::create($request->all());
-        $article->representations()->sync($request->input('representation_id'));
-
+        $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
+        $article->representations()->sync($representations);
         if(isset($request->image_path)) {
             $article->image = Helper::moveImage($request->image_path,'article');
             $article->save();
@@ -113,7 +114,7 @@ class ArticleController extends Controller
             $tags = Tag::pluck('name');
             $representations = Representation::where('status' , true)->get();
 
-            return view('Admin.site.article.edit', ['representations' , 'article', 'category', 'tags']);
+            return view('Admin.site.article.edit', compact(['representations' , 'article', 'category', 'tags']));
         }
         return redirect()->back();
     }
@@ -140,9 +141,10 @@ class ArticleController extends Controller
         );
         $request['user_id'] = $request->user()->id;
         $request['status'] = isset($request['status']) ? $request['status'] : 0;
+
         $article = Article::find($id);
         $article->update($request->all());
-        $article->representations()->sync($request->input('representation_id'));
+        !auth()->user()->admin_representation_id ? $article->representations()->sync($request->input('representation_id')) : '';
 
         if(isset( $request->image_path)) {
             if (\File::exists(public_path($article->image))) {
@@ -165,7 +167,10 @@ class ArticleController extends Controller
 //            if(isset($request->tag)) $article->tag($request->tag);
 //        }
 
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $article->representations()->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect('/dashboard/site/article')->with([
             'update' => 'success'
         ]);

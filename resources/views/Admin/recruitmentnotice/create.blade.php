@@ -8,11 +8,11 @@
                 <div class="row">
                     @include('Admin.layouts.errors')
 
-                    <div class="col-12 col-md-6 mb-2">
+                    <div class="col-12 col-md-4 mb-2">
                         <label>عنوان </label>
                         <input type="text" class="form-control" name="title" value="{{old('title')}}" required>
                     </div>
-                    <div class="col-12 col-md-6 mb-2">
+                    <div class="col-12 col-md-4 mb-2">
                         <label>استان ها</label>
                         <select class="form-control" name="province_id"
                                 id="confirm">
@@ -21,6 +21,17 @@
                             @endforeach
                         </select>
                     </div>
+                    @if(!auth()->user()->admin_representation_id)
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی *</label>
+                        <select name="representation_id" class="custom-select">
+                            @foreach($representations as $representation)
+                                <option value="">نمایندگی کل</option>
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
                     <div class="col-12 mb-2">
                         <label>توضیح</label>
                         <textarea  name="description">{{old('description')}}</textarea>

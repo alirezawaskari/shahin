@@ -22,7 +22,7 @@ class ArticleCollection extends ResourceCollection
                     'image' => $item->image,
                     'user' => $item->user,
                     'category_article' => $item->category_article,
-                    'created_at' => $item->created_at
+                    'created_at' => verta($item->created_at)->format('Y/m/d H:i:s'),
                 ];
             })
         ];

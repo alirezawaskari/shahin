@@ -25,6 +25,7 @@
                     <th>عنوان</th>
                     <th>استان</th>
                     <th>نمایش در سایت</th>
+                    <th>نمایندگی</th>
                     <th>اقدام</th>
                 </tr>
             </thead>
@@ -39,6 +40,7 @@
                 <td>
                     {!! \App\Helpers\Helper::iconIsItOrNot($recruitment_notice->status) !!}
                 </td>
+                <td>{{$recruitment_notice->representation ? $recruitment_notice->representation->fa_name : 'نمایندگی کل'}} </td>
                 <td>
                     <div data-v-15965e3b="" class="dropdown dropup">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"

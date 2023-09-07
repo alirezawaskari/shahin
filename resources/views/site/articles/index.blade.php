@@ -17,7 +17,7 @@
                                 <a href=""><img src="{{ $article->thumb }}" class="card-img-top" alt=""></a>
                                 <div class="card-body">
                                     <a href="" class="text-dark"><h5>{{ $article->title }}</h5></a>
-                                    <p class="card-text text-black-50">{{ str_limit($article->demo , 50) }}</p>
+                                    <p class="card-text text-black-50">{{ Str::limit($article->demo , 50) }}</p>
                                     <a href="{{ $article->path() }}" class="btn btn-orange text-white rounded-pill float-left font-12 py-2 px-4">ادامه
                                         مطلب</a>
                                     <span class="font-12 text-black-50 float-right pt-2">{{ verta($article->created_at)->format('%d %B ، %Y') }}</span>
