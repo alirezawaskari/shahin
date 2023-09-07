@@ -170,14 +170,21 @@ class Service extends Model
         return $this->morphMany(BeforeForm::class, 'beforeformable');
     }
 
+//    /**
+//     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+//     */
+//    public function centers()
+//    {
+//        return $this->morphMany(Center::class, 'centerable');
+//    }
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * Get all of the centers for the post.
      */
     public function centers()
     {
-        return $this->morphMany(Center::class, 'centerable');
+        return $this->morphToMany(Center::class, 'centerable');
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */

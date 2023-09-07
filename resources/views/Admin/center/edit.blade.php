@@ -16,9 +16,9 @@
                     <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
                     <br>
                     <br>
-                    فروش کالا <input type="radio" name="cat_type" value="category" onclick="catType(this.value)" {{
+                    فروش کالا <input id="category-type" type="radio" name="cat_type" value="category" onclick="catType(this.value)" {{
                         $center->centerable_type == 'App\Category' ? 'checked' : ''}}>
-                    ارائه خدمات <input type="radio" name="cat_type" value="service" onclick="catType(this.value)" {{
+                    ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service" onclick="catType(this.value)" {{
                         $center->centerable_type == 'App\Models\Service' ? 'checked' : ''}}>
                 </div>
                 <div class="col-12 mb-5">
@@ -32,8 +32,8 @@
                         @endforeach
                     </select>
 {{--                    @dd($center->services->where('id',2)->count())--}}
-                    <select class="form-control mb-3 select2" multiple="multiple" name="services[]" id="service">
-                        <option  disabled>انتخاب خدمت مربوطه</option>
+                    <select class="form-control mb-3 services-select" multiple="multiple" name="services[]" id="service">
+{{--                        <option  disabled>انتخاب خدمت مربوطه</option>--}}
                         @foreach ($services as $service)
                         <option value="{{ $service->id }}" {{$center->services->where('id',$service->id )->count()==1?'selected' :
                             '' }}>{{ $service->title }}

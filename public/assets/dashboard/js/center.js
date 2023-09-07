@@ -1,11 +1,13 @@
 catType($("input[name='cat_type']:checked").val());
 function catType(catType) {
     if (catType == 'category') {
+        $(".services-select").next(".select2").hide();
         $("#product_category").removeAttr("style").show();
         $("#category").removeAttr("style").show();
         $("#service_category").removeAttr("style").hide();
-        $("#service").removeAttr("style").hide();
+        // $("#service").removeAttr("style").hide();
     } else {
+        $(".services-select").next(".select2").show();
         $("#product_category").removeAttr("style").hide();
         $("#category").removeAttr("style").hide();
         $("#service_category").removeAttr("style").show();
@@ -14,7 +16,7 @@ function catType(catType) {
 }
 
 $(document).ready(function () {
-
+   $('#service-type').click();
     fetchData(1);
 
     function pagination(totalPages) {

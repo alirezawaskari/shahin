@@ -14,9 +14,9 @@
                         <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
                         <br>
                         <br>
-                        فروش کالا <input type="radio" name="cat_type" value="category" onclick="catType(this.value)"
+                        فروش کالا <input id="category-type" type="radio" name="cat_type" value="category" onclick="catType(this.value)"
                             checked>
-                        ارائه خدمات <input type="radio" name="cat_type" value="service" onclick="catType(this.value)">
+                        ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service" onclick="catType(this.value)">
                     </div>
                     <div class="col-12 mb-5">
                         <select class="form-control mb-3" name="item[service_category]" id="service_category">
@@ -27,7 +27,7 @@
                             @endforeach
                         </select>
                         <select  class="form-control mb-3 services-select"  multiple="multiple" name="service[]" id="service">
-                            <option selected disabled>انتخاب خدمت مربوطه</option>
+{{--                            <option selected disabled>انتخاب خدمت مربوطه</option>--}}
                             @foreach ($services as $service)
                             <option value="{{ $service->id }}">{{ $service->title }}
                             </option>
@@ -157,7 +157,9 @@
 <script src="{{ asset('/assets/dashboard/js/center.js') }}"></script>
 <script>
     $(document).ready(function() {
-        $('.services-select').select2();
+        $('.services-select').select2({
+            placeholder: "انتخاب خدمت مربوطه"
+        });
     });
 </script>
 @if (session()->get('center_success') == 'success')

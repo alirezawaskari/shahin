@@ -57,13 +57,20 @@ class Category extends Model
     {
         return $this->morphMany(FactorItem::class, 'factoritemable');
     }
-
+//
+//    /**
+//     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+//     */
+//    public function centers()
+//    {
+//        return $this->morphMany(Center::class, 'centerable');
+//    }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * Get all of the centers for the post.
      */
     public function centers()
     {
-        return $this->morphMany(Center::class, 'centerable');
+        return $this->morphToMany(Center::class, 'centerable');
     }
 
     /**
