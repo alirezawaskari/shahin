@@ -37,7 +37,8 @@
                         {{ $item->title }}
                     </td>
                     <td>
-                        {{ $item->centerable ? $item->centerable->title : ''}}
+{{--                        {{ $item->centerable ? $item->centerable->title : ''}}--}}
+                        {{implode(' | ',$item->services->pluck('title')->toArray())}}
                     </td>
                     <td>
                         {{ verta($item->created_at)->format('Y/m/d H:m:s') }}
