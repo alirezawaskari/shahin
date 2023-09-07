@@ -87,8 +87,8 @@ class ArticleController extends Controller
 
         $request['user_id'] = $request->user()->id;
         $article = Article::create($request->all());
-        $article->representations()->sync($request->input('representation_id'));
-
+        $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
+        $article->representations()->sync($representations);
         if(isset($request->image_path)) {
             $article->image = Helper::moveImage($request->image_path,'article');
             $article->save();
@@ -141,9 +141,10 @@ class ArticleController extends Controller
         );
         $request['user_id'] = $request->user()->id;
         $request['status'] = isset($request['status']) ? $request['status'] : 0;
+
         $article = Article::find($id);
         $article->update($request->all());
-        $article->representations()->sync($request->input('representation_id'));
+        !auth()->user()->admin_representation_id ? $article->representations()->sync($request->input('representation_id')) : '';
 
         if(isset( $request->image_path)) {
             if (\File::exists(public_path($article->image))) {
@@ -166,7 +167,10 @@ class ArticleController extends Controller
 //            if(isset($request->tag)) $article->tag($request->tag);
 //        }
 
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $article->representations()->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect('/dashboard/site/article')->with([
             'update' => 'success'
         ]);
