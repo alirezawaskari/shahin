@@ -9,8 +9,10 @@ use App\Models\RecruitmentNotice;
 use App\Models\Resume;
 use App\Models\User;
 use Carbon\Carbon;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class RecruitmentNoticeController extends Controller
@@ -52,8 +54,7 @@ class RecruitmentNoticeController extends Controller
      */
     public function send_resume(Request $request)
     {
-
-        $this->validate(request(), [
+        $validate = Validator::make($request->all(), [
             'name' => 'required|string',
             'family' => 'required|string',
             'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
@@ -63,6 +64,13 @@ class RecruitmentNoticeController extends Controller
             'recruitment_notice_id' => 'required',
             'resume' => 'mimes:pdf,jpg,jpeg|max:10000',
         ]);
+
+        if ($validate->fails()){
+            return response([
+                'status'=>'error',
+                'messages'=>$validate->errors()->all()
+            ]);
+        }
         $inputs = $request->all();
         $recruitment_notice = RecruitmentNotice::find($inputs['recruitment_notice_id']);
 
@@ -87,6 +95,13 @@ class RecruitmentNoticeController extends Controller
         if ($request->file('resume')) {
             $file = $this->upload($request->file('resume'));
             $resume->update(['resume' => $file]);
+        }
+
+        if ($request->ajax()) {
+            return response([
+                'status'=>'success',
+                'messages'=>'موفقیت ارسال شد .'
+            ]);
         }
         return redirect()->back()->with([
             'resume_success' => 'success'
