@@ -43,8 +43,7 @@ class SliderController extends Controller
      */
     public function create()
     {
-        $representations = Representation::where('status' , true)->get();
-        return view('Admin.site.slider.create' , compact('representations'));
+        return view('Admin.site.slider.create');
     }
 
     /**
@@ -130,8 +129,7 @@ class SliderController extends Controller
     {
         if ($id) {
             $slider = Slider::find($id);
-            $representations = Representation::where('status' , true)->get();
-            return view('Admin.site.slider.edit', ['slider' => $slider , 'representations' => $representations]);
+            return view('Admin.site.slider.edit', ['slider' => $slider]);
         }
         return redirect()->back();
     }

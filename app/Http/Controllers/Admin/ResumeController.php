@@ -91,6 +91,7 @@ class ResumeController extends Controller
         {
             $cards = Card::all();
             $recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
+            
             return view('Admin.resume.create' , compact('recruitment_notices' , 'cards'));
         }
     }
