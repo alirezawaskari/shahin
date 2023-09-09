@@ -46,6 +46,7 @@
                                 <option value="4">رد شده</option>
                         </select>
                     </div>
+                    @if(!auth()->user()->admin_representation_id)
                     <div class="col-12 col-md-3 mb-2">
                         <select class="form-control" name="representation">
                             <option value="all">انتخاب نمایندگی</option>
@@ -55,6 +56,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
                     <div class="col-12 col-md-3 mb-2">
                         <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="startDate">
                         </date-picker>
