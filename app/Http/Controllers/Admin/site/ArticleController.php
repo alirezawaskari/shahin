@@ -43,6 +43,10 @@ class ArticleController extends Controller
     public function filter(Request $request)
     {
         $articles = Article::query();
+        if(auth()->user()->admin_representation_id)
+        {
+            $articles = auth()->user()->admin_representation->articles();
+        }
         if (isset($request->title) && $request->title != ''){
             $articles->where('title','like','%'.$request->title.'%');
         }

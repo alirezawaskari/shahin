@@ -16,6 +16,10 @@ class SliderController extends Controller
     public function index()
     {
         $sliders = Slider::orderBy('id', 'DESC')->paginate(15);
+        if(auth()->user()->admin_representation_id)
+        {
+            $sliders = auth()->user()->admin_representation->sliders()->orderBy('id', 'DESC')->paginate(15);
+        }
         return view('Admin.site.slider.list', ['sliders' => $sliders]);
     }
 
@@ -25,6 +29,10 @@ class SliderController extends Controller
     public function indexOldSite()
     {
         $sliders = Slider::whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        if(auth()->user()->admin_representation_id)
+        {
+            $sliders = auth()->user()->admin_representation->sliders()->whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        }
         return view('Admin.site.slider.list', ['sliders' => $sliders]);
     }
 
