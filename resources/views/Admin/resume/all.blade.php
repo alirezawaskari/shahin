@@ -47,6 +47,15 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-3 mb-2">
+                        <select class="form-control" name="representation">
+                            <option value="all">انتخاب نمایندگی</option>
+                            @foreach($representations as $representation)
+                                <option value="">نمایندگی کل</option>
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 mb-2">
                         <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="startDate">
                         </date-picker>
                     </div>
@@ -89,6 +98,7 @@
                     <th>تاریخ ثبت</th>
                     <th>رزومه</th>
                     <th>عنوان شغلی</th>
+                    <th>نمایندگی</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>
                 </tr>
