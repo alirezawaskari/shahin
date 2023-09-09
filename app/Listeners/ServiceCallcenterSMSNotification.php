@@ -62,15 +62,17 @@ class ServiceCallcenterSMSNotification
     private function createLink($event)
     {
         $link = "";
-        $representation = $event->service->representations->where('status',1)->first();
-        if($event->service->isShow)
+        $single_web_page = $event->service->singleWebPages->first();
+
+        $link = 'services/'.$event->service->slug.'/'.$event->task->user_id.'/'.$event->task->id;
+        if(auth()->user->admin_representation)
         {
-            $link = 'services/'.$event->service->slug.'/'.$event->task->user_id.'/'.$event->task->id;
+            $link = 'representation/'.auth()->user->admin_representation->slug.'/'.$event->service->slug;
         }
-        elseif($representation)
-        {
-            $link = $representation->slug.'/'.$event->service->slug;
-        }
+		if($single_web_page)
+		{
+			$link = 'singleWebPage/'.$single_web_page->slug.'/'.$event->service->slug;
+		}
 
         return $link;
     }
