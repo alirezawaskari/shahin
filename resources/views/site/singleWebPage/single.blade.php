@@ -148,7 +148,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <input type="hidden" name="callcenter_id" value="{{ $callcenter->id }}">
+{{--                            <input type="hidden" name="callcenter_id" value="{{ $callcenter->id }}">--}}
                         </form>
 
                     </div>
