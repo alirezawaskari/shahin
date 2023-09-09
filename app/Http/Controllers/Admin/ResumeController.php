@@ -91,7 +91,7 @@ class ResumeController extends Controller
         {
             $cards = Card::all();
             $recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
-            
+
             return view('Admin.resume.create' , compact('recruitment_notices' , 'cards'));
         }
     }
@@ -140,7 +140,10 @@ class ResumeController extends Controller
         if ($request->urlresume) {
             $resume->update(['resume' => Helper::moveImage($request->urlresume,'document')]);
         }
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $resume->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect(route('resume.index'))->with([
             'create'=>'success'
         ]);

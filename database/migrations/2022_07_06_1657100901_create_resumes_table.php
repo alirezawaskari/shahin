@@ -20,11 +20,11 @@ class CreateResumesTable extends Migration
 		$table->text('work_history')->nullable()->default(NULL);
 		$table->text('description')->nullable()->default(NULL);
 		$table->text('resume')->nullable()->default(NULL);
-		$table->integer('recruitment_notice_id');
-        $table->foreign('recruitment_notice_id')->references('id')->on('recruitment_notices')->onDelete('cascade');
 		$table->integer('status')->default('0');
 		$table->integer('card_id')->default('6');
         $table->foreign('card_id')->references('id')->on('cards')->onDelete('cascade');
+        $table->integer('representation_id')->nullable();
+        $table->foreign('representation_id')->references('id')->on('representations')->onDelete('cascade');
 
         $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
