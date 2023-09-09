@@ -65,6 +65,7 @@ $(document).ready(function () {
                     }
                 },
                 { "data": "job_title" },
+                { "data": "representation" },
                 { "data": data,
                     "render": function (data){
                         switch(data.status) {

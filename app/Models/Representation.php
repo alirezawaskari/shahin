@@ -80,6 +80,13 @@ class Representation extends Model
     {
         return $this->hasMany(RecruitmentNotice::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function resumes()
+    {
+        return $this->hasMany(Resume::class);
+    }
      /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

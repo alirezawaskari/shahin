@@ -19,8 +19,7 @@
             </a>
         </div>
         <div class="col-3 d-flex justify-content-end">
-{{--            <a href="{{ $singleWebPage->path() }}">--}}
-                <a href="/singleWebPage/logistic">
+            <a href="{{ url('singleWebPage'.$singleWebPage->path()) }}">
                 <span class="ml-md-5 text-dark font-16 d-flex align-items-center">
                     برگشت
                     <i class="fas fa-arrow-left text-orange font-18 m-2"></i>

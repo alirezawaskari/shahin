@@ -164,6 +164,7 @@ class RecruitmentNoticeController extends Controller
                 "accept_rules" => $request->input('accept_rules')
             ]
         ]);
+        $resume->update(['representation_id' => $resume->recruitment_notice->representation_id]);
         return $resume;
     }
 

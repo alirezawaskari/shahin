@@ -18,6 +18,7 @@ use App\Models\Insuranceservice;
 use App\Models\Internetservice;
 use App\Models\Legalservice;
 use App\Models\Physiotherapyservice;
+use App\Models\Representation;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
@@ -212,6 +213,12 @@ class AppServiceProvider extends ServiceProvider
 
         });
 
+        view()->composer(['Admin.resume.all' , 'Admin.resume.create' , 'Admin.resume.edit' , 'Admin.site.slider.create' , 'Admin.site.slider.createMobileOld' , 'Admin.site.slider.edit' , 'Admin.site.article.create', 'Admin.site.article.edit','Admin.recruitmentnotice.create','Admin.recruitmentnotice.edit'], function ($view) {
+            $view->with([
+                'representations' => Representation::where('status' , true)->get(),
+            ]);
+
+        });
         Schema::defaultStringLength(191);
     }
 

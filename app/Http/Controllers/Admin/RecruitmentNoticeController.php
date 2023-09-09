@@ -29,8 +29,7 @@ class RecruitmentNoticeController extends AdminController
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
             $provinces = Province::all();
-            $representations = Representation::where('status' , true)->get();
-            return view('Admin.recruitmentnotice.create', compact('provinces' , 'representations'));
+            return view('Admin.recruitmentnotice.create', compact('provinces'));
         }
         return abort(401);
     }
@@ -72,8 +71,7 @@ class RecruitmentNoticeController extends AdminController
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
             $provinces = Province::all();
-            $representations = Representation::where('status' , true)->get();
-            return view('Admin.recruitmentnotice.edit', compact('recruitmentNotice', 'provinces' , 'representations'));
+            return view('Admin.recruitmentnotice.edit', compact('recruitmentNotice', 'provinces'));
         }
         return abort(401);
     }

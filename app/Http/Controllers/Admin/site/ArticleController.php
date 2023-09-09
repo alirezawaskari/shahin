@@ -43,6 +43,10 @@ class ArticleController extends Controller
     public function filter(Request $request)
     {
         $articles = Article::query();
+        if(auth()->user()->admin_representation_id)
+        {
+            $articles = auth()->user()->admin_representation->articles();
+        }
         if (isset($request->title) && $request->title != ''){
             $articles->where('title','like','%'.$request->title.'%');
         }
@@ -61,9 +65,8 @@ class ArticleController extends Controller
     public function create()
     {
         $category = CategoryArticle::all();
-        $representations = Representation::where('status' , true)->get();
         $tags = Tag::all();
-        return view('Admin.site.article.create', compact(['category' , 'tags' , 'representations']));
+        return view('Admin.site.article.create', compact(['category' , 'tags']));
     }
 
     /**
@@ -112,9 +115,8 @@ class ArticleController extends Controller
             $article= Article::find($id);
             $category = CategoryArticle::all();
             $tags = Tag::pluck('name');
-            $representations = Representation::where('status' , true)->get();
 
-            return view('Admin.site.article.edit', compact(['representations' , 'article', 'category', 'tags']));
+            return view('Admin.site.article.edit', compact(['article', 'category', 'tags']));
         }
         return redirect()->back();
     }

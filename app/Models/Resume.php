@@ -29,7 +29,13 @@ class Resume extends Model
     {
         return $this->belongsTo(RecruitmentNotice::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation()
+    {
+        return $this->belongsTo(Representation::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
@@ -51,6 +57,7 @@ class Resume extends Model
         $job_title = request('job_title');
         $status = request('status');
         $province = request('province');
+        $representation = request('representation');
 
         if (isset($province) && trim($province) != 'all') {
             $query->whereHas('recruitment_notice',function ($query)use($province){
@@ -58,6 +65,9 @@ class Resume extends Model
             });
         }
 
+        if (isset($representation) && trim($representation) != 'all') {
+            $query->where('representation_id',$representation);
+        }
         if (isset($name) && trim($name) != '') {
             $query->where('name', 'LIKE', '%' . $name . '%');
         }

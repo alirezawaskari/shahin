@@ -16,6 +16,10 @@ class SliderController extends Controller
     public function index()
     {
         $sliders = Slider::orderBy('id', 'DESC')->paginate(15);
+        if(auth()->user()->admin_representation_id)
+        {
+            $sliders = auth()->user()->admin_representation->sliders()->orderBy('id', 'DESC')->paginate(15);
+        }
         return view('Admin.site.slider.list', ['sliders' => $sliders]);
     }
 
@@ -25,6 +29,10 @@ class SliderController extends Controller
     public function indexOldSite()
     {
         $sliders = Slider::whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        if(auth()->user()->admin_representation_id)
+        {
+            $sliders = auth()->user()->admin_representation->sliders()->whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->orderBy('id', 'DESC')->paginate(15);
+        }
         return view('Admin.site.slider.list', ['sliders' => $sliders]);
     }
 
@@ -43,8 +51,7 @@ class SliderController extends Controller
      */
     public function create()
     {
-        $representations = Representation::where('status' , true)->get();
-        return view('Admin.site.slider.create' , compact('representations'));
+        return view('Admin.site.slider.create');
     }
 
     /**
@@ -130,8 +137,7 @@ class SliderController extends Controller
     {
         if ($id) {
             $slider = Slider::find($id);
-            $representations = Representation::where('status' , true)->get();
-            return view('Admin.site.slider.edit', ['slider' => $slider , 'representations' => $representations]);
+            return view('Admin.site.slider.edit', ['slider' => $slider]);
         }
         return redirect()->back();
     }
