@@ -28,4 +28,39 @@ class RecruitmentNotice extends Model
     {
         return $this->belongsTo(Representation::class);
     }
+
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        $title = request('title');
+        $province = request('province');
+        $startDate = request('startDate');
+        $endDate = request('endDate');
+        $status = request('status');
+        $representation = request('representation');
+
+        if (isset($province) && trim($province) != 'all') {
+                $query->where('province_id',$province);
+        }
+
+        if (isset($title) && trim($title) != '') {
+            $query->where('title', 'LIKE', '%' . $title . '%');
+        }
+
+        if (isset($phone) && trim($phone) != '') {
+            $query->where('phone', $phone);
+        }
+
+
+        if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+
+        return $query;
+    }
+
 }
