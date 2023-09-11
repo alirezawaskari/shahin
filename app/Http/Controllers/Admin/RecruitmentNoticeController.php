@@ -23,8 +23,7 @@ class RecruitmentNoticeController extends AdminController
             if (auth()->user()->isAbleTo('recruitment-notice-destroy')){
                 $recruitment_notice_delete_ability = true;
             }
-            $recruitment_notices = RecruitmentNotice::orderBy('updated_at' , 'desc')->get();
-            return view('Admin.recruitmentnotice.all', compact('recruitment_notices','recruitment_notice_delete_ability'));
+            return view('Admin.recruitmentnotice.all', compact('recruitment_notice_delete_ability'));
         }
         return abort(401);
     }
