@@ -571,6 +571,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/resume/desktop' , 'ResumeController@desktop');
     Route::get('/resume/desktop/filter' , 'ResumeController@filterDesktop');
     Route::post('/resume-delete' , 'ResumeController@delete');
+    Route::get('/recruitment-notice/filter', 'RecruitmentNoticeController@filter');
     Route::resource('recruitmentNotice', 'RecruitmentNoticeController');
     Route::resource('resume', 'ResumeController');
     //agency
