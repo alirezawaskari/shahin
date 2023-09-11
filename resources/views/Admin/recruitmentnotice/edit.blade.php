@@ -11,13 +11,13 @@
                 <div class="row">
                     @include('Admin.layouts.errors')
 
-                    <div class="col-12 col-md-4 mb-2">
+                    <div class="col-12 col-md-3 mb-2">
                         <label>عنوان </label>
                         <input type="text" value="{{ $recruitmentNotice->title }}"
                                class="form-control"
                                name="title" required>
                     </div>
-                    <div class="col-12 col-md-4 mb-2">
+                    <div class="col-12 col-md-3 mb-2">
                         <label>استان ها</label>
                         <select class="form-control" name="province_id" id="confirm">
                             @foreach($provinces as $province)
@@ -26,17 +26,17 @@
                         </select>
                     </div>
                     @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی *</label>
                         <select name="representation_id" class="custom-select">
                             @foreach($representations as $representation)
                                 <option value="">نمایندگی کل</option>
-                                <option value="{{$representation->id}}" {{ $representation->id == $recruitmentNotice->representation_id }}>{{$representation->fa_name}}</option>
+                                <option value="{{$representation->id}}" {{ $representation->id == $recruitmentNotice->representation_id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach
                         </select>
                     </div>
                     @endif
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>وضعیت نمایش</label>
                         <select class="form-control" name="status">
                             <option value="1" {{ $recruitmentNotice->status == 1 ? 'selected' : '' }}>

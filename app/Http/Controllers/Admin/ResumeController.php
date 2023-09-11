@@ -30,6 +30,7 @@ class ResumeController extends Controller
             if (auth()->user()->isAbleTo('resume-delete')){
                 $delete = true;
             }
+
             return view('Admin.resume.all' , compact('delete','provinces'));
         }
         return abort(401);
@@ -63,6 +64,10 @@ class ResumeController extends Controller
     public function filter(Request $request)
     {
         $resumes = Resume::filter()->latest();
+        if(auth()->user()->admin_representation_id)
+        {
+            $resumes = auth()->user()->admin_representation->resumes()->filter()->latest();
+        }
         if ($request->excel == 'on') {
             return (new ResumsExport($resumes))->download('resumes.xlsx');
         }
@@ -76,6 +81,10 @@ class ResumeController extends Controller
     public function filterDesktop(Request $request)
     {
         $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->where('status' , '!=' , 3)->where('status' , '!=' , 4)->latest();
+        if(auth()->user()->admin_representation_id)
+        {
+            $resumes = auth()->user()->admin_representation->resumes()->filter()->where('card_id', auth()->user()->roles->first()->card_id)->where('status' , '!=' , 3)->where('status' , '!=' , 4)->latest();
+        }
         if ($request->excel == 'on') {
             return (new ResumsExport($resumes))->download('resumes.xlsx');
         }
@@ -91,6 +100,7 @@ class ResumeController extends Controller
         {
             $cards = Card::all();
             $recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
+
             return view('Admin.resume.create' , compact('recruitment_notices' , 'cards'));
         }
     }
@@ -139,7 +149,10 @@ class ResumeController extends Controller
         if ($request->urlresume) {
             $resume->update(['resume' => Helper::moveImage($request->urlresume,'document')]);
         }
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $resume->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect(route('resume.index'))->with([
             'create'=>'success'
         ]);
