@@ -31,7 +31,12 @@ class RecruitmentNoticeController extends AdminController
 
     public function filter(Request $request)
     {
-        $recruitment_notice = RecruitmentNotice::filter()->latest();
+        if(auth()->user()->admin_representation_id)
+        {
+            $recruitment_notice = auth()->user()->admin_representation->recruitmentNotices()->filter()->latest();
+        }else{
+            $recruitment_notice = RecruitmentNotice::filter()->latest();
+        }
         if ($request->excel == 'on') {
             return (new RecruitmentNoticeExport($recruitment_notice))->download('recruitment_notice.xlsx');
         }

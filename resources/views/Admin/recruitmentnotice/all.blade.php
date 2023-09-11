@@ -40,6 +40,7 @@
                         @endforeach
                     </select>
                 </div>
+                @if(!auth()->user()->admin_representation_id)
                 <div class="col-12 col-md-3 mb-2">
                     <select name="representation" id="representation_id" class="custom-select select2" >
                         <option value="all">انتخاب نمایندگی</option>
@@ -48,6 +49,7 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
                 <div class="col-12 col-md-3 mb-2">
                     <div class="custom-control custom-switch mt-2">
                         <input type="checkbox" class="custom-control-input" name="excel" id="excel">
