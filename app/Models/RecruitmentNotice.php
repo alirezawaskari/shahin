@@ -54,6 +54,10 @@ class RecruitmentNotice extends Model
             $query->where('phone', $phone);
         }
 
+        if (isset($representation) && trim($representation) != 'all') {
+            $query->where('representation_id', $representation);
+        }
+
 
         if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
             $query->whereBetween('created_at', [$startDate, $endDate]);
