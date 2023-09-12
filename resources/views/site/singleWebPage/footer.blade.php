@@ -61,6 +61,12 @@
                             </span>
                             <span>شماره ثبت 478000 اداره کل استان تهران</span>
                         </li>
+                        <li class="item">
+                            <span>
+                                <i class="fas fa-map-marker"></i>
+                            </span>
+                            <span>{{$setting->address}}</span>
+                        </li>
                     </ul>
                 </div>
                 <div class="col-4 col-md-4 col-bottom-center">
