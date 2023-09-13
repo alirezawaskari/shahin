@@ -1,7 +1,6 @@
 @extends('site.master')
 @section('title')استخدام نیروی کار@endsection
 @section('description')استخدام شبکه لاله | استخدام لاله کارت | فرصت های شغلی شبکه لاله | فرصت های شغلی لاله کارت@endsection
-
 @section('content')
 
     <div class="service p-md-4">
@@ -87,6 +86,10 @@
                                             <div class="col-md-2">
                                                 <label>*شماره شناسنامه</label>
                                                 <input name="number_shenasname" class="form-control" required >
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label>*تاریخ تولد</label>
+                                                <input name="date_of_birth" class="form-control date_of_birth" required >
                                             </div>
                                             <div class="col-md-2">
                                                 <label>*محل صدور</label>
@@ -181,7 +184,7 @@
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label>تاریخ اتمام معافیت:</label>
-                                                    <input name="exemption_military_service_end_date" type="text" class="form-control  " >
+                                                    <input name="exemption_military_service_end_date" type="text" class="form-control exemption_military_service_end_date " >
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label>محل خدمت:</label>
@@ -189,7 +192,7 @@
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label>تاریخ خاتمه خدمت:</label>
-                                                    <input name="military_service_end_date" class="form-control  " >
+                                                    <input name="military_service_end_date" class="form-control military_service_end_date " >
                                                 </div>
                                             <div class="col-md-12">
                                                 <div class="alert alert-dark">*آخرین مدرک تحصیلی </div>
@@ -212,7 +215,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <label>تاریخ اخذ مدرک:</label>
-                                                <input name="education_end_date" class="form-control" >
+                                                <input name="education_end_date" class="form-control education_end_date" >
                                             </div>
                                             <div class="col-md-12">
                                                 <div class="alert alert-dark">نحوه همکاری  </div>
@@ -265,7 +268,7 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label>*تاریخی که میتوانید مشغول به کار گردید:</label>
-                                                <input name="start_work_date" class="form-control " required >
+                                                <input name="start_work_date" class="form-control start_work_date" required >
                                             </div>
                                             <div class="col-md-6">
                                                 <label>*حقوق درخواستی (ریال):</label>
@@ -387,6 +390,19 @@
     <script>
         //to do move script to single file
         $(document).ready(function () {
+            // $('.date_of_birth,.military_service_end_date ,.exemption_military_service_end_date , .start_work_date , .education_end_date').mobiscroll().pDatepicker({
+            //     // initialValueType: "gregorian",
+            //     format: "YYYY/MM/DD",
+            //     onSelect: "year",
+            //     timePicker: {
+            //         enabled: false,
+            //         meridiem: {
+            //             enabled: true
+            //         }
+            //     }
+            // });
+            // $('.date_of_birth,.military_service_end_date ,.exemption_military_service_end_date , .start_work_date , .education_end_date').val('');
+
             $("form.form-resume").submit(function(e) {
                 e.preventDefault();
                 var formData = new FormData(this);

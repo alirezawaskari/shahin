@@ -122,6 +122,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/', 'AdminController@dashboard');
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
+    Route::patch('/settings/update-company-info', [\App\Http\Controllers\Admin\SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
     Route::post('removeImgWorkSample', 'AdminController@removeImgWorkSample');
     Route::post('/service/fetch-serviceitem-by-service', 'ServiceController@fetchServiceItemsByServiceId');
     Route::get('/dailyDesktop', 'AdminController@dailyDesktop');
@@ -571,6 +572,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/resume/desktop' , 'ResumeController@desktop');
     Route::get('/resume/desktop/filter' , 'ResumeController@filterDesktop');
     Route::post('/resume-delete' , 'ResumeController@delete');
+    Route::get('/recruitment-notice/filter', 'RecruitmentNoticeController@filter');
     Route::resource('recruitmentNotice', 'RecruitmentNoticeController');
     Route::post('resume/transfer' , 'ResumeController@transfer');
     Route::resource('resume', 'ResumeController');

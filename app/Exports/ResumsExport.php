@@ -41,6 +41,8 @@ class ResumsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
             $temp['number_shenasname'] =  $item->detail['number_shenasname']??'';
 
+            $temp['date_of_birth'] =  $item->detail['date_of_birth']??'';
+
             $temp['birth_certificate_issuing_place'] =  $item->detail['birth_certificate_issuing_place']??'';
 
             $temp['national_number'] =  $item->detail['national_number']??'';
@@ -126,6 +128,7 @@ class ResumsExport implements FromCollection , ShouldAutoSize ,WithHeadings
             'موبایل',
             'عنوان شغلی',
             'شماره شناسنامه',
+            'تاریخ تولد',
             'محل صدور شناسنامه',
             'کد ملی',
             'دین',

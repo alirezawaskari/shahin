@@ -19,6 +19,40 @@
             <div class="container">
                 <div class="row justify-content-center mt-5">
                     <div class="col-md-8 ">
+                        <form action="{{route('settings.updateCompanyInfo')}}" method="post">
+                            @csrf
+                            @method('PATCH')
+                            <div class="form-row border  ">
+                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات سایت</div>
+                                <div class="col-md-12 form-group">
+                                    <label for="fullName">آدرس</label>
+                                    <input type="text" name="company_address" class="form-control  " value="{{$company_info->address}}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="fullName">تلفن</label>
+                                    <input type="text" name="company_call_phone" class="form-control  "   value="{{$company_info->call}}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="fullName">ایمیل</label>
+                                    <input type="text" name="company_email" class="form-control  "   value="{{$company_info->email}}">
+                                </div>
+
+                                <div class="form-group col-md-12 ">
+                                    <button type="submit" class="btn btn-success">ثبت </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card position-relative">
+        <div class="card-body">
+            <div class="container">
+                <div class="row justify-content-center mt-5">
+                    <div class="col-md-8 ">
                         <form action="{{route('settings.updateExpireDates')}}" method="post">
                             @csrf
                             @method('PATCH')

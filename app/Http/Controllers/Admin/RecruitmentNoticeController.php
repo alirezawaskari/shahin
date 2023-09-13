@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\RecruitmentNoticeExport;
+use App\Exports\RecruitmentNoticExport;
 use App\Helpers\Helper;
+use App\Http\Resources\RecruitmentNoticeCollection;
 use App\Models\Province;
 use App\Models\RecruitmentNotice;
 use App\Models\Representation;
@@ -16,12 +19,28 @@ class RecruitmentNoticeController extends AdminController
     public function index()
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
-            $recruitment_notices = RecruitmentNotice::orderBy('updated_at' , 'desc')->get();
-            return view('Admin.recruitmentnotice.all', compact('recruitment_notices'));
+            $recruitment_notice_delete_ability = false;
+            if (auth()->user()->isAbleTo('recruitment-notice-destroy')){
+                $recruitment_notice_delete_ability = true;
+            }
+            return view('Admin.recruitmentnotice.all', compact('recruitment_notice_delete_ability'));
         }
         return abort(401);
     }
 
+    public function filter(Request $request)
+    {
+        if(auth()->user()->admin_representation_id)
+        {
+            $recruitment_notice = auth()->user()->admin_representation->recruitmentNotices()->filter()->latest();
+        }else{
+            $recruitment_notice = RecruitmentNotice::filter()->latest();
+        }
+        if ($request->excel == 'on') {
+            return (new RecruitmentNoticeExport($recruitment_notice))->download('recruitment_notice.xlsx');
+        }
+        return new RecruitmentNoticeCollection($recruitment_notice->paginate(20));
+    }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
      */
@@ -105,12 +124,24 @@ class RecruitmentNoticeController extends AdminController
      * @param RecruitmentNotice $recruitmentNotice
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\never
      */
-    public function destroy(RecruitmentNotice $recruitmentNotice)
+    public function destroy( RecruitmentNotice $recruitmentNotice, Request $request)
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
             $recruitmentNotice->delete();
+            if ($request->ajax()) {
+                return response([
+                    'status' => 'success',
+                    'message'=>'عملیات موفق'
+                ]);
+            }
             return redirect(route('recruitmentNotice.index'))->with([
                 'delete' => 'success'
+            ]);
+        }
+        if ($request->ajax()) {
+            return response([
+                'status' => 'unauthorized',
+                'message' => 'شما مجاز به انجام این کار نیستید.'
             ]);
         }
         return abort(401);
