@@ -52,6 +52,13 @@ $(document).ready(function () {
             order:[[0,"desc"]],
             columns: [
                 { "data": "sort_by" },
+                {
+                    "targets": 1,
+                    "data": data,
+                    "render": function (data) {
+                        return `<input type="checkbox" name="id[]" value="${data.id}">`
+                    }
+                },
                 { "data": "name" },
                 { "data": "phone" },
                 { "data": "date" },
@@ -117,6 +124,41 @@ $(document).ready(function () {
         } ).draw();
     }
 
+    /*    if checkbox of transfer checked for all requests   */
+    $('#transfer_checkbox').change(function () {
+        if ($(this).is(':checked')) {
+            $('body td input:checkbox').prop('checked', this.checked);
+        } else {
+            $('body td input:checkbox').prop('checked', false);
+        }
+    });
+/*    click on do transfer */
+$("body").on('click', '#do_transfer', function (event) {
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var form = $('#transfer_form');
+    var formData = form.serialize();
+    $.ajax(
+        {
+            url: "/dashboard/resume/transfer",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                } else {
+                    $('.transfer_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
+                    });
+                }
+            }
+        });
+});
     /*    click on do filter */
     $("body").on('click','#do_filter',function (event) {
         if ($('#excel').prop('checked')==true){

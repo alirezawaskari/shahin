@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Exports\ResumsExport;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class ResumeController extends Controller
 {
@@ -258,6 +259,26 @@ class ResumeController extends Controller
             'request_type' => 'other',
             'status' => 0,
             'description' => $description
+        ]);
+    }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    public function transfer(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+        if ($validation->fails()){
+            return response(['status'=>'error','messages'=>$validation->messages()->all()]);
+        }
+        $resumes = Resume::where('id' , $request->id);
+        $resumes->update(['representation_id' => $request->end_representation]);
+        return response([
+            'operator' => true,
+            'status'=>'success',
+            'messages'=>'انتقال با موفقیت انجام گرفت .'
         ]);
     }
 }

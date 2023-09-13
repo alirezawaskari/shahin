@@ -209,5 +209,6 @@ return array(
         'pay_to_id'=>'شناسه  گیرنده ',
         'pay_to_province_id'=>'استان  گیرنده ',
         'category_id'=>'دسته بندی',
+        'end_representation' => 'نمایندگی مقصد',
     ),
 );
