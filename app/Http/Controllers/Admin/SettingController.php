@@ -19,6 +19,18 @@ class SettingController extends AdminController
         return view('Admin.setting.edit' , compact('setting'));
     }
 
+
+    public function updateCompanyInfo(Request $request)
+    {
+        Cache::forget('setting');
+        Setting::first()->update([
+           'address'=>$request->company_address,
+           'call'=>$request->company_call_phone,
+           'email'=>$request->company_email,
+        ]);
+        alert()->success('','عملیات موفق');
+        return redirect()->back();
+    }
     /**
      * Show the form for creating a new resource.
      *
