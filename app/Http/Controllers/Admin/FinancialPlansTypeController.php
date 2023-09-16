@@ -21,6 +21,10 @@ class FinancialPlansTypeController extends Controller
     public function index()
     {
         $financial_plans_types = FinancialPlansType::all();
+        if(auth()->user()->admin_representation_id)
+        {
+            $financial_plans_types = auth()->user()->admin_representation->financialPlansTypes();
+        }
         return view('Admin.financialplanstype.all' , compact(['financial_plans_types']));
     }
 
@@ -56,6 +60,8 @@ class FinancialPlansTypeController extends Controller
         $financial_plans_type = FinancialPlansType::create($input);
         $financial_plans_type->categories()->attach($request->category);
         $financial_plans_type->services()->attach($request->service);
+        $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
+        $financial_plans_type->representations()->sync($representations);
 
         return redirect()->route('financialPlansType.index')->with([
             'create' => 'success'
@@ -96,6 +102,7 @@ class FinancialPlansTypeController extends Controller
         $financialPlansType->update($input);
         $financialPlansType->categories()->sync($request->category);
         $financialPlansType->services()->sync($request->service);
+        !auth()->user()->admin_representation_id ? $financialPlansType->representations()->sync($request->input('representation_id')) : '';
 
         return redirect()->route('financialPlansType.index')->with([
             'update' => 'success',
