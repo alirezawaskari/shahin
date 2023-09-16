@@ -54,7 +54,13 @@ class FinancialPlansType extends Model
     {
         return $this->belongsTo(User::class , 'applicant_id');
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function representations()
+    {
+        return $this->belongsToMany(Representation::class);
+    }
     /**
      * @param mixed $payment_type
      * @return bool

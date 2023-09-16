@@ -94,13 +94,27 @@
                         <option value="1">فعال</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
-                    <label>نمایش در سایت</label>
-                    <select class="form-control" name="is_show">
-                        <option value="0">غیرفعال</option>
-                        <option value="1">فعال</option>
-                    </select>
-                </div>
+                @if(!auth()->user()->admin_representation_id)
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی</label>
+                        <select name="representation_id" class="custom-select select2" multiple>
+                            @foreach($representations as $representation)
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="status" value="1"
+                                       @if(old('status') == 1) checked @endif>نمایش در سایت نمایندگی کل
+                            </label>
+                            @if($errors->has('status'))<span
+                                    class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
+                        </div>
+                    </div>
+                    @endif
             </div>
             <div class="row">
                 <div class="col-12 col-md-6 mb-4 mt-3 pt-3 border-top">
