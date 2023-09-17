@@ -102,6 +102,8 @@ $(document).ready(function () {
                                 return '<span class="badge badge-primary">قسط</span> ';
                             case 'guaranty':
                                 return '<span class="badge badge-info">ضمانت</span> ';
+                            case 'prepayment':
+                                return '<span class="badge badge-purple">پیش پرداخت</span> ';
                             default:
                                 return ''
                         }

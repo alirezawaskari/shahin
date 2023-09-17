@@ -22,6 +22,7 @@ class Check extends Model implements AuditableContract
     const TITLE = [
         'installment' => 'قسط',
         'guaranty' => 'ضمانت',
+        'prepayment' => 'پیش پرداخت'
     ];
 
     /**

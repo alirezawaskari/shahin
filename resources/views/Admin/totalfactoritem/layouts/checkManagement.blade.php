@@ -1,5 +1,6 @@
 <div class="container">
-    @if($totalFactorItem->confirm!=1 && auth()->user()->isAbleTo('store-check'))
+{{--    @if($totalFactorItem->confirm!=1 && auth()->user()->isAbleTo('store-check'))--}}
+    @if(true && auth()->user()->isAbleTo('store-check'))
         <button class="btn btn-success m-2" data-toggle="modal" data-target="#storeCheckModal" id="add-new-check-btn">
             <i class="fa fa-plus m-5"></i> افزودن چک
         </button>
@@ -57,6 +58,9 @@
                                     @case('guaranty')
                                     <span class="badge badge-info"> ضمانت</span>
                                     @break
+                                    @case('prepayment')
+                                    <span class="badge badge-purple"> پیش پرداخت</span>
+                                    @break
                                     @default
                                     <span>{{$check->title}}</span>
                                 @endswitch
@@ -93,7 +97,8 @@
                                 @endswitch
                             </td>
                             <td>
-                                @if($totalFactorItem->confirm!=1)
+{{--                                @if($totalFactorItem->confirm!=1)--}}
+                                @if(true)
                                     @permission('update-check')
                                     <span
                                         data-applicant="{{$check->applicantable->name.' '.$check->applicantable->family}}"
@@ -366,11 +371,12 @@
                                                 <input name="date" id="check-date" class="form-control  check-date"
                                                        required>
                                             </div>
-                                            <div class="form-group col-md-4  ">
+                                            <div class="form-group col-md-4 ">
                                                 <label>بابت :</label>
                                                 <select name="title" class="form-control" id="check-title">
                                                     <option value="installment">قسط</option>
                                                     <option value="guaranty">ضمانت</option>
+                                                    <option value="prepayment">پیش پرداخت</option>
                                                 </select>
                                             </div>
 
@@ -473,6 +479,7 @@
                                         <select name="title" class="form-control" id="edit-check-title">
                                             <option value="installment">قسط</option>
                                             <option value="guaranty">ضمانت</option>
+                                            <option value="prepayment">پیش پرداخت</option>
                                         </select>
                                     </div>
 
