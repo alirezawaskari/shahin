@@ -141,9 +141,9 @@ class CheckController extends Controller
             return response(['status' => 'error', 'messages' => $validator->messages()->all()]);
         }
 
-        if (TotalFactorItem::find($request->total_factor_item_id)->confirm == 1) {
-            return abort(403);
-        }
+//        if (TotalFactorItem::find($request->total_factor_item_id)->confirm == 1) {
+//            return abort(403);
+//        }
 
         //find exporter and payer user
         is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id, $request->exporter_gender) : $exporter = User::find($request->exporter_id);
@@ -209,13 +209,13 @@ class CheckController extends Controller
         if (!auth()->user()->isAbleTo('update-status-check')) {
             return abort(403);
         }
+
         //validate
         $error_messages = $this->validateUpdateStatus($request);
         if (count($error_messages) > 0) {
             return response(['status' => 'error', 'messages' => $error_messages]);
         }
         $check = Check::find($request->check_id);
-
 
         switch ($request->status) {
             case 1:
@@ -270,15 +270,19 @@ class CheckController extends Controller
             'check_id' => ['required', 'exists:checks,id'],
             'status' => ['required', Rule::in(array(0, 1, 2, 3, 11))],
             'receiver_id' => 'nullable|exists:users,id',
-            'receiver_phone' => 'required_if:receiver_id,null|required_if:status,4|regex:/(09)[0-9]{9}/|digits:11',
-            'receiver_name' => 'required_if:receiver_id,null|required_if:status,4|string',
-            'receiver_family' => 'required_if:receiver_id,null|required_if:status,4|string',
-            'receiver_gender' => ['required', Rule::in(array(0, 1))],
+            'receiver_phone' => 'nullable','regex:/(09)[0-9]{9}/|digits:11',
+            'receiver_name' => 'nullable','string',
+            'receiver_family' => 'nullable','string',
+            'receiver_gender' => ['nullable', Rule::in(array(0, 1))],
         ]);
 
         $error_messages = array();
         if ($validator->fails()) {
             return $validator->messages()->all();
+        }
+
+        if (is_null($request->receiver_id) && $request->status == 11 && (is_null($request->phone)||is_null($request->name)||is_null($request->family)||is_null($request->gender)) ) {
+            $error_messages[] = ' تمام اطلاعات کاربر الزامی می باشد , لطفا اطلاعات تحویل گیرنده را کامل وارد نمایید .';
         }
 
         $check = Check::find($request->check_id);
@@ -309,10 +313,10 @@ class CheckController extends Controller
         $check->update([
             'status' => 1
         ]);
-        if ($check->title == 'installment') {
+        if ($check->title == 'installment' ||$check->title == 'prepayment'  ) {
             //crated factor
             $factor = new Factor();
-            $factor->title = 'installment';
+            $factor->title = $check->title;
             $factor->user_id = $check->checkable->factor->user->id;
             $factor->price = $check->amount;
 //            $factor->level =0;
@@ -323,8 +327,7 @@ class CheckController extends Controller
             $factor->save();
             Factor::savePayment($factor);
         }
-//        $history_text=" چک وصول شد ، شناسه و نام کاربر ثبت کننده وصول چک :";
-//        $this->storeCheckActionHistory($check,$history_text);
+
     }
 
     /**
@@ -356,6 +359,7 @@ class CheckController extends Controller
     {
         return Validator::make($request->all(), [
             'applicant_id' => 'nullable|numeric|exists:users,id',
+            'title' => ['required',Rule::in(array_keys(Check::TITLE))],
             'exporter_id' => 'nullable|numeric|exists:users,id',
             'exporter_phone' => 'required_if:exporter_id,null|regex:/(09)[0-9]{9}/|digits:11',
             'exporter_name' => 'required_if:exporter_id,null|string',

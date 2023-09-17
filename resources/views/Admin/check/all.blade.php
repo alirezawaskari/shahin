@@ -64,12 +64,11 @@
                     <div class="col-12 col-md-4 mb-2">
                         <select class="form-control select2" name="title">
                             <option value="all">انتخاب موضوع چک</option>
-                            <option value="installment">
-                               قسط
-                            </option>
-                            <option value="guaranty">
-                              ضمانت
-                            </option>
+                            @foreach(\App\Models\Check::TITLE as $key=>$value)
+                                <option value="{{$key}}">
+                                    {{$value}}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-12 col-md-4 mb-2">
