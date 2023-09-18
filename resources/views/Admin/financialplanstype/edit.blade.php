@@ -109,9 +109,9 @@
                     </select>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی</label>
-                        <select name="representation_id" class="custom-select select2" multiple>
+                        <select name="representation_id[]" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}" {{ in_array(trim($representation->id) , $financialPlansType->representations()->pluck('id')->toArray()) ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach
@@ -122,7 +122,7 @@
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="status" value="1"
-                                       @if($article->status == 1) checked @endif>نمایش در سایت نمایندگی کل
+                                       @if($financialPlansType->status == 1) checked @endif>نمایش در سایت نمایندگی کل
                             </label>
                             @if($errors->has('status'))<span
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif

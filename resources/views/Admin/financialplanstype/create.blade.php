@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>هزینه ثبت نام (ریال)</label>
-                    <input type="text" class="form-control" name="price" oninput="separatePrices(this)">
+                    <input type="text" class="form-control" value="0" name="price" oninput="separatePrices(this)">
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>نوع پرداخت</label>
@@ -81,11 +81,11 @@
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>درصد پیش پرداخت (%)</label>
-                    <input type="number" class="form-control" name="prepayment_percent" min="0" max="100">
+                    <input type="number" class="form-control" value="0" name="prepayment_percent" min="0" max="100">
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>درصد تخفیف (%)</label>
-                    <input type="number" class="form-control" name="discount_percent" min="0" max="100">
+                    <input type="number" class="form-control" value="0" name="discount_percent" min="0" max="100">
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>وضعیت</label>
@@ -95,9 +95,9 @@
                     </select>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی</label>
-                        <select name="representation_id" class="custom-select select2" multiple>
+                        <select name="representation_id[]" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
@@ -108,7 +108,7 @@
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="status" value="1"
-                                       @if(old('status') == 1) checked @endif>نمایش در سایت نمایندگی کل
+                                       @if(old('status') == 1) checked @endif> نمایش در سایت نمایندگی کل
                             </label>
                             @if($errors->has('status'))<span
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
