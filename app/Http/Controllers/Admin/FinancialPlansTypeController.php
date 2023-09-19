@@ -23,7 +23,7 @@ class FinancialPlansTypeController extends Controller
         $financial_plans_types = FinancialPlansType::all();
         if(auth()->user()->admin_representation_id)
         {
-            $financial_plans_types = auth()->user()->admin_representation->financialPlansTypes();
+            $financial_plans_types = auth()->user()->admin_representation->financialPlansTypes()->get();
         }
         return view('Admin.financialplanstype.all' , compact(['financial_plans_types']));
     }
@@ -45,6 +45,11 @@ class FinancialPlansTypeController extends Controller
     public function store(Request $request)
     {
         Cache::forget('near_end_date_financial_plans');
+        $this->validate(request(), [
+            'title' => 'required|string',
+            'payment_type' => 'required',
+            'capacity' => 'required',
+        ]);
         $input = $request->all();
 
         if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
@@ -53,6 +58,8 @@ class FinancialPlansTypeController extends Controller
         unset($input['service']);
         unset($input['category']);
         unset($input['_token']);
+        unset($input['representation_id']);
+
         $input['price'] = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         $input['applicant_id'] = auth()->user()->id;
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
@@ -86,6 +93,13 @@ class FinancialPlansTypeController extends Controller
      */
     public function update(FinancialPlansType $financialPlansType , Request $request)
     {
+        $editable = auth()->user()->admin_representation_id ? self::checkExistAnotherRepresentation($financialPlansType) : true;
+        if(!$editable)
+        {
+            return redirect()->route('financialPlansType.index')->with([
+                'failByMessage' => 'نمایندگی دیگری از این طرح استفاده می کند . امکان ویرایش این طرح وجود ندارد.',
+            ]);
+        }
         Cache::forget('near_end_date_financial_plans');
         $input = $request->all();
 
@@ -95,6 +109,8 @@ class FinancialPlansTypeController extends Controller
         unset($input['service']);
         unset($input['category']);
         unset($input['_token']);
+        unset($input['representation_id']);
+
         $input['price'] = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
         $input['end_date'] = Helper::vertaToMiladi($request->end_date);
@@ -159,6 +175,18 @@ class FinancialPlansTypeController extends Controller
                 return response()->json(['count' => 'available', 'financial_plans_types' => $financial_plans_types]);
             }
        }
+    }
+    /**
+     * @param \App\Models\FinancialPlansType $financialPlansType
+     * @return bool
+     */
+    private function checkExistAnotherRepresentation(FinancialPlansType $financialPlansType)
+    {
+        if($financialPlansType->representations()->count() == 1 && in_array(trim(auth()->user()->admin_representation_id) , $financialPlansType->representations()->pluck('id')->toArray()))
+        {
+            return true;
+        }
+        return false;
     }
 }
 
