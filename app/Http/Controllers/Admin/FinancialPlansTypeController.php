@@ -182,7 +182,7 @@ class FinancialPlansTypeController extends Controller
      */
     private function checkExistAnotherRepresentation(FinancialPlansType $financialPlansType)
     {
-        if($financialPlansType->representations()->count() == 1 && in_array(trim(auth()->user()->admin_representation_id) , $financialPlansType->representations()->pluck('id')->toArray()))
+        if(!$financialPlansType->is_show && $financialPlansType->representations()->count() == 1 && in_array(trim(auth()->user()->admin_representation_id) , $financialPlansType->representations()->pluck('id')->toArray()))
         {
             return true;
         }
