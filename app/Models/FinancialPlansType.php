@@ -20,9 +20,9 @@ class FinancialPlansType extends Model
      *type of payment
      */
     const TYPE = [
-        'cash' => 'پرداخت نقدی',
         'installment' => 'پرداخت اقساطی',
         'check' => 'پرداخت از طریق چک',
+        'cash' => 'پرداخت نقدی',
     ];
 
     /**

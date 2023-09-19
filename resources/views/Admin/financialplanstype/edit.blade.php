@@ -64,8 +64,8 @@
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>ظرفیت طرح (حداکثر تعداد استفاده از طرح)</label>
-                    <input type="text" value="{{ $financialPlansType->capacity }}" class="form-control" name="capacity"
-                        required>
+                    <input type="number" value="{{ $financialPlansType->capacity }}" class="form-control" name="capacity"
+                        min="1" required>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
@@ -82,7 +82,7 @@
                     </date-picker>
                 </div>
 
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}" id="guarantee_type">
                     <label>نوع ضمانت</label>
                     <select class="form-control select2" name="guarantee_type[]" multiple>
                         @foreach (App\Models\TotalFactorItem::GuaranteeTYPE as $key => $item)
@@ -91,7 +91,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}" id="prepayment_percent">
                     <label>درصد پیش پرداخت (%)</label>
                     <input type="number" class="form-control" name="prepayment_percent" min="0" max="100"
                         value="{{ $financialPlansType->prepayment_percent }}">

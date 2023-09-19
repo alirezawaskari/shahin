@@ -45,6 +45,11 @@ class FinancialPlansTypeController extends Controller
     public function store(Request $request)
     {
         Cache::forget('near_end_date_financial_plans');
+        $this->validate(request(), [
+            'title' => 'required|string',
+            'payment_type' => 'required',
+            'capacity' => 'required',
+        ]);
         $input = $request->all();
 
         if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
@@ -53,6 +58,8 @@ class FinancialPlansTypeController extends Controller
         unset($input['service']);
         unset($input['category']);
         unset($input['_token']);
+        unset($input['representation_id']);
+
         $input['price'] = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         $input['applicant_id'] = auth()->user()->id;
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
@@ -95,6 +102,8 @@ class FinancialPlansTypeController extends Controller
         unset($input['service']);
         unset($input['category']);
         unset($input['_token']);
+        unset($input['representation_id']);
+
         $input['price'] = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
         $input['end_date'] = Helper::vertaToMiladi($request->end_date);

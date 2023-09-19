@@ -54,24 +54,24 @@
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>ظرفیت طرح (حداکثر تعداد استفاده از طرح)</label>
-                    <input type="text" class="form-control" name="capacity"
-                        required>
+                    <input type="number" class="form-control" name="capacity"
+                    min="1" required>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ آغاز</label>
                     <date-picker format="YYYY/M/D HH:mm:ss" name="start_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date">
+                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date" value="{{ now() }}">
                     </date-picker>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ پایان</label>
                     <date-picker format="YYYY/M/D HH:mm:ss" name="end_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date">
+                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date" value="{{ now() }}">
                     </date-picker>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2" id="guarantee_type">
                     <label>نوع ضمانت</label>
                     <select class="form-control select2" name="guarantee_type[]" multiple>
                         @foreach (App\Models\TotalFactorItem::GuaranteeTYPE as $key => $item)
@@ -79,7 +79,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2" id="prepayment_percent">
                     <label>درصد پیش پرداخت (%)</label>
                     <input type="number" class="form-control" value="0" name="prepayment_percent" min="0" max="100">
                 </div>
