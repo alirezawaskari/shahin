@@ -642,6 +642,13 @@ class TotalFactorItemController extends Controller
     {
         $item = $request->item;
         $total_factor_item = TotalFactorItem::find($item['id']);
+        //check confirmation totalFactorItem
+        if($total_factor_item->confirm)
+        {
+            return redirect()->back()->with([
+                'failByMessage' => 'این پرونده قبلا تایید شده است امکان تغییر وضعیت اجرایی پرونده وجود ندارد.'
+            ]);
+        }
         $factor_items = $total_factor_item->factorItems;
         $total_factor_item->update([
             'total_factor_item_status_id' => $request->status_factor,
