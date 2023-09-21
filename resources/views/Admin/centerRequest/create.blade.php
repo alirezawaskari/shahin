@@ -61,32 +61,33 @@
                     <br>
                     <br>
                     <div class="form-row">
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label>موضوع</label>
-                            <input name="subject" class="form-control" required placeholder="موضوع درخواست خود را وارد نمایید">
+                            <input name="subject" class="form-control" required
+                                placeholder="موضوع درخواست خود را وارد نمایید">
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
-                            <label>نام  </label>
+                        <div class="col-12 col-md-3 mb-3">
+                            <label>نام </label>
                             <input type="text" name="name" placeholder="نام " class="form-control">
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label> نام خانوادگی</label>
                             <input type="text" name="family" placeholder="  نام خانوادگی" class="form-control">
                         </div>
 
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label>شماره موبایل</label>
                             <input type="number" name="phone" placeholder="شماره موبایل" class="form-control">
                         </div>
                     </div>
 
                     <div class="form-row">
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label>نحوه آشنایی</label>
                             <input name="connections" class="form-control"
                                 placeholder="نحوه آشنایی با شرکت را وارد نمائید">
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label>استان</label>
                             <select class="form-control" type="int" name="province_id" id="province_id" required>
                                 <option value="">انتخاب استان</option>
@@ -95,7 +96,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label>شهر</label>
                             <select class="form-control" type="int" name="city_id" id="city_id" required>
                                 <option value="">انتخاب شهر</option>
@@ -104,18 +105,19 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
-                        <label>نمایندگی *</label>
-                        <select name="representation_id[]" class="custom-select select2">
-                        <option value="">نمایندگی کل</option>
-                            @foreach($representations as $representation)
+                        @if(!auth()->user()->admin_representation_id)
+                        <div class="col-12 col-md-3 mb-3">
+                            <label>نمایندگی *</label>
+                            <select name="representation_id[]" class="form-control select2">
+                                <option value="">نمایندگی کل</option>
+                                @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
-                            @endforeach
-                        </select>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
                     </div>
-                    @endif
+
                     <div class="form-row">
                         <div class="col-12 mb-3">
                             <label>توضیحات مرکز</label>
