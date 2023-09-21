@@ -518,3 +518,64 @@ $(document).on('click', '.remove_work_sample', function () {
         }
     });
 });
+
+$(document).ready(function () {
+ //submit on create new user
+        $("#create-user-form").submit(function (event) {
+            var form = $(this);
+            var formData = form.serialize();
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url:  $(this).attr('action'),
+                data: formData,
+            }).done(function (data) {
+                 if (data.status == 'success'){
+                     swal("عملیات موفق! ",data.message, "success");
+                     clearNewUserFormInputsData();
+                 }else if(data.status=='error'){
+                     swal("توجه! ",data.message, "error");
+                     clearNewUserFormInputsData();
+                 }else if(data.status=='validation_error'){
+                     swal("خطا! ", data.messages.join('\n'), "error");
+                 }
+            });
+            event.preventDefault();
+        });
+//------------------------------------------------------------------------------
+//select province for create new user
+    $('#new_user_province_id').on('change', function () {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var id = $(this).val();
+        $.ajax({
+            url: '/city/select',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                "_token": token,
+                "id": id,
+            },
+            success: function (data) {
+                $('#new_user_city_id')
+                    .empty()
+                    .append('<option value="all">انتخاب شهر</option>')
+                ;
+                $.each(data.cities, function (i, d) {
+                    $('#new_user_city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
+                });
+            }
+        });
+    });
+//-----------------------------------------------------------------------------------------------------
+});
+function clearNewUserFormInputsData(){
+    $('#new_user_name').val('');
+    $('#new_user_family').val('');
+    $('#new_user_gender').val('');
+    $('#new_user_province_id').val('');
+    $('#new_user_city_id').val('');
+}

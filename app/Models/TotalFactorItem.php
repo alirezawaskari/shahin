@@ -921,6 +921,15 @@ class TotalFactorItem extends Model implements AuditableContract
     }
 
     /**
+     * @return mixed
+     */
+    public function promissories()
+    {
+        return $this->morphMany(Promissory::class , 'promissoryable');
+
+    }
+
+    /**
      * @param TotalFactorItem $item
      * @return array
      * this function is used get guarantee types list by financialPlansType selected if exist financialPlansType else get all guarantee types list

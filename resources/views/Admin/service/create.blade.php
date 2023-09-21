@@ -26,6 +26,12 @@
                                    class="form-control" placeholder="لطفا عنوان انگلیسی را وارد کنید"
                                    name="en_title" required>
                         </div>
+                        <div class="col-12 col-md-4 mb-4">
+                            <label>عنوان لینک</label>
+                            <input type="text" value="{{old('slug')}}"
+                                   class="form-control" placeholder="لطفا عنوان لیتک را وارد کنید"
+                                   name="slug" required>
+                        </div>
                         <div class="col-12 col-md-12 mb-4">
                             <label>توضیحات</label>
                             <input type="text" value="{{old('description')}}"
