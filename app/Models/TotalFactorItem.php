@@ -129,6 +129,11 @@ class TotalFactorItem extends Model implements AuditableContract
         $query->whereHas('factor', function ($query) {
             $query->where('status', 1);
         });
+        if (auth()->user()->admin_representation) {
+            $query->whereHas('factor', function ($query){
+                $query->where('representation_id', auth()->user()->admin_representation_id);
+            });
+        }
         if (isset($name) && trim($name) != '') {
             $query->whereHas('factor', function ($query) use ($name) {
                 $query->whereHas('user', function ($query) use ($name) {
@@ -196,14 +201,8 @@ class TotalFactorItem extends Model implements AuditableContract
         }
 
         if (auth()->user()->hasPermission('file-detail')) {
-            if (auth()->user()->hasRole('mali-representation') || auth()->user()->hasRole('superadmin-representation')) {
-                $query->whereHas('factor', function ($query) use ($representation) {
-                    $query->where('representation_id', auth()->user()->admin_representation->id);
-                });
-            }
-
             if (auth()->user()->hasRole('organ-manager')) {
-                $query->whereHas('factor', function ($query) use ($organization) {
+                $query->whereHas('factor', function ($query) {
                     $query->where('organization_id', auth()->user()->admin_organization_id);
                 });
             }
@@ -217,7 +216,7 @@ class TotalFactorItem extends Model implements AuditableContract
 
             if (isset($representation) && trim($representation) != 'all') {
                 if (trim($representation) == 'center') {
-                    $query->whereHas('factor', function ($query) use ($representation) {
+                    $query->whereHas('factor', function ($query) {
                         $query->where('representation_id', null);
                     });
                 } else {

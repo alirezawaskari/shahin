@@ -98,14 +98,16 @@
 
                         </select>
                     </div>
-
+                    @if(!auth()->user()->admin_representation)
                     <div class="col-12 col-md-3 mb-2">
-                        <select class="form-control select2" name="representation" id="representation_id">
+                        <select name="representation" class="custom-select select2">
                             <option value="all">انتخاب نمایندگی</option>
-
+                            @foreach($representations as $representation)
+                            <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
                         </select>
                     </div>
-
+                    @endif
                     <div class="col-12 col-md-3 mb-2">
                         <select class="form-control select2" name="organization" id="organization_id">
                             <option value="all">انتخاب سازمان</option>

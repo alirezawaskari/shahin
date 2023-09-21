@@ -264,6 +264,11 @@ class FactorItem extends Model implements AuditableContract
             $query->where('status', 1);
         });
 
+        if (auth()->user()->admin_representation) {
+            $query->whereHas('factor', function ($query){
+                $query->where('representation_id', auth()->user()->admin_representation_id);
+            });
+        }
         if(isset($has_payment) && trim($has_payment) != '' && $has_payment != 'all')
         {
             if($has_payment == 'true')
@@ -293,12 +298,6 @@ class FactorItem extends Model implements AuditableContract
         }
 
         if (auth()->user()->hasPermission('file-detail')) {
-            if (auth()->user()->hasRole('mali-representation') || auth()->user()->hasRole('superadmin-representation')) {
-                $query->whereHas('factor', function ($query) use ($representation) {
-                    $query->where('representation_id', auth()->user()->admin_representation->id);
-                });
-            }
-
             if (auth()->user()->center_id) {
                 $center = auth()->user()->center_id;
                 $query->where('center_id', $center);
@@ -306,7 +305,7 @@ class FactorItem extends Model implements AuditableContract
 
             if (isset($representation) && trim($representation) != 'all') {
                 if (trim($representation) == 'center') {
-                    $query->whereHas('factor', function ($query) use ($representation) {
+                    $query->whereHas('factor', function ($query) {
                         $query->where('representation_id', null);
                     });
                 } else {
