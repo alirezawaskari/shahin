@@ -105,7 +105,17 @@
                             </select>
                         </div>
                     </div>
-
+                    @if(!auth()->user()->admin_representation_id)
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی *</label>
+                        <select name="representation_id[]" class="custom-select select2">
+                        <option value="">نمایندگی کل</option>
+                            @foreach($representations as $representation)
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
                     <div class="form-row">
                         <div class="col-12 mb-3">
                             <label>توضیحات مرکز</label>

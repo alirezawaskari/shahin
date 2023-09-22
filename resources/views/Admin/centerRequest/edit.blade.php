@@ -166,6 +166,17 @@
                             </option>
                         </select>
                     </div>
+                    @if(!auth()->user()->admin_representation_id)
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی *</label>
+                        <select name="representation_id" class="custom-select select2">
+                        <option value="" {{ $center_request->representation_id == null ? 'selected' : '' }}>نمایندگی کل</option>
+                            @foreach($representations as $representation)
+                                <option value="{{$representation->id}}" {{ $center_request->representation_id == $representation->id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
 
                     <div class="col-12 col-md-6 mb-3">
                         <label>توضیحات مرکز</label>
