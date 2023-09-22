@@ -30,7 +30,10 @@ class CenterRequestController extends AdminController
     {
 
         $center_requests = CenterRequest::filter()->latest();
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $center_requests = auth()->user()->admin_representation->centerRequests()->filter()->latest();
+        }
         if ($request->exel == 'on') {
             return (new CenterRequestExport($center_requests))->download('centerRequest.xlsx');
         }
@@ -83,8 +86,11 @@ class CenterRequestController extends AdminController
         self::createTask($user);
 
 //        CenterRequest::create($input);
-        self::createCenterRequest($center_category_id, $request);
-
+        $create_center_request = self::createCenterRequest($center_category_id, $request);
+        if(auth()->user()->admin_representation_id)
+        {
+            $create_center_request->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect(route('centerRequest.index'))->with([
             'create' => 'success',
         ]);
