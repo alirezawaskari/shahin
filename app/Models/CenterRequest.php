@@ -11,7 +11,7 @@ class CenterRequest extends Model {
     /**
     * @var array
     */
-    protected $guarded = [];
+     protected $guarded = [];
 
     /**
      * @var bool
@@ -42,6 +42,12 @@ class CenterRequest extends Model {
         return $this->belongsTo( User::class );
     }
 
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation() {
+        return $this->belongsTo( Representation::class );
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */

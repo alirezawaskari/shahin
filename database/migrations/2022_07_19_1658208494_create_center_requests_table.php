@@ -27,6 +27,8 @@ class CreateCenterRequestsTable extends Migration
         $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
 		$table->integer('province_id')->nullable()->default(NULL);
 		$table->foreign('province_id')->references('id')->on('provinces')->onDelete('cascade');
+		$table->integer('representation_id')->nullable()->default(NULL);
+        $table->foreign('representation_id')->references('id')->on('representations')->onDelete('cascade');
         $table->text('description')->nullable()->default(NULL);
 		$table->text('answer')->nullable()->default(NULL);
 

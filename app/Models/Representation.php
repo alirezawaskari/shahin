@@ -83,6 +83,13 @@ class Representation extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function centerRequests()
+    {
+        return $this->hasMany(CenterRequest::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function recruitmentNotices()
     {
         return $this->hasMany(RecruitmentNotice::class);
