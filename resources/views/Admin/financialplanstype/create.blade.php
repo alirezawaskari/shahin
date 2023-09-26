@@ -107,11 +107,11 @@
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="status" value="1"
-                                       @if(old('status') == 1) checked @endif> نمایش در سایت نمایندگی کل
+                                <input type="checkbox" name="is_show" value="1"
+                                       @if(old('is_show') == 1) checked @endif> نمایش در سایت نمایندگی کل
                             </label>
-                            @if($errors->has('status'))<span
-                                    class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
+                            @if($errors->has('is_show'))<span
+                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                         </div>
                     </div>
                     @endif
