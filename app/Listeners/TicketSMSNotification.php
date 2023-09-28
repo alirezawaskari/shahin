@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Classes\External\IranSms;
 use App\Events\ticketNotification;
+use http\Url;
 
 class TicketSMSNotification
 {
@@ -34,6 +35,7 @@ class TicketSMSNotification
 
             $body = [
                 'param1' => $name,
+                'param2'=>url('/dashboard/ticket/'.$event->ticket->id.'/edit')
             ];
             IranSms::sendSingleSms('ticketnotification',$userMobile,$body);
 
