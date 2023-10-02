@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Intervention\Image\Facades\Image;
 
 
 class AdminController extends Controller
@@ -69,7 +70,25 @@ class AdminController extends Controller
             $random=random_int('10000','99999');
             $filepath = "{$path}/{$year}/{$month}/{$user_id}/";
             $filename = "{$random}_" . $file->getClientOriginalName();
-            $file->move(public_path($filepath), $filename);
+            // image max size
+            //$max_file_size = 1 * 1024 * 1024;
+            $max_file_size =700 * 1024;
+            // Image quality
+            $quality = 80;
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            $file_extension = $file->getClientOriginalExtension();
+            if(in_array($file_extension, $allowed_extensions) && $file->getSize() > $max_file_size ) {
+                $image = Image::make($file->getRealPath());
+                $image->resize(null, 1500, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $image->save(public_path($filepath) . $filename, $quality);
+            }
+            else{
+                $file->move(public_path($filepath), $filename);
+            }
+
             $image_name =  $filepath . $filename;
 
             return ['image_name' => $image_name, 'status' => true];
