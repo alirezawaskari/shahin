@@ -168,9 +168,9 @@
                     </div>
                     @if(!auth()->user()->admin_representation_id)
                     <div class="col-12 col-md-3 mb-3">
-                        <label>نمایندگی *</label>
+                        <label>نمایندگی</label>
                         <select name="representation_id" class="custom-select select2">
-                        <option value="" {{ $center_request->representation_id == null ? 'selected' : '' }}>نمایندگی کل</option>
+                        <option value=" " {{ $center_request->representation_id == null ? 'selected' : '' }}>نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}" {{ $center_request->representation_id == $representation->id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach

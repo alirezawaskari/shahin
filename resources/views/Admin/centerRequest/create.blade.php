@@ -107,8 +107,8 @@
                         </div>
                         @if(!auth()->user()->admin_representation_id)
                         <div class="col-12 col-md-3 mb-3">
-                            <label>نمایندگی *</label>
-                            <select name="representation_id[]" class="form-control select2">
+                            <label>نمایندگی</label>
+                            <select name="representation_id" class="form-control select2">
                                 <option value="">نمایندگی کل</option>
                                 @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
