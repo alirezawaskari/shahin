@@ -25,7 +25,10 @@ class CenterController extends AdminController
             {
                 $centers = Center::find( auth()->user()->center_id );
             }
-
+            if(auth()->user()->admin_representation_id)
+            {
+                $centers = auth()->user()->admin_representation->centers();
+            }
             return view( 'Admin.center.all', compact( 'centers' ) );
         }
         return abort('401');
