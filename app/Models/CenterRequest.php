@@ -101,9 +101,14 @@ class CenterRequest extends Model {
         $status = request( 'status' );
         $start_date = request( 'start_date' );
         $end_date = request( 'end_date' );
+        $representation = request('representation');
 
         if ( isset( $name ) && trim( $name ) != '' ) {
             $query->where( 'name', 'LIKE', '%' . $name . '%' );
+        }
+        
+        if (isset($representation) && trim($representation) != 'all') {
+            $query->where('representation_id',$representation);
         }
 
         if ( isset( $subject ) && trim( $subject ) != '' ) {

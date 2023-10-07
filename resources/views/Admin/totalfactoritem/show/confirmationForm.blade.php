@@ -5,19 +5,19 @@
         @method('PATCH')
         <input type="hidden" name="factorItem_id" value="{{ $item['id'] }}">
         <input type="hidden" name="type" value="confirm">
-        @role('superadmin')
+        @role('superadmin|superadmin-representation')
         @if ($item['status'] == 8)
         <button class="btn btn-success ml-2">تایید نهایی مدیر</button>
         @endif
         @endrole
-        @role('mali|consulting_contract_affairs|superadmin')
+        @role('mali|consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 5)
         <p class="text-warning col-12">مدیر مالی محترم تایید نهایی فاکتور به منظور تایید
             پرونده از جانب شما و ارسال پرونده برای تایید مدیرعامل می‌باشد.</p>
         <button class="btn btn-success">تایید و ارجاع به امورقراردادها</button>
         @endif
         @endrole
-        @role('consulting_contract_affairs|superadmin')
+        @role('consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 13)
         <button class="btn btn-success">تایید و ارجاع به مدیرعامل</button>
         @endif
@@ -29,12 +29,7 @@
         <button class="btn btn-success">تایید و ارجاع به مدیرنمایندگی</button>
         @endif
         @endrole
-        @role('superadmin-representation')
-        @if ($item['status'] == 12)
-        <button class="btn btn-success">تایید نهایی مدیر نمایندگی</button>
-        @endif
-        @endrole
-        @role('filing|mali|consulting_contract_affairs|superadmin')
+        @role('filing|mali|consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 9)
         <button class="btn btn-success">تایید و ارجاع به مدیر مالی</button>
         @endif
@@ -45,7 +40,7 @@
         @csrf
         <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
         <input type="hidden" name="status_factor" value="5">
-        @role('consulting_contract_affairs|superadmin')
+        @role('consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 13)
         <button class="btn btn-danger mr-2">ارجاع مجدد به مالی</button>
         @endif
@@ -56,7 +51,7 @@
         @csrf
         <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
         <input type="hidden" name="status_factor" value="13">
-        @role('superadmin')
+        @role('superadmin|superadmin-representation')
         @if ($item['status'] == 8)
         <button class="btn btn-danger mr-2">ارجاع مجدد به امورقراردادها</button>
         @endif

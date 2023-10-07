@@ -125,7 +125,7 @@
                         <input type="text" value="{{ $center_request->connections }}" class="form-control" name="connections">
                     </div>
 
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>استان</label>
                         <select class="form-control" type="int" name="province_id" id="province_id" required>
                             <option value="">انتخاب استان</option>
@@ -137,7 +137,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>شهر</label>
                         <select class="form-control" type="int" name="city_id" id="city_id" required>
                             <option value="">انتخاب شهر</option>
@@ -149,7 +149,7 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>وضعیت</label>
                         <select class="form-control" name="status">
                             <option value="0" {{ $center_request->status == 0 ? 'selected' : '' }}>
@@ -167,10 +167,10 @@
                         </select>
                     </div>
                     @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
-                        <label>نمایندگی *</label>
+                    <div class="col-12 col-md-3 mb-3">
+                        <label>نمایندگی</label>
                         <select name="representation_id" class="custom-select select2">
-                        <option value="" {{ $center_request->representation_id == null ? 'selected' : '' }}>نمایندگی کل</option>
+                        <option value=" " {{ $center_request->representation_id == null ? 'selected' : '' }}>نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}" {{ $center_request->representation_id == $representation->id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach

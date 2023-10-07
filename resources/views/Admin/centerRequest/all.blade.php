@@ -81,7 +81,17 @@
                         <option value="3">رد شده</option>
                     </select>
                 </div>
-
+                @if(!auth()->user()->admin_representation_id)
+                <div class="col-12 col-md-3 mb-2">
+                    <select class="form-control" name="representation">
+                        <option value="all">انتخاب نمایندگی</option>
+                        <option value="">نمایندگی کل</option>
+                        @foreach($representations as $representation)
+                            <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <div class="col-12 col-md-3 mb-2">
                     <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="start_date">
                     </date-picker>
@@ -117,6 +127,7 @@
                     <th>نام و نام خانوادگی</th>
                     <th>موبایل</th>
                     <th>استان</th>
+                    <th>نمایندگی</th>
                     <th>دسته بندی</th>
                     <th>جایگاه شغلی</th>
                     <th>آپدیت کننده</th>

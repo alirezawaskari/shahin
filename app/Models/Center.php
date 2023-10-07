@@ -10,8 +10,8 @@ class Center extends Model
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
-    protected $fillable=['centerable_type','centerable_id', 'center_request_id' ,'representation_id','title','address',
-        'pay_type','purchase_type','status','lat','lon','has_subset','type','fullName',
+    protected $fillable=['centerable_type','centerable_id', 'center_request_id' ,'creator_representation_id','title','address',
+        'pay_type','purchase_type','status','is_show','lat','lon','has_subset','type','fullName',
         'background_image','description','province_id','city_id','image', 'center_category_id','user_id'];
 
     const TYPE = [ 'seller' => 'فروشنده', 'producer' => 'تولید کننده', 'supplier' => 'تامین کننده' ,'خدمات دهنده'=>'service_provider'];
@@ -36,7 +36,17 @@ class Center extends Model
     {
         return $this->belongsTo(CenterRequest::class);
     }
-
+    public function creatorRpresentation()
+    {
+        return $this->belongsTo(Representation::class , 'creator_presentation_id');
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function representations()
+    {
+        return $this->belongsToMany(Representation::class);
+    }
     public function users()
     {
         return $this->belongsTo(User::class);
