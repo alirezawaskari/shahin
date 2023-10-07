@@ -211,6 +211,7 @@ class CenterRequestController extends AdminController
             'phone' => $phone,
             'sex' =>  $request->gender,
             'province_id' => $request->province_id,
+            'representation_id' => $request->representation_id,
             'city_id' => $request->city_id,
             'password' => Hash::make($pass),
             'active' => true,
@@ -246,8 +247,8 @@ class CenterRequestController extends AdminController
             'type' => 0,
             'request_type' => 'other',
             'status' => 0,
-            'description' => $description
-
+            'description' => $description,
+            'representation_id' => $request->representation_id,
         ]);
     }
 
