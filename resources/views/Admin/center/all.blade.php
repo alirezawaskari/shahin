@@ -24,7 +24,8 @@
             <thead>
                 <tr>
                     <th>عنوان</th>
-                    <th>خدمت</th>
+                    <th>خدمت</th>نمایندگی ایجادکننده
+                    <th>نمایندگی ایجادکننده</th>
                     <th>تاریخ ثبت</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>
@@ -39,6 +40,9 @@
                     <td>
 {{--                        {{ $item->centerable ? $item->centerable->title : ''}}--}}
                         {{implode(' | ',$item->services->pluck('title')->toArray())}}
+                    </td>
+                    <td>
+                        {{ $item->creatorRpresentation ? $item->creatorRpresentation->fa_name : 'نمایندگی کل'                    }}
                     </td>
                     <td>
                         {{ verta($item->created_at)->format('Y/m/d H:m:s') }}

@@ -36,6 +36,10 @@ class Center extends Model
     {
         return $this->belongsTo(CenterRequest::class);
     }
+    public function creatorRpresentation()
+    {
+        return $this->belongsTo(Representation::class , 'creator_presentation_id');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
