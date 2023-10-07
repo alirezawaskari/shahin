@@ -74,6 +74,13 @@ class Representation extends Model
         return $this->belongsToMany(FinancialPlansType::class);
     }
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    */
+    public function centers()
+    {
+        return $this->belongsToMany(Center::class);
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function sliders()

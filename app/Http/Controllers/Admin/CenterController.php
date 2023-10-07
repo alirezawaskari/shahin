@@ -104,6 +104,8 @@ class CenterController extends AdminController
             'description' => $request->description,
             'address' => $request->address,
         ] );
+        !auth()->user()->admin_representation_id ? $center->representations()->sync($request->input('representation_id')) : '';
+
         $center->services()->sync($request->services);
 
         return redirect( route( 'center.index' ) )->with( [
@@ -369,16 +371,26 @@ class CenterController extends AdminController
      */
     public function createCenter(mixed $centerable_id, string $centerable_type, Request $request, $center_request): void
     {
-        Center::create([
-            'centerable_id' => $centerable_id,
-            'centerable_type' => $centerable_type,
+        $center = Center::create([
             'status' => $request->status,
-            'representation_id' => auth()->user()->admin_representation_id,
+            'is_show' => $request->is_show,
+            'creator_representation_id' => auth()->user()->admin_representation_id,
             'center_request_id' => $center_request->id,
             'title' => $request->title,
             'description' => $request->description,
             'address' => $request->address,
         ]);
+        self::createRepresentationsCenter($center , $request->representation_id);
+    }
+    /**
+     * @param \App\Models\Center $center
+     * @param array $representation
+     * @return void
+     */
+    public function createRepresentationsCenter(Center $center , $representation)
+    {
+        $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $representation;
+        $center->representations()->sync($representations);
     }
 
 }
