@@ -39,6 +39,7 @@ class CenterController extends AdminController
     }
 
     public function store( Request $request ) {
+
         $this->validate( request(), [
             'title' => 'required|string',
             'address' => 'required',
@@ -77,11 +78,21 @@ class CenterController extends AdminController
     }
 
     public function edit( Center $center ) {
+        if(auth()->user()->isAbleTo('edit-center'))
+        {
         $center_request = $center->center_request;
         return view( 'Admin.center.edit', compact( 'center' , 'center_request' ) );
+        }
+        return abort('401');
     }
 
     public function update( Request $request, Center $center ) {
+        if(auth()->user()->admin_representation)
+        {
+            return redirect()->route('center.index')->with([
+                'failByMessage' => 'امکان ویرایش این وجود ندارد.',
+            ]);
+        }
         $item = $request->item;
         if ( $request->cat_type == 'category' ) {
             $center_category_id = $item['product_category'];

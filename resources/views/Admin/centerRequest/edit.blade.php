@@ -155,9 +155,11 @@
                             <option value="0" {{ $center_request->status == 0 ? 'selected' : '' }}>
                                 جدید
                             </option>
+                            @if(!auth()->user()->admin_representation_id)
                             <option value="1" {{ $center_request->status == 1 ? 'selected' : '' }}>
                                 فعال
                             </option>
+                            @endif
                             <option value="2" {{ $center_request->status == 2 ? 'selected' : '' }}>
                                 معلق
                             </option>

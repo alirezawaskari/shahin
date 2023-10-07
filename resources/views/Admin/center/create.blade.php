@@ -118,6 +118,8 @@
                             <label>عنوان (در سایت نمایش داده می شود)</label>
                             <input name="title" class="form-control" placeholder="عنوان مرکز را وارد نمایید">
                         </div>
+
+                        @if(!auth()->user()->admin_representation_id)
                         <div class="col-12 col-md-4 mb-3">
                             <label>وضعیت</label>
                             <select class="form-control" name="status">
@@ -129,7 +131,6 @@
                                 </option>
                             </select>
                         </div>
-                        @if(!auth()->user()->admin_representation_id)
                         <div class="col-12 col-md-4 mb-3">
                             <label>نمایندگی</label>
                             <select name="representation_id[]" class="custom-select select2" multiple>
