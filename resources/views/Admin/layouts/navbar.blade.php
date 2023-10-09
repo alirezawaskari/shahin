@@ -41,12 +41,6 @@
                     </li>
                 @endif
                     <li class="nav-item  d-none d-lg-block text-center">
-                        <div class="text-center  " style="padding: 5px;cursor: pointer" type="button"  data-toggle="modal" data-target="#exampleModalCenter">
-                            <i class="fa fa-user-plus text-info" ></i>
-                            <span   class="text-info" style="margin-right: 3px">افزودن کاربر</span>
-                        </div>
-                    </li>
-                    <li class="nav-item  d-none d-lg-block text-center">
                         <div class="text-center  " style="padding: 5px">
                             {{verta()->now()->formatWord('l').' '.verta()->now()->format('%Y/%m/%d')}}
                         </div>
@@ -55,11 +49,15 @@
 
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
+                    <span class="text-center  " style="padding: 5px;cursor: pointer" type="button"  data-toggle="modal" data-target="#exampleModalCenter">
+                        <i class="fa fa-user-plus text-info" ></i>
+                    </span>
                     @if(auth()->user()->hasRole('presentore'))
                         <span>{{ auth()->user()->name . ' ' .auth()->user()->family }} (سمت : {{ auth()->user()->roles->first()->display_name . auth()->user()->id}})</span>
                     @else
                         <span>{{ auth()->user()->name.' '.auth()->user()->family }} (سمت : {{ auth()->user()->roles->first()->display_name}})</span>
                     @endif
+
                     <a href="#" data-toggle="dropdown">
                         <figure class="avatar avatar-sm avatar-state-success">
                             <img class="rounded-circle" src="{{ asset(auth()->user()->avatar) }}" alt="...">
@@ -117,7 +115,6 @@
                           <span
                               class="d-block text-red text-left">{{ $errors->first('name')}}</span>
                       @endif
-
                   </div>
 
                   <div class="form-group col-md-4">

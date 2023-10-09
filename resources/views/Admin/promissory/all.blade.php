@@ -1,22 +1,22 @@
 @extends('Admin.master')
-@section('title')فهرست چک ها@endsection
+@section('title')فهرست سفته ها@endsection
 
 @section('content')
 
     <div class="page-header">
         <div>
-            <h3>فهرست چکها</h3>
+            <h3>فهرست سفته ها</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">فهرست چک ها</li>
+                    <li class="breadcrumb-item active" aria-current="page">فهرست سفته ها</li>
                 </ol>
             </nav>
         </div>
     </div>
     <div class="card">
         <div class="card-body">
-            <form role="form" id="filter_form" action="/dashboard/check/filter" method="get">
+            <form role="form" id="filter_form" action="/dashboard/promissory/filter" method="get">
                 <div class="row">
                     <div class="col-12 col-md-4 mb-2">
                         <input type="text" class="form-control" name="applicant_name" placeholder="نام متقاضی"/>
@@ -38,7 +38,7 @@
                         <input type="text" class="form-control" name="exporter_phone" placeholder="موبایل صادر کننده"/>
                     </div>
 
-                    <div class="col-12 col-md-4 mb-2">
+                 {{--   <div class="col-12 col-md-4 mb-2">
                         <input type="text" class="form-control" name="pay_to_name" placeholder="نام صادر شده در وجه"/>
                     </div>
                     <div class="col-12 col-md-4 mb-2">
@@ -46,7 +46,7 @@
                     </div>
                     <div class="col-12 col-md-4 mb-2">
                         <input type="text" class="form-control" name="pay_to_family" placeholder=" موبایل صادر شده در وجه"/>
-                    </div>
+                    </div>--}}
 
                     <div class="col-12 col-md-4 mb-2">
                         <input type="text" class="form-control" name="serial_code" placeholder="شماره سریال" />
@@ -63,8 +63,8 @@
 
                     <div class="col-12 col-md-4 mb-2">
                         <select class="form-control select2" name="title">
-                            <option value="all">انتخاب موضوع چک</option>
-                            @foreach(\App\Models\Check::TITLE as $key=>$value)
+                            <option value="all">انتخاب موضوع سفته</option>
+                            @foreach(\App\Models\Promissory::TITLE as $key=>$value)
                                 <option value="{{$key}}">
                                     {{$value}}
                                 </option>
@@ -73,18 +73,12 @@
                     </div>
                     <div class="col-12 col-md-4 mb-2">
                         <select class="form-control select2" name="status">
-                            <option value="all">انتخاب وضعیت چک</option>
+                            <option value="all">انتخاب وضعیت سفته</option>
                             <option value="0">
-                               در انتظار وصول
+                                {{\App\Models\Promissory::status(0)}}
                             </option>
                             <option value="1">
-                               وصول شده
-                            </option>
-                            <option value="2">
-                                برگشت خورده
-                            </option>
-                            <option value="3">
-                              عودت داده شده
+                                {{\App\Models\Promissory::status(1)}}
                             </option>
                         </select>
                     </div>
@@ -135,17 +129,17 @@
                 <span>در حال بارگذاری...</span>
             </div>
             <p id="page_text"></p>
-            <input type="hidden" value="{{$can_update_status_check}}" id="can-update-status-check">
+            <input type="hidden" value="{{$can_update_status_promissory}}" id="can-update-status-promissory">
             <div id="pagination-box">
                 <ul id="pagination-demo" class="pagination"></ul>
             </div>
         </div>
     </div>
-    {{--status check modal --}}
-    @include('Admin.check.statusModal')
+    {{--status promissory modal --}}
+    @include('Admin.promissory.statusModal')
 @stop
 
 @section('js')
     <script src="/assets/dashboard/js/layouts.js"></script>
-    <script src="/assets/dashboard/js/check.js?v=1.0"></script>
+    <script src="/assets/dashboard/js/promissory.js?v=1.0"></script>
 @endsection

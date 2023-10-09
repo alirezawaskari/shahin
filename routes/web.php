@@ -194,6 +194,12 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/check/update-status' , 'CheckController@updateStatus');
     Route::resource('/check', 'CheckController');
     Route::post('/check/update/{check}', 'CheckController@update')->name('check.update');
+    //promissory
+    Route::get('/promissory/repair' , 'PromissoryController@repair');
+    Route::get('/promissory/filter' , 'PromissoryController@filter');
+    Route::post('/promissory/update-status' , 'PromissoryController@updateStatus');
+    Route::resource('/promissory', 'PromissoryController');
+    Route::post('/promissory/update/{promissory}', 'PromissoryController@update')->name('promissory.update');
     //treasury
     Route::get('/treasury/index' , 'TreasuryController@calendar')->name('treasury.calendar');
     //total factor item

@@ -16,7 +16,7 @@
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">مبلغ (ریال)</th>
-                        <th scope="col">تاریخ وصول</th>
+                        <th scope="col">تاریخ صدور</th>
                         <th scope="col">متقاضی</th>
                         <th scope="col">صادر کننده</th>
                         <th scope="col">در وجه</th>
@@ -52,14 +52,8 @@
                             <td>{{$promissory->serial_code}}</td>
                             <td>
                                 @switch($promissory->title)
-                                    @case('installment')
-                                    <span class="badge badge-primary"> قسط</span>
-                                    @break
-                                    @case('guaranty')
-                                    <span class="badge badge-info"> ضمانت</span>
-                                    @break
-                                    @case('prepayment')
-                                    <span class="badge badge-purple"> پیش پرداخت</span>
+                                    @case('factor_item_guaranty')
+                                    <span class="badge badge-info">ضمانت پرونده</span>
                                     @break
                                     @default
                                     <span>{{$promissory->title}}</span>
@@ -178,11 +172,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {{--                                     <div class="form-group col-md-4">--}}
-                                    {{--                                        <label>صادر کننده :</label>--}}
-                                    {{--                                        <input id="promissory-exporter" name="exporter" class="form-control" placeholder="در وجه ..."--}}
-                                    {{--                                               value="{{$factor->user->name.' '.$factor->user->family }}" required>--}}
-                                    {{--                                    </div>--}}
                                     <div class="container card border-secondary rounded p-2">
                                         <div class="row p-2">
                                             <div class="col-md-12 text-center card-title">
@@ -227,13 +216,13 @@
                                                 </div>
                                                 <div class="form-group col-md-4">
                                                     <label>جنسیت</label>
-                                                    <div class="form-promissory">
+                                                    <div class="form-check">
                                                         <input type="radio" name="exporter_gender" id="exporter-female-gender" value="1" class="form-promissory-input exporter_gender" style="cursor: pointer;">
                                                         <label for="exporter-female-gender" class="form-promissory-label ">
                                                             خانم
                                                         </label>
                                                     </div>
-                                                    <div class="form-promissory">
+                                                    <div class="form-check">
                                                         <input type="radio" name="exporter_gender" id="exporter-male-gender" checked="checked" value="0" class="form-check-input exporter_gender" style="cursor: pointer;">
                                                         <label
                                                             for="exporter-male-gender" class="form-check-label">
@@ -256,6 +245,88 @@
                                                     <label>انتخاب شهر</label>
                                                     <select class="form-control my-2 exporter_city_id" type="int"
                                                             name="exporter_city" id="exporter_city_id" required>
+                                                        <option value="">انتخاب شهر</option>
+                                                        @foreach(\App\Models\City::all() as $city)
+                                                            <option value="{{ $city->id }}">{{ $city->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="container card border-secondary rounded p-2">
+                                        <div class="row p-2">
+                                            <div class="col-md-12 text-center card-title">
+                                                اطلاعات ضمانت کننده سفته
+                                                <hr>
+                                            </div>
+                                            <div class="row card-body">
+                                                <div class="form-group col-md-4">
+                                                    <label>شماره موبایل ضمانت کننده </label>
+                                                    <input id="promissory-guaranty-phone" name="guaranty_phone"
+                                                           oninput="searchUser(this.value,'guaranty')"
+                                                           class="form-control" placeholder=""
+                                                           value="" required>
+                                                    <p class="text-danger text-center exporter_error_user"></p>
+                                                </div>
+
+                                                <div class="form-group col-md-4">
+                                                    <label>نام</label>
+                                                    <input class="form-control my-2 guaranty_name" type="text"
+                                                           id="guaranty_name" name="name" required
+                                                           placeholder="نام" value="" pattern="^[\u0600-\u06FF\s]+$"
+                                                           title="لطفا با حروف فارسی وارد نمایید">
+                                                    @if ($errors->has('name'))
+                                                        <span
+                                                            class="d-block text-red text-left">{{ $errors->first('name')}}</span>
+                                                    @endif
+                                                    <input type="hidden" class="guaranty_id" id="guaranty-id"
+                                                           name="guaranty_id">
+                                                </div>
+
+                                                <div class="form-group col-md-4">
+                                                    <label>نام خانوادگی</label>
+                                                    <input class="form-control my-2 guaranty_family" type="text"
+                                                           id="guaranty-family" name="guaranty_family" required
+                                                           placeholder="نام خانوادگی" value=""
+                                                           pattern="^[\u0600-\u06FF\s]+$"
+                                                           title="لطفا با حروف فارسی وارد نمایید">
+                                                    @if ($errors->has('family'))
+                                                        <span
+                                                            class="d-block text-red text-left">{{ $errors->first('family')}}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label>جنسیت</label>
+                                                    <div class="form-check">
+                                                        <input type="radio" name="guaranty_gender" id="guaranty-female-gender" value="1" class="form-promissory-input guaranty_gender" style="cursor: pointer;">
+                                                        <label for="guaranty-female-gender" class="form-promissory-label ">
+                                                            خانم
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input type="radio" name="guaranty_gender" id="guaranty-male-gender" checked="checked" value="0" class="form-check-input guaranty_gender" style="cursor: pointer;">
+                                                        <label
+                                                            for="guaranty-male-gender" class="form-check-label">
+                                                            آقا
+                                                        </label></div>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label>انتخاب استان</label>
+                                                    <select class="form-control my-2 guaranty_province_id" type="int"
+                                                            name="guaranty_province" id="guaranty_province_id"
+                                                            required>
+                                                        <option value="">انتخاب استان</option>
+                                                        @foreach(\App\Models\Province::all() as $province)
+                                                            <option value="{{ $province->id }}">{{ $province->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <label>انتخاب شهر</label>
+                                                    <select class="form-control my-2 guaranty_city_id" type="int"
+                                                            name="guaranty_city" id="guaranty_city_id" required>
                                                         <option value="">انتخاب شهر</option>
                                                         @foreach(\App\Models\City::all() as $city)
                                                             <option value="{{ $city->id }}">{{ $city->name }}</option>
@@ -309,7 +380,7 @@
                                                 </div>
                                                 <div class="form-group col-md-4">
                                                     <label>جنسیت</label>
-                                                    <div class="form-promissory">
+                                                    <div class="form-check">
                                                         <input type="radio" name="pay_to_gender" id="pay-to-female-gender" value="1"
                                                                class="form-check-input pay_to_gender" style="cursor: pointer;">
                                                         <label for="pay-to-female-gender" class="form-check-label">
@@ -360,26 +431,18 @@
                                             {{--                                                <input id="promissory-pay-to" name="pay_to" class="form-control" placeholder="در وجه ..."--}}
                                             {{--                                                       value="سید مصطفی میرحسینی" required>--}}
                                             {{--                                            </div>--}}
-                                            <div class="form-group col-md-4">
+                                            <div class="form-group col-md-6">
                                                 <label>شماره سریال :</label>
                                                 <input id="serial-code" name="serial_code" class="form-control"
                                                        placeholder="شماره سریال سفته"
                                                        value="" required>
                                             </div>
-                                            <div class="form-group col-md-4  ">
-                                                <label>تاریخ وصول :</label>
+                                            <div class="form-group col-md-6  ">
+                                                <label>تاریخ صدور :</label>
                                                 <input name="date" id="promissory-date" class="form-control  promissory-date"
                                                        required>
                                             </div>
-                                            <div class="form-group col-md-4 ">
-                                                <label>بابت :</label>
-                                                <select name="title" class="form-control" id="promissory-title">
-                                                    <option value="installment">قسط</option>
-                                                    <option value="guaranty">ضمانت</option>
-                                                    <option value="prepayment">پیش پرداخت</option>
-                                                </select>
-                                            </div>
-
+                                            <input type="hidden" name="title" value="factor_item_guaranty" id="promissory-title">
                                             <input type="hidden" id="total-factor-item-id" name="total_factor_item_id"
                                                    value="{{isset($totalFactorItem)?$totalFactorItem->id:''}}" required>
 
@@ -461,28 +524,20 @@
                                                value=" " required>
                                     </div>
 
-                                    <div class="form-group col-md-4">
+                                    <div class="form-group col-md-6">
                                         <label>شماره سریال :</label>
                                         <input id="edit-serial-code" name="serial_code" class="form-control"
                                                placeholder="شماره سریال"
                                                value=" " required>
                                     </div>
 
-                                    <div class="form-group col-md-4  ">
-                                        <label>تاریخ وصول :</label>
+                                    <div class="form-group col-md-6  ">
+                                        <label>تاریخ صدور :</label>
                                         <input name="date" id="edit-promissory-date" class="form-control  promissory-date"
                                                required>
                                     </div>
-                                    <div class="form-group col-md-4  ">
 
-                                        <label>بابت :</label>
-                                        <select name="title" class="form-control" id="edit-promissory-title">
-                                            <option value="installment">قسط</option>
-                                            <option value="guaranty">ضمانت</option>
-                                            <option value="prepayment">پیش پرداخت</option>
-                                        </select>
-                                    </div>
-
+                                    <input type="hidden" name="title" value="factor_item_guaranty" id="edit-promissory-title">
                                     <input type="hidden" id="edit-promissory-id" name="promissory_id" required>
 
                                     <div class="form-group col-md-8">

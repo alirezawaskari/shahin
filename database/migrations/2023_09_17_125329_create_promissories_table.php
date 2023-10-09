@@ -12,22 +12,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('promissories', function (Blueprint $table) {
-            $table->id();
+             $table->id();
             $table->unsignedInteger('applicantable_id');
             $table->string('applicantable_type');
+
             $table->unsignedInteger('promissoryable_id');
             $table->string('promissoryable_type');
+
             $table->unsignedInteger('exportable_id');
             $table->string('exportable_type');
-            $table->unsignedInteger('paytoble_id');
+
+            $table->unsignedInteger('guarantorable_id')->nullable();
+            $table->string('guarantorable_type')->nullable();
+
+            $table->unsignedInteger('paytoable_id');
             $table->string('paytoable_type');
+
             $table->tinyInteger('status');
             $table->double('amount');
             $table->unsignedInteger('creator_id');
             $table->foreign('creator_id')->references('id')->on('users');
             $table->string('title');
             $table->string('serial_code');
-            $table->integer('receipt_date')->nullable();
+            $table->timestamp('receipt_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

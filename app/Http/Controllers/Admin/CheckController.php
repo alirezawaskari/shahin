@@ -147,7 +147,7 @@ class CheckController extends Controller
 
         //find exporter and payer user
         is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id, $request->exporter_gender) : $exporter = User::find($request->exporter_id);
-        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id, $request->gender) : $pay_to = User::find($request->pay_to_id);
+        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id, $request->pay_to_gender) : $pay_to = User::find($request->pay_to_id);
 
         $applicant = User::find($request->applicant_id);
 

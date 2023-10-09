@@ -190,6 +190,8 @@ return array(
         'pay_to' => 'در وجه',
         'check_front_image' => 'تصویر روی چک',
         'check_back_image' => 'تصویر پشت چک',
+        'promissory_front_image' => 'تصویر روی سفته',
+        'promissory_back_image' => 'تصویر پشت سفته',
         'exporter' => 'صادر کننده',
         'amount' => 'مبلغ',
         'receiver_phone'=>'شماره موبایل دریافت کننده',

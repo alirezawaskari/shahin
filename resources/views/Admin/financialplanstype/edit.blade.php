@@ -121,8 +121,8 @@
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="status" value="1"
-                                       @if($article->status == 1) checked @endif>نمایش در سایت نمایندگی کل
+{{--                                <input type="checkbox" name="status" value="1"--}}
+{{--                                       @if($article->status == 1) checked @endif>نمایش در سایت نمایندگی کل--}}
                             </label>
                             @if($errors->has('status'))<span
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif

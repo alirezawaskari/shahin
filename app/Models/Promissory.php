@@ -4,13 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class Promissory extends Model
+class Promissory extends Model implements AuditableContract
 {
 
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
 
+    /**
+     * @var string[]
+     */
+    protected $guarded=['id'];
+    /**
+     *
+     */
+    const TITLE = [
+        'factor_item_guaranty' => 'ضمانت پرونده',
+    ];
+    /**
+     * statuses of check
+     * @param $status
+     * @return string
+     */
+    public static function status($status)
+    {
+        return [
+            '0' => 'بایگانی',
+            '1' => 'عودت داده شده'
+        ][$status];
+    }
     /**
      * Get all of the promissories 's files.
      */
@@ -54,11 +77,25 @@ class Promissory extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function paytoable()
+    public function guarantorable()
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function paytoable()
+    {
+        return $this->morphTo();
+    }
+    /**
+     * Get all of the video's assetTransactions.
+     */
+    public function assetTransactions()
+    {
+        return $this->morphMany(AssetTransactions::class, 'assetable');
+    }
     /**
      * @param $query
      * @return mixed
@@ -151,7 +188,7 @@ class Promissory extends Model
         }
 
         if (isset($start_date) && trim($start_date) != '' && isset($end_date) && trim($end_date) != '') {
-            $query->whereDate('date', '>=', $start_date)->whereDate('created_at', '<=', $end_date);
+            $query->whereDate('receipt_date', '>=', $start_date)->whereDate('receipt_date', '<=', $end_date);
         }
         if (isset($status) && trim($status) != '' && $status != 'all') {
             $query->whereStatus($status);
