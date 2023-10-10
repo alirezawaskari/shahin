@@ -59,7 +59,7 @@
                 <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->number_pay_steps ? '' : 'd-none' }}"
                     id="number_pay_steps">
                     <label>تعداد چک ها جهت پرداخت قسط</label>
-                    <input type="number" value="10" class="form-control"
+                    <input type="number" class="form-control"
                         value="{{ $financialPlansType->number_pay_steps }}" name="number_pay_steps" min="1" max="20">
                 </div>
                 <div class="col-12 col-md-3 mb-3">
