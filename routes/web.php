@@ -220,6 +220,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/financialPlansType/selectByCategory', 'CategoryController@child')->name('category.get.child');
     Route::post('/financialPlansType/setByItem', 'FinancialPlansTypeController@setFinancialPlansTypeByItem');
     Route::post('/financialPlansType/setByPaymentType', 'FinancialPlansTypeController@setFinancialPlansTypeByPaymentType');
+    Route::get('/financialPlansType/filter', 'FinancialPlansTypeController@filter');
 
     Route::resource('financialPlansType' , 'FinancialPlansTypeController');
     //contract form

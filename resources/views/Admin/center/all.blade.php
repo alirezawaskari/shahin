@@ -24,7 +24,7 @@
             <thead>
                 <tr>
                     <th>عنوان</th>
-                    <th>خدمت</th>نمایندگی ایجادکننده
+                    <th>خدمت</th>
                     <th>نمایندگی ایجادکننده</th>
                     <th>تاریخ ثبت</th>
                     <th>وضعیت</th>
@@ -60,9 +60,13 @@
                                 <a href="{{ route('center.serviceTariff' , [$item->id]) }}"
                                     class="dropdown-item pointer" target="_blank">فهرست تعرفه ها
                                 </a>
+                                @permission('edit-center')
+                                @if(!auth()->user()->admin_representation_id)
                                 <a href="{{ route('center.edit' , [ $item->id]) }}" class="dropdown-item pointer"
                                     target="_blank">ویرایش
                                 </a>
+                                @endif
+                                @endpermission
                                 <form class="delete_form" method="post"
                                     action="{{ route('center.destroy',[$item->id]) }}">
                                     @method('DELETE')

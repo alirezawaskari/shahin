@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FinancialPlansTypeCollection;
 use App\Models\Category;
 use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
@@ -20,14 +21,26 @@ class FinancialPlansTypeController extends Controller
      */
     public function index()
     {
-        $financial_plans_types = FinancialPlansType::all();
+        if (auth()->user()->hasPermission('financial-plans-type'))
+        {
+            return view('Admin.financialplanstype.all');
+        }
+        return abort(401);
+
+    }
+    /**
+     * @return \App\Http\Resources\FinancialPlansTypeCollection
+     */
+    public function filter()
+    {
+        $financial_plans_types = FinancialPlansType::filter()->latest();
         if(auth()->user()->admin_representation_id)
         {
-            $financial_plans_types = auth()->user()->admin_representation->financialPlansTypes()->get();
+            $financial_plans_types = auth()->user()->admin_representation->financialPlansTypes()->filter()->latest();
         }
-        return view('Admin.financialplanstype.all' , compact(['financial_plans_types']));
-    }
 
+        return new FinancialPlansTypeCollection($financial_plans_types->paginate(20));
+    }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */

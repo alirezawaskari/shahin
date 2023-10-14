@@ -141,7 +141,7 @@
                         <label>عنوان</label>
                         <input type="text" value="{{ $center->title }}" class="form-control" name="title">
                     </div>
-
+                    @if(!auth()->user()->admin_representation_id)
                     <div class="col-12 col-md-4 mb-3">
                         <label>وضعیت</label>
                         <select class="form-control" name="status">
@@ -153,7 +153,6 @@
                             </option>
                         </select>
                     </div>
-                    @if(!auth()->user()->admin_representation_id)
                     <div class="col-12 col-md-4 mb-3">
                         <label>نمایندگی</label>
                         <select name="representation_id[]" class="custom-select select2" multiple>
