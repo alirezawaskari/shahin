@@ -90,7 +90,7 @@ class CenterController extends AdminController
         if(auth()->user()->admin_representation)
         {
             return redirect()->route('center.index')->with([
-                'failByMessage' => 'امکان ویرایش این وجود ندارد.',
+                'failByMessage' => 'امکان ویرایش برای شما وجود ندارد.',
             ]);
         }
         $item = $request->item;
