@@ -161,7 +161,18 @@ $(document).on('change', '.file_upload_ajax', function () {
         var file_attr_name = $(this).attr('name');
         var file_attr_id = $(this).attr('id');
         var fileType = file["type"];
-        var validImageTypes = ["image/jpg", "image/jpeg", "image/png", "image/svg+xml", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+        var validImageTypes = [
+            "image/jpg",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel",
+            "application/x-rar-compressed",
+            "application/x-zip-compressed"
+        ];
         var size = file.size;
         if ($.inArray(fileType, validImageTypes) > 0) {
             if (6000000 >= size) {
@@ -192,7 +203,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                                 $('#' + file_attr_id + '_src.show div').remove();
                                 $('#' + file_attr_id + '_src.show img').remove();
                                 var file = '';
-                                if (!((fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))) {
+                                if (!((fileType == 'application/x-rar-compressed') ||(fileType == 'application/x-zip-compressed') ||(fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')||(fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
                                     file = '<img src="' + e.target.result + '" id="' + index_add_photo + '" ' +
                                         'class="card-img-top" height="150px">';
                                 } else {
@@ -220,7 +231,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                 toastr.error('آپلود ناموفق : حجم عکس از 6 مگا بایت بیشتر می باشد.');
             }
         } else {
-            toastr.error('آپلود ناموفق : فرمت فایل بایستی pdf|svg+xml|JPG|png باشد.');
+            toastr.error('آپلود ناموفق : فرمت فایل بایستی pdf|svg+xml|JPG|png|xlsx باشد.');
         }
     }
 });
