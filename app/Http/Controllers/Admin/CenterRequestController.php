@@ -30,7 +30,10 @@ class CenterRequestController extends AdminController
     {
 
         $center_requests = CenterRequest::filter()->latest();
-
+        if(auth()->user()->admin_representation_id)
+        {
+            $center_requests = auth()->user()->admin_representation->centerRequests()->filter()->latest();
+        }
         if ($request->exel == 'on') {
             return (new CenterRequestExport($center_requests))->download('centerRequest.xlsx');
         }
@@ -57,7 +60,7 @@ class CenterRequestController extends AdminController
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
-            'phone' => 'numeric|required|unique:users|regex:/(09)[0-9]{9}/|digits:11|',
+            'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'description' => 'required',
             'product_category' => "required_if:cat_type,==,category",
             'service_category' => "required_if:cat_type,==,service",
@@ -80,11 +83,14 @@ class CenterRequestController extends AdminController
             $user = self::createUser($request);
         }
         //create task (callCenter)
-        self::createTask($user);
+        self::createTask($user , $request);
 
 //        CenterRequest::create($input);
-        self::createCenterRequest($center_category_id, $request);
-
+        $center_request = self::createCenterRequest($center_category_id, $request);
+        if(auth()->user()->admin_representation_id)
+        {
+            $center_request->update(['representation_id' => auth()->user()->admin_representation_id]);
+        }
         return redirect(route('centerRequest.index'))->with([
             'create' => 'success',
         ]);
@@ -205,6 +211,7 @@ class CenterRequestController extends AdminController
             'phone' => $phone,
             'sex' =>  $request->gender,
             'province_id' => $request->province_id,
+            'representation_id' => $request->representation_id,
             'city_id' => $request->city_id,
             'password' => Hash::make($pass),
             'active' => true,
@@ -214,7 +221,8 @@ class CenterRequestController extends AdminController
 
 
     /**
-     * @param $user
+     * @param \App\Models\User $user
+     * @param \Illuminate\Http\Request $request
      * @return void
      */
     public static function createTask(User $user, Request $request): void
@@ -239,8 +247,8 @@ class CenterRequestController extends AdminController
             'type' => 0,
             'request_type' => 'other',
             'status' => 0,
-            'description' => $description
-
+            'description' => $description,
+            'representation_id' => $request->representation_id,
         ]);
     }
 
@@ -253,6 +261,7 @@ class CenterRequestController extends AdminController
     {
         $center_request = CenterRequest::create([
             'center_category_id' => $center_category_id,
+            'representation_id' => $request->representation_id,
             'phone' => $request->phone,
             'status' => 0,
             'type' => $request->type,

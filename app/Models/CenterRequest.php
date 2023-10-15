@@ -11,7 +11,7 @@ class CenterRequest extends Model {
     /**
     * @var array
     */
-    protected $guarded = [];
+     protected $guarded = [];
 
     /**
      * @var bool
@@ -42,6 +42,12 @@ class CenterRequest extends Model {
         return $this->belongsTo( User::class );
     }
 
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation() {
+        return $this->belongsTo( Representation::class );
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -95,9 +101,14 @@ class CenterRequest extends Model {
         $status = request( 'status' );
         $start_date = request( 'start_date' );
         $end_date = request( 'end_date' );
+        $representation = request('representation');
 
         if ( isset( $name ) && trim( $name ) != '' ) {
             $query->where( 'name', 'LIKE', '%' . $name . '%' );
+        }
+        
+        if (isset($representation) && trim($representation) != 'all') {
+            $query->where('representation_id',$representation);
         }
 
         if ( isset( $subject ) && trim( $subject ) != '' ) {

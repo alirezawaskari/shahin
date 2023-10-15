@@ -118,6 +118,8 @@
                             <label>عنوان (در سایت نمایش داده می شود)</label>
                             <input name="title" class="form-control" placeholder="عنوان مرکز را وارد نمایید">
                         </div>
+
+                        @if(!auth()->user()->admin_representation_id)
                         <div class="col-12 col-md-4 mb-3">
                             <label>وضعیت</label>
                             <select class="form-control" name="status">
@@ -129,8 +131,27 @@
                                 </option>
                             </select>
                         </div>
-
                         <div class="col-12 col-md-4 mb-3">
+                            <label>نمایندگی</label>
+                            <select name="representation_id[]" class="custom-select select2" multiple>
+                                @foreach($representations as $representation)
+                                    <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 mb-4">
+                            <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="is_show" value="1"
+                                           @if(old('is_show') == 1) checked @endif>نمایش در سایت نمایندگی کل
+                                </label>
+                                @if($errors->has('is_show'))<span
+                                        class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
+                            </div>
+                        </div>
+                        @endif
+                        <div class="col-12 mb-3">
                             <label>آدرس</label>
                             <input name="address" class="form-control" placeholder="آدرس دقیق مرکز را وارد نمایید">
                         </div>

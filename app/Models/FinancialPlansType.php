@@ -20,9 +20,9 @@ class FinancialPlansType extends Model
      *type of payment
      */
     const TYPE = [
-        'cash' => 'پرداخت نقدی',
         'installment' => 'پرداخت اقساطی',
         'check' => 'پرداخت از طریق چک',
+        'cash' => 'پرداخت نقدی',
     ];
 
     /**
@@ -60,6 +60,49 @@ class FinancialPlansType extends Model
     public function representations()
     {
         return $this->belongsToMany(Representation::class);
+    }
+
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        $title = request('title');
+        $status = request('status');
+        $payment_type = request('payment_type');
+        $representation = request('representation');
+        $startDate = request('startDate');
+        $endDate = request('endDate');
+
+        if (isset($title) && trim($title) != '') {
+            $query->where('title', 'LIKE', '%' . $title . '%');
+        }
+        if (isset($payment_type) && trim($payment_type) != 'all') {
+            $query->where('payment_type', $payment_type);
+        }
+        if (isset($representation) && trim($representation) != 'all') {
+            if($representation == 'general')
+            {
+                $query->where('is_show', true);
+            }
+            else
+            {
+                $query->whereHas('representations', function ($query) use ($representation) {
+                    $query->where('representation_id',$representation);
+                });
+            }
+        }
+
+        if (isset($status) && trim($status) != 'all') {
+            $query->where('status', $status);
+        }
+
+        if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        return $query;
     }
     /**
      * @param mixed $payment_type

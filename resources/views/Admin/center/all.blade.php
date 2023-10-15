@@ -25,6 +25,7 @@
                 <tr>
                     <th>عنوان</th>
                     <th>خدمت</th>
+                    <th>نمایندگی ایجادکننده</th>
                     <th>تاریخ ثبت</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>
@@ -39,6 +40,9 @@
                     <td>
 {{--                        {{ $item->centerable ? $item->centerable->title : ''}}--}}
                         {{implode(' | ',$item->services->pluck('title')->toArray())}}
+                    </td>
+                    <td>
+                        {{ $item->creatorRpresentation ? $item->creatorRpresentation->fa_name : 'نمایندگی کل'                    }}
                     </td>
                     <td>
                         {{ verta($item->created_at)->format('Y/m/d H:m:s') }}
@@ -56,9 +60,13 @@
                                 <a href="{{ route('center.serviceTariff' , [$item->id]) }}"
                                     class="dropdown-item pointer" target="_blank">فهرست تعرفه ها
                                 </a>
+                                @permission('edit-center')
+                                @if(!auth()->user()->admin_representation_id)
                                 <a href="{{ route('center.edit' , [ $item->id]) }}" class="dropdown-item pointer"
                                     target="_blank">ویرایش
                                 </a>
+                                @endif
+                                @endpermission
                                 <form class="delete_form" method="post"
                                     action="{{ route('center.destroy',[$item->id]) }}">
                                     @method('DELETE')

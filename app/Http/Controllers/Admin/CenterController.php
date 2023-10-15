@@ -25,7 +25,10 @@ class CenterController extends AdminController
             {
                 $centers = Center::find( auth()->user()->center_id );
             }
-
+            if(auth()->user()->admin_representation_id)
+            {
+                $centers = auth()->user()->admin_representation->centers();
+            }
             return view( 'Admin.center.all', compact( 'centers' ) );
         }
         return abort('401');
@@ -36,6 +39,7 @@ class CenterController extends AdminController
     }
 
     public function store( Request $request ) {
+
         $this->validate( request(), [
             'title' => 'required|string',
             'address' => 'required',
@@ -74,11 +78,21 @@ class CenterController extends AdminController
     }
 
     public function edit( Center $center ) {
+        if(auth()->user()->isAbleTo('edit-center'))
+        {
         $center_request = $center->center_request;
         return view( 'Admin.center.edit', compact( 'center' , 'center_request' ) );
+        }
+        return abort('401');
     }
 
     public function update( Request $request, Center $center ) {
+        if(auth()->user()->admin_representation)
+        {
+            return redirect()->route('center.index')->with([
+                'failByMessage' => 'امکان ویرایش برای شما وجود ندارد.',
+            ]);
+        }
         $item = $request->item;
         if ( $request->cat_type == 'category' ) {
             $center_category_id = $item['product_category'];
@@ -104,6 +118,8 @@ class CenterController extends AdminController
             'description' => $request->description,
             'address' => $request->address,
         ] );
+        !auth()->user()->admin_representation_id ? $center->representations()->sync($request->input('representation_id')) : '';
+
         $center->services()->sync($request->services);
 
         return redirect( route( 'center.index' ) )->with( [
@@ -369,16 +385,26 @@ class CenterController extends AdminController
      */
     public function createCenter(mixed $centerable_id, string $centerable_type, Request $request, $center_request): void
     {
-        Center::create([
-            'centerable_id' => $centerable_id,
-            'centerable_type' => $centerable_type,
+        $center = Center::create([
             'status' => $request->status,
-            'representation_id' => auth()->user()->admin_representation_id,
+            'is_show' => $request->is_show,
+            'creator_representation_id' => auth()->user()->admin_representation_id,
             'center_request_id' => $center_request->id,
             'title' => $request->title,
             'description' => $request->description,
             'address' => $request->address,
         ]);
+        self::createRepresentationsCenter($center , $request->representation_id);
+    }
+    /**
+     * @param \App\Models\Center $center
+     * @param array $representation
+     * @return void
+     */
+    public function createRepresentationsCenter(Center $center , $representation)
+    {
+        $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $representation;
+        $center->representations()->sync($representations);
     }
 
 }

@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>هزینه ثبت نام (ریال)</label>
-                    <input type="text" class="form-control" name="price" oninput="separatePrices(this)">
+                    <input type="text" class="form-control" value="0" name="price" oninput="separatePrices(this)">
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>نوع پرداخت</label>
@@ -54,24 +54,24 @@
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>ظرفیت طرح (حداکثر تعداد استفاده از طرح)</label>
-                    <input type="text" class="form-control" name="capacity"
-                        required>
+                    <input type="number" class="form-control" name="capacity"
+                    min="1" required>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ آغاز</label>
                     <date-picker format="YYYY/M/D HH:mm:ss" name="start_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date">
+                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date" value="{{ now() }}">
                     </date-picker>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ پایان</label>
                     <date-picker format="YYYY/M/D HH:mm:ss" name="end_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date">
+                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date" value="{{ now() }}">
                     </date-picker>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2" id="guarantee_type">
                     <label>نوع ضمانت</label>
                     <select class="form-control select2" name="guarantee_type[]" multiple>
                         @foreach (App\Models\TotalFactorItem::GuaranteeTYPE as $key => $item)
@@ -79,13 +79,13 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2" id="prepayment_percent">
                     <label>درصد پیش پرداخت (%)</label>
-                    <input type="number" class="form-control" name="prepayment_percent" min="0" max="100">
+                    <input type="number" class="form-control" value="0" name="prepayment_percent" min="0" max="100">
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>درصد تخفیف (%)</label>
-                    <input type="number" class="form-control" name="discount_percent" min="0" max="100">
+                    <input type="number" class="form-control" value="0" name="discount_percent" min="0" max="100">
                 </div>
                 <div class="col-12 col-md-3 mb-2">
                     <label>وضعیت</label>
@@ -95,9 +95,9 @@
                     </select>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی</label>
-                        <select name="representation_id" class="custom-select select2" multiple>
+                        <select name="representation_id[]" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
@@ -107,11 +107,11 @@
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="status" value="1"
-                                       @if(old('status') == 1) checked @endif>نمایش در سایت نمایندگی کل
+                                <input type="checkbox" name="is_show" value="1"
+                                       @if(old('is_show') == 1) checked @endif> نمایش در سایت نمایندگی کل
                             </label>
-                            @if($errors->has('status'))<span
-                                    class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
+                            @if($errors->has('is_show'))<span
+                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                         </div>
                     </div>
                     @endif

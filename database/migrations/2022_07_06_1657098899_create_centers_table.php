@@ -28,7 +28,8 @@ class CreateCentersTable extends Migration
 		$table->integer('province_id')->unsigned()->nullable()->default(NULL);
 		$table->text('image')->nullable()->default(NULL);
 		$table->integer('status');
-		$table->text('description')->nullable()->default(NULL);
+		$table->integer('is_show')->default(0);
+        $table->text('description')->nullable()->default(NULL);
 
         $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));

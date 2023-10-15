@@ -64,8 +64,8 @@
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>ظرفیت طرح (حداکثر تعداد استفاده از طرح)</label>
-                    <input type="text" value="{{ $financialPlansType->capacity }}" class="form-control" name="capacity"
-                        required>
+                    <input type="number" value="{{ $financialPlansType->capacity }}" class="form-control" name="capacity"
+                        min="1" required>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
@@ -82,7 +82,7 @@
                     </date-picker>
                 </div>
 
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}" id="guarantee_type">
                     <label>نوع ضمانت</label>
                     <select class="form-control select2" name="guarantee_type[]" multiple>
                         @foreach (App\Models\TotalFactorItem::GuaranteeTYPE as $key => $item)
@@ -91,7 +91,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}" id="prepayment_percent">
                     <label>درصد پیش پرداخت (%)</label>
                     <input type="number" class="form-control" name="prepayment_percent" min="0" max="100"
                         value="{{ $financialPlansType->prepayment_percent }}">
@@ -109,9 +109,9 @@
                     </select>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی</label>
-                        <select name="representation_id" class="custom-select select2" multiple>
+                        <select name="representation_id[]" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}" {{ in_array(trim($representation->id) , $financialPlansType->representations()->pluck('id')->toArray()) ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach
@@ -121,11 +121,11 @@
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
                         <div class="checkbox">
                             <label>
-{{--                                <input type="checkbox" name="status" value="1"--}}
-{{--                                       @if($article->status == 1) checked @endif>نمایش در سایت نمایندگی کل--}}
+                                <input type="checkbox" name="is_show" value="1"
+                                       @if($financialPlansType->is_show == 1) checked @endif>نمایش در سایت نمایندگی کل
                             </label>
-                            @if($errors->has('status'))<span
-                                    class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
+                            @if($errors->has('is_show'))<span
+                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                         </div>
                     </div>
                     @endif

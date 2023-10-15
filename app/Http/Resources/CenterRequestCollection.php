@@ -24,6 +24,7 @@ class CenterRequestCollection extends ResourceCollection
                     'category' => $item->center_category ? $item->center_category->title : 'ندارد',
                     'type' => $item::TYPE[$item->type],
                     'user' => $item->user ? $item->user->family : 'ندارد',
+                    'representation' => $item->representation ? $item->representation->fa_name : 'نمایندگی کل',
                     'created_at' => verta($item->created_at)->format('Y/m/d H:m:s'),
                     'status' => $item::status($item->status),
                 ];

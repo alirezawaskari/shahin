@@ -1,4 +1,4 @@
-@extends('site.representation.master')
+@extends('site.singleWebPage.master')
 
 @section('title')
 فاکتور: {{ $factor->resnumber }}

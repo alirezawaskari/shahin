@@ -33,10 +33,10 @@
                     </div>
                     @if(!auth()->user()->admin_representation_id)
                     <div class="col-12 col-md-4 mb-3">
-                        <label>نمایندگی *</label>
+                         <label>نمایندگی *</label>
                         <select name="representation_id" class="custom-select">
+                        <option value="" {{ $slider->representation_id == null ? 'selected' : '' }}>نمایندگی کل</option>
                             @foreach($representations as $representation)
-                                <option value="{{ $slider->representation_id == null ? 'selected' : '' }}">نمایندگی کل</option>
                                 <option value="{{$representation->id}}" {{ $slider->representation_id == $representation->id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
                             @endforeach
                         </select>

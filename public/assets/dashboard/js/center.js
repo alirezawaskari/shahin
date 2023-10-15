@@ -71,6 +71,7 @@ $(document).ready(function () {
                 { "data": "category" },
                 { "data": "type" },
                 { "data": "user" },
+                { "data": "representation" },
                 { "data": "created_at" },
                 {
                     "targets": 2,

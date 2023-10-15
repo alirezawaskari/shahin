@@ -33,8 +33,8 @@
                     <div class="col-12 col-md-4 mb-3">
                         <label>نمایندگی *</label>
                         <select name="representation_id" class="custom-select">
+                        <option value="">نمایندگی کل</option>
                             @foreach($representations as $representation)
-                                <option value="">نمایندگی کل</option>
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
                         </select>

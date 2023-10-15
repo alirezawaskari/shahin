@@ -100,6 +100,7 @@ class FactorController extends Controller {
             if($factor->representation)
             {
                 $representation = $factor->representation;
+                session()->put('representation', $representation);
                 return view( 'site.representation.factor', compact( 'factor' , 'representation' , 'debt_price') );
             }
             return view( 'site.factor', compact( 'factor' , 'debt_price') );

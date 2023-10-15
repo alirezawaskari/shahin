@@ -277,16 +277,10 @@ class TotalFactorItemController extends Controller
         if (auth()->user()->hasRole('mali')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 5)->filter();
         }
-        if (auth()->user()->hasRole('mali-representation')) {
-            $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 11)->filter();
-        }
-        if (auth()->user()->hasRole('superadmin-representation')) {
-            $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 12)->filter();
-        }
         if (auth()->user()->hasRole('filing')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 9)->filter()->latest();
         }
-        if (auth()->user()->hasRole('superadmin')) {
+        if (auth()->user()->hasRole('superadmin')||auth()->user()->hasRole('superadmin-representation')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 8)->filter();
         }
 //        if (auth()->user()->hasRole('admin-site')) {
@@ -294,6 +288,11 @@ class TotalFactorItemController extends Controller
 //        }
         if (auth()->user()->hasRole('consulting_contract_affairs')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 13)->filter()->latest();
+        }
+        if (!auth()->user()->admin_representation) {
+            $total_factor_items->whereHas('factor', function ($total_factor_items){
+                $total_factor_items->where('representation_id', auth()->user()->admin_representation_id);
+            });
         }
         if ($request->exel == 'on') {
             return (new FactorItemsExport($total_factor_items))->download('factorItems.xlsx');
@@ -329,13 +328,7 @@ class TotalFactorItemController extends Controller
         if (auth()->user()->hasRole('mali')) {
             $total_factor_items = TotalFactorItem::where('status_mali', 7)->orWhere('status_mali', 9)->filter();
         }
-        if (auth()->user()->hasRole('mali-representation')) {
-            $total_factor_items = TotalFactorItem::where('status_mali', 7)->filter();
-        }
-        if (auth()->user()->hasRole('superadmin-representation')) {
-            $total_factor_items = TotalFactorItem::where('status_mali', 8)->filter();
-        }
-        if (auth()->user()->hasRole('superadmin')) {
+        if (auth()->user()->hasRole('superadmin')||auth()->user()->hasRole('superadmin-representation')) {
             $total_factor_items = TotalFactorItem::where('status_mali', 8)->filter();
         }
         if (auth()->user()->hasRole('legal')) {
@@ -343,6 +336,11 @@ class TotalFactorItemController extends Controller
         }
         if (auth()->user()->hasRole('consulting_contract_affairs')) {
             $total_factor_items = TotalFactorItem::where('status_mali', 4)->filter()->latest();
+        }
+        if (!auth()->user()->admin_representation) {
+            $total_factor_items->whereHas('factor', function ($total_factor_items){
+                $total_factor_items->where('representation_id', auth()->user()->admin_representation_id);
+            });
         }
         if ($request->exel == 'on') {
             return (new FactorItemsExport($total_factor_items))->download('factorItems.xlsx');
@@ -426,7 +424,7 @@ class TotalFactorItemController extends Controller
 
         }
 
-        if (auth()->user()->hasRole('superadmin')) {
+        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('superadmin_representation')) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'superadmin', auth()->user()->id);
             $totalFactorItem->update([
@@ -449,40 +447,6 @@ class TotalFactorItemController extends Controller
                 ]);
             }
 
-            $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
-        }
-
-        if (auth()->user()->hasRole('mali_representation')) {
-            $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
-            $factor_values = Arr::add($values, 'mali_representation', auth()->user()->imgsignature);
-            $totalFactorItem->update([
-                'factor_values' => $factor_values,
-                'total_factor_item_status_id' => 12,
-            ]);
-            foreach ($factor_items as $factor_item) {
-                $factor_item->update(['status_factor' => 12]);
-            }
-        }
-
-        if (auth()->user()->hasRole('superadmin_representation')) {
-            $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
-            $factor_values = Arr::add($values, 'superadmin_representation', auth()->user()->imgsignature);
-
-            $totalFactorItem->update([
-                'factor_values' => $factor_values,
-                'status_mali' => 1,
-                'approval_date' => $totalFactorItem->approval_date ? $totalFactorItem->approval_date : Carbon::now(),
-                'total_factor_item_status_id' => 10,
-            ]);
-
-            foreach ($factor_items as $factor_item) {
-                $factor_item->update(['credit' => $factor_item->total_price + $factor_item->credit]);
-                event(new factorItemActivation($factor_item->factor->user, $factor_item->center->title));
-                $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-                $fator_item_collections->update([
-                    'status_factor' => 10,
-                ]);
-            }
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }
 
@@ -643,6 +607,13 @@ class TotalFactorItemController extends Controller
     {
         $item = $request->item;
         $total_factor_item = TotalFactorItem::find($item['id']);
+        //check confirmation totalFactorItem
+        if($total_factor_item->confirm)
+        {
+            return redirect()->back()->with([
+                'failByMessage' => 'این پرونده قبلا تایید شده است امکان تغییر وضعیت اجرایی پرونده وجود ندارد.'
+            ]);
+        }
         $factor_items = $total_factor_item->factorItems;
         $total_factor_item->update([
             'total_factor_item_status_id' => $request->status_factor,

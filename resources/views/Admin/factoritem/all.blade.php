@@ -102,12 +102,17 @@
                             <option value="{{$center->id}}">{{$center->title}}</option>
                             @endforeach
                         </select></div>
-                    <div class="col-12 col-md-3 mb-2"><select name="representation" class="custom-select select2">
+
+                    @if(!auth()->user()->admin_representation)
+                    <div class="col-12 col-md-3 mb-2">
+                        <select name="representation" class="custom-select select2">
                             <option value="all">انتخاب نمایندگی</option>
                             @foreach($representations as $representation)
                             <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
-                        </select></div>
+                        </select>
+                    </div>
+                    @endif
                     <div class="col-12 col-md-3 mb-2"><select name="organization" class="custom-select select2
 ">
                             <option value="all">انتخاب سازمان</option>
