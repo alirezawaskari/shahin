@@ -241,7 +241,7 @@ $(document).ready(function () {
         check_form_data.append('pay_to_name', $('#pay_to_name').val());
         check_form_data.append('pay_to_family', $('#pay_to_family').val())
         check_form_data.append('pay_to_gender', $('.pay_to_gender').val())
-        check_form_data.append('pay_toprovince_id', $('#province_id').val());
+        check_form_data.append('pay_to_province_id', $('#province_id').val());
         check_form_data.append('pay_to_city', $('#city_id').val());
         //--- other data of store check form ---
         check_form_data.append('date', $('#check-date').val());
@@ -436,7 +436,7 @@ $(document).ready(function () {
                                     });
                                      location.reload();
                                 }else{
-                                    swal("خطا !", data.message,'error')
+                                    swal("خطا! ", data.messages.join('\n'), "error");
                                 }
                             }
                         });

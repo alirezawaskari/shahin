@@ -58,8 +58,10 @@ class CheckController extends Controller
      */
     public function update(Request $request, Check $check)
     {
-        if (!auth()->user()->isAbleTo('update-check') || $check->checkable->confirm == 1) {
-            return abort(403);
+        if (!auth()->user()->isAbleTo('update-check') ) {
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت ویرایش چک ندارید .')]);
+        }elseif ( $check->checkable->confirm == 1) {
+            return response(['status' => 'error', 'messages' => array('امکان ویرایش چک های پرونده های تایید شده وجود ندارد .')]);
         }
         //validate
         $validator = $this->validateUpdateCheck($request);
@@ -115,9 +117,12 @@ class CheckController extends Controller
      */
     public function destroy(Check $check)
     {
-        if (!auth()->user()->isAbleTo('delete-check') || $check->checkable->confirm == 1) {
-            return abort(403);
+        if (!auth()->user()->isAbleTo('delete-check')) {
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت حذف چک ندارید .')]);
+        }elseif ($check->checkable->confirm == 1){
+            return response(['status' => 'error', 'messages' => array('امکان حذف چک پرونده های تایید شده وجود ندارد .')]);
         }
+
         $check->delete();
         return response(['status' => 'success']);
     }
@@ -132,7 +137,7 @@ class CheckController extends Controller
     public function store(Request $request)
     {
         if (!auth()->user()->isAbleTo('store-check')) {
-            return abort(403);
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت ایجاد چک را ندارید .')]);
         }
         //validate
         $validator = $this->validateStoreCheck($request);
@@ -176,6 +181,7 @@ class CheckController extends Controller
             'checkable_id' => $total_factor_item->id,
             'checkable_type' => get_class($total_factor_item)
         ]);
+
         //store history
         $check->histories()->create([
             'description' => $request->description,
@@ -207,7 +213,7 @@ class CheckController extends Controller
     public function updateStatus(Request $request)
     {
         if (!auth()->user()->isAbleTo('update-status-check')) {
-            return abort(403);
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت ویرایش وضعیت چک را ندارید .')]);
         }
 
         //validate

@@ -204,6 +204,12 @@ return array(
         'exporter_family'=>'نام خانوادگی  صادر کننده',
         'exporter_id'=>'شناسه  صادر کننده',
         'exporter_province_id'=>'استان  صادر کننده',
+        'guaranty_city_id'=>'شهر ضمانت کننده',
+        'guaranty_phone'=>'شماره موبایل ضمانت کننده',
+        'guaranty_name'=>'نام ضمانت کننده',
+        'guaranty_family'=>'نام خانوادگی ضمانت کننده',
+        'guaranty_id'=>'شناسه ضمانت کننده',
+        'guaranty_province_id'=>'استان ضمانت کننده',
         'pay_to_city_id'=>'شهر گیرنده ',
         'pay_to_phone'=>'شماره موبایل  گیرنده ',
         'pay_to_name'=>'نام  گیرنده ',
@@ -211,6 +217,6 @@ return array(
         'pay_to_id'=>'شناسه  گیرنده ',
         'pay_to_province_id'=>'استان  گیرنده ',
         'category_id'=>'دسته بندی',
-        'end_representation' => 'نمایندگی مقصد',
-    ),
+        'end_representation' => 'نمایندگی مقصد'
+        ),
 );
