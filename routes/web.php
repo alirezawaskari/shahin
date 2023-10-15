@@ -41,6 +41,16 @@ Route::group([], function () {
     Route::get('/l/{link}', [\App\Http\Controllers\Admin\ShortLinkController::class,'redirect']);
     Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
 
+    Route::get('/lagestic', function () {
+        return redirect('/singleWebPage/logistic');
+    });
+    Route::get('/lagestic/monaghese1', function () {
+        return redirect('/singleWebPage/logistic/monaghese1');
+    });
+    Route::get('/lagestic/tender-shares', function () {
+        return redirect('/singleWebPage/logistic/tender-shares');
+    });
+
     Route::get('/clear-cache', function () {
         Artisan::call('cache:clear');
     });
@@ -112,6 +122,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
+    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
@@ -183,6 +194,12 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/check/update-status' , 'CheckController@updateStatus');
     Route::resource('/check', 'CheckController');
     Route::post('/check/update/{check}', 'CheckController@update')->name('check.update');
+    //promissory
+    Route::get('/promissory/repair' , 'PromissoryController@repair');
+    Route::get('/promissory/filter' , 'PromissoryController@filter');
+    Route::post('/promissory/update-status' , 'PromissoryController@updateStatus');
+    Route::resource('/promissory', 'PromissoryController');
+    Route::post('/promissory/update/{promissory}', 'PromissoryController@update')->name('promissory.update');
     //treasury
     Route::get('/treasury/index' , 'TreasuryController@calendar')->name('treasury.calendar');
     //total factor item
@@ -193,6 +210,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItem/contract-settlement', 'TotalFactorItemController@contractSettlement')->name('totalFactorItem.contractSettlement');
     Route::get('/totalFactorItem/{totalFactorItem}/installment', 'TotalFactorItemController@installments');
     Route::get('/totalFactorItem/checks/{totalFactorItem}', 'TotalFactorItemController@checks')->name('totalFactorItem.checks');
+    Route::get('/totalFactorItem/promissory/{totalFactorItem}', 'TotalFactorItemController@promissories')->name('totalFactorItem.promissories');
     Route::post('/totalFactorItem/upload-document', 'TotalFactorItemController@uploadDocument')->name('totalFactorItem.uploadDocument');
     Route::post('/totalFactorItem/save-extra-pay', 'TotalFactorItemController@saveExtraPay')->name('totalFactorItem.saveExtraPay');
     Route::post('/totalFactorItem/store-impunity', 'TotalFactorItemController@storeImpunity')->name('totalFactorItem.storeImpunity');

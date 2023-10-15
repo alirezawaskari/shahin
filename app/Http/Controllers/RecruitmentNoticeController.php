@@ -202,6 +202,8 @@ class RecruitmentNoticeController extends Controller
         })->first()->id;
 
         $description = "جویای کار،
+             {$recruitmentNotice->province->name}
+             ،
           عنوان شغلی:
          {$recruitmentNotice->title}";
         Callcenter::create([

@@ -96,6 +96,9 @@
                                 @permission('list-check')
                                 <li><a href="{{ route('check.index') }}">چک ها</a></li>
                                 @endpermission
+                                @permission('list-promissory')
+                                <li><a href="{{ route('promissory.index') }}">سفته ها</a></li>
+                                @endpermission
                             </ul>
                         </li>
                         @permission('factor-deleted-list')
@@ -149,6 +152,9 @@
 					@endpermission
                     @permission('list-check')
                     <li><a href="{{ route('check.index') }}">چک ها</a></li>
+                    @endpermission
+                    @permission('list-promissory')
+                    <li><a href="{{ route('promissory.index') }}">سفته ها</a></li>
                     @endpermission
                 </ul>
             </li>

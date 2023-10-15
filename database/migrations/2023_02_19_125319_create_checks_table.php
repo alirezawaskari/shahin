@@ -37,7 +37,7 @@ class CreateChecksTable extends Migration
             $table->string('title');
             $table->string('serial_code');
             $table->timestamp('date');
-            $table->integer('receipt_date')->nullable();
+            $table->timestamp('receipt_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

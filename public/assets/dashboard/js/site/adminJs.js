@@ -161,7 +161,18 @@ $(document).on('change', '.file_upload_ajax', function () {
         var file_attr_name = $(this).attr('name');
         var file_attr_id = $(this).attr('id');
         var fileType = file["type"];
-        var validImageTypes = ["image/jpg", "image/jpeg", "image/png", "image/svg+xml", "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+        var validImageTypes = [
+            "image/jpg",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-excel",
+            "application/x-rar-compressed",
+            "application/x-zip-compressed"
+        ];
         var size = file.size;
         if ($.inArray(fileType, validImageTypes) > 0) {
             if (6000000 >= size) {
@@ -192,7 +203,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                                 $('#' + file_attr_id + '_src.show div').remove();
                                 $('#' + file_attr_id + '_src.show img').remove();
                                 var file = '';
-                                if (!((fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'))) {
+                                if (!((fileType == 'application/x-rar-compressed') ||(fileType == 'application/x-zip-compressed') ||(fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')||(fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
                                     file = '<img src="' + e.target.result + '" id="' + index_add_photo + '" ' +
                                         'class="card-img-top" height="150px">';
                                 } else {
@@ -220,7 +231,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                 toastr.error('آپلود ناموفق : حجم عکس از 6 مگا بایت بیشتر می باشد.');
             }
         } else {
-            toastr.error('آپلود ناموفق : فرمت فایل بایستی pdf|svg+xml|JPG|png باشد.');
+            toastr.error('آپلود ناموفق : فرمت فایل بایستی pdf|svg+xml|JPG|png|xlsx باشد.');
         }
     }
 });
@@ -518,3 +529,64 @@ $(document).on('click', '.remove_work_sample', function () {
         }
     });
 });
+
+$(document).ready(function () {
+ //submit on create new user
+        $("#create-user-form").submit(function (event) {
+            var form = $(this);
+            var formData = form.serialize();
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
+                }
+            });
+            $.ajax({
+                type: "POST",
+                url:  $(this).attr('action'),
+                data: formData,
+            }).done(function (data) {
+                 if (data.status == 'success'){
+                     swal("عملیات موفق! ",data.message, "success");
+                     clearNewUserFormInputsData();
+                 }else if(data.status=='error'){
+                     swal("توجه! ",data.message, "error");
+                     clearNewUserFormInputsData();
+                 }else if(data.status=='validation_error'){
+                     swal("خطا! ", data.messages.join('\n'), "error");
+                 }
+            });
+            event.preventDefault();
+        });
+//------------------------------------------------------------------------------
+//select province for create new user
+    $('#new_user_province_id').on('change', function () {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var id = $(this).val();
+        $.ajax({
+            url: '/city/select',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                "_token": token,
+                "id": id,
+            },
+            success: function (data) {
+                $('#new_user_city_id')
+                    .empty()
+                    .append('<option value="all">انتخاب شهر</option>')
+                ;
+                $.each(data.cities, function (i, d) {
+                    $('#new_user_city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
+                });
+            }
+        });
+    });
+//-----------------------------------------------------------------------------------------------------
+});
+function clearNewUserFormInputsData(){
+    $('#new_user_name').val('');
+    $('#new_user_family').val('');
+    $('#new_user_gender').val('');
+    $('#new_user_province_id').val('');
+    $('#new_user_city_id').val('');
+}

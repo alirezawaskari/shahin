@@ -15,6 +15,8 @@ use App\Models\Work;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends AdminController
 {
@@ -436,5 +438,64 @@ class UserController extends AdminController
         }
         auth()->login($user);
         return redirect('/');
+    }
+
+    /**
+     * @param Request $request
+     * @return void
+     */
+    public function createUser(Request $request)
+    {
+        $validate= Validator::make($request->all(), [
+            'phone' => 'required|regex:/(09)[0-9]{9}/|digits:11',
+            'name' => 'required|string',
+            'family' => 'required|string',
+            'gender' => ['required',Rule::in(array(0,1))],
+            'province' => 'required|numeric|exists:provinces,id',
+            'city' => 'required|numeric|exists:cities,id',
+        ]);
+
+        if ($validate->fails()){
+            return response([
+                'status'=>'validation_error',
+                'messages'=>$validate->errors()->all()
+            ]);
+        }
+
+        if (!User::where('phone',$request->phone)->first()){
+           $this->storeUser($request->phone,$request->name,$request->family,$request->province,$request->city,$request->gender);
+           return response([
+                'status'=>'success',
+                'message'=>' کاربر با موفقیت ثبت شد .'
+            ]);
+        }else{
+            return response([
+                'status'=>'error',
+                'message'=>'این کاربر در سامانه موجود می باشد.'
+            ]);
+        }
+    }
+
+
+    /**
+     * @param $request
+     * @return mixed
+     */
+    private function storeUser($phone, $name, $family, $province_id, $city_id,$gender)
+    {
+        $pass = rand(12345, 99999);
+        $phone = Helper::numberConverter($phone);
+
+        return User::create([
+            'name' => $name,
+            'family' => $family,
+            'phone' => $phone,
+            'sex' => $gender,
+            'password' => Hash::make($pass),
+            'active' => true,
+            'level' => 'user',
+            'province_id ' => $province_id,
+            'city_id' => $city_id
+        ]);
     }
 }

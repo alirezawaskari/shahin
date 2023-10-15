@@ -153,7 +153,6 @@ class Check extends Model implements AuditableContract
                     $query->where('name', 'LIKE', '%' . $applicant_name. '%');
                 });
         }
-
         if (isset($applicant_family) && trim($applicant_family) != '') {
                 $query->whereHas('applicantable', function ($query)use($applicant_family){
                     $query->where('family', 'LIKE', '%' . $applicant_family. '%');
@@ -177,7 +176,7 @@ class Check extends Model implements AuditableContract
         }
 
         if (isset($start_date) && trim($start_date) != '' && isset($end_date) && trim($end_date) != '') {
-            $query->whereDate('date', '>=', $start_date)->whereDate('created_at', '<=', $end_date);
+            $query->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date);
         }
         if (isset($status) && trim($status) != '' && $status != 'all') {
             $query->whereStatus($status);

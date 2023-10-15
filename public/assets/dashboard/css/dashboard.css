@@ -9104,8 +9104,10 @@ background-color: white;
     background: rgba(195,125,213,0.91);
     background: linear-gradient(90deg, rgba(195,125,213,0.21) 0%, rgba(255,131,6,0.15) 60%, rgba(241,0,255,0.13067233729429273) 100%);
 }
+.bg-promissory{
+    background: #f7f7f7;
+}
 
-.bg-check-light{
-    background: rgba(195, 125, 213, 0.32);
-    background: linear-gradient(90deg, rgba(195, 125, 213, 0.06) 0%, rgba(255, 131, 6, 0.05) 60%, rgba(241, 0, 255, 0.05) 100%);
+.bg-promissory-light{
+    background: #f7f7f7;
 }
