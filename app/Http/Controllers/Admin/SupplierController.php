@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
 class SupplierController extends Controller
@@ -23,7 +24,8 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        return view('Admin.supplier.create');
+        $users = self::getSupplierUsers();
+        return view('Admin.supplier.create' , compact('users'));
     }
 
     /**
@@ -47,20 +49,13 @@ class SupplierController extends Controller
     }
 
     /**
-     * @param Menu $menu
-     */
-    public function show(Menu $menu)
-    {
-        //
-    }
-
-    /**
      * @param Supplier $supplier
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
     public function edit(Supplier $supplier)
     {
-        return view('Admin.supplier.edit', compact('supplier'));
+        $users = self::getSupplierUsers();
+        return view('Admin.supplier.edit', compact(['supplier' , 'users']));
     }
 
     /**
@@ -85,5 +80,13 @@ class SupplierController extends Controller
         return redirect(route('supplier.index'))->with([
             'update' => 'success'
         ]);
+    }
+    private function getSupplierUsers()
+    {
+        $users = User::where('level' , 'admin')->whereHas('roles', function ($query) {
+            $query->where('name' , 'supplier');
+        })->get();
+        
+        return $users;
     }
 }
