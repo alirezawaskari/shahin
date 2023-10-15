@@ -19,6 +19,7 @@
                         <th scope="col">تاریخ صدور</th>
                         <th scope="col">متقاضی</th>
                         <th scope="col">صادر کننده</th>
+                        <th scope="col">ضمانت کننده</th>
                         <th scope="col">در وجه</th>
                         <th scope="col">شماره سریال</th>
                         <th scope="col">موضوع</th>
@@ -45,6 +46,10 @@
                                 <br>
                                 {{$promissory->exportable->phone}}
                             </td>
+                            <td>{{$promissory->guarantorable->name . ' '.$promissory->guarantorable->family}}
+                                <br>
+                                {{$promissory->guarantorable->phone}}
+                            </td>
                             <td>{{$promissory->paytoable->name . ' '.$promissory->paytoable->family}}
                                 <br>
                                 {{$promissory->paytoable->phone}}
@@ -60,8 +65,7 @@
                                 @endswitch
                             </td>
                             <td> @foreach( $promissory->files as $file)
-                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}"
-                                                                                        width="70px" alt=""></a>
+                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}" width="70px" alt=""></a>
                                 @endforeach
 
                             </td>
@@ -74,16 +78,10 @@
                             <td>
                                 @switch ($promissory->status)
                                     @case(0)
-                                    <span class="badge badge-warning">در انتظار وصول</span>
+                                    <span class="badge badge-warning">بایگانی</span>
                                     @break
                                     @case(1)
-                                    <span class="badge badge-success">وصول شده</span>
-                                    @break
-                                    @case(2)
-                                    <span class="badge badge-danger">برگشت خورده</span>
-                                    @break
-                                    @case(3)
-                                    <span class="badge badge-info">عودت داده شده</span>
+                                    <span class="badge badge-success">عودت داده شده</span>
                                     @break
                                     @default
                                     <span class="badge badge-info">{{$promissory->status}}</span>
@@ -97,6 +95,7 @@
                                     <span
                                         data-applicant="{{$promissory->applicantable->name.' '.$promissory->applicantable->family}}"
                                         data-exporter="{{$promissory->exportable->name.' '.$promissory->exportable->family}}"
+                                        data-guaranty="{{$promissory->guarantorable->name.' '.$promissory->guarantorable->family}}"
                                         data-promissory_id="{{$promissory->id}}" data-serial_code="{{$promissory->serial_code}}"
                                         data-description="{{$promissory->histories->count()>0?$promissory->histories->last()->description :''}}"
                                         data-pay_to="{{$promissory->paytoable->name.' '.$promissory->paytoable->family}}"
@@ -263,17 +262,16 @@
                                             <div class="row card-body">
                                                 <div class="form-group col-md-4">
                                                     <label>شماره موبایل ضمانت کننده </label>
-                                                    <input id="promissory-guaranty-phone" name="guaranty_phone"
+                                                    <input id="guaranty-phone" name="guaranty_phone"
                                                            oninput="searchUser(this.value,'guaranty')"
                                                            class="form-control" placeholder=""
-                                                           value="" required>
-                                                    <p class="text-danger text-center exporter_error_user"></p>
+                                                           value="{{$factor->user->phone}}" required>
                                                 </div>
 
                                                 <div class="form-group col-md-4">
                                                     <label>نام</label>
                                                     <input class="form-control my-2 guaranty_name" type="text"
-                                                           id="guaranty_name" name="name" required
+                                                           id="guaranty-name" name="guaranty_name" required
                                                            placeholder="نام" value="" pattern="^[\u0600-\u06FF\s]+$"
                                                            title="لطفا با حروف فارسی وارد نمایید">
                                                     @if ($errors->has('name'))
@@ -369,9 +367,7 @@
                                                 <div class="form-group col-md-4">
                                                     <label>نام خانوادگی</label>
                                                     <input class="form-control my-2 pay_to_family" type="text"
-                                                           id="pay_to_family" name="pay_to_family" required
-                                                           placeholder="نام خانوادگی" value=""
-                                                           pattern="^[\u0600-\u06FF\s]+$"
+                                                           id="pay_to_family" name="pay_to_family" required placeholder="نام خانوادگی" value="" pattern="^[\u0600-\u06FF\s]+$"
                                                            title="لطفا با حروف فارسی وارد نمایید">
                                                     @if ($errors->has('family'))
                                                         <span
@@ -516,6 +512,10 @@
                                         <input id="edit-promissory-exporter" name="exporter" class="form-control" readonly
                                                placeholder=""
                                                value="" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label>ضمانت کننده :</label>
+                                        <input id="edit-promissory-guaranty" name="guaranty" class="form-control" readonly  placeholder="" value="" required>
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>در وجه :</label>

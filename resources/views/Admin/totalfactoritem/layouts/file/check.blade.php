@@ -1,7 +1,7 @@
 <div class="panel">
     <div class="panel-heading">
         <h5 class="panel-title">
-            <a href="#checks" class="accordion-toggle" data-toggle="collapse" data-parent="#accordion">چک ها</a>
+            <a href="#checks" class="accordion-toggle" data-toggle="collapse" data-parent="#accordion"> چک ها و سفته ها</a>
         </h5>
     </div>
     <div id="checks" class="panel-collapse collapse in">

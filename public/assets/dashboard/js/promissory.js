@@ -90,8 +90,11 @@ $(document).ready(function () {
                     }},
                 {"data": data,
                     "render":function (data){
+                        return `${data.guaranty_fullname}<br>${data.guaranty_phone}`
+                    }},
+                {"data": data,
+                    "render":function (data){
                         return `${data.pay_to_fullname}<br>${data.pay_to_phone}`
-
                     }},
                 {"data": "serial_code"},
                 {
@@ -132,15 +135,11 @@ $(document).ready(function () {
                     "render": function (data){
                         switch (data.status) {
                             case 0:
-                                return '<span class="badge badge-warning">در انتظار وصول</span> ';
+                                return '<span class="badge badge-warning">بایگانی </span> ';
                             case 1:
-                                return '<span class="badge badge-success">وصول شده</span> ';
-                            case 2:
-                                return '<span class="badge badge-danger">برگشت خورده</span>';
-                            case 3:
-                                return '<span class="badge badge-info">عودت داده شده</span>';
+                                return '<span class="badge badge-success">عودت داده شده</span> ';
                             default:
-                                return ''
+                                return data.status
                         }
                     }
                 },
@@ -158,7 +157,7 @@ $(document).ready(function () {
                             <div class="dropdown-menu">
                              <a href="../../../dashboard/totalFactorItem/${data.total_factor_item_id}" target="_blank">
                             <button type="button" class="dropdown-item pointer">بازدید پرونده</button></a>
-                            <button style="display: ${status_display}" type="button" class="dropdown-item pointer list-promissory-status" data-promissory_id="${data.id}" data-front_image="${data.front_image}" data-toggle="modal" data-target="#statusCheckModal">وضعیت</button>
+                            <button style="display: ${status_display}" type="button" class="dropdown-item pointer list-promissory-status" data-promissory_id="${data.id}" data-front_image="${data.front_image}" data-toggle="modal" data-target="#statusPromissoryModal">وضعیت</button>
                         </div></div>`
                     }
                 }
@@ -237,8 +236,16 @@ $(document).ready(function () {
         promissory_form_data.append('pay_to_name', $('#pay_to_name').val());
         promissory_form_data.append('pay_to_family', $('#pay_to_family').val())
         promissory_form_data.append('pay_to_gender', $('.pay_to_gender').val())
-        promissory_form_data.append('pay_toprovince_id', $('#province_id').val());
+        promissory_form_data.append('pay_to_province_id', $('#province_id').val());
         promissory_form_data.append('pay_to_city', $('#city_id').val());
+        //---pay to user data ---
+        promissory_form_data.append('guaranty_id', $('#guaranty-id').val());
+        promissory_form_data.append('guaranty_phone', $('#guaranty-phone').val());
+        promissory_form_data.append('guaranty_name', $('#guaranty-name').val());
+        promissory_form_data.append('guaranty_family', $('#guaranty-family').val())
+        promissory_form_data.append('guaranty_gender', $('.guaranty_gender').val())
+        promissory_form_data.append('guaranty_province_id', $('#guaranty_province_id').val());
+        promissory_form_data.append('guaranty_city', $('#guaranty_city_id').val());
         //--- other data of store promissory form ---
         promissory_form_data.append('date', $('#promissory-date').val());
         promissory_form_data.append('description', $('#promissory-description').val());
@@ -271,7 +278,7 @@ $(document).ready(function () {
                         });
                     }else{
                         $("#storeCheckModal").modal('hide');
-                        swal("عملیات موفق! ", "چک با موفقیت ثبت گردید !", "success");
+                        swal("عملیات موفق! ", "سفته با موفقیت ثبت گردید !", "success");
                          location.reload();
                     }
                 }
@@ -302,6 +309,7 @@ $(document).ready(function () {
         $('#edit-promissory-date').val(promissory_tag.data('jdate'))
         $('#edit-promissory-exporter').val(promissory_tag.data('exporter'))
         $('#edit-promissory-applicant').val(promissory_tag.data('applicant'))
+        $('#edit-promissory-guaranty').val(promissory_tag.data('guaranty'))
         $('#edit-promissory-pay-to').val(promissory_tag.data('pay_to'))
         $('#edit-promissory-description').val(promissory_tag.data('description'))
         $('#edit-promissory-id').val(promissory_tag.data('promissory_id'))
@@ -424,7 +432,7 @@ $(document).ready(function () {
                             success: function (data,page){
                                 if (data.status=='success'){
                                     swal({
-                                        text: "چک با موفقیت حذف گردید .",
+                                        text: "سفته با موفقیت حذف گردید .",
                                         icon: "success",
                                         button: "تایید",
                                         timer:3000,
@@ -432,7 +440,7 @@ $(document).ready(function () {
                                     });
                                      location.reload();
                                 }else{
-                                    swal("خطا !", data.message,'error')
+                                    swal("خطا! ", data.messages.join('\n'), "error");
                                 }
                             }
                         });
@@ -444,6 +452,7 @@ $(document).ready(function () {
     $('#add-new-promissory-btn').on('click',function (){
         searchUser( $("#promissory-exporter-phone").val(),'exporter')
         searchUser( $("#promissory-payto-phone").val(),'pay_to')
+        searchUser( $("#guaranty-phone").val(),'guaranty')
     });
 
 })

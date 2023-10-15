@@ -53,13 +53,17 @@ class PromissoryCollection extends ResourceCollection
                     'applicant_id'=>$item->applicantable->id,
                     'applicant_phone'=>$item->applicantable->phone,
 
+                    'guaranty_fullname'=>$item->guarantorable->name .' '.$item->guarantorable->family,
+                    'guaranty_id'=>$item->guarantorable->id,
+                    'guaranty_phone'=>$item->guarantorable->phone,
+
                     'pay_to_fullname'=>$item->paytoable->name .' '.$item->paytoable->family,
                     'pay_to_id'=>$item->paytoable->id,
                     'pay_to_phone'=>$item->paytoable->phone,
 
                     'description' => !is_null($last_history)?$last_history->description:'',
                     'title' => $item->title,
-                    'total_factor_item_id' => $item->checkable_id,
+                    'total_factor_item_id' => $item->promissoryable_id,
                     'front_image' => !is_null($front_image) ?$front_image->path: '',
                     'back_image' => !is_null($back_image) ? $back_image->path : '',
                     'asset_transaction'=>  $item->assetTransactions()->exists()? new AssetTransactionResource($item->assetTransactions()->latest()->first()):null,

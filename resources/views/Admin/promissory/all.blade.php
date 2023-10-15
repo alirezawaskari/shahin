@@ -108,6 +108,7 @@
                     <th scope="col">تاریخ وصول </th>
                     <th scope="col">متقاضی </th>
                     <th scope="col">صادر کننده </th>
+                    <th scope="col">ضمانت کننده</th>
                     <th scope="col">در وجه </th>
                     <th scope="col">شماره سریال </th>
                     <th scope="col">موضوع </th>

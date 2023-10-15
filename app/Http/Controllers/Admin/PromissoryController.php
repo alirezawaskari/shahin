@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Events\userActivation;
 use App\Exports\PromissoryExport;
 use App\Helpers\Helper;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\PromissoryCollection;
-use App\Models\Promissory;
-use App\Models\Factor;
 use App\Models\File;
+use App\Models\Promissory;
 use App\Models\TotalFactorItem;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -59,12 +56,14 @@ class PromissoryController extends Controller
      */
     public function update(Request $request, Promissory $promissory)
     {
-        if (!auth()->user()->isAbleTo('update-promissory') || $promissory->promissoryable->confirm == 1) {
-            return abort(403);
+
+        if (!auth()->user()->isAbleTo('update-promissory') ) {
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت ویرایش سفته ندارید .')]);
+        }else if ( $promissory->promissoryable->confirm == 1) {
+            return response(['status' => 'error', 'messages' => array('امکان ویرایش سفته های پرونده های تایید شده وجود ندارد .')]);
         }
         //validate
         $validator = $this->validateUpdatePromissory($request);
-
         if ($validator->fails()) {
             return response(['status' => 'error', 'messages' => $validator->messages()->all()]);
         }
@@ -116,9 +115,12 @@ class PromissoryController extends Controller
      */
     public function destroy(Promissory $promissory)
     {
-        if (!auth()->user()->isAbleTo('delete-promissory') || $promissory->promissoryable->confirm == 1) {
-            return abort(403);
+        if (!auth()->user()->isAbleTo('delete-promissory')) {
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت حذف سفته ندارید .')]);
+        }elseif ($promissory->promissoryable->confirm == 1){
+            return response(['status' => 'error', 'messages' => array('امکان حذف سفته پرونده های تایید شده وجود ندارد .')]);
         }
+
         $promissory->delete();
         return response(['status' => 'success']);
     }
@@ -132,8 +134,8 @@ class PromissoryController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->isAbleTo('store-promissory')) {
-            return abort(403);
+        if (!auth()->user()->isAbleTo('store-promissory') ) {
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت ذخیره سفته ندارید .')]);
         }
         //validate
         $validator = $this->validateStorePromissory($request);
@@ -150,8 +152,7 @@ class PromissoryController extends Controller
         is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id, $request->exporter_gender) : $exporter = User::find($request->exporter_id);
         is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id, $request->pay_to_gender) : $pay_to = User::find($request->pay_to_id);
         is_null($request->guaranty_id) ? $guarantor = $this->createUser($request->guaranty_phone, $request->guaranty_name, $request->guaranty_family, $request->guaranty_province_id, $request->guaranty_city_id, $request->guaranty_gender) : $guarantor = User::find($request->guaranty_id);
-
-        $applicant = User::find($request->applicant_id);
+         $applicant = User::find($request->applicant_id);
 
         //find case: |is factorItem or totalFactorItem|
         $total_factor_item = TotalFactorItem::find($request->total_factor_item_id);
@@ -212,7 +213,7 @@ class PromissoryController extends Controller
     public function updateStatus(Request $request)
     {
         if (!auth()->user()->isAbleTo('update-status-promissory')) {
-            return abort(403);
+            return response(['status' => 'error', 'messages' => array('شما مجوز لازم جهت ویرایش وضعیت سفته را ندارید .')]);
         }
 
         //validate
@@ -223,18 +224,11 @@ class PromissoryController extends Controller
         $promissory = Promissory::find($request->promissory_id);
 
         switch ($request->status) {
+            case 0:
+                $this->archivePromissory($promissory);
+                break;
             case 1:
-                $this->receiptPromissory($promissory);
-                break;
-            case 2:
-                $this->bouncedPromissory($promissory);
-                break;
-            case 3:
                 $this->returnPromissory($promissory);
-                break;
-            case 11:
-                $receiver = $this->getOrCreateReceiver($request);
-                $this->assignmentPromissory($promissory, $receiver);
                 break;
         }
 
@@ -273,12 +267,7 @@ class PromissoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'promissory_id' => ['required', 'exists:promissories,id'],
-            'status' => ['required', Rule::in(array(0, 1, 2, 3, 11))],
-            'receiver_id' => 'nullable|exists:users,id',
-            'receiver_phone' => 'nullable','regex:/(09)[0-9]{9}/|digits:11',
-            'receiver_name' => 'nullable','string',
-            'receiver_family' => 'nullable','string',
-            'receiver_gender' => ['nullable', Rule::in(array(0, 1))],
+            'status' => ['required', Rule::in(array(0, 1))],
         ]);
 
         $error_messages = array();
@@ -286,25 +275,13 @@ class PromissoryController extends Controller
             return $validator->messages()->all();
         }
 
-        if (is_null($request->receiver_id) && $request->status == 11 && (is_null($request->phone)||is_null($request->name)||is_null($request->family)||is_null($request->gender)) ) {
-            $error_messages[] = ' تمام اطلاعات کاربر الزامی می باشد , لطفا اطلاعات تحویل گیرنده را کامل وارد نمایید .';
-        }
-
         $promissory = Promissory::find($request->promissory_id);
-        if (in_array($request->status, array(1, 2)) && $promissory->date > Carbon::tomorrow()) {
-            $error_messages[] = 'هنوز زمان وصول چک نرسیده است .';
+
+        if ($request->status == 1 && $promissory->status == 1) {
+            $error_messages[] = 'درخواست نامعتبر ، عودت قبلا ثبت شده است .';
         }
-        if ($request->status == 3 && $promissory->title != 'guaranty') {
-            $error_messages[] = 'عودت چک تنها شامل چک های ضمانت میباشد.';
-        }
-        if ($request->status == 2 && $promissory->status == 2) {
-            $error_messages[] = 'این وضعیت قبلا ثبت شده است.';
-        }
-        if (in_array($request->status, array(2, 3, 1)) && $promissory->status == 1) {
-            $error_messages[] = 'درخواست نامعتبر است  "این چک قبلا وصول شده است "';
-        }
-        if ($request->status == 4 && $promissory->title == 'guaranty') {
-            $error_messages[] = 'خرج نمودن چک ، شامل چک های ضمانت نمی باشد.';
+        if ($request->status == 0 && $promissory->status == 0) {
+            $error_messages[] = 'درخواست نامعتبر ، بایگانی قبلا ثبت شده است .';
         }
 
         return $error_messages;
@@ -313,45 +290,20 @@ class PromissoryController extends Controller
     /**
      * @param Promissory $promissory
      */
-    private function receiptPromissory(Promissory $promissory)
+    private function returnPromissory(Promissory $promissory)
     {
         $promissory->update([
             'status' => 1
         ]);
-        if ($promissory->title == 'installment' ||$promissory->title == 'prepayment'  ) {
-            //crated factor
-            $factor = new Factor();
-            $factor->title = $promissory->title;
-            $factor->user_id = $promissory->promissoryable->factor->user->id;
-            $factor->price = $promissory->amount;
-//            $factor->level =0;
-            $factor->type = 'promissory';
-            $factor->total_factor_item_id = $promissory->promissoryable->id;
-            $factor->status = 1;
-            $factor->expired_at = now();
-            $factor->save();
-            Factor::savePayment($factor);
-        }
 
     }
-
     /**
      * @param Promissory $promissory
      */
-    private function bouncedPromissory(Promissory $promissory)
+    private function archivePromissory(Promissory $promissory)
     {
         $promissory->update([
-            'status' => 2
-        ]);
-    }
-
-    /**
-     * @param Promissory $promissory
-     */
-    private function returnPromissory(Promissory $promissory)
-    {
-        $promissory->update([
-            'status' => 3
+            'status' => 0
         ]);
 
     }
@@ -379,6 +331,13 @@ class PromissoryController extends Controller
             'pay_to_gender' =>['required',Rule::in(array(0,1))],
             'pay_to_province_id' => 'required_if:pay_to_id,null|numeric|exists:provinces,id',
             'pay_to_city' => 'required_if:pay_to_id,null|numeric|exists:cities,id',
+            'guaranty_id' => 'nullable|numeric|exists:users,id',
+            'guaranty_phone' => 'required_if:guaranty_id,null|regex:/(09)[0-9]{9}/|digits:11',
+            'guaranty_name' => 'required_if:guaranty_id,null|string',
+            'guaranty_family' => 'required_if:guaranty_id,null|string',
+            'guaranty_gender' =>['required',Rule::in(array(0,1))],
+            'guaranty_province_id' => 'required_if:guaranty_id,null|numeric|exists:provinces,id',
+            'guaranty_city' => 'required_if:guaranty_id,null|numeric|exists:cities,id',
             'amount' => ['required'],
             'date' => ['required'],
             'serial_code' => ['required'],
@@ -386,19 +345,6 @@ class PromissoryController extends Controller
             'total_factor_item_id' => ['required', 'integer', 'exists:total_factor_items,id'],
             'promissory_front_image' => ['required', 'mimes:png,jpg,jpeg'],
             'promissory_back_image' => ['mimes:png,jpg,jpeg']
-        ]);
-    }
-
-    /**
-     * @param Promissory $promissory
-     * @param string $description
-     */
-    private function storePromissoryActionHistory(Promissory $promissory, string $description)
-    {
-        $auth_user = auth()->user();
-        $auth_user_full_name = $auth_user->name . ' ' . $auth_user->family;
-        $promissory->histories()->create([
-            'description' => $description . " $auth_user_full_name _" . $auth_user->id
         ]);
     }
 
@@ -455,45 +401,4 @@ class PromissoryController extends Controller
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    private function getOrCreateReceiver(Request $request)
-    {
-       if (isset($request->receiver_id)){
-           $receiver=User::find($request->receiver_id);
-       }else{
-           $receiver=$this->createUser($request->receiver_phone,$request->receiver_name,$request->receiver_family,null,null,$request->receiver_gender);
-       }
-       return $receiver;
-    }
-
-    public function repair()
-    {
-        $promissories = Promissory::all();
-        $user_receiver= User::find(63);
-        foreach ($promissories as $promissory){
-            $promissory_owner = $promissory->promissoryable->factor->user;
-            if (is_null($promissory->applicantable_id)){
-                $promissory->update([
-                    'applicantable_id'=>$promissory_owner->id,
-                    'applicantable_type'=>get_class($promissory_owner)
-                ]);
-            }
-            if (is_null($promissory->exportable_id)){
-                $promissory->update([
-                    'exportable_id'=>$promissory_owner->id,
-                    'exportable_type'=>get_class($promissory_owner)
-                ]);
-            }
-            if (is_null($promissory->paytoable_id )){
-                $promissory->update([
-                    'paytoable_id'=>$user_receiver->id,
-                    'paytoable_type'=>get_class($user_receiver)
-                ]);
-            }
-        }
-        return Promissory::all();
-    }
 }
