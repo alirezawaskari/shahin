@@ -169,7 +169,7 @@
                             </a>
                             @permission('factor-delete')
                                 <form class="delete_form" method="post"
-                                    action="{{ route('factor.destroy', ['resnumber' => $purchase_invoice_factor->factor->resnumber]) }}">
+                                    action="{{ route('factor.destroy', $purchase_invoice_factor->factor->resnumber) }}">
                                     @method('DELETE')
                                     @csrf
                                     <input type="button" class="dropdown-item pointer delete_submit"
