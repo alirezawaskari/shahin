@@ -150,8 +150,7 @@
             </div>
             <div class="tab-pane fade p-t-20" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                 <span>گزارشات فاکتور</span>
-                <span class="btn btn-success py-1 px-2" data-toggle="modal" data-target="#commentModal">ثبت گزارش
-                    جدید</span>
+                <span class="btn btn-success py-1 px-2" data-toggle="modal" data-target="#commentModal"> ثبت گزارش خرابی جدید</span>
                 <div class="mt-4">
                     @if(count($reports) > 0)
                     @foreach($reports as $item)

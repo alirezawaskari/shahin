@@ -20,7 +20,7 @@ class ContactController extends Controller
         $url = 'filter';
         $cards = Card::all();
         $delete = false;
-        if(auth()->user()->isAbleTo('contact' || 'contact-detail'))
+        if(auth()->user()->isAbleTo(array('contact','contact-detail')))
         {
             if(auth()->user()->isAbleTo('contact-delete'))
             {
@@ -40,7 +40,7 @@ class ContactController extends Controller
         $url = 'desktop/filter';
         $cards = Card::all();
         $delete = false;
-        if(auth()->user()->isAbleTo('contact' || 'contact-detail'))
+        if(auth()->user()->isAbleTo(array('contact' , 'contact-detail')))
         {
             if(auth()->user()->isAbleTo('contact-delete'))
             {

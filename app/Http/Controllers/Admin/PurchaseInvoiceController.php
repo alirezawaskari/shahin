@@ -29,14 +29,14 @@ class PurchaseInvoiceController extends Controller {
         $user = auth()->user();
         $delete = false;
         $suppliers = Supplier::all();
-        if ( $user->isAbleTo( 'purchase-invoice' || 'purchase-invoice-detail' ) ) {
+         if ( $user->isAbleTo( array('purchase-invoice' , 'purchase-invoice-detail') ) ) {
             $title = 'فهرست فاکتورهای خرید';
             $url = 'filter';
             if ( $user->isAbleTo( 'purchase-invoice-delete' ) ) {
                 $delete = true;
             }
             return view( 'Admin.purchaseinvoice.all', compact( 'suppliers', 'title', 'url', 'delete' ) );
-        }
+         }
         return abort( 401 );
     }
 
