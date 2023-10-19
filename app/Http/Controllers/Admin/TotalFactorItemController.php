@@ -179,8 +179,9 @@ class TotalFactorItemController extends Controller
         $contract_number = TotalFactorItem::setAgentContractNumber($totalFactorItem);
 
         $checks=$totalFactorItem->checks;
+        $promissories=$totalFactorItem->promissories;
 
-        return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items','installments','checks'));
+        return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items','installments','checks','promissories'));
     }
 
     /**
@@ -1212,6 +1213,18 @@ class TotalFactorItemController extends Controller
         $user=$totalFactorItem->factor->user;
         $factor=$totalFactorItem->factor;
         return view('Admin.totalfactoritem.checks',compact('checks','user','factor','totalFactorItem'));
+    }
+
+    /**
+     * @param TotalFactorItem $totalFactorItem
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function promissories(TotalFactorItem $totalFactorItem)
+    {
+        $promissories=$totalFactorItem->promissories;
+        $user=$totalFactorItem->factor->user;
+        $factor=$totalFactorItem->factor;
+        return view('Admin.totalfactoritem.promissories',compact('promissories','user','factor','totalFactorItem'));
     }
 
 

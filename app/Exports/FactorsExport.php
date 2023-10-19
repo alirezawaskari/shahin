@@ -30,6 +30,7 @@ class FactorsExport implements FromCollection , ShouldAutoSize ,WithHeadings
             $temp['price'] = $item->price - $item->tax;
             $temp['service'] = $this->setService($item);
             $temp['buyer'] = isset($item->user) ? $item->user->name.' '.$item->user->family.'-'.$item->user->melicode.'-'.$item->user->phone : '';
+            $temp['buyerphone'] = isset($item->user) ? $item->user->phone : '';
             $temp['seller'] = 'شرکت جانبازان آینده ساز شماره اقتصادی: 411495546645 شماره ثبت: 478000';
             return $temp;
         });
@@ -40,7 +41,7 @@ class FactorsExport implements FromCollection , ShouldAutoSize ,WithHeadings
 
     public function headings(): array
     {
-        return ['تاریخ', 'ارزش افزوده', 'مبلغ' , 'خدمت', 'خریدار','فروشنده'];
+        return ['تاریخ', 'ارزش افزوده', 'مبلغ' , 'خدمت', 'خریدار', 'تلفن خریدار','فروشنده'];
     }
     public function setService($item)
     {

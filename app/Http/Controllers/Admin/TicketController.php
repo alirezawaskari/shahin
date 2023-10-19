@@ -56,6 +56,7 @@ class TicketController extends Controller
      */
     public function desktop()
     {
+
         $employees = Employee::all();
         $title = 'میزکار تیکت های دریافتی';
         $url = 'desktop/filter';
@@ -91,7 +92,7 @@ class TicketController extends Controller
     public function filterDesktop()
     {
         $tickets = auth()->user()->tickets()->filter()->where('status' , false);
-        return new TicketCollection($tickets->paginate(20));
+        return new TicketCollection($tickets->latest()->paginate(20));
     }
 
     /**

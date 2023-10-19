@@ -51,10 +51,13 @@ class Helper {
         $rand = rand(1, 999);
         $filename = "{$rand}_" . $file->getClientOriginalName();
         // image max size
-        $max_file_size = 2 * 1024 * 1024;
+       // $max_file_size = 2 * 1024 * 1024;
+        $max_file_size =700 * 1024;
         // Image quality
         $quality = 80;
-        if( $file->getSize() > $max_file_size ) {
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        $file_extension = $file->getClientOriginalExtension();
+        if(in_array($file_extension, $allowed_extensions) && $file->getSize() > $max_file_size ) {
             $image = Image::make($file->getRealPath());
             $image->resize(null, 1500, function ($constraint) {
                 $constraint->aspectRatio();
