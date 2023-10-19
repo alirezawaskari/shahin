@@ -62,13 +62,13 @@
                             <strong>
                                 آدرس :
                             </strong>
-                            <span>{{ session()->get('representation') ? session()->get('representation')->address : $setting->address }}</span>
+                            <span>{{ session()->has('representation') ? session()->get('representation')->address : $setting->address }}</span>
                         </div>
                         <div class="col-md-12 mt-2">
                             <strong>
                                 تلفن تماس :
                             </strong>
-                            <span>{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}</span>
+                            <span>{{ session()->has('representation') ? session()->get('representation')->call : $setting->call }}</span>
                             <br>
                             <span>زمان پاسخگویی روزهای غیر تعطیل ساعت 10:00 الی 17:00 </span>
                         </div>

@@ -30,7 +30,7 @@
                     <textarea type="text" class="form-control" name="answer">{{ $contact->answer }}</textarea>
                 </div>
 
-                <div class="col-12 col-md-6 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>وضعیت</label>
                     <select class="form-control selectpicker" name="status" id="status">
                         <option value="0" {{ $contact->status == 0 ? 'selected' : '' }}>
@@ -45,7 +45,7 @@
                     </select>
                 </div>
 
-				 <div class="col-12 col-md-6 mb-3">
+				 <div class="col-12 col-md-4 mb-3">
                     <label>ارجاع به واحد مربوطه</label>
                     <select class="form-control" name="card_id">
                         <option value="all">انتخاب کنید</option>
@@ -55,7 +55,19 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-md-6 mb-3">
+                @if(!auth()->user()->admin_representation_id)
+                <div class="col-12 col-md-4 mb-3">
+                    <label>نمایندگی</label>
+                    <select name="representation_id" class="custom-select">
+                        @foreach($representations as $representation)
+                            <option value="">نمایندگی کل</option>
+                            <option value="{{$representation->id}}" {{ $representation->id == $contact->representation_id ? 'selected' : '' }}>{{$representation->fa_name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
+                <div class="col-12 mb-3">
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="customCheck" checked="" name="check">
                         <label class="custom-control-label" for="customCheck">این پیام برای کاربر پیامک شود.</label>

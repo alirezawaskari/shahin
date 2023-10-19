@@ -56,7 +56,7 @@ class ContactController extends Controller
      */
     public function filter()
     {
-        $contacts = Contact::filter()->where('card_id', auth()->user()->roles->first()->card_id)->orderBy('status' , 'ASC')->latest();
+         $contacts = Contact::filter()->where('card_id', auth()->user()->roles->first()->card_id)->orderBy('status' , 'ASC')->latest();
 
         if (auth()->user()->hasPermission('contact-detail')) {
             $contacts = Contact::filter()->orderBy('status' , 'ASC')->latest();
@@ -70,6 +70,9 @@ class ContactController extends Controller
     public function filterDsktop()
     {
         $contacts = Contact::filter()->where('card_id', auth()->user()->roles->first()->card_id)->orderBy('status' , 'ASC')->where('status' , 0)->latest();
+        if (!auth()->user()->admin_representation) {
+            $contacts->where('representation_id', null);
+        }
         return new ContactCollection($contacts->paginate(20));
     }
 
