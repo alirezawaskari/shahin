@@ -30,7 +30,7 @@
 
 @include('Admin.layouts.sidemenu')
 @include('Admin.layouts.navbar')
-
+@include('Admin.layouts.terms')
 <main class="main-content" id="app">
     <div class="container-fluid">
         @yield('content')

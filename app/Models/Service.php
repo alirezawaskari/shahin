@@ -74,6 +74,14 @@ class Service extends Model
     }
 
     /**
+     * Get all of the check's files.
+     */
+    public function files()
+    {
+        return $this->morphMany(File::class, 'fileable');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function financialPlansTypeItems()

@@ -14,6 +14,7 @@ class CreateRolesTable extends Migration
 		$table->integer('card_id',11)->nullable()->default('NULL');
         $table->foreign('card_id')->references('id')->on('cards')->onDelete('cascade');
 		$table->string('name');
+		$table->string('category')->nullable();
 		$table->integer('tax',11)->default('0');
 		$table->string('display_name')->nullable()->default('NULL');
 		$table->string('description')->nullable()->default('NULL');

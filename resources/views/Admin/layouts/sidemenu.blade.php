@@ -470,6 +470,9 @@
             <li><a href="{{ route('short-link.index') }}"><i class="fa fa-link "></i> <span class="mr-2">لینک های کوتاه</span> </a></li>
             @endrole
             @role('superadmin')
+            <li><a href="{{ route('employee.terms.index') }}"><i class="fa fa-file "></i> <span class="mr-2">قوانین پرسنل</span> </a></li>
+            @endrole
+            @role('superadmin')
             <li><a href="{{ route('settings.index') }}"><i class="fa fa-gears "></i> <span class="mr-2">تنظیمات</span> </a></li>
             @endrole
         </ul>

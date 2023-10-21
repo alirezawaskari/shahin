@@ -24,7 +24,16 @@
                     <input type="text" value="{{ $role->description }}" class="form-control" name="description"
                         required>
                 </div>
-
+                <div class="col-12 col-md-4 mb-3">
+                    <label>دسته بندی</label>
+                    <select class="form-control" name="category">
+                        <option value="all">انتخاب دسته بندی </option>
+                        @foreach (\App\Models\Role::CATEGORIES as $key => $value)
+                            <option value="{{ $key }}" {{$role->category== $key? 'selected':''}}>{{ $value }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-12">
                     <h4 class="mb-3 mt-5"><i class="fa fa-lock" aria-hidden="true"></i> دسترسی ها (دسترسی های مورد نیاز
                         نقش مربوطه را از فهرست زیر انتخاب کنید.)</h4>

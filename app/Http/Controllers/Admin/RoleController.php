@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
@@ -65,6 +66,7 @@ class RoleController extends Controller
             'display_name' => 'required|string',
             'description' => 'required|string',
             'permission_id' => 'required',
+            'category' => ['nullable',Rule::in(array_keys(Role::CATEGORIES))],
         ]);
 
         $permissions = $request->input('permission_id');
@@ -72,6 +74,7 @@ class RoleController extends Controller
         $rol->name = $request->input('name');
         $rol->display_name = $request->input('display_name');
         $rol->description = $request->input('description');
+        $rol->category = $request->input('category');
         $rol->save();
 
         $rol->syncPermissions($permissions);
@@ -122,6 +125,7 @@ class RoleController extends Controller
             'display_name' => 'required|string',
             'description' => 'required|string',
             'permission_id' => 'required',
+            'category' => ['nullable',Rule::in(array_keys(Role::CATEGORIES))],
         ]);
 
         $inputs = $request->all();
