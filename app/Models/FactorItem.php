@@ -999,4 +999,18 @@ class FactorItem extends Model implements AuditableContract
     {
         return $this->morphMany(Check::class, 'checkable');
     }
+    /**
+     * @param \App\Models\FactorItem $item
+     * @return mixed //array or null
+     */
+    public static function getSelectableCenters(FactorItem $item)
+    {
+        $selectable_centers = $item->factoritemable->centers->where( 'status', true );
+        if(isset($item->factor) && $item->factor->representation)
+        {
+            $selectable_centers = $item->factor->representation->centers->where( 'status', true )->where('centerable_id' , $item->factoritemable_id)->where('centerable_type' , $item->factoritemable_type);
+        }
+
+        return $selectable_centers;
+    }
 }
