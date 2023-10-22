@@ -1,4 +1,4 @@
-@if(isset($role_categories_with_terms[auth()->user()->roles->first()->category]['role_category_terms_file_path']) ||
+@if(isset($role_categories_with_terms[auth()->user()->roles->first()->category]['role_category_terms_file_path']) &&
  auth()->user()->employee->is_terms_accept != 1)
     <div class="alert alert-danger text-center">
         همکار گرامی جهت امکان ادامه فعالیت در سامانه لازم است حتما فایل قوانین را دانلود , مطالعه و موافقت با قوانین را ثبت نمایید.
