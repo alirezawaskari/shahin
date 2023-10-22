@@ -119,6 +119,7 @@ $(document).ready(function () {
                 {"data":"phone"},
                 {"data":"text"},
                 {"data":"card"},
+                {"data":"representation"},
                 {"data":"created_at"},
                 {"data":data,
                   "render":function (data){

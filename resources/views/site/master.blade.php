@@ -108,7 +108,6 @@
                         <div class="col-12 card">
                             <p class="text mt-2">درصورت نیاز به هماهنگی یا داشتن کار اداری جهت هرگونه تنظیم ملاقات  با مدیران یا دیگر موارد ذکر شده :</p>
                             <a href="https://wa.me/989058688299">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
                                 <p class="text-dark mr-1 font-weight-bolder">امور اداری</p>
                             </a>
                         </div>

@@ -21,6 +21,7 @@ class ContactCollection extends ResourceCollection
                     'phone'=>$item->phone,
                     'text'=>Str::limit($item->text, 40, ' ...'),
                     'card' => isset($item->card) ? $item->card->title :'ندارد',
+                    'representation' => $item->representation ? $item->representation->fa_name : 'نمایندگی کل',
                     'created_at' => verta($item->created_at)->format('Y/m/d H:i:s'),
                     'status'=>$item->status,
                 ];

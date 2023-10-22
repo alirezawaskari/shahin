@@ -22,10 +22,16 @@ class Contact extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function card()
-   {
-      return $this->belongsTo(Card::class, 'card_id');
-   }
-
+    {
+        return $this->belongsTo(Card::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function representation()
+    {
+        return $this->belongsTo(Representation::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -44,7 +50,9 @@ class Contact extends Model
         $text = request('text');
         $card = request('card');
         $status = request('status');
-
+        if (auth()->user()->admin_representation) {
+            $query->where('representation_id', auth()->user()->admin_representation->id);
+        }
         if(isset($name) && $name != '')
         {
             $query->where('name', 'LIKE', '%' . $name . '%');

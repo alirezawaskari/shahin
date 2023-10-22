@@ -10,7 +10,13 @@ class Role extends LaratrustRole
      * @var array
      */
     protected $guarded = [];
-
+    /**
+     *
+     */
+    const CATEGORIES = [
+        'employee' => 'کارمند',
+        'manager' => 'مدیر',
+    ];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

@@ -53,7 +53,10 @@ class ContactController extends Controller
         Contact::create(["name" => $request->name,
             "phone" => $request->phone,
             "card_id" => $request->card_id,
-            "text" => $request->text, 'status' => '0', 'files' => $contactsImages]);
+            "text" => $request->text, 'status' => '0', 'files' => $contactsImages,
+            "representation_id" => session()->has('representation') ? session()->get('representation')->id : '',
+        ]);
+
 
         return redirect()->back()->with([
             'contact_success' => 'success'
