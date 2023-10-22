@@ -250,4 +250,19 @@ class EmployeeController extends AdminController
 
         return view('Admin.employee.performanceDetail', compact('user', 'user_performances'));
     }
+
+    /**
+     * @param Request $request
+     * @return void
+     */
+    public function acceptTerms(Request $request)
+    {
+        if ($request->terms == 'on'){
+            auth()->user()->employee->update([
+               'is_terms_accept'=>1
+            ]);
+            alert()->success(' عملیات موفق', 'ثبت با موفقیت انجام پذیرفت ');
+            return redirect()->back();
+        }
+    }
 }

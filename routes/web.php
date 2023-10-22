@@ -162,6 +162,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('short-link/filter', 'ShortLinkController@filter');
     Route::resource('short-link', 'ShortLinkController');
     Route::get('employee-terms', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'index'])->name('employee.terms.index');
+    Route::post('employee-terms-accept', [\App\Http\Controllers\Admin\EmployeeController::class,'acceptTerms'])->name('employee.terms.accept');
     Route::post('employee-terms-store', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'store'])->name('employee.terms.store');
 
     //factor

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Menu;
 use App\Models\Banner;
 use App\Models\BannerLocation;
@@ -11,6 +12,7 @@ use App\Models\Center;
 use App\Models\CenterCategory;
 use App\Models\ClothesService;
 use App\Models\Constructionservice;
+use App\Models\Context;
 use App\Models\Dentistryservice;
 use App\Models\Foodservice;
 use App\Models\Hotelservice;
@@ -19,6 +21,7 @@ use App\Models\Internetservice;
 use App\Models\Legalservice;
 use App\Models\Physiotherapyservice;
 use App\Models\Representation;
+use App\Models\Role;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
@@ -63,6 +66,28 @@ class AppServiceProvider extends ServiceProvider
                 'notification' => '0',
             ]);
         });
+
+
+        view()->composer(['Admin.master'], function ($view) {
+            $role_categories_with_terms = Cache::remember('role_categories_with_terms', 60 * 24, function () {
+                $role_categories = Role::CATEGORIES;
+
+                $role_categories_with_terms = array();
+                foreach ($role_categories as $key_role => $value_role){
+                    $role_categories_with_terms[$key_role]['role_category_title'] = $key_role;
+                    $role_categories_with_terms[$key_role]['role_category_fa_title'] = $value_role;
+                    $context = Context::fetchByKey(EmployeeTermsController::PREFIX_TERMS_KEY_IN_CONTEXT_TABLE.$key_role);
+                    $role_categories_with_terms[$key_role]['role_category_terms_file_path'] = $context->value ?? null;
+                }
+                return $role_categories_with_terms;
+            });
+
+            $view->with([
+                'role_categories_with_terms' => $role_categories_with_terms,
+            ]);
+        });
+
+
 
         view()->composer(['Admin.center.create' , 'Admin.center.edit' ,'Admin.centerRequest.all' , 'Admin.centerRequest.create' , 'Admin.centerRequest.edit'], function ($view) {
 

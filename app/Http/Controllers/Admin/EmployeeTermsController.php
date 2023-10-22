@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Context;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class EmployeeTermsController extends Controller
 {
@@ -49,8 +50,7 @@ class EmployeeTermsController extends Controller
                'value'=>$file_path
            ]);
        }
+       Cache::forget('role_categories_with_terms');
        return back();
     }
-
-
 }
