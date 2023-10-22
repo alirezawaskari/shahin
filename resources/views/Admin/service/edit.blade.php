@@ -359,6 +359,26 @@
                                            name="icon"/>
                                     <div id="icon_src" class="show"></div>
                                 </div>
+                                <div class="col-12 col-md-3 mb-3 border">
+                                    <img class="img-thumbnail" src="{{asset($service->files->where('title','desktop_slider')->first()->path??'')}}" alt="">
+                                    <label>تصویر اسلایدر دسکتاپ</label>
+                                    <label for="desktop_slider" class="custom-file-upload">
+                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    </label>
+                                    <input id="desktop_slider" class="form-control btn btn-outline-info file-upload" type="file"
+                                           name="desktop_slider"/>
+                                    <div id="desktop_slider" class="show"></div>
+                                </div>
+                                <div class="col-12 col-md-3 mb-3 border">
+                                    <img class="img-thumbnail" src="{{asset($service->files->where('title','mobile_slider')->first()->path??'')}}" alt="">
+                                    <label>تصویر اسلایدر موبایل</label>
+                                    <label for="mobile_slider" class="custom-file-upload">
+                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    </label>
+                                    <input id="mobile_slider" class="form-control btn btn-outline-info file-upload" type="file"
+                                           name="mobile_slider"/>
+                                    <div id="mobile_slider" class="show"></div>
+                                </div>
                                 <div class="col-12 col-md-12 mb-3">
                                     <input class="btn btn-success" type="submit" value="ثبت تغییرات"
                                            id="first-images-submit">
