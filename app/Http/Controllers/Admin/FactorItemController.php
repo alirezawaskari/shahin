@@ -924,9 +924,7 @@ class FactorItemController extends Controller {
         $factor_item[ 'factor' ] = $factor_item->factor;
         $factor_item[ 'factoritemable' ] = $factor_item->factoritemable;
         $factor_item[ 'service_item' ] = !is_null( $factor_item->service_item_id ) ? $factor_item->service_item : null;
-        $factor_item[ 'centers' ] = isset( $factor_item->factoritemable ) && $factor_item->factoritemable->centers == true ? $factor_item->factoritemable->centers->where('status' , true) : null;
-
-
+        $factor_item[ 'centers' ] = FactorItem::getSelectableCenters($factor_item);
         $factor_item[ 'forms' ] = isset( $factor_item->factoritemable->beforeforms ) ? $factor_item->factoritemable->beforeforms : null;
         $factor_item[ 'site_forms' ] = isset( $factor_item->factoritemable->beforeforms ) ? $factor_item->factoritemable->beforeforms->where( 'level', 'site' ) : null;
         $factor_item[ 'complete' ] = $factor_item->complete;

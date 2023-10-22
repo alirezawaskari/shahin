@@ -25,7 +25,7 @@ class CheckoutController extends Controller {
             $temp[ 'id' ] = $item->id;
             $temp[ 'service' ] = $item->factoritemable;
             $temp[ 'service_item' ] = !is_null( $item->service_item_id ) ? $item->serviceItem : null;
-            $temp[ 'centers' ] = $item->factoritemable->centers == true ? $item->factoritemable->centers->where( 'status', true ) : null;
+            $temp[ 'centers' ] = FactorItem::getSelectableCenters($item);
             $temp[ 'forms' ] = count( $item->factoritemable->beforeforms ) != 0 ? $item->factoritemable->beforeforms : null;
             $temp[ 'complete' ] = $item->complete;
             $temp[ 'type' ] = $item->type;

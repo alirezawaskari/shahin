@@ -131,7 +131,7 @@ class TotalFactorItemController extends Controller
             $temp['file_number'] = $factor_item->file_number;
             $temp['factoritemable'] = $factor_item->factoritemable;
             $temp['service_item'] = !is_null($factor_item->service_item_id) ? $factor_item->serviceItem : null;
-            $temp['centers'] = $factor_item->factoritemable->centers == true ? $factor_item->factoritemable->centers->where('status' , true) : null;
+            $temp['centers'] = FactorItem::getSelectableCenters($factor_item);
             $temp['forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', '!=', 'site') : null;
             $temp['site_forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', 'site') : null;
             $temp['complete'] = $factor_item->complete;
