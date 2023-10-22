@@ -58,6 +58,15 @@ class Context extends Model
     }
 
     /**
+     * @param string $key
+     * @return mixed
+     */
+    public static function fetchByKey(string $key)
+    {
+        return Context::where('key',$key)->first();
+    }
+
+    /**
      * @param Collection $contexts
      * @return array
      */

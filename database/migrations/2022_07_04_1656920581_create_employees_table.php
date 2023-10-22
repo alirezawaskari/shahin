@@ -31,6 +31,7 @@ class CreateEmployeesTable extends Migration
 		$table->timestamp('contract_start_date')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->timestamp('contract_expiration_date')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->string('contract_number',110)->nullable()->default(NULL);
+		$table->boolean('is_terms_accept',110)->nullable()->default(NULL);
 
 		$table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
