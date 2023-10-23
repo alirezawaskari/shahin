@@ -1112,7 +1112,7 @@ class FactorItemController extends Controller {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
             $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
             $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : $value;
-            $price = !is_null( $value ) ? $service_tariff->price*$value : $service_tariff->price;
+            $price = !is_null( $value ) && is_int($value) ? $service_tariff->price*$value : $service_tariff->price;
             $treatment_duration = isset($request->treatment_duration[ $i+1 ]) ? $request->treatment_duration[ $i+1 ] : null;
 		    $doctor_id = isset($request->doctor_id[ $i+1 ]) ? $request->doctor_id[ $i+1 ] : null;
 			$session_number = isset($request->session_number[ $i+1 ]) ? $request->session_number[ $i+1 ] : null;
