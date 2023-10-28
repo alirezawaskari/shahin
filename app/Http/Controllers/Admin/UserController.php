@@ -32,6 +32,9 @@ class UserController extends AdminController
         $organ = false;
         $can_manual_login = false;
 
+        if (!$user->isAbleTo('user-detail')){
+            abort(403);
+        }
         if ($user->isAbleTo('user-create')){
             $create = true;
         }

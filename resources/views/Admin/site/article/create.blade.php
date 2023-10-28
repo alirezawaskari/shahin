@@ -105,17 +105,14 @@
 @section('css')
 @stop
 @section('js')
-    <script src="/assets/dashboard/ckeditor/ckeditor.js"></script>
-    <script type="text/javascript">
-
-        articleId = document.getElementById("article_id").value;
-        CKEDITOR.replace('description', {
-            customValues: {name: articleId},
-            filebrowserUploadUrl: "{{route('ckeditor.upload', ['_token' => csrf_token()])}}",
-            filebrowserUploadMethod: 'form'
-        });
-
+    <script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            CKEDITOR.replace('summary',ck_uploader) ;
+            CKEDITOR.replace( 'description', ck_uploader);
+        })
     </script>
+
     <script>
         $(document).ready(function () {
             $(".selectMultiTag").select2({
@@ -123,6 +120,5 @@
                 tokenSeparators: [',', ' ']
             })
         });
-
     </script>
 @stop
