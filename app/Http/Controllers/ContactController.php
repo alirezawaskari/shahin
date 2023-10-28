@@ -54,7 +54,7 @@ class ContactController extends Controller
             "phone" => $request->phone,
             "card_id" => $request->card_id,
             "text" => $request->text, 'status' => '0', 'files' => $contactsImages,
-            "representation_id" => session()->has('representation') ? session()->get('representation')->id : '',
+            "representation_id" => session()->has('representation') ? session()->get('representation')->id : null,
         ]);
 
 
