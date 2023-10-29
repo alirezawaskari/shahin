@@ -8,7 +8,7 @@ CKEDITOR.editorConfig = function( config ) {
 	 config.language = 'fa';
 	// config.uiColor = '#AADC6E';
     // config.skin = 'moonocolor';
-     config.extraPlugins = 'autogrow,html5video';
+     config.extraPlugins = 'autogrow,html5video,toc';
     config.skin = 'office2013';
 
 };
