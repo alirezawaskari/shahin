@@ -66,6 +66,13 @@ Route::group([], function () {
         Artisan::call('view:clear');
     });
 
+    Route::get('/fix-centers', function () {
+      $centers= \App\Models\Center::where('centerable_type',\App\Models\Service::class)->get();
+        foreach ($centers as $center) {
+            $center->services()->sync(array($center->centerable_id));
+      }
+    });
+
     Route::get('/get-sms', function () {
         Artisan::call('sms:get');
         return redirect()->back()->with([
