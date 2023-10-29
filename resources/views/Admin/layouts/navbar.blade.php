@@ -79,7 +79,7 @@
             </ul>
         </div>
         <div>
-            <a href="{{ auth()->user()->admin_representation_id ? '/representation/'.auth()->user()->admin_representation->slug : '/' }}" class="text-white mr-3">برو به سایت <i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+            <a href="{{ auth()->user()->admin_representation_id ? '/'.auth()->user()->admin_representation->slug : '/' }}" class="text-white mr-3">برو به سایت <i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
         </div>
     </div>
 </nav>

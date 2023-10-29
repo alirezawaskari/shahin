@@ -736,10 +736,10 @@ Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 //organization & representation
 Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
-Route::get('representation/{representation}', 'RepresentationController@index');
-Route::get('representation/{representation}/link/{callcenter}', 'RepresentationController@index');
-Route::get('representation/{representation}/{service}', 'RepresentationController@single');
-Route::get('representation/{representation}/{service}/{callcenter}', 'RepresentationController@single');
+Route::get('/{representation}', 'RepresentationController@index');
+Route::get('/{representation}/link/{callcenter}', 'RepresentationController@index');
+Route::get('/{representation}/{service}', 'RepresentationController@single');
+Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController@single');
 
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
