@@ -57,6 +57,7 @@ return [
 
     'zarinpal' => [
         'id' => env('ZARIN_ID'),
+        'url' => 'https://www.zarinpal.com',//if test => convert www to the sandbox
     ],
 
     'negin_sms' => [

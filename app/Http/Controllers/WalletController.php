@@ -8363,7 +8363,7 @@ class WalletController extends Controller
                 $wallet->factorable_type = $res;
                 $wallet->save();
 
-                return redirect('https://www.zarinpal.com/pg/StartPay/' . $res);
+                return redirect(config( 'services.zarinpal.url' ).'/pg/StartPay/' . $res);
             }
 
         } else {

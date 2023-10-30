@@ -32,7 +32,7 @@ class PaymentController extends Controller
            $factor->factorable_type = $res;
            $factor->save();
 
-           return redirect('https://www.zarinpal.com/pg/StartPay/' . $res);
+           return redirect(config( 'services.zarinpal.url' ).'/pg/StartPay/' . $res);
        } else {
            if ($factor->user->wallet >= self::discount($factor)) {
                $factor->update([
@@ -67,7 +67,7 @@ class PaymentController extends Controller
         $Authority = $request->get('Authority') ;
         $factor = Factor::where('factorable_type', $Authority)->firstOrFail();
         if ($request->get('Status') == 'OK') {
-            $client = new nusoap_client('https://www.zarinpal.com/pg/services/WebGate/wsdl', 'wsdl');
+            $client = new nusoap_client(config( 'services.zarinpal.url' ).'/pg/services/WebGate/wsdl', 'wsdl');
             $client->soap_defencoding = 'UTF-8';
             //در خط زیر یک درخواست به زرین پال ارسال می کنیم تا از صحت پرداخت کاربر مطمئن شویم
             $result = $client->call('PaymentVerification', [
