@@ -59,7 +59,7 @@
                         @endif
                         <li class="nav-item">
                             @if (session()->has('representation'))
-                            <a class="nav-link text-dark" href="/representation/{{ session()->get('representation')->slug }}">خانه</a>
+                            <a class="nav-link text-dark" href="/{{ session()->get('representation')->slug }}">خانه</a>
                             @else
                             <a class="nav-link text-dark" href="/">خانه</a>
                             @endif
@@ -79,7 +79,7 @@
                                 aria-labelledby="navbarDropdownMenuLink">
                                 @if (session()->has('representation'))
                                 @foreach(session()->get('representation')->services->where('status' , true) as $item)
-                                <a class="dropdown-item text-orange py-2" href="{{ url('representation/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
+                                <a class="dropdown-item text-orange py-2" href="{{ url('/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
                                 @endforeach
                                 @else
                                 @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,

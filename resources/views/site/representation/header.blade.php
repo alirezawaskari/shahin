@@ -63,7 +63,7 @@
                         </li>
                         @endif
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/representation/{{ $representation->slug }}">خانه</a>
+                            <a class="nav-link text-dark" href="/{{ $representation->slug }}">خانه</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="{{ route('site.help') }}">قوانین سایت</a>
@@ -79,7 +79,7 @@
                             <div class="dropdown-menu dropdown-menu-right text-right mt-3 "
                                 aria-labelledby="navbarDropdownMenuLink">
                                 @foreach(session()->get('representation')->services->where('status' , true) as $item)
-                                <a class="dropdown-item text-orange py-2" href="{{ url('representation/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
+                                <a class="dropdown-item text-orange py-2" href="{{ url('/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
                                 @endforeach
                             </div>
                         </li>

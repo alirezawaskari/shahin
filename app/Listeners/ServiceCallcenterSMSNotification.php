@@ -67,7 +67,7 @@ class ServiceCallcenterSMSNotification
         $link = 'services/'.$event->service->slug.'/'.$event->task->user_id.'/'.$event->task->id;
         if(auth()->user->admin_representation)
         {
-            $link = 'representation/'.auth()->user->admin_representation->slug.'/'.$event->service->slug;
+            $link = '/'.auth()->user->admin_representation->slug.'/'.$event->service->slug;
         }
 		if($single_web_page)
 		{

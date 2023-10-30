@@ -71,7 +71,7 @@
                 <div class="row ">
                     @foreach($services as $service)
                         <div class="col-md-2 col-sm-4 col-4 d-flex flex-column align-items-center text-center justify-content-center">
-                            <a href="/representation/{{ $representation->slug }}/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
+                            <a href="/{{ $representation->slug }}/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
                                 <img class="ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="74px">
                                 <p class="text-dark mt-1 font-weight-bolder">{{ $service->title }}</p>
                             </a>
