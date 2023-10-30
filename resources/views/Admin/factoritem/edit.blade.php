@@ -31,7 +31,7 @@
                 </li>
             </ul>
             <div class="tab-content" id="myTabContent">
-                @if(isset($factorItem->center->centerable))
+                @if(isset($factorItem->center))
                     <div class="tab-pane fade p-t-20 {{ $factorItem->center && (!$factorItem->factoritemable->session || $factorItem['status_factor'] != 6) ? 'active show' : ''}}"
                          id="factor" role="tabpanel" aria-labelledby="factor-tab">
                         @include('Admin.factoritem.layouts.file.index')

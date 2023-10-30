@@ -166,7 +166,7 @@ class Center extends Model
      */
     public function services()
     {
-        return $this->morphedByMany(Service::class, 'centerable');
+        return $this->morphedByMany(Service::class, 'centerable','centerables');
     }
 
 }

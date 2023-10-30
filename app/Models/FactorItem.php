@@ -1005,12 +1005,17 @@ class FactorItem extends Model implements AuditableContract
      */
     public static function getSelectableCenters(FactorItem $item)
     {
-        $selectable_centers = $item->factoritemable->centers->where( 'status', true );
+        $selectable_centers = Center::where( 'status', true )
+            ->whereHas('services', function ($query) use ($item) {
+            $query->where('centerable_id', $item->factoritemable_id)->where('centerable_type', $item->factoritemable_type);
+        });
+
         if(isset($item->factor) && $item->factor->representation)
         {
-            $selectable_centers = $item->factor->representation->centers->where( 'status', true )->where('centerable_id' , $item->factoritemable_id)->where('centerable_type' , $item->factoritemable_type);
+            $selectable_centers = $selectable_centers->whereHas('representations', function ($query) use ($item) {
+                $query->where('representation_id', $item->factor->representation_id);
+            });
         }
-
-        return $selectable_centers;
+        return $selectable_centers->get();
     }
 }
