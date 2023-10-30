@@ -37,13 +37,13 @@
                 نام</a>
             @else
             <a href="{{ route('login_by_mobile') }}"
-                class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ورود</a>
+                class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ورود اعضاء</a>
             <a href="{{ route('register') }}"
                 class="btn btn-primary d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ثبت
                 نام</a>
             <a href="{{ route('login') }}"
                 class="bt n btn-danger d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ورود
-                همکاران</a>
+                کارکنان | مستمری بگیران سجا</a>
             @endif
         </div>
         @endif
@@ -168,13 +168,13 @@
                                             نام</a>
                                         @else
                                         <a href="{{ route('login_by_mobile') }}"
-                                            class="d-none d-lg-flex navbar-nav nav-after btn btn-warning align-items-center position-relative ml-2 p-2">ورود</a>
+                                            class="d-none d-lg-flex navbar-nav nav-after btn btn-warning align-items-center position-relative ml-2 p-2">ورود اعضاء</a>
                                         <a href="{{ route('register') }}"
                                             class="d-none d-lg-flex navbar-nav nav-after btn btn-primary align-items-center position-relative ml-2 p-2">ثبت
                                             نام</a>
                                         <a href="{{ route('login') }}"
                                             class="d-none d-lg-flex navbar-nav nav-after btn btn-danger align-items-center position-relative ml-2 p-2">ورود
-                                            همکاران</a>
+                                            کارکنان | مستمری بگیران سجا</a>
                                         @endif
                                     </div>
                                     <a href="/cart"
