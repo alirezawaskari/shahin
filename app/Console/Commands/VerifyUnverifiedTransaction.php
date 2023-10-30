@@ -39,7 +39,7 @@ class VerifyUnverifiedTransaction extends Command {
     */
 
     public function handle() {
-        $client = new nusoap_client( 'https://www.zarinpal.com/pg/services/WebGate/wsdl', 'wsdl' );
+        $client = new nusoap_client( config( 'services.zarinpal.url' ).'/pg/services/WebGate/wsdl', 'wsdl' );
         $client->soap_defencoding = 'UTF-8';
         $result = $client->call( 'GetUnverifiedTransactions', [
             [
