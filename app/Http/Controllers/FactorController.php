@@ -94,18 +94,16 @@ class FactorController extends Controller {
     */
 
     public function index( Factor $factor ) {
-        if ( $factor->status != 1 ) {
-            $debt_price = self::setDebtPriceByFactorTitle($factor);
-            $factor->load( 'user', 'representation' );
+        $debt_price = self::setDebtPriceByFactorTitle($factor);
+        $factor->load( 'user', 'representation' );
+        $representation=null;
             if($factor->representation)
             {
                 $representation = $factor->representation;
                 session()->put('representation', $representation);
-                return view( 'site.representation.factor', compact( 'factor' , 'representation' , 'debt_price') );
+//                return view( 'site.representation.factor', compact( 'factor' , 'representation' , 'debt_price') );
             }
-            return view( 'site.factor', compact( 'factor' , 'debt_price') );
-        }
-        return redirect( route( 'checkout', [$factor->resnumber ] ) );
+            return view( 'site.factor', compact( 'factor' , 'debt_price','representation') );
     }
 
     /**
@@ -192,4 +190,5 @@ class FactorController extends Controller {
         }
         return number_format($debt_price - $factor->price > 0 ? $debt_price - $factor->price : 0);
     }
+
 }

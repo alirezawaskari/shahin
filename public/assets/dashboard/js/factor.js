@@ -152,12 +152,20 @@ $(document).ready(function () {
                             if($('#delete').val() == 1){
                                 display='block'
                             }
+                            let show_factor_display='block';
+                            if ( data.type != 'online'){
+                                show_factor_display = 'none'
+                            }
                             return `<div data-v-15965e3b="" class="dropdown">
                             <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
-                                <span data-id="${data.resnumber}" class="factor-show dropdown-item pointer"  data-toggle="modal"
-                                    data-target="#factorShowModal" >مشاهده</span>
+                                <span data-id="${data.resnumber}" class="factor-show dropdown-item pointer"  data-toggle="modal" data-target="#factorShowModal" >جزئیات</span>
+                                <span class="factor-show dropdown-item pointer">
+                                <a  style="display: ${show_factor_display}" target="_blank" href="/factor/${data.resnumber}" class="text-body">
+                                    مشاهده فاکتور
+                                 </a>
+                                </span>
                                 <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
 
                             </div></div>`
