@@ -1,9 +1,7 @@
 @extends('site.master')
-
 @section('title')
     فاکتور: {{ $factor->resnumber }}
 @endsection
-
 @section('content')
     <div class="factor">
         <div class="factor-section bg-white py-5 position-relative">
@@ -23,7 +21,7 @@
                             <p>دفتر مرکزی </p>
                         @endif
                     </div>
-                    @if(now() > $factor->expired_at)
+                    @if(now() > $factor->expired_at && $factor->status != 1 )
                         <p class="text-danger font-18 text-center">فاکتور: {{ $factor->resnumber }} منقضی شده است و
                             امکان پرداخت وجود ندارد، لطفا سفارش جدید ثبت نمایید یا با پشتیبانی تماس بگیرید.</p>
                         <p class="font-18 text-center text-dark">پشتیبانی: 09429000029</p>
@@ -149,8 +147,12 @@
                                                 @endif
                                             </tr>
                                             <tr>
-                                                <th> {{ number_format($item->factoritemable->tax) }} درصد مالیات بر ارزش
+                                                <th>
+{{--                                                    {{ number_format($item->factoritemable->tax) }}--}}
+                                                    {{number_format(100*($factor->tax/$item->financialPlansType->price))}}
+                                                    درصد مالیات بر ارزش
                                                     افزوده
+
                                                 </th>
                                                 <th>{{ number_format($factor->tax) }} ریال</th>
                                             </tr>
@@ -162,6 +164,16 @@
 {{--                                        در پرداخت فاکتور فوق دقت فرمائید این فاکتور پس از پرداخت قابلیت انصراف و عودت--}}
 {{--                                        وجه ندارد.</p>--}}
                                     <p>پس از پرداخت این فاکتور صفحه سایت را ترک ننمائید و جهت ادامه روند پرونده فرم اطلاعات یا بارگذاری مدارک را کامل نمائید.</p>
+                                    @if($factor->status == 1)
+                                        <div class="alert alert-success">این فاکتور با موفقیت پرداخت شده است .</div>
+                                        @if((auth()->check() && auth()->user()->id == $factor->user_id ) || ! auth()->check() || ( auth()->check() && !is_null( $factor->factor_item) && !is_null(  $factor->factor_item->supervisor_id) && auth()->user()->id == $factor->factor_item->supervisor_id)   )
+                                        <a href="/checkout/{{$factor->resnumber}}">
+                                            <span id="upload-docs" class="btn btn-primary">بارگذاری مدارک
+                                            <i class="fa fa-mouse-pointer"></i>
+                                            </span>
+                                        </a>
+                                        @endif
+                                    @endif
                                     @foreach($factor->factorItems as $item)
                                         @if(in_array(trim($item->factoritemable->id) , App\Models\AgencyType::pluck('service_id')->toArray())                            )
                                             <p>پرداخت این فاکتور تائید یا رد شرایط مالی شما نبوده و طبق تعاریف مالی و حقوقی مندرج در پرونده زیر نظر واحد مربوطه بایست همکاری گردد.</p>
@@ -246,7 +258,7 @@
                                     <div class="form-group row mr-1">
                                         @if(!is_null($factor->coupon_id))
                                             <span class="font-13 text-success">کد تخفیف {{ $factor->coupon->discount }} % اعمال شد</span>
-                                        @else
+                                        @elseif($factor->status != 1)
                                             <form action="{{ route('coupon') }}" method="POST" class="d-flex">
                                                 @csrf
                                                 <input required class="form-control col-8" type="text" name="code"
@@ -273,47 +285,20 @@
                                                 @csrf
                                                 <input name="coupon" id="couponinputwallet" type="hidden" value="">
                                                 <input name="factor_id" type="hidden" value="{{ $factor->id }}">
-                                                {{-- <span class="alert alert-primary bold">
-                                                    با توجه به اختلالات الکترونیکی پیش آمده لطفا مبلغ
-                                                    {{number_format($factor->price)}}
-                                                        ریال را به شماره کارت
-                                                    '5047061065198174'
-                                                        به نام سید مصطفی میرحسینی واریز نموده و فیش واریزی را از طریق واتس اپ امور مالی ارسال فرمایید .
-                                                </span> --}}
-
-{{--                                                <div class="card border-warning">--}}
-{{--                                                    <div class="card-header bg-warning text-white">--}}
-{{--                                                        <strong style="color: black!important;">توجه</strong>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="card-body">--}}
-{{--                                                        <div class="alert alert-info">--}}
-{{--                                                            جهت دریافت خدمت در صورتی که توضیحات خدمت درخواستی را مطالعه نموده اید--}}
-{{--                                                            <strong>پذیرش قوانین </strong>--}}
-{{--                                                            را انتخاب نمایید .--}}
-{{--                                                        </div>--}}
-{{--                                                        <button type="button" class="btn btn-outline-primary"--}}
-{{--                                                                data-toggle="modal" data-target=".bd-example-modal-lg">--}}
-{{--                                                            مطالعه قوانین--}}
-{{--                                                        </button>--}}
-
-{{--                                                        <div class="form-check mt-3">--}}
-{{--                                                            <hr>--}}
-{{--                                                            <i class="fa fa-angle-double-left" aria-hidden="true"></i>--}}
-{{--                                                            <input style="cursor: pointer" class=" form-check-input" type="checkbox" value="" id="accept-rules">--}}
-{{--                                                            <label  style="cursor: pointer" class=" form-check-label mr-3" for="accept-rules">پذیرش قوانین</label>--}}
-{{--                                                            <i class="fa fa-angle-double-right" aria-hidden="true"></i>--}}
-
-{{--                                                        </div>--}}
-{{--                                                    </div>--}}
-{{--                                                </div>--}}
-
+{{--                                                --}}{{-- <span class="alert alert-primary bold">--}}
+{{--                                                    با توجه به اختلالات الکترونیکی پیش آمده لطفا مبلغ--}}
+{{--                                                    {{number_format($factor->price)}}--}}
+{{--                                                        ریال را به شماره کارت--}}
+{{--                                                    '5047061065198174'--}}
+{{--                                                        به نام سید مصطفی میرحسینی واریز نموده و فیش واریزی را از طریق واتس اپ امور مالی ارسال فرمایید .--}}
+{{--                                                </span> --}}
+                                                        @if( $factor->status != 1 )
                                                 <div class="card" id="payments-box" >
                                                     <div class="card-header">
                                                         <h5 class="mb-0">انتخاب روش پرداخت:</h5>
                                                     </div>
                                                     <div class="card-body">
                                                         <div class="btn-group btn-group-toggle mt-3" data-toggle="buttons">
-
                                                             <br>
                                                             <label
                                                                 class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
@@ -348,6 +333,7 @@
 
                                                     </div>
                                                 </div>
+                                                @endif
                                             </form>
                                         </div>
                                     </div>
@@ -380,52 +366,14 @@
             </div>
         </div>
     </div>
-
-
-    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-
-            <div class="modal-content">
-                <div class="bg-white modal-header">
-                    <h4>قوانین</h4>
-                </div>
-                <div class="accordion" id="accordionExample">
-
-                @foreach($factor->factorItems as $item)
-
-                    <!-- Panel Two -->
-                        <div class="card">
-                            <div class="card-header text-center" id="headingTwo">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link collapsed  " type="button" data-toggle="collapse"
-                                            data-target="#collapseTwo" aria-expanded="false"
-                                            aria-controls="collapseTwo">
-                                        {{  $item->factoritemable->factor_title}}
-                                    </button>
-                                </h2>
-                            </div>
-
-                            <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo"
-                                 data-parent="#accordionExample">
-                                <div class="card-body text-right">
-                                    {!!$item->factoritemable->rules!!}
-                                </div>
-                            </div>
-                            @endforeach
-
-                        </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
-                </div>
-            </div>
-
-        </div>
         @endsection
         @section('js')
             <script>
+                $(document).ready(function() {
+                    $('html, body').animate({
+                        scrollTop: $('#upload-docs').offset().top
+                    }, 1000);
+                });
                 $(document).ready(function () {
                     $('#accept-rules').prop('checked', false);
 
