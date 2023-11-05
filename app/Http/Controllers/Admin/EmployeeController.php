@@ -25,7 +25,11 @@ class EmployeeController extends AdminController
     {
         $user = auth()->user();
         if ($user->isAbleTo('employee-detail')) {
-            return view('Admin.employee.all');
+            $can_manual_login = false;
+            if ($user->isAbleTo('manual-login-user')){
+                $can_manual_login = true;
+            }
+            return view('Admin.employee.all',compact('can_manual_login'));
         }
 
         return abort(401);
