@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DiseaseCollection;
 use App\Models\Disease;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class DiseaseController extends Controller
 {
@@ -18,12 +20,11 @@ class DiseaseController extends Controller
 
     public function filter()
     {
-        $disease = Disease::filter()->orderBy('date', 'desc');
-        if (isset($request->excel) && $request->excel == 'on') {
-            return (new Disease($disease))->download('checks.xlsx');
-        }
-        return  $disease->paginate(20);
-//        return new CheckCollection($disease, $disease->paginate(20));
+        $disease = Disease::filter()->latest();
+//        if (isset($request->excel) && $request->excel == 'on') {
+//            return (new Disease($disease))->download('checks.xlsx');
+//        }
+        return new DiseaseCollection($disease->paginate(20));
     }
     /**
      * Show the form for creating a new resource.
@@ -38,7 +39,19 @@ class DiseaseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'unique:diseases,name'],
+        ]);
+
+        if ($validator->fails()) {
+            return response(['status' => 'error', 'message' => 'عنوان تکراری است ، قبلا ذخیره شده است .']);
+        }
+
+        Disease::create([
+            'name'=>$request->name
+        ]);
+
+        return response(['message'=>' با موفقیت ثبت گردید .','status'=>'success']);
     }
 
     /**

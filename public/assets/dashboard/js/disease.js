@@ -63,7 +63,7 @@ $(document).ready(function () {
     function createTable(data) {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
-        $("#page_text").append('( جمع کل صفحه : '+data.meta.sum_price+' ریال - جمع کل :'+data.meta.total_price+ ' ریال )');
+        // $("#page_text").append('( جمع کل صفحه : '+data.meta.sum_price+' ریال - جمع کل :'+data.meta.total_price+ ' ریال )');
         if ($.fn.DataTable.isDataTable('#datatable-json')) {
             $('#datatable-json').DataTable().destroy();
         }
@@ -77,66 +77,20 @@ $(document).ready(function () {
             data: data.data,
             columns: [
                 {"data": "sort_by"},
-                {"data": "number_amount"},
-                {"data": "jalali_date"},
-                {
-                    "data": data,
-                    "render": function (data){
-                        switch (data.title) {
-                            case 'installment':
-                                return '<span class="badge badge-primary">قسط</span> ';
-                            case 'guaranty':
-                                return '<span class="badge badge-info">ضمانت</span> ';
-                            case 'prepayment':
-                                return '<span class="badge badge-purple">پیش پرداخت</span> ';
-                            default:
-                                return ''
-                        }
-                    }
-                },
-                {"data":data,
-                    "render":function (data){
-                        if (data.front_image!=''){
-                            return  `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>`
-                        }
-                        if (data.back_image!='') {
-                            return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
-                        }
-                        return '';
-                    }
-                },
-                {"data": "description"},
-                {
-                    "data": data,
-                    "render": function (data){
-                        switch (data.status) {
-                            case 0:
-                                return '<span class="badge badge-warning">در انتظار وصول</span> ';
-                            case 1:
-                                return '<span class="badge badge-success">وصول شده</span> ';
-                            case 2:
-                                return '<span class="badge badge-danger">برگشت خورده</span>';
-                            case 3:
-                                return '<span class="badge badge-info">عودت داده شده</span>';
-                            default:
-                                return ''
-                        }
-                    }
-                },
-
+                {"data": "name"},
                 {
                     "data": data,
                     "render": function (data) {
-                        let status_display='none';
-                        if($('#can-update-status-check').val()==1){
-                            status_display='block';
-                        }
+                        // let status_display='none';
+                        // if($('#can-update-status-check').val()==1){
+                        //     status_display='block';
+                        // }
                         return `<div data-v-15965e3b="" class="dropdown">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                             </a>
                             <div class="dropdown-menu">
-
+                                 <button type="button" class="dropdown-item pointer" data-disease_id="${data.id}" data-toggle="modal" data-target="#updateDiseaseModal">ویرایش</button>
                         </div>
                         </div>`
                     }
@@ -158,12 +112,45 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     //----------------------store check ---------------
-    $("body").on('click', '#submit-disease-btn', function () {
+    $('#diseaseModal form').submit(function(e) {
+        e.preventDefault();
+        var form = $('#store-disease-form');
+        var formData = form.serialize();
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
+            }
+        });
+        $.ajax({
+            url: $('#store-disease-form').attr('action'),
+            type: 'POST',
+            dataType: 'json',
+            data: formData,
+            success: function(response) {
+                if (response.status == 'success'){
+                    swal(response.message, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    $('#do_filter').click();
+                    $('#name').val('');
+                }else if(response.status == 'error'){
+                    swal(response.message, {
+                        icon: "error",
+                        button: "باشه"
+                    });
+                }
 
-    })
+
+            },
+            error: function(response) {
+              alert('خطایی رخ داده')
+            }
+        });
+    });
     // ---------------------end store check -------------
 
-    // ----------------------remove check ---------------------
+// ----------------------remove check ---------------------
 
     $("body").on('click','.delete-disease',function () {
         var id = $(this).data("id");

@@ -150,7 +150,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/fetch-user' , 'AdminController@user');
     Route::post('/summernote-image' , 'AdminController@summernote_image');
     Route::post('/uploadImage', 'AdminController@uploadImage');
-    Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');;
+    Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
     Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
     Route::get('/callcenter/suspension', 'CallcenterController@suspension')->name('callcenter.suspension');

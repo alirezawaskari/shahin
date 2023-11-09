@@ -1,8 +1,13 @@
 @extends('Admin.master')
-@section('title')فهرست چک ها@endsection
+@section('title')فهرست بیماری ها@endsection
 
 @section('content')
-
+    <div class="page-header">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#diseaseModal">
+           افزودن بیماری
+        </button>
+    </div>
     <div class="page-header">
         <div>
             <h3>فهرست بیماری ها</h3>
@@ -14,18 +19,13 @@
             </nav>
         </div>
     </div>
+
     <div class="card">
         <div class="card-body">
             <form role="form" id="filter_form" action="{{route('disease.filter')}}" method="get">
                 <div class="row">
                     <div class="col-12 col-md-4 mb-2">
                         <input type="text" class="form-control" name="title" placeholder="عنوان"/>
-                    </div>
-                    <div class="col-12 col-md-4 mb-2">
-                        <div class="custom-control custom-switch mt-2">
-                            <input type="checkbox" class="custom-control-input" name="excel" id="excel">
-                            <label class="custom-control-label" for="excel">خروجی اکسل</label>
-                        </div>
                     </div>
                     <div class="col-12 col-md-3 mb-2">
                         <button id="do_filter"  class="btn btn-primary">
@@ -42,7 +42,7 @@
             <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
                 <thead>
                 <tr>
-                    <th scope="col" >#</th>
+                    <th scope="col">#</th>
                     <th scope="col">عنوان</th>
                     <th scope="col">عملیات </th>
                 </tr>
@@ -64,7 +64,31 @@
             </div>
         </div>
     </div>
-
+    <!--Store Modal -->
+    <div class="modal fade" id="diseaseModal" tabindex="-1" role="dialog" aria-labelledby="diseaseModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="diseaseModalLabel">افزودن</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="store-disease-form" action="{{route('disease.store')}}">
+                <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">عنوان</label>
+                            <input name="name" type="text" class="form-control" id="name" placeholder="عنوان بیماری را وارد نمایید ">
+                        </div>
+                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                        <button type="submit" class="btn btn-primary"> ذخیره</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('js')
