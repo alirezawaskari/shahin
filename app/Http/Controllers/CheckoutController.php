@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Models\ContractForm;
+use App\Models\Disease;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\User;
@@ -17,11 +18,12 @@ class CheckoutController extends Controller {
     * @param Factor $factor
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
-
     public function index( Factor $factor ) {
         $user = auth()->user();
+        $diseases=Disease::all();
         $items = $factor->factorItems->map( function ( $item ) {
             $temp = [];
+
             $temp[ 'id' ] = $item->id;
             $temp[ 'service' ] = $item->factoritemable;
             $temp[ 'service_item' ] = !is_null( $item->service_item_id ) ? $item->serviceItem : null;
@@ -47,7 +49,7 @@ class CheckoutController extends Controller {
     );
     $check = $factor->factorItems()->where( 'complete', false )->exists();
 
-    return view( 'site.checkout', compact( 'factor', 'items', 'check', 'user' ) );
+    return view( 'site.checkout', compact( 'factor', 'items', 'check', 'user' ,'diseases') );
 }
 
 /**
@@ -110,6 +112,7 @@ public function store( Request $request ) {
 */
 
 public function upload_document( Request $request ) {
+
     $this->validate( $request, [
         'item.id' => array( 'required', Rule::exists( 'factor_items', 'id' ) ),
         'item.imgauthentication' => array( 'nullable', 'mimes:jpg,jpeg,bmp,png' ),

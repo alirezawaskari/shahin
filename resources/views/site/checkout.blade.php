@@ -363,7 +363,12 @@
                                                         </div>
                                                     </div>
                                                     <div class="col-12 mb-2 mt-4">
+                                                        @if($item['guarantee_type'] != 'promissorynote')
                                                         <h4>اطلاعات ضامن</h4>
+                                                         @else
+                                                        <h4>اطلاعات ضامن</h4>
+                                                        <h4 class="alert alert-dark">(منظور از ضامن یک نفر از اعضاء درجه یک خانواده به عنوان معرف کافیست)</h4>
+                                                         @endif
                                                         <hr>
                                                     </div>
                                                     @foreach($item['contract_forms'] as $contract_form)
@@ -447,7 +452,31 @@
                                                     باشد
                                                 </li>
                                             </ul>
-                                            <div class="col-12 mb-2 mt-auto">
+{{--                                            if service category is health-service--}}
+                                            @if(false)
+                                            @foreach($factor->factorItems as $factorItem)
+                                                @if(isset($factorItem->factoritemable) && isset($factorItem->factoritemable->category) && $factorItem->factoritemable->category->id == 3)
+
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            اطلاعات پزشکی :
+                                                        </div>
+                                                        <div class="card-body">
+                                                            @foreach($diseases as $disease)
+                                                                <div class="form-check-inline">
+                                                                    <label style="cursor: pointer"  class="form-check-label">
+                                                                        <input name="diseases[]" type="checkbox" class="form-check-input" value="{{$disease->id}}">
+                                                                        {{$disease->name}}
+                                                                    </label>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                   @break
+                                                @endif
+                                            @endforeach
+                                            @endif
+                                            <div class="col-12 mb-2 mt-auto pt-2">
                                                 <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
                                             </div>
                                             @if($item['is_changeable'])

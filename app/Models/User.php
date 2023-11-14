@@ -630,4 +630,9 @@ class User extends Authenticatable
             'null' => 'خانم/آقا'
         ][$gender];
     }
+
+    public function diseases()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

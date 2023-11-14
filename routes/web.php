@@ -150,7 +150,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/fetch-user' , 'AdminController@user');
     Route::post('/summernote-image' , 'AdminController@summernote_image');
     Route::post('/uploadImage', 'AdminController@uploadImage');
-    Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');;
+    Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
     Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
     Route::get('/callcenter/suspension', 'CallcenterController@suspension')->name('callcenter.suspension');
@@ -179,6 +179,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('callcenter', 'CallcenterController');
     Route::get('short-link/filter', 'ShortLinkController@filter');
     Route::resource('short-link', 'ShortLinkController');
+    Route::get('/disease/filter' , 'DiseaseController@filter')->name('disease.filter');
+    Route::resource('disease', 'DiseaseController');
     Route::get('employee-terms', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'index'])->name('employee.terms.index');
     Route::post('employee-terms-accept', [\App\Http\Controllers\Admin\EmployeeController::class,'acceptTerms'])->name('employee.terms.accept');
     Route::post('employee-terms-store', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'store'])->name('employee.terms.store');

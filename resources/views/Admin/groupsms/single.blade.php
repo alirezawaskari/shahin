@@ -15,11 +15,17 @@
                                class="form-control"
                                name="title" required>
                     </div>
+                    <div class="col-12  mb-3">
+                        <div class="alert alert-danger">
+                            همکار گرامی لطفا توجه فرمایید به دلیل قوانین جدید اپراتورها  جهت ارسال موفق پیامک ، استفاده از کلمه لغو11 در انتهای متن پیامک الزامی می باشد.
+                        </div>
+                    </div>
 
                     <div class="col-12  mb-3">
                         <label>متن پیام</label>
                         <textarea required name="message" id="" cols="30" rows="10" class="form-control"></textarea>
                     </div>
+
 
 
                     <div class="col-12  mb-3">
