@@ -56,7 +56,9 @@
                             </td>
                             <td>
                                 @foreach($check->files as $file)
-                                    <a href="{{$file->path}}" target="_blank"> <img src="{{$file->path}}" width="70px" alt=""></a>
+                                    <a href="{{$file->path}}" target="_blank">
+                                        <i class="fa fa-image"></i>
+{{--                                        <img src="{{$file->path}}" width="70px" alt=""></a>--}}
                                 @endforeach
                             </td>
                             <td>{{$check->histories->count()>0?$check->histories->last()->description :''}}</td>
