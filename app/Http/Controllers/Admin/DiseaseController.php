@@ -21,9 +21,6 @@ class DiseaseController extends Controller
     public function filter()
     {
         $disease = Disease::filter()->latest();
-//        if (isset($request->excel) && $request->excel == 'on') {
-//            return (new Disease($disease))->download('checks.xlsx');
-//        }
         return new DiseaseCollection($disease->paginate(20));
     }
     /**
@@ -75,7 +72,19 @@ class DiseaseController extends Controller
      */
     public function update(Request $request, Disease $disease)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response(['status'=>'error','messages'=>$validator->messages()->all()]);
+        }
+        $disease->update([
+           'name' =>$request->name,
+        ]);
+        return response([
+            'message'=>'عملیات موفق ',
+            'status'=>'success'
+        ]);
     }
 
     /**

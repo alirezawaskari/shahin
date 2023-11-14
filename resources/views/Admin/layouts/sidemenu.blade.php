@@ -54,11 +54,13 @@
                     @permission('installments-debtors-list')
                     <li><a href="{{route('accounting.installment.index')}}"><span>بدهکاران اقساطی</span> </a></li>
                     @endpermission
+                    @permission('user-attributes')
                     <li><a href="#"><i class="icon ti-control-record"></i> <span>ویژگی ها</span> </a>
                         <ul>
                             <li><a  href="{{ route('disease.index') }}">سلامتی</a></li>
                         </ul>
                     </li>
+                    @endpermission
                 </ul>
             </li>
             @endpermission

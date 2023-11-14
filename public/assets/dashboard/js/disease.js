@@ -90,8 +90,8 @@ $(document).ready(function () {
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                             </a>
                             <div class="dropdown-menu">
-                                 <button type="button" class="dropdown-item pointer" data-disease_id="${data.id}" data-toggle="modal" data-target="#updateDiseaseModal">ویرایش</button>
-                        </div>
+                                 <button type="button" class="dropdown-item pointer" data-id="${data.id}"  data-name="${data.name}" data-toggle="modal" data-target="#updateDiseaseModal" id="edit-disease-btn">ویرایش</button>
+                            </div>
                         </div>`
                     }
                 }
@@ -111,7 +111,7 @@ $(document).ready(function () {
 
 
 $(document).ready(function () {
-    //----------------------store check ---------------
+    //----------------------store disease ---------------
     $('#diseaseModal form').submit(function(e) {
         e.preventDefault();
         var form = $('#store-disease-form');
@@ -140,58 +140,46 @@ $(document).ready(function () {
                         button: "باشه"
                     });
                 }
-
-
             },
             error: function(response) {
               alert('خطایی رخ داده')
             }
         });
     });
-    // ---------------------end store check -------------
+    // --------------------- end store disease -------------
+    // -------------------edit check btn --------------
+    $("body").on('click','#edit-disease-btn',function (){
+        var disease_tag=$(this)
+        $('#edit-disease-id').val(disease_tag.data('id'))
+        $('#edit-disease-name').val(disease_tag.data('name'))
+    })
+    //--------------------- end edit check btn --------------------
+    //---------------------update check ---------------------
+    $("body").on('click', '#update-disease-btn', function () {
 
-// ----------------------remove check ---------------------
-
-    $("body").on('click','.delete-disease',function () {
-        var id = $(this).data("id");
-        var token = $("meta[name='csrf-token']").attr("content");
-        submit();
-        function submit(event) {
-            swal({
-                title: "آیا مطمئن هستید؟",
-                text: "",
-                icon: "warning",
-                buttons: {
-                    confirm: 'بله',
-                    cancel: 'خیر'
-                },
-                dangerMode: true
-            }).then(res => {
-                if (res) {
-                    $.ajax(
-                        {
-                            url: "/dashboard/disease/"+id,
-                            type: 'DELETE',
-                            data: {
-                                "_token": token,
-                            },
-                            success: function (data,page){
-                                if (data.status=='success'){
-                                    swal({
-                                        text: "چک با موفقیت حذف گردید .",
-                                        icon: "success",
-                                        button: "تایید",
-                                        timer:3000,
-                                        allowOutsideClick: true
-                                    });
-                                     location.reload();
-                                }else{
-                                    swal("خطا! ", data.messages.join('\n'), "error");
-                                }
-                            }
+        var form = $('#update-disease-form');
+        var formData = form.serialize();
+        $.ajax(
+            {
+                type : 'PATCH',
+                url: '/dashboard/disease/'+$('#edit-disease-id').val(),
+                data: formData,
+                success: function (response) {
+                    if (response.status=='success'){
+                        swal(response.message, {
+                            icon: "success",
+                            button: "باشه"
                         });
+                        $('#do_filter').click();
+                    }else{
+                        swal(response.message, {
+                            icon: "error",
+                            button: "باشه"
+                        });
+                    }
                 }
             });
-        }
-    });
+    })
+    //-----------------------end update check----------
+
 })

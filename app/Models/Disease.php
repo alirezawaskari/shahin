@@ -22,10 +22,10 @@ class Disease extends Model
      */
     public function scopeFilter($query)
     {
-        $title=request()->title;
+        $name=request()->name;
 
-        if (isset($title) && trim($title) != '') {
-            $query->where('title', 'LIKE', '%' . $title. '%');
+        if (isset($name) && trim($name) != '') {
+            $query->where('name', 'LIKE', '%' . $name. '%');
         }
 
         return $query;
