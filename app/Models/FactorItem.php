@@ -771,8 +771,8 @@ class FactorItem extends Model implements AuditableContract
             $total_discount_price = $item->serviceTariffs()->sum('factor_item_service_tariff.discount');
             $total_price = $total_price + $other_price + $total_price_service_tariffs - $total_discount_price;
         }
-
-		$total_price = $total_price + $factor_item->supervisor->discount;
+        $financial_plans_type_discount_price = ($factor_item->financialPlansType->discount_percent/100) * $total_price;
+		$total_price = $total_price + $factor_item->supervisor->discount - $financial_plans_type_discount_price;
 
 		return $total_price;
     }
