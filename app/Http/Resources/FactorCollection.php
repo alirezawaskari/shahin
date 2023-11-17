@@ -57,6 +57,7 @@ class FactorCollection extends ResourceCollection
                     'payment_type' => $item::TYPE[$item->type],
                     'per_detail' => $this->setPerDetail(),
                     'per_delete' => $this->setPerDelete(),
+                    'type' => $item->type
                 ];
             }),
             'meta' =>  [

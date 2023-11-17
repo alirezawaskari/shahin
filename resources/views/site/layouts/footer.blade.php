@@ -48,14 +48,13 @@
     <div class="copy-right position-relative">
         {{--        <img src="{{asset('/assets/site/images/copy-right3.svg')}}" class="position-absolute cover-img"--}}
         {{--             draggable="false">--}}
-
         <div style="padding-right: 50px;padding-left: 50px">
             <div class="row ">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="row">
                         <div class="col-md-12">
                             <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left">
-                                ارتباط با ما :
+                                ارتباط با ما
                             </h6>
                         </div>
                         <div class="col-md-12 mt-2">
@@ -80,16 +79,46 @@
 
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2 ">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-12 ">
                             <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left">
-                                دسترسی سریع :
+                                دسترسی سریع
                             </h6>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/contact">
+                                <span>ارتباط با ما</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/contact">
+                                <span>تماس با ما</span>
+                            </a>
                         </div>
                         <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/">
                                 <span>خانه</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/ ">
+                                <span>فرصت های شغلی و استخدام در لاله   </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/ ">
+                                <span>قوانین و مقررات اخذ تسهیلات از  لاله </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/ ">
+                                <span>همکاری با مراکز و فروشندگان کالا وخدمات </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/ ">
+                                <span>اخذ مجوز نمایندگی </span>
                             </a>
                         </div>
                         <div class="col-md-12 mt-2">
@@ -102,11 +131,7 @@
                                 <span>خدمات</span>
                             </a>
                         </div>
-                        <div class="col-md-12 mt-2">
-                            <a class="text-dark" href="/contact">
-                                <span>تماس با ما</span>
-                            </a>
-                        </div>
+
                         <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/about">
                                 <span>درباره ما</span>
@@ -115,11 +140,11 @@
 
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2 col-sm-4 col-lg-2">
                     <div class="row">
                         <div class="col-md-12">
-                            <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left">
-                                لینک های مفید :
+                            <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left text-center">
+                                لینک های مفید
                             </h6>
                         </div>
                         <div class="col-md-12 mt-2">
@@ -141,6 +166,257 @@
                             <i class="fa fa-question" aria-hidden="true"></i>
                             <a class="text-dark" href="{{ route('site.help') }}">
                                 <span>راهنما</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-lg-2 ">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 style="border-bottom: 3px solid #00c1ef; width:170px " class="rounded-left text-center">
+                                خدمات دندانپزشکی
+                            </h6>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/articles">
+                                <span>مقالات</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>دندان پزشکی لاله </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>دندانپزشکی اقساطی </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>دندانپزشکی کرج </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>ایمپلنت قسطی در کرج </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>لمینت دندان کرج </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>لمینت دندان  </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>دندانپزشکی مرکزی کرج  </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>ترمیم ریشه دندان کرج </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-lg-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left text-center">
+                                خدمات ساختمانی
+                            </h6>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>بازسازی ساختمان در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>بازسازی ساختمان در چیتگر
+                                </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>خدمات ساختمانی در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>خدمات ساختمانی اقساطی در کرج </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>خدمات ساختمانی اقساطی تهران </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>خدمات بازسازی ساختمان اقساطی مشهد</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/standardelevatorequipments">
+                                <span>آسانسور اقساطی</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/standardelevatorequipments">
+                                <span>نصب آسانسور کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>تغییرات دکوراسیون در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/building">
+                                <span>تغییرات دکوراسیون اقساطی در کرج </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-lg-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left text-center">
+                                وکیل اقساطی کرج
+                            </h6>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>تنظیم لایحه در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>خدمات وکیل کرج </span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>بهترین وکیل کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>وکیل عظیمیه کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>خدمات حقوقی کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>وکیل خانواده در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/legal">
+                                <span>وکیل با تجربه در تهران</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-lg-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left text-center">
+                                تجهیزات پزشکی
+                            </h6>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/medical-equipment">
+                                <span>دستگاه فشار خون رزمکس</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/medical-equipment">
+                                <span>دستگاه سنجش قند خون</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/glasses">
+                                <span>عینک طبی</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/glasses">
+                                <span>عینک آفتابی</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/medical-equipment">
+                                <span>دستگاه فشار خون</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-lg-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 style="border-bottom: 3px solid #00c1ef; width:130px " class="rounded-left text-center">
+                                جراحی زیبایی
+                            </h6>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/dentistry">
+                                <span>جراحی دندان در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی انحراف بینی کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی زیبایی بینی</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی انحراف بینی در کرج</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی شکم و پهلو</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی اندامها</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی لایپوساکشن</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی ابدومینو پلاستی</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی پیکر تراشی</span>
+                            </a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <a class="text-dark" href="/services/beauty">
+                                <span>جراحی بایپس معده</span>
                             </a>
                         </div>
                     </div>

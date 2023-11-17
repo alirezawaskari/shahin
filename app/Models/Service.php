@@ -312,4 +312,12 @@ class Service extends Model
 
         return $representation ? $representation->id : null;
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

@@ -81,9 +81,20 @@ $(document).ready(function () {
                 },
                 {
                     "targets": 1,
-                    "data": "id",
+                    "data": data,
                     "render": function ( data ) {
-                        return '<div data-v-15965e3b="" class="dropdown"><a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a><div class="dropdown-menu"><a href="../../dashboard/employee/'+data+'/edit" target="_blank"><button type="button" class="dropdown-item pointer">مشاهده</button></a><a href="../../dashboard/employee-financial-report/'+data+'" target="_blank"><button type="button" class="dropdown-item pointer">عملکرد ماهانه</button></a></div></div>';
+                        let loginDisplay='none';
+
+                        if($('#can-manual-login').val()==1){
+                            loginDisplay='block';
+                        }
+                        return `<div data-v-15965e3b="" class="dropdown">
+                        <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i>
+                        </a><div class="dropdown-menu"><a href="../../dashboard/employee/${data.id}/edit" target="_blank"><button type="button" class="dropdown-item pointer">مشاهده</button></a>
+                          <a style="display: ${loginDisplay}" target="_blank" href="/dashboard/user/login/${data.user_id}"><span  data-id="${data.user_id}" class="task-delete dropdown-item pointer">
+                            ورود
+                            </span></a>
+                            <a href="../../dashboard/employee-financial-report/${data.id}" target="_blank"><button type="button" class="dropdown-item pointer">عملکرد ماهانه</button></a></div></div>`;
                     }
                 },
 
