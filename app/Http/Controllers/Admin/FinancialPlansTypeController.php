@@ -123,11 +123,10 @@ class FinancialPlansTypeController extends Controller
         unset($input['category']);
         unset($input['_token']);
         unset($input['representation_id']);
-
+        $input['is_show'] = isset($input['is_show']) ? '' : 0;
         $input['price'] = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
         $input['end_date'] = Helper::vertaToMiladi($request->end_date);
-
         $financialPlansType->update($input);
         $financialPlansType->categories()->sync($request->category);
         $financialPlansType->services()->sync($request->service);

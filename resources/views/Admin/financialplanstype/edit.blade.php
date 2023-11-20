@@ -118,7 +118,6 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-2 mb-4">
-                        <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="is_show" value="1"

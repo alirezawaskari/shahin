@@ -87,7 +87,7 @@ $(document).ready(function () {
                            if (data.is_show){
                                return `<i class="fa fa-check" aria-hidden="true"></i>`;
                            }else {
-                               return `<i class="fa fa-closFe" aria-hidden="true"></i>`;
+                               return `<i class="fa fa-close" aria-hidden="true"></i>`;
                            }
                     }
                     },

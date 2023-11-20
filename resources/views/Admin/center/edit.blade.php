@@ -161,12 +161,11 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-4">
-                        <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
+                    <div class="col-12 mb-4">
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="is_show" value="1"
-                                       @if($center->is_show == 1) checked @endif>نمایش در سایت نمایندگی کل
+                                       @if($center->is_show == 1) checked @endif> نمایش در سایت نمایندگی کل
                             </label>
                             @if($errors->has('is_show'))<span
                                     class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
