@@ -5,11 +5,11 @@
 
 <div class="page-header">
     <div>
-        <h3>فهرست طرح های مالی</h3>
+        <h3>{{ $title }}</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">فهرست طرح های مالی</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ $title }}</li>
             </ol>
         </nav>
     </div>
@@ -58,6 +58,7 @@
                         <option value="1">فعال</option>
                     </select>
                 </div>
+                <input type="hidden" name="service" value="{{ isset($service) ? isset($service) : ''}}">
                 <div class="col-12 col-md-3 mb-2">
                     <button id="do_filter" class="btn btn-outline-primary">
                         فیلتر کن

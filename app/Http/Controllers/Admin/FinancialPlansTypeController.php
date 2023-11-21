@@ -23,7 +23,18 @@ class FinancialPlansTypeController extends Controller
     {
         if (auth()->user()->hasPermission('financial-plans-type'))
         {
-            return view('Admin.financialplanstype.all');
+            $title = 'فهرست طرح های مالی';
+            return view( 'Admin.financialplanstype.all' , compact('title'));
+        }
+        return abort(401);
+
+    }
+    public function getByService(Service $service)
+    {
+        if (auth()->user()->hasPermission('financial-plans-type'))
+        {
+            $title = $service->title.'/فهرست طرح های مالی';
+            return view( 'Admin.financialplanstype.all' , compact('title' , 'service'));
         }
         return abort(401);
 
@@ -31,9 +42,13 @@ class FinancialPlansTypeController extends Controller
     /**
      * @return \App\Http\Resources\FinancialPlansTypeCollection
      */
-    public function filter()
+    public function filter(Request $request)
     {
         $financial_plans_types = FinancialPlansType::filter()->latest();
+        if($request->service)
+        {
+            $financial_plans_types = $request->service->financialPlansTypes()->filter()->latest();
+        }
         if(auth()->user()->admin_representation_id)
         {
             $financial_plans_types = auth()->user()->admin_representation->financialPlansTypes()->filter()->latest();
