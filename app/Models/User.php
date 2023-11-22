@@ -633,6 +633,6 @@ class User extends Authenticatable
 
     public function diseases()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(Disease::class,'disease_user' );
     }
 }

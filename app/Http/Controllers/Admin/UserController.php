@@ -137,9 +137,12 @@ class UserController extends AdminController
      */
     public function update(Request $request, User $user)
     {
+
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
+            'diseases' => 'nullable|array',
+            'diseases.*' => 'nullable|integer|exists:diseases,id',
 //            'wallet' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
@@ -198,7 +201,8 @@ class UserController extends AdminController
                'status'=>0
              ]);
         }
-
+        if (isset($request->diseases))
+            $user->diseases()->sync($request->diseases);
         Helper::vipUser($request->vip , $user->id);
         Helper::sosUser($request->sos , $user->id);
 
