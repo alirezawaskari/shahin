@@ -42,6 +42,9 @@
                         </a>
                         <div class="dropdown-menu">
                             <a href="{{ route('service.edit' , [ $item->slug]) }}" class="dropdown-item pointer">ویرایش</a>
+                            <a href="{{route('service.financialPalnsTypes', [ $item->slug])}}">
+                                <button type="button" class="dropdown-item pointer">طرح های مالی</button>
+                            </a>
                             <a href="{{route('service.serviceItem.all', [ $item->slug])}}">
                                 <button type="button" class="dropdown-item pointer">لیست آیتم ها</button>
                             </a>

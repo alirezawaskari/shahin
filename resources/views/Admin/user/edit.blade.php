@@ -38,11 +38,11 @@
                 @endrole
                 <div class="col-12 col-md-4 mb-3">
                     <label>رمز عبور جدید</label>
-                    <input type="password" class="form-control" name="password">
+                    <input type="password" class="form-control password" name="password" >
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>تکرار رمز عبور جدید</label>
-                    <input type="password" class="form-control" name="password_confirmation">
+                    <input type="password" class="form-control password" name="password_confirmation">
                 </div>
                 @permission('user-edit')
                 <div class="col-12 col-md-4 mb-3">
@@ -155,11 +155,11 @@
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>رمز عبور جدید</label>
-                    <input type="password" class="form-control" name="password">
+                    <input type="password" class="form-control password" name="password">
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>تکرار رمز عبور جدید</label>
-                    <input type="password" class="form-control" name="password_confirmation">
+                    <input type="password" class="form-control password" name="password_confirmation">
                 </div>
                 @role('superadmin')
                 <div class="col-12 col-md-4 mb-3">
@@ -190,7 +190,16 @@
                     </select>
                 </div>
                 @endrole
-
+                <div class="col-12 col-md-4 mb-3">
+                    <label>ویژگی های سلامتی</label>
+                    <div class="col-12 col-md-6 mb-2">
+                        <select name="diseases[]" class="custom-select" id="diseases" multiple="multiple">
+                            @foreach( \App\Models\Disease::all() as $disease_item)
+                                <option {{in_array($disease_item->id,$user->diseases->pluck('id')->toArray())?'selected':''}} value="{{$disease_item->id}}">{{$disease_item->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>کاربر ثروتمند/توانمند :</label>
                     <div class="form-group">
@@ -304,6 +313,7 @@
                                     <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                     <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -322,4 +332,13 @@
 @stop
 @section('js')
     <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $('.password').val('')
+            $('#diseases').select2({
+                placeholder: "انتخاب وضعیت بیماری"
+            });
+        });
+    </script>
+
 @endsection
