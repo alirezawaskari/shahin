@@ -58,7 +58,7 @@
                         <option value="1">فعال</option>
                     </select>
                 </div>
-                <input type="hidden" name="service" value="{{ isset($service) ? isset($service) : ''}}">
+                <input type="hidden" name="service" value="{{ isset($service) ? $service->id : ''}}">
                 <div class="col-12 col-md-3 mb-2">
                     <button id="do_filter" class="btn btn-outline-primary">
                         فیلتر کن

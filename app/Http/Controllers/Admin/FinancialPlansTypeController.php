@@ -47,7 +47,8 @@ class FinancialPlansTypeController extends Controller
         $financial_plans_types = FinancialPlansType::filter()->latest();
         if($request->service)
         {
-            $financial_plans_types = $request->service->financialPlansTypes()->filter()->latest();
+            $service = Service::find($request->service);
+            $financial_plans_types = $service->financialPlansTypes()->filter()->latest();
         }
         if(auth()->user()->admin_representation_id)
         {
@@ -130,7 +131,6 @@ class FinancialPlansTypeController extends Controller
         }
         Cache::forget('near_end_date_financial_plans');
         $input = $request->all();
-
         if ($input['payment_type']== 'cash' ||$input['payment_type']== 'installment' ){
             $input['number_pay_steps']=null;
         }
@@ -138,7 +138,7 @@ class FinancialPlansTypeController extends Controller
         unset($input['category']);
         unset($input['_token']);
         unset($input['representation_id']);
-        $input['is_show'] = isset($input['is_show']) ? '' : 0;
+        $input['is_show'] = isset($input['is_show']) ? $input['is_show'] : 0;
         $input['price'] = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
         $input['end_date'] = Helper::vertaToMiladi($request->end_date);
@@ -147,7 +147,7 @@ class FinancialPlansTypeController extends Controller
         $financialPlansType->services()->sync($request->service);
         !auth()->user()->admin_representation_id ? $financialPlansType->representations()->sync($request->input('representation_id')) : '';
 
-        return redirect()->route('financialPlansType.index')->with([
+        return redirect()->back()->with([
             'update' => 'success',
         ]);
     }
