@@ -115,19 +115,19 @@ class AdminController extends Controller
         if ($representation) {
             $link = "lalecard.ir/".$representation->slug.'/link/'.auth()->user()->id;
             $totalUser = User::where('representation_id', $representation->id)->count();
-            $totalDayUser = User::where('created_at', 'like', date("Y-m-d").'%')->count();
-            $totalMonthUser = User::where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
-            $totalDayFactor = Factor::where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
-            $totalMonthFactor = Factor::where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
-            $totalDayFactorPrice = Factor::where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' ,'!=', 'organ')->sum('price');
-            $totalDayFactorPriceOrgan = Factor::where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type','organ')->sum('price');
-            $totalYesterdayFactorPrice = Factor::whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->sum('price');
-            $totalWeekFactorPrice = Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->sum('price');
-            $totalMonthFactorPrice = Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->sum('price');
-            $totalBeforeMonthFactorPrice = Factor::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->sum('price');
-            $totalSixMonthFactorPrice = Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->sum('price');
-            $totalYearFactorPrice =  Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->sum('price');
-            $totalAllFactorPrice = Factor::where('status', true)->sum('price');
+            $totalDayUser = User::where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->count();
+            $totalMonthUser = User::where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalDayFactor = Factor::where('representation_id', $representation->id)->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
+            $totalMonthFactor = Factor::where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
+            $totalDayFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' ,'!=', 'organ')->sum('price');
+            $totalDayFactorPriceOrgan = Factor::where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type','organ')->sum('price');
+            $totalYesterdayFactorPrice = Factor::where('representation_id', $representation->id)->whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->sum('price');
+            $totalWeekFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->sum('price');
+            $totalMonthFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->sum('price');
+            $totalBeforeMonthFactorPrice = Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->sum('price');
+            $totalSixMonthFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->sum('price');
+            $totalYearFactorPrice =  Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->sum('price');
+            $totalAllFactorPrice = Factor::where('representation_id', $representation->id)->where('status', true)->sum('price');
         }
         else
         {
