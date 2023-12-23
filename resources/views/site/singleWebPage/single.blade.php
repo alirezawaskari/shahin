@@ -53,7 +53,6 @@
                 </div>
 
                 @else
-                {!! $service->left_content !!}
 
                 @foreach($errors->all() as $error)
                 <div class="alert alert-danger my-3" role="alert">
@@ -152,6 +151,8 @@
 
                     </div>
                 </div>
+                {!! $service->left_content !!}
+
                 @endif
 
             </div>
