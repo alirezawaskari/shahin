@@ -105,9 +105,9 @@ class FactorItem extends Model implements AuditableContract
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function representations()
+    public function representation()
     {
-        return $this->hasMany(FactorItemRepresentation::class);
+        return $this->hasOne(RepresentationFactorItem::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -271,7 +271,7 @@ class FactorItem extends Model implements AuditableContract
         });
 
         if (auth()->user()->admin_representation) {
-            $query->whereHas('factor', function ($query){
+            $query->whereHas('representation', function ($query){
                 $query->where('representation_id', auth()->user()->admin_representation_id);
             });
         }
@@ -311,11 +311,11 @@ class FactorItem extends Model implements AuditableContract
 
             if (isset($representation) && trim($representation) != 'all') {
                 if (trim($representation) == 'center') {
-                    $query->whereHas('factor', function ($query) {
+                    $query->whereHas('representation', function ($query) {
                         $query->where('representation_id', null);
                     });
                 } else {
-                    $query->whereHas('factor', function ($query) use ($representation) {
+                    $query->whereHas('representation', function ($query) use ($representation) {
                         $query->where('representation_id', $representation);
                     });
                 }
@@ -1017,12 +1017,28 @@ class FactorItem extends Model implements AuditableContract
             $query->where('centerable_id', $item->factoritemable_id)->where('centerable_type', $item->factoritemable_type);
         });
 
-        if(isset($item->factor) && $item->factor->representation)
+        if(isset($item->representation))
         {
             $selectable_centers = $selectable_centers->whereHas('representations', function ($query) use ($item) {
-                $query->where('representation_id', $item->factor->representation_id);
+                $query->where('representation_id', $item->representation->representation_id);
             });
         }
         return $selectable_centers->get();
     }
+    /**
+     *@param \App\Models\FactorItem $item
+     *@param int $representation
+     *@return void
+     */
+    public static function createRepresentation(FactorItem $item , $representation)
+    {
+        $item->histories()->create([
+            'user_id' => auth()->user()->id,
+            'callcenter_id' => auth()->user()->id,
+            'status' => 1,
+            'description' => " نمایندگی این پرونده توسط ".auth()->user()->family."تغییر کرده است.",
+        ]);
+        $item->representation()->firstOrCreate(['representation_id' => $representation], ['agent_id' => auth()->user()->id]);
+    }
 }
+

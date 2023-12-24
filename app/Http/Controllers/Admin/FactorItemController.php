@@ -1043,6 +1043,40 @@ class FactorItemController extends Controller {
         ] );
     }
     /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    public function transfer(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'id' => 'required'
+        ]);
+        if ($validation->fails()){
+            return response(['status'=>'error','messages'=>$validation->messages()->all()]);
+        }
+        $factor_items = FactorItem::whereIn('id' , $request->id)->get();
+        $factor_items->map(function ($factor_item) use ($request){
+            //transfer all factorItems of the selected factorItem subset
+            foreach($factor_item->getFatorItemCollection($factor_item)->get() as $item)
+            {
+                FactorItem::createRepresentation($item , $request->end_representation);
+            }
+            //transfer all totalFactorItem factorItem's if factorItem selected is installment
+            if($factor_item->total_factor_item_id)
+            {
+                foreach(FactorItem::where('total_factor_item_id' , $factor_item->total_factor_item_id)->get() as $item){
+                    FactorItem::createRepresentation($item , $request->end_representation);
+                }
+            }
+        });
+
+        return response([
+            'operator' => true,
+            'status'=>'success',
+            'messages'=>'انتقال با موفقیت انجام گرفت .'
+        ]);
+    }
+    /**
      * @param FactorItem $factor_item
      * @return void
      * send start work sms of the factorItem

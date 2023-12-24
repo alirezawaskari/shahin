@@ -142,44 +142,72 @@
             </div>
         </div>
     </form>
-    <div class="card position-relative">
-        <div class="card-body table-responsive">
-            <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>نام</th>
-                        <th>موبایل</th>
-                        <th>تاریخ ثبت</th>
-                        <th>تاریخ مراجعه</th>
-                        <th>پشتیبان - شماره پرونده</th>
-                        <th>نوع پرداخت - مبلغ</th>
-                        <th>خدمات</th>
-                        <th>وضعیت</th>
-                        <th>اقدام شده</th>
-                        <th>اقدام</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-
-            <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center"
-                id="loading">
-                <div role="status" class="spinner-border text-primary">
+    <form id="transfer_form">
+        <div class="card">
+            <div class="card-body">
+                <div class="row transfer_message_box">
                 </div>
-                <br>
-                <span>در حال بارگذاری...</span>
-            </div>
+                <div class="row">
+                    <div class="col-12 col-md-2 mb-2">
+                        <select id="transfer" name="type" class="form-control">
+                            <option value="select">بر حسب انتخاب</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 mb-2" id="source_box">
+                        <select class="custom-select select2" name="end_representation">
+                            <option value=" ">نمایندگی کل</option>
+                            @foreach($representations as $representation)
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-            <p id="page_text" style="display: initial"></p>
-            <p id="sum_price" style="display: initial"></p>
-            <input type="hidden" value="{{ $url }}" id="url">
-            <div id="pagination-box">
-                <ul id="pagination-demo" class="pagination"></ul>
+                    <div class="col-12 col-md-2 mb-2">
+                        <button id="do_transfer" type="button" class="btn btn-outline-primary py-2 px-4">انتقال</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        <div class="card position-relative">
+            <div class="card-body table-responsive">
+                <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th><input type="checkbox" id="transfer_checkbox"></th>
+                            <th>نام</th>
+                            <th>موبایل</th>
+                            <th>تاریخ ثبت</th>
+                            <th>تاریخ مراجعه</th>
+                            <th>پشتیبان - شماره پرونده</th>
+                            <th>نوع پرداخت - مبلغ</th>
+                            <th>خدمات</th>
+                            <th>وضعیت</th>
+                            <th>اقدام شده</th>
+                            <th>اقدام</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center"
+                    id="loading">
+                    <div role="status" class="spinner-border text-primary">
+                    </div>
+                    <br>
+                    <span>در حال بارگذاری...</span>
+                </div>
+
+                <p id="page_text" style="display: initial"></p>
+                <p id="sum_price" style="display: initial"></p>
+                <input type="hidden" value="{{ $url }}" id="url">
+                <div id="pagination-box">
+                    <ul id="pagination-demo" class="pagination"></ul>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 @include('Admin.callcenter.sendLink')
