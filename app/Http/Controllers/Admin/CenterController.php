@@ -117,6 +117,7 @@ class CenterController extends AdminController
             'status' => $request->status,
             'description' => $request->description,
             'address' => $request->address,
+            'is_show' => isset($request->is_show) ? $request->is_show : 0,
         ] );
         !auth()->user()->admin_representation_id ? $center->representations()->sync($request->input('representation_id')) : '';
 

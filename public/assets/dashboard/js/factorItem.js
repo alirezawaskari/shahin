@@ -402,6 +402,41 @@ $(document).ready(function () {
         placeholder: "انتخاب وضعیت پرونده"
     });
 
+
+    /*    if checkbox of transfer checked for all factorItems   */
+    $('#transfer_checkbox').change(function () {
+        if ($(this).is(':checked')) {
+            $('body td input:checkbox').prop('checked', this.checked);
+        } else {
+            $('body td input:checkbox').prop('checked', false);
+        }
+    });
+    /*    click on do transfer */
+    $("body").on('click', '#do_transfer', function (event) {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var form = $('#transfer_form');
+        var formData = form.serialize();
+        $.ajax({
+            url: "/dashboard/factorItem/transfer",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                } else {
+                    $('.transfer_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
+                    });
+                }
+            }
+        });
+    });
     fetchData(1)
     var first_load = true;
     var do_filter_command = false;
@@ -470,6 +505,13 @@ $(document).ready(function () {
             data: data.data,
             columns: [{
                     "data": "sort_by"
+                },
+                {
+                    "targets": 1,
+                    "data": data,
+                    "render": function (data) {
+                        return `<input type="checkbox" name="id[]" value="${data.id}">`
+                    }
                 },
                 {
                     "data": "name"
@@ -611,14 +653,11 @@ function marginMinus(thisItem) {
 
 $("body").on('change', 'input[name=type]', function (event) {
     $('#changeFinancialPlansTypeModal').modal('show');
-    if(this.value == 0)
-    {
-        $('input[name=type][value=1]').prop('checked',false);
+    if (this.value == 0) {
+        $('input[name=type][value=1]').prop('checked', false);
         $('input[name=type][value=0]').prop('checked', true);
-    }
-    else
-    {
-        $('input[name=type][value=0]').prop('checked',false);
+    } else {
+        $('input[name=type][value=0]').prop('checked', false);
         $('input[name=type][value=1]').prop('checked', true);
     }
     factor_item_id = $('#factor_item').val();
@@ -638,7 +677,7 @@ $("body").on('change', 'input[name=type]', function (event) {
         success: function success(data) {
             if (data.count == 'available') {
                 $('#financial_plans_type').find('option').remove();
-                $.each(data.financial_plans_types, function( index, value ) {
+                $.each(data.financial_plans_types, function (index, value) {
                     $('#financial_plans_type').append('<option value="' + value['id'] + '">' + value['label'] + '</option>');
                 });
             }

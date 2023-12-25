@@ -211,9 +211,14 @@ class RegisterController extends Controller
                 'user_id' => isset( $callcenter ) ? $callcenter : $id,
                 'agent_id' => isset( $agent ) ? $agent : null,
                 'type' => isset( $agent ) ? 3 : 0,
-                'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,
                 'status' => '0'
             ] );
+
+            $task->update([
+                'representation_id' => !$task->representation_id &&  $task->callcenter ? $task->callcenter->admin_representation_id : $task->representation_id
+            ]);
+
+
             if ($request->service_id){
                 $task->services()->attach(array($request->service_id));
             }

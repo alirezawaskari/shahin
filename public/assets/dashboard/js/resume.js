@@ -124,7 +124,7 @@ $(document).ready(function () {
         } ).draw();
     }
 
-    /*    if checkbox of transfer checked for all requests   */
+    /*    if checkbox of transfer checked for all resumes   */
     $('#transfer_checkbox').change(function () {
         if ($(this).is(':checked')) {
             $('body td input:checkbox').prop('checked', this.checked);
