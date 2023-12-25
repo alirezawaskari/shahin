@@ -29,17 +29,17 @@
                             <th scope="row">{{$i++}}</th>
                             <td>{{number_format($check->amount)}}</td>
                             <td>{{verta($check->date)->format('Y/m/d')}}</td>
-                            <td>{{$check->applicantable->name . ' '.$check->applicantable->family}}
+                            <td>{{$check->applicantable ? $check->applicantable->name . ' '.$check->applicantable->family : 'ثبت نشده'}}
                                 <br>
-                                {{$check->applicantable->phone}}
+                                {{$check->applicantable ? $check->applicantable->phone : 'ثبت نشده'}}
                             </td>
-                            <td>{{$check->exportable->name . ' '.$check->exportable->family}}
+                            <td>{{$check->exportable ? $check->exportable->name . ' '.$check->exportable->family : 'ثبت نشده'}}
                                 <br>
-                                {{$check->exportable->phone}}
+                                {{$check->exportable ? $check->exportable->phone : 'ثبت نشده'}}
                             </td>
-                            <td>{{$check->paytoable->name . ' '.$check->paytoable->family}}
+                            <td>{{ $check->paytoable ? $check->paytoable->name . ' '.$check->paytoable->family : 'ثبت نشده'}}
                                 <br>
-                                {{$check->paytoable->phone}}
+                                {{$check->paytoable ? $check->paytoable->phone : 'ثبت نشده'}}
                             </td>
                             <td>{{$check->serial_code}}</td>
                             <td>
