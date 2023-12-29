@@ -861,7 +861,7 @@ class FactorItem extends Model implements AuditableContract
             $factor->type = 'in_factor_item';
             $factor->factor_item_id = $item->id;
             $factor->callcenter_id = auth()->user()->id;
-            $factor->representation_id = auth()->user()->representation_id;
+            $factor->representation_id = auth()->user()->admin_representation_id;
             $factor->center_id = $item->center_id;
             $factor->status = 1;
             $factor->save();

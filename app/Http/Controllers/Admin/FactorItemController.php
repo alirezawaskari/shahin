@@ -568,7 +568,7 @@ class FactorItemController extends Controller {
         $factor->callcenter_id = auth()->user()->id;
         $factor->number_card = $request->input( 'number_card' );
         $factor->payment_code = $request->input( 'payment_code' );
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = $supervisor_factor_item->center_id;
         $factor->status = $request->input( 'payment_type' ) == 'online' ? 0 : 1;
         $factor->expired_at = now()->addDay( 3 );
@@ -893,7 +893,7 @@ class FactorItemController extends Controller {
         $factor->callcenter_id = auth()->user()->id;
         $factor->number_card = $request->input( 'number_card' );
         $factor->payment_code = $request->input( 'payment_code' );
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = $factor_item->center_id;
         $factor->status = 2;
         $factor->created_at = Helper::vertaToMiladi($request->payment_date);
