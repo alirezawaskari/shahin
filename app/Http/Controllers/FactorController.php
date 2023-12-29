@@ -26,10 +26,9 @@ class FactorController extends Controller {
 
         if ( $cart )
         {
-//            $admin_user = User::where( 'level', 'admin' )->where( 'province_id', auth()->user()->province_id )->where( 'admin_representation_id', '==', null )->first();
-             $admin_user = User::where( 'level', 'admin' )->where( 'province_id', auth()->user()->province_id )->where( 'admin_representation_id', '==', 0 )->first();
-
-            $admin_user = $admin_user ? $admin_user : User::where( 'id', 11333 )->first();
+            $representation = $cart[ 'representation' ] == 0 ? null : $cart[ 'representation' ];
+            $admin_user = Helper::getCallcenter(auth()->user()->province_id , $representation);
+            $admin_user_representation = User::find($admin_user)->admin_representation_id;
             $status = auth()->user()->organization_id && auth()->user()->credit >= $cart[ 'total' ][ 'price' ] + $cart[ 'total' ][ 'price_tax' ] ? true : false;
             $factor_items = Factor::setFactorItemsInArray($cart[ 'items' ]);
             $factor = Factor::checkExistSimilarFactor($factor_items , auth()->user());
@@ -42,7 +41,7 @@ class FactorController extends Controller {
                     'tax' => $cart[ 'total' ][ 'price_tax' ],
                     'task_id'=>isset( $cart[ 'task_id' ] ) ? $cart[ 'task_id' ] : null,
                     'count' => $cart[ 'total' ][ 'count' ],
-                    'representation_id' => $cart[ 'representation' ] == 0 ? $admin_user->admin_representation_id : $cart[ 'representation' ],
+                    'representation_id' => $admin_user_representation,
                     'callcenter_id' => $cart[ 'callcenter' ] == 0 ? null : $cart[ 'callcenter' ],
                     'type' => auth()->user()->organization_id ? 'credit' : 'online',
                     'expired_at' => now()->addDay( 3 ),
@@ -152,7 +151,7 @@ class FactorController extends Controller {
      */
     private function createTask($factor ) {
         $user = $factor->user;
-        $callcenter_id = Helper::getCallcenter($user);
+        $callcenter_id = Helper::getCallcenter($user->province_id , $factor->representation_id);
         $task = Callcenter::create( [
             'reg_id' => $user->id,
             'user_id' => $callcenter_id,

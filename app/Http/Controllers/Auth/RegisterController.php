@@ -182,30 +182,17 @@ class RegisterController extends Controller
             //send pass with sms
             //event( new UserActivation( $user, $pass ) );
 
+            $representation =  $request->input( 'representation_id' ) ? $request->input( 'representation_id' ) : null;
             // assign to callcenter
-            $last_user = Callcenterstatus::latest()->first();
-            $admin_users = User::where( 'level', 'admin' )->where( 'province_id', $request->input( 'province_id' ) )->get();
-            foreach ( $admin_users as $u ) {
-                if ( $u->hasRole( 'callcenter' ) ) {
-                    $callcenterusers[] = $u->id;
-                }
-            }
-            if ( !isset( $callcenterusers ) )
- {
-                $admin_users = User::where( 'level', 'admin' )->where( 'id', '!=', $last_user->id )->where( 'province_id', 5 )->get();
-                foreach ( $admin_users as $u ) {
-                    if ( $u->hasRole( 'callcenter' ) ) {
-                        $callcenterusers[] = $u->id;
-                    }
-                }
-            }
-            $id = array_rand( $callcenterusers );
+            $id = Helper::getCallcenter($user->province_id , $representation);
+
             if ( $request->input( 'callcenter_id' ) )
- {
+            {
                 $user_link = User::find( $request->input( 'callcenter_id' ) );
                 $agent = $user_link->hasPermission( 'callcenter' ) ? null : $user_link->id;
                 $callcenter = !$user_link->hasPermission( 'callcenter' ) ? $id : $user_link->id;
             }
+
             $task = Callcenter::create( [
                 'reg_id' => $user->id,
                 'user_id' => isset( $callcenter ) ? $callcenter : $id,
@@ -215,7 +202,7 @@ class RegisterController extends Controller
             ] );
 
             $task->update([
-                'representation_id' => !$task->representation_id &&  $task->callcenter ? $task->callcenter->admin_representation_id : $task->representation_id
+                'representation_id' => $representation ? $representation : $task->callcenter->admin_representation_id,
             ]);
 
 
