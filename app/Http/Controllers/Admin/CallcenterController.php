@@ -714,7 +714,7 @@ class CallcenterController extends Controller
      */
     private function createTask($request , $user , $payment_type)
     {
-        $id = Helper::getCallcenter($user->province_id , null);
+        $id = Helper::getCallcenter($user->province_id , auth()->user()->admin_representation_id);
         $agent = !auth()->user()->hasPermission('callcenter') ? auth()->user()->id : null;
         $callcenter = ($request->request_type == "link" && $payment_type == "online" && !auth()->user()->hasPermission('callcenter')) ? $id : auth()->user()->id;
 
