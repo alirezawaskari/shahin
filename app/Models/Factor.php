@@ -571,7 +571,7 @@ class Factor extends Model implements AuditableContract
                 self::createAttributes($item);
                 self::closeSimilars($item);
                 self::factorTaskChenge($item);
-                self::setFactorItemRepresentation();
+                self::setFactorItemRepresentation($item);
                 $supporter_user = self::setSupporter($item);
                 if ( $supporter_user){
                     self::smsRegisterPaymentSuccess($item,$supporter_user);
