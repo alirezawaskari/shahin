@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AuditCollection;
 use App\Http\Resources\FactorCollection;
 use App\Models\Factor;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Psy\Command\ListCommand\FunctionEnumerator;
@@ -204,9 +205,11 @@ class FactorController extends Controller
         unset($inputs['bill_image']);
 
         if (!is_null($request->support_id)) {
+            $callcenter = User::find($request->support_id);
             $factor->update([
                 'callcenter_id' => $request->support_id,
                 'support_id' => $request->support_id,
+                'representation_id' => $callcenter->admin_representation_id,
             ]);
             $factor->task ? $factor->task->update(['user_id' => $factor->callcenter_id]) : '';
         }
