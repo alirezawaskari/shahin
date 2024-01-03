@@ -387,7 +387,7 @@
                                         <div class="form-check">
                                         <input style="cursor: pointer" type="checkbox" name="sms_close_task" class="form-check-input" id="sms-close-task">
                                         <label style="cursor: pointer"  class="form-check-label" for="sms-close-task">پیامک بسته شدن
-                                            درخواست و محرومیت ۲ ماهه از خدمات لاله به کابر ارسال گردد.</label>
+                                            درخواست و محرومیت 15 روزه از خدمات لاله به کابر ارسال گردد.</label>
                                         </div>
                                         <hr>
                                     </div>
