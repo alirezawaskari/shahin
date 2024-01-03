@@ -58,7 +58,7 @@ class Installmentsms extends Command
         $first_installments = TotalFactorItemInstallment::whereDate('date', Carbon::now()->addDays(5))->where('status', '0')->where('remember', 0)->take(10)->get();
         if (count($first_installments) > 0) {
             foreach ($first_installments as $installment) {
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0) {
+                if ($installment->totalFactorItem && $installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
