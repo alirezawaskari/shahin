@@ -272,7 +272,7 @@ class ResumeController extends Controller
         if ($validation->fails()){
             return response(['status'=>'error','messages'=>$validation->messages()->all()]);
         }
-        $resumes = Resume::where('id' , $request->id);
+        $resumes = Resume::whereIn('id' , $request->id);
         $resumes->update(['representation_id' => $request->end_representation]);
         return response([
             'operator' => true,
