@@ -195,6 +195,7 @@
                         <th><input type="checkbox" id="transfer_checkbox"></th>
                         <th>نام</th>
                         <th>استان</th>
+                        <th>شهر</th>
                         <th>موبایل</th>
                         <th>متن پیامک</th>
                         <th>کالسنتر</th>
@@ -203,7 +204,6 @@
                         <th>موضوع درخواست</th>
                         <th>وضعیت</th>
                         <th>تاریخ</th>
-                        <th>شرایط ویژه</th>
                         <th>اقدام</th>
                     </tr>
                     </thead>
@@ -387,7 +387,7 @@
                                         <div class="form-check">
                                         <input style="cursor: pointer" type="checkbox" name="sms_close_task" class="form-check-input" id="sms-close-task">
                                         <label style="cursor: pointer"  class="form-check-label" for="sms-close-task">پیامک بسته شدن
-                                            درخواست و محرومیت ۲ ماهه از خدمات لاله به کابر ارسال گردد.</label>
+                                            درخواست و محرومیت 15 روزه از خدمات لاله به کابر ارسال گردد.</label>
                                         </div>
                                         <hr>
                                     </div>
@@ -543,7 +543,7 @@
 @stop
 @section('js')
     <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
-    <script src="{{asset('assets/dashboard/js/callcenter.js?v=1.4')}}"></script>
+    <script src="{{asset('assets/dashboard/js/callcenter.js?v=1.5')}}"></script>
     <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.2')}}"></script>
     <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

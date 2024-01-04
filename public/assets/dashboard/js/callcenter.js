@@ -152,6 +152,7 @@ $(document).ready(function () {
                 },
                 {"data": "name.full_name"},
                 {"data": "province.province"},
+                {"data": "city.city"},
                 {"data": "phone"},
                 {"data": "text"},
                 {"data": "user"},
@@ -182,12 +183,6 @@ $(document).ready(function () {
                         return getBadgeOfCallCenterStatus(data.status)
                     }
                 }, {"data": "date"},
-                {
-                    "data": data,
-                    "render": function (data) {
-                        return `<span class="badge badge-red">${data.name.conduct}</span><span class="badge badge-red">${data.name.vip}</span><span class="badge badge-red">${data.name.sos}</span>`
-                    }
-                },
                 {
                     "data": data,
                     "render": function (data) {

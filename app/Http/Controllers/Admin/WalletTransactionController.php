@@ -46,7 +46,7 @@ class WalletTransactionController extends Controller
         $factor->callcenter_id = auth()->user()->id;
         $factor->number_card = $request->input('number_card');
         $factor->payment_code = $request->input('payment_code');
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->status = 5;
         $factor->created_at = Helper::vertaToMiladi(Helper::numberConverter($request->payment_date));
         $factor->save();

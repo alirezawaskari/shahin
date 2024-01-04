@@ -37,17 +37,17 @@
                             <td>{{number_format($check->amount)}}</td>
                             <td>{{verta($check->date)->format('Y/m/d')}}</td>
                             <td>
-                                {{$check->applicantable->name . ' '.$check->applicantable->family}}
+                                {{$check->applicantable ? $check->applicantable->name . ' '.$check->applicantable->family : 'ثبت نشده'}}
                                 <br>
-                                {{$check->applicantable->phone}}
+                                {{$check->applicantable ? $check->applicantable->phone : 'ثبت نشده'}}
                             </td>
-                            <td>{{$check->exportable->name . ' '.$check->exportable->family}}
+                            <td>{{$check->exportable ? $check->exportable->name . ' '.$check->exportable->family : 'ثبت نشده'}}
                                 <br>
-                                {{$check->exportable->phone}}
+                                {{$check->exportable ? $check->exportable->phone : 'ثبت نشده'}}
                             </td>
-                            <td>{{$check->paytoable->name . ' '.$check->paytoable->family}}
+                            <td>{{$check->paytoable ? $check->paytoable->name . ' '.$check->paytoable->family : 'ثبت نشده'}}
                                 <br>
-                                {{$check->paytoable->phone}}
+                                {{$check->paytoable ? $check->paytoable->phone : 'ثبت نشده'}}
                             </td>
                             <td>{{$check->serial_code}}</td>
                             <td>
@@ -101,11 +101,11 @@
                                 @if(true)
                                     @permission('update-check')
                                     <span
-                                        data-applicant="{{$check->applicantable->name.' '.$check->applicantable->family}}"
-                                        data-exporter="{{$check->exportable->name.' '.$check->exportable->family}}"
+                                        data-applicant="{{$check->applicantable ? $check->applicantable->name.' '.$check->applicantable->family : 'ثبت نشده'}}"
+                                        data-exporter="{{$check->exportable ? $check->exportable->name.' '.$check->exportable->family : 'ثبت نشده'}}"
                                         data-check_id="{{$check->id}}" data-serial_code="{{$check->serial_code}}"
                                         data-description="{{$check->histories->count()>0?$check->histories->last()->description :''}}"
-                                        data-pay_to="{{$check->paytoable->name.' '.$check->paytoable->family}}"
+                                        data-pay_to="{{$check->paytoable ? $check->paytoable->name.' '.$check->paytoable->family : 'ثبت نشده'}}"
                                         data-title="{{$check->title}}" data-amount="{{number_format($check->amount)}}"
                                         data-jdate="{{verta($check->date)->format('Y/m/d')}}"
                                         class="btn btn-outline-primary" data-toggle="modal"

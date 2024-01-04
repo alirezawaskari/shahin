@@ -342,7 +342,7 @@
                                 @foreach($changes as $change)
                                 <tr>
                                     <td>{{$i++}}</td>
-                                    <td>{{$change->user->name.' '.$change->user->family}}</td>
+                                    <td>{{$change->user ? $change->user->name.' '.$change->user->family : 'ثبت نشده'}}</td>
                                     <td>{{$change->event}}</td>
                                     <td>
                                         @foreach($change->getModified() as $field => $value)

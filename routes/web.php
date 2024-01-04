@@ -740,6 +740,9 @@ Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 
+//singleWebPage
+Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
+Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
 //organization & representation
 Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
@@ -747,10 +750,6 @@ Route::get('/{representation}', 'RepresentationController@index');
 Route::get('/{representation}/link/{callcenter}', 'RepresentationController@index');
 Route::get('/{representation}/{service}', 'RepresentationController@single');
 Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController@single');
-
-//singleWebPage
-Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
-Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
 
 //Front Ajax
 Route::post('/city/select', 'HomeController@cityselect');
