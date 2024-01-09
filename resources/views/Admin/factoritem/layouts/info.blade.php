@@ -41,7 +41,7 @@
                             <div class="col-12 col-md-4">
                                 <h5> نام : {{ $user['name'].' '.$user['family'] }}</h5>
                                 <h5> شماره تماس : {{ $user['phone'] }}</h5>
-                                <h5> استان : {{ $user->province->name }}</h5>
+                                <h5> استان : {{ $user->province ? $user->province->name : 'ثبت نشده' }}</h5>
                                 <h5> نمایندگی : {{ $factorItem->representation ? $factorItem->representation->representation->fa_name : 'م تهران' }}</h5>
                                 @if($factorItem['supervisor_id'])
                                 <h5> سرپرست : {{ $factorItem->supervisor->factor->user->name.'
