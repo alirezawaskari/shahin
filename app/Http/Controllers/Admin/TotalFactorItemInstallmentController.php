@@ -49,13 +49,7 @@ class TotalFactorItemInstallmentController extends Controller
     public function showCalculate()
     {
         $services = Service::all();
-        if (auth()->user()->center_id) {
-            $product_categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
-        } elseif (auth()->user()->admin_representation) {
-            $product_categories = auth()->user()->admin_representation->categories;
-        } else {
-            $product_categories = Category::where('parent_id', 1)->where('isActive', 1)->get();
-        }
+        $product_categories = Category::where('parent_id', 1)->where('isActive', 1)->get();
         $financial_plans_types = FinancialPlansType::where('status', true)->where('payment_type', '!=', 'cash')->get();
 
 
