@@ -19,7 +19,7 @@ class EmployeeCollection extends ResourceCollection
                     'user_id' => $item->user->id,
                     'name' =>  $item->user->name.' '.$item->user->family,
                     'phone' => $item->user->phone,
-                    'representation' => $item->user->representation ? $item->user->representation->fa_name : 'م تهران',
+                    'representation' => $item->user->admin_representation ? $item->user->admin_representation->fa_name : 'م تهران',
                     'work_title' => $item->work_title ? $item->work_title : 'ثبت نشده',
                     'status' => $item->status,
                     'show_status' => $item->show_status,
