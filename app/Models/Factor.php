@@ -102,20 +102,17 @@ class Factor extends Model implements AuditableContract
     private static function setSupporter(Factor $factor)
     {
        $supporter_id=null;
-        $supporter_user=User::whereHas('roles',function ($query){
+        $supporter_user=User::where('level' , 'admin')->where('admin_representation_id',$factor->representation_id)->whereHas('roles',function ($query){
             $query->where('name','admin-site');
         });
-
-        if (!is_null($factor->user->representation_id)){
-             $supporter_user->where('representation_id',$factor->user->representation_id);
-        }
 
         $supporter_user = $supporter_user->whereHas('employee',function ($query){
             $query->where('status',1);
         })->inRandomOrder()->first();
-        if(!is_null($supporter_user)){
-            $supporter_id=$supporter_user->id;
+        if(is_null($supporter_user)){
+            $supporter_user = User::find(33899);
         }
+        $supporter_id=$supporter_user->id;
         $factor->factorItems()->update([
             'supporter_id'=>$supporter_id
         ]);
