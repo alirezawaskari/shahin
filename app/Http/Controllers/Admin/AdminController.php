@@ -439,6 +439,10 @@ class AdminController extends Controller
 
         /*------------ statistics card --------------*/
         if ($representation) {
+            if(auth()->user()->hasPermission('resume-desktop'))
+            {
+            $item['count_resume'] = Resume::where('representation_id' , auth()->user()->admin_representation->id )->where('card_id' , auth()->user()->roles->first()->card_id)->where('status' , '!=' , 4)->count();
+            }
             $item['count_factor_supplier'] = 0;
             $item['count_factor_mali'] = 0;
             $item['count_factor_superadmin'] = 0;
