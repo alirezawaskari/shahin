@@ -182,6 +182,7 @@
                             <th>پشتیبان - شماره پرونده</th>
                             <th>نوع پرداخت - مبلغ</th>
                             <th>خدمات</th>
+							<th>نمایندگی</th>
                             <th>وضعیت</th>
                             <th>پرداختی</th>
                             <th>اقدام</th>
@@ -239,7 +240,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/factorItem.js')}}"></script>
+<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.1')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

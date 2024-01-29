@@ -204,7 +204,7 @@ class Installmentsms extends Command
         if (count($expire_installments) > 0) {
             foreach ($expire_installments as $installment) {
                 $total_factor_item = $installment->totalFactorItem;
-                if ($total_factor_item->status_mali != 0) {
+                if ($installment->totalFactorItem && $total_factor_item->status_mali != 0) {
                     $extra_pay = TotalFactorItem::getDebtExtraPay($total_factor_item);
                     $expire_installments_price = TotalFactorItem::getExpireInstallments($total_factor_item)->sum('price');
 

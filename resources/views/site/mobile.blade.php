@@ -69,40 +69,5 @@
                 </div>
             </div>
 		</div>
-        <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
-        class="modal fade phone-modal">
-       <div class="modal-dialog" role="document">
-           <div class="modal-content">
-               <div class="modal-header d-flex justify-content-start">
-                   <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                   <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
-               </div>
-               <div class="modal-body">
-{{--                   <div class="container">--}}
-{{--                       <div class="row">--}}
-{{--                           <div class="col-md-12 text-center">--}}
-{{--                               <img width="100%" src="https://cdn.rgb360.ir/thumb/?src=https://cdn.rgb360.ir/2022/03/3550470.jpg&w=500&h=500&zc=3" alt="">--}}
-{{--                           </div>--}}
-{{--                       </div>--}}
-{{--                   </div>--}}
-                   <h6  >
-                       <strong>
-                           به لاله خوش آمدید.
-                       </strong>
-                   </h6>
-{{--                 <p class="text-center font-weight-bolder">هدایای عیدانه بی نظیر لاله با تبریک به مناسبت ایام فرارسیدن سال نو خورشیدی به شما عزیزان با هدایای ویژه لاله ، یک سال رایگان از لاله سنتر 1 ، مجموعه کاملی از تمامی خدمات و کالای اقساطی با حمل و نقل رایگان و مزایای ویژه و VIP استفاده نمائید. </p>--}}
-               </div>
-               <div class="row col-12">
-                   <div class="mb-1 p-1">
-                       <a href="/services" class="btn btn-success">
-                           <i class="fa fa-hand-pointer" style="margin-right: 5px "></i>مشاهده کل خدمات                            </a>
-                   </div>
-                   <div class="mb-1 p-1">
-                       <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </div>
 </div>
 @endsection
