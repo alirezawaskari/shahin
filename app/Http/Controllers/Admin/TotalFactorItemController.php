@@ -782,7 +782,7 @@ class TotalFactorItemController extends Controller
         $factor->callcenter_id = auth()->user()->id;
         $factor->number_card = $request->input('number_card');
         $factor->payment_code = $request->input('payment_code');
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = auth()->user()->center_id;
         $factor->status = $request->input('payment_type') == 'online' ? 0 : 1;
         $factor->expired_at = now()->addDay(3);
@@ -835,7 +835,7 @@ class TotalFactorItemController extends Controller
         $factor->type = 'online';
         $factor->total_factor_item_id = $request->input('id');
         $factor->callcenter_id = auth()->user()->id;
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = $factor_item->center_id;
         $factor->expired_at = now()->addDay(3);
         $factor->save();
@@ -894,7 +894,7 @@ class TotalFactorItemController extends Controller
             $factor->total_factor_item_id = $total_factor_item->id;
             $factor->factor_item_id = isset($factor_item) ? $factor_item : null;
             $factor->callcenter_id = auth()->user()->id;
-            $factor->representation_id = auth()->user()->representation_id;
+            $factor->representation_id = auth()->user()->admin_representation_id;
             $factor->center_id = auth()->user()->center_id;
             $factor->status = $request->payment_type[$i] == 'online' ? 0 : 1;
             $factor->number_card = $request->number_card[$i];
@@ -976,7 +976,7 @@ class TotalFactorItemController extends Controller
         $factor->total_factor_item_id = $total_factor_item->id;
         $factor->factor_item_id = isset($factor_item) ? $factor_item : null;
         $factor->callcenter_id = auth()->user()->id;
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->status = $request->payment_type == 'online' ? 0 : 1;
         $factor->number_card = $request->number_card;
         $factor->payment_code = $request->payment_code;
@@ -1047,7 +1047,7 @@ class TotalFactorItemController extends Controller
         $factor->callcenter_id = auth()->user()->id;
         $factor->number_card = $request->input('number_card');
         $factor->payment_code = $request->input('payment_code');
-        $factor->representation_id = auth()->user()->representation_id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->status = 2;
         $factor->created_at = Helper::vertaToMiladi($request->payment_date);
         $factor->save();

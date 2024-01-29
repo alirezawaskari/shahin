@@ -60,6 +60,13 @@
                                         @endif
                                     </div>
                                     <div class="col-12 col-md-6">
+                                        <select class="form-control my-2" type="int" name="gender" id="gender" required>
+                                            <option value="" disabled selected>جنسیت</option>
+                                            <option value="0">آقا</option>
+                                            <option value="1">خانم</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6">
                                         <input class="form-control my-2 phone" type="text" id="user_service_phone" name="phone" required
                                                placeholder="شماره موبایل" value="{{ old('phone') }}">
                                         @if ($errors->has('phone'))

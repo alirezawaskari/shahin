@@ -41,13 +41,15 @@
                             <div class="col-12 col-md-4">
                                 <h5> نام : {{ $user['name'].' '.$user['family'] }}</h5>
                                 <h5> شماره تماس : {{ $user['phone'] }}</h5>
-                                <h5> نوع خدمت | دسته بندی : {{ $factorItem['factoritemable']->title }}</h5>
+                                <h5> استان : {{ $user->province->name }}</h5>
+                                <h5> نمایندگی : {{ $factorItem->representation ? $factorItem->representation->representation->fa_name : 'م تهران' }}</h5>
                                 @if($factorItem['supervisor_id'])
                                 <h5> سرپرست : {{ $factorItem->supervisor->factor->user->name.'
                                     '.$factorItem->supervisor->factor->user->family}}</h5>
                                 @endif
                             </div>
                             <div class="col-12 col-md-5">
+                                <h5> نوع خدمت | دسته بندی : {{ $factorItem['factoritemable']->title }}</h5>
                                 <h5> وضعیت پرونده : {{ $factorItem['status_factor_text'] }}</h5>
                                 <h5> شماره پرونده اجرایی  : {{ $factorItem['file_number'] }}</h5>
                                 <h5> مرکز : {{ $factorItem['center'] ? $factorItem['center']->title : 'بدون مرکز' }}</h5>

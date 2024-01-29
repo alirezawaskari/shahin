@@ -571,6 +571,7 @@ class Factor extends Model implements AuditableContract
                 self::createAttributes($item);
                 self::closeSimilars($item);
                 self::factorTaskChenge($item);
+                self::setFactorItemRepresentation($item);
                 $supporter_user = self::setSupporter($item);
                 if ( $supporter_user){
                     self::smsRegisterPaymentSuccess($item,$supporter_user);
@@ -647,6 +648,19 @@ class Factor extends Model implements AuditableContract
         if($item->task)
         {
             $item->task->update(['user_id' => $item->callcenter_id , 'status' => 3]);
+        }
+    }
+    /**
+     * @param Factor $item
+     * @return void
+     */
+    public static function setFactorItemRepresentation(Factor $item)
+    {
+        if($item->representation && $item->factorItems)
+        {
+            $item->factorItems->map(function ($item) {
+                FactorItem::createRepresentation($item , $item->factor->representation_id);
+            });
         }
     }
     /**

@@ -23,6 +23,7 @@ class CallcenterCollection extends ResourceCollection
                     'id' => $item->id,
                     'name' => $item->type == 1 ? $this->checkUser($item->sms->sender_number) : $this->checkUser($item->register->phone),
                     'province' => $item->type == 1 ? $this->getProvince($item->sms->sender_number) : $this->getProvince($item->register->phone),
+                    'city' => $item->type == 1 ? $this->getCity($item->sms->sender_number) : $this->getCity($item->register->phone),
                     'phone' => $item->type == 1 ? $item->sms->sender_number : $item->register->phone,
                     'text' => $item->type == 1 ? $item->sms->body : 'ندارد',
                     'user' => $item->callcenter ? $item->callcenter->family : 'سایت',
@@ -53,9 +54,6 @@ class CallcenterCollection extends ResourceCollection
                 'province_id' => $user->province_id,
                 'city_id' => $user->city_id,
                 'register_status' => true,
-                'vip' => $user->vip && $user->vip->type == 'VIP' ? 'ثروتمند/توانمند' : '',
-                'sos' => $user->vip && $user->vip->type == 'SOS' ? 'فقیر/کم ‌توان' : '',
-                'conduct' => $this->getConductTitle($user),
                 'sex' => $user->sex
             ];
         } else {
@@ -66,9 +64,6 @@ class CallcenterCollection extends ResourceCollection
                 'province_id' => 'ثبت نشده',
                 'city_id' => 'ثبت نشده',
                 'register_status' => false,
-                'vip' => '',
-                'sos' => '',
-                'conduct' => '',
                 'sex' => '',
             ];
         }
@@ -88,6 +83,25 @@ class CallcenterCollection extends ResourceCollection
         } else {
             return [
                 'province' => 'ثبت نشده',
+                'register_status' => false
+            ];
+        }
+    }
+    /**
+     * @param mixed $phone
+     * @return array
+     */
+    private function getCity($phone)
+    {
+        $user = User::wherePhone($phone)->first();
+        if ($user) {
+            return [
+                'city' => isset($user->city) ? $user->city->name : 'ثبت نشده',
+                'register_status' => true,
+            ];
+        } else {
+            return [
+                'city' => 'ثبت نشده',
                 'register_status' => false
             ];
         }

@@ -45,17 +45,17 @@ class CheckCollection extends ResourceCollection
                     'pay_to' => $item->pay_to,
                     'exporter' => $item->exporter,
 
-                    'exporter_fullname'=>$item->exportable->name .' '.$item->exportable->family,
-                    'exporter_id'=>$item->exportable->id,
-                    'exporter_phone'=>$item->exportable->phone,
+                    'exporter_fullname'=>$item->exportable ? $item->exportable->name .' '.$item->exportable->family : 'ثبت نشده',
+                    'exporter_id'=>$item->exportable ? $item->exportable->id : 'ثبت نشده',
+                    'exporter_phone'=>$item->exportable ? $item->exportable->phone : 'ثبت نشده',
 
-                    'applicant_fullname'=>$item->applicantable->name .' '.$item->applicantable->family,
-                    'applicant_id'=>$item->applicantable->id,
-                    'applicant_phone'=>$item->applicantable->phone,
+                    'applicant_fullname'=>$item->applicantable ? $item->applicantable->name .' '.$item->applicantable->family : 'ثبت نشده',
+                    'applicant_id'=>$item->applicantable ? $item->applicantable->id : 'ثبت نشده',
+                    'applicant_phone'=>$item->applicantable ? $item->applicantable->phone : 'ثبت نشده',
 
-                    'pay_to_fullname'=>$item->paytoable->name .' '.$item->paytoable->family,
-                    'pay_to_id'=>$item->paytoable->id,
-                    'pay_to_phone'=>$item->paytoable->phone,
+                    'pay_to_fullname'=>$item->paytoable ? $item->paytoable->name .' '.$item->paytoable->family : 'ثبت نشده',
+                    'pay_to_id'=>$item->paytoable ? $item->paytoable->id : 'ثبت نشده',
+                    'pay_to_phone'=>$item->paytoable ? $item->paytoable->phone : 'ثبت نشده',
 
                     'description' => !is_null($last_history)?$last_history->description:'',
                     'title' => $item->title,

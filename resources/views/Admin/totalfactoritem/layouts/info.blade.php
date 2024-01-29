@@ -56,6 +56,7 @@
             <div class="col-12 col-md-5">
                 <h5> نام : {{ $user['name'] . ' ' . $user['family'] }}</h5>
                 <h5> شماره تماس : {{ $user['phone'] }}</h5>
+                <h5> استان : {{ $user->province->name }}</h5>
                 <h5> نوع خدمت | دسته بندی : {{ $item['factoritemable'] }}</h5>
                 <h5> تاریخ تشکیل پرونده: {{ verta($item['approval_date'])->format('Y/m/d') }} </h5>
             </div>

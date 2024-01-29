@@ -75,36 +75,11 @@ class CheckController extends Controller
             'date' => Helper::vertaToMiladi($request->date)
         ]);
         //update
-        $check->update([
-            'amount' => $request->amount,
-            'serial_code' => $request->serial_code,
-            'date' => $request->date,
-            'title' => $request->title,
-        ]);
+        $this->updateCheckDetail($check, $request);
         //update history
-        if ($check->histories()->exists() && $request->description != $check->histories->last()->description)
-            $check->histories()->create([
-                'description' => $request->description,
-            ]);
+        $this->updateCheckHistory($check, $request);
         //upload check images
-        if ($request->file('check_front_image')) {
-            $front_image = File::where('title', 'front')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
-
-            if (!is_null($front_image)) {
-                Helper::deleteImage(public_path($front_image->path));
-                $front_image->delete();
-            }
-            $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
-
-        }
-        if ($request->file('check_back_image')) {
-            $back_image = File::where('title', 'back')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
-            if (!is_null($back_image)) {
-                Helper::deleteImage(public_path($back_image->path));
-                $back_image->delete();
-            }
-            $this->uploadCheckBackImage($check, $request->file('check_back_image'));
-        }
+        $this->uploadCheckImages($request, $check);
         return response(['status' => 'success', 'data' => $check]);
 
     }
@@ -165,28 +140,10 @@ class CheckController extends Controller
             'date' => Helper::vertaToMiladi($request->date)
         ]);
         //store
-        $check = Check::create([
-            'amount' => $request->amount,
-            'creator_id' => auth()->user()->id,
-            'exportable_id' => $exporter->id,
-            'exportable_type' => $exporter::class,
-            'applicantable_id' => $applicant->id,
-            'applicantable_type' => $applicant::class,
-            'paytoable_id' => $pay_to->id,
-            'paytoable_type' => $pay_to::class,
-            'serial_code' => $request->serial_code,
-            'date' => $request->date,
-            'title' => $request->title,
-            'status' => 0,
-            'checkable_id' => $total_factor_item->id,
-            'checkable_type' => get_class($total_factor_item)
-        ]);
+        $check = $this->storeCheck($request, $exporter, $applicant, $pay_to, $total_factor_item);
 
         //store history
-        $check->histories()->create([
-            'description' => $request->description,
-            'user_id' => auth()->user()->id
-        ]);
+        $this->storeCheckHistory($check, $request);
 
         //upload images
         if ($request->file('check_front_image')) {
@@ -496,5 +453,98 @@ class CheckController extends Controller
             }
         }
         return Check::all();
+    }
+
+    /**
+     * @param Request $request
+     * @param mixed $exporter
+     * @param $applicant
+     * @param mixed $pay_to
+     * @param $total_factor_item
+     * @return mixed
+     */
+    private function storeCheck(Request $request, mixed $exporter, $applicant, mixed $pay_to, $total_factor_item)
+    {
+        $check = Check::create([
+            'amount' => $request->amount,
+            'creator_id' => auth()->user()->id,
+            'exportable_id' => $exporter->id,
+            'exportable_type' => $exporter::class,
+            'applicantable_id' => $applicant->id,
+            'applicantable_type' => $applicant::class,
+            'paytoable_id' => $pay_to->id,
+            'paytoable_type' => $pay_to::class,
+            'serial_code' => $request->serial_code,
+            'date' => $request->date,
+            'title' => $request->title,
+            'status' => 0,
+            'checkable_id' => $total_factor_item->id,
+            'checkable_type' => get_class($total_factor_item)
+        ]);
+        return $check;
+    }
+
+    /**
+     * @param mixed $check
+     * @param Request $request
+     */
+    private function storeCheckHistory(mixed $check, Request $request): void
+    {
+        $check->histories()->create([
+            'description' => $request->description,
+            'user_id' => auth()->user()->id
+        ]);
+    }
+
+    /**
+     * @param Check $check
+     * @param Request $request
+     */
+    private function updateCheckDetail(Check $check, Request $request): void
+    {
+        $check->update([
+            'amount' => $request->amount,
+            'serial_code' => $request->serial_code,
+            'date' => $request->date,
+            'title' => $request->title,
+        ]);
+    }
+
+    /**
+     * @param Check $check
+     * @param Request $request
+     */
+    private function updateCheckHistory(Check $check, Request $request): void
+    {
+        if ($check->histories()->exists() && $request->description != $check->histories->last()->description)
+            $check->histories()->create([
+                'description' => $request->description,
+            ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Check $check
+     */
+    private function uploadCheckImages(Request $request, Check $check): void
+    {
+        if ($request->file('check_front_image')) {
+            $front_image = File::where('title', 'front')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
+
+            if (!is_null($front_image)) {
+                Helper::deleteImage(public_path($front_image->path));
+                $front_image->delete();
+            }
+            $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
+
+        }
+        if ($request->file('check_back_image')) {
+            $back_image = File::where('title', 'back')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
+            if (!is_null($back_image)) {
+                Helper::deleteImage(public_path($back_image->path));
+                $back_image->delete();
+            }
+            $this->uploadCheckBackImage($check, $request->file('check_back_image'));
+        }
     }
 }

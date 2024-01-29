@@ -41,6 +41,9 @@ Route::group([], function () {
     Route::get('/l/{link}', [\App\Http\Controllers\Admin\ShortLinkController::class,'redirect']);
     Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
 
+    Route::get('/documentShare', function () {
+        return view('site.document');
+    });
     Route::get('/lagestic', function () {
         return redirect('/singleWebPage/logistic');
     });
@@ -110,7 +113,7 @@ Route::group([], function () {
 
     Route::get('/run-query', function () {
 
-        ini_set ('max_execution_time',  -1);
+       // ini_set ('max_execution_time',  -1);
 
         Artisan::call('command:query');
         return redirect()->back()->with([
@@ -265,6 +268,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/desktop', 'FactorItemController@desktop')->name('factorItem.desktop');
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');
     Route::get('/factorItem/filter' , 'FactorItemController@filter');
+    Route::post('/factorItem/transfer' , 'FactorItemController@transfer');
     Route::post('/factorItem/update-information', 'FactorItemController@updateInformation')->name('factorItem.information');
     Route::post('/factorItem/create-factor', 'FactorItemController@createFactor')->name('factorItem.createFactor');
     Route::post('/factorItem/update-calculate', 'FactorItemController@updateCalculate')->name('factorItem.calculate');
@@ -736,6 +740,9 @@ Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 
+//singleWebPage
+Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
+Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
 //organization & representation
 Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
@@ -743,10 +750,6 @@ Route::get('/{representation}', 'RepresentationController@index');
 Route::get('/{representation}/link/{callcenter}', 'RepresentationController@index');
 Route::get('/{representation}/{service}', 'RepresentationController@single');
 Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController@single');
-
-//singleWebPage
-Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
-Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
 
 //Front Ajax
 Route::post('/city/select', 'HomeController@cityselect');

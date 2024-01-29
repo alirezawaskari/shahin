@@ -10,7 +10,6 @@ use App\Models\FactorItem;
 use App\Models\FactorItemInstallment;
 use App\Models\TotalFactorItem;
 use App\Models\TotalFactorItemInstallment;
-use CreateTotalFactorItemContractSettlement;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +45,17 @@ class RunQuery extends Command {
     */
 
     public function handle() {
+        $factors = Factor::where('representation_id' , '!=', null)->where('status' , 1)->get();
+        foreach($factors as $factor)
+        {
+            if($factor->factorItems)
+            {
+                foreach($factor->factorItems as $item)
+                {
+                    $item->representation()->firstOrCreate(['representation_id' => $factor->representation_id]);
+                }
+            }
+        }
         /*
         1-@  add total_factor_item_id integer field to the factors table //nullable
         2-@ convert factor_item_id to factor_item_attribute_able_id & factor_item_attribute_able_type in factor_item_attributes table
@@ -72,6 +82,7 @@ class RunQuery extends Command {
         23-@ import log_messages table
         */
 
+
         // $total_factor_items = TotalFactorItem::whereNotNull('contract_values')->get();
         // foreach($total_factor_items as $total_factor_item)
         // {
@@ -89,79 +100,78 @@ class RunQuery extends Command {
         // }
         //add position to the contractForm table
         ContractForm::where('position' , 0)->update(['position' => DB::raw("id")]);
-        dd('success');
         //convert App\Service to App\Models\Service
-        Center::where('centerable_type' , 'App\Service')->update(['centerable_type' => 'App\Models\Service']);
-        FactorItem::whereNull('factoritemable_type' )->update(['factoritemable_type' => 'App\Models\Service']);
+        // Center::where('centerable_type' , 'App\Service')->update(['centerable_type' => 'App\Models\Service']);
+        // FactorItem::whereNull('factoritemable_type' )->update(['factoritemable_type' => 'App\Models\Service']);
 
         //convert App\BeforeForm to App\Models\BeforeForm
-        BeforeFormItem::where('beforeformitemable_type' , 'App\BeforeForm')->update(['beforeformitemable_type' => 'App\Models\BeforeForm']);
+        // BeforeFormItem::where('beforeformitemable_type' , 'App\BeforeForm')->update(['beforeformitemable_type' => 'App\Models\BeforeForm']);
         //fill total_factor_item table for installment factor_items
-        $factor_items = FactorItem::where( 'type', 1 )->where( 'total_factor_item_id', null )->get();
-        foreach ( $factor_items as $factor_item ) {
+        // $factor_items = FactorItem::where( 'type', 1 )->where( 'total_factor_item_id', null )->get();
+        // foreach ( $factor_items as $factor_item ) {
 
-            if($factor_item->id == $factor_item->supervisor_id)
-            {
-                $total_factor_item = TotalFactorItem::create( [
-                    'factor_id' => isset( $factor_item->factor ) ? $factor_item->factor->id : 1,
-                    'supporter_id' => $factor_item->supporter_id,
-                    'status_mali' => $factor_item->status_mali,
-                    'contract_values' => $factor_item->contract_values,
-                    'factor_values' => $factor_item->factor_values,
-                    'credit' => $factor_item->credit,
-                    'guarantee_type' => $factor_item->guarantee_type,
-                    'total_price' => $factor_item->total_price,
-                    'installments_num' => $factor_item->installments_num,
-                    'total_factor_item_status_id' => $factor_item->status_factor,
-                    'percent_fines' => $factor_item->percent_fines,
-                    'confirm' => $factor_item->confirm,
-                    'file_number_mali' => $factor_item->file_number_mali,
-                    'remember' => $factor_item->remember,
-                    'approval_date' => $factor_item->approval_date,
-                ] );
-                $total_factor_item->property()->create([
-                    'prepayment_price'=>$factor_item->property()->exists()?$factor_item->property->prepayment_price:0,
-                    'prepayment_debt'=>$factor_item->property()->exists()?$factor_item->property->prepayment_debt:0,
-                    'prepayment_count'=>$factor_item->property()->exists()?$factor_item->property->prepayment_count:0,
-                    'prepayment_num'=>$factor_item->property()->exists()?$factor_item->property->prepayment_num:0,
-                    'price_difference_installment'=>$factor_item->property()->exists()?$factor_item->property->price_difference_installment:0,
-                    'price_difference_total'=>$factor_item->property()->exists()?$factor_item->property->price_difference_total:0,
-                    'price_difference_debt'=>$factor_item->property()->exists()?$factor_item->property->price_difference_debt:0,
-                ]);
-                $factor_item->update( [ 'total_factor_item_id' => $total_factor_item->id ] );
-            }
-        }
+        //     if($factor_item->id == $factor_item->supervisor_id)
+        //     {
+        //         $total_factor_item = TotalFactorItem::create( [
+        //             'factor_id' => isset( $factor_item->factor ) ? $factor_item->factor->id : 1,
+        //             'supporter_id' => $factor_item->supporter_id,
+        //             'status_mali' => $factor_item->status_mali,
+        //             'contract_values' => $factor_item->contract_values,
+        //             'factor_values' => $factor_item->factor_values,
+        //             'credit' => $factor_item->credit,
+        //             'guarantee_type' => $factor_item->guarantee_type,
+        //             'total_price' => $factor_item->total_price,
+        //             'installments_num' => $factor_item->installments_num,
+        //             'total_factor_item_status_id' => $factor_item->status_factor,
+        //             'percent_fines' => $factor_item->percent_fines,
+        //             'confirm' => $factor_item->confirm,
+        //             'file_number_mali' => $factor_item->file_number_mali,
+        //             'remember' => $factor_item->remember,
+        //             'approval_date' => $factor_item->approval_date,
+        //         ] );
+        //         $total_factor_item->property()->create([
+        //             'prepayment_price'=>$factor_item->property()->exists()?$factor_item->property->prepayment_price:0,
+        //             'prepayment_debt'=>$factor_item->property()->exists()?$factor_item->property->prepayment_debt:0,
+        //             'prepayment_count'=>$factor_item->property()->exists()?$factor_item->property->prepayment_count:0,
+        //             'prepayment_num'=>$factor_item->property()->exists()?$factor_item->property->prepayment_num:0,
+        //             'price_difference_installment'=>$factor_item->property()->exists()?$factor_item->property->price_difference_installment:0,
+        //             'price_difference_total'=>$factor_item->property()->exists()?$factor_item->property->price_difference_total:0,
+        //             'price_difference_debt'=>$factor_item->property()->exists()?$factor_item->property->price_difference_debt:0,
+        //         ]);
+        //         $factor_item->update( [ 'total_factor_item_id' => $total_factor_item->id ] );
+        //     }
+        // }
 
         //create total_factor_item_installment table
         //fill total_factor_item_installment table by data factor_item_installment table
-        $factor_item_insallments = FactorItemInstallment::where('check' , false)->get();
-        foreach ( $factor_item_insallments as $factor_item_insallment ) {
-            if ( isset( $factor_item_insallment->factoritem->total_factor_item_id) ) {
-                TotalFactorItemInstallment::create( [
-                    'price' => $factor_item_insallment->price,
-                    'level' => $factor_item_insallment->level,
-                    'factor_id' => $factor_item_insallment->factor_id,
-                    'total_factor_item_id' => $factor_item_insallment->factoritem->total_factor_item_id,
-                    'date' => $factor_item_insallment->date,
-                    'pay_date' => $factor_item_insallment->pay_date,
-                    'status' => $factor_item_insallment->status,
-                    'resnumber' => $factor_item_insallment->resnumber,
-                    'remember' => $factor_item_insallment->remember,
-                ] );
-                $factor_item_insallment->update(['check' => true]);
-            }
-        }
+        // $factor_item_insallments = FactorItemInstallment::where('check' , false)->get();
+        // foreach ( $factor_item_insallments as $factor_item_insallment ) {
+        //     if ( isset( $factor_item_insallment->factoritem->total_factor_item_id) ) {
+        //         TotalFactorItemInstallment::create( [
+        //             'price' => $factor_item_insallment->price,
+        //             'level' => $factor_item_insallment->level,
+        //             'factor_id' => $factor_item_insallment->factor_id,
+        //             'total_factor_item_id' => $factor_item_insallment->factoritem->total_factor_item_id,
+        //             'date' => $factor_item_insallment->date,
+        //             'pay_date' => $factor_item_insallment->pay_date,
+        //             'status' => $factor_item_insallment->status,
+        //             'resnumber' => $factor_item_insallment->resnumber,
+        //             'remember' => $factor_item_insallment->remember,
+        //         ] );
+        //         $factor_item_insallment->update(['check' => true]);
+        //     }
+        // }
 
         //fill total_factor_item_id in factors table
-        $factors = Factor::where( 'total_factor_item_id', null )->where( 'factor_item_id', '!=', null )->get();
-        foreach ( $factors as $factor ) {
-            if ( $factor->factorItem && $factor->factorItem->type )
-            {
-                $factor->update( [
-                    'total_factor_item_id' => $factor->factorItem->total_factor_item_id,
-                ] );
-            }
-        }
+        // $factors = Factor::where( 'total_factor_item_id', null )->where( 'factor_item_id', '!=', null )->get();
+        // foreach ( $factors as $factor ) {
+        //     if ( $factor->factorItem && $factor->factorItem->type )
+        //     {
+        //         $factor->update( [
+        //             'total_factor_item_id' => $factor->factorItem->total_factor_item_id,
+        //         ] );
+        //     }
+        // }
 
         // $factor_items = FactorItem::where( 'service_id', 1 )->where( 'type', 1 )->where( 'is_credit', false )->get();
         // foreach ( $factor_items as $factor_item ) {
@@ -208,7 +218,7 @@ class RunQuery extends Command {
         //     }
         // }
 
-        // return 'true';
+
 
     }
 

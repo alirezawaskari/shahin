@@ -242,20 +242,33 @@ class Helper {
      * @param $province
      * @return mixed
      */
-    public static function getCallcenter($province ) {
-        $admin_user_id = User::where( 'level', 'admin' )->where( 'province_id', $province )->whereHas('roles',function ($query){
-            $query->where('name','callcenter');
-        })->with('tasks')->get()->sortBy(function($admin_users)
+    public static function getCallcenter($province , $representation) {
+        if($representation)
         {
-            return $admin_users->tasks->count();
-        })->pluck('id')->first();
+            $admin_user_id = User::where( 'level', 'admin' )->where('admin_representation_id' , $representation)->where( 'province_id', $province )->whereHas('roles',function ($query){
+                $query->where('name','callcenter');
+            })->with('tasks')->get()->sortBy(function($admin_users)
+            {
+                return $admin_users->tasks->count();
+            })->pluck('id')->first();
+        }
+        else
+        {
+            $admin_user_id = User::where( 'level', 'admin' )->where( 'province_id', $province )->whereHas('roles',function ($query){
+                $query->where('name','callcenter');
+            })->with('tasks')->get()->sortBy(function($admin_users)
+            {
+                return $admin_users->tasks->count();
+            })->pluck('id')->first();
+        }
+
          if (is_null($admin_user_id)){
-             $admin_user_id = User::where( 'level', 'admin' )->where( 'province_id', 5 )->whereHas('roles',function ($query){
-                 $query->where('name','callcenter');
-             })->with('tasks')->get()->sortBy(function($admin_users)
-             {
-                 return $admin_users->tasks->count();
-             })->pluck('id')->first();
+            $admin_user_id = User::where( 'level', 'admin' )->where( 'province_id', 5 )->whereHas('roles',function ($query){
+                $query->where('name','callcenter');
+            })->with('tasks')->get()->sortBy(function($admin_users)
+            {
+                return $admin_users->tasks->count();
+            })->pluck('id')->first();
          }
          return $admin_user_id;
     }
