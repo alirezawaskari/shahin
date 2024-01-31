@@ -29,7 +29,7 @@ class ServiceController extends Controller
      */
     public function single(Service $service , User $callcenter , Callcenter $task, Factor $factor=null)
     {
-        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->latest()->get()->unique();
         $questions=$service->askedQuestions;
 
         //$callcenter=$task->callcenter;

@@ -10,6 +10,7 @@ use App\Models\Factor;
 use App\Models\FinancialPlansType;
 use App\Models\Service;
 use App\Models\User;
+use App\Events\sendlinkFactor;
 use Carbon\Carbon;
 use Doctrine\DBAL\Exception\DatabaseObjectExistsException;
 use Illuminate\Http\Request;
@@ -78,7 +79,7 @@ class FactorController extends Controller {
             }
 
             //event( new fastserviceCallcenter( auth()->user(), $factor, auth()->user()->family, 'online' ) );
-            //$factor->status ? '' : event( new sendlinkFactor( auth()->user(), $factor, auth()->user()->family, 'online' ) );
+            $factor->status ? '' : event( new sendlinkFactor( auth()->user(), $factor, auth()->user()->family, 'online' ) );
 
             session()->forget( 'cart' );
 

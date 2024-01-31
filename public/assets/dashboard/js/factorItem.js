@@ -535,6 +535,9 @@ $(document).ready(function () {
                     "data": "items"
                 },
                 {
+                    "data": "representation"
+                },
+                {
                     "data": data,
                     "render": function (data) {
                         switch (data.status) {

@@ -706,6 +706,10 @@ Route::post('/payPrepayment', 'PaymentController@payPrepayment')->name('payPrepa
 Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
+//employee
+Route::get('/employeeRegister', 'employeeController@showRegistrationForm');
+Route::post('/employeeRegister', 'employeeController@register');
+Route::get('/employeeRegister/check-user-is-register','employeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
 //Factor
