@@ -637,7 +637,7 @@ class FactorItem extends Model implements AuditableContract
     /**
      * @param FactorItem $item
      * @return int //price
-     */
+     */   
     public static function getPriceDifferencePaid(FactorItem $item)
     {
         //get total price_difference price paid
@@ -662,7 +662,9 @@ class FactorItem extends Model implements AuditableContract
      */
     public static function checkCredit(FactorItem $item , $price)
     {
-        $prepayment_paid = ($item->type ? TotalFactorItem::getPrepaymentPaid($item->totalFactorItem) : self::getPrepaymentPaid($item)) - $item->discount;
+        $sessions_sum_price = self::getSessionsSumPrice($item , 'all');
+        $financial_plans_type_discount_price = $item->financialPlansType ? ($item->financialPlansType->discount_percent/100) * $sessions_sum_price : 0;
+        $prepayment_paid = ($item->type ? TotalFactorItem::getPrepaymentPaid($item->totalFactorItem) : self::getPrepaymentPaid($item)) - $item->discount + $financial_plans_type_discount_price;
         $sessions_sum_price = self::getSessionsSumPrice($item , 1);
         if($item->type && $item->totalFactorItem->confirm)
         {
@@ -710,14 +712,14 @@ class FactorItem extends Model implements AuditableContract
     {
         $sessions_sum_price = self::getSessionsSumPrice($item , 'all');
         $prepayment_debt = isset($item->property->prepayment_debt) ? $item->property->prepayment_debt : 0;
-        $prepayment_paid = self::getPrepaymentPaid($item) - $item->discount;
+        $financial_plans_type_discount_price = $item->financialPlansType ? ($item->financialPlansType->discount_percent/100) * $sessions_sum_price : 0;
+        $prepayment_paid = self::getPrepaymentPaid($item) - $item->discount + $financial_plans_type_discount_price;
         $debt = 0;
         $total_debt_items = [];
         if($item->type && $item->confirm)
         {
             $price_difference_paid =isset($item->property->price_difference_total) ? ($item->property->price_difference_total - $item->property->price_difference_debt ) : 0;
             $debt = $debt + TotalFactorItem::getExpireInstallments($item->totalFactorItem)->sum('price');
-            //$debt = $debt + (($sessions_sum_price - ($price_difference_paid + $item->total_price + $item->discount)) > 0 ? $sessions_sum_price - ($price_difference_paid + $item->total_price + $item->discount) : 0);
             $debt = $debt + (isset($item->property->price_difference_debt) ? $item->property->price_difference_debt : 0);
             $debt = $debt + $prepayment_debt;
             $total_debt_items['expire_installments_price'] = TotalFactorItem::getExpireInstallments($item->totalFactorItem)->sum('price');

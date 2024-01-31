@@ -130,8 +130,10 @@ class TotalFactorItem extends Model implements AuditableContract
             $query->where('status', 1);
         });
         if (auth()->user()->admin_representation) {
-            $query->whereHas('factor', function ($query){
-                $query->where('representation_id', auth()->user()->admin_representation_id);
+            $query->whereHas('factorItems', function ($query){
+                $query->whereHas('representation', function ($query){
+                    $query->where('representation_id', auth()->user()->admin_representation_id);
+                });
             });
         }
         if (isset($name) && trim($name) != '') {

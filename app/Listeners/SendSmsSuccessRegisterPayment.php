@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Classes\External\IranSms;
 use App\Events\smsNotAnswer;
 use App\Events\smsSuccessRegisterPayment;
-
+use App\Models\Factor;
 
 class SendSmsSuccessRegisterPayment
 {
@@ -29,16 +29,20 @@ class SendSmsSuccessRegisterPayment
     public function handle(smsSuccessRegisterPayment $event)
     {
         $userMobile = $event->factor->user->phone;
-        $supporter_family = $event->supporter_user->family;
-        $factor_resnumber = $event->factor->resnumber;
         if (isset($userMobile)) {
             $body = [
-                'param1' => $factor_resnumber,
-                'param2' => $supporter_family,
+                'param1' => self::getUploadDocumentLink($event->factor->resnumber),
+                'param2' => $event->supporter_user->family,
+                'param3' => $event->supporter_user->phone,
 
             ];
             IranSms::sendSingleSms('sendsmssuccessregisterpayment',$userMobile,$body);
 
         }
+    }
+    private function getUploadDocumentLink($resnumber)
+    {
+        $link = 'lalecard.ir/pf/'.$resnumber;
+        return $link;
     }
 }
