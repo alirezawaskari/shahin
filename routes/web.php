@@ -123,6 +123,7 @@ Route::group([], function () {
 });
 
 //Admin Routes
+Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
 
@@ -132,7 +133,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
-    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
@@ -707,9 +707,9 @@ Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee
-Route::get('/employeeRegister', 'employeeController@showRegistrationForm');
-Route::post('/employeeRegister', 'employeeController@register');
-Route::get('/employeeRegister/check-user-is-register','employeeController@checkUserIsRegister');
+Route::get('/employeeRegister', 'EmployeeController@showRegistrationForm')->name('employee.register');
+Route::post('/employeeRegister', 'EmployeeController@register');
+Route::get('/employeeRegister/check-user-is-register','EmployeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
 //Factor

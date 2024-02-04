@@ -451,7 +451,7 @@ class UserController extends AdminController
      * @param Request $request
      * @return void
      */
-    public function createUser(Request $request)
+    public static function createUser(Request $request)
     {
         $validate= Validator::make($request->all(), [
             'phone' => 'required|regex:/(09)[0-9]{9}/|digits:11',

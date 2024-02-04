@@ -22,7 +22,29 @@
 
                             <form id="user_register_form" class="mt-3" method="POST" action="/employeeRegister">
                                 @csrf
-                                
+
+                                <div class="form-group position-relative box">
+                                    <label for="name" class="position-absolute"><i class="far fa-user"></i></label>
+                                    <input id="name" type="text"
+                                           class="border-0 py-2 px-2 w-100 pr-4"
+                                           name="name" value="{{ old('name') }}" required autofocus placeholder="نام">
+                                </div>
+                                <div class="form-group position-relative box">
+                                    <label for="family" class="position-absolute"><i class="far fa-user"></i></label>
+                                    <input id="family" type="text"
+                                           class="border-0 py-2 px-2 w-100 pr-4"
+                                           name="family" value="{{ old('family') }}" required autofocus
+                                           placeholder="نام خانوادگی">
+                                </div>
+                                <div class="form-group position-relative box">
+                                    <label for="gender" class="position-absolute"><i class="fas fa-user"></i></label>
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                            name="gender" id="gender" required>
+                                        <option value="" disabled selected>جنسیت</option>
+                                        <option value="0">آقا</option>
+                                        <option value="1">خانم</option>
+                                    </select>
+                                </div>
                                 <div class="form-group position-relative box">
                                     <label for="phone" class="position-absolute"><i
                                             class="fas fa-mobile-alt"></i></label>
@@ -32,6 +54,27 @@
                                            placeholder="شماره موبایل">
                                 </div>
 
+                                <div class="form-group position-relative box">
+                                    <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                            name="province_id" id="province_id" required>
+                                        <option value="">انتخاب استان</option>
+                                        @foreach($provinces as $pro)
+                                            <option value="{{ $pro->id }}">{{ $pro->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group position-relative box">
+                                    <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                            name="city_id" id="city_id" required>
+                                        <option value="">انتخاب شهر</option>
+                                        @foreach($cities as $city)
+                                            <option value="{{ $city->id }}">{{ $city->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="form-group position-relative box">
                                     <label class="position-absolute"><i
                                             class="fas fa-mobile-alt"></i></label>
@@ -49,13 +92,13 @@
                                            name="nationalCode" value="{{ old('nationalCode') }}" required autofocus
                                            placeholder="کدملی">
                                 </div>
-                                
+
                                 <div class="form-group position-relative box">
                                     <label class="position-absolute"><i
                                             class="fas fa-mobile-alt"></i></label>
                                     <input type="text"
                                            class="border-0 py-2 px-2 w-100 pr-4" id="date"
-                                           name="birthDate" value="{{ old('birthDate') }}" required>
+                                           name="birthDate" required>
                                 </div>
 
                                 <div class="form-group form-button mt-4">
@@ -82,5 +125,12 @@
 @section('js')
     <script src="/assets/site/js/fix-number.js?v=1"></script>
     <script src="/assets/site/js/employeeRegister.js?v=1"></script>
-    <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+    <script>
+        @if(session()->get('create') == 'success')
+        toastr.success('ثبت نام با موفقیت انجام شد!');
+        @elseif(session()->get('failByMessage'))
+        toastr.error('{{session()->get('failByMessage')}}');
+        @endif
+    </script>
+
 @endsection
