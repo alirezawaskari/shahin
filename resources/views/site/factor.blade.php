@@ -149,7 +149,7 @@
                                             <tr>
                                                 <th>
 {{--                                                    {{ number_format($item->factoritemable->tax) }}--}}
-                                                    {{number_format(100*($factor->tax/$item->financialPlansType->price))}}
+                                                    {{$item->financialPlansType->price ? number_format(100*($factor->tax/$item->financialPlansType->price)) : 0}}
                                                     درصد مالیات بر ارزش
                                                     افزوده
 
