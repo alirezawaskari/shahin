@@ -194,10 +194,11 @@ class UserController extends AdminController
         }
         if($user->level == 'admin')
         {
-            Employee::firstOrCreate(['user_id' => $user->id]);
+            $employee = Employee::firstOrCreate(['user_id' => $user->id]);
+            $employee->update(['status'=>1]);
         }
         if ($request->level != 'admin' && $user->employee()->exists() &&  $user->employee->status != 0 ){
-             Employee::where('user_id' , $user->id)->update([
+            Employee::where('user_id' , $user->id)->update([
                'status'=>0
              ]);
         }
@@ -451,7 +452,7 @@ class UserController extends AdminController
      * @param Request $request
      * @return void
      */
-    public static function createUser(Request $request)
+    public function createUser(Request $request)
     {
         $validate= Validator::make($request->all(), [
             'phone' => 'required|regex:/(09)[0-9]{9}/|digits:11',
