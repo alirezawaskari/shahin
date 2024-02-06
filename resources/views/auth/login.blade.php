@@ -41,16 +41,11 @@
                                             <input class="btn btn-orange text-white font-16 px-4  w-100" type="submit" onclick="convertEnglish()" value="ورود"/>
                                         </div>
                                         <div class="col-12 col-md-6 mb-1">
-                                            <a href="{{ route('employee.register') }}" class="btn btn-primary align-items-center d-block">ثبت نام پزشک در امتا</a>
+                                            <a href="{{ route('employee.register') }}" class="btn btn-primary align-items-center d-block">ثبت نام همکاران در امتا</a>
                                         </div>
-
-                                        {{--     <div class="col-12 col-md-6">
-                                                 <a class="btn btn-primary text-white font-16 px-4 w-100" href="{{ route('register') }}">ثبت نام</a>
-                                             </div>--}}
                                     </div>
                                     <a href="{{ route('reset_pass_form') }}" class="text-black-50 border-0 font-14 bold mr-2 mt-2">رمز عبور خود را فراموش کرده اید؟</a>
-                                    <a href="{{ route('register') }}" class="text-black-50 border-0 font-14 bold mr-2 mt-2">قبلا ثبت نام نکرده اید؟ اینجا کلیک کنید</a>
-								   <a href="https://admin.lalecard.ir/" class="text-black-50 border-0 font-14 bold mr-2 mt-2">ورود فروشندگان و تامین کنندگان کالا و خدمات (برای ورود اینجا کلیک کنید)</a>
+								   {{-- <a href="https://admin.lalecard.ir/" class="text-black-50 border-0 font-14 bold mr-2 mt-2">ورود فروشندگان و تامین کنندگان کالا و خدمات (برای ورود اینجا کلیک کنید)</a> --}}
 
                                 </div>
                             </form>

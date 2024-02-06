@@ -12,7 +12,7 @@
                 <div class="login-box bg-white shadow col-12 rounded-20px py-5 px-md-5 " id="register_box" style="display: none">
                     <div class="row">
                         <div class="col-12 col-md-6 px-md-5 d-flex justify-content-center flex-column">
-                            <h2 class="text-orange bold mb-4 text-black-50">ثبت نام همکار</h2>
+                            <h2 class="text-orange bold mb-4 text-black-50">ثبت نام همکاران در امتا</h2>
 
                             @foreach($errors->all() as $error)
                                 <div class="alert alert-danger" role="alert">
