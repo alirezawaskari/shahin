@@ -36,9 +36,30 @@
                 class="btn btn-primary d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ثبت
                 نام</a>
             @else
-                <a href="{{ route('login_by_mobile') }}" class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ورود اعضاء</a>
-                <a href="{{ route('register') }}" class="btn btn-primary d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ثبت نام</a>
-                <a href="{{ route('login') }}" class="btn btn-danger d-flex align-items-center position-relative ml-2 d-block d-md-none my-3">ورود کارکنان | مستمری بگیران سجا</a>
+            <div class="dropdown">
+                <button
+                    class="btn btn-warning dropdown-toggle d-flex align-items-center position-relative ml-2 d-block d-md-none my-3"
+                    type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    ورود
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a href="{{ route('login_by_mobile') }}" class="dropdown-item">ورود اعضاء</a>
+                    <a href="{{ route('login') }}" class="dropdown-item">ورود کارکنان | مستمری بگیران سجا</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button
+                    class="btn btn-primary dropdown-toggle d-flex align-items-center position-relative ml-2 d-block d-md-none my-3"
+                    type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    ثبت نام
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a href="{{ route('register') }}" class="dropdown-item">ثبت نام اعضا</a>
+                    <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام همکاران در امتا</a>
+                </div>
+            </div>
             @endif
         </div>
         @endif
@@ -79,13 +100,16 @@
                                 aria-labelledby="navbarDropdownMenuLink">
                                 @if (session()->has('representation'))
                                 @foreach(session()->get('representation')->services->where('status' , true) as $item)
-                                <a class="dropdown-item text-orange py-2" href="{{ url('/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title }}</a>
+                                <a class="dropdown-item text-orange py-2"
+                                    href="{{ url('/'.session()->get('representation')->slug.'/'.$item->slug.'/'.(isset($callcenter) ? $callcenter->id : '')) }}">{{$item->title
+                                    }}</a>
                                 @endforeach
                                 @else
                                 @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
-                                true)->orderBy('created_at', 'desc')->get() as $item)                                <a class="dropdown-item text-orange py-2"
-                                href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
-                                $item->title }}</a>
+                                true)->orderBy('created_at', 'desc')->get() as $item) <a
+                                    class="dropdown-item text-orange py-2"
+                                    href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{
+                                    $item->title }}</a>
                                 @endforeach
                                 @endif
                             </div>
@@ -97,17 +121,17 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right text-right mt-3"
                                 aria-labelledby="navbarDropdownMenuLink">
-{{--                                <a class="dropdown-item text-orange py-2" href="{{ url('/agency') }}">--}}
-{{--                                    اعطاء مجوز همکاری به مراکز و فروشگاهها--}}
-{{--                                </a>--}}
+                                {{-- <a class="dropdown-item text-orange py-2" href="{{ url('/agency') }}">--}}
+                                    {{-- اعطاء مجوز همکاری به مراکز و فروشگاهها--}}
+                                    {{-- </a>--}}
                                 <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/Permanent-employment') }}">استخدام و تامین نیروی انسانی</a>
                                 <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/centerRequest/create') }}">همکاری با فروشندگان و خدمات دهندگان</a>
-                                    @if (!session()->has('representation'))
-                                    <a class="dropdown-item text-orange py-2"
+                                @if (!session()->has('representation'))
+                                <a class="dropdown-item text-orange py-2"
                                     href="{{ url('/services/business-agency') }}">اعطای مجوز نمایندگی</a>
-                                    @endif
+                                @endif
                             </div>
                         </li>
                         {{-- <li class="nav-item">--}}
@@ -178,45 +202,71 @@
                                             class="d-none d-lg-flex navbar-nav nav-after btn btn-primary align-items-center position-relative ml-2 p-2">ثبت
                                             نام</a>
                                         @else
-                                            <a href="{{ route('login_by_mobile') }}" class="d-none d-lg-flex navbar-nav nav-after btn btn-warning align-items-center position-relative ml-2 p-2">ورود اعضاء</a>
-                                            <a href="{{ route('register') }}" class="d-none d-lg-flex navbar-nav nav-after btn btn-primary align-items-center position-relative ml-2 p-2">ثبت نام</a>
-                                            <a href="{{ route('login') }}" class="d-none d-lg-flex navbar-nav nav-after btn btn-danger align-items-center position-relative ml-2 p-2">ورود کارکنان | مستمری بگیران سجا</a>
-                                        @endif
+                                        <div class="dropdown">
+                                        <button
+                                            class="btn btn-warning dropdown-toggle d-none d-lg-flex navbar-nav nav-after align-items-center position-relative ml-2 p-2"
+                                            type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                             ورود
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a href="{{ route('login_by_mobile') }}" class="dropdown-item">ورود
+                                                اعضاء</a>
+                                            <a href="{{ route('login') }}" class="dropdown-item">ورود کارکنان | مستمری
+                                                بگیران سجا</a>
+                                        </div>
                                     </div>
-                                    <a href="/cart"
-                                        class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none">
-                                        <i class="fas fa-shopping-cart font-16 ml-2"></i>
-                                        سبدخرید
-                                        <span
-                                            class="cart-count d-flex justify-content-center align-items-center position-absolute font-12 text-dark"
-                                            id="cart-count">{{ session()->has('cart.total.count') ?
-                                            session()->get('cart.total.count') : 0 }}</span>
-                                    </a>
-                                </li>
+                                    <div class="dropdown">
+                                        <button
+                                            class="btn btn-primary dropdown-toggle d-none d-lg-flex navbar-nav nav-after align-items-center position-relative ml-2 p-2"
+                                            type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                             ثبت نام
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a href="{{ route('register') }}" class="dropdown-item">ثبت نام اعضا</a>
+                                            <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام
+                                                همکاران در امتا</a>
+                                        </div>
+                                    </div>
+                                    @endif
                             </div>
+                            <a href="/cart"
+                                class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none">
+                                <i class="fas fa-shopping-cart font-16 ml-2"></i>
+                                سبدخرید
+                                <span
+                                    class="cart-count d-flex justify-content-center align-items-center position-absolute font-12 text-dark"
+                                    id="cart-count">{{ session()->has('cart.total.count') ?
+                                    session()->get('cart.total.count') : 0 }}</span>
+                            </a>
+                            </li>
                         </div>
-                    </ul>
-                    @endif
-
-                    <ul class="d-none d-lg-flex navbar-nav mr-0 pr-0 pr-md-3 pt-2 nav-after">
-                        <li class="nav-item mr-3">
-                            <a href="tel:{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}" class="nav-link text-dark">
-                                <span>{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}</span>
-                                <i class="fa fa-phone"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ $setting->telegram }}" class="nav-link text-dark">
-                                <i class="fab fa-telegram"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ $setting->instagram }}" class="nav-link text-dark">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </li>
-                    </ul>
                 </div>
-            </nav>
+                </ul>
+                @endif
+
+                <ul class="d-none d-lg-flex navbar-nav mr-0 pr-0 pr-md-3 pt-2 nav-after">
+                    <li class="nav-item mr-3">
+                        <a href="tel:{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}"
+                            class="nav-link text-dark">
+                            <span>{{ session()->get('representation') ? session()->get('representation')->call :
+                                $setting->call }}</span>
+                            <i class="fa fa-phone"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ $setting->telegram }}" class="nav-link text-dark">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ $setting->instagram }}" class="nav-link text-dark">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </li>
+                </ul>
     </div>
+</nav>
+</div>
 </nav>
