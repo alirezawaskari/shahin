@@ -123,7 +123,6 @@ Route::group([], function () {
 });
 
 //Admin Routes
-Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
 
@@ -133,6 +132,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
+    Route::get('/create-user', function () {
+        Artisan::call('command:query');
+        return redirect()->back()->with([
+            'run_query' => 'success'
+        ]);
+    });
+    Route::post('/create-user' , 'UserController@fetchUser')->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Helper;
 use App\Models\City;
 use App\Models\Province;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -52,7 +53,7 @@ class EmployeeController extends Controller
                 Log::error($e->getMessage());
         }
         $result = json_decode($result , true);
-        \App\Http\Controllers\Admin\UserController::createUser($request);
+        User::createUser($request);
         if($result['Data']['success'])
         {
             return redirect()->back()->with([
