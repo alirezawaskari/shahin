@@ -36,7 +36,7 @@
                     @include('site.layouts.add_to_cart' , ['service' => $service , 'representation' => 0 , 'callcenter' => 0])
                     @endif
                     @else
-                    <span class="alert alert-primary">شما قبلا این خدمت را خریده اید و امکان خرید مجدد وجود ندارد.</span>
+                    <span class="alert alert-primary">شما قبلا در این آیتم ثبت نام شده اید ، جهت بارگذاری مدارک اقدام بفرمائید.</span>
                     <br>
                     <br>
                     <a href="{{asset("/singleWebPage/checkout/$singleWebPage->slug/$factor->resnumber")}}">
