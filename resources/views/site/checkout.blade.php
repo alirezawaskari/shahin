@@ -510,4 +510,11 @@
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
+<script>
+    @if(session()->get('successByMessage'))
+    toastr.success('{{session()->get('successByMessage')}}');
+    @elseif(session()->get('failByMessage'))
+    toastr.error('{{session()->get('failByMessage')}}');
+    @endif
+</script>
 @endsection

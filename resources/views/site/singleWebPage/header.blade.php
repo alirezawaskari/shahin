@@ -11,6 +11,9 @@
                     class="cart-count d-flex justify-content-center align-items-center position-absolute font-12 text-dark"
                     id="cart-count">{{ session()->has('cart.total.count') ? session()->get('cart.total.count') : 0 }}</span>
             </a>
+            <a href="{{ route('logout') }}" class="nav-link text-dark"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            خروج</a>
             @endauth
         </div>
         <div class="col-4 d-flex align-items-center text-center">

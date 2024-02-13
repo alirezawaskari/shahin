@@ -20,48 +20,16 @@
         <div class="container">
             <div class="login-box bg-white col-12 rounded-20px py-4 px-md-4">
                 <div class="row">
-                    <div class="col-12 d-flex justify-content-between align-items-center flex-column flex-md-row">
-                        @if(session()->get('payment') == 'success')
-                        <div class="d-flex justify-content-center align-items-center mb-2 mb-md-0">
-                            <i class="far fa-check-circle text-green font-16 ml-2"></i>
-                            <span class="font-18 bold text-green">پرداخت با موفقیت انجام شد</span>
-                        </div>
-                        @endif
-                        <div>
-                            <span class="text-success font-16 mb-2 mb-md-0">وضعیت: پرداخت شده</span>
-                            <span class="text-dark font-12 mx-2">زمان ثبت:
-                                {{ verta($factor->created_at)->format('%d %B ، %Y H:i') }}
-                            </span>
-                            @if($factor->status == 0)
-                            <span class="text-dark font-12 mx-2">معتبر تا:
-                                {{ verta($factor->expired_at)->format('%d %B ، %Y') }}
-                            </span>
-                            @endif
-
-                            @if($factor->status == 1 && $factor->type == 'online')
-                            <span class="text-dark font-12 mx-2">پیگیری بانک:
-                                {{ $factor->refnumber }}
-                            </span>
-                            @endif
-                        </div>
-                        <span class="text-dark font-16 mb-2 mb-md-0">شناسه پرداخت: {{ $factor->resnumber }}</span>
-                    </div>
                     <div class="col-12 mt-2">
                         @if($check)
                         <div class="alert alert-warning">
-                            لطفا جهت کامل شدن سفارش، در صورت وجود فرم آن را با دقت پر نمایید و آن را ذخیره
-                            نمایید. در غیر اینصورت بر روی ذخیره کلیک کنید.(توجه کنید موارد ثبت شده غیر قابل
-                            تغییر است)
+                        لطفا جهت تکمیل پرونده ، مدارک مورد نیاز را بارگزاری نمائید.
                         </div>
                         @else
                         <div class="alert alert-success">
-                            با تشکر، سفارش شما تکمیل شد و در دست بررسی قرار دارد.
+                            با تشکر، پرونده شما تکمیل شد و در دست بررسی قرار دارد.
                         </div>
                         @endif
-                        <div class="alert alert-primary">
-                            هزینه پرداختی شما بابت تشکیل پرونده در صورت اجرای مشاوره صرف گردیده و از اعتبار شما کسر می
-                            گردد. لذا درصوت نیاز به راهنمایی قبل از مراجعه با پشتیبان خود تماس حاصل نمائید.
-                        </div>
                     </div>
                     <div class="col-12 mt-2">
                         @foreach($items as $key => $item)
@@ -510,4 +478,11 @@
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
+<script>
+    @if(session()->get('successByMessage'))
+    toastr.success('{{session()->get('successByMessage')}}');
+    @elseif(session()->get('failByMessage'))
+    toastr.error('{{session()->get('failByMessage')}}');
+    @endif
+</script>
 @endsection
