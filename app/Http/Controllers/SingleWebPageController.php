@@ -7,6 +7,10 @@ use App\Models\Province;
 use App\Models\SingleWebPage;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\ContractForm;
+use App\Models\Disease;
+use App\Models\Factor;
+use App\Models\FactorItem;
 
 class SingleWebPageController extends Controller
 {
@@ -73,5 +77,52 @@ class SingleWebPageController extends Controller
         $provinces = Province::get();
         $citys = City::get();
         return view('site.singleWebPage.single' , compact('singleWebPage','financial_plans_types' , 'service' , 'provinces' , 'citys'));
+    }
+
+    public function checkout(SingleWebPage $singleWebPage , Factor $factor ) {
+        $user = auth()->user();
+        $diseases=Disease::all();
+        $items = $factor->factorItems->map( function ( $item ) {
+            $temp = [];
+
+            $temp[ 'id' ] = $item->id;
+            $temp[ 'service' ] = $item->factoritemable;
+            $temp[ 'service_item' ] = !is_null( $item->service_item_id ) ? $item->serviceItem : null;
+            $temp[ 'centers' ] = FactorItem::getSelectableCenters($item);
+            $temp[ 'forms' ] = count( $item->factoritemable->beforeforms ) != 0 ? $item->factoritemable->beforeforms : null;
+            $temp[ 'complete' ] = $item->complete;
+            $temp[ 'type' ] = $item->type;
+            $temp[ 'factor_values' ] = $item->factor_values;
+            $temp[ 'contract_forms' ] = ContractForm::where( 'level', 'basic_documents' )->get();
+            $temp[ 'contract_values' ] = $item->totalFactorItem ? $item->totalFactorItem->contract_values : '';
+            $temp[ 'status_factor' ] = $item->status_factor;
+            $temp[ 'total_price' ] = $item->total_price;
+            $temp[ 'prepayment' ] = $item->prepayment;
+            $temp[ 'guarantee_type' ] = $item->totalFactorItem()->exists()? $item->totalFactorItem->guarantee_type:'check';
+            $temp[ 'installments' ] = $item->installments;
+            $temp[ 'installments_num' ] = $item->installments_num;
+            $temp[ 'products' ] = $item->products;
+            $temp[ 'center_id' ] = $item->center_id;
+            $temp[ 'is_changeable' ] = self::checkIsChangeable( $item );
+
+            return $temp;
+        }
+    );
+    $check = $factor->factorItems()->where( 'complete', false )->exists();
+
+    return view( 'site.singleWebPage.checkout', compact( 'singleWebPage' ,'factor', 'items', 'check', 'user' ,'diseases') );
+}
+    /**
+    * @param mixed $item //factorItem
+    * @return bool
+    */
+    private function checkIsChangeable( $item ) {
+        $temp = in_array( $item->status_factor, array( 0, 4, 14, 3, 2, 9 ) );
+        //check totalFactorItem confirmation
+        if ( $item->totalFactorItem && $item->totalFactorItem->confirm ) {
+            $temp = false;
+        }
+
+        return $temp;
     }
 }

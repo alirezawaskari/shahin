@@ -718,6 +718,8 @@ Route::post('/employeeRegister', 'EmployeeController@register');
 Route::get('/employeeRegister/check-user-is-register','EmployeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
+Route::get('/singleWebPage/checkout/{singleWebPage}/{factor}', 'SingleWebPageController@checkout')->name('singleWebPage.checkout');
+
 //Factor
 Route::middleware('auth')->group(function () {
     //Checkout
