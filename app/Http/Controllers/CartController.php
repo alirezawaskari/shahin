@@ -79,7 +79,7 @@ class CartController extends Controller
             if (isset($factor['resnumber'])) {
                 return response(['operator' => true, 'factor' => $factor['resnumber']]);
             }
-            return response(['operator' => false]);
+            return response(['operator' => true]);
         } else {
             //create
 
