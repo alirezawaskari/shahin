@@ -14,6 +14,8 @@
             <a href="{{ route('logout') }}" class="nav-link text-dark"
             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
             خروج</a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            {{ csrf_field() }}</form>
             @endauth
         </div>
         <div class="col-4 d-flex align-items-center text-center">
