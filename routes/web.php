@@ -207,6 +207,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factor/deleted' , 'FactorController@deletedList')->name('factor.delete');
     Route::get('/factor/deleted/filter', 'FactorController@filterDeletedList');
     Route::post('/factor/restore', 'FactorController@restore');
+    Route::get('/factor/send/{factor}', 'FactorController@sendMe')->name('factor.sendMe');
     Route::resource('/factor', 'FactorController');
     Route::resource('/category-permission', 'CategoryPermissionController');
     Route::post('/factor-update' , 'FactorController@update');
