@@ -262,9 +262,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/financialPlansType/setByItem', 'FinancialPlansTypeController@setFinancialPlansTypeByItem');
     Route::post('/financialPlansType/setByPaymentType', 'FinancialPlansTypeController@setFinancialPlansTypeByPaymentType');
     Route::get('/financialPlansType/filter', 'FinancialPlansTypeController@filter');
+    Route::resource('financialPlansType' , 'FinancialPlansTypeController');
     Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
 
-    Route::resource('financialPlansType' , 'FinancialPlansTypeController');
     //contract form
     Route::resource('contractForm', 'ContractFormController');
     Route::get('/contractForm/items/{contract_form}', 'ContractFormController@formItems')->name('contract.formItems');
