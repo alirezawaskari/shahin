@@ -54,7 +54,10 @@ class CallcenterCollection extends ResourceCollection
                 'province_id' => $user->province_id,
                 'city_id' => $user->city_id,
                 'register_status' => true,
-                'sex' => $user->sex
+                'sex' => $user->sex,
+                'vip' => $user->vip && $user->vip->type == 'VIP' ? true : false,
+                'sos' => $user->vip && $user->vip->type == 'SOS' ? true : false,
+                'conduct' => $user->conduct,
             ];
         } else {
             return [
@@ -65,6 +68,9 @@ class CallcenterCollection extends ResourceCollection
                 'city_id' => 'ثبت نشده',
                 'register_status' => false,
                 'sex' => '',
+                'vip' => '',
+                'sos' => '',
+                'conduct' => '',
             ];
         }
     }

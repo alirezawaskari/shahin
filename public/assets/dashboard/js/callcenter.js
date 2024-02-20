@@ -266,15 +266,15 @@ $(document).ready(function () {
         $('#challenging').prop( "checked", false );
         $("#reason-remember").prop("selectedIndex", 0).val();
         $('#phone').attr('value', $(this).data('phone'));
-        if ( $(this).data('vip')=='ثروتمند/توانمند'){
+        if ( $(this).data('vip')){
             $('#custom-check-vip').prop( "checked", true );
             $('#vipCheck').prop( "checked", true );
         }
-        if ( $(this).data('sos')=='فقیر/کم ‌توان'){
+        if ( $(this).data('sos')){
             $('#custom-check-sos').prop( "checked", true );
             $('#sosCheck').prop( "checked", true );
         }
-        if ( $(this).data('conduct')=='چالش انگیز'){
+        if ( $(this).data('conduct')){
             $('#challenging').prop( "checked", true );
         }
         if ( $(this).data('gender')=='0'){
@@ -294,7 +294,7 @@ $(document).ready(function () {
         let status_badge= getBadgeOfCallCenterStatus($(this).data('status'))
         let vip_label = '';
         let sos_label = '';
-        if ($(this).data('vip')=='VIP')
+        if ($(this).data('vip'))
            vip_label = "ثروتمند/توانمند";
 
         if ($(this).data('sos'))
