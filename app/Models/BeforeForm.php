@@ -43,6 +43,7 @@ class BeforeForm extends Model
         'total-price' => 'جمع کل فاکتور',
         'factor-image' => 'تصویر فاکتور',
         'factor_building' => 'فاکتور خدمات ساختمانی',
+        'factor_service' => 'فاکتور خدمات',
     ];
 
 
