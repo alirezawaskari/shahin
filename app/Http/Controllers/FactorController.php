@@ -91,7 +91,7 @@ class FactorController extends Controller {
     */
 
     public function index( Factor $factor ) {
-        if ( $factor->status != 1 ) {
+        if ( $factor->price != 0) {
             $debt_price = self::setDebtPriceByFactorTitle( $factor );
             $factor->load( 'user', 'representation' );
             $representation = null;
