@@ -88,6 +88,8 @@
                 <li><a href="#"><i class="icon ti-control-record"></i> <span>امور مالی</span> </a>
                     <ul>
                         <li><a href="{{ route('factor.index') }}">فهرست تراکنش ها </a></li>
+                        <li><a href="{{ route('factor.index') }}">فهرست تراکنش های دریافتی </a></li>
+                        <li><a href="{{ route('factor.index') }}">فهرست تراکنش های پرداختی </a></li>
                         <li><a href="{{ route('WalletTransaction.index') }}">فهرست شارژ کیف پول </a></li>
 						@role('mali')
                         <li><a href="{{ route('factor.desktop') }}">میزکار تراکنش ها</a></li>
@@ -218,10 +220,10 @@
             </li>
             @endpermission
             @permission('purchase-invoice')
-            <li><a href="#"><i class="icon ti-control-record"></i><span>درخواست ها</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i><span>فاکتور های خرید</span> </a>
                 <ul>
-                    <li><a href="{{ route('purchaseInvoice.desktop') }}">میزکار</a></li>
-                    <li><a href="{{ route('purchaseInvoice.index') }}">فهرست درخواست ها</a></li>
+                    <li><a href="{{ route('purchaseInvoice.desktop') }}">میزکار فاکتورهای خرید</a></li>
+                    <li><a href="{{ route('purchaseInvoice.index') }}">فهرست فاکتورهای خرید</a></li>
                 </ul>
             </li>
             @endpermission
