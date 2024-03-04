@@ -183,7 +183,13 @@ $(document).ready(function () {
 $("#check-change-status").on("change", function () {
     if($(this).val()==11){
         $('#receiver-box').slideDown();
-    }else{
+        $('#payment-date-box').slideUp();
+    }else if($(this).val()==1){
+        $('#payment-date-box').slideDown();
+        $('#receiver-box').slideUp();
+    }else
+    {
+        $('#payment-date-box').slideUp();
         $('#receiver-box').slideUp();
     }
 });
