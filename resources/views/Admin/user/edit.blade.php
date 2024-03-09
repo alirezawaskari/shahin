@@ -161,7 +161,7 @@
                     <label>تکرار رمز عبور جدید</label>
                     <input type="password" class="form-control password" name="password_confirmation">
                 </div>
-                @role('superadmin')
+                @permission('change_user_role')
                 <div class="col-12 col-md-4 mb-3">
                     <label>نقش کاربر</label>
                     <select class="form-control" name="role_id">
@@ -189,7 +189,7 @@
                         @endforeach
                     </select>
                 </div>
-                @endrole
+                @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>ویژگی های سلامتی</label>
                     <div class="col-12 col-md-6 mb-2">

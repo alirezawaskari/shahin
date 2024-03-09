@@ -489,7 +489,8 @@ class AdminController extends Controller
 
         $expire_dates = null;
         $near_end_date_financial_plans = null;
-        if (auth()->user()->hasRole('superadmin')){
+        if (auth()->user()->hasPermission('expire_dates'))
+        {
             $expire_dates= Cache::remember('expire_dates', Carbon::now()->addHours(12), function() {
                 return ContextController::fetchExpireDates();
             });
