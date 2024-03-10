@@ -240,10 +240,10 @@ class Callcenter extends Model implements AuditableContract
             $query->where(function ($query){
 			$query->whereHas('factors', function ($query)  {
                 $query->whereHas('factorItems', function ($query)  {
-                    $query->where('factoritemable_type', '=', auth()->user()->center->centerable_type)->where('factoritemable_id', auth()->user()->center->centerable_id);
+                    $query->where('factoritemable_id', auth()->user()->center->services->pluck('id')->toArray());
                     });
                 })->orWhereHas('register' , function ($query) {
-                    $query->where('service_id', '=', auth()->user()->center->centerable_id);
+                    $query->whereIn('service_id', auth()->user()->center->services->pluck('id')->toArray());
                 })->orWhereHas('callcenter',function ($query){
                     $query->whereHas('employee',function ($query){
                        $query->where('parent_id',auth()->user()->employee->id);

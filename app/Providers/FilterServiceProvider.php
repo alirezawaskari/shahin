@@ -75,7 +75,7 @@ class FilterServiceProvider extends ServiceProvider
         $permission = false;
 
         if (auth()->user()->center_id && !auth()->user()->hasPermission('center-all-services')) {
-            $services = auth()->user()->center->centerable_type == Service::class ? Service::where('id' , auth()->user()->center->centerable_id)->get() : collect([]);
+            $services = Service::whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
             $service_categories = auth()->user()->center->centerable_type == Service::class ? Category::where('id', auth()->user()->center->centerable->category_id)->get() : collect([]);
             $product_categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }elseif ($user->admin_representation) {
