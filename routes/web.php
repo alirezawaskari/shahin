@@ -666,7 +666,7 @@ Route::get('/', 'HomeController@index')->name('index');
 Route::get('/help', 'HelpController@index')->name('site.help');
 Route::get('/calculate', 'FactorItemInstallmentController@index')->name('site.help');
 Route::get('/link/{callcenter}', 'HomeController@index');
-Route::get('/message', 'HomeController@message');
+Route::get('/message1403', 'HomeController@message');
 Route::get('/mobile', 'HomeController@mobile')->name('mobile');
 Route::get('/mobile/link/{callcenter}', 'HomeController@mobile');
 Route::post('/newsletter', 'HomeController@newsletter')->name('newsletter');
@@ -707,7 +707,7 @@ Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee
-Route::get('/employeeRegister', 'employeeController@showRegistrationForm');
+Route::get('/employeeRegister', 'employeeController@showRegistrationForm')->name('employee.register');
 Route::post('/employeeRegister', 'employeeController@register');
 Route::get('/employeeRegister/check-user-is-register','employeeController@checkUserIsRegister');
 
