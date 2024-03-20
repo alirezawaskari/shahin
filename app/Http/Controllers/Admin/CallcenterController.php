@@ -272,7 +272,7 @@ class CallcenterController extends Controller
         $provinces = Province::all();
 
         if (auth()->user()->center_id) {
-            $service_categories = Category::where('parent_id', 2)->where('isActive' , 1)->where('id', auth()->user()->center->centerable->category_id)->get();
+            $service_categories = Category::where('parent_id', 2)->where('isActive' , 1)->whereIn('id', auth()->user()->center->centerable->category_id)->get();
             $product_categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }elseif (auth()->user()->admin_representation) {
             $service_categories = auth()->user()->admin_representation->services;
