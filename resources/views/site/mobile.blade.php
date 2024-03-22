@@ -106,7 +106,7 @@
                             <i class="fa fa-hand-pointer" style="margin-right: 5px "></i> متن پیام تبریک مدیرعامل شبکه
                             لاله </a>
                     </div>
-                    <div class="mb-1 p-1">
+                    <div class="mb-1 p-1" style="margin-right: auto">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
                     </div>
                 </div>
