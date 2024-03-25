@@ -22,7 +22,7 @@ class FactorItemCollection extends ResourceCollection
                     'total_factor_item_id' => $item->supervisor->total_factor_item_id ? $item->supervisor->total_factor_item_id : '',
                     'name' => $item->factor ? $item->factor->user->name. ' ' . $item->factor->user->family: null,
                     'phone' => $item->factor ? $item->factor->user->phone: null,
-                    'total_price' => number_format($item->total_price),
+                    'total_price' => number_format($this->setTotalPrice($item)) ,
                     'prepayment_price' =>$item->property()->exists()? number_format($item->property->prepayment_price):null,
                     'installments_num' => $item->installments_num,
                     'installments_num_paid' => $item->FactorItemInstallments ? count($item->FactorItemInstallments->where('status' , true)):'',
@@ -135,6 +135,15 @@ class FactorItemCollection extends ResourceCollection
             $temp = verta($item->approval_date)->format('Y/m/d'). '-' .verta($item->factorItemInstallments->last()->date)->format('Y/m/d');
             return $temp;
         }
+    }
+     /**
+     * @param FactorItem $item
+     * @return float
+     */
+    private function setTotalPrice(FactorItem $item)
+    {
+        $total_price = $item->total_price + ($item->property()->exists()? number_format($item->property->price_difference_total) : 0);
+        return $total_price;
     }
 }
 
