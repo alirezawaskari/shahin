@@ -63,7 +63,6 @@ class RecruitmentNoticeController extends AdminController
         $this->validate(request(), [
             'title' => 'required|string',
             'description' => 'nullable|string',
-            'province_id' => 'required',
         ]);
         $inputs = $request->all();
         if($request->urlimage)
@@ -106,7 +105,6 @@ class RecruitmentNoticeController extends AdminController
         $this->validate(request(), [
             'title' => 'required|string',
             'description' => 'nullable|string',
-            'province_id' => 'required',
         ]);
         $inputs = $request->all();
         if($request->urlimage)
