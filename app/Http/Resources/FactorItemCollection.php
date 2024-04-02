@@ -22,7 +22,7 @@ class FactorItemCollection extends ResourceCollection
                     'total_factor_item_id' => $item->supervisor->total_factor_item_id ? $item->supervisor->total_factor_item_id : '',
                     'name' => $item->factor ? $item->factor->user->name. ' ' . $item->factor->user->family: null,
                     'phone' => $item->factor ? $item->factor->user->phone: null,
-                    'total_price' => number_format($this->setTotalPrice($item)) ,
+                    'total_price' => number_format($this->setTotalPrice($item)),
                     'prepayment_price' =>$item->property()->exists()? number_format($item->property->prepayment_price):null,
                     'installments_num' => $item->installments_num,
                     'installments_num_paid' => $item->FactorItemInstallments ? count($item->FactorItemInstallments->where('status' , true)):'',
@@ -99,11 +99,11 @@ class FactorItemCollection extends ResourceCollection
         else
         {
             if ($item->type == '1') {
-                $temp = 'اقساط - ' . ($item->total_price ? number_format($item->total_price) . 'ریال' : 'ندارد');
+                $temp = 'اقساط - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال' : 'ندارد');
             } elseif ($item->type == '0') {
-                $temp = 'نقد - ' . ($item->total_price ? number_format($item->total_price) . 'ریال ' : 'ندارد');
+                $temp = 'نقد - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال ' : 'ندارد');
             } else {
-                $temp = 'تعیین نشده - ' . ($item->total_price ? number_format($item->total_price) . 'ریال ' : 'ندارد');
+                $temp = 'تعیین نشده - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال ' : 'ندارد');
             }
         }
 		return $temp;
@@ -142,7 +142,10 @@ class FactorItemCollection extends ResourceCollection
      */
     private function setTotalPrice(FactorItem $item)
     {
-        $total_price = $item->total_price + ($item->property()->exists()? number_format($item->property->price_difference_total) : 0);
+        $total_price = $item->serviceTariffs()->exists() ? 0 : $item->total_price;
+        $other_price = isset( $item->factor_value[ 'otherPrice' ] ) ? $item->factor_value[ 'otherPrice' ] : 0;
+        $total_price = FactorItem::getTotalPrice($item , $total_price , $other_price);
+
         return $total_price;
     }
 }
