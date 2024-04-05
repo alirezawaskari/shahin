@@ -153,7 +153,7 @@ $(document).ready(function () {
                                 display='block'
                             }
                             let show_factor_display='block';
-                           
+
                             return `<div data-v-15965e3b="" class="dropdown">
                             <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
@@ -164,6 +164,7 @@ $(document).ready(function () {
                                     مشاهده فاکتور
                                  </a>
                                 </span>
+                                <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-sendMe dropdown-item pointer">ارسال لینک به من</span>
                                 <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
 
                             </div></div>`
@@ -243,6 +244,38 @@ $('body').on('click', '.factor-delete',function () {
         }
     });
 });
+
+//send me factor
+$('body').on('click', '.factor-sendMe',function () {
+    var resnumber = $(this).data("id");
+    var token = $('meta[name="csrf-token"]').attr('content');
+    $.ajax(
+        {
+            url: "/dashboard/factor/sendMe/"+resnumber,
+            type: 'post',
+            data: {
+                "_token": token,
+            },
+            success: function (response,page) {
+                if (response.status=='success'){
+                    fetchData(page)
+                    swal({
+                        title: response.message,
+                        icon: "success",
+                        button: "باشه",
+                    });
+                }else {
+                    swal({
+                        title: "خطا",
+                        text: "خطایی رخ داده است . ",
+                        icon: "warning",
+                        dangerMode: true,
+                    })
+                }
+            }
+        });
+});
+
 // restore factor
 $('body').on('click', '.factor-restore',function () {
     var id = $(this).data("id");

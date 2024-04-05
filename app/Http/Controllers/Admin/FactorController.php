@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\sendlinkFactor;
 use App\Events\smsService;
 use App\Exports\FactorsExport;
 use App\Helpers\Helper;
@@ -494,6 +495,18 @@ class FactorController extends Controller
                 ]);
             }
         }
+    }
+        /**
+     * @param \App\Models\Factor $factor
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    public function sendMe(Factor $factor)
+    {
+        event(new sendlinkFactor(auth()->user(), $factor, auth()->user()->family ,'online'));
+        return response([
+            'status' => 'success',
+            'message'=>'لینک باموفقیت برای شما ارسال شد.'
+        ]);
     }
 }
 
