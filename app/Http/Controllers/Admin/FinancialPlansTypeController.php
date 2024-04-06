@@ -143,8 +143,10 @@ class FinancialPlansTypeController extends Controller
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
         $input['end_date'] = Helper::vertaToMiladi($request->end_date);
         $financialPlansType->update($input);
-        $financialPlansType->categories()->sync($request->category);
-        $financialPlansType->services()->sync($request->service);
+        $financialPlansType->categories()->detach();
+        $financialPlansType->categories()->attach($request->category);
+        $financialPlansType->services()->detach();
+        $financialPlansType->services()->attach($request->service);
         !auth()->user()->admin_representation_id ? $financialPlansType->representations()->sync($request->input('representation_id')) : '';
 
         return redirect()->back()->with([

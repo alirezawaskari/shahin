@@ -711,7 +711,7 @@
                             <label>تعداد مراحل پرداخت پیش پرداخت</label>
                             <input class="form-control"
                                 value="{{ isset($item['prepayment']['num']) ? $item['prepayment']['num'] : 1 }}"
-                                name="prepayment_num" type="number" max="10" min="1">
+                                name="prepayment_num" type="number" max="10" min="0">
                         </div>
                         <div class="col-12 col-md-3 mb-2">
                             <label>درصد جریمه روزانه</label>

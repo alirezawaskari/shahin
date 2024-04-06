@@ -9,7 +9,7 @@
             @csrf
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
             <input type="hidden" name="status_factor" value="9">
-            @role('superadmin')
+            @role('superadmin|president_IT|president_treatment')
             <button class="btn btn-danger mr-2">ارجاع به امورتسهیلات</button>
             @endrole
         </form>
@@ -18,7 +18,7 @@
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
-            <input type="hidden" name="status" value="8">
+            <input type="hidden" name="status_factor" value="8">
             <button class="btn btn-success mr-2">ارجاع به مدیرعامل</button>
         </form>
         @endif

@@ -68,10 +68,13 @@ public function store( Request $request ) {
     if ( $validator->fails() ) {
         throw new \Exception( '[request value is invalid] '.implode( '_', $validator->errors()->all() ) );
     }
+
     foreach ( $request->items as $item ) {
         $factor_item = FactorItem::find( $item[ 'id' ] );
         if ( !self::checkIsChangeable( $factor_item ) ) {
-            return redirect()->back();
+            return redirect()->back()->with([
+                'failByMessage' => 'امکان بارگذاری مدارک برای پرونده شما وجود ندارد.'
+            ]);
         }
         if ( $factor_item->factor->user_id != auth()->user()->id && $factor_item->factor->user_id != $factor_item->supervisor_id ) {
             abort( 403 );
@@ -102,7 +105,9 @@ public function store( Request $request ) {
             'complete' => true,
         ] );
     }
-    return redirect()->back();
+    return redirect()->back()->with([
+        'successByMessage' => 'مدارک با موفقیت بارگذاری شد.'
+    ]);
 }
 
 /**
@@ -153,9 +158,9 @@ public function upload_document( Request $request ) {
 
         $factor_item->update( [ 'status_factor' => 14 ] );
 
-        return redirect()->back()->with( [
-            'send' => true
-        ] );
+        return redirect()->back()->with([
+            'successByMessage' => 'مدارک با موفقیت بارگذاری شد.'
+        ]);
     }
 
     /**

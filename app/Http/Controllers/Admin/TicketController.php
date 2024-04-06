@@ -80,7 +80,7 @@ class TicketController extends Controller
     public function filterReceived()
     {
         $tickets = auth()->user()->tickets()->filter()->latest();
-        if (auth()->user()->hasRole('superadmin')) {
+        if (auth()->user()->hasPermission('show_all_received')){
             $tickets = Ticket::filter()->latest();
         }
         return new TicketCollection($tickets->paginate(20));

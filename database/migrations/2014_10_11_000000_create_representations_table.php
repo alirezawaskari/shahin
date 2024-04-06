@@ -24,6 +24,8 @@ class CreateRepresentationsTable extends Migration
             $table->string('sms_code')->nullable();
             $table->string('call')->nullable();
             $table->mediumText('address')->nullable();
+            $table->float('lat')->default('35.84');
+		    $table->float('lon')->default('51.8788');
             $table->mediumText('stamp')->nullable();
             $table->integer('percent')->default(10);
 

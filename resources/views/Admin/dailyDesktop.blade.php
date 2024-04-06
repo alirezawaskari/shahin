@@ -297,7 +297,7 @@
             </div>
         </div>
         @endpermission
-        @role('superadmin')
+        @permission('expire_dates')
         <div class="container bg-white">
             <div class="row justify-content-center">
                 <div class="col-md-5 mt-5 border">
@@ -435,7 +435,7 @@
                 </div>
             </div>
         </div>
-        @endrole
+        @endpermission
     </div>
 @stop
 

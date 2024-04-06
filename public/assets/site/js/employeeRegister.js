@@ -1,4 +1,16 @@
 $(document).ready(function () {
+
+    $("#date").pDatepicker({
+        initialValueType: "gregorian",
+        format: "YYYY/MM/DD",
+        onSelect: "year",
+        timePicker: {
+            enabled: true,
+            meridiem: {
+                enabled: true
+            }
+        }
+    });
     $('#pass').val('');
     var regexname= /^09[0-9][0-9]{8}$/;
     $("#check_register").submit(function (event) {
@@ -28,6 +40,10 @@ $(document).ready(function () {
               $('#login_box').show();
               $('#pass').val();
               $('.phone').val(phone);
+          }
+          if(data.data.message != "")
+          {
+            toastr.error(data.data.message);
           }
 
         });

@@ -424,7 +424,24 @@ class TotalFactorItemController extends Controller
 
         }
 
-        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('superadmin_representation')) {
+        if (auth()->user()->hasRole('superadmin_representation')) {
+            $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
+            $factor_values = Arr::add($values, 'superadmin_representation', auth()->user()->id);
+            $totalFactorItem->update([
+                'factor_values' => $factor_values,
+                'total_factor_item_status_id' => 8
+            ]);
+            foreach ($factor_items as $factor_item) {
+                $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+
+                $fator_item_collections->update([
+                    'status_factor' => 8
+                ]);
+            }
+
+        }
+
+        if (auth()->user()->hasRole('superadmin')) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'superadmin', auth()->user()->id);
             $totalFactorItem->update([
