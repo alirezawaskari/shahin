@@ -128,12 +128,16 @@
                         </option>
                     </select>
                 </div>
+                @permission('user_change_level')
                 <div class="col-12 col-md-4 mb-3">
                     <label>نوع کاربر</label>
                     <select class="form-control" name="level">
                         <option value="user" {{ $user->level == 'user' ? 'selected' : '' }}>
-                            کاربر
+                             کاربر فعال
                         </option>
+                        <option value="blockUser" {{ $user->level == 'blockUser' ? 'selected' : '' }}>
+                            کاربر غیرفعال(بلاک)
+                       </option>
                         <option value="admin" {{ $user->level == 'admin' ? 'selected' : '' }}>
                             مدیر
                         </option>
@@ -142,6 +146,7 @@
                         </option>
                     </select>
                 </div>
+                @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>نمایندگی</label>
                     <select class="form-control" name="admin_representation_id">
@@ -161,7 +166,7 @@
                     <label>تکرار رمز عبور جدید</label>
                     <input type="password" class="form-control password" name="password_confirmation">
                 </div>
-                @role('superadmin')
+                @permission('change_user_role')
                 <div class="col-12 col-md-4 mb-3">
                     <label>نقش کاربر</label>
                     <select class="form-control" name="role_id">
@@ -189,7 +194,7 @@
                         @endforeach
                     </select>
                 </div>
-                @endrole
+                @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>ویژگی های سلامتی</label>
                     <div class="col-12 col-md-6 mb-2">
