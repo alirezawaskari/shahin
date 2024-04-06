@@ -182,7 +182,7 @@ class CheckController extends Controller
 
         switch ($request->status) {
             case 1:
-                $this->receiptCheck($check);
+                $this->receiptCheck($check , $request->payment_date);
                 break;
             case 2:
                 $this->bouncedCheck($check);
@@ -270,8 +270,9 @@ class CheckController extends Controller
 
     /**
      * @param Check $check
+     * @param mixed $payment_date
      */
-    private function receiptCheck(Check $check)
+    private function receiptCheck(Check $check , $payment_date)
     {
         $check->update([
             'status' => 1
@@ -287,6 +288,7 @@ class CheckController extends Controller
             $factor->total_factor_item_id = $check->checkable->id;
             $factor->status = 1;
             $factor->expired_at = now();
+            $factor->created_at = Helper::vertaToMiladi($payment_date);
             $factor->save();
             Factor::savePayment($factor);
         }
