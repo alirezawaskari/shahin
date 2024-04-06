@@ -22,7 +22,7 @@ class RecruitmentNoticeCollection extends ResourceCollection
                     'id' => $item->id,
                     'title' => $item->title,
                     'status' => $item->status,
-                    'province' =>  $item->province->name,
+                    'province' =>  $item->province ? $item->province->name : 'استخدام کشوری (دورکاری)',
                     'created_at' =>  $item->created,
                     'representation' => !is_null($item->representation) ?$item->representation->fa_name:'نمایندگی',
                 ];

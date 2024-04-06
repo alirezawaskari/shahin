@@ -62,12 +62,16 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        $representation = auth()->user()->level;
-        if ($representation == 'admin') {
+        $level = auth()->user()->level;
+        if ($level == 'admin') {
             return redirect('dashboard/dailyDesktop');
         }
-        if ($representation == 'organ') {
+        if ($level == 'organ') {
             return redirect('profile');
+        }
+        if($level == 'blockUser')
+        {
+            $this->guard()->logout();
         }
         if ($request->has('representation')) {
             return redirect()->back();

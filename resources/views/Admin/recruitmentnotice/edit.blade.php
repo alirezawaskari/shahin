@@ -20,6 +20,7 @@
                     <div class="col-12 col-md-3 mb-2">
                         <label>استان ها</label>
                         <select class="form-control" name="province_id" id="confirm">
+                            <option value="" {{ $recruitmentNotice->province_id ==  null  ? 'selected' : '' }}>استخدام کشوری (دورکاری)</option>
                             @foreach($provinces as $province)
                                 <option value="{{ $province->id }}" {{ $recruitmentNotice->province_id ==  $province->id  ? 'selected' : '' }}>{{ $province->name }}</option>
                             @endforeach

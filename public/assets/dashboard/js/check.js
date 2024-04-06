@@ -296,7 +296,8 @@ $(document).ready(function () {
     //----------------------status check btn -------------
     $("body").on('click','.list-check-status',function (){
         var status_front_image=$(this).data('front_image')
-        $('#check-id').val($(this).data('check_id'))
+        $('#check-id').val($(this).data('check_id'));
+        $('#check-payment-date').val($(this).data('check_date'));
         $('#status-check-front-image').empty();
         $('#check-update-error-box').empty();
         $('#status-check-front-image').append(

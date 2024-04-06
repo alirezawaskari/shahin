@@ -16,7 +16,7 @@ class CreateRecruitmentNoticesTable extends Migration
 		$table->text('description');
 		$table->integer('status')->default('1');
 		$table->text('image')->nullable()->default(NULL);
-		$table->integer('province_id')->unsigned();
+		$table->integer('province_id')->unsigned()->default(NULL);
         $table->foreign('province_id')->references('id')->on('provinces')->onDelete('cascade');
         $table->integer('representation_id')->unsigned();
         $table->foreign('representation_id')->references('id')->on('representations')->onDelete('cascade');

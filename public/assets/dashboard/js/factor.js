@@ -178,10 +178,8 @@ $(document).ready(function () {
                             if ($('#delete').val() == 1) {
                                 display = 'block'
                             }
-                            let show_factor_display = 'block';
-                            if (data.type != 'online') {
-                                show_factor_display = 'none'
-                            }
+                            let show_factor_display='block';
+
                             return `<div data-v-15965e3b="" class="dropdown">
                             <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
@@ -192,7 +190,6 @@ $(document).ready(function () {
                                     مشاهده فاکتور
                                  </a>
                                 </span>
-                                <span style="display: ${show_factor_display}"  data-id="${data.resnumber}" class="factor-send-me dropdown-item pointer">ارسال لینک به من</span>
                                 <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
 
                             </div></div>`
