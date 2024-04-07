@@ -25,6 +25,9 @@
                     @permission('callcenter-delete')
                     <li><a href="{{ route('callcenter.delete') }}"> <span>سطل زباله</span> </a>
                     @endpermission
+                    @permission('suspensionStandard_list')
+                    <li><a href="{{ route('suspensionStandard.index') }}"> <span>استانداردهای تعلیق</span> </a></li>
+                    @endpermission
                 </ul>
             </li>
             @endpermission
