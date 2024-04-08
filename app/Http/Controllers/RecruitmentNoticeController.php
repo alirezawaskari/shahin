@@ -202,7 +202,7 @@ class RecruitmentNoticeController extends Controller
         })->first()->id;
 
         $description = "جویای کار،
-             {$recruitmentNotice->province->name}
+             {($recruitmentNotice->province ? $recruitmentNotice->province->name : 'استخدام کشوری (دورکاری)')}
              ،
           عنوان شغلی:
          {$recruitmentNotice->title}";
