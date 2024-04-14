@@ -682,6 +682,7 @@ Route::get('/recruitment-notice', 'RecruitmentNoticeController@index');
 Route::get('/Permanent-employment', 'RecruitmentNoticeController@index');
 Route::get('/challenge', 'HomeController@challenge');
 Route::get('/contact', 'ContactController@index');
+Route::post('/registerBasicInformation', 'RecruitmentNoticeController@registerBasicInformation');
 Route::post('/send_resume', 'RecruitmentNoticeController@send_resume');
 Route::post('/savecontact', 'ContactController@savecontact');
 Route::get('/about', 'AboutController@index');
@@ -748,6 +749,7 @@ Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
 Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
+Route::get('/singleWebPage/checkout/{singleWebPage}/{factor}', 'SingleWebPageController@checkout');
 //organization & representation
 Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
