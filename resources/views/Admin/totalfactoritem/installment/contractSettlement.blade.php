@@ -46,18 +46,18 @@
     @csrf
     <input type="hidden" name="total_factor_item_id" value="{{ $item['id'] }}">
     @if($totalFactorItem->status_mali == 7)
-    @role('mali|superadmin')
+    @permission('mali_confirmation_settlement')
     <button type="submit" class="btn btn-success px-4 mb-3 submit_btn">تایید و
         ارجاع
         به
         مدیرعامل</button>
-    @endrole
+    @endpermission
     @elseif($totalFactorItem->status_mali == 8)
-    @role('superadmin')
+    @permission('superadmin_confirmation_settlement')
     <button type="submit" class="btn btn-success px-4 mb-3 submit_btn">تایید
         نهایی
         مدیرعامل</button>
-    @endrole
+    @endpermission
     @endif
 </form>
 @if($totalFactorItem->totalFactorItemContractSettlement)
