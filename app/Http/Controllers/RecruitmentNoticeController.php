@@ -46,7 +46,45 @@ class RecruitmentNoticeController extends Controller
         }
         return view('site.recruitmentNotice', compact('recruitment_notices'));
     }
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function registerBasicInformation(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'name' => 'required|string',
+            'family' => 'required|string',
+            'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
+            'recruitment_notice_title' => 'required',
+        ]);
 
+        if ($validate->fails()){
+            return response([
+                'status'=>'error',
+                'messages'=>$validate->errors()->all()
+            ]);
+        }
+        $recruitment_notice = $request->recruitment_notice_title;
+        //check if user not exist -> create user
+        $user = User::where('phone', $request->phone)->first();
+        if (is_null($user)) {
+            //create user
+            $user = $this->createUser($request);
+        }
+        $this->createTaskForRegisterBasicInformation($user, $recruitment_notice);
+
+        if ($request->ajax()) {
+            return response([
+                'status'=>'success',
+                'messages'=>'موفقیت ارسال شد .'
+            ]);
+        }
+        return redirect()->back()->with([
+            'resume_success' => 'success'
+        ]);
+    }
     /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -188,6 +226,8 @@ class RecruitmentNoticeController extends Controller
             'active' => true,
             'sex' => $gender,
             'level' => 'user',
+            'province_id' => $request->province_id,
+            'city_id' => $request->city_id,
         ]);
     }
 
@@ -200,9 +240,9 @@ class RecruitmentNoticeController extends Controller
         $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
             $query->where('name', 'superadmin');
         })->first()->id;
-
+        $province = $recruitmentNotice->province ? $recruitmentNotice->province->name : 'استخدام کشوری (دورکاری)';
         $description = "جویای کار،
-             {($recruitmentNotice->province ? $recruitmentNotice->province->name : 'استخدام کشوری (دورکاری)')}
+             {$province}
              ،
           عنوان شغلی:
          {$recruitmentNotice->title}";
@@ -216,5 +256,26 @@ class RecruitmentNoticeController extends Controller
             'description' => $description
         ]);
     }
-
+    /**
+     * @param $user
+     * @return void
+     */
+    private function createTaskForRegisterBasicInformation(User $user, $recruitmentNotice): void
+    {
+        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
+            $query->where('name', 'superadmin');
+        })->first()->id;
+        $description = "جویای کار،
+          عنوان شغلی:
+         {$recruitmentNotice}";
+        Callcenter::create([
+            'reg_id' => $user->id,
+            'user_id' => $callcenter_user_id,
+            'agent_id' => null,
+            'type' => 0,
+            'request_type' => 'other',
+            'status' => 0,
+            'description' => $description
+        ]);
+    }
 }
