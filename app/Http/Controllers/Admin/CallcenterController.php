@@ -25,6 +25,7 @@ use App\Models\RecruitmentNotice;
 use App\Models\Representation;
 use App\Models\Role;
 use App\Models\Service;
+use App\Models\SuspensionStandard;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -481,7 +482,12 @@ class CallcenterController extends Controller
         //send sms
         if($task->register && $task->reason_id == 6)
         {
+            self::suspensionBasedOnStandards($task);
             event(new smsNotAnswer($task->register , $task->callcenter , 'مرکز تماس'));
+        }
+        else
+        {
+            $task->suspensionStandard()->delete();
         }
 
         if($task->register)
@@ -1320,5 +1326,32 @@ class CallcenterController extends Controller
         //change the factor representation if it has not been set before
         $factor->representation ? '' : $factor->update(['representation_id' => $representation]);
     }
+    /**
+     * @param Callcenter $callcenter
+     * @return void
+     */
+    private function suspensionBasedOnStandards(Callcenter $callcenter)
+    {
+        if (!$callcenter->suspensionStandard()->exists()) {
+            $suspension_standard = SuspensionStandard::first();
+            $callcenter->suspensionStandard()->create(['suspension_standard_id' => $suspension_standard->id]);
+        }
+        else
+        {
+            $suspension_standard = self::getNextSuspensionStandard($callcenter);
+            $callcenter->suspensionStandard->update(['suspension_standard_id' => $suspension_standard->id]);
+        }
+        $callcenter->update(['date_expire'=> now()->addHours($suspension_standard->waitting_time)]);
+    }
+    /**
+     * @param Callcenter $callcenter
+     * @return mixed
+     */
+    private function getNextSuspensionStandard(Callcenter $callcenter)
+    {
+        $next_suspension_standard = SuspensionStandard::where('id', '>', $callcenter->suspensionStandard->suspension_standard_id)->min('id');
+        return $next_suspension_standard;
+    }
+
 }
 
