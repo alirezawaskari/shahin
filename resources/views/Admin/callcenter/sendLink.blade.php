@@ -27,7 +27,8 @@
 
                         <div class="col-6 mb-3 mt-3">
                             <input class="form-control my-2 name" type="text" id="name" name="name" required
-                                placeholder="نام" value="{{ old('name') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
+                                placeholder="نام" value="{{ old('name') }}" pattern="^[\u0600-\u06FF\s]+$"
+                                title="لطفا با حروف فارسی وارد نمایید">
                             @if ($errors->has('name'))
                             <span class="d-block text-red text-left">{{ $errors->first('name')
                                 }}</span>
@@ -36,7 +37,8 @@
 
                         <div class="col-6 mb-3 mt-3">
                             <input class="form-control my-2 family" type="text" id="family" name="family" required
-                                placeholder="نام خانوادگی" value="{{ old('family') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
+                                placeholder="نام خانوادگی" value="{{ old('family') }}" pattern="^[\u0600-\u06FF\s]+$"
+                                title="لطفا با حروف فارسی وارد نمایید">
                             @if ($errors->has('family'))
                             <span class="d-block text-red text-left">{{ $errors->first('family')
                                 }}</span>
@@ -64,16 +66,18 @@
                         </div>
 
                         <div class="col-6 mb-3 mt-3">
-                            <div class="form-check" >
-                                <input style="cursor: pointer" class="form-check-input" type="radio" name="gender" id="female-gender" value="1">
+                            <div class="form-check">
+                                <input style="cursor: pointer" class="form-check-input" type="radio" name="gender"
+                                    id="female-gender" value="1">
                                 <label class="form-check-label" for="female-gender">
                                     خانم
                                 </label>
                             </div>
-                            <div class="form-check" >
-                                <input style="cursor: pointer" class="form-check-input" type="radio" name="gender" id="male-gender" checked value="0">
+                            <div class="form-check">
+                                <input style="cursor: pointer" class="form-check-input" type="radio" name="gender"
+                                    id="male-gender" checked value="0">
                                 <label class="form-check-label" for="male-gender">
-                                  آقا
+                                    آقا
                                 </label>
                             </div>
                         </div>
@@ -99,7 +103,8 @@
                         </div>
                         <div class="col-md-6 mt-2 mb-3">
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input challenging-check" id="challenging" name="challenging">
+                                <input type="checkbox" class="custom-control-input challenging-check" id="challenging"
+                                    name="challenging">
                                 <label class="custom-control-label" for="challenging">چالش انگیز</label>
                             </div>
                         </div>
@@ -107,7 +112,8 @@
                         <div class="col-md-3 mt-2 mb-3" id="checkbox-send-factor">
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="send-factor" name="send_factor" value="1" >
+                                <input class="form-check-input" type="checkbox" id="send-factor" name="send_factor"
+                                    value="1">
                                 <label class="form-check-label" for="send-factor">ارسال فاکتور</label>
                             </div>
                         </div>
@@ -175,7 +181,8 @@
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3 mt-2 financial_plans_type">
-                                        <select class="form-control" name="service_financial_plans_type[]" id="financial_plans_type_id1">
+                                        <select class="form-control" name="service_financial_plans_type[]"
+                                            id="financial_plans_type_id1">
                                             <option selected disabled>انتخاب نوع طرح</option>
                                         </select>
                                     </div>
@@ -228,7 +235,8 @@
                                     </div>
 
                                     <div class="col-12 mb-3 mt-2 financial_plans_type">
-                                        <select class="form-control" name="category_financial_plans_type[]" id="financial_plans_type_id1">
+                                        <select class="form-control" name="category_financial_plans_type[]"
+                                            id="financial_plans_type_id1">
                                             <option selected disabled>انتخاب نوع طرح</option>
                                         </select>
                                     </div>
@@ -302,10 +310,11 @@
                                     <br>
                                     <label for="bill_image_input2" id="up-label" class="btn badge-secondary"><i
                                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                    <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
-                                        id="bill_image_input2">
+                                    <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image"
+                                        type="file" id="bill_image_input2">
                                     <div id="bill_image_input2_src" class="show"></div>
-                                    <input type="hidden" id="bill_image_input2" class="path" name="url_bill_image" value="">
+                                    <input type="hidden" id="bill_image_input2" class="path" name="url_bill_image"
+                                        value="">
                                 </div>
 
                                 <div class="col-12 mb-2 d-none" id="password2">
@@ -316,7 +325,8 @@
                                 </div>
 
                                 <div class="col-12 col-md-4 mb-2 d-none" id="send_password2">
-                                    <span class="send_user_password btn btn-success-default text-white px-3"> ارسال رمز <i class="fa fa-paper-plane mr-1" aria-hidden="true"></i></span>
+                                    <span class="send_user_password btn btn-success-default text-white px-3"> ارسال رمز
+                                        <i class="fa fa-paper-plane mr-1" aria-hidden="true"></i></span>
                                 </div>
                                 <div class="col-12 mb-2 d-none" id="mobile_supervisor2">
                                     <label>شماره سرپرست</label>
@@ -326,19 +336,33 @@
                             </div>
                         </div>
                         <div class="card-body border border-info rounded">
-                            <div class="alert alert-info text-center" id="other-tasks-title"> دیگر درخواست های کاربر </div>
+                            <div class="card-header">
+                                توضیحات :
+                            </div>
+                            <textarea name="description" class="border border-secondary form-control mb-3"
+                                placeholder="توضیحات مربوط به درخواست کاربر را وارد کنید" required></textarea>
+                            <div class="mb-3"><label>انتقال به همکار (درصورت نیاز به انتقال درخواست همکار مربوطه را انتخاب کنید.)</label>
+                                <select name="callcenter" class="form-control">
+                                    <option value="">انتخاب همکار</option>
+                                    @foreach($callcenters as $item)
+                                    <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="alert alert-info text-center" id="other-tasks-title"> دیگر درخواست های کاربر
+                            </div>
                             <table class="table table-bordered  table-hover">
                                 <thead>
-                                <tr>
-                                    <th scope="col">موضوع درخواست</th>
-                                    <th scope="col">وضعیت</th>
-                                    <th scope="col">کالسنتر</th>
-                                    <th scope="col">تاریخ ثبت</th>
-                                </tr>
+                                    <tr>
+                                        <th scope="col">موضوع درخواست</th>
+                                        <th scope="col">وضعیت</th>
+                                        <th scope="col">کالسنتر</th>
+                                        <th scope="col">تاریخ ثبت</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="send-link-tasks-tbody">
-                                <tr>
-                                </tr>
+                                    <tr>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -347,8 +371,17 @@
                         <div class="card-header">
                             توضیحات :
                         </div>
-                        <textarea name="description" class="border border-secondary form-control" placeholder="توضیحات مربوط به درخواست کاربر را وارد کنید" required></textarea>
-                        <div>
+                        <textarea name="description" class="border border-secondary form-control mb-3"
+                            placeholder="توضیحات مربوط به درخواست کاربر را وارد کنید" required></textarea>
+                            <div class="mb-3"><label>انتقال به همکار (درصورت نیاز به انتقال درخواست همکار مربوطه را انتخاب کنید.)</label>
+                                <select name="callcenter" class="form-control">
+                                    <option value="">انتخاب همکار</option>
+                                    @foreach($callcenters as $item)
+                                    <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
                             <div class="card">
                                 <div class="card-header">
                                     <h5>توضیحات مربوط به کدام درخواست می باشد ؟</h5>
@@ -357,17 +390,17 @@
                                     <div class="alert alert-info text-center">درخواست های کاربر </div>
                                     <table class="table table-bordered  table-hover">
                                         <thead>
-                                        <tr>
-                                            <th scope="col">انتخاب</th>
-                                            <th scope="col">موضوع درخواست</th>
-                                            <th scope="col">وضعیت</th>
-                                            <th scope="col">کالسنتر</th>
-                                            <th scope="col">تاریخ ثبت</th>
-                                        </tr>
+                                            <tr>
+                                                <th scope="col">انتخاب</th>
+                                                <th scope="col">موضوع درخواست</th>
+                                                <th scope="col">وضعیت</th>
+                                                <th scope="col">کالسنتر</th>
+                                                <th scope="col">تاریخ ثبت</th>
+                                            </tr>
                                         </thead>
                                         <tbody id="in-progress-tasks-tbody">
-                                        <tr>
-                                        </tr>
+                                            <tr>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -382,4 +415,3 @@
         </div>
     </form>
 </div>
-
