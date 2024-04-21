@@ -163,7 +163,7 @@ class CallcenterController extends Controller
         $permission = false;
 
         if (auth()->user()->center_id) {
-            $services = Service::where('id' , auth()->user()->center->centerable_id)->get();
+            $services = Service::whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
             $categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }
         if($user->isAbleTo('record_payment'))
@@ -272,7 +272,7 @@ class CallcenterController extends Controller
         $provinces = Province::all();
 
         if (auth()->user()->center_id) {
-            $service_categories = Category::where('parent_id', 2)->where('isActive' , 1)->whereIn('id', auth()->user()->center->centerable->category_id)->get();
+            $service_categories = Category::where('parent_id', 2)->where('isActive' , 1)->whereIn('id', auth()->user()->center->services->pluck('category_id')->toArray())->get();
             $product_categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }elseif (auth()->user()->admin_representation) {
             $service_categories = auth()->user()->admin_representation->services;

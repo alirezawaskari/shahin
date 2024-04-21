@@ -90,7 +90,7 @@ $(document).ready(function () {
                         }
                         return `<div data-v-15965e3b="" class="dropdown">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i>
-                        </a><div class="dropdown-menu"><a href="../../dashboard/employee/${data.id}/edit" target="_blank"><button type="button" class="dropdown-item pointer">مشاهده</button></a>
+                        </a><div class="dropdown-menu"><a href="../../dashboard/employee/${data.id}/edit" target="_blank"><button type="button" class="dropdown-item pointer">ویرایش</button></a>
                           <a style="display: ${loginDisplay}" target="_blank" href="/dashboard/user/login/${data.user_id}"><span  data-id="${data.user_id}" class="task-delete dropdown-item pointer">
                             ورود
                             </span></a>

@@ -130,7 +130,7 @@
                         </option>
                     </select>
                 </div>
-                @role('superadmin')
+                @permission('change_user_role')
                 <div class="col-12 col-md-4 mb-3">
                     <label>نقش کاربر</label>
                     <select class="form-control" name="role_id">
@@ -147,7 +147,7 @@
                         <div class="btn btn-success" id="new-role">ایجاد نقش جدید +</div>
                     </a>
                 </div>
-                @endrole
+                @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>نمایندگی</label>
                     <select class="form-control" name="admin_representation_id">
