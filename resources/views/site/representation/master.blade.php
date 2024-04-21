@@ -68,6 +68,16 @@
         <script type="text/javascript">
             window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();
         </script>
+        <script type="text/javascript">
+            window.RAYCHAT_TOKEN = "223b3867-c246-488b-8a43-a9500b6047f0";
+            (function () {
+                d = document;
+                s = d.createElement("script");
+                s.src = "https://widget-react.raychat.io/install/widget.js";
+                s.async = 1;
+                d.getElementsByTagName("head")[0].appendChild(s);
+              })();
+          </script>
     </div>
     <div class="position-fixed d-none - d-md-block" style="left: 120px;bottom: 0;">
     </div>
