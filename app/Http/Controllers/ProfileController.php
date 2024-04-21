@@ -113,9 +113,8 @@ class ProfileController extends Controller
             'imgmeli' => 'mimes:jpg,jpeg,png|max:4096',
             'imgshenasname' => 'mimes:jpg,jpeg,png|max:4096',
 			'avatar' => 'mimes:jpg,jpeg,png|max:4096',
-            'imgcatch' => 'mimes:jpg,jpeg,png|max:4096',
-            'imglease' => 'mimes:jpg,jpeg,png|max:4096',
-            'imgczech' => 'mimes:jpg,jpeg,png|max:4096',
+            'imgturnover' => 'mimes:jpg,jpeg,png|max:4096',
+            'imgsignature' => 'mimes:jpg,jpeg,png|max:4096',
 			'password' => 'nullable|string|min:6|confirmed',
         ]);
 
@@ -125,9 +124,8 @@ class ProfileController extends Controller
         $imgmeli = $request->file('imgmeli');
         $imgshenasname = $request->file('imgshenasname');
 		$avatar = $request->file('avatar');
-        $imgcatch = $request->file('imgcatch');
-        $imglease = $request->file('imglease');
-        $imgczech = $request->file('imgczech');
+        $imgturnover = $request->file('imgturnover');
+        $imgsignature = $request->file('imgsignature');
 
         if ($imgmeli) {
             $urlimgmeli = $this->upload($imgmeli);
@@ -145,28 +143,22 @@ class ProfileController extends Controller
             $user->update(['avatar' => $urlavatar]);
 
         }
-        if ($imgcatch) {
-            $urlimgcatch = $this->upload($imgcatch);
-            $user->imgcatch = $urlimgcatch;
-            $user->update(['imgcatch' => $urlimgcatch]);
+        if ($imgturnover) {
+            $urlimgturnover = $this->upload($imgturnover);
+            $user->imgturnover = $urlimgturnover;
+            $user->update(['imgturnover' => $urlimgturnover]);
         }
-        if ($imglease) {
-            $urlimglease = $this->upload($imglease);
-            $user->imglease = $urlimgcatch;
-            $user->update(['imglease' => $urlimglease]);
-        }
-        if ($imgczech) {
-            $urlimgczech = $this->upload($imgczech);
-            $user->imgczech = $urlimgczech;
-            $user->update(['imglease' => $urlimgczech]);
+        if ($imgsignature) {
+            $urlimgsignature = $this->upload($imgsignature);
+            $user->imgsignature = $urlimgsignature;
+            $user->update(['imgsignature' => $urlimgsignature]);
         }
 
         unset($inputs['imgmeli']);
         unset($inputs['imgshenasname']);
 		unset($inputs['avatar']);
-        unset($inputs['imgcatch']);
-        unset($inputs['imglease']);
-        unset($inputs['imgczech']);
+        unset($inputs['imgturnover']);
+        unset($inputs['imgsignature']);
         unset($inputs['phone']);
         if ($inputs['password'] == '') {
             unset($inputs['password']);
