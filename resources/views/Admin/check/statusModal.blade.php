@@ -31,10 +31,9 @@
                                 </select>
                             </div>
                             <div class="form-group col-md-4 " id="payment-date-box">
-                                <label>تاریخ وصول</label>
-                                <date-picker value="{{ $check->date }}" id="check-payment-date" format="YYYY/M/D HH:mm" name="payment_date"
-                                    type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
-                                </date-picker>
+                                <label>تاریخ وصول :</label>
+                                    <input name="payment_date" id="check-payment-date" class="form-control check-date"
+                                required>
                             </div>
                             <div class="form-group col-md-12 row " id="receiver-box" style="display: none">
                                 <div class="col-md-12 text-center card-title ">

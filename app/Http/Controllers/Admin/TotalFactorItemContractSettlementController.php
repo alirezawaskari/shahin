@@ -16,7 +16,7 @@ class TotalFactorItemContractSettlementController extends Controller
     {
         $total_factor_item = TotalFactorItem::find($request->total_factor_item_id);
         $status_mali = $total_factor_item->status_mali;
-        if ($total_factor_item->status_mali == 7 && auth()->user()->hasRole('mali|superadmin')) {
+        if ($total_factor_item->status_mali == 7 && auth()->user()->hasPermission('mali_confirmation_settlement')) {
             $status_mali = 8;
             $mali_id = auth()->user()->id;
             $total_factor_item->totalFactorItemContractSettlement->update([
@@ -24,7 +24,7 @@ class TotalFactorItemContractSettlementController extends Controller
             ]);
         }
 
-        if ($total_factor_item->status_mali == 8 && auth()->user()->hasRole('superadmin')) {
+        if ($total_factor_item->status_mali == 8 && auth()->user()->hasPermission('superadmin_confirmation_settlement')) {
             $status_mali = 9;
             $superadmin_id = auth()->user()->id;
             $total_factor_item->totalFactorItemContractSettlement->update([

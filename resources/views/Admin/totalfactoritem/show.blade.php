@@ -139,8 +139,8 @@
                     aria-controls="factor" aria-selected="false">پرونده</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link show" id="turnRatings-tab" data-toggle="tab" href="#turnRatings" role="tab" aria-controls="home"
-                    aria-selected="false">نوبت دهی</a>
+                <a class="nav-link show" id="turnRatings-tab" data-toggle="tab" href="#turnRatings" role="tab"
+                    aria-controls="home" aria-selected="false">نوبت دهی</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link show" id="basic-document-tab" data-toggle="tab" href="#basic-document" role="tab"
@@ -179,7 +179,8 @@
                     <div class="panel">
                         <div class="panel-heading">
                             <h5 class="panel-title">
-                                <a href="#prepaymentLink" class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion">ثبت و ارسال قبض پرداخت هزینه ثبت نام</a>
+                                <a href="#prepaymentLink" class="accordion-toggle collapsed" data-toggle="collapse"
+                                    data-parent="#accordion">ثبت و ارسال قبض پرداخت هزینه ثبت نام</a>
                             </h5>
                         </div>
                         <div id="prepaymentLink" class="panel-collapse collapse">
@@ -215,20 +216,22 @@
                                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
                                     @foreach ($items as $key => $factorItem)
                                     <li class="nav-item">
-                                        <a class="nav-link show {{ $key == 0 ? 'active' : ''}}" id="priceDiffLink-{{ $key }}-tab"
-                                            data-toggle="tab" href="#priceDiffLink-{{ $key }}" role="tab" aria-controls="priceDiffLink-{{ $key }}"
-                                            aria-selected="false">{{
+                                        <a class="nav-link show {{ $key == 0 ? 'active' : ''}}"
+                                            id="priceDiffLink-{{ $key }}-tab" data-toggle="tab"
+                                            href="#priceDiffLink-{{ $key }}" role="tab"
+                                            aria-controls="priceDiffLink-{{ $key }}" aria-selected="false">{{
                                             $factorItem['factoritemable']->title }}</a>
                                     </li>
                                     @endforeach
                                 </ul>
                                 <div class="tab-content border p-4" id="myTabContent">
-                                @foreach ($items as $key => $factorItem)
-                                <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} " id="priceDiffLink-{{ $key }}"
-                                    role="tabpanel" aria-labelledby="priceDiffLink-{{ $key }}-tab">
-                                @include('Admin.factoritem.layouts.file.priceDiffLink')
-                                </div>
-                                @endforeach
+                                    @foreach ($items as $key => $factorItem)
+                                    <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} "
+                                        id="priceDiffLink-{{ $key }}" role="tabpanel"
+                                        aria-labelledby="priceDiffLink-{{ $key }}-tab">
+                                        @include('Admin.factoritem.layouts.file.priceDiffLink')
+                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -246,38 +249,38 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="row">
-                                                <div class="col-12 col-md-4">
-                                                    <h5> وضعیت مالی : {{ $item['status_mali'] }}</h5>
-                                                    <h5>تاریخ شروع قرارداد : {{ $item['start_date'] }} </h5>
-                                                    <h5>تاریخ پایان قرارداد : {{ $item['end_date'] }}</h5>
-                                                    <h5> مبلغ تسهیلات : {{ number_format($item['loan']) }}
-                                                        ریال</h5>
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <h5> تعداد کل اقساط : {{ $item['installments_num'] }}
-                                                    </h5>
-                                                    <h5> تعداد اقساط پرداخت شده :
-                                                        {{ $item['installments_num_pay'] }}</h5>
-                                                    <h5> تعداد اقساط پرداخت نشده :
-                                                        {{ $item['installments_num'] - $item['installments_num_pay'] }}
-                                                    </h5>
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <h5> مبلغ بدهکاری کل
-                                                        : {{ number_format($item['installments_debt']) }}
-                                                        ریال</h5>
-                                                    <h5> مبلغ بدهکاری اقساط :
-                                                        {{ number_format($expire_installments->sum('price')) }}
-                                                        ریال</h5>
-                                                    <h5> جریمه کل : {{ $item['extra_pay'] }}</h5>
-                                                    <h5> جریمه باقیمانده : {{ $item['extra_pay_debt'] }}
-                                                        ریال
-                                                    </h5>
-                                                </div>
+                                            <div class="col-12 col-md-4">
+                                                <h5> وضعیت مالی : {{ $item['status_mali'] }}</h5>
+                                                <h5>تاریخ شروع قرارداد : {{ $item['start_date'] }} </h5>
+                                                <h5>تاریخ پایان قرارداد : {{ $item['end_date'] }}</h5>
+                                                <h5> مبلغ تسهیلات : {{ number_format($item['loan']) }}
+                                                    ریال</h5>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <h5> تعداد کل اقساط : {{ $item['installments_num'] }}
+                                                </h5>
+                                                <h5> تعداد اقساط پرداخت شده :
+                                                    {{ $item['installments_num_pay'] }}</h5>
+                                                <h5> تعداد اقساط پرداخت نشده :
+                                                    {{ $item['installments_num'] - $item['installments_num_pay'] }}
+                                                </h5>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <h5> مبلغ بدهکاری کل
+                                                    : {{ number_format($item['installments_debt']) }}
+                                                    ریال</h5>
+                                                <h5> مبلغ بدهکاری اقساط :
+                                                    {{ number_format($expire_installments->sum('price')) }}
+                                                    ریال</h5>
+                                                <h5> جریمه کل : {{ $item['extra_pay'] }}</h5>
+                                                <h5> جریمه باقیمانده : {{ $item['extra_pay_debt'] }}
+                                                    ریال
+                                                </h5>
+                                            </div>
                                             <div class="card col-md-12" style="margin-top: 20px">
                                                 @include('Admin.totalfactoritem.installment.list')
                                             </div>
-                                         </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -293,7 +296,7 @@
                         </div>
                         <div id="orginal-documents" class="panel-collapse collapse">
                             <div class="panel-body">
-                            @include('Admin.totalfactoritem.show.orginalDocument')
+                                @include('Admin.totalfactoritem.show.orginalDocument')
                             </div>
                         </div>
                     </div>
@@ -327,20 +330,21 @@
                                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
                                     @foreach ($items as $key => $factorItem)
                                     <li class="nav-item">
-                                        <a class="nav-link show {{ $key == 0 ? 'active' : ''}}" id="printForm-{{ $key }}-tab"
-                                            data-toggle="tab" href="#printForm-{{ $key }}" role="tab" aria-controls="printForm-{{ $key }}"
-                                            aria-selected="false">{{
+                                        <a class="nav-link show {{ $key == 0 ? 'active' : ''}}"
+                                            id="printForm-{{ $key }}-tab" data-toggle="tab" href="#printForm-{{ $key }}"
+                                            role="tab" aria-controls="printForm-{{ $key }}" aria-selected="false">{{
                                             $factorItem['factoritemable']->title }}</a>
                                     </li>
                                     @endforeach
                                 </ul>
                                 <div class="tab-content border p-4" id="myTabContent">
-                                @foreach ($items as $key => $factorItem)
-                                <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} " id="printForm-{{ $key }}"
-                                    role="tabpanel" aria-labelledby="printForm-{{ $key }}-tab">
-                                @include('Admin.factoritem.layouts.print')
-                                </div>
-                                @endforeach
+                                    @foreach ($items as $key => $factorItem)
+                                    <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} "
+                                        id="printForm-{{ $key }}" role="tabpanel"
+                                        aria-labelledby="printForm-{{ $key }}-tab">
+                                        @include('Admin.factoritem.layouts.print')
+                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -593,25 +597,25 @@
 
 
 
-            
+
             <div class="tab-pane fade p-t-20" id="turnRatings" role="tabpanel" aria-labelledby="home-tab">
                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
                     @foreach ($items as $key => $factorItem)
                     <li class="nav-item">
                         <a class="nav-link show {{ $key == 0 ? 'active' : ''}}" id="turnratings-{{ $key }}-tab"
-                            data-toggle="tab" href="#turnratings-{{ $key }}" role="tab" aria-controls="turnratings-{{ $key }}"
-                            aria-selected="false">{{
+                            data-toggle="tab" href="#turnratings-{{ $key }}" role="tab"
+                            aria-controls="turnratings-{{ $key }}" aria-selected="false">{{
                             $factorItem['factoritemable']->title }}</a>
                     </li>
                     @endforeach
                 </ul>
                 <div class="tab-content border p-4" id="myTabContent">
-                @foreach ($items as $key => $factorItem)
-                <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} " id="turnratings-{{ $key }}"
-                    role="tabpanel" aria-labelledby="turnratings-{{ $key }}-tab">
-                    @include('Admin.factoritem.show.turnRatings')
-                </div>
-                @endforeach
+                    @foreach ($items as $key => $factorItem)
+                    <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} " id="turnratings-{{ $key }}"
+                        role="tabpanel" aria-labelledby="turnratings-{{ $key }}-tab">
+                        @include('Admin.factoritem.show.turnRatings')
+                    </div>
+                    @endforeach
                 </div>
             </div>
 

@@ -35,6 +35,7 @@
                 <div class="col-12 col-md-3 mb-2">
                     <select name="province" id="province_id" class="custom-select select2" >
                         <option value="all">انتخاب استان</option>
+                        <option value="all_province">استخدام کشوری (دورکاری)</option>
                         @foreach(\App\Models\Province::all() as $province)
                             <option value="{{$province->id}}">{{$province->name}}</option>
                         @endforeach

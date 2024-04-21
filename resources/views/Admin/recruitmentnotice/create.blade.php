@@ -16,6 +16,7 @@
                         <label>استان ها</label>
                         <select class="form-control" name="province_id"
                                 id="confirm">
+                            <option value="">استخدام کشوری (دورکاری)</option>
                             @foreach($provinces as $province)
                                 <option value="{{ $province->id }}">{{ $province->name }}</option>
                             @endforeach

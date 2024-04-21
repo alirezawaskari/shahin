@@ -14,8 +14,8 @@ $(document).ready(function () {
 
 
     fetchData(1);
-    var first_load=true;
-    var do_filter_command=false;
+    var first_load = true;
+    var do_filter_command = false;
     /*    if checkbox of transfer checked for all requests   */
     $('#transfer_checkbox').change(function () {
         if ($(this).is(':checked')) {
@@ -47,7 +47,7 @@ $(document).ready(function () {
                 $('#count_box').hide()
                 break;
             default:
-            // code block
+                // code block
         }
     });
 
@@ -58,7 +58,7 @@ $(document).ready(function () {
         } else {
             $('#pagination-demo').remove();
             $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-            do_filter_command=true;
+            do_filter_command = true;
             fetchData(1)
             event.preventDefault();
         }
@@ -68,28 +68,27 @@ $(document).ready(function () {
         var token = $('meta[name="csrf-token"]').attr('content');
         var form = $('#transfer_form');
         var formData = form.serialize();
-        $.ajax(
-            {
-                url: "/dashboard/task-transfer",
-                type: 'post',
-                "_token": token,
-                data: formData,
-                success: function (response) {
-                    console.log(response)
-                    if (response.status == 'success') {
-                        swal(response.messages, {
-                            icon: "success",
-                            button: "باشه"
-                        });
-                        fetchData(1);
-                    } else {
-                        $('.transfer_message_box').empty();
-                        $.each(response.messages, function (i, val) {
-                            $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
-                        });
-                    }
+        $.ajax({
+            url: "/dashboard/task-transfer",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                console.log(response)
+                if (response.status == 'success') {
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                } else {
+                    $('.transfer_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
+                    });
                 }
-            });
+            }
+        });
     });
 
 
@@ -101,23 +100,23 @@ $(document).ready(function () {
             prev: '<',
             onPageClick: function (event, page) {
                 //fetch content and render here
-                if (!first_load && !do_filter_command){
+                if (!first_load && !do_filter_command) {
                     fetchData(page);
                 }
-                first_load=false
-                do_filter_command=false
+                first_load = false
+                do_filter_command = false
             }
         });
     }
 
     function fetchData(page) {
-        $('#loading').css('display' , 'block');
+        $('#loading').css('display', 'block');
         var form = $('#filter_form');
         var formData = form.serialize();
         var basicUrl = $('#url').val();
 
         $.ajax({
-            url: "/dashboard/callcenter/" + basicUrl+"?page=" + page,
+            url: "/dashboard/callcenter/" + basicUrl + "?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
@@ -141,8 +140,9 @@ $(document).ready(function () {
             searching: false,
             retrieve: true,
             data: data.data,
-            columns: [
-                {"data": "sort_by"},
+            columns: [{
+                    "data": "sort_by"
+                },
                 {
                     "targets": 1,
                     "data": data,
@@ -150,13 +150,27 @@ $(document).ready(function () {
                         return `<input type="checkbox" name="id[]" value="${data.id}">`
                     }
                 },
-                {"data": "name.full_name"},
-                {"data": "province.province"},
-                {"data": "city.city"},
-                {"data": "phone"},
-                {"data": "text"},
-                {"data": "user"},
-                {"data": "representation"},
+                {
+                    "data": "name.full_name"
+                },
+                {
+                    "data": "province.province"
+                },
+                {
+                    "data": "city.city"
+                },
+                {
+                    "data": "phone"
+                },
+                {
+                    "data": "text"
+                },
+                {
+                    "data": "user"
+                },
+                {
+                    "data": "representation"
+                },
                 {
                     "targets": 1,
                     "data": data,
@@ -176,19 +190,23 @@ $(document).ready(function () {
                         }
                     }
                 },
-                {"data": "service"},
+                {
+                    "data": "service"
+                },
                 {
                     "data": data,
                     "render": function (data) {
                         return getBadgeOfCallCenterStatus(data.status)
                     }
-                }, {"data": "date"},
+                }, {
+                    "data": "date"
+                },
                 {
                     "data": data,
                     "render": function (data) {
-                        let display='none';
-                        if($('#delete').val() == 1){
-                            display='block'
+                        let display = 'none';
+                        if ($('#delete').val() == 1) {
+                            display = 'block'
                         }
                         return `<div data-v-15965e3b="" class="dropdown" id="taskDetailModal">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
@@ -204,7 +222,10 @@ $(document).ready(function () {
         });
         //add column count
         table.on('order.dt search.dt', function () {
-            table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
+            table.column(0, {
+                search: 'applied',
+                order: 'applied'
+            }).nodes().each(function (cell, i) {
                 cell.innerHTML = data.meta.from + i;
             });
         }).draw();
@@ -228,30 +249,27 @@ $(document).ready(function () {
                 dangerMode: true
             }).then(res => {
                 if (res) {
-                    $.ajax(
-                        {
-                            url: "/dashboard/callcenter/" + id,
-                            type: 'DELETE',
-                            data: {
-                                "_token": token
-                            },
-                            success: function (data) {
-                                if (data.status == 'success') {
-                                    $("#do_filter").click();
-                                    swal({
-                                        icon: "success",
-                                        text: data.message,
-                                    });
-                                }
-                                else
-                                {
-                                    swal({
-                                        icon: "error",
-                                        text: data.message,
-                                    });
-                                }
+                    $.ajax({
+                        url: "/dashboard/callcenter/" + id,
+                        type: 'DELETE',
+                        data: {
+                            "_token": token
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                $("#do_filter").click();
+                                swal({
+                                    icon: "success",
+                                    text: data.message,
+                                });
+                            } else {
+                                swal({
+                                    icon: "error",
+                                    text: data.message,
+                                });
                             }
-                        });
+                        }
+                    });
                 }
             });
         }
@@ -259,28 +277,28 @@ $(document).ready(function () {
     /*      MODAL PART (STATUS BTN)     */
     $("body").on('click', '.task-status', function () {
         //set send link form data
-         $('#send-factor').prop('checked', true);
+        $('#send-factor').prop('checked', true);
         $('#remember-description').val('');
-        $('#custom-check-vip').prop( "checked", false );
-        $('#custom-check-sos').prop( "checked", false );
-        $('#challenging').prop( "checked", false );
+        $('#custom-check-vip').prop("checked", false);
+        $('#custom-check-sos').prop("checked", false);
+        $('#challenging').prop("checked", false);
         $("#reason-remember").prop("selectedIndex", 0).val();
         $('#phone').attr('value', $(this).data('phone'));
-        if ( $(this).data('vip')){
-            $('#custom-check-vip').prop( "checked", true );
-            $('#vipCheck').prop( "checked", true );
+        if ($(this).data('vip')) {
+            $('#custom-check-vip').prop("checked", true);
+            $('#vipCheck').prop("checked", true);
         }
-        if ( $(this).data('sos')){
-            $('#custom-check-sos').prop( "checked", true );
-            $('#sosCheck').prop( "checked", true );
+        if ($(this).data('sos')) {
+            $('#custom-check-sos').prop("checked", true);
+            $('#sosCheck').prop("checked", true);
         }
-        if ( $(this).data('conduct')){
-            $('#challenging').prop( "checked", true );
+        if ($(this).data('conduct')) {
+            $('#challenging').prop("checked", true);
         }
-        if ( $(this).data('gender')=='0'){
-            $('#male-gender').prop( "checked", true );
-        }else {
-            $('#female-gender').prop( "checked", true );
+        if ($(this).data('gender') == '0') {
+            $('#male-gender').prop("checked", true);
+        } else {
+            $('#female-gender').prop("checked", true);
         }
         $('.modal_status_message_box').empty();
         $('#sendLinkForm').append(`<input type="hidden" name="task" value="${$(this).data('id')}">`);
@@ -291,14 +309,14 @@ $(document).ready(function () {
         $("#province").val($(this).data('province'));
         $("#cities").val($(this).data('city')).change();
         $('#exampleModalLabel').empty();
-        let status_badge= getBadgeOfCallCenterStatus($(this).data('status'))
+        let status_badge = getBadgeOfCallCenterStatus($(this).data('status'))
         let vip_label = '';
         let sos_label = '';
         if ($(this).data('vip'))
-           vip_label = "ثروتمند/توانمند";
+            vip_label = "ثروتمند/توانمند";
 
         if ($(this).data('sos'))
-            sos_label='فقیر/کم توان';
+            sos_label = 'فقیر/کم توان';
         $('#exampleModalLabel').append(`
                                <div class="col-md-3">
                                 شماره موبایل:
@@ -330,21 +348,20 @@ $(document).ready(function () {
 
         var token = $('meta[name="csrf-token"]').attr('content');
         var task_id = $(this).data('id');
-        $.ajax(
-            {
-                url: "/dashboard/task-detail",
-                type: 'post',
-                data: {
-                    "_token": token,
-                    "id": task_id
-                },
-                success: function (response) {
-                    fillSendLinkTasksTableBody(response.data.tasks)
-                    $('.history-tbody').empty()
-                    let i =1;
-                    $.each(response.data.histories, function (index, value) {
+        $.ajax({
+            url: "/dashboard/task-detail",
+            type: 'post',
+            data: {
+                "_token": token,
+                "id": task_id
+            },
+            success: function (response) {
+                fillSendLinkTasksTableBody(response.data.tasks)
+                $('.history-tbody').empty()
+                let i = 1;
+                $.each(response.data.histories, function (index, value) {
 
-                        $('.history-tbody').append(`
+                    $('.history-tbody').append(`
                         <tr>
 
                             <td>
@@ -364,11 +381,11 @@ $(document).ready(function () {
                             </td>
                         </tr>
                         `);
-                    });
-                    $('.factors-tbody').empty()
-                    let number_item =1;
-                    $.each(response.data.factors, function (index, value) {
-                        $('.factors-tbody').append(`
+                });
+                $('.factors-tbody').empty()
+                let number_item = 1;
+                $.each(response.data.factors, function (index, value) {
+                    $('.factors-tbody').append(`
                         <tr>
                             <td>
                                 ${number_item++}
@@ -396,9 +413,9 @@ $(document).ready(function () {
                             </td>
                         </tr>
                         `);
-                    });
-                }
-            });
+                });
+            }
+        });
         $(".task").val($(this).data('id'))
 
     })
@@ -414,34 +431,37 @@ $(document).ready(function () {
             title: "اطلاعات ارسال گردید !",
             timer: 2000
         });
-        $.ajax(
-            {
-                url: "/dashboard/status-form",
-                type: 'post',
-                "_token": token,
-                data: formData,
-                success: function (response) {
-                    if (response.status == 'success') {
-                        $('#type-badge').empty();
-                        if ($('#custom-check-vip').is(':checked')) {
-                            $('#type-badge').append(`
+        $.ajax({
+            url: "/dashboard/status-form",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    $('#type-badge').empty();
+                    if ($('#custom-check-vip').is(':checked')) {
+                        $('#type-badge').append(`
                             <span class="badge badge-danger">VIP</span>
                             `);
-                        }
-                        if ($('#custom-check-sos').is(':checked')) {
-                            $('#type-badge').append(`
+                    }
+                    if ($('#custom-check-sos').is(':checked')) {
+                        $('#type-badge').append(`
                             <span class="badge badge-danger">SOS</span>
                             `);
-                        }
-                        swal(response.messages, {
-                            icon: "success",
-                            button: "باشه"
-                        });
-                        fetchData(1);
-                        $('.history-tbody').empty()
-                        $.each(response.data.histories, function (index, value) {
-                            $('.history-tbody').append(`
+                    }
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                    $('.history-tbody').empty()
+                    let i = 1;
+                    $.each(response.data.histories, function (index, value) {
+                        $('.history-tbody').append(`
                         <tr>
+                            <td>
+                                ${i++}
+                            </td>
                             <td>
                                 ${value.user}
                             </td>
@@ -456,31 +476,112 @@ $(document).ready(function () {
                             </td>
                         </tr>
                         `);
-                        });
-                    }
-                    else if(response.status == 'error'){
-                        swal( {
-                            icon : "error",
-                            title :response.messages,
-                            button: "باشه"
-                        });
-                        $('.modal_status_message_box').empty();
-                        $.each(response.messages, function (i, val) {
-                            $('.modal_status_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
-                        });
-                    } else {
-                        swal( {
-                            icon : "error",
-                            title :"خطایی رخ داده است , لطفا مقادیر ارسالی را بررسی نمایید !",
-                            button: "باشه"
-                        });
-                        $('.modal_status_message_box').empty();
-                        $.each(response.messages, function (i, val) {
-                            $('.modal_status_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
-                        });
-                    }
+                    });
+                } else if (response.status == 'error') {
+                    swal({
+                        icon: "error",
+                        title: response.messages,
+                        button: "باشه"
+                    });
+                    $('.modal_status_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_status_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
+                } else {
+                    swal({
+                        icon: "error",
+                        title: "خطایی رخ داده است , لطفا مقادیر ارسالی را بررسی نمایید !",
+                        button: "باشه"
+                    });
+                    $('.modal_status_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_status_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
                 }
-            });
+            }
+        });
+
+    })
+    /*  submit status   in status modal*/
+    $("body").on('click', '#submit-status-noCall', function () {
+        $('.modal_status_message_box').empty();
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var form = $('#modal-status-form-noCall');
+        var formData = form.serialize();
+
+        swal({
+            title: "اطلاعات ارسال گردید !",
+            timer: 2000
+        });
+        $.ajax({
+            url: "/dashboard/status-form",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    $('#type-badge').empty();
+                    if ($('#custom-check-vip').is(':checked')) {
+                        $('#type-badge').append(`
+                            <span class="badge badge-danger">VIP</span>
+                            `);
+                    }
+                    if ($('#custom-check-sos').is(':checked')) {
+                        $('#type-badge').append(`
+                            <span class="badge badge-danger">SOS</span>
+                            `);
+                    }
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                    $('.history-tbody').empty()
+                    let i = 1;
+                    $.each(response.data.histories, function (index, value) {
+                        $('.history-tbody').append(`
+                        <tr>
+                            <td>
+                                ${i++}
+                            </td>
+                            <td>
+                                ${value.user}
+                            </td>
+                            <td>
+                                ${value.callcenter}
+                            </td>
+                            <td>
+                                ${value.date}
+                            </td>
+                            <td>
+                                ${value.description}
+                            </td>
+                        </tr>
+                        `);
+                    });
+                } else if (response.status == 'error') {
+                    swal({
+                        icon: "error",
+                        title: response.messages,
+                        button: "باشه"
+                    });
+                    $('.modal_status_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_status_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
+                } else {
+                    swal({
+                        icon: "error",
+                        title: "خطایی رخ داده است , لطفا مقادیر ارسالی را بررسی نمایید !",
+                        button: "باشه"
+                    });
+                    $('.modal_status_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_status_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
+                }
+            }
+        });
 
     })
     /*  submit status   in status modal*/
@@ -489,27 +590,26 @@ $(document).ready(function () {
         var token = $('meta[name="csrf-token"]').attr('content');
         var form = $('#modal-transfer-form');
         var formData = form.serialize();
-        $.ajax(
-            {
-                url: "/dashboard/transfer-form",
-                type: 'post',
-                "_token": token,
-                data: formData,
-                success: function (response) {
-                    if (response.status == 'success') {
-                        swal(response.messages, {
-                            icon: "success",
-                            button: "باشه"
-                        });
-                        fetchData(1);
-                    } else {
-                        $('.modal_transfer_message_box').empty();
-                        $.each(response.messages, function (i, val) {
-                            $('.modal_transfer_message_box').append(`<span class="badge badge-danger">${val}</span>`);
-                        });
-                    }
+        $.ajax({
+            url: "/dashboard/transfer-form",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                } else {
+                    $('.modal_transfer_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_transfer_message_box').append(`<span class="badge badge-danger">${val}</span>`);
+                    });
                 }
-            });
+            }
+        });
     })
     /*  submit status   in status modal*/
     $("body").on('click', '#submit-close-task', function () {
@@ -522,24 +622,27 @@ $(document).ready(function () {
             title: "اطلاعات ارسال گردید !",
             timer: 2000
         });
-        $.ajax(
-            {
-                url: "/dashboard/callcenter/closeTask",
-                type: 'post',
-                "_token": token,
-                data: formData,
-                success: function (response) {
-                    if (response.status == 'success') {
-                        $('#type-badge').empty();
-                        swal(response.messages, {
-                            icon: "success",
-                            button: "باشه"
-                        });
-                        fetchData(1);
-                        $('.history-tbody').empty()
-                        $.each(response.data.histories, function (index, value) {
-                            $('.history-tbody').append(`
+        $.ajax({
+            url: "/dashboard/callcenter/closeTask",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    $('#type-badge').empty();
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                    $('.history-tbody').empty()
+                    let i = 1;
+                    $.each(response.data.histories, function (index, value) {
+                        $('.history-tbody').append(`
                         <tr>
+                            <td>
+                                ${i++}
+                            </td>
                             <td>
                                 ${value.user}
                             </td>
@@ -554,56 +657,55 @@ $(document).ready(function () {
                             </td>
                         </tr>
                         `);
-                        });
-                    }
-                    else if (response.status == 'Unauthorized') {
-                        swal( {
-                            icon : "error",
-                            title :response.messages,
-                            button: "باشه"
-                        });
-                        $('.modal_close_task_message_box').empty();
-                        $.each(response.messages, function (i, val) {
-                            $('.modal_close_task_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
-                        });
-                    }
-                    else {
-                        swal( {
-                            icon : "error",
-                            title :"خطایی رخ داده است , لطفا مقادیر ارسالی را بررسی نمایید !",
-                            button: "باشه"
-                        });
-                        $('.modal_close_task_message_box').empty();
-                        $.each(response.messages, function (i, val) {
-                            $('.modal_close_task_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
-                        });
-                    }
+                    });
+                } else if (response.status == 'Unauthorized') {
+                    swal({
+                        icon: "error",
+                        title: response.messages,
+                        button: "باشه"
+                    });
+                    $('.modal_close_task_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_close_task_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
+                } else {
+                    swal({
+                        icon: "error",
+                        title: "خطایی رخ داده است , لطفا مقادیر ارسالی را بررسی نمایید !",
+                        button: "باشه"
+                    });
+                    $('.modal_close_task_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_close_task_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
                 }
-            });
+            }
+        });
 
     })
-    $(document).on('click', '#custom-check-vip', function() {
+    $(document).on('click', '#custom-check-vip', function () {
         if ($('#custom-check-vip').is(':checked')) {
             $('#custom-check-sos').prop('checked', false);
         }
     });
-    $(document).on('click', '#custom-check-sos', function() {
+    $(document).on('click', '#custom-check-sos', function () {
         if ($('#custom-check-sos').is(':checked')) {
             $('#custom-check-vip').prop('checked', false);
         }
     });
-    $(document).on('click', '#sosCheck', function() {
+    $(document).on('click', '#sosCheck', function () {
         if ($('#sosCheck').is(':checked')) {
             $('#vipCheck').prop('checked', false);
         }
     });
-    $(document).on('click', '#vipCheck', function() {
+    $(document).on('click', '#vipCheck', function () {
         if ($('#vipCheck').is(':checked')) {
             $('#sosCheck').prop('checked', false);
         }
     });
 });
-function getBadgeOfCallCenterStatus(status){
+
+function getBadgeOfCallCenterStatus(status) {
     switch (status) {
         case 0:
             return '<span class="badge badge-red">جدید</span>'
@@ -631,4 +733,19 @@ function getBadgeOfCallCenterStatus(status){
             return ''
     }
 }
-
+//tab content for call details
+function openTab(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();

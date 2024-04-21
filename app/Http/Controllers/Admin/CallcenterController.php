@@ -25,6 +25,7 @@ use App\Models\RecruitmentNotice;
 use App\Models\Representation;
 use App\Models\Role;
 use App\Models\Service;
+use App\Models\SuspensionStandard;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -426,7 +427,11 @@ class CallcenterController extends Controller
             }
             Helper::vipUser($request->vip, $client->id);
             Helper::sosUser($request->sos, $client->id);
-
+            if($request->callcenter)
+            {
+                $request->task = $task->id;
+                self::transfer_form($request);
+            }
             return redirect()->back()->with( [
                 'create' => 'success'
             ] );
@@ -441,8 +446,6 @@ class CallcenterController extends Controller
     {
        $validate = Validator::make($request->all(), [
             'reason' => 'required',
-            'date' => 'required',
-            'description' => 'required|string',
             'task' => ['required',Rule::exists('callcenters','id')],
         ]);
         if ($validate->fails()){
@@ -477,11 +480,20 @@ class CallcenterController extends Controller
             'reason_id' => $request->reason,
             'description' => !is_null($request->description) ? $request->description : Reason::find($request->reason)->title,
         ]);
-
+        //transfer task if select callcenter
+        if($request->callcenter)
+        {
+            self::transfer_form($request);
+        }
         //send sms
         if($task->register && $task->reason_id == 6)
         {
+            self::suspensionBasedOnStandards($request , $task);
             event(new smsNotAnswer($task->register , $task->callcenter , 'مرکز تماس'));
+        }
+        else
+        {
+            $task->suspensionStandard()->delete();
         }
 
         if($task->register)
@@ -1320,5 +1332,56 @@ class CallcenterController extends Controller
         //change the factor representation if it has not been set before
         $factor->representation ? '' : $factor->update(['representation_id' => $representation]);
     }
+    /**
+     * @param Request $request
+     * @param Callcenter $callcenter
+     * @return void
+     */
+    private function suspensionBasedOnStandards(Request $request , Callcenter $callcenter)
+    {
+        if (!$callcenter->suspensionStandard()->exists()) {
+            $suspension_standard = SuspensionStandard::first();
+            $callcenter->suspensionStandard()->create(['suspension_standard_id' => $suspension_standard->id]);
+        }
+        else
+        {
+            $suspension_standard = self::getNextSuspensionStandard($callcenter);
+            if(isset($suspension_standard->id))
+            {
+                $callcenter->suspensionStandard->update(['suspension_standard_id' => $suspension_standard->id]);
+            }
+            else
+            {
+                $request->task = $callcenter->id;
+                $request->close_task_type = 'all_user_task';
+                self::closeTask($request);
+                $description = 'به دلیل عدم پاسخگویی کاربر، تمام درخواست های باز کاربر بسته شد.';
+            }
+        }
+        //suspention task
+        if(isset($suspension_standard->id))
+        {
+            $callcenter->update(['date_expire'=> now()->addHours($suspension_standard->waitting_time)]);
+            $description = $suspension_standard->name .' تماس گرفته شد ارتباط با کاربر برقرار نشد.';
+        }
+        //create history
+        $callcenter->histories()->create([
+            'user_id' => auth()->user()->id,
+            'callcenter_id' => $callcenter->user_id,
+            'status' => $request->reason == 0 ? 3 : 2,
+            'reason_id' => $request->reason,
+            'description' => $description,
+        ]);
+    }
+    /**
+     * @param Callcenter $callcenter
+     * @return mixed
+     */
+    private function getNextSuspensionStandard(Callcenter $callcenter)
+    {
+        $next_suspension_standard = SuspensionStandard::where('id', '>', $callcenter->suspensionStandard->suspension_standard_id)->min('id');
+        return $next_suspension_standard;
+    }
+
 }
 

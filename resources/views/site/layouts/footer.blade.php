@@ -3,17 +3,17 @@
         <div class="container ">
             <div class="row">
                 <div class="col-12 col-md-6 col-top-right   ">
-                    <a href="http://maps.google.com/maps?daddr=35.8256514296982,50.940741843768265" target="_blank"><img
+                    <a href="http://maps.google.com/maps?daddr=35.822979,50.986682" target="_blank"><img
                             class="img-fluid"
                             src="/assets/site/images/map.png"
                             alt=""></a>
                     <div class="location mt-3 mb-3">
                         <span>مسیر یابی: </span>
-                        <a href="http://maps.google.com/maps?daddr=35.8256514296982,50.940741843768265" target="_blank"><img
+                        <a href="http://maps.google.com/maps?daddr=35.822979,50.986682" target="_blank"><img
                                 class="icon"
                                 src="/assets/site/images/gmap.png"
                                 alt=""></a>
-                        <a href="https://waze.com/ul?ll=35.8256514296982,50.940741843768265&navigate=yes"
+                        <a href="https://waze.com/ul?ll=35.822979,50.986682&navigate=yes"
                            target="_blank"><img class="icon"
                                                 src="/assets/site/images/wmap.png"
                                                 alt=""></a>

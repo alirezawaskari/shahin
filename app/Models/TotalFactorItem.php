@@ -939,7 +939,7 @@ class TotalFactorItem extends Model implements AuditableContract
     {
        $guarantee_types_list = ['check' , 'certificate' , 'promissorynote'];
        $financial_plans_type = $item->factorItems->first()->financialPlansType;
-       $guarantee_types_list = $financial_plans_type ? $financial_plans_type->guarantee_type : $guarantee_types_list;
+       $guarantee_types_list = $financial_plans_type && $financial_plans_type->guarantee_type ? $financial_plans_type->guarantee_type : $guarantee_types_list;
        return $guarantee_types_list;
     }
     /**

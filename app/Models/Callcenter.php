@@ -46,7 +46,13 @@ class Callcenter extends Model implements AuditableContract
     {
         return $this->belongsTo(User::class, 'reg_id');
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function suspensionStandard()
+    {
+        return $this->hasOne(SuspensionStandardCallcenter::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

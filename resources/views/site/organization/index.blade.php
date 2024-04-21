@@ -8,8 +8,18 @@
     <link rel="icon" href="{{asset('assets/site/images/fav.png')}}" type="image/png">
     <title>{{ $organization->fa_name }}</title>
     <link rel="stylesheet" href="{{ asset('assets/site/css/landing.css?v=1.1') }}">
-	    <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
-</head>
+	    <script class="d-none" type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+        <script type="text/javascript">
+            window.RAYCHAT_TOKEN = "223b3867-c246-488b-8a43-a9500b6047f0";
+            (function () {
+                d = document;
+                s = d.createElement("script");
+                s.src = "https://widget-react.raychat.io/install/widget.js";
+                s.async = 1;
+                d.getElementsByTagName("head")[0].appendChild(s);
+              })();
+          </script>
+    </head>
 <body>
 
 <div class="agency">

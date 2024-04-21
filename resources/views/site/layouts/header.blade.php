@@ -203,70 +203,71 @@
                                             نام</a>
                                         @else
                                         <div class="dropdown">
-                                        <button
-                                            class="btn btn-warning dropdown-toggle d-none d-lg-flex navbar-nav nav-after align-items-center position-relative ml-2 p-2"
-                                            type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                             ورود
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a href="{{ route('login_by_mobile') }}" class="dropdown-item">ورود
-                                                اعضاء</a>
-                                            <a href="{{ route('login') }}" class="dropdown-item">ورود کارکنان | مستمری
-                                                بگیران سجا</a>
+                                            <button
+                                                class="btn btn-warning dropdown-toggle d-none d-lg-flex navbar-nav nav-after align-items-center position-relative ml-2 p-2"
+                                                type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                                ورود
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <a href="{{ route('login_by_mobile') }}" class="dropdown-item">ورود
+                                                    اعضاء</a>
+                                                <a href="{{ route('login') }}" class="dropdown-item">ورود کارکنان |
+                                                    مستمری
+                                                    بگیران سجا</a>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button
-                                            class="btn btn-primary dropdown-toggle d-none d-lg-flex navbar-nav nav-after align-items-center position-relative ml-2 p-2"
-                                            type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                             ثبت نام
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a href="{{ route('register') }}" class="dropdown-item">ثبت نام اعضا</a>
-                                            <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام
-                                                همکاران در امتا</a>
+                                        <div class="dropdown">
+                                            <button
+                                                class="btn btn-primary dropdown-toggle d-none d-lg-flex navbar-nav nav-after align-items-center position-relative ml-2 p-2"
+                                                type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                                ثبت نام
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <a href="{{ route('register') }}" class="dropdown-item">ثبت نام اعضا</a>
+                                                <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام
+                                                    همکاران در امتا</a>
+                                            </div>
                                         </div>
+                                        @endif
                                     </div>
-                                    @endif
+                                    <a href="/cart"
+                                        class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none">
+                                        <i class="fas fa-shopping-cart font-16 ml-2"></i>
+                                        سبدخرید
+                                        <span
+                                            class="cart-count d-flex justify-content-center align-items-center position-absolute font-12 text-dark"
+                                            id="cart-count">{{ session()->has('cart.total.count') ?
+                                            session()->get('cart.total.count') : 0 }}</span>
+                                    </a>
+                                </li>
                             </div>
-                            <a href="/cart"
-                                class="btn btn-warning d-flex align-items-center position-relative ml-2 d-block d-md-none">
-                                <i class="fas fa-shopping-cart font-16 ml-2"></i>
-                                سبدخرید
-                                <span
-                                    class="cart-count d-flex justify-content-center align-items-center position-absolute font-12 text-dark"
-                                    id="cart-count">{{ session()->has('cart.total.count') ?
-                                    session()->get('cart.total.count') : 0 }}</span>
-                            </a>
-                            </li>
                         </div>
-                </div>
-                </ul>
-                @endif
+                    </ul>
+                    @endif
 
-                <ul class="d-none d-lg-flex navbar-nav mr-0 pr-0 pr-md-3 pt-2 nav-after">
-                    <li class="nav-item mr-3">
-                        <a href="tel:{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}"
-                            class="nav-link text-dark">
-                            <span>{{ session()->get('representation') ? session()->get('representation')->call :
-                                $setting->call }}</span>
-                            <i class="fa fa-phone"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ $setting->telegram }}" class="nav-link text-dark">
-                            <i class="fab fa-telegram"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ $setting->instagram }}" class="nav-link text-dark">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    </li>
-                </ul>
+                    <ul class="d-none d-lg-flex navbar-nav mr-0 pr-0 pr-md-3 pt-2 nav-after">
+                        <li class="nav-item mr-3">
+                            <a href="tel:{{ session()->get('representation') ? session()->get('representation')->call : $setting->call }}"
+                                class="nav-link text-dark">
+                                <span>{{ session()->get('representation') ? session()->get('representation')->call :
+                                    $setting->call }}</span>
+                                <i class="fa fa-phone"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ $setting->telegram }}" class="nav-link text-dark">
+                                <i class="fab fa-telegram"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ $setting->instagram }}" class="nav-link text-dark">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
     </div>
-</nav>
-</div>
 </nav>

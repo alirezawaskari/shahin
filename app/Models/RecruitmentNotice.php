@@ -43,7 +43,14 @@ class RecruitmentNotice extends Model
         $representation = request('representation');
 
         if (isset($province) && trim($province) != 'all') {
-                $query->where('province_id',$province);
+                if($province == 'all_province')
+                {
+                    $query->whereNull('province_id');
+                }
+                else
+                {
+                    $query->where('province_id',$province);
+                }
         }
 
         if (isset($title) && trim($title) != '') {

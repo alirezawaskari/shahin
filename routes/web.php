@@ -132,13 +132,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
-    Route::get('/create-user', function () {
-        Artisan::call('command:query');
-        return redirect()->back()->with([
-            'run_query' => 'success'
-        ]);
-    });
-    Route::post('/create-user' , 'UserController@fetchUser')->name('admin.createUser');
+    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
@@ -193,7 +187,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('employee-terms', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'index'])->name('employee.terms.index');
     Route::post('employee-terms-accept', [\App\Http\Controllers\Admin\EmployeeController::class,'acceptTerms'])->name('employee.terms.accept');
     Route::post('employee-terms-store', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'store'])->name('employee.terms.store');
-
+    Route::resource('suspensionStandard', 'SuspensionStandardController');
     //factor
     Route::get('/factor/desktop' , 'FactorController@desktop')->name('factor.desktop');
     Route::get('/system-income' , 'FactorController@systemIncome')->name('system.income');
@@ -207,7 +201,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factor/deleted' , 'FactorController@deletedList')->name('factor.delete');
     Route::get('/factor/deleted/filter', 'FactorController@filterDeletedList');
     Route::post('/factor/restore', 'FactorController@restore');
-    Route::get('/factor/send/{factor}', 'FactorController@sendMe')->name('factor.sendMe');
+    Route::post('/factor/sendMe/{factor}', 'FactorController@sendMe')->name('factor.sendMe');
     Route::resource('/factor', 'FactorController');
     Route::resource('/category-permission', 'CategoryPermissionController');
     Route::post('/factor-update' , 'FactorController@update');
@@ -262,9 +256,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/financialPlansType/setByItem', 'FinancialPlansTypeController@setFinancialPlansTypeByItem');
     Route::post('/financialPlansType/setByPaymentType', 'FinancialPlansTypeController@setFinancialPlansTypeByPaymentType');
     Route::get('/financialPlansType/filter', 'FinancialPlansTypeController@filter');
-    Route::resource('financialPlansType' , 'FinancialPlansTypeController');
     Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
 
+    Route::resource('financialPlansType' , 'FinancialPlansTypeController');
     //contract form
     Route::resource('contractForm', 'ContractFormController');
     Route::get('/contractForm/items/{contract_form}', 'ContractFormController@formItems')->name('contract.formItems');
@@ -673,7 +667,7 @@ Route::get('/', 'HomeController@index')->name('index');
 Route::get('/help', 'HelpController@index')->name('site.help');
 Route::get('/calculate', 'FactorItemInstallmentController@index')->name('site.help');
 Route::get('/link/{callcenter}', 'HomeController@index');
-Route::get('/message', 'HomeController@message');
+Route::get('/message1403', 'HomeController@message');
 Route::get('/mobile', 'HomeController@mobile')->name('mobile');
 Route::get('/mobile/link/{callcenter}', 'HomeController@mobile');
 Route::post('/newsletter', 'HomeController@newsletter')->name('newsletter');
@@ -688,6 +682,7 @@ Route::get('/recruitment-notice', 'RecruitmentNoticeController@index');
 Route::get('/Permanent-employment', 'RecruitmentNoticeController@index');
 Route::get('/challenge', 'HomeController@challenge');
 Route::get('/contact', 'ContactController@index');
+Route::post('/registerBasicInformation', 'RecruitmentNoticeController@registerBasicInformation');
 Route::post('/send_resume', 'RecruitmentNoticeController@send_resume');
 Route::post('/savecontact', 'ContactController@savecontact');
 Route::get('/about', 'AboutController@index');
@@ -714,13 +709,11 @@ Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee
-Route::get('/employeeRegister', 'EmployeeController@showRegistrationForm')->name('employee.register');
-Route::post('/employeeRegister', 'EmployeeController@register');
-Route::get('/employeeRegister/check-user-is-register','EmployeeController@checkUserIsRegister');
+Route::get('/employeeRegister', 'employeeController@showRegistrationForm')->name('employee.register');
+Route::post('/employeeRegister', 'employeeController@register');
+Route::get('/employeeRegister/check-user-is-register','employeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
-Route::get('/singleWebPage/checkout/{singleWebPage}/{factor}', 'SingleWebPageController@checkout')->name('singleWebPage.checkout');
-
 //Factor
 Route::middleware('auth')->group(function () {
     //Checkout
@@ -756,6 +749,7 @@ Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
 Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
+Route::get('/singleWebPage/checkout/{singleWebPage}/{factor}', 'SingleWebPageController@checkout');
 //organization & representation
 Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');

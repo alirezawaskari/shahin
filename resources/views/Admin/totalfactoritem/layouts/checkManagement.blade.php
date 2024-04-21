@@ -115,18 +115,19 @@
 
                                     @permission('update-status-check')
                                     <button type="button" class="  list-check-status btn btn-outline-primary"
-                                            data-check_id="{{$check->id}}"
+                                    data-check_id="{{$check->id}}"
+                                    data-check_date="{{verta($check->date)->format('Y/m/d')}}"
                                             data-front_image="{{$check->files->where('title','front')->first()->path??''}}"
                                             data-toggle="modal" data-target="#statusCheckModal">وضعیت
-                                    </button>
+                                        </button>
                                     @endpermission
 
                                     @permission('delete-check')
                                     <span class="btn btn-outline-danger delete-check"
                                           data-id="{{$check->id}}">  حذف </span>
                                     @endpermission
-                                @endif
                             </td>
+                                @endif
 
                         </tr>
                     @endforeach
