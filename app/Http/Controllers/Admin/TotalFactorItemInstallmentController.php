@@ -48,7 +48,7 @@ class TotalFactorItemInstallmentController extends Controller
      */
     public function showCalculate()
     {
-        $services = Service::all();
+        $services = Service::where('status' , true)->get();
         $product_categories = Category::where('parent_id', 1)->where('isActive', 1)->get();
         $financial_plans_types = FinancialPlansType::where('status', true)->where('payment_type', '!=', 'cash')->get();
 
