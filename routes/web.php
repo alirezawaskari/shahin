@@ -132,7 +132,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
-    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
+    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'fetchUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
