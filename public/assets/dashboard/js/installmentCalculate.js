@@ -65,3 +65,39 @@ function calculate(ct) {
         }
     });
 }
+function getFinancialPlansTypeByItem(id, value, type) {
+    if (type == 'category') {
+        id = id.slice(19);
+    } else if (type == 'service') {
+        id = id.slice(10);
+    }
+
+    if (value == 0) {
+        $('#financial_plans_type_id' + id).find('option').remove();
+    }
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    if (value != 0) {
+        $.ajax({
+            url: '/dashboard/financialPlansType/setByItem',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                id: value,
+                type: type,
+            },
+            success: function success(data) {
+                if (data.count == 'available') {
+                    $('#financial_plans_type_id' + id).find('option').remove();
+                    for (var i = 0; i < data.financial_plans_types.length; i++) {
+                        $(`#financial_plans_type_id${id}`).append(`<option value="${data.financial_plans_types[i].id}">${data.financial_plans_types[i].label}</option>`);
+
+                    }
+                }
+            }
+        });
+    }
+}
