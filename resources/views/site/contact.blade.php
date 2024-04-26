@@ -21,41 +21,68 @@
                         <div class="card-body">
                             <form action="/savecontact" method="post" class="row" enctype="multipart/form-data">
                                 @csrf
-                                <div class="col-12 w-75">
-                                    @include('Admin.layouts.errors')
-                                    <div class="form-row">
-                                        <div class="col-12 mb-3">
-                                            <label>نام و نام خانوادگی</label>
-                                            <input type="text" name="name" placeholder="نام و نام خانوادگی" class="form-control">
-                                        </div>
-                                        <div class="col-12 mb-3">
-                                            <label>شماره موبایل</label>
-                                            <input type="number" name="phone" placeholder="شماره موبایل" class="form-control">
-                                        </div>
+                                <div class="row col-12 w-75">
+                                    <div class="col-12 mb-3">
+                                        @include('Admin.layouts.errors')
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <input type="text" name="name" placeholder="نام" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <input type="text" name="family" placeholder="نام خانوادگی"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <input type="number" name="phone" placeholder="شماره موبایل"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <select class="form-control" type="int" name="gender" id="gender" required>
+                                            <option value="" disabled selected>جنسیت</option>
+                                            <option value="0">آقا</option>
+                                            <option value="1">خانم</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <select class="form-control" type="int" name="province" id="province_id"
+                                            required>
+                                            <option value="">انتخاب استان</option>
+                                            @foreach(\App\Models\Province::all() as $province)
+                                            <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <select class="form-control" type="int" name="city" id="city_id"
+                                            required>
+                                            <option value="">انتخاب شهر</option>
+                                            @foreach(\App\Models\City::all() as $city)
+                                            <option value="{{ $city->id }}">{{ $city->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label>پیام مربوط به کدام بخش است؟</label>
+                                        <select class="form-control" name="card_id">
+                                            <option selected disabled>واحد مربوطه</option>
+                                            @foreach($cards as $card)
+                                            <option value="{{ $card->id }}">{{ $card->description }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
-                                    <div class="form-row">
-                                        <div class="col-12 mb-3">
-                                            <label>پیام مربوط به کدام بخش است؟</label>
-                                            <select class="form-control" name="card_id">
-                                                <option selected disabled>واحد مربوطه</option>
-                                                @foreach($cards as $card)
-                                                <option value="{{ $card->id }}">{{ $card->description }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
+                                    <div class="col-12 mb-3">
                                         <label>متن پیام</label>
-                                        <textarea name="text" class="form-control no-resize" rows="6" placeholder="پیام خود را وارد نمایید"></textarea>
+                                        <textarea name="text" class="form-control no-resize" rows="6"
+                                            placeholder="پیام خود را وارد نمایید"></textarea>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="col-12 mb-3">
                                         <label>تصاویر :</label>
                                         <input type="file" name="images[]" class="form-control" multiple="multiple">
                                     </div>
-                                    <div class="form-group">
-                                        <input type="submit" value="ثبت" class="btn btn-orange btn-block text-white font-14">
+                                    <div class="col-12 mb-3">
+                                        <input type="submit" value="ثبت"
+                                            class="btn btn-orange btn-block text-white font-14">
                                     </div>
 
                                 </div>

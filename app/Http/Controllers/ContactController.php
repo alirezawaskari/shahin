@@ -6,9 +6,11 @@ use App\Models\Contact;
 use App\Models\Card;
 use App\Models\Contactsetting;
 use App\Helpers\Helper;
-use Carbon\Carbon;
+use App\Models\Callcenter;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class ContactController extends Controller
 {
@@ -39,24 +41,37 @@ class ContactController extends Controller
     {
         $this->validate(request(), [
             'name' => 'required|string',
+            'family' => 'required|string',
             'phone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'card_id' => 'required',
             'text' => 'required',
-            'images.*' => 'mimes:jpg,jpeg,png,bmp'
+            'images.*' => 'mimes:jpg,jpeg,png,bmp',
+            'gender' => ['required',Rule::in(array(0,1))],
+            'province' => 'required|numeric|exists:provinces,id',
+            'city' => 'required|numeric|exists:cities,id',
         ]);
+        //check if user not exist -> create user
+        $user = User::where('phone', $request->phone)->first();
+        if (is_null($user)) {
+            //create user
+            $user = User::createUser($request);
+        }
         $contactsImages = null;
         if (!is_null($request->file('images'))) {
             foreach ($request->file('images') as $image) {
                 $contactsImages[] = Helper::uploadImage($image, 'contactus');
             }
         }
-        Contact::create(["name" => $request->name,
+        Contact::create(["name" => $request->name.' '.$request->family,
             "phone" => $request->phone,
             "card_id" => $request->card_id,
             "text" => $request->text, 'status' => '0', 'files' => $contactsImages,
             "representation_id" => session()->has('representation') ? session()->get('representation')->id : null,
         ]);
-
+        //create task to follow up  
+        $callcenter_roles = Role::select('id')->where('card_id' , $request->card_id)->get();
+        $description = 'تماس با ما ، موضوع :'.$request->text;
+        Callcenter::createTask($user, $description , $callcenter_roles);
 
         return redirect()->back()->with([
             'contact_success' => 'success'
