@@ -51,11 +51,8 @@ class ContactController extends Controller
             'city' => 'required|numeric|exists:cities,id',
         ]);
         //check if user not exist -> create user
-        $user = User::where('phone', $request->phone)->first();
-        if (is_null($user)) {
-            //create user
-            $user = User::createUser($request);
-        }
+        User::createUser($request);
+        $user = User::where('phone',$request->phone)->first();
         $contactsImages = null;
         if (!is_null($request->file('images'))) {
             foreach ($request->file('images') as $image) {
@@ -68,7 +65,7 @@ class ContactController extends Controller
             "text" => $request->text, 'status' => '0', 'files' => $contactsImages,
             "representation_id" => session()->has('representation') ? session()->get('representation')->id : null,
         ]);
-        //create task to follow up  
+        //create task to follow up
         $callcenter_roles = Role::select('id')->where('card_id' , $request->card_id)->get();
         $description = 'تماس با ما ، موضوع :'.$request->text;
         Callcenter::createTask($user, $description , $callcenter_roles);
