@@ -66,11 +66,11 @@
         <a target="_blank" href="https://trustseal.enamad.ir/?id=40920&amp;Code=6abmm9WQ9521uXon0exd"><img
                 src="https://Trustseal.eNamad.ir/logo.aspx?id=40920&amp;Code=6abmm9WQ9521uXon0exd" alt=""
                 style="cursor:pointer" id="6abmm9WQ9521uXon0exd"></a>
-        {{-- <script class="d-none" type="text/javascript">
-            window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();
-        </script> --}}
-
         <script type="text/javascript">
+            window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();
+        </script>
+
+        {{-- <script type="text/javascript">
             window.RAYCHAT_TOKEN = "223b3867-c246-488b-8a43-a9500b6047f0";
         (function () {
             d = document;
@@ -79,7 +79,7 @@
             s.async = 1;
             d.getElementsByTagName("head")[0].appendChild(s);
           })();
-        </script>
+        </script> --}}
     </div>
 
     <div class="modal fade" id="whatsappModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
