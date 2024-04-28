@@ -58,6 +58,7 @@ class User extends Authenticatable
         'imgmeli',
         'imgshenasname',
         'imgsignature',
+        'imgturnover',
         'level',
         'confirm',
         'active',

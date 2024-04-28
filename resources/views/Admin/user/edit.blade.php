@@ -225,7 +225,53 @@
                 </div>
                 <div class="col-12">
                     <div class="card-group">
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md-6">
+                            <div class="card">
+                                @if($user->imgmeli)
+                                <div id="imgmeli_src" class="show">
+                                <a href="{{ asset($user->imgmeli) }}" target="_blank">
+                                    <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imgmeli_src" class="show">
+                                <img class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>کارت ملی</label>
+                                    <br>
+                                    <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="card">
+                                @if($user->imgshenasname)
+                                <div id="imgshenasname_src" class="show">
+                                <a href="{{ asset($user->imgshenasname) }}" target="_blank">
+                                    <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imgshenasname_src" class="show">
+                                <img id="imgshenasname_src" class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>شناسنامه</label>
+                                    <br>
+                                    <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
                             <div class="card">
                                 @if($user->imgsignature)
                                 <div id="imgsignature_src" class="show">
@@ -248,7 +294,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md-4">
                             <div class="card">
                                 @if($user->avatar)
                                 <div id="avatar_src" class="show">
@@ -275,52 +321,33 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md-4">
                             <div class="card">
-                                @if($user->imgmeli)
-                                <div id="imgmeli_src" class="show">
-                                <a href="{{ asset($user->imgmeli) }}" target="_blank">
-                                    <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
+                                @if($user->imgturnover)
+                                <div id="imgturnover_src" class="show">
+                                <a href="{{ asset($user->imgturnover) }}" target="_blank">
+                                    <img src="{{ asset($user->imgturnover) }}"
+                                        class="card-img-top" height="150px">
                                 </a>
                                 </div>
                                 @else
-                                <div id="imgmeli_src" class="show">
+                                <div id="imgturnover_src" class="show">
                                 <img class="card-img-top" height="150px">
                                 </div>
                                 @endif
                                 <div class="card-body">
-                                    <label>کارت ملی</label>
+                                    <label>تصویر ثنا</label>
                                     <br>
-                                    <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                    <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
+                                    <label for="imgturnover" id="up-label" class="btn badge-secondary"><i
+                                            class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="imgturnover" type="file" id="imgturnover"
+                                        class="filestyle file-upload file_upload_ajax file-up"
+                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgturnover" class="path" name="urlimgturnover">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-3">
-                            <div class="card">
-                                @if($user->imgshenasname)
-                                <div id="imgshenasname_src" class="show">
-                                <a href="{{ asset($user->imgshenasname) }}" target="_blank">
-                                    <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
-                                </a>
-                                </div>
-                                @else
-                                <div id="imgshenasname_src" class="show">
-                                <img id="imgshenasname_src" class="card-img-top" height="150px">
-                                </div>
-                                @endif
-                                <div class="card-body">
-                                    <label>شناسنامه</label>
-                                    <br>
-                                    <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                    <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
-                                </div>
-
-                            </div>
-                        </div>
                     </div>
                 </div>
 

@@ -1,6 +1,7 @@
 @extends('site.profile.master')
 
 @section('content2')
+
 <div class="col-12 col-md-9 mt-md-0">
     <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
@@ -152,23 +153,20 @@
                                 <div class="card">
                                     @if($user->imgmeli)
                                     <div id="imgmeli_src" class="show">
-                                        <a href="{{ asset($user->imgmeli) }}" target="_blank">
-                                            <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
-                                        </a>
+                                    <a href="{{ asset($user->imgmeli) }}" target="_blank">
+                                        <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
+                                    </a>
                                     </div>
                                     @else
                                     <div id="imgmeli_src" class="show">
-                                        <img class="card-img-top" height="150px">
+                                    <img class="card-img-top" height="150px">
                                     </div>
                                     @endif
                                     <div class="card-body">
                                         <label>کارت ملی</label>
                                         <br>
-                                        <label for="imgmeli" id="up-label" class="btn badge-secondary"><i
-                                                class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                        <input name="imgmeli" type="file" id="imgmeli"
-                                            class="filestyle file-upload file_upload_ajax file-up"
-                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
                                     </div>
                                 </div>
@@ -178,41 +176,84 @@
                                 <div class="card">
                                     @if($user->imgshenasname)
                                     <div id="imgshenasname_src" class="show">
-                                        <a href="{{ asset($user->imgshenasname) }}" target="_blank">
-                                            <img src="{{ asset($user->imgshenasname) }}" class="card-img-top"
-                                                height="150px">
-                                        </a>
+                                    <a href="{{ asset($user->imgshenasname) }}" target="_blank">
+                                        <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
+                                    </a>
                                     </div>
                                     @else
                                     <div id="imgshenasname_src" class="show">
-                                        <img id="imgshenasname_src" class="card-img-top" height="150px">
+                                    <img id="imgshenasname_src" class="card-img-top" height="150px">
                                     </div>
                                     @endif
                                     <div class="card-body">
                                         <label>شناسنامه</label>
                                         <br>
-                                        <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i
-                                                class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                        <input name="imgshenasname" type="file" id="imgshenasname"
-                                            class="filestyle file-upload file_upload_ajax file-up"
-                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
                                     </div>
 
                                 </div>
                             </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="card">
+                                    @if($user->imgsignature)
+                                    <div id="imgsignature_src" class="show">
+                                    <a href="{{ asset($user->imgsignature) }}" target="_blank">
+                                        <img src="{{ asset($user->imgsignature) }}" class="card-img-top" height="150px">
+                                    </a>
+                                    </div>
+                                    @else
+                                    <div id="imgsignature_src" class="show">
+                                    <img class="card-img-top" height="150px">
+                                    </div>
+                                    @endif
+                                    <div class="card-body">
+                                        <label>امضاء کاربر</label>
+                                        <br>
+                                        <label for="imgsignature" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="imgsignature"  type="file" id="imgsignature" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <input type="hidden" id="imgsignature" class="path" name="urlimgsignature">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="card">
+                                    @if($user->avatar)
+                                    <div id="personalPicture_src" class="show">
+                                    <a href="{{ asset($user->avatar) }}" target="_blank">
+                                        <img src="{{ asset($user->avatar) }}" class="card-img-top" height="150px">
+                                    </a>
+                                    </div>
+                                    @else
+                                    <div id="personalPicture_src" class="show">
+                                    <img class="card-img-top" height="150px">
+                                    </div>
+                                    @endif
+                                    <div class="card-body">
+                                        <label>تصویر پرسنلی</label>
+                                        <br>
+                                        <label for="personalPicture" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="personalPicture"  type="file" id="personalPicture" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <input type="hidden" id="personalPicture" class="path" name="urlpersonalPicture">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="col-12 col-md-6">
                                 <div class="card">
                                     @if($user->imgturnover)
                                     <div id="imgturnover_src" class="show">
-                                        <a href="{{ asset($user->imgturnover) }}" target="_blank">
-                                            <img src="{{ asset($user->imgturnover) }}" class="card-img-top"
-                                                height="150px">
-                                        </a>
+                                    <a href="{{ asset($user->imgturnover) }}" target="_blank">
+                                        <img src="{{ asset($user->imgturnover) }}"
+                                            class="card-img-top" height="150px">
+                                    </a>
                                     </div>
                                     @else
                                     <div id="imgturnover_src" class="show">
-                                        <img class="card-img-top" height="150px">
+                                    <img class="card-img-top" height="150px">
                                     </div>
                                     @endif
                                     <div class="card-body">
@@ -224,32 +265,6 @@
                                             class="filestyle file-upload file_upload_ajax file-up"
                                             data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="imgturnover" class="path" name="urlimgturnover">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <div class="card">
-                                    @if($user->imgsignature)
-                                    <div id="imgsignature_src" class="show">
-                                        <a href="{{ asset($user->imgsignature) }}" target="_blank">
-                                            <img src="{{ asset($user->imgsignature) }}" class="card-img-top"
-                                                height="150px">
-                                        </a>
-                                    </div>
-                                    @else
-                                    <div id="imgsignature_src" class="show">
-                                        <img class="card-img-top" height="150px">
-                                    </div>
-                                    @endif
-                                    <div class="card-body">
-                                        <label>امضاء کاربر</label>
-                                        <br>
-                                        <label for="imgsignature" id="up-label" class="btn badge-secondary"><i
-                                                class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                        <input name="imgsignature" type="file" id="imgsignature"
-                                            class="filestyle file-upload file_upload_ajax file-up"
-                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                        <input type="hidden" id="imgsignature" class="path" name="urlimgsignature">
                                     </div>
                                 </div>
                             </div>
@@ -280,6 +295,8 @@
 
 @endsection
 @section('js')
+<script src="/assets/dashboard/js/site/adminJs.js"></script>
+
 <script type="text/javascript">
     // Default Configuration
     $(document).ready(function () {
