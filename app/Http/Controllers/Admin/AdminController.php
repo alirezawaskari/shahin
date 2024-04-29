@@ -188,13 +188,13 @@ class AdminController extends Controller
 //            -------------------------------------------------------------------
             $factor_month['success']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_month['success'][$i]= Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonth($i)->endMonth())])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+                $factor_month['success'][$i]= Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
             }
             $factor_month['success'] = array_reverse($factor_month['success']);
             //            -------------------------------------------------------------------
             $factor_month['unsuccess']= array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_month['unsuccess'][$i]= Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonth($i)->endMonth())])->where('status' , '!=' , 1)->sum('price');
+                $factor_month['unsuccess'][$i]= Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->where('status' , '!=' , 1)->sum('price');
             }
             $factor_month['unsuccess'] = array_reverse(  $factor_month['unsuccess']);
             //            -------------------------------------------------------------------
@@ -216,20 +216,25 @@ class AdminController extends Controller
             //            -------------------------------------------------------------------
             $user_month=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_month[$i]= User::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonth($i)->endMonth())])->count();
+                $user_month[$i]= User::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->count();
             }
             $user_month=array_reverse($user_month);
         } else {
             /*----------- user and payment monthly chart -----------*/
             $factor_month['success']=array();
+
             for ($i = 0; $i <= 6; $i++) {
-                $factor_month['success'][$i]= Factor::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonth($i)->endMonth())])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+                $from = date(Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()));
+                $to = date(Helper::vertaTocarbon(verta()->subMonths($i)->endMonth()));
+                $factor_month['success'][$i]= Factor::whereBetween('created_at', [$from, $to])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
             }
             $factor_month['success'] = array_reverse( $factor_month['success']);
             //            -------------------------------------------------------------------
             $factor_month['unsuccess']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_month['unsuccess'][$i]= Factor::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonth($i)->endMonth())])->where('status','!=',1)->sum('price');
+                $from = date(Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()));
+                $to = date(Helper::vertaTocarbon(verta()->subMonths($i)->endMonth()));
+                $factor_month['unsuccess'][$i]= Factor::whereBetween('created_at', [$from , $to])->where('status','!=',1)->sum('price');
             }
             $factor_month['unsuccess'] = array_reverse( $factor_month['unsuccess']);
             //            -------------------------------------------------------------------
@@ -253,7 +258,7 @@ class AdminController extends Controller
             //            -------------------------------------------------------------------
             $user_month=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_month[$i]=  User::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonth($i)->endMonth())])->count();
+                $user_month[$i]=  User::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->count();
             }
             $user_month = array_reverse($user_month);
             //            -------------------------------------------------------------------
