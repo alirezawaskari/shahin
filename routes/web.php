@@ -324,6 +324,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-performance-detail-filter/{user}' , 'EmployeeController@performanceDetailFilter');
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::resource('employee' , 'EmployeeController');
+    //percentageAllocationEmployee
+    Route::resource('percentageAllocationEmployee' , 'PercentageAllocationEmployeeController');
     //user
     Route::get('/admin-user' , 'UserController@admin')->name('user.admin');
     Route::get('/user-deleted' , 'UserController@delete')->name('user.delete');
@@ -531,6 +533,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/center/products/{id}/{center_id}/edit', 'CenterController@productEdit')->name('center.products.edit');
     Route::patch('/center/products/update/{product}', 'CenterController@productUpdate')->name('center.products.update');
     Route::get('/getCenterCategory', 'CenterController@getCenterCategory');
+    Route::post('/center/selectByService', 'CenterController@getByService');
+
     Route::resource('center', 'CenterController');
 
     //center request

@@ -407,5 +407,17 @@ class CenterController extends AdminController
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $representation;
         $center->representations()->sync($representations);
     }
-
+    public static function getByService(Request $request)
+    {
+        if ($request->ajax()) {
+            $service_id = $request->input('id');
+            $centers = Center::where( 'status', true )
+                    ->whereHas('services', function ($query) use ($service_id) {
+                    $query->whereIn('centerable_id', $service_id)->where('centerable_type', Service::class);
+                });
+            if ($centers->get()->count() > 0) {
+                return response()->json(['count' => 'available', 'centers' => $centers->get()]);
+            }
+        }
+    }
 }
