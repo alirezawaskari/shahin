@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class PercentageAllocationEmployee extends Model
 {
     use HasFactory;
+
+    /**
+     *types of PercentageAllocationEmployee
+     */
+    const TYPE = [
+        'register' => 'هزینه ثبت نام',
+        'total_price' => 'جمع کل فاکتور',
+        'company_profit' => 'سود شرکت',
+    ];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
