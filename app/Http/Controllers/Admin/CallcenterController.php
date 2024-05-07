@@ -1379,7 +1379,8 @@ class CallcenterController extends Controller
      */
     private function getNextSuspensionStandard(Callcenter $callcenter)
     {
-        $next_suspension_standard = SuspensionStandard::where('id', '>', $callcenter->suspensionStandard->suspension_standard_id)->min('id');
+        $next_suspension_standard_id = SuspensionStandard::where('id', '>', $callcenter->suspensionStandard->suspension_standard_id)->min('id');
+        $next_suspension_standard = SuspensionStandard::find($next_suspension_standard_id);
         return $next_suspension_standard;
     }
 

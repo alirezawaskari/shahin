@@ -143,7 +143,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        view()->composer(['Admin.session.all','Admin.session.desktop','Admin.employee.edit'], function ($view) {
+        view()->composer(['Admin.percentageAllocationEmployee.create','Admin.session.all','Admin.session.desktop','Admin.employee.edit'], function ($view) {
             $admin_users = User::whereHas('employee')->get();
             $centers = Center::all();
             $view->with([

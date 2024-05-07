@@ -39,25 +39,23 @@
                             <form id="calculate1">
                                 <input type="hidden" name="type" value="calculateByTotalPrice">
                                 <div class="row">
-                                    <div class="col-12 col-md-3">
-                                        <label>طرح مورد نظر</label>
-                                        <select class="form-control" name="financial_plans_type" required>
-                                            <option value="all">انتخاب طرح مورد نظر</option>
-                                            @foreach($financial_plans_types as $financial_plans_type)
-                                            <option value="{{ $financial_plans_type->id }}">{{
-                                                $financial_plans_type->title
-                                                }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="col-12 col-md-3 service">
+                                        <label>انتخاب خدمت</label>
+                                        <select class="form-control" name="service" id="service_id1"
+                                        onchange="getFinancialPlansTypeByItem(this.id , this.value , 'service')">
+                                        <option selected disabled>انتخاب خدمات</option>
+                                        @foreach ($services as $service)
+                                        <option value="{{ $service->id }}">{{
+                                            $service->title }}
+                                        </option>
+                                        @endforeach
+                                    </select>
                                     </div>
-                                    <div class="col-12 col-md-3">
-                                        <label>خدمت</label>
-                                        <select class="form-control" name="service" required id="service1">
-                                            <option value="none">انتخاب خدمت</option>
-                                            @foreach(\App\Models\Service::all() as $service)
-                                            @if($service->percent > 0)
-                                            <option value="{{ $service->id }}">{{ $service->title }}</option>
-                                            @endif @endforeach
+                                    <div class="col-12 col-md-3 financial_plans_type">
+                                        <label>انتخاب طرح مالی</label>
+                                        <select class="form-control" name="financial_plans_type"
+                                            id="financial_plans_type_id1">
+                                            <option selected disabled>انتخاب نوع طرح</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-3">
@@ -123,24 +121,23 @@
                             <form id="calculate2">
                                 <input type="hidden" name="type" value="calculateByPrepayment">
                                 <div class="row">
-                                    <div class="col-12 col-md-3">
-                                        <label>طرح مورد نظر</label>
-                                        <select class="form-control" name="financial_plans_type" required>
-                                            <option value="all">انتخاب طرح مورد نظر</option>
-                                            @foreach($financial_plans_types as $financial_plans_type)
-                                            <option value="{{ $financial_plans_type->id }}">{{
-                                                $financial_plans_type->title }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="col-12 col-md-3 service">
+                                        <label>انتخاب خدمت</label>
+                                        <select class="form-control" name="service" id="service_id2"
+                                        onchange="getFinancialPlansTypeByItem(this.id , this.value , 'service')">
+                                        <option selected disabled>انتخاب خدمات</option>
+                                        @foreach ($services as $service)
+                                        <option value="{{ $service->id }}">{{
+                                            $service->title }}
+                                        </option>
+                                        @endforeach
+                                    </select>
                                     </div>
-                                    <div class="col-12 col-md-3">
-                                        <label>خدمت</label>
-                                        <select class="form-control" name="service" id="service2">
-                                            <option value="none">انتخاب خدمت</option>
-                                            @foreach(\App\Models\Service::all() as $service)
-                                            @if($service->percent > 0)
-                                            <option value="{{ $service->id }}">{{ $service->title }}</option>
-                                            @endif @endforeach
+                                    <div class="col-12 col-md-3 financial_plans_type">
+                                        <label>انتخاب طرح مالی</label>
+                                        <select class="form-control" name="financial_plans_type"
+                                            id="financial_plans_type_id2">
+                                            <option selected disabled>انتخاب نوع طرح</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-3">
@@ -168,7 +165,7 @@
                             </form>
                         </div>
 
-                        <div class="col-12 card text-dark p-4 result-calculate">
+                        <div class="col-12 card t ext-dark p-4 result-calculate">
                             <div class="row">
                                 <div class="col-12 col-md-2 text-center">
                                     <label class="font-weight-800 border-bottom pb-3">جمع کل (ریال)</label>
@@ -207,25 +204,23 @@
                             <form id="calculate3">
                                 <input type="hidden" name="type" value="calculateByInstallment">
                                 <div class="row">
-                                    <div class="col-12 col-md-3">
-                                        <label>طرح مورد نظر</label>
-                                        <select class="form-control" name="financial_plans_type" required>
-                                            <option value="all">انتخاب طرح مورد نظر</option>
-                                            @foreach($financial_plans_types as $financial_plans_type)
-                                            <option value="{{ $financial_plans_type->id }}">{{
-                                                $financial_plans_type->title }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="col-12 col-md-3 service">
+                                        <label>انتخاب خدمت</label>
+                                        <select class="form-control" name="service" id="service_id3"
+                                        onchange="getFinancialPlansTypeByItem(this.id , this.value , 'service')">
+                                        <option selected disabled>انتخاب خدمات</option>
+                                        @foreach ($services as $service)
+                                        <option value="{{ $service->id }}">{{
+                                            $service->title }}
+                                        </option>
+                                        @endforeach
+                                    </select>
                                     </div>
-                                    <div class="col-12 col-md-3">
-                                        <label>خدمت</label>
-                                        <select class="form-control" name="service" id="service3">
-                                            <option value="none">انتخاب خدمت</option>
-                                            @foreach(\App\Models\Service::all() as $service)
-                                            @if($service->percent > 0)
-                                            <option value="{{ $service->id }}">{{ $service->title }}</option>
-                                            @endif
-                                            @endforeach
+                                    <div class="col-12 col-md-3 financial_plans_type">
+                                        <label>انتخاب طرح مالی</label>
+                                        <select class="form-control" name="financial_plans_type"
+                                            id="financial_plans_type_id3">
+                                            <option selected disabled>انتخاب نوع طرح</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-3">
@@ -294,5 +289,5 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/installmentCalculate.js') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/installmentCalculate.js?v=1.1') }}"></script>
 @endsection

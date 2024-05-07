@@ -166,6 +166,11 @@ class UserController extends AdminController
             Helper::deleteImage($user->avatar);
             $inputs['avatar'] = Helper::moveImage($request->urlavatar,'document');
         }
+        if($request->urlimgturnover)
+        {
+            Helper::deleteImage($user->imgturnover);
+            $inputs['imgturnover'] = Helper::moveImage($request->urlimgturnover,'document');
+        }
         unset($inputs['role_id']);
 
         $inputs['wallet'] = (float) str_replace(',', '', $request->wallet);

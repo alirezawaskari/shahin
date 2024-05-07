@@ -43,7 +43,7 @@
                                 @endif
                             </div>
                             <div class="col-12 col-md-4">
-                                <select class="form-control my-2" type="int" name="province_id" id="province_id" required>
+                                <select class="form-control my-2" type="int" name="province" id="province_id" required>
                                     <option value="">انتخاب استان</option>
                                     @foreach(\App\Models\Province::all() as $province)
                                         <option value="{{ $province->id }}">{{ $province->name }}</option>
@@ -51,7 +51,7 @@
                                 </select>
                             </div>
                             <div class="col-12 col-md-4">
-                                <select class="form-control my-2" type="int" name="city_id" id="city_id" required>
+                                <select class="form-control my-2" type="int" name="city" id="city_id" required>
                                     <option value="">انتخاب شهر</option>
                                     @foreach(\App\Models\City::all() as $city)
                                         <option value="{{ $city->id }}">{{ $city->name }}</option>
@@ -380,8 +380,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label>*حقوق درخواستی (ریال):</label>
-                                                <input name="rights_requested" type="number" class="form-control"
-                                                    required>
+                                                <input name="rights_requested" type="text" class="form-control"
+                                                    required oninput="separatePrices(this)">
                                             </div>
                                             <div class="col-md-6 form-check form-check-inline">
                                                 <label>*در صورت انتقال یا ماموریت حاضر به رفتن به شهرستانها و شعبات دیگر
@@ -517,6 +517,7 @@
                 });
             }
 </script>
+<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
 <script>
     //to do move script to single file

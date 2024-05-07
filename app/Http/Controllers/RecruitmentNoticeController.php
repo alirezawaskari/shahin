@@ -7,6 +7,7 @@ use App\Models\Callcenter;
 use App\Models\Province;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
+use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
 use http\Env\Response;
@@ -68,12 +69,13 @@ class RecruitmentNoticeController extends Controller
         }
         $recruitment_notice = $request->recruitment_notice_title;
         //check if user not exist -> create user
-        $user = User::where('phone', $request->phone)->first();
-        if (is_null($user)) {
-            //create user
-            $user = $this->createUser($request);
-        }
-        $this->createTaskForRegisterBasicInformation($user, $recruitment_notice);
+        User::createUser($request);
+        $user = User::where('phone',$request->phone)->first();
+        $callcenter_roles = Role::select('id')->where('card_id' , 6)->get();
+        $description = "جویای کار،
+        عنوان شغلی:
+       {$recruitment_notice}";
+        Callcenter::createTask($user, $description , $callcenter_roles);
 
         if ($request->ajax()) {
             return response([
@@ -113,7 +115,6 @@ class RecruitmentNoticeController extends Controller
         $recruitment_notice = RecruitmentNotice::find($inputs['recruitment_notice_id']);
 
         if (is_null($recruitment_notice)) {
-            $status = 404;
             return redirect()->back()->with([
                 'resume_success' => 'error'
             ]);
@@ -122,12 +123,17 @@ class RecruitmentNoticeController extends Controller
         unset($inputs['resume']);
 
         //check if user not exist -> create user
-        $user = User::where('phone', $request->phone)->first();
-        if (is_null($user)) {
-            //create user
-            $user = $this->createUser($request);
-        }
-        $this->createTask($user, $recruitment_notice);
+        User::createUser($request);
+        $user = User::where('phone',$request->phone)->first();
+
+        $callcenter_roles = Role::select('id')->where('card_id' , 6)->get();
+        $province = $recruitment_notice->province ? $recruitment_notice->province->name : 'استخدام کشوری (دورکاری)';
+        $description = "جویای کار،
+             {$province}
+             ،
+          عنوان شغلی:
+        {$recruitment_notice->title}";
+        Callcenter::createTask($user, $description , $callcenter_roles);
         $resume = $this->createResume($request);
 
         if ($request->file('resume')) {
@@ -193,7 +199,7 @@ class RecruitmentNoticeController extends Controller
                 "en_lang_quality" => $request->input('en_lang_quality'),
                 "computer_skill" => $request->input('computer_skill'),
                 "start_work_date" => $request->input('start_work_date'),
-                "rights_requested" => $request->input('rights_requested'),
+                "rights_requested" => (float)str_replace(',', '', Helper::numberConverter($request->input('rights_requested'))),
                 "busy_now" => $request->input('busy_now'),
                 "can_guarantee" => $request->input('can_guarantee'),
                 "guarantee" => $request->input('guarantee'),
@@ -205,77 +211,5 @@ class RecruitmentNoticeController extends Controller
         ]);
         $resume->update(['representation_id' => $resume->recruitment_notice->representation_id]);
         return $resume;
-    }
-
-    /**
-     * @param $request
-     * @return mixed
-     */
-    private function createUser($request)
-    {
-        $pass = rand(12345, 99999);
-        $phone = Helper::numberConverter($request->phone);
-        $gender = 0;
-        if ($request->sex == 'خانم')
-            $gender=1;
-        return User::create([
-            'name' => $request->name,
-            'family' => $request->family,
-            'phone' => $phone,
-            'password' => Hash::make($pass),
-            'active' => true,
-            'sex' => $gender,
-            'level' => 'user',
-            'province_id' => $request->province_id,
-            'city_id' => $request->city_id,
-        ]);
-    }
-
-    /**
-     * @param $user
-     * @return void
-     */
-    private function createTask(User $user, RecruitmentNotice $recruitmentNotice): void
-    {
-        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
-            $query->where('name', 'superadmin');
-        })->first()->id;
-        $province = $recruitmentNotice->province ? $recruitmentNotice->province->name : 'استخدام کشوری (دورکاری)';
-        $description = "جویای کار،
-             {$province}
-             ،
-          عنوان شغلی:
-         {$recruitmentNotice->title}";
-        Callcenter::create([
-            'reg_id' => $user->id,
-            'user_id' => $callcenter_user_id,
-            'agent_id' => null,
-            'type' => 0,
-            'request_type' => 'other',
-            'status' => 0,
-            'description' => $description
-        ]);
-    }
-    /**
-     * @param $user
-     * @return void
-     */
-    private function createTaskForRegisterBasicInformation(User $user, $recruitmentNotice): void
-    {
-        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
-            $query->where('name', 'superadmin');
-        })->first()->id;
-        $description = "جویای کار،
-          عنوان شغلی:
-         {$recruitmentNotice}";
-        Callcenter::create([
-            'reg_id' => $user->id,
-            'user_id' => $callcenter_user_id,
-            'agent_id' => null,
-            'type' => 0,
-            'request_type' => 'other',
-            'status' => 0,
-            'description' => $description
-        ]);
     }
 }

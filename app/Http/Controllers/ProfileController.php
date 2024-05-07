@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Models\FactorItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -110,55 +111,45 @@ class ProfileController extends Controller
             'call' => 'numeric',
             'shenasnamecode' => 'numeric',
             'postalcode' => 'numeric',
-            'imgmeli' => 'mimes:jpg,jpeg,png|max:4096',
-            'imgshenasname' => 'mimes:jpg,jpeg,png|max:4096',
 			'avatar' => 'mimes:jpg,jpeg,png|max:4096',
-            'imgturnover' => 'mimes:jpg,jpeg,png|max:4096',
-            'imgsignature' => 'mimes:jpg,jpeg,png|max:4096',
 			'password' => 'nullable|string|min:6|confirmed',
         ]);
 
         $inputs = $request->all();
         $user = auth()->user();
-
-        $imgmeli = $request->file('imgmeli');
-        $imgshenasname = $request->file('imgshenasname');
 		$avatar = $request->file('avatar');
-        $imgturnover = $request->file('imgturnover');
-        $imgsignature = $request->file('imgsignature');
 
-        if ($imgmeli) {
-            $urlimgmeli = $this->upload($imgmeli);
-            $user->update(['imgmeli' => $urlimgmeli]);
-        }
-        if ($imgshenasname) {
-            $urlimgshenasname = $this->upload($imgshenasname);
-            $user->imgshenasname = $urlimgshenasname;
-            $user->update(['imgshenasname' => $urlimgshenasname]);
-
-        }
 		if ($avatar) {
             $urlavatar = $this->upload($avatar);
             $user->avatar = $urlavatar;
             $user->update(['avatar' => $urlavatar]);
 
         }
-        if ($imgturnover) {
-            $urlimgturnover = $this->upload($imgturnover);
-            $user->imgturnover = $urlimgturnover;
-            $user->update(['imgturnover' => $urlimgturnover]);
+        if($request->urlpersonalPicture)
+        {
+            Helper::deleteImage($user->avatar);
+            $inputs['avatar'] = Helper::moveImage($request->urlpersonalPicture,'document');
         }
-        if ($imgsignature) {
-            $urlimgsignature = $this->upload($imgsignature);
-            $user->imgsignature = $urlimgsignature;
-            $user->update(['imgsignature' => $urlimgsignature]);
+        if($request->urlimgshenasname)
+        {
+            Helper::deleteImage($user->imgshenasname);
+            $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname,'document');
         }
-
-        unset($inputs['imgmeli']);
-        unset($inputs['imgshenasname']);
-		unset($inputs['avatar']);
-        unset($inputs['imgturnover']);
-        unset($inputs['imgsignature']);
+        if($request->urlimgsignature)
+        {
+            Helper::deleteImage($user->imgsignature);
+            $inputs['imgsignature'] = Helper::moveImage($request->urlimgsignature,'document');
+        }
+        if($request->urlimgmeli)
+        {
+            Helper::deleteImage($user->imgmeli);
+            $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli,'document');
+        }
+        if($request->urlimgturnover)
+        {
+            Helper::deleteImage($user->imgturnover);
+            $inputs['imgturnover'] = Helper::moveImage($request->urlimgturnover,'document');
+        }
         unset($inputs['phone']);
         if ($inputs['password'] == '') {
             unset($inputs['password']);

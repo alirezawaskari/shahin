@@ -132,7 +132,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
-    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'createUser'])->name('admin.createUser');
+    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'fetchUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
@@ -256,7 +256,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/financialPlansType/setByItem', 'FinancialPlansTypeController@setFinancialPlansTypeByItem');
     Route::post('/financialPlansType/setByPaymentType', 'FinancialPlansTypeController@setFinancialPlansTypeByPaymentType');
     Route::get('/financialPlansType/filter', 'FinancialPlansTypeController@filter');
-    Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
+    // Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
 
     Route::resource('financialPlansType' , 'FinancialPlansTypeController');
     //contract form
@@ -324,6 +324,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-performance-detail-filter/{user}' , 'EmployeeController@performanceDetailFilter');
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::resource('employee' , 'EmployeeController');
+    //percentageAllocationEmployee
+    Route::resource('percentageAllocationEmployee' , 'PercentageAllocationEmployeeController');
     //user
     Route::get('/admin-user' , 'UserController@admin')->name('user.admin');
     Route::get('/user-deleted' , 'UserController@delete')->name('user.delete');
@@ -531,6 +533,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/center/products/{id}/{center_id}/edit', 'CenterController@productEdit')->name('center.products.edit');
     Route::patch('/center/products/update/{product}', 'CenterController@productUpdate')->name('center.products.update');
     Route::get('/getCenterCategory', 'CenterController@getCenterCategory');
+    Route::post('/center/selectByService', 'CenterController@getByService');
+
     Route::resource('center', 'CenterController');
 
     //center request

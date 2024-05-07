@@ -363,4 +363,31 @@ class Callcenter extends Model implements AuditableContract
     {
         return $this->morphedByMany(Service::class, 'callcenterable','callcenterables');
     }
+    /**
+    * @param \App\Models\User $user
+    * @param mixed $description
+    * @param array $callcenter_roles
+     * @return void
+     */
+    public static function createTask(User $user, $description , $callcenter_roles): void
+    {
+        $callcenter_user = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) use ($callcenter_roles) {
+            $query->whereIn('id', $callcenter_roles);
+        })->first();
+        if(!isset($callcenter_user->id))
+        {
+            $callcenter_user = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
+                $query->where('name', 'superadmin');
+            })->first();
+        }
+        Callcenter::create([
+            'reg_id' => $user->id,
+            'user_id' => $callcenter_user->id,
+            'agent_id' => null,
+            'type' => 0,
+            'request_type' => 'other',
+            'status' => 0,
+            'description' => $description
+        ]);
+    }
 }

@@ -280,8 +280,8 @@ class ServiceController extends AdminController
     {
         if ($request->ajax()) {
             $id = $request->input('id');
-            if (Service::where('category_id', $id)->get()->count() > 0) {
-                $services = Service::where('category_id', $id)->get();
+            if (Service::whereIn('category_id', $id)->get()->count() > 0) {
+                $services = Service::whereIn('category_id', $id)->get();
                 return response()->json(['count' => 'available', 'services' => $services]);
             }
         }
