@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 class PercentageAllocationEmployee extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
+     /**
+     * @var string[]
+     */
+    protected $guarded=['id'];
     /**
      *types of PercentageAllocationEmployee
      */
     const TYPE = [
-        'register' => 'هزینه ثبت نام',
+        'register_price' => 'هزینه ثبت نام',
         'total_price' => 'جمع کل فاکتور',
         'company_profit' => 'سود شرکت',
     ];
@@ -38,4 +42,23 @@ class PercentageAllocationEmployee extends Model
     {
         return $this->belongsTo(User::class , 'agent_id');
     }
+      /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+     {
+          $type = request('type');
+          $user = request('user');
+
+          if(isset($user) && $user != 'all')
+          {
+             $query->where('user_id', $user);
+          }
+          if(isset($type) && $type != 'all')
+          {
+            $query->where('type', 'LIKE', '%' . $type . '%');
+          }
+          return $query;
+     }
 }

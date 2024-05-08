@@ -52,13 +52,6 @@ $(document).ready(function () {
             order:[[0,"desc"]],
             columns: [
                 { "data": "sort_by" },
-                {
-                    "targets": 1,
-                    "data": data,
-                    "render": function (data) {
-                        return `<input type="checkbox" name="id[]" value="${data.id}">`
-                    }
-                },
                 { "data": "name" },
                 { "data": "family" },
                 { "data": "phone" },

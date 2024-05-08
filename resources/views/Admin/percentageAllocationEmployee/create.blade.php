@@ -14,11 +14,13 @@
     </div>
     <div class="heading-elements">
         <div class="heading-btn-group ltr mb-3">
+            @permission('percentageAllocationEmployee.all')
             <a href="{{ route('percentageAllocationEmployee.index') }}"
                 class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>
                 <span>فهرست درصد سود تخصیص داده شده </span>
             </a>
+            @endpermission
         </div>
     </div>
 </div>
@@ -79,9 +81,9 @@
             <div class="col-12 col-md-4 mb-3 mt-2">
                 <label class="w-100">انتخاب همکاران مربوطه</label>
                 <select class="form-control select2" name="employee" id="employee_id">
-                    <option disabled> انتخاب همکاران مربوطه</option>
+                    <option selected disabled> انتخاب همکاران مربوطه</option>
                     @foreach ($employees as $employee)
-                    <option value="{{ $employee->id }}">{{
+                    <option value="{{ $employee->user->id }}">{{
                         $employee->user->name.' '.$employee->user->family}}
                     </option>
                     @endforeach
