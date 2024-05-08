@@ -72,7 +72,7 @@ $(document).ready(function () {
                                         <button type="button" class="dropdown-item pointer">ویرایش</button></a>
                                     `;
                         if (data.per_delete){
-                            output=output+ ` <button  data-id="${data.id}" class="percentage_allowcation_employee_delete dropdown-item pointer">حذف</button>
+                            output=output+ ` <button  data-id="${data.id}" class="percentage_allocation_employee_delete dropdown-item pointer">حذف</button>
                                 </div>
                                 </div>`
                         }else{

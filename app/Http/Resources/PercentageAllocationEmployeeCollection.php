@@ -39,6 +39,6 @@ class PercentageAllocationEmployeeCollection extends ResourceCollection
      */
     private function setPerDelete()
     {
-        return auth()->user()->isAbleTo('percentage_allocation_employee_delete');
+        return auth()->user()->isAbleTo('percentageAllocationEmployee_delete');
     }
 }

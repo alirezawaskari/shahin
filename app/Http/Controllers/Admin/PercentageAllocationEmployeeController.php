@@ -52,6 +52,10 @@ class PercentageAllocationEmployeeController extends AdminController {
         return view( 'Admin.percentageAllocationEmployee.create', compact( [ 'service_categories', 'services', 'employees' ] ) );
     }
 
+    public function edit() {
+        //
+    }
+
     public function store( Request $request ) {
         if ( $user->isAbleTo( 'percentageAllocationEmployee_create' ) ) {
             $this->validate( request(), [
@@ -105,5 +109,21 @@ class PercentageAllocationEmployeeController extends AdminController {
             return redirect( route( 'percentageAllocationEmployee.index' ) );
         }
         return abort( 401 );
+    }
+
+    /**
+     * delete resume
+     * @param PercentageAllocationEmployee $percentageAllocationEmployee
+     * @return PercentageAllocationEmployee
+     */
+    public function destroy(PercentageAllocationEmployee $percentageAllocationEmployee)
+    {
+        if (auth()->user()->hasPermission('percentageAllocationEmployee_delete'))
+        {
+           $percentageAllocationEmployee->delete();
+            return response(['status'=>'success']);
+        }
+            return response(['status'=>'error']);
+
     }
 }
