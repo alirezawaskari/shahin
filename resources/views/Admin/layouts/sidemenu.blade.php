@@ -48,8 +48,8 @@
 					@permission('employee-detail')
                     <li><a href="{{ route('employee.index') }}">فهرست همکاران</a></li>
                     @endpermission
-                    @permission('percentageAllocationEmployee.all')
-                    <li><a href="{{ route('percentageAllocationEmployee.index') }}">درآمد تسهیم</a></li>
+                    @permission('percentageAllocationEmployee_all')
+                    <li><a href="{{ route('percentageAllocationEmployee.index') }}">تسهیم درآمد</a></li>
                     @endpermission
                     @permission('user-delete')
                     <li><a href="{{ route('user.delete') }}">سطل زباله</a></li>
