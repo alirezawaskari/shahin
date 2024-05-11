@@ -1,7 +1,27 @@
 $(document).ready(function () {
+    $('#role').on('change', function () {
+        var id = $(this).val();
+        $.ajax({
+            url: '/dashboard/role/get-user-by-role',
+            type: 'get',
+            data: {
+                "id": id,
+            },
+            success: function (data) {
+                $('#users')
+                    .empty()
+                    .append('<option value="all">انتخاب همکار مربوطه</option>');
+                $.each(data.data.users, function (i, d) {
+                    $('#users').append('<option value="' + d.id + '">' + d.name + " " + d.family + '</option>');
+                });
+            }
+        });
+    });
+
     fetchData(1);
-    var first_load=true;
-    var do_filter_command=false;
+    var first_load = true;
+    var do_filter_command = false;
+
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,
@@ -11,11 +31,11 @@ $(document).ready(function () {
             onPageClick: function (event, page) {
                 $('#excel').prop('checked', false);
                 //fetch content and render here
-                if (!first_load && !do_filter_command){
+                if (!first_load && !do_filter_command) {
                     fetchData(page);
                 }
-                first_load=false
-                do_filter_command=false
+                first_load = false
+                do_filter_command = false
             }
         });
     }
@@ -26,7 +46,7 @@ $(document).ready(function () {
         var formData = form.serialize();
 
         $.ajax({
-            url: $('#filter_form').attr('action') +"/?page="+page,
+            url: $('#filter_form').attr('action') + "/?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
@@ -49,21 +69,45 @@ $(document).ready(function () {
             searching: false,
             retrieve: true,
             data: data.data,
-            order:[[0,"desc"]],
-            columns: [
-                { "data": "sort_by" },
-                { "data": "name" },
-                { "data": "family" },
-                { "data": "phone" },
-                { "data": "type" },
-                { "data": "item" },
-                { "data": "percent" },
-                { "data": "start_date" },
-                { "data": "end_date" },
-                { "data": "agent" },
-                { "data": "date" },
-                { "data": data,
-                    "render": function (data){
+            order: [
+                [0, "desc"]
+            ],
+            columns: [{
+                    "data": "sort_by"
+                },
+                {
+                    "data": "name"
+                },
+                {
+                    "data": "family"
+                },
+                {
+                    "data": "phone"
+                },
+                {
+                    "data": "type"
+                },
+                {
+                    "data": "item"
+                },
+                {
+                    "data": "percent"
+                },
+                {
+                    "data": "start_date"
+                },
+                {
+                    "data": "end_date"
+                },
+                {
+                    "data": "agent"
+                },
+                {
+                    "data": "date"
+                },
+                {
+                    "data": data,
+                    "render": function (data) {
                         let output = `<div data-v-15965e3b="" class="dropdown">
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
@@ -71,11 +115,11 @@ $(document).ready(function () {
                                     <a target="_blank" href="../../dashboard/percentageAllocationEmployee/${data.id}/edit">
                                         <button type="button" class="dropdown-item pointer">ویرایش</button></a>
                                     `;
-                        if (data.per_delete){
-                            output=output+ ` <button  data-id="${data.id}" class="percentage_allocation_employee_delete dropdown-item pointer">حذف</button>
+                        if (data.per_delete) {
+                            output = output + ` <button  data-id="${data.id}" class="percentage_allocation_employee_delete dropdown-item pointer">حذف</button>
                                 </div>
                                 </div>`
-                        }else{
+                        } else {
                             output = output + `</div></div>`;
                         }
                         return output;
@@ -84,30 +128,34 @@ $(document).ready(function () {
             ],
         });
         //add column count
-        table.on( 'order.dt search.dt', function () {
-            table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                cell.innerHTML = data.meta.from+i;
-            } );
-        } ).draw();
+        table.on('order.dt search.dt', function () {
+            table.column(0, {
+                search: 'applied',
+                order: 'applied'
+            }).nodes().each(function (cell, i) {
+                cell.innerHTML = data.meta.from + i;
+            });
+        }).draw();
     }
     /*    click on do filter */
-    $("body").on('click','#do_filter',function (event) {
-        if ($('#excel').prop('checked')==true){
+    $("body").on('click', '#do_filter', function (event) {
+        if ($('#excel').prop('checked') == true) {
             $('form').submit();
-        }else {
+        } else {
             $('#pagination-demo').remove();
             $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-            do_filter_command=true;
+            do_filter_command = true;
             fetchData(1)
             event.preventDefault();
         }
     });
     //--------------------delete-percentageAllocationEmployee--------------------
-    $("body").on('click','.percentage_allocation_employee_delete',function () {
+    $("body").on('click', '.percentage_allocation_employee_delete', function () {
         var id = $(this).data("id");
         var token = $("meta[name='csrf-token']").attr("content");
         $('#excel').prop('checked', false);
         submit();
+
         function submit(event) {
             swal({
                 title: "آیا مطمئن هستید؟",
@@ -120,50 +168,50 @@ $(document).ready(function () {
                 dangerMode: true
             }).then(res => {
                 if (res) {
-                    $.ajax(
-                        {
-                            url: "/dashboard/percentageAllocationEmployee/"+id,
-                            type: 'DELETE',
-                            data: {
-                                "_token": token,
-                            },
-                            success: function (data,page){
-                                if (data.status=='success'){
-                                    fetchData(page)
-                                    swal({
-                                        text: " با موفقیت حذف گردید .",
-                                        icon: "success",
-                                        button: "تایید",
-                                        timer:3000,
-                                        allowOutsideClick: true
-                                    });
-                                }else{
-                                    swal("خطا !", data.message,'error')
-                                }
+                    $.ajax({
+                        url: "/dashboard/percentageAllocationEmployee/" + id,
+                        type: 'DELETE',
+                        data: {
+                            "_token": token,
+                        },
+                        success: function (data, page) {
+                            if (data.status == 'success') {
+                                fetchData(page)
+                                swal({
+                                    text: " با موفقیت حذف گردید .",
+                                    icon: "success",
+                                    button: "تایید",
+                                    timer: 3000,
+                                    allowOutsideClick: true
+                                });
+                            } else {
+                                swal("خطا !", data.message, 'error')
                             }
-                        });
+                        }
+                    });
                 }
             });
         }
     });
 });
-$(".checkbox_type").change(function() {
-    if(this.checked) {
-        $('input[name='+this.name+'_percent]').css('display', 'block');
-    }
-    else
-    {
-        $('input[name='+this.name+'_percent]').css('display', 'none');
+$(".checkbox_type").change(function () {
+    if (this.checked) {
+        $('input[name=' + this.name + '_percent]').css('display', 'block');
+    } else {
+        $('input[name=' + this.name + '_percent]').css('display', 'none');
     }
 });
+
 function selectAll(select_id) {
-    $("#"+select_id+"> option").prop("selected", true);
-    $("#"+select_id).trigger("change");
+    $("#" + select_id + "> option").prop("selected", true);
+    $("#" + select_id).trigger("change");
 }
+
 function deselectAll(select_id) {
-    $("#"+select_id+"> option").prop("selected", false);
-    $("#"+select_id).trigger("change");
+    $("#" + select_id + "> option").prop("selected", false);
+    $("#" + select_id).trigger("change");
 }
+
 function selectByCategory() {
     value = $('#service_category_id').val();
     if (value == []) {

@@ -78,40 +78,49 @@
     </div>
     <div class="card position-relative">
         <div class="col-12 row">
-            <div class="col-12 col-md-4 mb-3 mt-2">
-                <label class="w-100">انتخاب همکاران مربوطه</label>
-                <select class="form-control select2" name="employee" id="employee_id">
-                    <option selected disabled> انتخاب همکاران مربوطه</option>
-                    @foreach ($employees as $employee)
-                    <option value="{{ $employee->user->id }}">{{
-                        $employee->user->name.' '.$employee->user->family}}
-                    </option>
+            <div class="col-12 col-md-6 mb-2 mt-2">
+                <label>نقش مربوطه</label>
+                <select class="form-control select2" name="role" id="role" required>
+                    <option value="all">انتخاب کنید</option>
+                    @foreach(\App\Models\Role::all() as $role)
+                    <option value="{{ $role->id }}" >{{ $role->display_name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 col-md-4 mb-3 mt-2">
+            <div class="col-12 col-md-6 mb-2 mt-2">
+                <label>همکار مربوطه</label>
+                <select class="form-control select2" name="employee" id="users" required>
+                    <option value="all">انتخاب کنید</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6 mb-3 mt-2">
                 <label class="w-100">انتخاب تاریخ شروع</label>
                 <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="startDate">
                 </date-picker>
             </div>
-            <div class="col-12 col-md-4 mb-3 mt-2">
+            <div class="col-12 col-md-6 mb-3 mt-2">
                 <label class="w-100">انتخاب تاریخ پایان</label>
                 <date-picker placeholder="تا تاریخ" locale="fa,en" format="YYYY-M-D" name="endDate"></date-picker>
             </div>
+            <div class="col-12 mb-3 mt-2 mr-3 card-header">
+                <h5>تعیین نوع برداشت درآمد و تخصیص سود</h5>
+            </div>
+
             <div class="col-12 col-md-4 mb-3 mt-2">
-                <input type="checkbox" name="register_price" class="checkbox_type"> هزینه ثبت نام
+                <input type="checkbox" name="register_price" class="checkbox_type"> برداشت از محل ثبت نام
                 <input type="number" name="register_price_percent" class="form-control mt-2 d-none"
-                    placeholder="درصد تخصیص داده شده از هزینه ثبت نام" min="0" max="100">
+                    placeholder="درصد تخصیص داده شده از هزینه ثبت نام" min="0" max="100" step="0.01">
             </div>
             <div class="col-12 col-md-4 mb-3 mt-2">
-                <input type="checkbox" name="total_price" class="checkbox_type"> جمع کل فاکتور
-                <input type="number" name="total_price_percent" class="form-control mt-2 d-none"
-                    placeholder="درصد تخصیص داده شده از جمع کل فاکتور" min="0" max="100">
-            </div>
-            <div class="col-12 col-md-4 mb-3 mt-2">
-                <input type="checkbox" name="company_profit" class="checkbox_type"> سود شرکت
+                <input type="checkbox" name="company_profit" class="checkbox_type">  برداشت از محل کارمزد تسهیلات
                 <input type="number" name="company_profit_percent" class="form-control mt-2 d-none"
-                    placeholder="درصد تخصیص داده شده از سود شرکت" min="0" max="100">
+                    placeholder="درصد تخصیص داده شده از کارمزد تسهیلات" min="0" max="100" step="0.01">
+            </div>
+            <div class="col-12 col-md-4 mb-3 mt-2">
+                <input value="all_total_price" type="radio" name="total_price" class="checkbox_type"> برداشت از جمع کل فاکتور
+                <input value="income_total_price" type="radio" name="total_price" class="checkbox_type"> برداشت از محل درآمد فاکتور
+                <input type="number" name="total_price_percent" class="form-control mt-2 d-none"
+                    placeholder="درصد تخصیص داده شده از هزینه فاکتور" min="0" max="100" step="0.01">
             </div>
             <div class="col-12 mb-3 mt-2">
                 <input type="submit" class="btn btn-success border-0" value="ثبت">

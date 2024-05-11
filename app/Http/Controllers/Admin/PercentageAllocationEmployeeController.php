@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Helper;
 use App\Http\Resources\PercentageAllocationEmployeeCollection;
 use App\Models\Category;
+use App\Models\Center;
 use App\Models\Employee;
 use App\Models\PercentageAllocationEmployee;
 use App\Models\Service;
@@ -57,7 +59,7 @@ class PercentageAllocationEmployeeController extends AdminController {
     }
 
     public function store( Request $request ) {
-        if ( $user->isAbleTo( 'percentageAllocationEmployee_create' ) ) {
+        if ( auth()->user()->isAbleTo( 'percentageAllocationEmployee_create' ) ) {
             $this->validate( request(), [
                 'startDate' => 'required',
                 'endDate' => 'required',
@@ -71,7 +73,7 @@ class PercentageAllocationEmployeeController extends AdminController {
                         'user_id' => $request->employee,
                         'agent_id' => auth()->user()->id,
                         'type' => 'register_price',
-                        'percent' => $request->register_price_percent,
+                        'percent' => Helper::numberConverter($request->register_price_percent),
                         'start_allocation_date' => $request->startDate,
                         'end_allocation_date' => $request->endDate,
                     ] );
@@ -81,11 +83,11 @@ class PercentageAllocationEmployeeController extends AdminController {
                 foreach ( $request->center as $item ) {
                     PercentageAllocationEmployee::create( [
                         'percentage_allocation_employeeable_id' => $item,
-                        'percentage_allocation_employeeable_type' => Service::class,
+                        'percentage_allocation_employeeable_type' => Center::class,
                         'user_id' => $request->employee,
                         'agent_id' => auth()->user()->id,
-                        'type' => 'total_price',
-                        'percent' => $request->total_price_percent,
+                        'type' => $request->total_price,
+                        'percent' => Helper::numberConverter($request->total_price_percent),
                         'start_allocation_date' => $request->startDate,
                         'end_allocation_date' => $request->endDate,
                     ] );
@@ -95,11 +97,11 @@ class PercentageAllocationEmployeeController extends AdminController {
                 foreach ( $request->center as $item ) {
                     PercentageAllocationEmployee::create( [
                         'percentage_allocation_employeeable_id' => $item,
-                        'percentage_allocation_employeeable_type' => Service::class,
+                        'percentage_allocation_employeeable_type' => Center::class,
                         'user_id' => $request->employee,
                         'agent_id' => auth()->user()->id,
                         'type' => 'company_profit',
-                        'percent' => $request->company_profit_percent,
+                        'percent' => Helper::numberConverter($request->company_profit_percent),
                         'start_allocation_date' => $request->startDate,
                         'end_allocation_date' => $request->endDate,
                     ] );

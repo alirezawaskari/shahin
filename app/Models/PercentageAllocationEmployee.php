@@ -18,8 +18,9 @@ class PercentageAllocationEmployee extends Model
      */
     const TYPE = [
         'register_price' => 'هزینه ثبت نام',
-        'total_price' => 'جمع کل فاکتور',
-        'company_profit' => 'سود شرکت',
+        'all_total_price' => 'جمع کل فاکتور',
+        'income_total_price' => 'درآمد جمع کل فاکتور',
+        'company_profit' => 'کارمزد تسهیلات',
     ];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
