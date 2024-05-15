@@ -44,6 +44,13 @@ class Center extends Model
         return $this->belongsTo(Representation::class , 'creator_representation_id');
     }
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function percentageAllocationEmployees()
+    {
+        return $this->morphMany(PercentageAllocationEmployee::class , 'percentageAllocationEmployeeable');
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function representations()

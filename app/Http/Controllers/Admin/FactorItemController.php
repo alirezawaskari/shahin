@@ -17,6 +17,7 @@ use App\Models\FactorItem;
 use App\Models\FactorItemProduct;
 use App\Models\FactorItemServiceTariff;
 use App\Models\FinancialPlansType;
+use App\Models\PercentageAllocationEmployee;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\ServiceTariff;
@@ -852,6 +853,8 @@ class FactorItemController extends Controller {
                     'created_at' => $performance->date,
                 ] );
             }
+            //set emplloyee performance from percentageAllocation employee
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $total_price);
         }
     }
     /**
