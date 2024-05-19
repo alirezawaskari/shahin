@@ -229,6 +229,8 @@ class CheckController extends Controller
      */
     private function validateUpdateStatus(Request $request): array
     {
+        $request['receiver_phone'] = Helper::numberConverter($request->receiver_phone);
+
         $validator = Validator::make($request->all(), [
             'check_id' => ['required', 'exists:checks,id'],
             'status' => ['required', Rule::in(array(0, 1, 2, 3, 11))],
@@ -322,6 +324,9 @@ class CheckController extends Controller
      */
     private function validateStoreCheck(Request $request): \Illuminate\Validation\Validator
     {
+        $request['exporter_phone'] = Helper::numberConverter($request->exporter_phone);
+        $request['pay_to_phone'] = Helper::numberConverter($request->pay_to_phone);
+
         return Validator::make($request->all(), [
             'applicant_id' => 'nullable|numeric|exists:users,id',
             'title' => ['required',Rule::in(array_keys(Check::TITLE))],

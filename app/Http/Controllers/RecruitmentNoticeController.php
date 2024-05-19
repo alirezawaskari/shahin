@@ -54,6 +54,7 @@ class RecruitmentNoticeController extends Controller
      */
     public function registerBasicInformation(Request $request)
     {
+        $request['phone'] = Helper::numberConverter($request->phone);
         $validate = Validator::make($request->all(), [
             'name' => 'required|string',
             'family' => 'required|string',
@@ -94,6 +95,8 @@ class RecruitmentNoticeController extends Controller
      */
     public function send_resume(Request $request)
     {
+        $request['phone'] = Helper::numberConverter($request->phone);
+
         $validate = Validator::make($request->all(), [
             'name' => 'required|string',
             'family' => 'required|string',

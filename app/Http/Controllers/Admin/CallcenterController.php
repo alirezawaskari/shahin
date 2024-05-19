@@ -684,7 +684,7 @@ class CallcenterController extends Controller
      */
     private function createUser($request)
     {
-
+        $request['phone'] = Helper::numberConverter($request->phone);
         $this->validate($request, [
             'name' => 'string|required',
             'family' => 'string|required',
@@ -695,14 +695,13 @@ class CallcenterController extends Controller
         ]);
 
         $pass = rand(12345, 99999);
-        $phone = Helper::numberConverter($request->phone);
         $challenging= null;
         if ($request->challenging)
             $challenging='challenging';
         $user = User::create([
             'name' => $request->name,
             'family' => $request->family,
-            'phone' => $phone,
+            'phone' => $request->phone,
             'province_id' => $request->province,
             'city_id' => $request->city,
             'area_id' => $request->area,

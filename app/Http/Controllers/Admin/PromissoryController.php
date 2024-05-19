@@ -314,6 +314,10 @@ class PromissoryController extends Controller
      */
     private function validateStorePromissory(Request $request): \Illuminate\Validation\Validator
     {
+        $request['exporter_phone'] = Helper::numberConverter($request->exporter_phone);
+        $request['pay_to_phone'] = Helper::numberConverter($request->pay_to_phone);
+        $request['guaranty_phone'] = Helper::numberConverter($request->guaranty_phone);
+
         return Validator::make($request->all(), [
             'applicant_id' => 'nullable|numeric|exists:users,id',
             'title' => ['required',Rule::in(array_keys(Promissory::TITLE))],

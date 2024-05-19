@@ -1149,6 +1149,8 @@ class TotalFactorItemController extends Controller
             abort(403);
         }
         //request validation
+        $request['impunity_amount'] = Helper::numberConverter($request->impunity_amount);
+
         $request->validate([
             'impunity_amount' => ['required','regex:/\d{1,3}(,\d{3})*(\.\d+)?$/'],
             'impunity_type' => ['required',Rule::in('installment','penalty')],
