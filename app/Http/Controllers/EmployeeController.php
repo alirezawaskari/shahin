@@ -28,6 +28,8 @@ class EmployeeController extends Controller
      */
     protected function validator( array $data )
     {
+        $request['cellphone'] = Helper::numberConverter($data['phone']);
+
         return Validator::make( $data, [
             'cellphone' => 'numeric|required|regex:/(09)[0-9]{9}/|digits:11|',
             'nationalCpde' => 'numeric|req|digits:10|',

@@ -39,6 +39,7 @@ class ContactController extends Controller
      */
     public function savecontact(Request $request)
     {
+        $request['phone'] = Helper::numberConverter($request->phone);
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',

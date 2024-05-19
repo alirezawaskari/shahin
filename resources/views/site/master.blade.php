@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description"
-        content="@yield('description','   لاله کارت سامانه هوشمند یکپارچه اقتصادی با هدف کاهش هزینه های زندگی مردم عزیز کشورمان درحوزه دندانپزشکی اقساطی و ایجاد رقابت بین تولید کنندگان و خدمات دهندگان')">
+        content="@yield('description', '   لاله کارت سامانه هوشمند یکپارچه اقتصادی با هدف کاهش هزینه های زندگی مردم عزیز کشورمان درحوزه دندانپزشکی اقساطی و ایجاد رقابت بین تولید کنندگان و خدمات دهندگان')">
     {{--
     <meta name="keywords" content="دندانپزشکی اقساط">--}}
     <meta name="author" content="خدمات درمانی - رفاهی لاله">
@@ -66,20 +66,13 @@
         <a target="_blank" href="https://trustseal.enamad.ir/?id=40920&amp;Code=6abmm9WQ9521uXon0exd"><img
                 src="https://Trustseal.eNamad.ir/logo.aspx?id=40920&amp;Code=6abmm9WQ9521uXon0exd" alt=""
                 style="cursor:pointer" id="6abmm9WQ9521uXon0exd"></a>
-        <script type="text/javascript">
-            window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();
-        </script>
+        <!-- <script type="text/javascript">
+            window.$crisp = []; window.CRISP_WEBSITE_ID = "9aa6b7fc-b1ba-437f-800d-b26efe273153"; (function () { d = document; s = d.createElement("script"); s.src = "https://client.crisp.chat/l.js"; s.async = 1; d.getElementsByTagName("head")[0].appendChild(s); })();
+        </script> -->
 
-        {{-- <script type="text/javascript">
-            window.RAYCHAT_TOKEN = "223b3867-c246-488b-8a43-a9500b6047f0";
-        (function () {
-            d = document;
-            s = d.createElement("script");
-            s.src = "https://widget-react.raychat.io/install/widget.js";
-            s.async = 1;
-            d.getElementsByTagName("head")[0].appendChild(s);
-          })();
-        </script> --}}
+        <script type="text/javascript">
+            !function () { var i = "7aaX4j", a = window, d = document; function g() { var g = d.createElement("script"), s = "https://www.goftino.com/widget/" + i, l = localStorage.getItem("goftino_" + i); g.async = !0, g.src = l ? s + "?o=" + l : s; d.getElementsByTagName("head")[0].appendChild(g); } "complete" === d.readyState ? g() : a.attachEvent ? a.attachEvent("onload", g) : a.addEventListener("load", g, !1); }();
+        </script>
     </div>
 
     <div class="modal fade" id="whatsappModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
@@ -99,60 +92,60 @@
                     </p>
                     <div class="row my-4  p-2" style="font-size:10px;">
                         @if(isset($callcenter->id))
-                        <div class="col-12 mb-3">
-                            <p class="text mt-2">: درصورت داشتن شکایت</p>
-                            <a href="/contact" class="btn btn-danger w-100 d-flex align-items-center">
-                                <i class="fa fa-user ml-2 font-18" aria-hidden="true"></i>
-                                ثبت شکایت
-                            </a>
-                        </div>
-                        <div class="col-12">
-                            <p class="text mt-2">درصورت وجود ابهام یا سوال صرفا جهت ثبت نام :</p>
-                            <a href="https://wa.me/98{{$callcenter->phone}}"
-                                class="btn btn-success w-100 d-flex align-items-center">
-                                <i class="fab fa-whatsapp ml-2 font-18"></i>
-                                شروع چت و پشتیبانی
-                            </a>
-                        </div>
+                            <div class="col-12 mb-3">
+                                <p class="text mt-2">: درصورت داشتن شکایت</p>
+                                <a href="/contact" class="btn btn-danger w-100 d-flex align-items-center">
+                                    <i class="fa fa-user ml-2 font-18" aria-hidden="true"></i>
+                                    ثبت شکایت
+                                </a>
+                            </div>
+                            <div class="col-12">
+                                <p class="text mt-2">درصورت وجود ابهام یا سوال صرفا جهت ثبت نام :</p>
+                                <a href="https://wa.me/98{{$callcenter->phone}}"
+                                    class="btn btn-success w-100 d-flex align-items-center">
+                                    <i class="fab fa-whatsapp ml-2 font-18"></i>
+                                    شروع چت و پشتیبانی
+                                </a>
+                            </div>
                         @else
-                        <div class="col-12 card">
-                            <p class="text mt-2"> درصورت داشتن شکایت :</p>
-                            <a href="/contact">
-                                <img class="rounded-circle mb-2" src="/img/user.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder">ثبت شکایت</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">درصورت وجود ابهام یا سوال صرفا جهت ثبت نام :</p>
-                            <a href="https://wa.me/989391143699">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder">پشتیبانی</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">درصورت نیاز به هماهنگی یا داشتن کار اداری جهت هرگونه تنظیم ملاقات با
-                                مدیران یا دیگر موارد ذکر شده :</p>
-                            <a href="https://wa.me/989058688299">
-                                <p class="text-dark mr-1 font-weight-bolder">امور اداری</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">در صورت سوال راجع به امور مالی و اقساط :</p>
-                            <a href="https://wa.me/989058688299">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder"> امور مالی</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">در صورت نیاز به ارسال مدارک واریز وجه و پیگیری امور مربوط به جرائم :
-                            </p>
-                            <a href="https://wa.me/989058688299">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder"> امور حقوقی</p>
-                            </a>
-                        </div>
-                    </div>
-                    @endif
+                                <div class="col-12 card">
+                                    <p class="text mt-2"> درصورت داشتن شکایت :</p>
+                                    <a href="/contact">
+                                        <img class="rounded-circle mb-2" src="/img/user.png" width="50px">
+                                        <p class="text-dark mr-1 font-weight-bolder">ثبت شکایت</p>
+                                    </a>
+                                </div>
+                                <div class="col-12 card">
+                                    <p class="text mt-2">درصورت وجود ابهام یا سوال صرفا جهت ثبت نام :</p>
+                                    <a href="https://wa.me/989391143699">
+                                        <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
+                                        <p class="text-dark mr-1 font-weight-bolder">پشتیبانی</p>
+                                    </a>
+                                </div>
+                                <div class="col-12 card">
+                                    <p class="text mt-2">درصورت نیاز به هماهنگی یا داشتن کار اداری جهت هرگونه تنظیم ملاقات با
+                                        مدیران یا دیگر موارد ذکر شده :</p>
+                                    <a href="https://wa.me/989058688299">
+                                        <p class="text-dark mr-1 font-weight-bolder">امور اداری</p>
+                                    </a>
+                                </div>
+                                <div class="col-12 card">
+                                    <p class="text mt-2">در صورت سوال راجع به امور مالی و اقساط :</p>
+                                    <a href="https://wa.me/989058688299">
+                                        <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
+                                        <p class="text-dark mr-1 font-weight-bolder"> امور مالی</p>
+                                    </a>
+                                </div>
+                                <div class="col-12 card">
+                                    <p class="text mt-2">در صورت نیاز به ارسال مدارک واریز وجه و پیگیری امور مربوط به جرائم :
+                                    </p>
+                                    <a href="https://wa.me/989058688299">
+                                        <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
+                                        <p class="text-dark mr-1 font-weight-bolder"> امور حقوقی</p>
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                 </div>
             </div>
         </div>

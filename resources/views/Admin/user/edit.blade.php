@@ -149,12 +149,12 @@
                 @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>نمایندگی</label>
-                    <select class="form-control" name="admin_representation_id">
+                    <select class="form-control" name="representation_id">
                         <option value="">
                             بدون نمایندگی (دفتر تهران)
                         </option>
                         @foreach($representations as $representation)
-                        <option value="{{ $representation->id }}" {{ $user->admin_representation_id == $representation->id ? 'selected' : '' }}>{{ $representation->fa_name }}</option>
+                        <option value="{{ $representation->id }}" {{ $user->representation_id == $representation->id ? 'selected' : '' }}>{{ $representation->fa_name }}</option>
                         @endforeach
                     </select>
                 </div>

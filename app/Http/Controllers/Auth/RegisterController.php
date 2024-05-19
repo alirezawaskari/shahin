@@ -52,7 +52,9 @@ class RegisterController extends Controller
         return view( 'auth.register', compact( 'financial_plans_types' , 'provinces', 'citys', 'services' ) );
     }
     protected function validator( array $data )
- {
+    {
+        $data['phone'] = Helper::numberConverter($data['phone']);
+
         return Validator::make( $data, [
             'name' => [ 'required', 'string', 'max:255' ],
             'family' => [ 'required', 'string', 'max:255' ],

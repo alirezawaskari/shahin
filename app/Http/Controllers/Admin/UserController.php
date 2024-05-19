@@ -67,6 +67,8 @@ class UserController extends AdminController
      */
     public function store(Request $request)
     {
+        $request['phone'] = Helper::numberConverter($request->phone);
+
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
