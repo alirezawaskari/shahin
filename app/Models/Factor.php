@@ -111,7 +111,7 @@ class Factor extends Model implements AuditableContract
             $query->where('status',1);
         })->inRandomOrder()->first();
         if(is_null($supporter_user)){
-            $supporter_user = User::find(33899);
+            $supporter_user = User::find(16983);
         }
         $supporter_id=$supporter_user->id;
         $factor->factorItems()->update([
@@ -626,7 +626,7 @@ class Factor extends Model implements AuditableContract
     {
         $item->factorItems->map(function ($factor_item) {
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register' , $factor_item->price);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->price);
             if (!$factor_item->property()->exists()) {
                 $factor_item->property()->create();
             }
