@@ -71,12 +71,12 @@ class PercentageAllocationEmployee extends Model {
     */
     public static function setUserPerformance( FactorItem $factor_item, $type, $price ) {
         $description = self::TYPE[$type];
-        if ( $type == 'register' ) {
-            $percentage_allocation_employees = $factor_item->factoritemable()->percentageAllocationEmployees()->where( 'type', 'register' )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
+        if ( $type == 'register_price' ) {
+            $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
         else
         {
-            $percentage_allocation_employees = $factor_item->center()->percentageAllocationEmployees()->where( 'type', 'register' )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
+            $percentage_allocation_employees = $factor_item->center->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
         foreach ( $percentage_allocation_employees as $item ) {
             UserPerformance::store( $item, $description, $price, $factor_item );

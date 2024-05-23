@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('percenate_allocation_employee_user_performance', function (Blueprint $table) {
-            $table->foreignId('percenate_allocation_employee_id')->constrained();//percenate_allocation_employee_id
+        Schema::create('percentage_allocation_employee_user_performance', function (Blueprint $table) {
+            $table->foreignId('percentage_allocation_employee_id')->constrained();//percentage_allocation_employee_id
             $table->foreignId('user_performance_id')->constrained();
         });
     }
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('percenate_allocation_employee_user_performance');
+        Schema::dropIfExists('percentage_allocation_employee_user_performance');
     }
 };

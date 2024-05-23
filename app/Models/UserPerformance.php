@@ -39,9 +39,9 @@ class UserPerformance extends Model implements AuditableContract
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
     **/
-    public function resaon()
+    public function resaons()
     {
-        return $this->belongsTo(PercentageAllocationEmployee::class);
+        return $this->belongsToMany(PercentageAllocationEmployee::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -182,7 +182,8 @@ class UserPerformance extends Model implements AuditableContract
             'type' => '1',
             'created_at' => $user_performance->date,
         ] );
-        $user_performance->resaon()->create(['percentage_allocation_employee_id' => $percentage_allocation_employee->id]);
+
+        $user_performance->resaons()->attach(['percentage_allocation_employee_id' => $percentage_allocation_employee->id]);
         $user ? $user->update( [ 'wallet' => $user->wallet + $WalletTransaction->price ] ) : '';
     }
 }

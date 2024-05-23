@@ -48,7 +48,7 @@ class Center extends Model
      */
     public function percentageAllocationEmployees()
     {
-        return $this->morphMany(PercentageAllocationEmployee::class , 'percentageAllocationEmployeeable');
+        return $this->morphMany(PercentageAllocationEmployee::class , 'percentage_allocation_employeeable');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
