@@ -116,7 +116,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://blog.okala.com/wp-content/uploads/2022/02/luxury-3.jpg"
+                                <img width="100%" src="https://lh4.googleusercontent.com/proxy/U76oMt-BrfPfHGSjC_x_uvomSp2Tj3tEgJLojRxohMlwyOTNf8W1BhUGngxYJ81XLeMXtIQ6Ac_c2w4MS6Srjv2ETzrsdhn55X46SjV54wg0RkoSytRVtAGO0Jj4730Emx_-feYobVswjAt3rhyfaFOmMK5G6J9G650PucybarHXsmBYPQ2DQeNjVrusUe-5qXk_pbWFrB23LMHQtHm18Van9cOauyp7SH05o_pR8vIilC0r2K478wSVrhOIhMncqgM5s5arhhKPe7F14yocAEka2K_lFhWfqHkgmgGD1IlGMqwXf8433Ml67k3g"
                                     alt="">
                             </div>
                         </div>
@@ -125,19 +125,14 @@
                         <h6>
                             <strong>
                                 روابط عمومی شبکه خدمات درمانی رفاهی لاله
-                                فرارسیدن سال جدید و نوروز باستانی را خدمت همه شما هم میهنان گرامی تبریک و تهنیت عرض
-                                مینماید.
+                                شهادت خادم‌الرضا، سید شهیدان اهل خدمت، آیت‌الله دکتر سید ابراهیم رئیسی و جمعی از همراهان
+                                انقلاب اسلامی را به ملت شریف ایران، تبریک و تسلیت عرض مینماید.
                             </strong>
                             <p> اداره کل روابط عمومی سجا کل کشور </p>
                         </h6>
 
                 </div>
                 <div class="row col-12">
-                    <div class="mb-1 p-1">
-                        <a href="/message1403" class="btn btn-success">
-                            <i class="fa fa-hand-pointer" style="margin-right: 5px "></i> متن پیام تبریک مدیرعامل شبکه
-                            لاله </a>
-                    </div>
                     <div class="mb-1 p-1" style="margin-right: auto">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
                     </div>

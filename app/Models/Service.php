@@ -158,7 +158,13 @@ class Service extends Model
     {
         return $this->morphMany(Installment::class , 'installmentable');
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function percentageAllocationEmployees()
+    {
+        return $this->morphMany(PercentageAllocationEmployee::class , 'percentage_allocation_employeeable');
+    }
     /**
      * @param $query
      * @return mixed

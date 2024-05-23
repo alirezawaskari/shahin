@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -35,7 +36,13 @@ class UserPerformance extends Model implements AuditableContract
     {
         return $this->belongsTo(FactorItem::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+    **/
+    public function resaons()
+    {
+        return $this->belongsToMany(PercentageAllocationEmployee::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -145,5 +152,38 @@ class UserPerformance extends Model implements AuditableContract
         })->where('invitecategoryable_id',$id)->where('invitecategoryable_type',$type)->first();
 
         return $user_invite ? $user_invite->percent : false;
+    }
+    /**
+     * @param mixed $percentage_allocation_employee
+     * @param mixed $description
+     * @param mixed $price
+     */
+    public static function store($percentage_allocation_employee , $description , $price , $factor_item)
+    {
+        $user = $percentage_allocation_employee->user;
+        $user_performance = UserPerformance::create( [
+            'factor_item_id' => $factor_item,
+            'description' => $description,
+            'price' => $price,
+            'tax' => $price * ( $percentage_allocation_employee->percent / 100 ),
+            'ancillary_costs' => 0,
+            'date' => now(),
+            'callcenter_id' => auth()->user()->id,
+            'user_id' => $user->id,
+        ] );
+
+        $resNum = rand( 12, 99 ) . substr( Carbon::now()->timestamp, 6, 11 ) . substr( $user->phone, 7, 11 );
+        $WalletTransaction = WalletTransaction::create( [
+            'user_id' => $user->id,
+            'reason_id' => $user_performance->id,
+            'resnumber' => $resNum,
+            'price' => $price * ( $percentage_allocation_employee->percent / 100 ),
+            'status' => '1',
+            'type' => '1',
+            'created_at' => $user_performance->date,
+        ] );
+
+        $user_performance->resaons()->attach(['percentage_allocation_employee_id' => $percentage_allocation_employee->id]);
+        $user ? $user->update( [ 'wallet' => $user->wallet + $WalletTransaction->price ] ) : '';
     }
 }

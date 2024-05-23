@@ -4,6 +4,7 @@ namespace App\Models;
 
 use OwenIt\Auditing\Auditable;
 use App\Events\smsSuccessRegisterPayment;
+use App\Helpers\CalculationHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -110,7 +111,7 @@ class Factor extends Model implements AuditableContract
             $query->where('status',1);
         })->inRandomOrder()->first();
         if(is_null($supporter_user)){
-            $supporter_user = User::find(33899);
+            $supporter_user = User::find(16983);
         }
         $supporter_id=$supporter_user->id;
         $factor->factorItems()->update([
@@ -624,6 +625,8 @@ class Factor extends Model implements AuditableContract
     private static function createAttributes(Factor $item)
     {
         $item->factorItems->map(function ($factor_item) {
+            //set emplloyee performance from percentageAllocation employee
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->price);
             if (!$factor_item->property()->exists()) {
                 $factor_item->property()->create();
             }
@@ -748,6 +751,7 @@ class Factor extends Model implements AuditableContract
      */
     private static function setPayInstallment(Factor $item, TotalFactorItem $total_factor_item, $total_factor_item_status)
     {
+        $wage = 0;
         $factor_items = $total_factor_item->factorItems;
         $debt_price = isset($total_factor_item->property->price_difference_installment) ? $total_factor_item->property->price_difference_installment : 0;
         $installment = TotalFactorItemInstallment::where('total_factor_item_id', $total_factor_item->id)->where('status', 0)->orderBy('id', 'ASC')->first();
@@ -762,7 +766,11 @@ class Factor extends Model implements AuditableContract
 
             foreach ($factor_items as $factor_item) {
                 $factor_item->factorItemInstallments()->where('level', $installment->level)->update(['status' => true]);
+                $total_price = $factor_item->total_price + $factor_item->discount;
+                $wage = $wage + (CalculationHelper::calculateWage($factor_item , $total_price , $factor_item->property->prepayment_price , $factor_item->installments_num)/$factor_item->installments_num);
             }
+            //set emplloyee performance from percentageAllocation employee
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage);
 
             $debt_price = $debt_price + $item->price - $installment->price;
             $installment = TotalFactorItemInstallment::where('total_factor_item_id', $total_factor_item->id)->where('status', 0)->orderBy('id', 'ASC')->first();
@@ -772,6 +780,9 @@ class Factor extends Model implements AuditableContract
                     'status' => 1,
                     'pay_date' => $item->created_at,
                 ]);
+                //set emplloyee performance from percentageAllocation employee
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage);
+
                 foreach ($factor_items as $factor_item) {
                     $factor_item->factorItemInstallments()->where('level', $installment->level)->update(['status' => true]);
                 }

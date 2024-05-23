@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ResumeCollection extends ResourceCollection
+class PercentageAllocationEmployeeCollection extends ResourceCollection
 {
 
     /**
@@ -19,14 +19,14 @@ class ResumeCollection extends ResourceCollection
                     'sort_by' => "created_at",
                     'id' => $item->id,
                     'name' =>  $item->user->name,
-                    'family' =>  $item->user->family,   
+                    'family' =>  $item->user->family,
                     'phone' => $item->user->phone,
                     'type' => $item::TYPE[$item->type],
 					'item' => $item->percentageAllocationEmployeeable->title,
                     'start_date' => verta($item->start_allocation_date)->format('Y/m/d'),
-                    'ent_date' => verta($item->end_allocation_date)->format('Y/m/d'),
-                    'percent' =>  $item->percent,   
-                    'agent' =>  $item->agent->family,   
+                    'end_date' => verta($item->end_allocation_date)->format('Y/m/d'),
+                    'percent' =>  $item->percent,
+                    'agent' =>  $item->agent->family,
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setPerDelete(),
                 ];
@@ -39,6 +39,6 @@ class ResumeCollection extends ResourceCollection
      */
     private function setPerDelete()
     {
-        return auth()->user()->isAbleTo('resume-delete');
+        return auth()->user()->isAbleTo('percentageAllocationEmployee_delete');
     }
 }

@@ -325,6 +325,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
+    Route::get('/percentageAllocationEmployee/filter', 'PercentageAllocationEmployeeController@filter')->name('percentageAllocationEmployee.filter');
     Route::resource('percentageAllocationEmployee' , 'PercentageAllocationEmployeeController');
     //user
     Route::get('/admin-user' , 'UserController@admin')->name('user.admin');
