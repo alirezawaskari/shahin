@@ -35,6 +35,8 @@ class CenterRequestController extends Controller
      */
     public function store(Request $request)
     {
+        $request['phone'] = Helper::numberConverter($request->phone);
+
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',

@@ -57,6 +57,8 @@ class CenterRequestController extends AdminController
     public function store(Request $request)
     {
         $input = $request->all();
+        $request['phone'] = Helper::numberConverter($request->phone);
+
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',

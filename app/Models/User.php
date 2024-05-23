@@ -646,6 +646,8 @@ class User extends Authenticatable
      */
     public static function createUser($request)
     {
+        $request['phone'] = Helper::numberConverter($request->phone);
+
         $validate= Validator::make($request->all(), [
             'phone' => 'required|regex:/(09)[0-9]{9}/|digits:11',
             'name' => 'required|string',
@@ -682,7 +684,6 @@ class User extends Authenticatable
     private static function storeUser($phone, $name, $family, $province_id, $city_id,$gender)
     {
         $pass = rand(12345, 99999);
-        $phone = Helper::numberConverter($phone);
 
         return User::create([
             'name' => $name,

@@ -213,6 +213,8 @@ class OrganizationController extends AdminController {
      * @throws \Illuminate\Validation\ValidationException
      */
     public function storeUser(Request $request ) {
+        $request['phone'] = Helper::numberConverter($request->phone);
+
         $user = User::where( 'phone', $request->phone )->first();
         $inputs = $request->all();
 
