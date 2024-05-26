@@ -31,8 +31,8 @@ class HomeController extends Controller
             $organ = Organization::find(auth()->user()->organization_id);
             return redirect(url('organizations/'.$organ->slug));
         }
-        $sliders = Slider::whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
-        $sliders_mobile = Slider::whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
+        $sliders = Slider::whereNULL('representation_id')->whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
+        $sliders_mobile = Slider::whereNULL('representation_id')->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
         $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
 
         //dd(Factor::whereType('online')->whereStatus(true)->sum('price'));
