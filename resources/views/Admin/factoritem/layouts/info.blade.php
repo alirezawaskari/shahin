@@ -123,7 +123,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">تعلیق پرونده</h5>
+                <h5 class="modal-title" id="exampleModalLabel">یادآوری پیگیری</h5>
                 <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span
                         aria-hidden="true">×</span></button>
             </div>
@@ -145,12 +145,12 @@
                             <div class="col-12"></div>
                             <div class="col-12">
                                 <form class="form-horizontal" role="form" method="post"
-                                    action="{{ route('factorItem.suspension') }}">
+                                    action="{{ $factorItem->type ? route('totalFactorItem.suspension') : route('factorItem.suspension') }}">
                                     @csrf
                                     <div class="modal-body">
                                         <input type="hidden" name="type" value="supporter">
                                         <input type="hidden" name="status_factor" value="3">
-                                        <input type="hidden" name="id" value="{{ $factorItem->id }}">
+                                        <input type="hidden" name="id" value="{{ $factorItem->type ? $factorItem->totalFactorItem->id : $factorItem->id }}">
                                         <div class="row">
                                             <div class="col-12 col-md-6 mb-2">
                                                 <label>تاریخ یادآوری</label>
