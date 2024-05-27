@@ -150,7 +150,7 @@
                                     <div class="modal-body">
                                         <input type="hidden" name="type" value="supporter">
                                         <input type="hidden" name="status_factor" value="3">
-                                        <input type="hidden" name="id" value="{{ $factorItem->type ? $factorItem->totalFactorItem->id : $factorItem->id }}">
+                                        <input type="hidden" name="id" value="{{ $factorItem->type ? $item['id'] : $factorItem->id }}">
                                         <div class="row">
                                             <div class="col-12 col-md-6 mb-2">
                                                 <label>تاریخ یادآوری</label>
