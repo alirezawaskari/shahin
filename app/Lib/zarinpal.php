@@ -18,9 +18,8 @@ class zarinpal {
                 'CallbackURL'    => route( 'pay.callback' ),
             ],
         ] );
-
         //Redirect to URL You can do it also by creating a form
-        if ( $result[ 'Status' ] == 100 ) {
+        if ( isset($result[ 'Status' ]) && $result[ 'Status' ] == 100 ) {
             return $result[ 'Authority' ];
         } else {
             return false;
