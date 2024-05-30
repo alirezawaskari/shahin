@@ -82,6 +82,11 @@ class TicketController extends Controller
         $tickets = auth()->user()->tickets()->filter()->latest();
         if (auth()->user()->hasPermission('show_all_received')){
             $tickets = Ticket::filter()->latest();
+            if (auth()->user()->admin_representation) {
+                $tickets->whereHas('user', function ($query) {
+                    $query->where('admin_representation_id', auth()->user()->admin_representation_id);
+                });
+            }
         }
         return new TicketCollection($tickets->paginate(20));
     }

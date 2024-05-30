@@ -52,12 +52,6 @@ class Ticket extends Model
      {
           $title = request('title');
           $user = request('user');
-
-          if (auth()->user()->admin_representation) {
-            $query->whereHas('user', function ($query) {
-                $query->where('admin_representation_id', auth()->user()->admin_representation_id);
-            });
-          }
           if(isset($user) && $user != 'all')
           {
              $query->where('user_id', $user);
