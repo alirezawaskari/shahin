@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Resources\PercentageAllocationEmployeeCollection;
+use App\Http\Resources\PercentageAllocationEmployeeReportCollection;
 use App\Models\Category;
 use App\Models\Center;
 use App\Models\Employee;
 use App\Models\PercentageAllocationEmployee;
+use App\Models\PercentageAllocationEmployeeUserPerformance;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
@@ -15,7 +17,6 @@ class PercentageAllocationEmployeeController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
     */
-
     public function index() {
         $user = auth()->user();
         if ( $user->isAbleTo( 'percentageAllocationEmployee_all' ) ) {
@@ -33,7 +34,6 @@ class PercentageAllocationEmployeeController extends AdminController {
     * @param Request $request
     * @return PercentageAllocationEmployeeCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
     */
-
     public function filter( Request $request ) {
         $percentage_allocation_employees = PercentageAllocationEmployee::filter()->latest();
 

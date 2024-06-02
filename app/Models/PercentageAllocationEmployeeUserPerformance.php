@@ -17,5 +17,20 @@ class PercentageAllocationEmployeeUserPerformance extends Model {
     public function percentageAllocationEmployee() {
         return $this->belongsTo( PercentageAllocationEmployee::class );
     }
+   /**
+    * @param $query
+    * @return mixed
+    */
+    public function scopeFilter( $query ) {
+        $type = request( 'type' );
+        $user = request( 'user' );
 
+        if ( isset( $user ) && $user != 'all' ) {
+            $query->where( 'user_id', $user );
+        }
+        if ( isset( $type ) && $type != 'all' ) {
+            $query->where( 'type', 'LIKE', '%' . $type . '%' );
+        }
+        return $query;
+    }
 }

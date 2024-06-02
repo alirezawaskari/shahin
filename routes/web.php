@@ -326,6 +326,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
     Route::get('/percentageAllocationEmployee/filter', 'PercentageAllocationEmployeeController@filter')->name('percentageAllocationEmployee.filter');
+    Route::get('/percentageAllocationEmployee/report', 'UserPerformanceController@report')->name('percentageAllocationEmployee.report');
+    Route::get('/percentageAllocationEmployee/report/filter', 'UserPerformanceController@reportFilter')->name('percentageAllocationEmployee.report.filter');
     Route::resource('percentageAllocationEmployee' , 'PercentageAllocationEmployeeController');
     //user
     Route::get('/admin-user' , 'UserController@admin')->name('user.admin');
