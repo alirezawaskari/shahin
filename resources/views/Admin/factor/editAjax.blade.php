@@ -276,10 +276,13 @@
                                         پرداخت شده
                                     </option>
                                 </select>
-                                <p>توجه:درصورت تغییر وضعیت فاکتوربه پرداخت شده ،مبلغ فاکتور از اعتبار شما کسر خواهد شد.
-                                </p>
+
                             </div>
-                            <div class="col-12 col-md-4 mb-3">
+                            <div class="col-12 mb-3">
+                            <p class="alert alert-warning">توجه:درصورت تغییر وضعیت فاکتوربه پرداخت شده ،مبلغ فاکتور از اعتبار شما کسر خواهد شد.
+                            </p>
+                            </div>
+                            <div class="col-12 mb-3">
                                 <span class="btn btn-success border-0 factor-update-submit">ذخیره </span>
                             </div>
                             @endrole

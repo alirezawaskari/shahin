@@ -32,6 +32,8 @@ class CreateChecksTable extends Migration
             $table->double('amount');
             $table->unsignedInteger('creator_id');
             $table->foreign('creator_id')->references('id')->on('users');
+            $table->unsignedInteger('representation_id');
+            $table->foreign('representation_id')->references('id')->on('representations');
             $table->string('exporter');
             $table->string('pay_to');
             $table->string('title');

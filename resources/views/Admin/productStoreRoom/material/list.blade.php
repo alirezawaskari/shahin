@@ -32,7 +32,7 @@
                 <span>فهرست واحدها</span>
                 </a>
                 @endpermission
-                @permission('product' | 'product-detail')
+                @permission('store-room|store-room-detail')
                 @if(isset($create_link))
                     <a href="{{$create_link}}" class="btn btn-link btn-float has-text text-size-small rtl">
                         <i class="fa fa-edit text-indigo-400" aria-hidden="true"></i>

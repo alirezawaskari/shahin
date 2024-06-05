@@ -94,6 +94,9 @@ $(document).ready(function () {
                     "data": "percent"
                 },
                 {
+                    "data": "factor_sender"
+                },
+                {
                     "data": "start_date"
                 },
                 {
@@ -197,11 +200,34 @@ $(document).ready(function () {
 $(".checkbox_type").change(function () {
     if (this.checked) {
         $('input[name=' + this.name + '_percent]').css('display', 'block');
+        $('select[name=' + this.name + '_factor_sender]').css('display', 'block');
     } else {
         $('input[name=' + this.name + '_percent]').css('display', 'none');
+        $('select[name=' + this.name + '_factor_sender]').css('display', 'none');
     }
 });
-
+$(".factor_sender").change(function () {
+    if (this.value == 'employee_factors') {
+        $('select[name=' + this.id + '_limit_type]').css('display', 'block');
+    } else {
+        $('select[name=' + this.id + '_limit_type]').css('display', 'none');
+    }
+});
+$(".limit_type").change(function () {
+    if (this.value == 'count') {
+        $('#'+this.name +'_count').css('display', 'block');
+        $('#'+this.name +'_price').css('display', 'none');
+    }
+    else if (this.value == 'price') {
+        $('#'+this.name +'_price').css('display', 'block');
+        $('#'+this.name +'_count').css('display', 'none');
+    }
+    else
+    {
+        $('#'+this.name +'_price').css('display', 'none');
+        $('#'+this.name +'_count').css('display', 'none');
+    }
+});
 function selectAll(select_id) {
     $("#" + select_id + "> option").prop("selected", true);
     $("#" + select_id).trigger("change");

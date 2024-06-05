@@ -1029,7 +1029,7 @@ class FactorItemController extends Controller {
 
         $factor_item->update( [ 'status_factor' => $request->status ] );
 
-        $message = 'عضو محترم شبکه خدمات رفاهی لاله پرونده شما مختومه شد. 09429000029 داخلی پشتیبانی 923';
+        $message = 'عضو محترم شبکه خدمات رفاهی لاله پرونده شما مختومه شد. 09366342145 ';
 
         $phones = $factor_item->factor->user->phone;
         Helper::sms( $phones, $message );

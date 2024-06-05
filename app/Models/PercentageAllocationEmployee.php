@@ -22,6 +22,13 @@ class PercentageAllocationEmployee extends Model {
         'company_profit' => 'برداشت از محل کارمزد تسهیلات',
     ];
     /**
+    *FactorSender type of PercentageAllocationEmployee
+    */
+    const FactorSender = [
+        'all' => 'همه',
+        'employee_factors' => 'مرتبط با همکار',
+    ];
+    /**
     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
     */
 
@@ -79,7 +86,34 @@ class PercentageAllocationEmployee extends Model {
             $percentage_allocation_employees = $factor_item->center->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
         foreach ( $percentage_allocation_employees as $item ) {
-            UserPerformance::store( $item, $description, $price, $factor_item );
+            $is_applicable = true;
+            if($item->factor_sender == 'employee_factors')
+            {
+                $is_applicable = self::checkPercentageAllocationEmployeeConditions($item , $factor_item);
+            }
+            $is_applicable ? UserPerformance::store( $item, $description, $price, $factor_item ) : '';
         }
+    }
+    private static function checkPercentageAllocationEmployeeConditions($item , $factor_item)
+    {
+        if($item->user_id == $factor_item->factor->callcenter_id)
+        {
+            $is_applicable = true;
+            if($item->limit_type == 'count')
+            {
+                $employee_sucess_factors_count = $item->user->factors->where('status',1)->where('created_at' , '>=' , $item->start_allocation_date)->count();
+                $is_applicable = $employee_sucess_factors_count >= $item->min_limit_type ? true : false;
+                $is_applicable = $is_applicable && $employee_sucess_factors_count <= $item->max_limit_type ? true : false;
+            }
+            if($item->limit_type == 'price')
+            {
+                $employee_sucess_factors_sum_price = $item->user->factors->where('status',1)->where('created_at' , '>=' , $item->start_allocation_date)->sum('price');
+                $is_applicable = $employee_sucess_factors_sum_price >= $item->min_limit_type ? true : false;
+                $is_applicable = $is_applicable && $employee_sucess_factors_sum_price <= $item->max_limit_type ? true : false;
+            }
+            return $is_applicable;
+        }
+
+        return false;
     }
 }

@@ -17,15 +17,8 @@
     @yield('header')
 	    <script class="d-none" type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
         <script type="text/javascript">
-            window.RAYCHAT_TOKEN = "223b3867-c246-488b-8a43-a9500b6047f0";
-            (function () {
-                d = document;
-                s = d.createElement("script");
-                s.src = "https://widget-react.raychat.io/install/widget.js";
-                s.async = 1;
-                d.getElementsByTagName("head")[0].appendChild(s);
-              })();
-          </script>
+            !function () { var i = "7aaX4j", a = window, d = document; function g() { var g = d.createElement("script"), s = "https://www.goftino.com/widget/" + i, l = localStorage.getItem("goftino_" + i); g.async = !0, g.src = l ? s + "?o=" + l : s; d.getElementsByTagName("head")[0].appendChild(g); } "complete" === d.readyState ? g() : a.attachEvent ? a.attachEvent("onload", g) : a.addEventListener("load", g, !1); }();
+        </script>
     </head>
 <body>
 

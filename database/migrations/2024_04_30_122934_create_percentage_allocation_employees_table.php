@@ -21,6 +21,10 @@ return new class extends Migration
             $table->unsignedInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('users');
             $table->string('type');
+            $table->string('factor_sender')->default('all');//all || employee_factors
+            $table->string('limit_type')->nullable();//null || count || price
+            $table->integer('min_limit_type')->nullable();
+            $table->integer('max_limit_type')->nullable();
             $table->integer('percent');
             $table->timestamp('start_allocation_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('end_allocation_date')->default(DB::raw('CURRENT_TIMESTAMP'));

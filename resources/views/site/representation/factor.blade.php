@@ -26,7 +26,7 @@
                 @if(now() > $factor->expired_at)
                 <p class="text-danger font-18 text-center">فاکتور: {{ $factor->resnumber }} منقضی شده است و امکان پرداخت
                     وجود ندارد، لطفا سفارش جدید ثبت نمایید یا با پشتیبانی تماس بگیرید.</p>
-                <p class="font-18 text-center text-dark">پشتیبانی: 09429000029</p>
+                <p class="font-18 text-center text-dark">پشتیبانی: 09366342145</p>
                 @else
                 <div class="col-12">
                     <div class="row">

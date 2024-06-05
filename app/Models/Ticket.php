@@ -52,7 +52,6 @@ class Ticket extends Model
      {
           $title = request('title');
           $user = request('user');
-
           if(isset($user) && $user != 'all')
           {
              $query->where('user_id', $user);

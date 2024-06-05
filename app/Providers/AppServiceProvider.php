@@ -4,22 +4,10 @@ namespace App\Providers;
 
 use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Menu;
-use App\Models\Banner;
-use App\Models\BannerLocation;
-use App\Models\Cardservice;
 use App\Models\Category;
 use App\Models\Center;
 use App\Models\CenterCategory;
-use App\Models\ClothesService;
-use App\Models\Constructionservice;
 use App\Models\Context;
-use App\Models\Dentistryservice;
-use App\Models\Foodservice;
-use App\Models\Hotelservice;
-use App\Models\Insuranceservice;
-use App\Models\Internetservice;
-use App\Models\Legalservice;
-use App\Models\Physiotherapyservice;
 use App\Models\Representation;
 use App\Models\Role;
 use App\Models\Service;
@@ -195,19 +183,11 @@ class AppServiceProvider extends ServiceProvider
             if ($user->birth_month != '') {
                 $count++;
             }
-            if ($user->call != '') {
-                $count++;
-            }
-            if ($user->shenasnamecode != '') {
+
+            if ($user->melicode != '') {
                 $count++;
             }
 
-            if ($user->postalcode != '') {
-                $count++;
-            }
-            if ($user->address != '') {
-                $count++;
-            }
             if ($user->imgshenasname != '') {
                 $count++;
             }
@@ -220,17 +200,8 @@ class AppServiceProvider extends ServiceProvider
             if ($user->email != '') {
                 $count++;
             }
-            if ($user->serialcharacter != '') {
-                $count++;
-            }
-            if ($user->serialtop != '') {
-                $count++;
-            }
-            if ($user->serialbottom != '') {
-                $count++;
-            }
 
-            $profile_percent = $count / 16 * 100;
+            $profile_percent = $count / 10 * 100;
 
             $view->with([
                 'profile_percent' => round($profile_percent),
