@@ -22,6 +22,7 @@ class PercentageAllocationEmployeeCollection extends ResourceCollection
                     'family' =>  $item->user->family,
                     'phone' => $item->user->phone,
                     'type' => $item::TYPE[$item->type],
+                    'factor_sender' => $item::FactorSender[$item->factor_sender],
 					'item' => $item->percentageAllocationEmployeeable->title,
                     'start_date' => verta($item->start_allocation_date)->format('Y/m/d'),
                     'end_date' => verta($item->end_allocation_date)->format('Y/m/d'),

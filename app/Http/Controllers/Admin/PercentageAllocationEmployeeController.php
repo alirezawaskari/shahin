@@ -66,6 +66,7 @@ class PercentageAllocationEmployeeController extends AdminController {
                 'employee' => 'required',
             ] );
             if ( $request->register_price && $request->service ) {
+
                 foreach ( $request->service as $item ) {
                     PercentageAllocationEmployee::create( [
                         'percentage_allocation_employeeable_id' => $item,
@@ -74,6 +75,10 @@ class PercentageAllocationEmployeeController extends AdminController {
                         'agent_id' => auth()->user()->id,
                         'type' => 'register_price',
                         'percent' => Helper::numberConverter($request->register_price_percent),
+                        'factor_sender' => $request->register_price_factor_sender,
+                        'limit_type' => $request->register_price_limit_type,
+                        'min_limit_type' => $request->register_price_limit_type == 'count' ? $request->register_price_min_limit_count : $request->register_price_min_limit_price,
+                        'max_limit_type' => $request->register_price_limit_type == 'count' ? $request->register_price_max_limit_count : $request->register_price_max_limit_price,
                         'start_allocation_date' => $request->startDate,
                         'end_allocation_date' => $request->endDate,
                     ] );
@@ -88,6 +93,10 @@ class PercentageAllocationEmployeeController extends AdminController {
                         'agent_id' => auth()->user()->id,
                         'type' => $request->total_price,
                         'percent' => Helper::numberConverter($request->total_price_percent),
+                        'factor_sender' => $request->total_price_factor_sender,
+                        'limit_type' => $request->total_price_limit_type,
+                        'min_limit_type' => $request->total_price_limit_type == 'count' ? $request->total_price_min_limit_count : $request->total_price_min_limit_price,
+                        'max_limit_type' => $request->total_price_limit_type == 'count' ? $request->total_price_max_limit_count : $request->total_price_max_limit_price,
                         'start_allocation_date' => $request->startDate,
                         'end_allocation_date' => $request->endDate,
                     ] );
@@ -102,6 +111,10 @@ class PercentageAllocationEmployeeController extends AdminController {
                         'agent_id' => auth()->user()->id,
                         'type' => 'company_profit',
                         'percent' => Helper::numberConverter($request->company_profit_percent),
+                        'factor_sender' => $request->company_profit_factor_sender,
+                        'limit_type' => $request->company_profit_limit_type,
+                        'min_limit_type' => $request->company_profit_limit_type == 'count' ? $request->company_profit_min_limit_count : ( float ) str_replace( ',', '', $request->company_profit_min_limit_price ),
+                        'max_limit_type' => $request->company_profit_limit_type == 'count' ? $request->company_profit_max_limit_count : ( float ) str_replace( ',', '', $request->company_profit_max_limit_price ),
                         'start_allocation_date' => $request->startDate,
                         'end_allocation_date' => $request->endDate,
                     ] );
