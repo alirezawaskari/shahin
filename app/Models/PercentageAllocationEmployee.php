@@ -101,13 +101,13 @@ class PercentageAllocationEmployee extends Model {
             $is_applicable = true;
             if($item->limit_type == 'count')
             {
-                $employee_sucess_factors_count = $item->user->factors->whereStatus(1)->where('created_at' , '>=' , $item->start_allocation_date)->count();
+                $employee_sucess_factors_count = $item->user->factors->where('status',1)->where('created_at' , '>=' , $item->start_allocation_date)->count();
                 $is_applicable = $employee_sucess_factors_count >= $item->min_limit_type ? true : false;
                 $is_applicable = $is_applicable && $employee_sucess_factors_count <= $item->max_limit_type ? true : false;
             }
             if($item->limit_type == 'price')
             {
-                $employee_sucess_factors_sum_price = $item->user->factors->whereStatus(1)->where('created_at' , '>=' , $item->start_allocation_date)->sum('price');
+                $employee_sucess_factors_sum_price = $item->user->factors->where('status',1)->where('created_at' , '>=' , $item->start_allocation_date)->sum('price');
                 $is_applicable = $employee_sucess_factors_sum_price >= $item->min_limit_type ? true : false;
                 $is_applicable = $is_applicable && $employee_sucess_factors_sum_price <= $item->max_limit_type ? true : false;
             }
