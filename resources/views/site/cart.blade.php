@@ -17,7 +17,7 @@
                 <div class="bg-white rounded shadow row py-4 custom-box">
 					<p class="p-2">توجه:</p>
 					<p class="p-2"> ارائه هرگونه مدارک و وجه نقد یا پرداخت هزینه به کارکنان مراکز خدماتی غیرقانونی تلقی میگردد خواهشمند است درصورت مشاهده و درخواست وجه نقد یا هزینه مازاد بر فاکتور اصلی مراتب  را به شماره تماس ذیل اعلام نمایید.</p>
-					<p class="text-center p-1 font-size-14">شماره تماس: 09429000029 </p>
+					<p class="text-center p-1 font-size-14">شماره تماس: 09366342145 </p>
                     @if(session()->get('cart.total.count') > 0)
                         <div class="col-12 p-0 p-md-4">
                             <table class="table border">
