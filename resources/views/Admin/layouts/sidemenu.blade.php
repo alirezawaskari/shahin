@@ -136,18 +136,6 @@
                 </ul>
             </li>
             @endpermission
-            @permission('percentageAllocationEmployee_all')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>تسهیم درآمد</span> </a>
-                <ul>
-                    @permission('percentageAllocationEmployee_all')
-                    <li><a href="{{ route('percentageAllocationEmployee.index') }}">فهرست تسهیم</a></li>
-                    @endpermission
-                    @permission('percentageAllocationEmployee_report')
-                    <li><a href="{{ route('percentageAllocationEmployee.report') }}">گزارش تسهیم</a></li>
-                    @endpermission
-              </ul>
-            </li>
-            @endpermission
             @if(!auth()->user()->center)
             @permission('file-detail|file')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
@@ -176,6 +164,18 @@
             </li>
             @endpermission
             @endif
+            @permission('percentageAllocationEmployee_all')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>تسهیم درآمد</span> </a>
+                <ul>
+                    @permission('percentageAllocationEmployee_all')
+                    <li><a href="{{ route('percentageAllocationEmployee.index') }}">فهرست تسهیم</a></li>
+                    @endpermission
+                    @permission('percentageAllocationEmployee_report')
+                    <li><a href="{{ route('percentageAllocationEmployee.report') }}">گزارش تسهیم</a></li>
+                    @endpermission
+              </ul>
+            </li>
+            @endpermission
             @permission('center-category')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>سفارشات</span> </a>
                 <ul>
