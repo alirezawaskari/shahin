@@ -143,6 +143,10 @@ $(document).ready(function () {
                                 return '<span class="badge badge-danger">برگشت خورده</span>';
                             case 3:
                                 return '<span class="badge badge-info">عودت داده شده</span>';
+                            case 4:
+                                return '<span class="badge badge-info">رسوب در خزانه</span>';
+                            case 5:
+                                return '<span class="badge badge-info">جاری</span>';
                             default:
                                 return ''
                         }

@@ -484,7 +484,7 @@ class CheckController extends Controller
             'serial_code' => $request->serial_code,
             'date' => $request->date,
             'title' => $request->title,
-            'status' => 0,
+            'status' => $request->title == 'guaranty' ? 4 : 5,
             'checkable_id' => $total_factor_item->id,
             'checkable_type' => get_class($total_factor_item)
         ]);

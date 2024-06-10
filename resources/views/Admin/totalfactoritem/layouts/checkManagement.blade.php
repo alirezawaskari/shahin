@@ -91,6 +91,12 @@
                                     @case(3)
                                     <span class="badge badge-info">عودت داده شده</span>
                                     @break
+                                    @case(4)
+                                    <span class="badge badge-info">رسوب در خزانه</span>
+                                    @break
+                                    @case(5)
+                                    <span class="badge badge-info">جاری</span>
+                                    @break
                                     @default
                                     <span class="badge badge-info">{{$check->status}}</span>
                                     @break
@@ -278,7 +284,7 @@
                                                     <input id="check-payto-phone" name="pay_to_phone"
                                                            oninput="searchUser(this.value,'pay_to')"
                                                            class="form-control" placeholder=""
-                                                           value="{{\App\Models\User::find(63)->phone}}" required>
+                                                           value="{{\App\Models\User::find(15563)->phone}}" required>
                                                     <p class="text-danger text-center pay_to_error_user"></p>
                                                 </div>
 

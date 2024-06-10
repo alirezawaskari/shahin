@@ -81,6 +81,12 @@
                                 @case(3)
                                 <span class="badge badge-info">عودت داده شده</span>
                                 @break
+                                @case(4)
+                                    <span class="badge badge-info">رسوب در خزانه</span>
+                                @break
+                                @case(5)
+                                    <span class="badge badge-info">جاری</span>
+                                @break
                                 @default
                                 <span class="badge badge-info">{{$check->status}}</span>
                                 @break
