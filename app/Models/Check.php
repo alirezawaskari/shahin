@@ -6,19 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class Check extends Model implements AuditableContract
-{
+class Check extends Model implements AuditableContract {
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
 
     /**
-     * @var string[]
-     */
-    protected $guarded=['id'];
+    * @var string[]
+    */
+    protected $guarded = [ 'id' ];
 
     /**
-     *
-     */
+    *
+    */
     const TITLE = [
         'installment' => 'قسط',
         'guaranty' => 'ضمانت',
@@ -26,12 +25,11 @@ class Check extends Model implements AuditableContract
     ];
 
     /**
-     * statuses of check
-     * @param $status
-     * @return string
-     */
-    public static function status($status)
-    {
+    * statuses of check
+    * @param $status
+    * @return string
+    */
+    public static function status( $status ) {
         return [
             '0' => 'در انتظار وصول',
             '1' => 'وصول شده',
@@ -39,11 +37,11 @@ class Check extends Model implements AuditableContract
             '3' => 'عودت داده شده',
             '4' => 'رسوب در خزانه',
             '5' => 'جاری'
-        ][$status];
+        ][ $status ];
     }
 
     /**
-     * Get all of the check's files.
+    * Get all of the check's files.
      */
     public function files()
     {
@@ -113,6 +111,10 @@ class Check extends Model implements AuditableContract
         $applicant_name=request()->applicant_name;
         $applicant_family=request()->applicant_family;
         $applicant_phone=request()->applicant_phone;
+        //check user representation
+        if (auth()->user()->admin_representation) {
+            $query->where('representation_id', auth()->user()->admin_representation_id);
+        }
         //------------------ exporter queries ---------------------
         if (isset($exporter_name) && trim($exporter_name) != '') {
                 $query->whereHas('exportable', function ($query)use($exporter_name){
@@ -178,7 +180,7 @@ class Check extends Model implements AuditableContract
         }
 
         if (isset($start_date) && trim($start_date) != '' && isset($end_date) && trim($end_date) != '') {
-            $query->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date);
+            $query->whereDate('date', ' >= ', $start_date)->whereDate('date', ' <= ', $end_date);
         }
         if (isset($status) && trim($status) != '' && $status != 'all') {
             $query->whereStatus($status);
@@ -199,16 +201,16 @@ class Check extends Model implements AuditableContract
     }
     /**
      * Get all of the video's assetTransactions.
-     */
-    public function assetTransactions()
-    {
-        return $this->morphMany(AssetTransactions::class, 'assetable');
+    */
+
+    public function assetTransactions() {
+        return $this->morphMany( AssetTransactions::class, 'assetable' );
     }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function totalFactorItem()
-    {
-        return $this->belongsTo(TotalFactorItem::class,'checkable_id')->where('checks.checkable_type',TotalFactorItem::class);
+    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+    */
+
+    public function totalFactorItem() {
+        return $this->belongsTo( TotalFactorItem::class, 'checkable_id' )->where( 'checks.checkable_type', TotalFactorItem::class );
     }
 }

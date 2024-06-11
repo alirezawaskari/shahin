@@ -486,7 +486,8 @@ class CheckController extends Controller
             'title' => $request->title,
             'status' => $request->title == 'guaranty' ? 4 : 5,
             'checkable_id' => $total_factor_item->id,
-            'checkable_type' => get_class($total_factor_item)
+            'checkable_type' => get_class($total_factor_item),
+            'representation_id' => auth()->user()->admin_representation_id,
         ]);
         return $check;
     }
