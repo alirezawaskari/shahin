@@ -1,5 +1,5 @@
 @extends('Admin.master')
-@section('title')ایجاد تیکت جدید@endsection
+@section('title')ایجاد مکاتبه جدید@endsection
 
 @section('content')
 <div class="card">
@@ -11,7 +11,7 @@
                 @include('Admin.layouts.errors')
 
                 <div class="col-12 col-md-6 mb-2">
-                    <label>عنوان تیکت</label>
+                    <label>عنوان مکاتبه</label>
                     <input type="text" class="form-control" name="title" required>
                 </div>
 

@@ -1,12 +1,12 @@
 @extends('Admin.master')
-@section('title')مشاهده تیکت@endsection
+@section('title')مشاهده مکاتبه@endsection
 
 @section('content')
 <div class="card">
     <div class="card-body">
         <div class="row">
             <div class="col-12 mb-3">
-                <label>عنوان تیکت</label>
+                <label>عنوان مکاتبه</label>
                 <p class="form-control">{{ $ticket->title }}</p>
             </div>
 
@@ -47,10 +47,10 @@
     <div class="card-body">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link show active" id="factor-tab" data-toggle="tab" href="#answer" role="tab" aria-controls="answer" aria-selected="false">پاسخ تیکت</a>
+                <a class="nav-link show active" id="factor-tab" data-toggle="tab" href="#answer" role="tab" aria-controls="answer" aria-selected="false">پاسخ مکاتبه</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#refer" role="tab" aria-controls="refer" aria-selected="false">ارجاع تیکت</a>
+                <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#refer" role="tab" aria-controls="refer" aria-selected="false">ارجاع مکاتبه</a>
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
@@ -170,7 +170,7 @@
                                 @endpermission--}}
 
                                 <div class="col-12 mt-3">
-                                    <input type="submit" class="btn btn-success border-0" value="ارجاع تیکت">
+                                    <input type="submit" class="btn btn-success border-0" value="ارجاع مکاتبه">
                                 </div>
 
                             </div>

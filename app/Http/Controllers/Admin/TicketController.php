@@ -33,7 +33,7 @@ class TicketController extends Controller
     public function sendTicket()
     {
         $employees = Employee::all();
-        $title = 'فهرست تیکت های ارسالی';
+        $title = 'فهرست مکاتبات ارسالی';
         $url = 'send/filter';
 
         return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
@@ -45,7 +45,7 @@ class TicketController extends Controller
     public function receivedTicket()
     {
         $employees = Employee::all();
-        $title = 'فهرست تیکت های دریافتی';
+        $title = 'فهرست مکاتبات دریافتی';
         $url = 'received/filter';
 
         return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
@@ -58,7 +58,7 @@ class TicketController extends Controller
     {
 
         $employees = Employee::all();
-        $title = 'میزکار تیکت های دریافتی';
+        $title = 'میزکار مکاتبات دریافتی';
         $url = 'desktop/filter';
 
         return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));

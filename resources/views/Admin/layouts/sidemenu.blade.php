@@ -467,13 +467,13 @@
                 </ul>
             </li>
             @endpermission
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>تیکت ها</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>اتوماسیون اداری</span> </a>
                 <ul>
-                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>تیکت ها
+                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
                                 ارسالی</span> </a></li>
-                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>تیکت ها
+                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
                                 دریافتی</span> </a></li>
-                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>تیکت
+                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>مکاتبه
                                 جدید</span> </a></li>
                 </ul>
             </li>
