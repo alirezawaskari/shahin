@@ -157,7 +157,7 @@
         <div class="col-12 row mb-4">
         @if(isset($service->workSamples))
             @foreach($service->workSamples as $work_sample)
-                <div class="col-md-2 p-2">
+                <div class="col-6 col-md-2 p-2">
                     <a href="{{ asset($work_sample->image) }}" target="_blank">
                         <img src="{{ $work_sample->image }}" class="card-img-top" height="250px">
                     </a>
