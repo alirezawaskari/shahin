@@ -134,7 +134,7 @@ class FactorItemController extends Controller {
         if ( auth()->user()->center_id ) {
             $factor_items = FactorItem::where( 'status_factor', 10 )->filter();
         }
-        if (auth()->user()->isAbleTo('all-file-desktop')){
+        if (auth()->user()->isAbleTo('file-desktop')){
             $factor_items = FactorItem::whereIn( 'status_factor', array(0,4,14) )->where('supporter_id', auth()->user()->id)->filter();
         }
         if ( $request->exel == 'true' ) {
