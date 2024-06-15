@@ -24,7 +24,7 @@
                         <div class="col-md-2">
                             <a class="btn border border-secondary mr-3 box-shadow-info"
                                 href="../../dashboard/factorItem/{{ $factoritem['resnumber'] }}/edit"><i
-                                    class="fa fa-edit"></i> ویرایش پرونده</a>
+                                    class="fa fa-edit"></i> امورات اجرایی پرونده</a>
                         </div>
                     </div>
                     @foreach ($factorItem['forms'] as $form)

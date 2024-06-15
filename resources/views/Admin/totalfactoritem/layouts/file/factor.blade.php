@@ -23,7 +23,7 @@
                     @if (!is_null($factoritem['centers']) || !is_null($factoritem['forms']))
                     @foreach ($factoritem['factorItems'] as $factor_item)
                     <div class="card-header row col-12 col-md-12 mb-3">
-                        <div class="col-md-8">
+                        <div class="col-md-7">
                             <h5>{{ $factor_item['factoritemable']->title . ($factor_item['center'] ? ' (
                                 '.$factor_item['center']->title.' ) ' : '').' - '. $factoritem['financial_plans_type']
                                 }}</h5>
@@ -32,10 +32,10 @@
                             <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
                                 data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <a class="btn border border-secondary mr-3 box-shadow-info"
                                 href="../../dashboard/factorItem/{{ $factor_item['resnumber'] }}/edit"><i
-                                    class="fa fa-edit"></i> ویرایش پرونده</a>
+                                    class="fa fa-edit"></i> امورات اجرایی پرونده</a>
                         </div>
                     </div>
                     <div class="row p-3 position-relative">
