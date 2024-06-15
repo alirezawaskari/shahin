@@ -32,9 +32,10 @@ class SendSmsSuccessRegisterPayment
         if (isset($userMobile)) {
             $body = [
                 'param1' => self::getUploadDocumentLink($event->factor->resnumber),
-                'param2' => $event->supporter_user->family,
-                'param3' => $event->supporter_user->phone,
-
+                // 'param2' => $event->supporter_user->family,
+                // 'param3' => $event->supporter_user->phone,
+                'param2' => 'حسینی',
+                'param3' => '09366342145',
             ];
             IranSms::sendSingleSms('sendsmssuccessregisterpayment',$userMobile,$body);
 
