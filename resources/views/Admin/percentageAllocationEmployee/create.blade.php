@@ -31,13 +31,11 @@
     <div class="card position-relative">
         <div class="col-12 mb-3 mt-2 service_category">
             <label class="w-100">انتخاب دسته بندی</label>
-            <button type="button" class="btn btn-primary mb-3" onclick="selectAll('service_category_id')">انتخاب
-                همه</button>
-            <button type="button" class="btn btn-danger mb-3" onclick="deselectAll('service_category_id')">حذف
-                همه</button>
-            <select class="form-control select2" name="service_category[]" id="service_category_id"
-                onchange="selectByCategory()" multiple>
+            <select class="select form-control select2" onchange="selectByCategory() , checkSelectValue('service_category_id')" name="service_category[]" id="service_category_id"
+                multiple>
                 <option disabled> انتخاب دسته بندی</option>
+                <option value="select_all">انتخاب همه</option>
+                <option value="de_select_all">حذف همه</option>
                 @foreach ($service_categories as $category)
                 <option value="{{ $category->id }}">{{
                     $category->title }}
@@ -45,14 +43,12 @@
                 @endforeach
             </select>
         </div>
-    </div>
-    <div class="card position-relative">
         <div class="col-12 mb-3 mt-2 service">
             <label class="w-100">انتخاب خدمت</label>
-            <button type="button" class="btn btn-primary mb-3" onclick="selectAll('service_id')">انتخاب همه</button>
-            <button type="button" class="btn btn-danger mb-3" onclick="deselectAll('service_id')">حذف همه</button>
-            <select class="form-control select2" name="service[]" id="service_id" onchange="selectByService()" multiple>
+            <select class="form-control select2" onchange="selectByService() , checkSelectValue('service_id')" name="service[]" id="service_id" multiple>
                 <option disabled>انتخاب خدمات</option>
+                <option value="select_all">انتخاب همه</option>
+                <option value="de_select_all">حذف همه</option>
                 @foreach ($services as $service)
                 <option value="{{ $service->id }}">{{
                     $service->title }}
@@ -60,14 +56,12 @@
                 @endforeach
             </select>
         </div>
-    </div>
-    <div class="card position-relative">
         <div class="col-12 mb-3 mt-2 center">
             <label class="w-100">انتخاب مرکز</label>
-            <button type="button" class="btn btn-primary mb-3" onclick="selectAll('center_id')">انتخاب همه</button>
-            <button type="button" class="btn btn-danger mb-3" onclick="deselectAll('center_id')">حذف همه</button>
-            <select class="form-control select2" name="center[]" id="center_id" multiple>
+            <select class="form-control select2" onchange="checkSelectValue('center_id')" name="center[]" id="center_id" multiple>
                 <option disabled>انتخاب مرکز</option>
+                <option value="select_all">انتخاب همه</option>
+                <option value="de_select_all">حذف همه</option>
                 @foreach ($centers as $center)
                 <option value="{{ $center->id }}">{{
                     $center->title }}

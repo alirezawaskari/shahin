@@ -228,8 +228,25 @@ $(".limit_type").change(function () {
         $('#'+this.name +'_count').css('display', 'none');
     }
 });
+
+function checkSelectValue(select_id)
+{
+    select = document.querySelector("#"+select_id);
+    selected_option = select.options[select.selectedIndex].value;
+    if(selected_option == 'select_all')
+    {
+        selectAll(select_id);
+    }
+    if(selected_option == 'de_select_all')
+    {
+        deselectAll(select_id);
+    }
+}
 function selectAll(select_id) {
     $("#" + select_id + "> option").prop("selected", true);
+    document.getElementById(select_id).options[0].selected=false;
+    document.getElementById(select_id).options[1].selected=false;
+    document.getElementById(select_id).options[2].selected=false;
     $("#" + select_id).trigger("change");
 }
 
@@ -256,6 +273,8 @@ function selectByCategory() {
                 if (data.count == 'available') {
                     $('#service_id').find('option').remove();
                     $('#service_id').append('<option disabled>انتخاب خدمات</option>');
+                    $('#service_id').append('<option value="select_all">انتخاب همه</option>');
+                    $('#service_id').append('<option value="de_select_all">حذف همه</option>');
                     for (var i = 0; i < data.services.length; i++) {
                         $('#service_id').append('<option value="' + data.services[i]['id'] + '">' + data.services[i]['title'] + '</option>');
                     }
@@ -283,6 +302,8 @@ function selectByService() {
                 if (data.count == 'available') {
                     $('#center_id').find('option').remove();
                     $('#center_id').append('<option disabled>انتخاب مرکز</option>');
+                    $('#center_id').append('<option value="select_all">انتخاب همه</option>');
+                    $('#center_id').append('<option value="de_select_all">حذف همه</option>');
                     for (var i = 0; i < data.centers.length; i++) {
                         $('#center_id').append('<option value="' + data.centers[i]['id'] + '">' + data.centers[i]['title'] + '</option>');
                     }
