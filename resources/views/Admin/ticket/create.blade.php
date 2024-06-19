@@ -109,30 +109,5 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script>
-    $(document).ready(function () {
-
-        $('#role').on('change', function () {
-            var id = $(this).val();
-            $.ajax({
-                url: '/dashboard/role/get-user-by-role',
-                type: 'get',
-                data: {
-                    "id": id,
-                },
-                success: function (data) {
-                    $('#users')
-                        .empty()
-                        .append('<option value="all">انتخاب دریافت کننده</option>')
-                    ;
-                    $.each(data.data.users, function (i, d) {
-                        $('#users').append('<option value="' + d.id + '">' + d.name + " "+  d.family + '</option>');
-                    });
-                }
-            });
-        });
-
-
-    })
-</script>
+<script src="{{ asset('/assets/dashboard/js/ticket.js') }}"></script>
 @endsection
