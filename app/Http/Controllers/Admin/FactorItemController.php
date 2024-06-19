@@ -45,7 +45,11 @@ class FactorItemController extends Controller {
     public function index() {
         $title = 'فهرست پرونده ها';
         $url = 'filter';
-        return view( 'Admin.factoritem.all' , compact('title' , 'url'));
+        $supporter_users=User::where('level' , 'admin')->where('admin_representation_id',auth()->user()->admin_representation_id)->whereHas('roles',function ($query){
+            $query->where('name','admin-site');
+        })->get();
+
+        return view( 'Admin.factoritem.all' , compact('title' , 'url' , 'supporter_users'));
     }
 
     /**
@@ -1062,13 +1066,28 @@ class FactorItemController extends Controller {
             //transfer all factorItems of the selected factorItem subset
             foreach($factor_item->getFatorItemCollection($factor_item)->get() as $item)
             {
-                FactorItem::createRepresentation($item , $request->end_representation);
+                if($request->transfer_type == 'representation' && $request->selected_representation)
+                {
+                    FactorItem::createRepresentation($item , $request->selected_representation);
+                }
+                elseif($request->transfer_type == 'supporter' && $request->selected_supporter)
+                {
+                    $item->update(['supporter_id' => $request->selected_supporter]);
+                }
             }
             //transfer all totalFactorItem factorItem's if factorItem selected is installment
             if($factor_item->total_factor_item_id)
             {
                 foreach(FactorItem::where('total_factor_item_id' , $factor_item->total_factor_item_id)->get() as $item){
-                    FactorItem::createRepresentation($item , $request->end_representation);
+                    if($request->transfer_type == 'representation' && $request->selected_representation)
+                    {
+                        FactorItem::createRepresentation($item , $request->selected_representation);
+                    }
+                    elseif($request->transfer_type == 'supporter' && $request->selected_supporter)
+                    {
+                        $item->update(['supporter_id' => $request->selected_supporter]);
+
+                    }
                 }
             }
         });

@@ -25,6 +25,17 @@ $("body").on('change', '#title', function (event) {
     }
 });
 
+$("#transfer_type").change(function () {
+    if (this.value == 'representation') {
+        $('#representation_list_box').css('display', 'block');
+        $('#supporter_list_box').css('display', 'none');
+    } else if(this.value == 'supporter'){
+        $('#supporter_list_box').css('display', 'block');
+        $('#representation_list_box').css('display', 'none');
+
+    }
+});
+
 var ct = 0;
 
 
