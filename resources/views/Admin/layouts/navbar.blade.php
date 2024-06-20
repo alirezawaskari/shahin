@@ -45,32 +45,32 @@
                             {{verta()->now()->formatWord('l').' '.verta()->now()->format('%Y/%m/%d')}}
                         </div>
                     </li>
+                    <li class="nav-item dropdown">
+                        <span class="text-center  " style="padding: 5px;cursor: pointer" type="button"  data-toggle="modal" data-target="#exampleModalCenter">
+                            <i class="fa fa-user-plus text-info" ></i>
+                        </span>
+                        @if(auth()->user()->hasRole('presentore'))
+                            <span>{{ auth()->user()->name . ' ' .auth()->user()->family }} (سمت : {{ auth()->user()->employee->work_title . auth()->user()->id}})</span>
+                        @else
+                            <span>{{ auth()->user()->name.' '.auth()->user()->family }} (سمت : {{ auth()->user()->employee->work_title}})</span>
+                        @endif
+
+                        <a href="#" data-toggle="dropdown">
+                            <figure class="avatar avatar-sm avatar-state-success">
+                                <img class="rounded-circle" src="{{ asset(auth()->user()->avatar) }}" alt="...">
+                            </figure>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="login.html" class="text-danger dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">خروج</a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                  style="display: none;">
+                                @csrf
+                            </form>
+                        </div>
+                    </li>
             </ul>
 
             <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <span class="text-center  " style="padding: 5px;cursor: pointer" type="button"  data-toggle="modal" data-target="#exampleModalCenter">
-                        <i class="fa fa-user-plus text-info" ></i>
-                    </span>
-                    @if(auth()->user()->hasRole('presentore'))
-                        <span>{{ auth()->user()->name . ' ' .auth()->user()->family }} (سمت : {{ auth()->user()->employee->work_title . auth()->user()->id}})</span>
-                    @else
-                        <span>{{ auth()->user()->name.' '.auth()->user()->family }} (سمت : {{ auth()->user()->employee->work_title}})</span>
-                    @endif
-
-                    <a href="#" data-toggle="dropdown">
-                        <figure class="avatar avatar-sm avatar-state-success">
-                            <img class="rounded-circle" src="{{ asset(auth()->user()->avatar) }}" alt="...">
-                        </figure>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a href="login.html" class="text-danger dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">خروج</a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                              style="display: none;">
-                            @csrf
-                        </form>
-                    </div>
-                </li>
                 <li class="nav-item d-lg-none d-sm-block">
                     <a href="#" class="nav-link side-menu-open">
                         <i class="ti-menu"></i>

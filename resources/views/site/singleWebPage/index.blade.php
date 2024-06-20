@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div class="position-fixed d-none - d-md-block" style="left: 0; bottom: 0;">
+    <div class="position-fixed" style="left: 0; bottom: 0;">
         <img src="../../images/logo.png" alt=""
             onclick="window.open('https://ecunion.ir/verify/lalecard.ir?token=85848845e539a3c460cf', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=450, height=630, top=30')"
             style="cursor:pointer">
