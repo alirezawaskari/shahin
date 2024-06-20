@@ -279,7 +279,7 @@ class ServiceController extends AdminController
     public static function selectByCategory(Request $request)
     {
         if ($request->ajax()) {
-            $id = [$request->input('id')];
+            $id = is_array($request->input('id')) ? $request->input('id') : [$request->input('id')];
             if (Service::whereIn('category_id', $id)->get()->count() > 0) {
                 $services = Service::whereIn('category_id', $id)->get();
                 return response()->json(['count' => 'available', 'services' => $services]);

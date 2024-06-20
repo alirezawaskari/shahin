@@ -28,6 +28,9 @@ return new class extends Migration
             $table->unsignedInteger('paytoable_id');
             $table->string('paytoable_type');
 
+            $table->unsignedInteger('representation_id');
+            $table->foreign('representation_id')->references('id')->on('representations');
+         
             $table->tinyInteger('status');
             $table->double('amount');
             $table->unsignedInteger('creator_id');

@@ -7,14 +7,14 @@ use App\Models\Check;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class InstallmentCheckSms extends Command
+class ManagePendingChecks extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'installmentCheck:sms';
+    protected $signature = 'pendingCheck:mange';
 
     /**
      * The console command description.
@@ -40,9 +40,13 @@ class InstallmentCheckSms extends Command
      */
     public function handle()
     {
-        $checks = Check::whereDate('date',Carbon::today()->addDays(3))->where('title','installment')->get();
-        foreach ($checks as $check){
-            event(new checkSmsReminder( $check->applicantable->phone,$check));
+        //chenge status pending checks
+        $pending_checks = Check::whereDate('date','<=',Carbon::today()->addDays(3))->where('title','!=','guaranty')->where('status', 5);
+        $pending_checks->update(['status' => 0]);
+        //send sms to the applicant installment pending checks
+        $installment_pending_checks = $pending_checks->where('title' , 'installment');
+        foreach ($installment_pending_checks as $item){
+            event(new checkSmsReminder( $item->applicantable->phone,$item));
         }
     }
 }

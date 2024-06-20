@@ -25,6 +25,17 @@ $("body").on('change', '#title', function (event) {
     }
 });
 
+$("#transfer_type").change(function () {
+    if (this.value == 'representation') {
+        $('#representation_list_box').css('display', 'block');
+        $('#supporter_list_box').css('display', 'none');
+    } else if(this.value == 'supporter'){
+        $('#supporter_list_box').css('display', 'block');
+        $('#representation_list_box').css('display', 'none');
+
+    }
+});
+
 var ct = 0;
 
 
@@ -619,11 +630,11 @@ $(document).ready(function () {
                         output += `
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer" >
-                            بازدید پرونده
+                            امورات اداری و مالی پرونده
                             </span></a>
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}/edit">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer">
-                            ویرایش پرونده
+                            امورات اجرایی پرونده
                             </span></a>
                         </div></div>`
                         return output;

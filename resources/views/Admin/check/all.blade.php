@@ -86,6 +86,12 @@
                             <option value="3">
                               عودت داده شده
                             </option>
+                            <option value="4">
+                              رسوب در خزانه
+                            </option>
+                            <option value="5">
+                              جاری
+                            </option>
                         </select>
                     </div>
                     <div class="col-12 col-md-4 mb-2">
@@ -147,5 +153,5 @@
 
 @section('js')
     <script src="/assets/dashboard/js/layouts.js"></script>
-    <script src="/assets/dashboard/js/check.js?v=1.0"></script>
+    <script src="/assets/dashboard/js/check.js?v=1.1"></script>
 @endsection

@@ -180,7 +180,8 @@ class PromissoryController extends Controller
             'title' => $request->title,
             'status' => 0,
             'promissoryable_id' => $total_factor_item->id,
-            'promissoryable_type' => get_class($total_factor_item)
+            'promissoryable_type' => get_class($total_factor_item),
+            'representation_id' => auth()->user()->admin_representation_id,
         ]);
         //store history
         $promissory->histories()->create([

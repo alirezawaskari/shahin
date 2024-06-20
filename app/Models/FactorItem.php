@@ -303,7 +303,7 @@ class FactorItem extends Model implements AuditableContract
             }
         }
 
-        if (auth()->user()->hasPermission('file-detail')) {
+        if (auth()->user()->hasPermission('file-detail|file-desktop')) {
             if (auth()->user()->center_id) {
                 $center = auth()->user()->center_id;
                 $query->where('center_id', $center);
@@ -637,7 +637,7 @@ class FactorItem extends Model implements AuditableContract
     /**
      * @param FactorItem $item
      * @return int //price
-     */   
+     */
     public static function getPriceDifferencePaid(FactorItem $item)
     {
         //get total price_difference price paid

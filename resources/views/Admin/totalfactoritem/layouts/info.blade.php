@@ -30,11 +30,6 @@
                 <i class="fa fa-print" aria-hidden="true"></i>
                 <span>پرینت قرارداد</span>
             </a>
-            <a href="/dashboard/totalFactorItem/{{ $totalFactorItem->id }}"
-                class="btn btn-link btn-float has-text text-size-small rtl p-1">
-                <i class="fa fa-eye text-indigo-400" aria-hidden="true"></i>
-                <span>بازدید پرونده</span>
-            </a>
             <a data-toggle="modal" data-target="#requestContractSettlementModal"
                 class="btn btn-link btn-float has-text text-size-small rtl p-1">
                 <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>

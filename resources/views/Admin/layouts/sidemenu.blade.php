@@ -136,30 +136,20 @@
                 </ul>
             </li>
             @endpermission
-            @permission('percentageAllocationEmployee_all')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>تسهیم درآمد</span> </a>
-                <ul>
-                    @permission('percentageAllocationEmployee_all')
-                    <li><a href="{{ route('percentageAllocationEmployee.index') }}">فهرست تسهیم</a></li>
-                    @endpermission
-                    @permission('percentageAllocationEmployee_report')
-                    <li><a href="{{ route('percentageAllocationEmployee.report') }}">گزارش تسهیم</a></li>
-                    @endpermission
-              </ul>
-            </li>
-            @endpermission
             @if(!auth()->user()->center)
-            @permission('file-detail|file')
+            @permission('file-detail|file|file-desktop')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                 <ul>
                     @permission('installments-file-desktop')
                     <li><a href="{{ url('/dashboard/totalFactorItem/desktop') }}">میزکار پرونده ها</a></li>
                     @endpermission
-                    @permission('all-file-desktop')
+                    @permission('file-desktop')
                     <li><a href="{{ url('/dashboard/factorItem/desktop') }}">میزکار پرونده ها</a></li>
                     @endpermission
+                    @permission('file-detail|file')
                     <li><a href="{{ route('factorItem.index') }}">پرونده ها</a></li>
                     <li><a href="{{ route('totalFactorItem.index') }}">پرونده های اقساطی</a></li>
+                    @endpermission
                     @permission('file-report')
                     <li><a href="{{ url('dashboard/totalFactorItem/reports') }}">گزارش مالی پرونده ها</a></li>
                     @endpermission
@@ -176,6 +166,18 @@
             </li>
             @endpermission
             @endif
+            @permission('percentageAllocationEmployee_all')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>تسهیم درآمد</span> </a>
+                <ul>
+                    @permission('percentageAllocationEmployee_all')
+                    <li><a href="{{ route('percentageAllocationEmployee.index') }}">فهرست تسهیم</a></li>
+                    @endpermission
+                    @permission('percentageAllocationEmployee_report')
+                    <li><a href="{{ route('percentageAllocationEmployee.report') }}">گزارش تسهیم</a></li>
+                    @endpermission
+              </ul>
+            </li>
+            @endpermission
             @permission('center-category')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>سفارشات</span> </a>
                 <ul>
@@ -467,13 +469,13 @@
                 </ul>
             </li>
             @endpermission
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>تیکت ها</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>اتوماسیون اداری</span> </a>
                 <ul>
-                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>تیکت ها
+                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
                                 ارسالی</span> </a></li>
-                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>تیکت ها
+                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
                                 دریافتی</span> </a></li>
-                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>تیکت
+                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>مکاتبه
                                 جدید</span> </a></li>
                 </ul>
             </li>

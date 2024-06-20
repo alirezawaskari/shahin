@@ -143,6 +143,10 @@ $(document).ready(function () {
                                 return '<span class="badge badge-danger">برگشت خورده</span>';
                             case 3:
                                 return '<span class="badge badge-info">عودت داده شده</span>';
+                            case 4:
+                                return '<span class="badge badge-info">رسوب در خزانه</span>';
+                            case 5:
+                                return '<span class="badge badge-info">جاری</span>';
                             default:
                                 return ''
                         }
@@ -161,7 +165,7 @@ $(document).ready(function () {
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                              <a href="../../../dashboard/totalFactorItem/${data.total_factor_item_id}" target="_blank">
-                            <button type="button" class="dropdown-item pointer">بازدید پرونده</button></a>
+                            <button type="button" class="dropdown-item pointer">امورات ادارای و مالی پرونده</button></a>
                             <button style="display: ${status_display}" type="button" class="dropdown-item pointer list-check-status" data-check_id="${data.id}" data-front_image="${data.front_image}" data-toggle="modal" data-target="#statusCheckModal">وضعیت</button>
                         </div></div>`
                     }

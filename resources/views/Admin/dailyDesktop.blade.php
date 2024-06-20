@@ -140,7 +140,7 @@
             <div class="card overflow-hidden {{ $item['count_tickets'] > 0 ? 'bg-danger' : '' }}">
                 <div class="card-body text-center">
                     <div class="m-b-10">
-                        <h5 class="alert alert-warning"> تعداد تیکت جدید جهت بررسی : {{ $item['count_tickets'] }}</h5>
+                        <h5 class="alert alert-warning"> تعداد مکاتبات دریافتی جدید جهت بررسی : {{ $item['count_tickets'] }}</h5>
                         <a href="{{ route('desktop.tickets') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
                     </div>
                 </div>

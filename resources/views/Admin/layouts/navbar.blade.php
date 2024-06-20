@@ -53,9 +53,9 @@
                         <i class="fa fa-user-plus text-info" ></i>
                     </span>
                     @if(auth()->user()->hasRole('presentore'))
-                        <span>{{ auth()->user()->name . ' ' .auth()->user()->family }} (سمت : {{ auth()->user()->roles->first()->display_name . auth()->user()->id}})</span>
+                        <span>{{ auth()->user()->name . ' ' .auth()->user()->family }} (سمت : {{ auth()->user()->employee->work_title . auth()->user()->id}})</span>
                     @else
-                        <span>{{ auth()->user()->name.' '.auth()->user()->family }} (سمت : {{ auth()->user()->roles->first()->display_name}})</span>
+                        <span>{{ auth()->user()->name.' '.auth()->user()->family }} (سمت : {{ auth()->user()->employee->work_title}})</span>
                     @endif
 
                     <a href="#" data-toggle="dropdown">

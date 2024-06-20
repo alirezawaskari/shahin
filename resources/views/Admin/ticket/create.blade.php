@@ -1,5 +1,5 @@
 @extends('Admin.master')
-@section('title')ایجاد تیکت جدید@endsection
+@section('title')ایجاد مکاتبه جدید@endsection
 
 @section('content')
 <div class="card">
@@ -11,7 +11,7 @@
                 @include('Admin.layouts.errors')
 
                 <div class="col-12 col-md-6 mb-2">
-                    <label>عنوان تیکت</label>
+                    <label>عنوان مکاتبه</label>
                     <input type="text" class="form-control" name="title" required>
                 </div>
 
@@ -109,30 +109,5 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script>
-    $(document).ready(function () {
-
-        $('#role').on('change', function () {
-            var id = $(this).val();
-            $.ajax({
-                url: '/dashboard/role/get-user-by-role',
-                type: 'get',
-                data: {
-                    "id": id,
-                },
-                success: function (data) {
-                    $('#users')
-                        .empty()
-                        .append('<option value="all">انتخاب دریافت کننده</option>')
-                    ;
-                    $.each(data.data.users, function (i, d) {
-                        $('#users').append('<option value="' + d.id + '">' + d.name + " "+  d.family + '</option>');
-                    });
-                }
-            });
-        });
-
-
-    })
-</script>
+<script src="{{ asset('/assets/dashboard/js/tickets.js?v=1.1') }}"></script>
 @endsection

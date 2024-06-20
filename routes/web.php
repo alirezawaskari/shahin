@@ -32,6 +32,7 @@ Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('rese
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', 'Auth\RegisterController@fastregister');
+
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
 
@@ -94,6 +95,13 @@ Route::group([], function () {
         Artisan::call('sms:installment');
         return redirect()->back()->with([
             'installmentsms' => 'success'
+        ]);
+    });
+
+    Route::get('/managePendingChecks', function () {
+        Artisan::call('pendingCheck:mange');
+        return redirect()->back()->with([
+            'manage_pending_checks' => 'success'
         ]);
     });
 
@@ -253,7 +261,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItemContractSettlement', 'TotalFactorItemContractSettlementController@confirm')->name('totalFactorItemContractSettlement.confirm');
     //financial plans types
     Route::post('/financialPlansType/selectByCategory', 'CategoryController@child')->name('category.get.child');
-    Route::post('/financialPlansType/setByItem', 'FinancialPlansTypeController@setFinancialPlansTypeByItem');
     Route::post('/financialPlansType/setByPaymentType', 'FinancialPlansTypeController@setFinancialPlansTypeByPaymentType');
     Route::get('/financialPlansType/filter', 'FinancialPlansTypeController@filter');
     // Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
@@ -673,6 +680,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 Route::get('/', 'HomeController@index')->name('index');
 Route::get('/help', 'HelpController@index')->name('site.help');
 Route::get('/calculate', 'FactorItemInstallmentController@index')->name('site.help');
+Route::post('dashboard/financialPlansType/setByItem', 'Admin\FinancialPlansTypeController@setFinancialPlansTypeByItem');
 Route::get('/link/{callcenter}', 'HomeController@index');
 Route::get('/message1403', 'HomeController@message');
 Route::get('/mobile', 'HomeController@mobile')->name('mobile');

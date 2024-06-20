@@ -1,5 +1,5 @@
 @extends('Admin.master')
-@section('title')فهرست تیکت ها@endsection
+@section('title')اتوماسیون اداری@endsection
 
 @section('content')
 
@@ -18,7 +18,7 @@
             <div class="heading-btn-group ltr mb-3">
                 <a href="{{ route('ticket.create') }}" class="btn btn-link btn-float has-text text-size-small rtl">
                     <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>
-                    <span>تیکت جدید</span>
+                    <span>مکاتبه جدید</span>
                 </a>
             </div>
         </div>
@@ -29,7 +29,7 @@
         <form  id="filter_form" method="get" role="form" action="/dashboard/ticket/{{$url}}">
             <div class="row">
                 <div class="col-12 col-md-3 mb-2 mb-md-0">
-                    <input type="text" class="form-control" name="title" placeholder="متن تیکت" />
+                    <input type="text" class="form-control" name="title" placeholder="متن مکاتبه" />
                 </div>
 
                 <div class="col-12 col-md-3 mb-2 mb-md-0">

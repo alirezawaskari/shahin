@@ -666,6 +666,7 @@ class User extends Authenticatable
         $user = User::where('phone',$request->phone)->first();
         if (is_null($user)){
            $user = self::storeUser($request->phone,$request->name,$request->family,$request->province,$request->city,$request->gender);
+          dd($user);
            return response ([
                 'status'=>'success',
                 'message'=>' کاربر با موفقیت ثبت شد .'
@@ -684,7 +685,6 @@ class User extends Authenticatable
     private static function storeUser($phone, $name, $family, $province_id, $city_id,$gender)
     {
         $pass = rand(12345, 99999);
-
         return User::create([
             'name' => $name,
             'family' => $family,
@@ -693,7 +693,7 @@ class User extends Authenticatable
             'password' => Hash::make($pass),
             'active' => true,
             'level' => 'user',
-            'province_id ' => $province_id,
+            'province_id' => $province_id,
             'city_id' => $city_id
         ]);
     }

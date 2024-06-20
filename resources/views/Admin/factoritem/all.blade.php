@@ -153,15 +153,29 @@
                             <option value="select">بر حسب انتخاب</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-2" id="source_box">
-                        <select class="custom-select select2" name="end_representation">
+                    <div class="col-12 col-md-2 mb-2">
+                        <select class="custom-select select2" name="transfer_type" id="transfer_type">
+                            <option value=" ">انتفال به</option>
+                                <option value="representation">نمایندگی</option>
+                                <option value="supporter">پشتیبان</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 mb-2 d-none" id="representation_list_box">
+                        <select class="custom-select select2" name="selected_representation">
                             <option value=" ">نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
                         </select>
                     </div>
-
+                    <div class="col-12 col-md-2 mb-2 d-none" id="supporter_list_box">
+                        <select class="custom-select select2" name="selected_supporter">
+                            <option value=" ">انتخاب پشتیبان</option>
+                            @foreach($supporter_users as $supporter_user)
+                                <option value="{{$supporter_user->id}}">{{$supporter_user->name.' '.$supporter_user->family}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-12 col-md-2 mb-2">
                         <button id="do_transfer" type="button" class="btn btn-outline-primary py-2 px-4">انتقال</button>
                     </div>
@@ -240,7 +254,8 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.1')}}"></script>
+<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.2')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection
+

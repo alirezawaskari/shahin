@@ -6,12 +6,12 @@
                 <div class="row">
 
                     <div class="col-12 col-md-4 mb-2">
-                        <label>عنوان تیکت</label>
+                        <label>عنوان مکتبه</label>
                         <input type="text"
                                class="form-control"
                                name="title" value="{{ $ticket->title }}">
                     </div>
-                
+
                     <div class="col-12 col-md-4 mb-2">
                         <label>واحد مربوطه</label>
                         <select class="form-control" name="card_id">
@@ -31,8 +31,8 @@
                             @endif
                        </p>
                     </div>
-    
-                    
+
+
                     <div class="col-12 mb-3">
                         <label>متن درخواست</label>
                         <textarea type="text"

@@ -1,5 +1,23 @@
 $(document).ready(function () {
-
+    $('#role').on('change', function () {
+        var id = $(this).val();
+        $.ajax({
+            url: '/dashboard/role/get-user-by-role',
+            type: 'get',
+            data: {
+                "id": id,
+            },
+            success: function (data) {
+                $('#users')
+                    .empty()
+                    .append('<option value="all">انتخاب دریافت کننده</option>')
+                ;
+                $.each(data.data.users, function (i, d) {
+                    $('#users').append('<option value="' + d.id + '">' + d.name + " "+  d.family + '</option>');
+                });
+            }
+        });
+    });
     fetchData(1);
     var first_load=true;
     var do_filter_command=false;

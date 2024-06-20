@@ -122,6 +122,10 @@ class Promissory extends Model implements AuditableContract
         $applicant_name=request()->applicant_name;
         $applicant_family=request()->applicant_family;
         $applicant_phone=request()->applicant_phone;
+        //check user representation
+        if (auth()->user()->admin_representation) {
+            $query->where('representation_id', auth()->user()->admin_representation_id);
+        }
         //------------------ exporter queries ---------------------
         if (isset($exporter_name) && trim($exporter_name) != '') {
             $query->whereHas('exportable', function ($query)use($exporter_name){
