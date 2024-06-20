@@ -109,5 +109,5 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/ticket.js') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/tickets.js?v=1.1') }}"></script>
 @endsection
