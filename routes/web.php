@@ -98,6 +98,13 @@ Route::group([], function () {
         ]);
     });
 
+    Route::get('/managePendingChecks', function () {
+        Artisan::call('pendingCheck:mange');
+        return redirect()->back()->with([
+            'manage_pending_checks' => 'success'
+        ]);
+    });
+
     Route::get('/exitSuspension', function () {
         Artisan::call('exit:suspension');
         return redirect()->back()->with([
