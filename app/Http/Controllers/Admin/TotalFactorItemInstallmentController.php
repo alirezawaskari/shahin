@@ -65,7 +65,9 @@ class TotalFactorItemInstallmentController extends Controller
          if ($inputs['service']=='none'){
             $inputs['category'] = Category::find($inputs['product_category']);
         } else {
-            $inputs['category'] = Service::find($inputs['service']);
+            // $inputs['category'] = Service::find($inputs['service']);
+            $inputs['category'] = Service::find(1);
+
         }
         $inputs['prepayment_percent'] = self::getPrepaymentPercent($inputs);
 		if ($request->type == 'calculateByTotalPrice') {

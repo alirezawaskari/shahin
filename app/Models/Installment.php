@@ -49,6 +49,8 @@ class  Installment extends Model
      */
     public static function getInstallmentNum($total_price, $installment_able)
     {
+        //calculate the number of installments from the denstriy service table
+        $installment_able = Service::find(1);
         $installments = $installment_able->installments;
         foreach ($installments as $installment) {
             if ($installment->down_interval <= $total_price && $total_price < $installment->high_interval) {
