@@ -131,7 +131,7 @@
 <div class="card">
     <div class="card-body">
 
-        @permission('file-detail')
+        @permission('file-show')
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
