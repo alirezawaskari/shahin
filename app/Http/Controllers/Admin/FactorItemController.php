@@ -58,7 +58,10 @@ class FactorItemController extends Controller {
     public function desktop() {
         $title = 'میزکار پرونده ها';
         $url = 'desktop/filter';
-        return view( 'Admin.factoritem.all' , compact('title' , 'url'));
+        $supporter_users=User::where('level' , 'admin')->where('admin_representation_id',auth()->user()->admin_representation_id)->whereHas('roles',function ($query){
+            $query->where('name','admin-site');
+        })->get();
+        return view( 'Admin.factoritem.all' , compact('title' , 'url' , 'supporter_users'));
     }
 
     /**
