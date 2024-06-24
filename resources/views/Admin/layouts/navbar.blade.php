@@ -8,7 +8,7 @@
             شبکه الکترونیکی هوشمند یکپارچه(شاهین)
         </a>
         </div>
-        <div class="header-body">
+        <div class="header-body" style="flex: auto; direction:ltr">
             <ul class="navbar-nav">
                 @if(!auth()->user()->admin_organization_id)
                     <li class="nav-item dropdown d-none d-lg-block">
@@ -46,7 +46,7 @@
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <span class="text-center  " style="padding: 5px;cursor: pointer" type="button"  data-toggle="modal" data-target="#exampleModalCenter">
+                        <span class="text-center" style="padding: 5px;cursor: pointer" type="button"  data-toggle="modal" data-target="#exampleModalCenter">
                             <i class="fa fa-user-plus text-info" ></i>
                         </span>
                         @if(auth()->user()->hasRole('presentore'))
