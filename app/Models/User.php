@@ -666,7 +666,6 @@ class User extends Authenticatable
         $user = User::where('phone',$request->phone)->first();
         if (is_null($user)){
            $user = self::storeUser($request->phone,$request->name,$request->family,$request->province,$request->city,$request->gender);
-          dd($user);
            return response ([
                 'status'=>'success',
                 'message'=>' کاربر با موفقیت ثبت شد .'
