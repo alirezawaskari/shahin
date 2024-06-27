@@ -14,13 +14,15 @@
                 @if($factorItem->factoritemable->session)
                     <li class="nav-item">
                         <a class="nav-link show {{ $factorItem->center && $factorItem['status_factor'] == 6 ? 'active' : ''}}" id="contact-tab"
-                           data-toggle="tab" href="#session" role="tab" aria-controls="session" aria-selected="false">جلسات</a>
+                           data-toggle="tab" href="#session" role="tab" aria-controls="session" aria-selected="false">نوبت دهی</a>
                     </li>
                 @endif
+                @if(!auth()->user()->center_id && !isset($factorItem->center))
                 <li class="nav-item">
                     <a class="nav-link show {{ !$factorItem->center ? 'active' : ''}}" id="contact-tab"
-                       data-toggle="tab" href="#turnRatings" role="tab" aria-controls="turnRatings" aria-selected="false">نوبت دهی</a>
+                       data-toggle="tab" href="#turnRatings" role="tab" aria-controls="turnRatings" aria-selected="false">تعیین مرکز</a>
                 </li>
+                @endif
                 <li class="nav-item">
                     <a class="nav-link show" id="printForm-tab"
                        data-toggle="tab" href="#printForm" role="tab" aria-controls="printForm" aria-selected="false">فرم ثبت نام</a>
@@ -51,7 +53,7 @@
                 @endif
                     <div class="tab-pane fade p-t-20 {{ !$factorItem->center ? 'active show' : ''}}"
                         id="turnRatings" role="tabpanel" aria-labelledby="contact-tab">
-                       @include('Admin.factoritem.show.turnRatings')
+                       @include('Admin.factoritem.show.determineCentering')
                     </div>
             </div>
         </div>

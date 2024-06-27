@@ -613,7 +613,7 @@
                     @foreach ($items as $key => $factorItem)
                     <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} " id="turnratings-{{ $key }}"
                         role="tabpanel" aria-labelledby="turnratings-{{ $key }}-tab">
-                        @include('Admin.factoritem.show.turnRatings')
+                        @include('Admin.factoritem.show.determineCentering')
                     </div>
                     @endforeach
                 </div>

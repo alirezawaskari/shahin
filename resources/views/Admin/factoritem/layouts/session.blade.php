@@ -1,6 +1,8 @@
+@include('Admin.factoritem.show.turnRatings')
+
 <div class="card border border-info rounded box">
     <div class="card-header">
-        <h4> ایجاد زمان جلسه بعدی ( پیش جلسه)</h4>
+        <h4>افزودن زمان نوبت بعدی</h4>
     </div>
     <div class="card-body">
         <form action="{{ route('session.store')}}" method="POST">
@@ -11,7 +13,7 @@
                 <input type="hidden" name="factor_item_id" value="{{ $factorItem['id'] }}">
                 <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                 <div class="col-12 col-md-4">
-                    <label>انتخاب تاریخ و ساعت جلسه درمان</label>
+                    <label>انتخاب تاریخ و ساعت نوبت درمان</label>
                     <date-picker value="{{ now() }}" format="YYYY/M/D HH:mm"
                             name="date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
                     </date-picker>
@@ -29,13 +31,13 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-4">
-                    <label>توضیحات قبل از انجام جلسه</label>
+                    <label>توضیحات قبل از انجام کار</label>
                     <textarea class="form-control" name="description_before"></textarea>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="customChecksession" name="check">
-                        <label class="custom-control-label" for="customChecksession">زمان جلسه برای کاربر
+                        <label class="custom-control-label" for="customChecksession">نوبت تعیین شده برای کاربر
                             پیامک شود.</label>
                     </div>
                 </div>
@@ -103,11 +105,11 @@
                                        id="laboratory_price{{$session->id}}" oninput="separatePrices(this)">
                             </div>
                             <div class="col-12 col-md-6 mb-2">
-                                <label>توضیحات قبل از جلسه</label>
+                                <label>توضیحات قبل از انجام کار</label>
                                 <textarea class="form-control">{{ $session->description_before }}</textarea>
                             </div>
                             <div class="col-12 col-md-6 mb-2">
-                                <label>توضیحات بعد از جلسه</label>
+                                <label>توضیحات بعد از انجام کار</label>
                                 <textarea class="form-control" name="description" id="description{{$session->id}}"></textarea>
                             </div>
                         </div>
@@ -226,7 +228,7 @@
         </div>
         <div class="col-12 p-4 alert-warning">
             <p>راهنمایی : </p>
-            <p>1 - ابتدا در قسمت افزودن جلسه بعدی زمان جلسه کاربر را ایجاد کنید.</p>
+            <p>1 - ابتدا از قسمت افزودن زمان نوبت بعدی جلسه بعدی حضور کاربر را ثبت کنید.</p>
             <p>2 - بعد از انجام جلسه از قسمت تکمیل جلسه اقدام انجام شده در جلسه را همراه با توضیحات ثبت کنید.</p>
             <p>3 - جلسه ثبت شده نیاز به تایید مدیر دارد.</p>
             <p>توجه : انتخاب نام پزشک و دستیار الزامی می باشد، درصورتی که جلسه بدون دستیار یا پزشک بود گزینه بدون دستیار و یا گزینه بدون پزشک را انتخاب کنید.</p>
