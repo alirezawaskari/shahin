@@ -418,7 +418,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 row align-items-end">
+                <div class="col-md-3 row align-items-end d-md-none">
 
                     <div class="col-md-4">
                         {!! $setting->enamad !!}
