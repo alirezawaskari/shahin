@@ -7,12 +7,6 @@
                 <i class="fa fa-eye text-indigo-400" aria-hidden="true"></i>
                 <span>امورات اداری و مالی پرونده</span>
             </a>
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>امورات اجرایی پرونده</span> </a>
-                <ul>
-                    <li><a href="{{ route('coupon.index') }}">فهرست کد ها</a></li>
-                    <li><a href="{{ route('coupon.create') }}">کد جدید</a></li>
-                </ul>
-            </li>
             @permission('file-report')
             <a href="/dashboard/totalFactorItem/{{$totalFactorItem->id}}/installment"
                 class="btn btn-link btn-float has-text text-size-small rtl">
