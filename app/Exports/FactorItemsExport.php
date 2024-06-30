@@ -40,7 +40,7 @@ class FactorItemsExport implements FromCollection , ShouldAutoSize ,WithHeadings
             $temp['user_service'] = $this->setItems($item);
 			$temp['total_price'] = number_format($item->total_price);
             $temp['laon'] = number_format($item->installments_price * $item->installments_num);
-            $temp['prepayment'] = number_format($item->property->prepayment_price);
+            $temp['prepayment'] = $item->property ? number_format($item->property->prepayment_price) : 0;
             $temp['installment_price'] = number_format($item->installments_price);
             $temp['installment_num'] = $item->installments_num;
             $temp['installments_num_paid'] = $item->FactorItemInstallments ? count($item->FactorItemInstallments->where('status' , true)):'';
