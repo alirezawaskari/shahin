@@ -231,10 +231,10 @@ class TotalFactorItemController extends Controller
         $item['installments_num_pay'] = $totalFactorItem->totalFactorItemInstallments->where('status', 1)->count();
         $item['installments_price_pay'] = $totalFactorItem->totalFactorItemInstallments->where('status', 1)->sum('price');
         $item['extra_pay'] = TotalFactorItem::getExtraPay($totalFactorItem);
-        $item['extra_pay_debt'] = number_format(TotalFactorItem::getDebtExtraPay($totalFactorItem)- $item['impunity_penalty_amount'] );
+        $item['extra_pay_debt'] = number_format(TotalFactorItem::getDebtExtraPay($totalFactorItem));
         $item['loan'] = $totalFactorItem->totalFactorItemInstallments->sum('price');
         $item['credit_amount'] = isset($totalFactorItem->property->price_difference_installment) ? $totalFactorItem->property->price_difference_installment : 0;
-        $item['installments_debt'] = (TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_price_pay'])-($item['credit_amount'] + $item['impunity_penalty_amount'] + $item['impunity_installment_amount']);
+        $item['installments_debt'] = (TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_price_pay'])-($item['credit_amount'] + $item['impunity_installment_amount']);
         $item['start_date'] = verta($totalFactorItem->approval_date)->format('Y/m/d');
         $item['end_date'] = verta($totalFactorItem->totalFactorItemInstallments->sortBy('date')->last()->date)->format('Y/m/d');
         $item['payments'] = $totalFactorItem->factors;

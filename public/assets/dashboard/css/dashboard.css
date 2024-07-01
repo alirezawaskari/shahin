@@ -6796,7 +6796,6 @@ text-decoration: line-through;
 }
 nav.navbar {
 background: linear-gradient(-90deg, #082340, #1e436d);
-height: 60px;
 -webkit-box-pack: inherit;
 justify-content: inherit;
 position: fixed;
@@ -6805,7 +6804,6 @@ left: 0;
 right: 0;
 z-index: 999;
 box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.15);
-padding: 0 18px;
 }
 nav.navbar .header-logo {
 width: 250px;

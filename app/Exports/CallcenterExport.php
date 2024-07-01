@@ -29,6 +29,16 @@ class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
     }
 
 
+    // public function collection()
+    // {
+    //     $this->tasks = $this->tasks->get();
+    //     $temp = [];
+    //     foreach($this->tasks as $item)
+    //     {
+    //         $temp[] = User::find($item->reg_id)->phone ?? '';
+    //     }
+    //     dd($temp);
+    // }
     /**
      * @return \Illuminate\Support\Collection
      */

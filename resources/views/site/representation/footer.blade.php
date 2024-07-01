@@ -151,12 +151,12 @@
                             {!! $setting->enamad !!}
                         </div>
                         <div class="col-md-4">
-                            <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer;display: none'
+                            <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer;'
                                  onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=162326&p=rfthgvkauiwkxlaouiwkgvka", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
                                  alt='logo-samandehi'
                                  src='https://logo.samandehi.ir/logo.aspx?id=162326&p=nbpdwlbqodrfqftiodrfwlbq'/>
                         </div>
-                        <div class="col-md-4" style="display: none">
+                        <div class="col-md-4">
 
                             <img src="../../images/logo.png" alt="logo_ecunion"
                                  onclick="window.open('https://ecunion.ir/verify/lalecard.ir?token=85848845e539a3c460cf', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=430, height=630, top=30')"

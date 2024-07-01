@@ -296,7 +296,8 @@ class TotalFactorItem extends Model implements AuditableContract
     {
         $factors_paid_extra_pay = self::getExtraPayPaid($item);
         $extra_pay = self::getAllExtraPay($item);
-        $extra_pay_price = $extra_pay['extra_pay_price'] - $factors_paid_extra_pay;
+        $impunity_penalty = $item->impunityPenalty ? $item->impunityPenalty->amount : 0;
+        $extra_pay_price = $extra_pay['extra_pay_price'] - $factors_paid_extra_pay - $impunity_penalty;
 
         return $extra_pay_price;
     }
@@ -714,12 +715,11 @@ class TotalFactorItem extends Model implements AuditableContract
         $financial_balance_items['price_difference_debt'] = $property_is_exists && !is_null($item->property->price_difference_debt) ? $item->property->price_difference_debt : 0;
         $total_debt = $total_debt + ($financial_balance_items['price_difference_debt'] > 0 ? $financial_balance_items['price_difference_debt'] : 0);
         $total_credit = $total_credit + ($financial_balance_items['price_difference_debt'] < 0 ? $financial_balance_items['price_difference_debt'] : 0);
+        $financial_balance_items['impunity_installment'] = $item->impunityInstallment;
+        $financial_balance_items['impunity_penalty'] = $item->impunityPenalty;
         $financial_balance_items['extra_pay'] = self::getDebtExtraPay($item);
         $total_debt = $total_debt + ($financial_balance_items['extra_pay'] > 0 ? $financial_balance_items['extra_pay'] : 0);
         $total_credit = $total_credit + ($financial_balance_items['extra_pay'] < 0 ? $financial_balance_items['extra_pay'] : 0);
-
-        $financial_balance_items['impunity_installment'] = $item->impunityInstallment;
-        $financial_balance_items['impunity_penalty'] = $item->impunityPenalty;
 
         //find creator user and append in impunity object
         if (!is_null($financial_balance_items['impunity_installment'])){
@@ -741,7 +741,7 @@ class TotalFactorItem extends Model implements AuditableContract
         $financial_balance_items['total_debt'] = $total_debt;
         $financial_balance_items['total_credit'] = $total_credit;
 
-        $financial_balance_items['financial_balance'] = ($total_debt + $total_credit)-($impunity_installment_amount+$impunity_penalty_amount);
+        $financial_balance_items['financial_balance'] = ($total_debt + $total_credit)-($impunity_installment_amount);
         $financial_balance_items['financial_balance_without_extra_pay'] = $financial_balance_items['financial_balance'] - $financial_balance_items['extra_pay'];
 
         return $financial_balance_items;

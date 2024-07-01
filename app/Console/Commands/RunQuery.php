@@ -12,6 +12,7 @@ use App\Models\TotalFactorItem;
 use App\Models\TotalFactorItemInstallment;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Classes\External\IranSms;
 
 class RunQuery extends Command {
     /**
@@ -45,17 +46,29 @@ class RunQuery extends Command {
     */
 
     public function handle() {
-        $factors = Factor::where('representation_id' , '!=', null)->where('status' , 1)->get();
-        foreach($factors as $factor)
-        {
-            if($factor->factorItems)
+
+            $factor_items = FactorItem::whereIn('status_factor' , [0,1,2,3,4,5,8,9,11,12,13,14])->take(400)->get();
+            foreach($factor_items as $factor_item)
             {
-                foreach($factor->factorItems as $item)
+                if($factor_item->factor && $factor_item->factor->user && $factor_item->factoritemable->category_id != 421)
                 {
-                    $item->representation()->firstOrCreate(['representation_id' => $factor->representation_id]);
+                    $phones = $factor_item->factor->user->phone;
+                    $body = [
+                        'param1' => $factor_item->factor->user->name.' '.$factor_item->factor->user->family,
+                    ];
+                    IranSms::sendSingleSms('factoritemClosing',$phones,$body);
+
+                    $factor_item->update( [ 'status_factor' => 15 ] );
+                    $factor_item->totalFactoItem ? $factor_item->totalFactoItem->update(['total_factor_item_status_id'=>15]) : '';
+
+                    $factor_item->factor->comments()->create( [
+                        'user_id' => auth()->user()->id,
+                        'comment' => 'به دلیل عدم پیگیری پرونده مختومه گردید.',
+                    ] );
                 }
             }
-        }
+           dd('success');
+
         /*
         1-@  add total_factor_item_id integer field to the factors table //nullable
         2-@ convert factor_item_id to factor_item_attribute_able_id & factor_item_attribute_able_type in factor_item_attributes table
@@ -99,7 +112,7 @@ class RunQuery extends Command {
         //     }
         // }
         //add position to the contractForm table
-        ContractForm::where('position' , 0)->update(['position' => DB::raw("id")]);
+        //ContractForm::where('position' , 0)->update(['position' => DB::raw("id")]);
         //convert App\Service to App\Models\Service
         // Center::where('centerable_type' , 'App\Service')->update(['centerable_type' => 'App\Models\Service']);
         // FactorItem::whereNull('factoritemable_type' )->update(['factoritemable_type' => 'App\Models\Service']);

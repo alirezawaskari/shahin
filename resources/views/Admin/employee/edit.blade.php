@@ -90,10 +90,10 @@
                 <div class="col-12 col-md-4 mb-3">
                     <label>دارای ضمانت</label>
                     <select class="form-control" name="employee[guarantee]">
-                        <option value="0" {{ $employee->guarantee == true ? 'selected' : '' }}>
+                        <option value="1" {{ $employee->guarantee == true ? 'selected' : '' }}>
                             بله
                         </option>
-                        <option value="1" {{ $employee->guarantee == false ? 'selected' : '' }}>
+                        <option value="0" {{ $employee->guarantee == false ? 'selected' : '' }}>
                             خیر
                         </option>
                     </select>

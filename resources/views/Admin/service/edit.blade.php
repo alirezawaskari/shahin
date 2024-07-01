@@ -95,7 +95,7 @@
                                             فعال
                                         </option>
 
-                                        <option value="2" {{ $service->status != 1 ? 'selected' : '' }}>
+                                        <option value="0" {{ $service->status == 0 ? 'selected' : '' }}>
                                             غیر فعال
                                         </option>
                                     </select>
@@ -103,11 +103,11 @@
                                 <div class="col-12 col-md-2 mb-3">
                                     <label>نمایش در سایت مرکز تهران</label>
                                     <select class="form-control" name="isShow">
-                                        <option value="0" {{ $service->isShow == false ? 'selected' : '' }}>
-                                            غیر فعال
-                                        </option>
                                         <option value="1" {{ $service->isShow == true ? 'selected' : '' }}>
                                             فعال
+                                        </option>
+                                        <option value="0" {{ $service->isShow == false ? 'selected' : '' }}>
+                                            غیر فعال
                                         </option>
                                     </select>
                                 </div>

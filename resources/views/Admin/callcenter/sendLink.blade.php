@@ -335,39 +335,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body border border-info rounded">
-                            <div class="card-header">
-                                توضیحات :
-                            </div>
-                            <textarea name="description" class="border border-secondary form-control mb-3"
-                                placeholder="توضیحات مربوط به درخواست کاربر را وارد کنید" required></textarea>
-                            <div class="mb-3"><label>انتقال به همکار (درصورت نیاز به انتقال درخواست همکار مربوطه را انتخاب کنید.)</label>
-                                <select name="callcenter" class="form-control">
-                                    <option value="">انتخاب همکار</option>
-                                    @foreach($callcenters as $item)
-                                    <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="alert alert-info text-center" id="other-tasks-title"> دیگر درخواست های کاربر
-                            </div>
-                            <table class="table table-bordered  table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">موضوع درخواست</th>
-                                        <th scope="col">وضعیت</th>
-                                        <th scope="col">کالسنتر</th>
-                                        <th scope="col">تاریخ ثبت</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="send-link-tasks-tbody">
-                                    <tr>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
-                    <div class="card-body containers d-none" id="otherRequest">
+                    <div class="card-body containers">
                         <div class="card-header">
                             توضیحات :
                         </div>

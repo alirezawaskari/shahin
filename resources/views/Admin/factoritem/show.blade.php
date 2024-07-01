@@ -242,7 +242,7 @@
             </div>
             </div>
             <div class="tab-pane fade p-t-20" id="turnRatings" role="tabpanel" aria-labelledby="home-tab">
-                @include('Admin.factoritem.show.turnRatings')
+                @include('Admin.factoritem.show.determineCentering')
             </div>
                 @include('Admin.factoritem.layouts.histories',['user_histories'=>$factorItem['user_histories'],'factor'=>$factorItem['factor']])
             <div class="tab-pane fade p-t-20" id="returnPayment" role="tabpanel" aria-labelledby="return-payment-tab">

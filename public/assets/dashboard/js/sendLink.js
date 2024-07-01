@@ -386,9 +386,7 @@ $('#btnGroupDrop1').on('click', function () {
 $("body").on('change', '#requestType', function () {
     if ($(this).val() == 'link') {
         $('#linkRequest').show();
-        $('#otherRequest').hide();
     } else {
-        $('#otherRequest').show();
         $('#linkRequest').hide();
     }
 });

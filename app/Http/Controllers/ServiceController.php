@@ -36,7 +36,7 @@ class ServiceController extends Controller
 		$images = $service->galleries;
 	    $is_service = true;
 		$check = false;
-        if (!$service->isShow && !$service->status)
+        if (!$service->isShow && $service->status != 1)
         {
             return redirect('/');
         }
