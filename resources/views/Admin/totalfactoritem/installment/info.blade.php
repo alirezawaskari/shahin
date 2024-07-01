@@ -50,7 +50,7 @@
                     </tr>
                 </table>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-4">
                 <table class="table table-light border-right font-weight-bold">
                     <tr>
                         <td>مبلغ تسهیلات :</td>
@@ -68,30 +68,32 @@
                         <td>تعداد اقساط پرداخت نشده :</td>
                         <td>{{ $item['installments_num'] - $item['installments_num_pay'] }}</td>
                     </tr>
+                    <tr>
+                        <td>
+                            {{$item['impunity_installment_amount']>0||$item['impunity_penalty_amount']>0?' جمع بدهکاری (باجمع جرائم و کسر بخشودگی ):':'جمع بدهکاری :'}}
+                        </td>
+                        <td>{{ $item['installments_debt'] > 0 ? number_format($item['installments_debt']) : 0 }} ریال</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            {{$item['impunity_installment_amount']>0?'بدهکاری اقساط (با‌‌احتساب بخشودگی):':'بدهکاری اقساط :'}}
+                        </td>
+                        <td>{{ $expire_installments->sum('price')-$item['impunity_installment_amount']-$item['credit_amount'] > 0 ? number_format($expire_installments->sum('price')-$item['impunity_installment_amount']-$item['credit_amount']) : 0}} ریال </td>
+                    </tr>
                 </table>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-4">
                 <table class="table table-light border-right font-weight-bold">
                     <tr>
-                        <td>
-                            {{$item['impunity_installment_amount']>0||$item['impunity_penalty_amount']>0?'بدهکاری کل (بااحتساب بخشودگی ):':'بدهکاری کل'}}
-                             </td>
-                        <td>{{ number_format($item['installments_debt']) }} ریال</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {{$item['impunity_installment_amount']>0?'بدهکاری اقساط (با‌‌احتساب بخشودگی):':'بدهکاری اقساط'}}
-                        </td>
-                        <td>{{ number_format($expire_installments->sum('price')-$item['impunity_installment_amount']-$item['credit_amount']) }} ریال </td>
-                    </tr>
-                    <tr>
-                        <td> جریمه کل :</td>
+                        <td>  جمع جرائم :</td>
                         <td>{{ $item['extra_pay'] }}</td>
                     </tr>
                     <tr>
-                        <td>
-                            {{$item['impunity_penalty_amount']>0?'جریمه باقیمانده (با احتساب بخشودگی):':'جریمه باقیمانده'}}
-                        </td>
+                        <td>بخشودگی جریمه :</td>
+                        <td>{{number_format($item['impunity_penalty_amount'])}} ریال</td>
+                    </tr>
+                    <tr>
+                        <td>جریمه باقیمانده :</td>
                         <td>{{ $item['extra_pay_debt'] }} ریال </td>
                     </tr>
                     <tr>
@@ -99,19 +101,16 @@
                         <td> {{ number_format($item['credit_amount']) }} ریال</td>
                     </tr>
                     <tr>
-                        <td>بخشودگی جریمه :</td>
-                        <td>{{number_format($item['impunity_penalty_amount'])}}ریال</td>
-                    </tr>
-                    <tr>
                         <td>بخشودگی قسط :</td>
-                        <td>{{number_format($item['impunity_installment_amount'])}}ریال</td>
+                        <td>{{number_format($item['impunity_installment_amount'])}} ریال</td>
                     </tr>
                 </table>
             </div>
-            <div class="col-12 col-md-2 float-left">
+            {{-- <div class="col-12 col-md-2 float-left">
                 <img src="{{ $user['avatar'] }}" width="75%">
                 @include('Admin.user.vipAlert')
-            </div>
+            </div> --}}
+
         </div>
     </div>
 </div>

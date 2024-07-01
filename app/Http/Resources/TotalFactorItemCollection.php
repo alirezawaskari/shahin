@@ -27,7 +27,7 @@ class TotalFactorItemCollection extends ResourceCollection
                     'installments_num' => $item->installments_num,
                     'installments_num_paid' => $item->totalFactorItemInstallments ? count($item->totalFactorItemInstallments->where('status' , 1)) : 0,
                     'installments_price' => $item->totalFactorItemInstallments->first() ? number_format($item->totalFactorItemInstallments->first()->price) : 0,
-                    'extra_pay' => TotalFactorItem::getExtraPay($item),
+                    'extra_pay' => number_format(TotalFactorItem::getDebtExtraPay($item)).' ریال',
                     'resnumber' => $item->resnumber,
                     'user' => $item->factor->callcenter ? $item->factor->callcenter->family : 'ندارد',
                     'representation' => $item->factor->representation ? $item->factor->representation->fa_name : 'م تهران',
