@@ -107,6 +107,7 @@
                     <div class="col-12 col-md-3 mb-2">
                         <select name="representation" class="custom-select select2">
                             <option value="all">انتخاب نمایندگی</option>
+                            <option value="center_representation">نمایندگی کل</option>
                             @foreach($representations as $representation)
                             <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
@@ -162,7 +163,7 @@
                     </div>
                     <div class="col-12 col-md-2 mb-2 d-none" id="representation_list_box">
                         <select class="custom-select select2" name="selected_representation">
-                            <option value=" ">نمایندگی کل</option>
+                            <option value="center_representation">نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach

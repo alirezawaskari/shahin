@@ -310,10 +310,8 @@ class FactorItem extends Model implements AuditableContract
             }
 
             if (isset($representation) && trim($representation) != 'all') {
-                if (trim($representation) == 'center') {
-                    $query->whereHas('representation', function ($query) {
-                        $query->where('representation_id', null);
-                    });
+                if (trim($representation) == 'center_representation') {
+                    $query->whereDoesntHave('representation');
                 } else {
                     $query->whereHas('representation', function ($query) use ($representation) {
                         $query->where('representation_id', $representation);
@@ -1040,7 +1038,14 @@ class FactorItem extends Model implements AuditableContract
             'status' => 1,
             'description' => " نمایندگی این پرونده توسط ".auth()->user()->family."تغییر کرده است.",
         ]);
-        $item->representation()->firstOrCreate(['representation_id' => $representation], ['agent_id' => auth()->user()->id]);
+        if($representation == 'center_representation')
+        {
+            $item->representation()->delete();
+        }
+        else
+        {
+            $item->representation()->updateOrCreate(['representation_id' => $representation], ['agent_id' => auth()->user()->id]);
+        }
     }
 }
 
