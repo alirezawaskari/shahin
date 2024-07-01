@@ -1,7 +1,7 @@
 @switch($form->type)
 @case('factor_dentist')
 <div class="card-header">
-    ایجاد طرح درمان
+    افزودن
 </div>
 <div class="row treatment_plan d-none" id="treatment_plan">
     <div class="col-12 col-md-3 mb-3">
@@ -30,7 +30,7 @@
         </select>
     </div>
     <div class="col-12 col-md-3 mb-3">
-        <label>تعرفه</label>
+        <label>بازه زمانی تعرفه</label>
         <select class="form-control" name="tariff[]" id="tariff1" onchange="selectByTariff(this.id , this.value)">
             @foreach ($tariffs as $tariff)
             <option value="{{ $tariff->id }}">{{ $tariff->title }}</option>
@@ -38,7 +38,7 @@
         </select>
     </div>
     <div class="col-12 col-md-6 mb-3">
-        <label>طرح درمان</label>
+        <label>تعرفه</label>
         <select class="form-control" name="service_tariff_id[]" id="service_tariff1" ondragend="prices()"
             onchange="getSessionNumber(this.id , this.value)">
             <option value="" selected disabled>انتخاب کنید</option>
