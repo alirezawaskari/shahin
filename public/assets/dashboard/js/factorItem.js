@@ -29,10 +29,15 @@ $("#transfer_type").change(function () {
     if (this.value == 'representation') {
         $('#representation_list_box').css('display', 'block');
         $('#supporter_list_box').css('display', 'none');
+        $('#center_list_box').css('display', 'none');
     } else if(this.value == 'supporter'){
         $('#supporter_list_box').css('display', 'block');
         $('#representation_list_box').css('display', 'none');
-
+        $('#center_list_box').css('display', 'none');
+    } else if(this.value == 'center'){
+        $('#center_list_box').css('display', 'block');
+        $('#representation_list_box').css('display', 'none');
+        $('#supporter_list_box').css('display', 'none');
     }
 });
 

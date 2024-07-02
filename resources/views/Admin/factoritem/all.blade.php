@@ -156,9 +156,16 @@
                     </div>
                     <div class="col-12 col-md-2 mb-2">
                         <select class="custom-select select2" name="transfer_type" id="transfer_type">
-                            <option value=" ">انتفال به</option>
+                            <option value=" ">ارجاع به</option>
+                                @permission('referral_to_representation')
                                 <option value="representation">نمایندگی</option>
+                                @endpermission
+                                @permission('referral_to_supporter')
                                 <option value="supporter">پشتیبان</option>
+                                @endpermission
+                                @permission('referral_to_center')
+                                <option value="center">مرکز</option>
+                                @endpermission
                         </select>
                     </div>
                     <div class="col-12 col-md-2 mb-2 d-none" id="representation_list_box">
@@ -174,6 +181,14 @@
                             <option value=" ">انتخاب پشتیبان</option>
                             @foreach($supporter_users as $supporter_user)
                                 <option value="{{$supporter_user->id}}">{{$supporter_user->name.' '.$supporter_user->family}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 mb-2 d-none" id="center_list_box">
+                        <select class="custom-select select2" name="selected_center">
+                            <option value=" ">انتخاب مرکز</option>
+                            @foreach($centers as $center)
+                                <option value="{{$center->id}}">{{$center->title}}</option>
                             @endforeach
                         </select>
                     </div>

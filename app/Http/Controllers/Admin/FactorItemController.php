@@ -1077,6 +1077,10 @@ class FactorItemController extends Controller {
                 {
                     $item->update(['supporter_id' => $request->selected_supporter]);
                 }
+                elseif($request->transfer_type == 'center' && $request->selected_center)
+                {
+                    $item->update(['center_id' => $request->selected_center]);
+                }
             }
             //transfer all totalFactorItem factorItem's if factorItem selected is installment
             if($factor_item->total_factor_item_id)
@@ -1089,7 +1093,6 @@ class FactorItemController extends Controller {
                     elseif($request->transfer_type == 'supporter' && $request->selected_supporter)
                     {
                         $item->update(['supporter_id' => $request->selected_supporter]);
-
                     }
                 }
             }
