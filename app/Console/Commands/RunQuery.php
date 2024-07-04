@@ -13,6 +13,7 @@ use App\Models\TotalFactorItemInstallment;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Classes\External\IranSms;
+use App\Events\factorItemClosing;
 
 class RunQuery extends Command {
     /**
@@ -52,12 +53,7 @@ class RunQuery extends Command {
             {
                 if($factor_item->factor && $factor_item->factor->user && $factor_item->factoritemable->category_id != 421)
                 {
-                    $phones = $factor_item->factor->user->phone;
-                    $body = [
-                        'param1' => $factor_item->factor->user->name.' '.$factor_item->factor->user->family,
-                    ];
-                    IranSms::sendSingleSms('factoritemClosing',$phones,$body);
-
+                    event(new factorItemClosing($factor_item->factor->user , $factor_item));
                     $factor_item->update( [ 'status_factor' => 15 ] );
                     $factor_item->totalFactoItem ? $factor_item->totalFactoItem->update(['total_factor_item_status_id'=>15]) : '';
 

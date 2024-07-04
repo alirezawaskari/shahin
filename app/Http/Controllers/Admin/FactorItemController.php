@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
@@ -1034,12 +1035,8 @@ class FactorItemController extends Controller {
             ] );
         }
 
-        $factor_item->update( [ 'status_factor' => $request->status ] );
-
-        $message = 'عضو محترم شبکه خدمات رفاهی لاله پرونده شما مختومه شد. 09366342145 ';
-
-        $phones = $factor_item->factor->user->phone;
-        Helper::sms( $phones, $message );
+        $factor_item->update( [ 'status_factor' => 15 ] );
+        event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
         if ( $request->comment ) {
             $factor_item->factor->comments()->create( [

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Events\factorItemActivation;
+use App\Events\factorItemClosing;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
@@ -1100,12 +1101,13 @@ class TotalFactorItemController extends Controller
             ] );
         }
 
-        $total_factor_item->update(['total_factor_item_status_id' => $request->status]);
+        $total_factor_item->update(['total_factor_item_status_id' => 15]);
         foreach ($total_factor_item->factorItems as $factor_item) {
             $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+            event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
             $fator_item_collections->update([
-                'status_factor' => $request->status
+                'status_factor' => 15
             ]);
         }
         if ($total_factor_item->confirm) {
@@ -1113,10 +1115,6 @@ class TotalFactorItemController extends Controller
                 'message' => 'این پرونده تایید شده است شما مجاز به انجام این کار نیستید لطفا تسویه حساب پرونده را بزنید.'
             ]);
         }
-
-        $message = 'عضو محترم شبکه خدمات رفاهی لاله پرونده شما مختومه شد. 09366342145 ';
-        $phones = $total_factor_item->factor->user->phone;
-        Helper::sms($phones, $message);
 
         if ($request->comment) {
             $total_factor_item->factor->comments()->create([

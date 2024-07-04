@@ -10,6 +10,7 @@ use App\Events\fastserviceCallcenter;
 use App\Events\sendlinkFactor;
 use App\Events\factorItemActivation;
 use App\Events\factorItemStartWorking;
+use App\Events\factoritemClosing;
 use App\Events\smsSuccessRegisterPayment;
 use App\Events\ticketNotification;
 use App\Events\smsService;
@@ -20,6 +21,7 @@ use App\Events\smsNotAnswer;
 use App\Listeners\ExtensionSmsReminder;
 use App\Listeners\FactorItemActivationSMSNotificaion;
 use App\Listeners\FactorItemStartWorkingSMSNotificaion;
+use App\Listeners\FactorItemClosingSMSNotificaion;
 use App\Listeners\SendSmsCheckReminder;
 use App\Listeners\SendSmsSuccessRegisterPayment;
 use App\Listeners\TicketSMSNotification;
@@ -76,6 +78,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         factorItemStartWorking::class => [
             FactorItemStartWorkingSMSNotificaion::class,
+        ],
+        factorItemClosing::class => [
+            FactorItemClosingSMSNotificaion::class,
         ],
         sendlinkFactor::class => [
             SendLinkSMSNotification::class,
