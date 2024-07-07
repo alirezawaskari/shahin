@@ -17,6 +17,10 @@
                     aria-controls="turnRatings" aria-selected="false">نوبت دهی</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link show" id="basic-document-tab" data-toggle="tab" href="#basic-document" role="tab"
+                    aria-controls="basic-document" aria-selected="true">مدارک اولیه</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
                     aria-controls="contact" aria-selected="false">توضیحات</a>
             </li>
@@ -243,6 +247,9 @@
             </div>
             <div class="tab-pane fade p-t-20" id="turnRatings" role="tabpanel" aria-labelledby="home-tab">
                 @include('Admin.factoritem.show.determineCentering')
+            </div>
+            <div class="tab-pane fade p-t-20" id="basic-document" role="tabpanel" aria-labelledby="basic-document-tab">
+                @include('Admin.factoritem.show.basicDocument')
             </div>
                 @include('Admin.factoritem.layouts.histories',['user_histories'=>$factorItem['user_histories'],'factor'=>$factorItem['factor']])
             <div class="tab-pane fade p-t-20" id="returnPayment" role="tabpanel" aria-labelledby="return-payment-tab">

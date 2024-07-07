@@ -59,7 +59,7 @@
                 <h5> نوع پرداخت : اقساط</h5>
                 <h5> شماره پرونده مالی : {{ $item['file_number_mali'] ? $item['file_number_mali'] : 'ندارد' }}</h5>
                 <h5> وضعیت مالی پرونده : {{ $item['status_mali'] }}</h5>
-                <h5> وضعیت اجرایی پرونده : {{ $item['status_text'] }}</h5>
+                <h5> وضعیت اداری پرونده : {{ $item['status_text'] }}</h5>
             </div>
 
             <div class="col-12 col-md-2 float-left" style="position: relative">

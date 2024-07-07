@@ -276,6 +276,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/desktop', 'FactorItemController@desktop')->name('factorItem.desktop');
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');
     Route::get('/factorItem/filter' , 'FactorItemController@filter');
+    Route::get('/factorItem/referral/{factorItem}' , 'FactorItemController@referral')->name('factorItem.referral');
     Route::post('/factorItem/transfer' , 'FactorItemController@transfer');
     Route::post('/factorItem/update-information', 'FactorItemController@updateInformation')->name('factorItem.information');
     Route::post('/factorItem/create-factor', 'FactorItemController@createFactor')->name('factorItem.createFactor');

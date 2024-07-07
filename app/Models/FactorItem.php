@@ -466,8 +466,9 @@ class FactorItem extends Model implements AuditableContract
             '12' => 'منتظر تایید مدیر نمایندگی',
             '13' => 'منتظر تایید امورقراردادها',
             '14' => 'منتظر تایید پشتیبان',
-            '15' =>'پرونده مختومه',
-        ][$status_factor];
+            '15' => 'پرونده مختومه',
+            '16' => 'ارجاع به مشاوره',
+            ][$status_factor];
     }
     /**
      * @param mixed $status_factor

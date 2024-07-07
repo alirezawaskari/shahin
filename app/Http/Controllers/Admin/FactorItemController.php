@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
 use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\sendlinkFactor;
@@ -1034,9 +1035,19 @@ class FactorItemController extends Controller {
                 'failByMessage' => ' به دلیل وجود پرداختی برای این پرونده ، امکان مختومه نمودن وجود ندارد .'
             ] );
         }
-
         $factor_item->update( [ 'status_factor' => 15 ] );
-        event(new factorItemClosing($factor_item->factor->user , $factor_item));
+
+        $factor_item_able = $factor_item->factoritemable->title;
+        $userMobile = $factor_item->factor->user->phone;
+        $user = $factor_item->factor->user->name.' '.$factor_item->factor->user->family;
+        if (isset($userMobile)) {
+            $body = [
+                'param1' => $user,
+                'param2' => $factor_item_able,
+            ];
+            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
+        }
+        //event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
         if ( $request->comment ) {
             $factor_item->factor->comments()->create( [
@@ -1100,6 +1111,18 @@ class FactorItemController extends Controller {
             'status'=>'success',
             'messages'=>'انتقال با موفقیت انجام گرفت .'
         ]);
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function referral(FactorItem $factorItem)
+    {
+        $factorItem->update(['status_factor' => 16]);
+
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
     }
     /**
      * @param FactorItem $factor_item
