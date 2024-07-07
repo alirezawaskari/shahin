@@ -605,6 +605,9 @@ $(document).ready(function () {
                             case 15:
                                 return `<span class="badge badge-dark">پرونده مختومه</span>`;
                                 break;
+                            case 16:
+                                return `<span class="badge badge-dark">ارجاع به مشاوره</span>`;
+                                break;
                             default:
                                 return data.status;
                         }
