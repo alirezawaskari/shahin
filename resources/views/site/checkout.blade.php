@@ -91,7 +91,7 @@
                                     <div class="row p-3 position-relative">
                                         @if($item['service']->center && !is_null($item['centers']))
                                         <div class="col-12 col-md-6 mb-2">
-                                            <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
+                                            {{-- <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
                                             <select name="items[{{ $key }}][center]" id="" class="form-control"
                                                 required>
                                                 <option value="">انتخاب مرکز</option>
@@ -101,7 +101,7 @@
                                                     class="font-12">{{ $center->title. ' / ' . $center->address}}
                                                 </option>
                                                 @endforeach
-                                            </select>
+                                            </select> --}}
                                             <label>:انتخاب زمان مراجعه پیشنهادی شما</label>
                                             <input type="text" class="form-control" id="date" name="date">
                                         </div>
