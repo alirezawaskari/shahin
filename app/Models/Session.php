@@ -250,7 +250,7 @@ class Session extends Model implements AuditableContract
             '0' => 'پیش جلسه',
             '1' => 'انجام شده',
             '2' => 'منتظر تایید',
-            '3' => 'ویزیت اولیه',
+            '3' => 'مشاوره اولیه',
             '4' => 'ویزیت تایید شده',//Currently not developed
             '5' => 'در انتظار مشاوره',
             '6' => 'مشاوره شد',
