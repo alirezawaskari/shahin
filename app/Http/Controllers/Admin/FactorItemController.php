@@ -203,10 +203,10 @@ class FactorItemController extends Controller {
         //create session
         if ($factor_item->factoritemable->session==1){
             Session::create( [
-                'status' => 5 ,
+                'status' => $factor_item->type == 0 && $factor_item->status_factor == 14 ? 5 : 3 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
-                'date' => Helper::vertaToMiladi(now()),
+                'date' => now()->format('YYYY/MM/DD H:m:s'),
                 'description_before' => $request->description,
             ]);
         }
