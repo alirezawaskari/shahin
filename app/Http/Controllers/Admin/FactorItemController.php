@@ -198,7 +198,7 @@ class FactorItemController extends Controller {
         // update center_id
         $factor_item->update( [
             'center_id' =>  $request->center_id ,
-            'status_factor' => $factor_item->status_factor == 14 ? 10 : 17,
+            'status_factor' => $factor_item->type == 0 && $factor_item->status_factor == 14 ? 10 : 17,
         ] );
         //create session
         if ($factor_item->factoritemable->session==1){
