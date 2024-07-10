@@ -291,11 +291,6 @@ class TotalFactorItemController extends Controller
         if (auth()->user()->hasRole('consulting_contract_affairs')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 13)->filter()->latest();
         }
-        if (!auth()->user()->admin_representation) {
-            $total_factor_items->whereHas('factor', function ($total_factor_items){
-                $total_factor_items->where('representation_id', auth()->user()->admin_representation_id);
-            });
-        }
         if ($request->exel == 'on') {
             return (new FactorItemsExport($total_factor_items))->download('factorItems.xlsx');
         }

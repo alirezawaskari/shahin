@@ -140,11 +140,11 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link show" id="turnRatings-tab" data-toggle="tab" href="#turnRatings" role="tab"
-                    aria-controls="home" aria-selected="false">نوبت دهی</a>
+                    aria-controls="home" aria-selected="false">ثبت مشاوره و ارجاع</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link show" id="basic-document-tab" data-toggle="tab" href="#basic-document" role="tab"
-                    aria-controls="basic-document" aria-selected="true">مدارک اولیه</a>
+                    aria-controls="basic-document" aria-selected="true">مدارک اولیه و پشتیبانی</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#contact" role="tab"

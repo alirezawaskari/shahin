@@ -30,7 +30,7 @@
                     <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
                     @endif
                 </form>
-                @if (Arr::has([0,4,14], $factorItem['status_factor']) )
+                @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
                 <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
                     مشاوره</span></a>
                 @endif
@@ -235,11 +235,11 @@
     @csrf
     @method('PATCH')
     <input type="hidden" name="type" value="confirm">
-    @role('filing|admin-site')
+    @permission('supporter_confirmation')
     @if ($item['status'] == 14)
-    <p class="text-warning col-12"> پشتیبان محترم تایید مدارک به منظور تایید
+    <p class="text-warning col-12"> همکار محترم تایید مدارک به منظور تایید
         پرونده از جانب شما و ارسال پرونده برای تایید امورتسهیلات می‌باشد.</p>
     <button class="btn btn-success">تایید و ارجاع به امور تسهیلات</button>
     @endif
-    @endrole
+    @endpermission
 </form>

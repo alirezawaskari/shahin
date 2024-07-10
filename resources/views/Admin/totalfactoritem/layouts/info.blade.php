@@ -2,19 +2,24 @@
     <div class="row col-12 col-md-6">
         <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
             پیگیری</span>
-
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
-
+        @if (in_array(trim($item['status']) , [0,4,14]) )
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
             <input type="hidden" name="status_factor" value="9">
-            @role('superadmin|president_IT|president_treatment')
             <button class="btn btn-danger mr-2">ارجاع به امورتسهیلات</button>
-            @endrole
         </form>
-
-        @if ($item['status'] == 9 || $item['status'] == 5)
+        @endif
+        @if (in_array(trim($item['status']) , [9,8]) )
+        <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+            <input type="hidden" name="status_factor" value="14">
+            <button class="btn btn-danger mr-2">ارجاع به پشتیبان</button>
+        </form>
+        @endif
+        @if (in_array(trim($item['status']) , [9,5]) )
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">

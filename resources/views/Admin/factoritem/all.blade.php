@@ -60,6 +60,7 @@
                         <select name="status[]" id="select_status" class="custom-select" multiple="multiple">
                             <option value="0">جدید</option>
                             <option value="16">ارجاع به مشاوره</option>
+                            <option value="17">منتظر مشاوره</option>
                             <option value="4">منتظر تکمیل مدارک</option>
                             <option value="14">منتظر تایید پشتیبان</option>
                             <option value="3">تعلیق پشتیبان</option>
@@ -158,13 +159,13 @@
                     <div class="col-12 col-md-2 mb-2">
                         <select class="custom-select select2" name="transfer_type" id="transfer_type">
                             <option value=" ">ارجاع به</option>
-                                @permission('referral_to_representation')
+                                @permission('factor_item_referral_to_representation')
                                 <option value="representation">نمایندگی</option>
                                 @endpermission
-                                @permission('referral_to_supporter')
+                                @permission('factor_item_referral_to_supporter')
                                 <option value="supporter">پشتیبان</option>
                                 @endpermission
-                                @permission('referral_to_center')
+                                @permission('factor_item_referral_to_center')
                                 <option value="center">مرکز</option>
                                 @endpermission
                         </select>

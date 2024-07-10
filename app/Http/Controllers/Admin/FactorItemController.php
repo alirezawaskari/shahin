@@ -146,6 +146,10 @@ class FactorItemController extends Controller {
         if (auth()->user()->isAbleTo('file-desktop')){
             $factor_items = FactorItem::whereIn( 'status_factor', array(0,4,14) )->where('supporter_id', auth()->user()->id)->filter();
         }
+        if (auth()->user()->hasPermission('factor_item_referral_to_center'))
+        {
+            $factor_items = FactorItem::where( 'status_factor', 16 )->filter();
+        }
         if ( $request->exel == 'true' ) {
             return ( new FactorItemsExport( $factor_items ) )->download( 'factorItems.xlsx' );
         }
@@ -159,7 +163,7 @@ class FactorItemController extends Controller {
     {
         $validate = Validator::make($request->all(), [
             'id' => 'required|exists:factor_items,id',
-            'center_id' => 'required|exists:centers,id',
+            'center_id' => 'required',
         ]);
         if ($validate->fails()){
             alert()->error(implode(" | ", $validate->errors()->all())
@@ -181,12 +185,32 @@ class FactorItemController extends Controller {
             alert()->error(' جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
-
-        //update center_id
-         $factor_item->update( [
+        // unselected center
+        if($request->center_id == null)
+        {
+            $factor_item->update( [
+                'center_id' =>  $request->center_id ,
+                'status_factor' => 14,
+            ] );
+            alert()->success('مرکز تعیین شده با موفقیت حذف گردید.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
+            return redirect()->back();
+        }
+        // update center_id
+        $factor_item->update( [
             'center_id' =>  $request->center_id ,
+            'status_factor' => $factor_item->status_factor == 14 ? 10 : 17,
         ] );
-        alert()->success('مرکز تعیین گردید .', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
+        //create session
+        if ($factor_item->factoritemable->session==1){
+            Session::create( [
+                'status' => 5 ,
+                'user_id' => auth()->user()->id,
+                'factor_item_id' => $factor_item->id,
+                'date' => Helper::vertaToMiladi(now()),
+                'description_before' => $request->description,
+            ]);
+        }
+        alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
         return redirect()->back();
     }
     /**

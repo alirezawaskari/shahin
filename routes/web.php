@@ -246,7 +246,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/totalFactorItem/reports/desktop/filter' , 'TotalFactorItemController@filterDesktopReport');
     Route::get('/totalFactorItem/filter', 'TotalFactorItemController@filter')->name('totalFactorItem.filter');
     Route::post('/totalFactorItem/sendInitialLink', 'TotalFactorItemController@sendInitialLink')->name('totalFactorItem.sendInitialLink');
-    Route::post('/totalFactorItem/change-status', 'TotalFactorItemController@changeStatus');
+    Route::post('/totalFactorItem/change-status', 'TotalFactorItemController@changeStatus')->name('totalFactorItem.changeStatus');
     Route::post('/totalFactorItem/change-status-mali', 'TotalFactorItemController@changeStatusMaliFactor');
     Route::post('/totalFactorItem/payment', 'TotalFactorItemController@payment')->name('totalFactorItem.sendPayment');
     Route::post('/totalFactorItem/save-installments-paid', 'TotalFactorItemController@saveInstallmentsPaid')->name('totalFactorItem.saveInstallment');
@@ -293,7 +293,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factorItem/update-service-tariff' , 'FactorItemController@updateServiceTariff')->name('factorItem.updateServiceTariff');
     Route::get('/factorItem/expire', 'FactorItemController@expire');
     Route::post('/factorItem/sendInitialLink', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
-    Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor');
+    Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
     Route::resource('factorItem', 'FactorItemController');
     Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
     Route::post('/factoritem/set-center' , 'FactorItemController@setCenter')->name('factorItem.setCenter');

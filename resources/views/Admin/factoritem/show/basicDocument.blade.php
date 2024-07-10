@@ -33,5 +33,17 @@
 </div>
 <span class="btn btn-primary py-1 px-2 text-white mt-4" data-toggle="modal" data-target="#linkModal">ارسال لینک
     پرداخت</span>
+    @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
 <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
         مشاوره</span></a>
+
+    @endif
+
+    @permission('supporter_confirmation')
+    <div class="mt-3">
+    @if ($factorItem['status_factor'] == 14)
+    @include('Admin.factoritem.show.referralCenter')
+    <p class="alert alert-warning col-12"> همکار محترم ارجاع به مرکز به منظور تایید پرونده از جانب شما برای شروع کار اجرایی پرونده می باشد.</p>
+    @endif
+    </div>
+    @endpermission

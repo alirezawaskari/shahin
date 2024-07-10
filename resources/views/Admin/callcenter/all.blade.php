@@ -330,8 +330,8 @@
                                     فقیر/کم توان </label>
                                 <input type="checkbox" name="sos" id="custom-check-sos" class="mr-2">
                                 <input value="ثبت" class="btn btn-success border-0 btn-block" id="submit-status">
+                            </form>
                         </div>
-                        </form>
                     </div>
                     <div id="sendLinkFactor" role="tabpanel" aria-labelledby="send-link-factor-tab"
                         class="tab-pane fade p-t-20">
@@ -352,7 +352,7 @@
                                 <input type="hidden" class="task" name="task" value="">
                                 <input value="ثبت" id="submit-transfer" class="btn btn-success border-0 btn-block">
                             </div>
-                        </form> 
+                        </form>
                     </div>
                     <div id="detail" role="tabpanel" aria-labelledby="detail-tab" class="tab-pane fade p-t-20">
                         <p class="mb-3 text-dark">تاریخچه</p>

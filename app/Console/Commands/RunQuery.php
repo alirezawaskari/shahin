@@ -53,7 +53,15 @@ class RunQuery extends Command {
             {
                 if($factor_item->factor && $factor_item->factor->user && $factor_item->factoritemable->category_id != 421)
                 {
-                    event(new factorItemClosing($factor_item->factor->user , $factor_item));
+                   // event(new factorItemClosing($factor_item->factor->user , $factor_item));
+
+                    $phones = $factor_item->factor->user->phone;
+                    $body = [
+                        'param1' => $factor_item->factor->user->name.' '.$factor_item->factor->user->family,
+                        'param2' => $factor_item->factoritemable->title,
+                    ];
+                    IranSms::sendSingleSms('factoritemClosing',$phones,$body);
+
                     $factor_item->update( [ 'status_factor' => 15 ] );
                     $factor_item->totalFactoItem ? $factor_item->totalFactoItem->update(['total_factor_item_status_id'=>15]) : '';
 
