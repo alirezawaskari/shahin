@@ -236,7 +236,7 @@
     @method('PATCH')
     <input type="hidden" name="type" value="confirm">
     @permission('supporter_confirmation')
-    @if ($item['status'] == 14)
+    @if (in_array(trim($item['status']) , [0,4,14]) )
     <p class="text-warning col-12"> همکار محترم تایید مدارک به منظور تایید
         پرونده از جانب شما و ارسال پرونده برای تایید امورتسهیلات می‌باشد.</p>
     <button class="btn btn-success">تایید و ارجاع به امور تسهیلات</button>

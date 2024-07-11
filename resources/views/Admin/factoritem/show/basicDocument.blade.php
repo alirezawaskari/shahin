@@ -41,8 +41,8 @@
 
     @permission('supporter_confirmation')
     <div class="mt-3">
-    @if ($factorItem['status_factor'] == 14)
-    @include('Admin.factoritem.show.referralCenter')
+    @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+        @include('Admin.factoritem.show.referralCenter')
     <p class="alert alert-warning col-12"> همکار محترم ارجاع به مرکز به منظور تایید پرونده از جانب شما برای شروع کار اجرایی پرونده می باشد.</p>
     @endif
     </div>
