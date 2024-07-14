@@ -51,7 +51,7 @@ class RunQuery extends Command {
             $factor_items = FactorItem::whereIn('status_factor' , [0,1,2,3,4,5,8,9,11,12,13,14])->take(400)->get();
             foreach($factor_items as $factor_item)
             {
-                if($factor_item->factor && $factor_item->factor->user && $factor_item->factoritemable->category_id != 421)
+                if($factor_item->factor && $factor_item->factor->user && $factor_item->factoritemable && $factor_item->factoritemable->category_id != 421)
                 {
                    // event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
@@ -69,6 +69,10 @@ class RunQuery extends Command {
                         'user_id' => auth()->user()->id,
                         'comment' => 'به دلیل عدم پیگیری پرونده مختومه گردید.',
                     ] );
+                }
+                else
+                {
+                    $factor_item->update( [ 'status_factor' => 15 ] );
                 }
             }
            dd('success');
