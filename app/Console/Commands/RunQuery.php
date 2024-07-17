@@ -58,7 +58,7 @@ class RunQuery extends Command {
                     $phones = $factor_item->factor->user->phone;
                     $body = [
                         'param1' => $factor_item->factor->user->name.' '.$factor_item->factor->user->family,
-                        'param2' => $factor_item->factoritemable->title,
+                        'param2' => 'درخواست تسهیلات خرید کالا یا خدمات اقساطی ',
                     ];
                     IranSms::sendSingleSms('factoritemClosing',$phones,$body);
 
