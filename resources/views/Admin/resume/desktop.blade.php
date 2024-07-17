@@ -81,16 +81,18 @@
         <div class="card-body table-responsive">
             <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
                 <thead>
-                <tr>
-                    <th style="width: 20px">#</th>
-                    <th>نام و نام خانوادگی</th>
-                    <th> موبایل</th>
-                    <th>تاریخ ثبت</th>
-                    <th>رزومه</th>
-                    <th>عنوان شغلی</th>
-                    <th>وضعیت</th>
-                    <th>اقدام</th>
-                </tr>
+                    <tr>
+                        <th style="width: 20px">#</th>
+                        <th><input type="checkbox" id="transfer_checkbox"></th>
+                        <th>نام و نام خانوادگی</th>
+                        <th> موبایل</th>
+                        <th>تاریخ ثبت</th>
+                        <th>رزومه</th>
+                        <th>عنوان شغلی</th>
+                        <th>نمایندگی</th>
+                        <th>وضعیت</th>
+                        <th>اقدام</th>
+                    </tr>
                 </thead>
                 <tbody>
                 </tbody>
