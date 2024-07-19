@@ -277,6 +277,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');
     Route::get('/factorItem/filter' , 'FactorItemController@filter');
     Route::get('/factorItem/referral/{factorItem}' , 'FactorItemController@referral')->name('factorItem.referral');
+    Route::get('/factorItem/getForm/{factorItem}' , 'FactorItemController@getForm')->name('factorItem.getForm');
+    Route::post('/factorItem/setRegisterationInitialConsutation', 'FactorItemController@setRegisterationInitialConsutation')->name('factorItem.setRegisterationInitialConsutation');
+
     Route::post('/factorItem/transfer' , 'FactorItemController@transfer');
     Route::post('/factorItem/update-information', 'FactorItemController@updateInformation')->name('factorItem.information');
     Route::post('/factorItem/create-factor', 'FactorItemController@createFactor')->name('factorItem.createFactor');
@@ -611,12 +614,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/session/desktop-confirm/filter' , 'SessionController@filterDesktopConfirm');
     Route::get('/session/desktop-complete' , 'SessionController@desktopComplete')->name('session.desktop.complete');
     Route::get('/session/desktop-complete/filter' , 'SessionController@filterDesktopComplete');
+    Route::get('/session/trunRatings/desktop-complete/filter' , 'SessionController@filterDesktopCompleteTurnRatings');
     Route::get('/session/confirm/{session}' , 'SessionController@confirm')->name('session.confirm');
     Route::post('/session/update' , 'SessionController@update');
     Route::get("/session/user-start-entry/{session}" , 'SessionController@userSessionStartEntry')->name('user.session.start_entry');
     Route::get("/session/user-end-entry/{session}" , 'SessionController@userSessionEndEntry')->name('user.session.end_entry');
     Route::resource('session', 'SessionController');
-    Route::get('/session-reject/{id}' , 'SessionController@rejectSession')->name('session.reject');
+    Route::post('/session/reject' , 'SessionController@rejectSession')->name('session.reject');
     //wallet transation
     Route::resource('WalletTransaction', 'WalletTransactionController');
     Route::get('/wallet-update/{wallet}', 'WalletTransactionController@wallet_update')->name('wallet.update');

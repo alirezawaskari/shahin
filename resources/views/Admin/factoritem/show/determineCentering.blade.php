@@ -47,7 +47,6 @@
     </form>
     @endif
     @endpermission
-    @include('Admin.factoritem.show.turnRatings')
 @endif
 <div class="{{ $factorItem['complete'] ? 'bg-success-bright' : 'bg-light' }} p-3 rounded mb-3 shadow-lg border">
     <div class="mb-3">

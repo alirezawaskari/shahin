@@ -41,7 +41,7 @@ class Session extends Model implements AuditableContract
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
                 'date' => Carbon::now(),
-                'description_before' => 'ویزیت اولیه / مراجعه حضوری کاربر .',
+                'description_before' => 'ویزیت اصلی / مراجعه حضوری کاربر .',
             ]);
         }
         if (!is_null($session)){
@@ -56,7 +56,7 @@ class Session extends Model implements AuditableContract
      */
     public static function changeVisitStatusByFactorItem(FactorItem $factor_item, int $int)
     {
-      $session= Session::whereIn('status',[3,4,5,6])->where('factor_item_id',$factor_item->id)->latest()->first();
+      $session= Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id);
            if (!is_null($session)){
                $session->update(
                    [
@@ -73,7 +73,7 @@ class Session extends Model implements AuditableContract
      */
     public static function checkAndEndEntrySession($factor_item)
     {
-        $session=Session::whereIn('status',[3,4,5])->where('factor_item_id',$factor_item->id)->first();
+        $session=Session::whereIn('status',[3,4,5])->where('factor_item_id',$factor_item->id)->latest()->first();
         if (!is_null($session)){
             self::userSessionEndEntry($session);
         }
@@ -252,7 +252,7 @@ class Session extends Model implements AuditableContract
             '2' => 'منتظر تایید',
             '3' => 'مشاوره اولیه',
             '4' => 'ویزیت تایید شده',//Currently not developed
-            '5' => 'در انتظار مشاوره',
+            '5' => 'در انتظار مشاوره اصلی',
             '6' => 'مشاوره شد',
             '7' => 'ویزیت لغو شد',
         ][$status];

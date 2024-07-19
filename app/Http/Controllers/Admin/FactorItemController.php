@@ -197,7 +197,7 @@ class FactorItemController extends Controller {
         }
         // update center_id
         $factor_item->update( [
-            'center_id' =>  $request->center_id ,
+            'center_id' =>  $request->center_id,
             'status_factor' => $factor_item->type == 0 && $factor_item->status_factor == 14 ? 10 : 17,
         ] );
         //create session
@@ -206,7 +206,7 @@ class FactorItemController extends Controller {
                 'status' => $factor_item->type == 0 && $factor_item->status_factor == 14 ? 5 : 3 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
-                'date' => now()->format('YYYY/MM/DD H:m:s'),
+                'date' => date('Y-m-d H:i:s'),
                 'description_before' => $request->description,
             ]);
         }
@@ -295,7 +295,6 @@ class FactorItemController extends Controller {
         }
 
         Session::checkAndStartEntryVisitSession($factor_item);
-        Session::changeVisitStatusByFactorItem($factor_item,5);
 
         $factor_item->update( [
             'status_factor' => $factor_item->status_factor <= 3 ? 2 : $factor_item->status_factor,
@@ -1333,5 +1332,49 @@ class FactorItemController extends Controller {
             ]);
         }
         $total_factor_item->property->update(['registeration_debt' => $diffrence_registeration_price]);
+    }
+    /**
+     *@param \App\Models\FactorItem $factorItem
+     *@param \Illuminate\Http\Request $request
+     *@return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory|void
+     */
+    public function getForm(FactorItem $factorItem , Request $request)
+    {
+        $user = $factorItem->factor->user;
+        $result = self::setItem( $factorItem );
+        $factorItem = $result['factorItem'];
+        if($request->ajax()){
+            $view=view('Admin.factoritem.show.registerationInitialConsutation', compact('factorItem', 'user'))->render();
+            return response([
+                'data'=>[
+                    'view'=> $view
+                ]
+            ]);
+        }
+    }
+    /**
+    *@param Request $request
+    *@return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function setRegisterationInitialConsutation(Request $request)
+    {
+        $item = $request->item;
+        $factor_item = FactorItem::find( $item[ 'id' ] );
+        self::formData( $item );
+
+        Session::changeVisitStatusByFactorItem($factor_item,6);
+
+        if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
+        {
+            return redirect()->back()->with( [
+                'update' => 'success'
+            ] );
+        }
+        $factor_item->update( [
+            'status_factor' => 14,
+        ] );
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
     }
 }
