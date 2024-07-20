@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
+use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
@@ -144,6 +146,10 @@ class FactorItemController extends Controller {
         if (auth()->user()->isAbleTo('file-desktop')){
             $factor_items = FactorItem::whereIn( 'status_factor', array(0,4,14) )->where('supporter_id', auth()->user()->id)->filter();
         }
+        if (auth()->user()->hasPermission('factor_item_referral_to_center'))
+        {
+            $factor_items = FactorItem::where( 'status_factor', 16 )->filter();
+        }
         if ( $request->exel == 'true' ) {
             return ( new FactorItemsExport( $factor_items ) )->download( 'factorItems.xlsx' );
         }
@@ -155,9 +161,18 @@ class FactorItemController extends Controller {
      */
     public function setCenter(Request $request)
     {
+        $factor_item = FactorItem::find( $request->id );
+        $item = $request->item;
+        $item['id'] = $request->id;
+        self::formData( $item );
+        if(isset($item) && $item['typeConsultation'] == 'online')
+        {
+            alert()->success('عملیات موفق')->autoclose(4000)->persistent('باشه');
+            return redirect()->back();
+        }
         $validate = Validator::make($request->all(), [
             'id' => 'required|exists:factor_items,id',
-            'center_id' => 'required|exists:centers,id',
+            'center_id' => 'required',
         ]);
         if ($validate->fails()){
             alert()->error(implode(" | ", $validate->errors()->all())
@@ -165,7 +180,6 @@ class FactorItemController extends Controller {
             return redirect()->back();
         }
 
-        $factor_item = FactorItem::find( $request->id );
         //set center_id if not yet determined
         if (is_null($factor_item->center_id))
             $factor_item->update(['center_id' =>  $request->center_id ,]);
@@ -179,12 +193,42 @@ class FactorItemController extends Controller {
             alert()->error(' جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
-
-        //update center_id
-         $factor_item->update( [
-            'center_id' =>  $request->center_id ,
+        // unselected center
+        if($request->center_id == null)
+        {
+            $factor_item->update( [
+                'center_id' =>  $request->center_id ,
+                'status_factor' => 14,
+            ] );
+            alert()->success('مرکز تعیین شده با موفقیت حذف گردید.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
+            return redirect()->back();
+        }
+        //close older sessions
+        Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
+            'status'=>7,
+            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+        ]);
+        //send sms
+        if ( $request->check ) {
+            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
+            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+        }
+        // update center_id
+        $factor_item->update( [
+            'center_id' =>  $request->center_id,
+            'status_factor' => 17,
         ] );
-        alert()->success('مرکز تعیین گردید .', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
+        //create session
+        if ($factor_item->factoritemable->session==1){
+            Session::create( [
+                'status' => 3 ,
+                'user_id' => auth()->user()->id,
+                'factor_item_id' => $factor_item->id,
+                'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
+                'description_before' => isset($item) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
+            ]);
+        }
+        alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
         return redirect()->back();
     }
     /**
@@ -269,7 +313,6 @@ class FactorItemController extends Controller {
         }
 
         Session::checkAndStartEntryVisitSession($factor_item);
-        Session::changeVisitStatusByFactorItem($factor_item,5);
 
         $factor_item->update( [
             'status_factor' => $factor_item->status_factor <= 3 ? 2 : $factor_item->status_factor,
@@ -1033,13 +1076,19 @@ class FactorItemController extends Controller {
                 'failByMessage' => ' به دلیل وجود پرداختی برای این پرونده ، امکان مختومه نمودن وجود ندارد .'
             ] );
         }
+        $factor_item->update( [ 'status_factor' => 15 ] );
 
-        $factor_item->update( [ 'status_factor' => $request->status ] );
-
-        $message = 'عضو محترم شبکه خدمات رفاهی لاله پرونده شما مختومه شد. 09366342145 ';
-
-        $phones = $factor_item->factor->user->phone;
-        Helper::sms( $phones, $message );
+        $factor_item_able = $factor_item->factoritemable->title;
+        $userMobile = $factor_item->factor->user->phone;
+        $user = $factor_item->factor->user->name.' '.$factor_item->factor->user->family;
+        if (isset($userMobile)) {
+            $body = [
+                'param1' => $user,
+                'param2' => $factor_item_able,
+            ];
+            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
+        }
+        //event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
         if ( $request->comment ) {
             $factor_item->factor->comments()->create( [
@@ -1103,6 +1152,18 @@ class FactorItemController extends Controller {
             'status'=>'success',
             'messages'=>'انتقال با موفقیت انجام گرفت .'
         ]);
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function referral(FactorItem $factorItem)
+    {
+        $factorItem->update(['status_factor' => 16]);
+
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
     }
     /**
      * @param FactorItem $factor_item
@@ -1289,5 +1350,78 @@ class FactorItemController extends Controller {
             ]);
         }
         $total_factor_item->property->update(['registeration_debt' => $diffrence_registeration_price]);
+    }
+    /**
+     *@param \App\Models\FactorItem $factorItem
+     *@param \Illuminate\Http\Request $request
+     *@return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory|void
+     */
+    public function getForm(FactorItem $factorItem , Request $request)
+    {
+        $user = $factorItem->factor->user;
+        $result = self::setItem( $factorItem );
+        $factorItem = $result['factorItem'];
+        if($request->ajax()){
+            $view=view('Admin.factoritem.show.registerationInitialConsutation', compact('factorItem', 'user'))->render();
+            return response([
+                'data'=>[
+                    'view'=> $view
+                ]
+            ]);
+        }
+    }
+    /**
+    *@param Request $request
+    *@return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     */
+    public function setRegisterationInitialConsutation(Request $request)
+    {
+        $item = $request->item;
+        $factor_item = FactorItem::find( $item[ 'id' ] );
+        self::formData( $item );
+
+        Session::changeVisitStatusByFactorItem($factor_item,6);
+
+        if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
+        {
+            return redirect()->back()->with( [
+                'update' => 'success'
+            ] );
+        }
+        $factor_item->update( [
+            'status_factor' => 14,
+        ] );
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function startWork(FactorItem $factorItem)
+    {
+        $factorItem->update( [
+            'status_factor' => 10,
+        ] );
+        //close older sessions
+        Session::whereIn('status',[3,5])->where('factor_item_id',$factorItem->id)->update([
+            'status'=>7,
+            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+        ]);
+        //create session
+        if ($factorItem->factoritemable->session==1){
+        Session::create( [
+            'status' => 5 ,
+            'user_id' => auth()->user()->id,
+            'factor_item_id' => $factorItem->id,
+            'date' => date('Y-m-d H:i:s'),
+            'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
+        ]);
+        }
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
+
     }
 }

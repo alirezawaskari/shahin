@@ -59,6 +59,8 @@ class BeforeForm extends Model
         'panel_complation_file_work' => 'اتمام کار',
         'panel_print_form' => 'پرینت فرم ثبت نام',
         'panel_show_file' => 'امورات اداری و مالی پرونده',
+        'panel_basic_document' => 'مدارک اولیه پرونده',
+        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز'
     ];
     /**
      *

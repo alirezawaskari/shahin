@@ -62,7 +62,7 @@ class SessionController extends Controller {
             $delete = $user->isAbleTo( 'session-delete' );
             $type = 'complete';
             $url = 'desktop-complete/filter';
-            return view( 'Admin.session.desktop', compact( 'delete', 'type', 'url' , 'title') );
+            return view( 'Admin.session.desktopComplete', compact( 'delete', 'type', 'url' , 'title') );
         }
         return abort( 401 );
     }
@@ -74,8 +74,8 @@ class SessionController extends Controller {
      */
     public function filterDesktopComplete(Request $request) {
 
-        $sessions = Session::filter()->whereIn( 'status', [0,3,4,5,6] )->orderBy( 'date', 'desc' );
-        if (!isset($request->start_date)||!isset($request->end_date)){
+        $sessions = Session::filter()->where( 'status', 0 )->orderBy( 'date', 'desc' );
+        if ($request->start_date || $request->end_date){
             $sessions ->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
         }
         if (isset($request->excel) && $request->excel == 'on') {
@@ -83,7 +83,22 @@ class SessionController extends Controller {
         }
         return new SessionCollection($sessions , $sessions->paginate(20));
     }
+    /**
+     * @param Request $request
+     * @return mixed
+     * filter for desktop complete session
+     */
+    public function filterDesktopCompleteTurnRatings(Request $request) {
 
+        $sessions = Session::filter()->whereIn( 'status', [3,5] )->orderBy( 'date', 'desc' );
+        if ($request->start_date || $request->end_date){
+            $sessions ->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
+        }
+        if (isset($request->excel) && $request->excel == 'on') {
+            return (new SessionExport($sessions))->download('sessions.xlsx');
+        }
+        return new SessionCollection($sessions , $sessions->paginate(20));
+    }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
      */
@@ -94,7 +109,7 @@ class SessionController extends Controller {
             $delete = $user->isAbleTo( 'session-delete' );
             $type = 'confirm';
             $url = 'desktop-confirm/filter';
-            return view( 'Admin.session.desktop', compact( 'delete', 'type', 'url' , 'title') );
+            return view( 'Admin.session.desktopConfirm', compact( 'delete', 'type', 'url' , 'title') );
         }
         return abort( 401 );
     }
@@ -353,11 +368,11 @@ class SessionController extends Controller {
         ] );
     }
     /**
-     * @param mixed $id
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function rejectSession( $id ) {
-        Session::find( $id )->update( [ 'status' => 2 ] );
+    public function rejectSession( Request $request) {
+        Session::find( $request->session_id )->update( [ 'status' => 7 , 'description' => $request->description ] );
         return redirect()->back();
     }
     /**

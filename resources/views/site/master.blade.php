@@ -63,7 +63,7 @@
         <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer'
             onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=162326&p=rfthgvkauiwkxlaouiwkgvka", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
             alt='logo-samandehi' src='https://logo.samandehi.ir/logo.aspx?id=162326&p=nbpdwlbqodrfqftiodrfwlbq' />
-        <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=40920&Code=6abmm9WQ9521uXon0exd'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=40920&Code=6abmm9WQ9521uXon0exd' alt='' style='cursor:pointer' code='6abmm9WQ9521uXon0exd'></a>
+            <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=40920&Code=6abmm9WQ9521uXon0exd'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=40920&Code=6abmm9WQ9521uXon0exd' alt='' style='cursor:pointer' code='6abmm9WQ9521uXon0exd'></a>
         <!-- <script type="text/javascript">
             window.$crisp = []; window.CRISP_WEBSITE_ID = "9aa6b7fc-b1ba-437f-800d-b26efe273153"; (function () { d = document; s = d.createElement("script"); s.src = "https://client.crisp.chat/l.js"; s.async = 1; d.getElementsByTagName("head")[0].appendChild(s); })();
         </script> -->

@@ -106,7 +106,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        view()->composer(['Admin.session.all','Admin.session.desktop'], function ($view) {
+        view()->composer(['Admin.session.all','Admin.session.desktopConfirm','Admin.session.desktopComplete'], function ($view) {
             $admin_users = User::whereHas('employee')->get();
             $centers = Center::all();
             $view->with([
@@ -209,7 +209,7 @@ class AppServiceProvider extends ServiceProvider
 
         });
 
-        view()->composer(['Admin.factoritem.all','Admin.contact.edit','Admin.center.create','Admin.center.edit','Admin.centerRequest.all','Admin.centerRequest.create','Admin.centerRequest.edit','Admin.financialplanstype.all','Admin.financialplanstype.create','Admin.financialplanstype.edit','Admin.resume.all' , 'Admin.resume.create' , 'Admin.resume.edit' , 'Admin.site.slider.create' , 'Admin.site.slider.createMobileOld' , 'Admin.site.slider.edit' , 'Admin.site.article.create', 'Admin.site.article.edit','Admin.recruitmentnotice.create','Admin.recruitmentnotice.edit'], function ($view) {
+        view()->composer(['Admin.factoritem.all','Admin.contact.edit','Admin.center.create','Admin.center.edit','Admin.centerRequest.all','Admin.centerRequest.create','Admin.centerRequest.edit','Admin.financialplanstype.all','Admin.financialplanstype.create','Admin.financialplanstype.edit','Admin.resume.all','Admin.resume.desktop' , 'Admin.resume.create' , 'Admin.resume.edit' , 'Admin.site.slider.create' , 'Admin.site.slider.createMobileOld' , 'Admin.site.slider.edit' , 'Admin.site.article.create', 'Admin.site.article.edit','Admin.recruitmentnotice.create','Admin.recruitmentnotice.edit'], function ($view) {
             $view->with([
                 'representations' => Representation::where('status' , true)->get(),
             ]);
