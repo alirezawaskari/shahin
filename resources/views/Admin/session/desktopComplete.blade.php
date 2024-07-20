@@ -171,7 +171,7 @@
 </div>
 @stop
 @section('js')
+<script src="/assets/dashboard/js/sessionCompleteTurnRatings.js"></script>
 <script src="/assets/dashboard/js/layouts.js"></script>
 <script src="/assets/dashboard/js/session.js"></script>
-<script src="/assets/dashboard/js/sessionCompleteTurnRatings.js"></script>
 @endsection

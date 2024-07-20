@@ -7,9 +7,30 @@ $(document).ready(function () {
                 type: 'get',
                 success: function (response) {
                     let view = response.data.view;
-                    $('.modal-body-registration-initial-consultation').html(view)
+                    $('.modal-body-registration-initial-consultation').html(view);
+                    $(".date").pDatepicker({
+                        initialValueType: "gregorian",
+                        format: "YYYY/MM/DD H:m:s",
+                        onSelect: "year",
+                        timePicker: {
+                            enabled: true,
+                            meridiem: {
+                                enabled: true
+                            }
+                        }
+                    });
+                    if ($('#type_consultation_online').is(':checked')) {
+                        $('#divDate').css('display', 'none');
+                    }
                 }
             });
+    });
+    $('#select_type_consultation').on('change', function () {
+        if ($('#select_type_consultation').val() == 'inPerson') {
+            $('#divDate').css('display', 'block');
+        } else {
+            $('#divDate').css('display', 'none');
+        }
     });
     $('#visitRejectModal').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget) // Button that triggered the modal

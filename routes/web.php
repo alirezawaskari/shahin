@@ -277,6 +277,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');
     Route::get('/factorItem/filter' , 'FactorItemController@filter');
     Route::get('/factorItem/referral/{factorItem}' , 'FactorItemController@referral')->name('factorItem.referral');
+    Route::get('/factorItem/startWork/{factorItem}' , 'FactorItemController@startWork')->name('factorItem.startWork');
     Route::get('/factorItem/getForm/{factorItem}' , 'FactorItemController@getForm')->name('factorItem.getForm');
     Route::post('/factorItem/setRegisterationInitialConsutation', 'FactorItemController@setRegisterationInitialConsutation')->name('factorItem.setRegisterationInitialConsutation');
 

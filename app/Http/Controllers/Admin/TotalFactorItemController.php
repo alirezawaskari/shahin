@@ -18,6 +18,7 @@ use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
 use App\Models\Impunity;
 use App\Models\Province;
+use App\Models\Session;
 use App\Models\TotalFactorItem;
 use App\Models\User;
 use Carbon\Carbon;
@@ -134,7 +135,7 @@ class TotalFactorItemController extends Controller
             $temp['factoritemable'] = $factor_item->factoritemable;
             $temp['service_item'] = !is_null($factor_item->service_item_id) ? $factor_item->serviceItem : null;
             $temp['centers'] = FactorItem::getSelectableCenters($factor_item);
-            $temp['forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', '!=', 'site') : null;
+            $temp['forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms : null;
             $temp['site_forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', 'site') : null;
             $temp['complete'] = $factor_item->complete;
             $temp['values'] = $factor_item->values;
@@ -459,7 +460,21 @@ class TotalFactorItemController extends Controller
                 $fator_item_collections->update([
                     'status_factor' => 10,
                 ]);
-            }
+                //close older sessions
+                Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
+                    'status'=>7,
+                    'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+                ]);
+                //create session
+                if ($factor_item->factoritemable->session==1){
+                Session::create( [
+                    'status' => 5 ,
+                    'user_id' => auth()->user()->id,
+                    'factor_item_id' => $factor_item->id,
+                    'date' => date('Y-m-d H:i:s'),
+                    'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
+                ]);
+                }
 
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }

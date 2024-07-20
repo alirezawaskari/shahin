@@ -161,6 +161,15 @@ class FactorItemController extends Controller {
      */
     public function setCenter(Request $request)
     {
+        $factor_item = FactorItem::find( $request->id );
+        $item = $request->item;
+        $item['id'] = $request->id;
+        self::formData( $item );
+        if(isset($item) && $item['typeConsultation'] == 'online')
+        {
+            alert()->success('عملیات موفق')->autoclose(4000)->persistent('باشه');
+            return redirect()->back();
+        }
         $validate = Validator::make($request->all(), [
             'id' => 'required|exists:factor_items,id',
             'center_id' => 'required',
@@ -171,7 +180,6 @@ class FactorItemController extends Controller {
             return redirect()->back();
         }
 
-        $factor_item = FactorItem::find( $request->id );
         //set center_id if not yet determined
         if (is_null($factor_item->center_id))
             $factor_item->update(['center_id' =>  $request->center_id ,]);
@@ -195,19 +203,29 @@ class FactorItemController extends Controller {
             alert()->success('مرکز تعیین شده با موفقیت حذف گردید.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
             return redirect()->back();
         }
+        //close older sessions
+        Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
+            'status'=>7,
+            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+        ]);
+        //send sms
+        if ( $request->check ) {
+            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
+            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+        }
         // update center_id
         $factor_item->update( [
             'center_id' =>  $request->center_id,
-            'status_factor' => $factor_item->type == 0 && $factor_item->status_factor == 14 ? 10 : 17,
+            'status_factor' => 17,
         ] );
         //create session
         if ($factor_item->factoritemable->session==1){
             Session::create( [
-                'status' => $factor_item->type == 0 && $factor_item->status_factor == 14 ? 5 : 3 ,
+                'status' => 3 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
-                'date' => date('Y-m-d H:i:s'),
-                'description_before' => $request->description,
+                'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
+                'description_before' => isset($item) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
             ]);
         }
         alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
@@ -1376,5 +1394,34 @@ class FactorItemController extends Controller {
         return redirect()->back()->with( [
             'update' => 'success'
         ] );
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function startWork(FactorItem $factorItem)
+    {
+        $factorItem->update( [
+            'status_factor' => 10,
+        ] );
+        //close older sessions
+        Session::whereIn('status',[3,5])->where('factor_item_id',$factorItem->id)->update([
+            'status'=>7,
+            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+        ]);
+        //create session
+        if ($factorItem->factoritemable->session==1){
+        Session::create( [
+            'status' => 5 ,
+            'user_id' => auth()->user()->id,
+            'factor_item_id' => $factorItem->id,
+            'date' => date('Y-m-d H:i:s'),
+            'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
+        ]);
+        }
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
+
     }
 }

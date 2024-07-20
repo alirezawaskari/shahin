@@ -1,3 +1,4 @@
+@permission('basic_document')
 <div id="accordion" class="panel-group">
     <div class="panel">
         <div class="panel-heading">
@@ -8,33 +9,44 @@
         </div>
         <div id="basic_document_executive" class="panel-collapse collapse">
             <div class="panel-body">
-                @foreach ($items as $key => $factor_item)
-                @foreach ($factor_item['factorItems'] as $factorItem)
-                <h6> <i class="fa fa-list"></i> {{ $factorItem->factor->user->name . ' ' .$factorItem->factor->user->family.' : '.$factorItem['factoritemable']->title .' - '. $factor_item['financial_plans_type']}}</h6>
-                <form action="{{ route('factorItem.information')}}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">
-                    <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
-                    <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
-                    @if(!is_null($factorItem['centers']) || !is_null($factorItem['forms']))
-                    <div class="row p-3 position-relative">
-                        @if(!is_null($factorItem['forms']))
-                        @foreach($factorItem['forms'] as $form)
-                        @if (in_array('panel_basic_document' , $form->data_display_level))
-                            @include('Admin.factoritem.layouts.formItem')
-                        @endif
-                        @endforeach
-                        @endif
-                        <div class="success-overly position-absolute mx-3"></div>
+                @foreach ($items as $key => $factorItem)
+                @foreach ($factorItem['factorItems'] as $factor_item)
+                <h6> <i class="fa fa-list"></i> {{ $factor_item->factor->user->name . ' '
+                    .$factor_item->factor->user->family.' : '.$factorItem['factoritemable']->title .' - '.
+                    $factorItem['financial_plans_type']}}</h6>
+                <div class="card border shadow-lg">
+                    <div class="card-header"> تکمیل اطلاعات اجرایی پرونده: </div>
+                    <div class="card-body">
+                        <form action="{{ route('factorItem.information')}}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">
+                            <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
+                            <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
+                            @if(!is_null($factorItem['centers']) || !is_null($factorItem['forms']))
+                            <div class="row p-3 position-relative">
+                                @if(!is_null($factorItem['forms']))
+                                @foreach($factorItem['forms'] as $form)
+                                @if (in_array('panel_basic_document' , $form->data_display_level))
+                                @include('Admin.factoritem.layouts.formItem')
+                                @endif
+                                @endforeach
+                                @endif
+                                <div class="success-overly position-absolute mx-3"></div>
+                            </div>
+                            <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
+                            @endif
+                        </form>
                     </div>
-                    <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
-                    @endif
-                </form>
-                @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
-                <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
-                    مشاوره</span></a>
+                </div>
+                @if (in_array(trim($factorItem['status_factor']) , [0,4,14,16]) )
+                @include('Admin.factoritem.show.turnRatings')
                 @endif
-                    @endforeach
+                @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+                <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
+                        class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
+                        مشاوره</span></a>
+                @endif
+                @endforeach
                 @endforeach
             </div>
         </div>
@@ -243,3 +255,4 @@
     @endif
     @endpermission
 </form>
+@endpermission
