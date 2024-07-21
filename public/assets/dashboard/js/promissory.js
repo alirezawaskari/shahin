@@ -156,7 +156,7 @@ $(document).ready(function () {
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                              <a href="../../../dashboard/totalFactorItem/${data.total_factor_item_id}" target="_blank">
-                            <button type="button" class="dropdown-item pointer">امورات اداری و مالی پرونده</button></a>
+                            <button type="button" class="dropdown-item pointer">امور اداری و مالی پرونده</button></a>
                             <button style="display: ${status_display}" type="button" class="dropdown-item pointer list-promissory-status" data-promissory_id="${data.id}" data-front_image="${data.front_image}" data-toggle="modal" data-target="#statusPromissoryModal">وضعیت</button>
                         </div></div>`
                     }

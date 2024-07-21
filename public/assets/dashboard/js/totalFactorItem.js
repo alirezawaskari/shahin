@@ -127,7 +127,7 @@ $(document).ready(function () {
                             <a href="../../../dashboard/totalFactorItem/${data.id}/installment" target="_blank">
                             <button type="button" class="dropdown-item pointer">مشاهده اقساط</button></a>
                             <a href="../../../dashboard/totalFactorItem/${data.id}" target="_blank">
-                            <button type="button" class="dropdown-item pointer">امورات اداری و مالی پرونده</button></a>
+                            <button type="button" class="dropdown-item pointer">امور اداری و مالی پرونده</button></a>
                             </div></div>`;
                         }
                     },
@@ -278,7 +278,7 @@ $(document).ready(function () {
                         <a href="../../dashboard/totalFactorItem/${data.id}/installment" target="_blank">
                         <button type="button" class="dropdown-item pointer">مشاهده اقساط</button></a>
                         <a href="../../dashboard/totalFactorItem/${data.id}" target="_blank">
-                        <button type="button" class="dropdown-item pointer">امورات اداری و مالی پرونده</button></a>
+                        <button type="button" class="dropdown-item pointer">امور اداری و مالی پرونده</button></a>
                         </div></div>`;
                     }
                 },

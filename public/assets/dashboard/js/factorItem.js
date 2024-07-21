@@ -641,11 +641,11 @@ $(document).ready(function () {
                         output += `
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer" >
-                            امورات اداری و مالی پرونده
+                            امور اداری و مالی پرونده
                             </span></a>
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}/edit">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer">
-                            امورات اجرایی پرونده
+                            امور اجرایی پرونده
                             </span></a>
                         </div></div>`
                         return output;

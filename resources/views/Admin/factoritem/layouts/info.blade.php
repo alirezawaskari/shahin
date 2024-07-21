@@ -20,12 +20,12 @@
             <a href="{{ $factorItem->type ? '/dashboard/totalFactorItem/'.$item['id'] : '/dashboard/factorItem/'.$factorItem->resnumber }}"
                 class="btn btn-link btn-float has-text text-size-small rtl p-1">
                 <i class="fa fa-eye text-indigo-400" aria-hidden="true"></i>
-                <span>امورات اداری و مالی پرونده</span>
+                <span>امور اداری و مالی پرونده</span>
             </a>
             <a href="/dashboard/factorItem/{{$factorItem->resnumber}}/edit"
                 class="btn btn-link btn-float has-text text-size-small rtl p-1">
                 <i class="fa fa-edit text-indigo-400" aria-hidden="true"></i>
-                <span>امورات اجرایی پرونده</span>
+                <span>امور اجرایی پرونده</span>
             </a>
         </div>
     </div>

@@ -475,7 +475,7 @@ class TotalFactorItemController extends Controller
                     'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
                 ]);
                 }
-
+            }
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }
 

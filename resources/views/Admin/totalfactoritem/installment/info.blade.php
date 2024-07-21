@@ -5,7 +5,7 @@
             <a href="/dashboard/totalFactorItem/{{$totalFactorItem->id}}"
                 class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-eye text-indigo-400" aria-hidden="true"></i>
-                <span>امورات اداری و مالی پرونده</span>
+                <span>امور اداری و مالی پرونده</span>
             </a>
             @permission('file-report')
             <a href="/dashboard/totalFactorItem/{{$totalFactorItem->id}}/installment"

@@ -35,7 +35,7 @@
                         <div class="col-md-3">
                             <a class="btn border border-secondary mr-3 box-shadow-info"
                                 href="../../dashboard/factorItem/{{ $factor_item['resnumber'] }}/edit"><i
-                                    class="fa fa-edit"></i> امورات اجرایی پرونده</a>
+                                    class="fa fa-edit"></i> امور اجرایی پرونده</a>
                         </div>
                     </div>
                     <div class="row p-3 position-relative">
