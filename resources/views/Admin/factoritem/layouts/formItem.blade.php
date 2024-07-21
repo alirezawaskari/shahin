@@ -165,7 +165,7 @@
 </div>
 @break
 @case('textarea')
-<div class="col-12 col-md-4 mb-2">
+<div class="col-12 mb-2">
     <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
     <textarea class="form-control {{ $form->class }}" {{
         $form->required == true ? 'required' : '' }} name="item[{{ $form->name }}]"> {{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}</textarea>
