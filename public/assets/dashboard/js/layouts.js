@@ -115,13 +115,13 @@ function date()
     });
 }
 if ($('#type_consultation_online').is(':checked')) {
-    $('#divDate').css('display', 'none');
+    $('.divDate').css('display', 'none');
 }
 $('#select_type_consultation').on('change', function () {
     if ($('#select_type_consultation').val() == 'inPerson') {
-        $('#divDate').css('display', 'block');
+        $('.divDate').css('display', 'block');
     } else {
-        $('#divDate').css('display', 'none');
+        $('.divDate').css('display', 'none');
     }
 });
 

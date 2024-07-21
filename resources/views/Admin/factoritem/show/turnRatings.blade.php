@@ -17,7 +17,7 @@
                 </select>
             </div>
             <hr>
-            <div id="divDate">
+            <div class="divDate">
                 <div class="col-4 mb-2">
                     <input type="hidden" name="type" value="supporter">
                     <input type="hidden" name="id" value="{{ $factorItem['id'] }}">

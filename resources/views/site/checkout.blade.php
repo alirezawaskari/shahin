@@ -114,7 +114,7 @@
                                                     $item['factor_values']['typeConsultation']=='inPerson' ?'selected'
                                                     : '' }}>حضوری</option>
                                             </select>
-                                            <div class="mt-3" id="divDate">
+                                            <div class="mt-3" id="class">
                                                 <label> انتخاب زمان مراجعه پیشنهادی شما : </label>
                                                 <input type="text" class="form-control" id="date"
                                                     name="items[{{ $key }}][date]">
