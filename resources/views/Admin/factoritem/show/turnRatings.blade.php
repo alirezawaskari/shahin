@@ -1,10 +1,10 @@
 @if (!is_null($factorItem['centers']))
-<div class="card border shadow-lg">
+<div class="col-12 card border shadow-lg">
     <div class="card-header">تعیین نوبت مشاوره : </div>
     <div class="card-body">
         <form action="{{ route('factorItem.setCenter') }}" method="POST">
             @csrf
-            <div class="col-4 mb-3">
+            <div class="col-12 col-md-4 mb-3">
                 <label>انتخاب نوع دریافت مشاوره :</label>
                 <select name="item[typeConsultation]" id="select_type_consultation" class="form-control" required>
                     <option id="type_consultation_online" value="online"
@@ -18,14 +18,14 @@
             </div>
             <hr>
             <div class="divDate">
-                <div class="col-4 mb-2">
+                <div class="col-12 col-md-4 mb-2">
                     <input type="hidden" name="type" value="supporter">
                     <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
                     <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
                     <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
                 </div>
                 @if(!auth()->user()->center_id)
-                <div class="col-4 mb-2">
+                <div class="col-12 col-md-4 mb-2">
                     <label for="factorItem[center]">ارجاع به مرکز:</label>
                     <select name="center_id" class="form-control" required>
                         <option value="">ارجاع مرکز</option>
