@@ -315,7 +315,7 @@ class ServiceController extends AdminController
             'title'=>['required'],
             'en_title'=>['required'],
             'description'=>['required'],
-            'status'=>array('required',Rule::in(1,2)),
+            'status'=>array('required',Rule::in(1,0)),
             'isShow'=>array('required',Rule::in(0,1)),
             'items'=>array('required',Rule::in(0,1)),
             'center'=>array('required',Rule::in(0,1)),
