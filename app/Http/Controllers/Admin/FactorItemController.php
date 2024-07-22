@@ -315,7 +315,7 @@ class FactorItemController extends Controller {
         Session::checkAndStartEntryVisitSession($factor_item);
 
         $factor_item->update( [
-            'status_factor' => $factor_item->status_factor <= 3 ? 2 : $factor_item->status_factor,
+            'status_factor' => $factor_item->status_factor <= 3 ? 14 : $factor_item->status_factor,
             'complete' => true,
             'status' => 1,
             'file_number' => $request->file_number ? $request->file_number : $factor_item->file_number,
