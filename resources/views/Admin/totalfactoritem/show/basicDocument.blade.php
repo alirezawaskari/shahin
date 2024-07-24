@@ -25,7 +25,7 @@
                             @if(!is_null($factorItem['centers']) || !is_null($factorItem['forms']))
                             <div class="row p-3 position-relative">
                                 @if(!is_null($factorItem['forms']))
-                                @foreach($factorItem['forms'] as $form)
+                                @foreach($factor_item->factoritemable->beforeforms as $form)
                                 @if (in_array('panel_basic_document' , $form->data_display_level))
                                 @include('Admin.factoritem.layouts.formItem')
                                 @endif
@@ -43,7 +43,7 @@
                 @endif
                 @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
                 <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
-                        class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
+                        class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به
                         مشاوره</span></a>
                 @endif
                 @endforeach
@@ -147,7 +147,6 @@
                                         @if ($contract_form->value == $item['guarantee_type'])
                                         @switch($contract_form->type)
                                         @case('file')
-                                        @case('file')
                                         <div class="col-12 col-md-3 mb-2 mt-3">
                                             <div class="card">
                                                 @if (!isset($item['contract_values'][$contract_form->name]))
@@ -182,7 +181,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @break
                                         @break
                                         @case('text')
                                         <div class="col-12 col-md-3 mb-2">

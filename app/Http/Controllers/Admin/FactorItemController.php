@@ -165,7 +165,7 @@ class FactorItemController extends Controller {
         $item = $request->item;
         $item['id'] = $request->id;
         self::formData( $item );
-        if(isset($item) && $item['typeConsultation'] == 'online')
+        if(isset($item['typeConsultation']) && $item['typeConsultation'] == 'online')
         {
             alert()->success('عملیات موفق')->autoclose(4000)->persistent('باشه');
             return redirect()->back();
@@ -225,7 +225,7 @@ class FactorItemController extends Controller {
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
                 'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
-                'description_before' => isset($item) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
             ]);
         }
         alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');

@@ -143,7 +143,7 @@
                     aria-controls="basic-document" aria-selected="true">مدارک اولیه و پشتیبانی</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link show" id="turnRatings-tab" data-toggle="tab" href="#turnRatings" role="tab"
+                <a class="nav-link show" id="turn-ratings-tab" data-toggle="tab" href="#turnRatings" role="tab"
                     aria-controls="home" aria-selected="false">ثبت مشاوره و ارجاع</a>
             </li>
             <li class="nav-item">

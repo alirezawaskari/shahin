@@ -354,7 +354,7 @@ class TotalFactorItemController extends Controller
     {
         $factor_items = $totalFactorItem->factorItems;
 
-        if (auth()->user()->hasRole('admin-site')) {
+        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id) , [0,4,14])) {
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 

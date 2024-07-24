@@ -1,5 +1,7 @@
 var basic_doc = $('#basic_documnet_div').html();
 var orginal_doc = $('#original_document_div').html();
+var registrationInitialConsultation_doc = $('#registrationInitialConsultation').html();
+var basic_document_executive_doc = $('#basic_document_executive').html();
 
 $("body").on('click', '#orginal-document-panel', function () {
     $("#basic_documnet_div").empty();
@@ -15,6 +17,22 @@ $("body").on('click', '#basic-document-tab', function () {
     var basic_div = document.createElement('div');
     basic_div.innerHTML = basic_doc;
     $("#basic_documnet_div").append(basic_div);
+});
+
+$("body").on('click', '#turn-ratings-tab', function () {
+    $("#basic_document_executive").empty();
+    $("#registrationInitialConsultation").empty();
+    var registrationInitialConsultation_div = document.createElement('div');
+    registrationInitialConsultation_div.innerHTML = registrationInitialConsultation_doc;
+    $("#registrationInitialConsultation").append(registrationInitialConsultation_div);
+});
+
+$("body").on('click', '#basic-document-tab', function () {
+    $("#registrationInitialConsultation").empty();
+    $("#basic_document_executive").empty();
+    var basic_document_executive_div = document.createElement('div');
+    basic_document_executive_div.innerHTML = basic_document_executive_doc;
+    $("#basic_document_executive").append(basic_document_executive_div);
 });
 
 $("body").on('change', '#title', function (event) {
