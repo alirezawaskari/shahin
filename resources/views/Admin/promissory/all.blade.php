@@ -99,7 +99,7 @@
     </div>
 
     <div class="card position-relative">
-        <div class="card-body table-responsive">
+        <div class="card-body">
             <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
                 <thead>
                 <tr>
@@ -142,5 +142,5 @@
 
 @section('js')
     <script src="/assets/dashboard/js/layouts.js"></script>
-    <script src="/assets/dashboard/js/promissory.js?v=1.0"></script>
+    <script src="/assets/dashboard/js/promissory.js?v=1.1"></script>
 @endsection

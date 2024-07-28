@@ -32,5 +32,5 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{ asset('/assets/dashboard/js/promissory.js') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/promissory.js?v=1.0') }}"></script>
 @endsection

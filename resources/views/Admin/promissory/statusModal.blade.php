@@ -23,7 +23,7 @@
                                 <input type="hidden" id="promissory-id" name="promissory_id">
                                 <label>وضعیت :</label>
                                 <select name="status" class="form-control"  id="promissory-change-status">
-                                    <option value="0">بایگانی</option>
+                                    <option value="0">رسوب در خزانه</option>
                                     <option value="1">عودت داده شده</option>
                                 </select>
                             </div>

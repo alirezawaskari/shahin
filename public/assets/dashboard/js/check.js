@@ -23,9 +23,6 @@ $(document).ready(function () {
         }
     });
 
-
-
-
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,
@@ -179,8 +176,6 @@ $(document).ready(function () {
             });
         }).draw();
     }
-
-
 });
 //---------------------on change status -------------------
 
@@ -196,30 +191,6 @@ $("#check-change-status").on("change", function () {
         $('#payment-date-box').slideUp();
         $('#receiver-box').slideUp();
     }
-});
-
-//--------------------SELECT PROVINCE OF EXPORTER--------------------
-$('#exporter_province_id').on('change', function () {
-    var token = $('meta[name="csrf-token"]').attr('content');
-    var id = $(this).val();
-    $.ajax({
-        url: '/city/select',
-        type: 'post',
-        dataType: 'json',
-        data: {
-            "_token": token,
-            "id": id,
-        },
-        success: function (data) {
-            $('#exporter_city_id')
-                .empty()
-                .append('<option value="all">انتخاب شهر</option>')
-            ;
-            $.each(data.cities, function (i, d) {
-                $('#exporter_city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
-            });
-        }
-    });
 });
 
 $(document).ready(function () {

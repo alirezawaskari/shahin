@@ -153,5 +153,5 @@
 
 @section('js')
     <script src="/assets/dashboard/js/layouts.js"></script>
-    <script src="/assets/dashboard/js/check.js?v=1.1"></script>
+    <script src="/assets/dashboard/js/check.js?v=1.2"></script>
 @endsection
