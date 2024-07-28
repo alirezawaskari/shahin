@@ -23,7 +23,7 @@
             <div class="row p-3 position-relative">
                 @if(!is_null($factorItem['forms']))
                 @foreach($factorItem['forms'] as $form)
-                @if (in_array('panel_determine_center' , $form->data_display_level))
+                @if (in_array('panel_determine_center' , $form->data_display_level) || in_array('panel_basic_document' , $form->data_display_level))
                     @include('Admin.factoritem.layouts.formItem')
                 @endif
                 @endforeach

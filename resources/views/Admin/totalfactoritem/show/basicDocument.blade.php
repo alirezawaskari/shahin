@@ -36,6 +36,19 @@
                             <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
                             @endif
                         </form>
+                        <hr>
+                        @if ($factorItem['status_factor'] == 14)
+                        <div class="row p-3 position-relative">
+                            @if(!is_null($factorItem['forms']))
+                            @foreach($factor_item->factoritemable->beforeforms as $form)
+                            @if (in_array('panel_determine_center' , $form->data_display_level))
+                            @include('Admin.factoritem.layouts.formItem')
+                            @endif
+                            @endforeach
+                            @endif
+                            <div class="success-overly position-absolute mx-3"></div>
+                        </div>
+                        @endif
                     </div>
                 </div>
                 @if (in_array(trim($factorItem['status_factor']) , [0,4,14,16]) )
