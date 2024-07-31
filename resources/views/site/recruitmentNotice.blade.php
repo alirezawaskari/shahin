@@ -7,71 +7,6 @@
 <div class="service p-md-4">
     <div class="register-section py-4" id="one-section">
         <div class="container-fluid">
-            <form action="/registerBasicInformation" method="post" enctype="multipart/form-data" class="form-basic-information">
-                @csrf
-                    <div class="card">
-                        <div class="card-header">
-                            کارجوی گرامی ثبت نام اولیه خود را انجام داده و سپس فرم مربوط به رزومه خود را تکمیل کنید.
-                        </div>
-                        <div class="row card-body">
-                            <div class="col-12 col-md-4">
-                                <input class="form-control my-2" type="text" name="name" required placeholder="نام"
-                                       value="{{ old('name') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
-                                @if ($errors->has('name'))
-                                    <span class="d-block text-red text-left">{{ $errors->first('name') }}</span>
-                                @endif
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <input class="form-control my-2" type="text" name="family" required
-                                       placeholder="نام خانوادگی" value="{{ old('family') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
-                                @if ($errors->has('family'))
-                                    <span class="d-block text-red text-left">{{ $errors->first('family') }}</span>
-                                @endif
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <select class="form-control my-2" type="int" name="gender" id="gender" required>
-                                    <option value="" disabled selected>جنسیت</option>
-                                    <option value="0">آقا</option>
-                                    <option value="1">خانم</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <input class="form-control my-2 phone" type="text" id="user_service_phone" name="phone" required
-                                       placeholder="شماره موبایل" value="{{ old('phone') }}">
-                                @if ($errors->has('phone'))
-                                    <span class="d-block text-red text-left">{{ $errors->first('phone') }}</span>
-                                @endif
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <select class="form-control my-2" type="int" name="province" id="province_id" required>
-                                    <option value="">انتخاب استان</option>
-                                    @foreach(\App\Models\Province::all() as $province)
-                                        <option value="{{ $province->id }}">{{ $province->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <select class="form-control my-2" type="int" name="city" id="city_id" required>
-                                    <option value="">انتخاب شهر</option>
-                                    @foreach(\App\Models\City::all() as $city)
-                                        <option value="{{ $city->id }}">{{ $city->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <input class="form-control my-2" type="text" name="recruitment_notice_title" required
-                                       placeholder="عنوان شغل درخواستی" value="{{ old('recruitment_notice_title') }}" pattern="^[\u0600-\u06FF\s]+$"  title="لطفا با حروف فارسی وارد نمایید">
-                                @if ($errors->has('recruitment_notice_title'))
-                                    <span class="d-block text-red text-left">{{ $errors->first('recruitment_notice_title') }}</span>
-                                @endif
-                            </div>
-                            <div class="col-12 mt-3">
-                                <input type="submit" value="ثبت درخواست" class="btn btn-success send-resume-btn">
-                            </div>
-                        </div>
-
-                    </div>
-            </form>
             <div class="row">
                 <div class="col-12 col-md-12 py-5 my-auto mr-auto">
                     <div class="card">
@@ -79,9 +14,6 @@
                         <div class="card-body">
                             <p>1.استان مورد نظر خود را انتخاب کنید.</p>
                             <p>2.شغل مورد نظر خود را انتخاب کنید.</p>
-                            <p>3.متن پیام و درخواست خود را یادداشت کنید.</p>
-                            <p>4.ارسال رزومه و اطلاعات فردی و سوابق شغلی الزامیست پس از بارگزاری آن کلید سبز رنگ ارسال
-                                درخواست را کلیک کنید.</p>
                             <p>توجه : کاربر گرامی لطفا رزومه را با فرمت pdf,jpg,jpeg آپلود کنید.</p>
                             <p>راهنمای ثبت نام :</p>
                             <p>متخصص محترم و کارجوی عزیز
@@ -137,352 +69,71 @@
                                             ورود اطلاعات برای موارد ستاره دار (*) الزامی است .
                                         </span>
                                     </div>
-                                    <div class="col-12 mt-4">
-                                        <div class="form-row">
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark">مشخصات شخصی</div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label>* نام</label>
-                                                <input type="text" name="name" placeholder="نام" class="form-control"
-                                                    required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="">*نام خانوادگی</label>
-                                                <input type="text" name="family" placeholder=" نام خانوادگی"
-                                                    class="form-control " required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label>*تلفن همراه</label>
-                                                <input type="text" name="phone" placeholder="تلفن همراه"
-                                                    class="form-control" required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="">ایمیل</label>
-                                                <input type="text" name="email" placeholder="ایمیل"
-                                                    class="form-control">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*شماره شناسنامه</label>
-                                                <input name="number_shenasname" class="form-control" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*تاریخ تولد</label>
-                                                <input name="date_of_birth" class="form-control date_of_birth" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*محل صدور</label>
-                                                <input name="birth_certificate_issuing_place" class="form-control"
-                                                    required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*کد ملی :</label>
-                                                <input name="national_number" class="form-control" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*مذهب :</label>
-                                                <input name="religion" class="form-control" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*ملیت :</label>
-                                                <input name="nationality" class="form-control" required>
-                                            </div>
-                                            <div class="col-md-2 form-check form-check-inline">
-                                                <p>*وضعیت تاهل :</p>
-                                                <input type="radio" id=" " name="marital_status" value="مجرد"
-                                                    class="form-check-input" required>
-                                                <label for="html">مجرد</label><br>
-                                                <input type="radio" id="" name="marital_status" value="متاهل"
-                                                    class="form-check-input" required>
-                                                <label for=" ">متاهل</label><br>
-
-                                            </div>
-                                            <div class="col-md-2 form-check form-check-inline">
-                                                <p>*جنسیت :</p>
-                                                <input class="form-check-input" type="radio" id=" " name="sex"
-                                                    value="آقا" required>
-                                                <label for="html">آقا</label><br>
-                                                <input class="form-check-input" type="radio" id="" name="sex"
-                                                    value="خانم" required>
-                                                <label for=" ">خانم</label><br>
-
-                                            </div>
-                                        </div>
-                                        <div class="form-row mb-2">
-                                            <div class="col-md-6">
-                                                <label>*سابقه بیمه</label>
-                                                <input type="number" name="bime_history" class="form-control" min="0"
-                                                    value="0" placeholder="سابقه بیمه(درصورت داشتن بیمه براساس ماه)"
-                                                    required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>نوع شغل درخواستی</label>
-                                                <input type="text" name="work_type"
-                                                    value="{{ $recruitment_notice->title }}" class="form-control "
-                                                    readonly placeholder="نوع شغل درخواستی" required>
-                                            </div>
-                                        </div>
-                                        <div class="form-row mb-2">
-                                            <div class="col-md-12">
-                                                <label>در صورتی که توضیحی دارید در کادر ذیل وارد نمایید:</label>
-                                                <textarea name="text" class="form-control " rows="6"
-                                                    placeholder="توضیحات مربوطه"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-row mb-2">
-
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark">آدرس </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>*نشانی محل سکونت :</label>
-                                                <input name="address" class="form-control" required>
-                                            </div>
-                                            <div class="col-md-3 form-check form-check-inline">
-                                                <p>*وضعیت مسکن :</p>
-                                                <input type="radio" id=" " name="housing_situation" value="شخصی"
-                                                    required>
-                                                <label for="html">شخصی</label><br>
-                                                <input type="radio" id="" name="housing_situation" value="اجاره ای"
-                                                    required>
-                                                <label for=" ">اجاره ای</label><br>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>تلفن تماس (ثابت):</label>
-                                                <input name="telephone" class="form-control">
-
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark">*خدمت وظیفه عمومی(ورود اطلاعات برای آقایان
-                                                    الزامی است ) </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <p>انجام خدمت وظیفه عمومی :</p>
-                                                <input type="radio" id=" " name="military_service_status" value="بله">
-                                                <label for="html">بله</label><br>
-                                                <input type="radio" id="" name="military_service_status" value="خیر">
-                                                <label for=" ">خیر</label><br>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <p>معافیت سربازی :</p>
-                                                <input type="radio" id=" " name="exemption_military_service "
-                                                    value="بله">
-                                                <label for="html">بله</label><br>
-                                                <input type="radio" id="" name="exemption_military_service "
-                                                    value="خیر">
-                                                <label for=" ">خیر</label><br>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>نوع معافیت:</label>
-                                                <input name="exemption_military_service_type" class="form-control">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>تاریخ اتمام معافیت:</label>
-                                                <input name="exemption_military_service_end_date" type="text"
-                                                    class="form-control exemption_military_service_end_date ">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>محل خدمت:</label>
-                                                <input name="military_service_location" class="form-control">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>تاریخ خاتمه خدمت:</label>
-                                                <input name="military_service_end_date"
-                                                    class="form-control military_service_end_date ">
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark">*آخرین مدرک تحصیلی </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*مدرک تحصیلی:</label>
-                                                <input name="degree_of_education" class="form-control" required>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>*رشته تحصیلی:</label>
-                                                <input name="field_of_Study" class="form-control">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>معدل کل:</label>
-                                                <input name="total_average" class="form-control">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label>نام و آدرس محل دریافت مدرک تحصیلی :</label>
-                                                <input name="education_location" class="form-control">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label>تاریخ اخذ مدرک:</label>
-                                                <input name="education_end_date"
-                                                    class="form-control education_end_date">
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark">نحوه همکاری </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <p>*تمایل به همکاری به صورت :</p>
-                                                <input type="radio" id=" " name="cooperation_type" value="تمام وقت"
-                                                    required>
-                                                <label for="html">تمام وقت</label><br>
-                                                <input type="radio" id="" name="cooperation_type" value="پاره وقت "
-                                                    required>
-                                                <label for="">پاره وقت</label><br>
-                                            </div>
-                                            <div class="col-md-10">
-                                                <p>در صورت تمایل به کار پاره وقت ساعات و روزهای همکاری را دقیقا اعلام
-                                                    فرمایید :</p>
-                                                <textarea class="form-control" name="description_half_time">
-
-                                                </textarea>
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark">سوابق شغلی </div>
-                                            </div>
-                                            <div class="col-md-12">
-                                                <label>*سوابق شغلی</label>
-                                                <textarea name="work_history" class="form-control  font-14" rows="6"
-                                                    placeholder="سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)"
-                                                    required></textarea>
-
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark"> زبان </div>
-                                            </div>
-                                            <div class="col-md-6 form-check form-check-inline row">
-                                                <div class="col-md-12"> *تسلط به زبان انگلیسی:</div>
-                                                <input class="form-check-inline" type="radio" id=" "
-                                                    name="en_lang_quality" value="ضعیف" required>
-                                                <label for="html">ضعیف</label><br>
-                                                <input class="form-check-inline" type="radio" id=""
-                                                    name="en_lang_quality" value="متوسط" required>
-                                                <label for=" ">متوسط</label><br>
-                                                <input class="form-check-inline" type="radio" id=""
-                                                    name="en_lang_quality" value="خوب" required>
-                                                <label for=" ">خوب</label><br>
-                                                <input class="form-check-inline" type="radio" id=""
-                                                    name="en_lang_quality" value="عالی" required>
-                                                <label for=" ">عالی</label><br>
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark"> آشنایی به کامپیوتر </div>
-                                            </div>
-                                            <div class="col-md-10">
-                                                <p>در صورتی که به نرم افزار های آفیس و یا هر نرم افزار دیگری تسلطی دارید
-                                                    نام برده و میزان تسلط خود را ذکر فرمایید :</p>
-                                                <textarea class="form-control" name="computer_skill">
-                                                </textarea>
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark"> جزئیات درخواست </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>*تاریخی که میتوانید مشغول به کار گردید:</label>
-                                                <input name="start_work_date" class="form-control start_work_date"
-                                                    required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label>*حقوق درخواستی (ریال):</label>
-                                                <input name="rights_requested" type="text" class="form-control"
-                                                    required oninput="separatePrices(this)">
-                                            </div>
-                                            <div class="col-md-6 form-check form-check-inline">
-                                                <label>*در صورت انتقال یا ماموریت حاضر به رفتن به شهرستانها و شعبات دیگر
-                                                    هستید ؟</label>
-                                                <input class="form-check-inline" type="radio" id=" " name="transfer_job"
-                                                    value="بله" required>
-                                                <label for="html">بله</label><br>
-                                                <input class="form-check-inline" type="radio" id=" " name="transfer_job"
-                                                    value="خیر" required>
-                                                <label for="html">خیر</label><br>
-                                            </div>
-                                            <div class="col-md-6 form-check form-check-inline">
-                                                <label>*اکنون مشغول به کار هستید ؟</label>
-                                                <input class="form-check-inline" type="radio" id=" " name="busy_now"
-                                                    value="بله" required>
-                                                <label for="html">بله</label><br>
-                                                <input class="form-check-inline" type="radio" id=" " name="busy_now"
-                                                    value="خیر" required>
-                                                <label for="html">خیر</label><br>
-                                            </div>
-                                            <div class="col-md-12 form-check form-check-inline">
-                                                <label>*در صورت انعقاد قرارداد آیا توانایی ارائه ضمانت نامه معتبر دارید
-                                                    ؟</label>
-                                                <input class="form-check-inline" type="radio" id=" "
-                                                    name="can_guarantee" value="بله" required>
-                                                <label for="html">بله</label><br>
-                                                <input class="form-check-inline" type="radio" id=" "
-                                                    name="can_guarantee" value="خیر" required>
-                                                <label for="html">خیر</label><br>
-                                            </div>
-                                            <div class="col-md-12 form-check form-check-inline">
-                                                <label>*نوع ضمانت ؟</label>
-                                                <input class="form-check-inline" type="radio" id=" " name="guarantee"
-                                                    value="چک" required>
-                                                <label for="html">چک</label><br>
-                                                <input class="form-check-inline" type="radio" id=" " name="guarantee"
-                                                    value="سفته" required>
-                                                <label for="html">سفته</label><br>
-                                                <input class="form-check-inline" type="radio" id=" " name="guarantee"
-                                                    value="ضمانت محضری" required>
-                                                <label for="html">ضمانت محضری</label><br>
-                                            </div>
-
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark"> آشنایی با کارکنان :</div>
-                                            </div>
-                                            <div class="col-md-12 form-check form-check-inline">
-                                                <label>*آیا آشنایی نسبی با هیچ یک از کارکنان این شرکت دارید؟</label>
-                                                <input class="form-check-inline" type="radio" id=" "
-                                                    name="relative_familiarity" value="بله" required>
-                                                <label for="html">بله</label><br>
-                                                <input class="form-check-inline" type="radio" id=" "
-                                                    name="relative_familiarity" value="خیر" required>
-                                                <label for="html">خیر</label><br>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label>نسبت:</label>
-                                                <input name="relative_family_type" class="form-control">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label>نام:</label>
-                                                <input name="relative_family_name" class="form-control">
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label>قسمت:</label>
-                                                <input name="relative_family_part" class="form-control">
-                                            </div>
-                                            <div class="col-md-12">
-                                                <div class="alert alert-dark"> تایید صحت اطلاعات وارده: </div>
-                                            </div>
-                                            <div class="col-md-12 row form-check form-check-inline">
-                                                <p>با دادن اطلاعات مندرج این پرسشنامه درخواست کار در شرکت را نموده و
-                                                    متعهد میشوم که به کلیه سوالات فوق پاسخ صحیح و با اطلاع کامل از مفهوم
-                                                    آنها داده ام و در صورتی که کذب هر یک از جوابها معلوم شود ، به منزله
-                                                    استعفا من از شرکت تلقی خواهد شد و همچنین به این شرکت اجازه میدهم هر
-                                                    نوع تحقیقاتی را که لازم بداند ، درباره اینجانب انجام دهد . ضمنا در
-                                                    صورت استحدام کلیه مقررات آیین نامه های استخدامی این شرکت را اعم از
-                                                    فعلی یا آتی قبول دارم. </p>
-                                                <div class="col-md-12">
-                                                    <label>*تایید میکنم:</label>
-                                                    <input name="accept_rules" value="بله" type="checkbox" required
-                                                        class="form-check-input">
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-
+                                    <div class="row mt-4">
                                         <div class="col-md-12">
-                                            <div class="alert alert-dark"> فایل رزومه: </div>
+                                            <div class="alert alert-dark">مشخصات شخصی</div>
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label>* نام</label>
+                                            <input type="text" name="name" placeholder="نام" class="form-control"
+                                                required>
+                                        </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label for=""> * نام خانوادگی</label>
+                                            <input type="text" name="family" placeholder=" نام خانوادگی"
+                                                class="form-control " required>
                                         </div>
 
-                                        <div class="form-row mb-2">
-                                            <input type="file" name="resume" id="file" accept=".pdf,.jpg,.jpeg">
-                                            <div class="col-md-12">
-                                                <p>توجه : کاربر گرامی در صورت داشتن فایل رزومه جداگانه لطفا رزومه را با
-                                                    فرمت pdf,jpg,jpeg آپلود کنید.</p>
-                                            </div>
-                                            <input type="submit" value="ارسال درخواست"
-                                                class="btn btn-success mr-2 send-resume-btn">
+                                        <div class="col-md-4 mb-2">
+                                            <label> * انتخاب استان</label>
+                                            <select class="form-control province_id" type="int" name="province"
+                                                id="province_id" required>
+                                                <option value="">انتخاب استان</option>
+                                                @foreach(\App\Models\Province::all() as $province)
+                                                <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
+                                        <div class="col-md-4 mb-2">
+                                            <label> * انتخاب شهر</label>
+                                            <select class="form-control city_id" type="int" name="city" id="city_id"
+                                                required>
+                                                <option value="">انتخاب شهر</option>
+                                                @foreach(\App\Models\City::all() as $city)
+                                                <option value="{{ $city->id }}">{{ $city->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4 mb-2">
+                                            <label> * تلفن همراه</label>
+                                            <input type="text" name="phone" placeholder="تلفن همراه"
+                                                class="form-control" required>
+                                        </div>
+
+                                        <div class="col-md-4 mb-2">
+                                            <label> * جنسیت :</label>
+                                            <select class="form-control" name="gender">
+                                                <option value="0">
+                                                    آقا
+                                                </option>
+                                                <option value="1">
+                                                    خانم
+                                                </option>
+                                            </select>
+                                        </div>
+
+
+                                        <div class="col-12 m2">
+                                            <label> فایل رزومه: </label>
+                                            <input type="file" name="resume" id="file" accept=".pdf,.jpg,.jpeg">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <p>توجه : کاربر گرامی در صورت داشتن فایل رزومه جداگانه لطفا رزومه را با
+                                                فرمت pdf,jpg,jpeg آپلود کنید.</p>
+                                        </div>
+                                        <input type="submit" value="ارسال درخواست"
+                                            class="btn btn-success mr-2 send-resume-btn">
                                     </div>
                                 </form>
                             </div>
@@ -587,5 +238,28 @@
                     });
                 });
             })
+            //select province
+$('.province_id').on('change', function () {
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var id = $(this).val();
+    $.ajax({
+        url: '/city/select',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            "_token": token,
+            "id": id,
+        },
+        success: function (data) {
+            $('.city_id')
+                .empty()
+                .append('<option value="all">انتخاب شهر</option>')
+            ;
+            $.each(data.cities, function (i, d) {
+                $('.city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
+            });
+        }
+      });
+});
 </script>
 @endsection
