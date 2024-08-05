@@ -176,7 +176,14 @@
                         <label>آدرس</label>
                         <input type="text" value="{{ $center->address }}" class="form-control" name="address">
                     </div>
-
+                    <div class="col-12 col-md-6 mb-3">
+                        <label>شماره قرارداد</label>
+                        <input type="text" value="{{ $center->contract_number }}" class="form-control" name="contract_number">
+                    </div>
+                    <div class="col-12 col-md-6 mb-3">
+                        <label>تاریخ قرارداد</label>
+                        <input value="{{ $center->contract_start_date }}" type="text" name="contract_start_date" class="form-control date">
+                    </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>توضیحات مرکز</label>
                         <textarea type="text" class="form-control"
