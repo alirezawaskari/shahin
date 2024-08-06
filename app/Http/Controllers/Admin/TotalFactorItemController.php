@@ -459,6 +459,7 @@ class TotalFactorItemController extends Controller
 
                 $fator_item_collections->update([
                     'status_factor' => 10,
+                    'confirm' => true,
                 ]);
                 //close older sessions
                 Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
