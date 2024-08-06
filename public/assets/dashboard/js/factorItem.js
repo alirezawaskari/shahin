@@ -2,7 +2,37 @@ var basic_doc = $('#basic_documnet_div').html();
 var orginal_doc = $('#original_document_div').html();
 var registrationInitialConsultation_doc = $('#registrationInitialConsultation').html();
 var basic_document_executive_doc = $('#basic_document_executive').html();
-
+//basicDocumentExecutiveAppend
+var elements = document.querySelectorAll('div[id^="basic_document_executive_collection_"]');
+var basic_document_executive_collection_doc = [];
+elements.forEach(element => {
+    basic_document_executive_collection_doc[element.id] = $('#'+element.id).html();
+});
+function basicDocumentExecutiveAppend(basic_document_executive_collection_id) {
+    var elements = document.querySelectorAll('div[id^="basic_document_executive_collection_"]');
+    elements.forEach(element => {
+        $('#'+element.id).empty();
+    });
+    var basic_document_executive_collection_div = document.createElement('div');
+    basic_document_executive_collection_div.innerHTML = basic_document_executive_collection_doc[basic_document_executive_collection_id];
+    $('#'+basic_document_executive_collection_id).append(basic_document_executive_collection_div);
+};
+//consultationReferralAppend
+var elements = document.querySelectorAll('div[id^="consultation_referral_collection_"]');
+var consultation_referral_collection_doc = [];
+elements.forEach(element => {
+    consultation_referral_collection_doc[element.id] = $('#'+element.id).html();
+});
+function consultationReferralAppend(consultation_referral_collection_id) {
+    var elements = document.querySelectorAll('div[id^="consultation_referral_collection_"]');
+    elements.forEach(element => {
+        $('#'+element.id).empty();
+    });
+    var consultation_referral_collection_div = document.createElement('div');
+    consultation_referral_collection_div.innerHTML = consultation_referral_collection_doc[consultation_referral_collection_id];
+    $('#'+consultation_referral_collection_id).append(consultation_referral_collection_div);
+    document.getElementById("defaultOpen").click();
+};
 $("body").on('click', '#orginal-document-panel', function () {
     $("#basic_documnet_div").empty();
     $("#original_document_div").empty();
@@ -19,7 +49,7 @@ $("body").on('click', '#basic-document-tab', function () {
     $("#basic_documnet_div").append(basic_div);
 });
 
-$("body").on('click', '#turn-ratings-tab', function () {
+$("body").on('click', '#consultation-referral-tab', function () {
     $("#basic_document_executive").empty();
     $("#registrationInitialConsultation").empty();
     var registrationInitialConsultation_div = document.createElement('div');
