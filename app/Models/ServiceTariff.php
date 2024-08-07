@@ -50,6 +50,13 @@ class ServiceTariff extends Model
     {
         return $this->belongsTo(Tariff::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

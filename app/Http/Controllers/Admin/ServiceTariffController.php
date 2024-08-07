@@ -96,7 +96,8 @@ class ServiceTariffController extends Controller
      * @return ServiceTariffCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function filter(Request $request ) {
-        $service_tariffs = ServiceTariff::filter($request)->latest();
+        $center = Center::find($request->center_id);
+        $service_tariffs = $center->serviceTariffs()->where('service_id' , $request->service_id)->filter($request)->latest();
         if (isset($request->excel) && $request->excel == 'on') {
             return (new ServiceTariffExport($service_tariffs))->download('service_tariffs.xlsx');
         }

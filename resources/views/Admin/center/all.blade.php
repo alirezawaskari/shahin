@@ -57,9 +57,11 @@
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                             </a>
                             <div class="dropdown-menu">
-                                <a href="{{ route('center.serviceTariff' , [$item->id]) }}"
-                                    class="dropdown-item pointer" target="_blank">فهرست تعرفه ها
+                                @foreach ($item->services as $service)
+                                <a href="{{ route('center.serviceTariff' , [$item->id,$service->slug]) }}"
+                                    class="dropdown-item pointer" target="_blank">فهرست تعرفه ها ({{$service->title}})
                                 </a>
+                                @endforeach
                                 @permission('edit-center')
                                 @if(!auth()->user()->admin_representation_id)
                                 <a href="{{ route('center.edit' , [ $item->id]) }}" class="dropdown-item pointer"

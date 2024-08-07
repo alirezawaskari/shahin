@@ -132,10 +132,8 @@ class CenterController extends AdminController
     }
 
     public function serviceTariffs(Center $center , Service $service) {
-        $service_tariffs = $center->serviceTariffs->with('tariff' );
         $tariffs = $service->tariffs;
-
-        return view( 'Admin.center.serviceTariffList', compact( 'service_tariffs' , 'center','tariffs') );
+        return view( 'Admin.center.serviceTariffList', compact('center', 'service' ,'tariffs') );
     }
 
     public function createServiceTariff(Center $center)

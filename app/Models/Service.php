@@ -96,7 +96,13 @@ class Service extends Model
     {
         return $this->hasMany(Tariff::class)->orderBy('id' , 'desc');
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function serviceTariffs()
+    {
+        return $this->hasMany(ServiceTariff::class)->orderBy('id' , 'desc');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
