@@ -38,6 +38,23 @@ class Service extends Model
     ];
 
     /**
+     *purchaseTypes
+     */
+    const PURCHASETYPE = [
+        '0' => 'آنلاین',
+        '1' => 'حضوری',
+        '2' => 'هر دو',
+    ];
+
+    /**
+     *payTypes
+     */
+    const PAYTYPE = [
+        '0' => 'نقد',
+        '1' => 'اقساط',
+        '2' => 'هر دو',
+    ];
+    /**
      * @return \string[][]
      */
     public function sluggable():array
@@ -309,6 +326,42 @@ class Service extends Model
     public function menu()
     {
         return $this->morphOne(Menu::class, 'menuable');
+    }
+        /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        $title = request('title');
+        $purchase_type = request('purchase_type');
+        $pay_type = request('pay_type');
+
+        if (auth()->user()->admin_representation) {
+            $representation = auth()->user()->admin_representation->id;
+            $query->whereHas('representations', function ($query) use ($representation) {
+                $query->where('representation_id', $representation);
+            });
+        }
+        if (auth()->user()->center_id) {
+            $center = auth()->user()->center_id;
+            $query->whereHas('centers', function ($query) use ($center) {
+                $query->where('center_id', $center);
+            });
+        }
+
+        if (isset($title) && trim($title) != '') {
+            $query->where('title', 'LIKE', '%' . $title . '%');
+        }
+
+        if (isset($purchase_type) && $purchase_type != 'all') {
+            $query->where('purchase_type',$purchase_type);
+        }
+
+        if (isset($pay_type) && $pay_type != 'all') {
+            $query->where('pay_type',$pay_type);
+        }
+        return $query;
     }
     /**
      * @param Service $item

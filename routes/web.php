@@ -380,6 +380,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
     Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');
     Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
+    Route::get('/service/filter', 'ServiceController@filter');
     Route::resource('service', 'ServiceController');
     Route::resource('serviceItem', 'ServiceItemController');
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Http\Resources\ServiceCollection;
 use App\Http\Resources\ServiceItemCollection;
 use App\Models\AskedQuestion;
 use App\Models\BeforeForm;
@@ -26,41 +27,43 @@ class ServiceController extends AdminController
     public function index(Request $request)
     {
         $services = Service::orderBy('id', 'DESC');
-        $queries=[];
-        $columns=['title','pay_type','purchase_type'];
+        // $columns=['title','pay_type','purchase_type'];
 
-        foreach ($columns as $column) {
-            if($request->has($column)){
-                if ($request->$column != null) {
-                    if ($column == 'title') {
-                        $services = $services->where($column, 'like', '%' . $request->$column . '%');
-                        $queries[$column] = $request->$column;
-                    }
-                }
-                if ($column == 'pay_type' || $column == 'purchase_type' ) {
-                    if($request->$column != 'all'){
-                        $services = $services->where($column, 'like', '%' . $request->$column . '%');
-                        $queries[$column]=$request->$column;
-                    }
-                    if($request->$column == 'all'){
-                        $queries[$column]='all';
-                    }
-                }
-            }
-        }
-
-        $services = $services->paginate(20)->appends($queries);
-
-        if ($request->ajax()) {
-            return view('Admin.service.load', ['services' => $services])->render();
-        }
+        // foreach ($columns as $column) {
+        //     if($request->has($column)){
+        //         if ($request->$column != null) {
+        //             if ($column == 'title') {
+        //                 $services = $services->where($column, 'like', '%' . $request->$column . '%');
+        //                 $queries[$column] = $request->$column;
+        //             }
+        //         }
+        //         if ($column == 'pay_type' || $column == 'purchase_type' ) {
+        //             if($request->$column != 'all'){
+        //                 $services = $services->where($column, 'like', '%' . $request->$column . '%');
+        //                 $queries[$column]=$request->$column;
+        //             }
+        //             if($request->$column == 'all'){
+        //                 $queries[$column]='all';
+        //             }
+        //         }
+        //     }
+        // }
 
         $pay_type = [0 => 'نقدی', 1 => 'اقساطی',2 => 'هر دو'];
         $purchase_type = [ 0 => 'آنلاین', 1=>'حضوری',2=>'هر دو'];
 
-        return view('Admin.service.all', compact('services','queries','pay_type','purchase_type'));
+        return view('Admin.service.all', compact('pay_type','purchase_type'));
     }
 
+    /**
+     * @return ServiceCollection
+     */
+    public function filter()
+    {
+        $services = Service::filter()->latest();
+
+        return new ServiceCollection($services->paginate(20));
+    }
     /**
      * Show the form for creating a new resource.
      *
