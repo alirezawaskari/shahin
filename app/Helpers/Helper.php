@@ -201,8 +201,8 @@ class Helper {
     public static function historyCollection($histories , $item_histories) {
         foreach ( $item_histories as $history ) {
             $histories[] = [
-                'user' => $history->user ? $history->user[ 'name' ] . ' ' . $history->user[ 'family' ] : 'ثبت نشده',
-                'callcenter' => $history->callcenter ? $history->callcenter[ 'name' ] . ' ' . $history->callcenter[ 'family' ] : $history->user[ 'name' ] . ' ' . $history->user[ 'family' ],
+                'user' => $history->user ? ($history->user[ 'name' ] . ' ' . $history->user[ 'family' ]) : 'ثبت نشده',
+                'callcenter' => $history->callcenter ? ($history->callcenter[ 'name' ] . ' ' . $history->callcenter[ 'family' ]) : ($history->user ? ($history->user[ 'name' ] . ' ' . $history->user[ 'family' ]) : 'ثبت نشده'),
                 'description' => $history->description,
                 'date' => verta( $history->created_at )->format( '%d %B ، %Y - H:i' ),
                 'created_at' => $history->created_at,

@@ -421,7 +421,7 @@
                 <div class="col-md-3 row align-items-end d-md-none">
 
                     <div class="col-md-4">
-                        {!! $setting->enamad !!}
+                        <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=40920&Code=6abmm9WQ9521uXon0exd'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=40920&Code=6abmm9WQ9521uXon0exd' alt='' style='cursor:pointer' code='6abmm9WQ9521uXon0exd'></a>
                     </div>
                     <div class="col-md-4">
                         <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer;'

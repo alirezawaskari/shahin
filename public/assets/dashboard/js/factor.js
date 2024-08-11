@@ -164,7 +164,7 @@ $(document).ready(function () {
                                     مشاهده فاکتور
                                  </a>
                                 </span>
-                                <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-sendMe dropdown-item pointer">ارسال لینک به من</span>
+                                <span data-id="${data.resnumber}" class="factor-sendMe dropdown-item pointer">ارسال لینک به من</span>
                                 <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
 
                             </div></div>`
