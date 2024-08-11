@@ -58,7 +58,7 @@ class BeforeForm extends Model
         'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار',
         'panel_complation_file_work' => 'اتمام کار',
         'panel_print_form' => 'پرینت فرم ثبت نام',
-        'panel_show_file' => 'امورات اداری و مالی پرونده',
+        'panel_show_file' => 'امور اداری و مالی پرونده',
         'panel_basic_document' => 'مدارک اولیه پرونده',
         'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز'
     ];

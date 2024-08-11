@@ -28,6 +28,7 @@ class CreateCentersTable extends Migration
 		$table->integer('province_id')->unsigned()->nullable()->default(NULL);
 		$table->text('image')->nullable()->default(NULL);
 		$table->integer('status');
+        $table->text('contract_number')->default(NULL);
 		$table->integer('is_show')->default(0);
         $table->text('description')->nullable()->default(NULL);
 

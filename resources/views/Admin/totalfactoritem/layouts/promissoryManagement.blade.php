@@ -78,7 +78,7 @@
                             <td>
                                 @switch ($promissory->status)
                                     @case(0)
-                                    <span class="badge badge-warning">بایگانی</span>
+                                    <span class="badge badge-warning">رسوب در خزانه</span>
                                     @break
                                     @case(1)
                                     <span class="badge badge-success">عودت داده شده</span>
@@ -346,7 +346,7 @@
                                                     <input id="promissory-payto-phone" name="pay_to_phone"
                                                            oninput="searchUser(this.value,'pay_to')"
                                                            class="form-control" placeholder=""
-                                                           value="{{\App\Models\User::find(63)->phone}}" required>
+                                                           value="{{\App\Models\User::find(15563)->phone}}" required>
                                                     <p class="text-danger text-center pay_to_error_user"></p>
                                                 </div>
 

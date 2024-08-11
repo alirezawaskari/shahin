@@ -126,8 +126,11 @@ class FactorItemController extends Controller {
      * @return FactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function filter(Request $request ) {
-        $factor_items = FactorItem::filter()->latest();
 
+        $factor_items = FactorItem::filter()->latest();
+        if ( auth()->user()->center_id ) {
+            $factor_items = FactorItem::where( 'confirm', true )->filter();
+        }
         if ( $request->exel == 'on' ) {
             return ( new FactorItemsExport( $factor_items ) )->download( 'factorItems.xlsx' );
         }
@@ -143,7 +146,7 @@ class FactorItemController extends Controller {
         if ( auth()->user()->center_id ) {
             $factor_items = FactorItem::where( 'status_factor', 10 )->filter();
         }
-        if (auth()->user()->isAbleTo('file-desktop')){
+        elseif (auth()->user()->isAbleTo('file-desktop')){
             $factor_items = FactorItem::whereIn( 'status_factor', array(0,4,14) )->where('supporter_id', auth()->user()->id)->filter();
         }
         if (auth()->user()->hasPermission('factor_item_referral_to_center'))
@@ -165,7 +168,7 @@ class FactorItemController extends Controller {
         $item = $request->item;
         $item['id'] = $request->id;
         self::formData( $item );
-        if(isset($item) && $item['typeConsultation'] == 'online')
+        if(isset($item['typeConsultation']) && $item['typeConsultation'] == 'online')
         {
             alert()->success('عملیات موفق')->autoclose(4000)->persistent('باشه');
             return redirect()->back();
@@ -225,7 +228,7 @@ class FactorItemController extends Controller {
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
                 'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
-                'description_before' => isset($item) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
             ]);
         }
         alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
@@ -315,7 +318,7 @@ class FactorItemController extends Controller {
         Session::checkAndStartEntryVisitSession($factor_item);
 
         $factor_item->update( [
-            'status_factor' => $factor_item->status_factor <= 3 ? 2 : $factor_item->status_factor,
+            'status_factor' => $factor_item->status_factor <= 3 ? 14 : $factor_item->status_factor,
             'complete' => true,
             'status' => 1,
             'file_number' => $request->file_number ? $request->file_number : $factor_item->file_number,
@@ -1403,6 +1406,7 @@ class FactorItemController extends Controller {
     {
         $factorItem->update( [
             'status_factor' => 10,
+            'confirm' => true,
         ] );
         //close older sessions
         Session::whereIn('status',[3,5])->where('factor_item_id',$factorItem->id)->update([

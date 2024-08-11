@@ -30,7 +30,7 @@ class Promissory extends Model implements AuditableContract
     public static function status($status)
     {
         return [
-            '0' => 'بایگانی',
+            '0' => 'رسوب در خزانه',
             '1' => 'عودت داده شده'
         ][$status];
     }

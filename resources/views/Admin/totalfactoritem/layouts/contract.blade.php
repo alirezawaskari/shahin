@@ -87,8 +87,8 @@
                 دهنده ضمیمه قرارداد است) بهره مند می گردد.<br>
             </span>
             <span lang="FA" style="line-height: 150%;">این قرارداد
-                دارای یک الحاقیه به شماره ی {{ $contract_number ? $contract_number : '101076 د/ج/ک'}}
-                مورخ 1403/03/07 راجع به تعهدات خدمات دهندگان می باشد که جزء لاینفک قرارداد است.<br>
+                دارای یک الحاقیه به شماره ی {{ $contract_number ? $contract_number : ''}}
+                 راجع به تعهدات خدمات دهندگان می باشد که جزء لاینفک قرارداد است.<br>
             </span>
             <span lang="FA" style="line-height: 150%;">&nbsp;</span>
             <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 3 : مبلغ

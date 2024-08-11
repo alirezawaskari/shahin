@@ -21,10 +21,6 @@ $(document).ready(function () {
     fetchData(1);
     var first_load=true;
     var do_filter_command=false;
-    /*    if checkbox of transfer checked for all requests   */
-
-
-
     /*    click on do filter */
     $("body").on('click', '#do_filter', function (event) {
         if ($('#exel').prop('checked') == true) {

@@ -1,4 +1,3 @@
-@permission('basic_document')
 <div id="accordion" class="panel-group">
     <div class="panel">
         <div class="panel-heading">
@@ -9,44 +8,69 @@
         </div>
         <div id="basic_document_executive" class="panel-collapse collapse">
             <div class="panel-body">
-                @foreach ($items as $key => $factorItem)
-                @foreach ($factorItem['factorItems'] as $factor_item)
-                <h6> <i class="fa fa-list"></i> {{ $factor_item->factor->user->name . ' '
-                    .$factor_item->factor->user->family.' : '.$factorItem['factoritemable']->title .' - '.
-                    $factorItem['financial_plans_type']}}</h6>
-                <div class="card border shadow-lg">
-                    <div class="card-header"> تکمیل اطلاعات اجرایی پرونده: </div>
-                    <div class="card-body">
-                        <form action="{{ route('factorItem.information')}}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">
-                            <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
-                            <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
-                            @if(!is_null($factorItem['centers']) || !is_null($factorItem['forms']))
-                            <div class="row p-3 position-relative">
-                                @if(!is_null($factorItem['forms']))
-                                @foreach($factorItem['forms'] as $form)
-                                @if (in_array('panel_basic_document' , $form->data_display_level))
-                                @include('Admin.factoritem.layouts.formItem')
+                @foreach ($items as $key => $factor_item)
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
+                    <li class="nav-item">
+                        <a class="nav-link show {{$count==0 ? 'active' :''}}" onclick="basicDocumentExecutiveAppend('basic_document_executive_collection_{{$factorItem->id}}')" id="basic_document_executive_collection_{{$factorItem->id}}-tab" data-toggle="tab" href="#basic_document_executive_collection_{{$factorItem->id}}" role="tab"
+                            aria-controls="factor" aria-selected="false">پرونده {{$factorItem->factor->user->name . ' '.$factorItem->factor->user->family}}</a>
+                    </li>
+                    @endforeach
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
+                    <div class="tab-pane fade p-t-20 {{$count==0 ? 'active show' :''}}" id="basic_document_executive_collection_{{$factorItem->id}}" role="tabpanel" aria-labelledby="basic_document_executive_collection_{{$factorItem->id}}-tab">
+                        <h6> <i class="fa fa-list"></i> {{ $factorItem->factor->user->name . ' '
+                            .$factorItem->factor->user->family.' : '.$factor_item['factoritemable']->title .' - '.
+                            $factor_item['financial_plans_type']}}</h6>
+                        <div class="card border shadow-lg">
+                            <div class="card-header"> تکمیل اطلاعات اجرایی پرونده: </div>
+                            <div class="card-body">
+                                <form action="{{ route('factorItem.information')}}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="item[id]" value="{{ $factor_item['id'] }}">
+                                    <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
+                                    <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
+                                    @if(!is_null($factor_item['centers']) || !is_null($factor_item['forms']))
+                                    <div class="row p-3 position-relative">
+                                        @if(!is_null($factor_item['forms']))
+                                        @foreach($factorItem->factoritemable->beforeforms as $form)
+                                        @if (in_array('panel_basic_document' , $form->data_display_level))
+                                        @include('Admin.factoritem.layouts.formItem')
+                                        @endif
+                                        @endforeach
+                                        @endif
+                                        <div class="success-overly position-absolute mx-3"></div>
+                                    </div>
+                                    <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
+                                    @endif
+                                </form>
+                                <hr>
+                                @if ($factor_item['status_factor'] == 14)
+                                <div class="row p-3 position-relative">
+                                    @if(!is_null($factor_item['forms']))
+                                    @foreach($factorItem->factoritemable->beforeforms as $form)
+                                    @if (in_array('panel_determine_center' , $form->data_display_level))
+                                    @include('Admin.factoritem.layouts.formItem')
+                                    @endif
+                                    @endforeach
+                                    @endif
+                                    <div class="success-overly position-absolute mx-3"></div>
+                                </div>
                                 @endif
-                                @endforeach
-                                @endif
-                                <div class="success-overly position-absolute mx-3"></div>
                             </div>
-                            <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
-                            @endif
-                        </form>
+                        </div>
+                        @if (in_array(trim($factor_item['status_factor']) , [0,4,14,16]) )
+                        @include('Admin.factoritem.show.turnRatings')
+                        @endif
+                        @if (in_array(trim($factor_item['status_factor']) , [0,4,14]) )
+                        <a href="{{route('factorItem.referral' , [ $factor_item['resnumber']])}}"><span
+                                class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به
+                                مشاوره</span></a>
+                        @endif
                     </div>
+                    @endforeach
                 </div>
-                @if (in_array(trim($factorItem['status_factor']) , [0,4,14,16]) )
-                @include('Admin.factoritem.show.turnRatings')
-                @endif
-                @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
-                <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
-                        class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
-                        مشاوره</span></a>
-                @endif
-                @endforeach
                 @endforeach
             </div>
         </div>
@@ -147,7 +171,6 @@
                                         @if ($contract_form->value == $item['guarantee_type'])
                                         @switch($contract_form->type)
                                         @case('file')
-                                        @case('file')
                                         <div class="col-12 col-md-3 mb-2 mt-3">
                                             <div class="card">
                                                 @if (!isset($item['contract_values'][$contract_form->name]))
@@ -182,7 +205,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @break
                                         @break
                                         @case('text')
                                         <div class="col-12 col-md-3 mb-2">
@@ -255,4 +277,3 @@
     @endif
     @endpermission
 </form>
-@endpermission

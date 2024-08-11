@@ -354,7 +354,7 @@ class TotalFactorItemController extends Controller
     {
         $factor_items = $totalFactorItem->factorItems;
 
-        if (auth()->user()->hasRole('admin-site')) {
+        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id) , [0,4,14])) {
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
@@ -459,6 +459,7 @@ class TotalFactorItemController extends Controller
 
                 $fator_item_collections->update([
                     'status_factor' => 10,
+                    'confirm' => true,
                 ]);
                 //close older sessions
                 Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
@@ -475,7 +476,7 @@ class TotalFactorItemController extends Controller
                     'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
                 ]);
                 }
-
+            }
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }
 

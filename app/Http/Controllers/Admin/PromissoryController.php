@@ -282,7 +282,7 @@ class PromissoryController extends Controller
             $error_messages[] = 'درخواست نامعتبر ، عودت قبلا ثبت شده است .';
         }
         if ($request->status == 0 && $promissory->status == 0) {
-            $error_messages[] = 'درخواست نامعتبر ، بایگانی قبلا ثبت شده است .';
+            $error_messages[] = 'درخواست نامعتبر ، رسوب در خزانه قبلا ثبت شده است .';
         }
 
         return $error_messages;

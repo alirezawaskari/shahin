@@ -97,10 +97,10 @@
                                         <td> عملیات :</td>
                                         <td>
                                             <a href="{{route('factorItem.show',$item['detail']['factor_item']->resnumber)}}">
-                                                <span class="btn btn-primary btn-sm"> امورات اداری و مالی پرونده</span>
+                                                <span class="btn btn-primary btn-sm"> امور اداری و مالی پرونده</span>
                                             </a>
                                             <a href="{{route('factorItem.edit',$item['detail']['factor_item']->resnumber)}}">
-                                                <span class="btn btn-primary btn-sm">امورات اجرایی پرونده</span>
+                                                <span class="btn btn-primary btn-sm">امور اجرایی پرونده</span>
                                             </a>
 
                                                  <span class="btn btn-primary btn-sm factor-item-create-comment" data-toggle="modal"

@@ -23,9 +23,6 @@ $(document).ready(function () {
         }
     });
 
-
-
-
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,
@@ -165,7 +162,7 @@ $(document).ready(function () {
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                              <a href="../../../dashboard/totalFactorItem/${data.total_factor_item_id}" target="_blank">
-                            <button type="button" class="dropdown-item pointer">امورات ادارای و مالی پرونده</button></a>
+                            <button type="button" class="dropdown-item pointer">امور ادارای و مالی پرونده</button></a>
                             <button style="display: ${status_display}" type="button" class="dropdown-item pointer list-check-status" data-check_id="${data.id}" data-front_image="${data.front_image}" data-toggle="modal" data-target="#statusCheckModal">وضعیت</button>
                         </div></div>`
                     }
@@ -179,8 +176,6 @@ $(document).ready(function () {
             });
         }).draw();
     }
-
-
 });
 //---------------------on change status -------------------
 
@@ -196,30 +191,6 @@ $("#check-change-status").on("change", function () {
         $('#payment-date-box').slideUp();
         $('#receiver-box').slideUp();
     }
-});
-
-//--------------------SELECT PROVINCE OF EXPORTER--------------------
-$('#exporter_province_id').on('change', function () {
-    var token = $('meta[name="csrf-token"]').attr('content');
-    var id = $(this).val();
-    $.ajax({
-        url: '/city/select',
-        type: 'post',
-        dataType: 'json',
-        data: {
-            "_token": token,
-            "id": id,
-        },
-        success: function (data) {
-            $('#exporter_city_id')
-                .empty()
-                .append('<option value="all">انتخاب شهر</option>')
-            ;
-            $.each(data.cities, function (i, d) {
-                $('#exporter_city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
-            });
-        }
-    });
 });
 
 $(document).ready(function () {

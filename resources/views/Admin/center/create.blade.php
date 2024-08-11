@@ -155,6 +155,14 @@
                             <label>آدرس</label>
                             <input name="address" class="form-control" placeholder="آدرس دقیق مرکز را وارد نمایید">
                         </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label>شماره قرارداد</label>
+                            <input type="text" class="form-control" name="contract_number">
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label>تاریخ قرارداد</label>
+                            <input type="text" name="contract_start_date" class="form-control date">
+                        </div>
                     </div>
 
                     <div class="form-row">

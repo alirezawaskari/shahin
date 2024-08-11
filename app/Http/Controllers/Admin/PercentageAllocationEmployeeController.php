@@ -35,7 +35,7 @@ class PercentageAllocationEmployeeController extends AdminController {
     * @return PercentageAllocationEmployeeCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
     */
     public function filter( Request $request ) {
-        $percentage_allocation_employees = PercentageAllocationEmployee::filter()->latest();
+        $percentage_allocation_employees = PercentageAllocationEmployee::filter()->groupBy('user_id')->latest();
 
         if ( $request->excel == 'on' ) {
             //return ( new Export( $percentage_allocation_employees ) )->download( 'percentage_allocation_employees.xlsx' );

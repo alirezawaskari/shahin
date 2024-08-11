@@ -153,7 +153,7 @@ $(document).ready(function () {
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
-                                <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امورات اجرایی پرونده</button></a>
+                                <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امور اجرایی پرونده</button></a>
                                 <a href="../../dashboard/session/confirm/${data.id}">
                                 <button type="button" class="dropdown-item pointer">تایید و واریز به کیف پول</button></a>
                                 <button style="display: ${display}"  data-id="${data.id}" class="session_delete dropdown-item pointer">حذف</button>
@@ -164,7 +164,7 @@ $(document).ready(function () {
                             return `<div data-v-15965e3b="" class="dropdown">
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
-                                <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امورات اجرایی پرونده</button></a>
+                                <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امور اجرایی پرونده</button></a>
                                 ${(data.status == 'ویزیت اولیه')? `<button data-id="${data.id}" type="button" class="dropdown-item pointer visit-confirm">تایید برای ویزیت </button>`:''}
                                 <button style="display: ${display}"  data-id="${data.id}" class="session_delete dropdown-item pointer">حذف</button>
                                 </div>

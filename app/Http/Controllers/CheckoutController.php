@@ -103,7 +103,7 @@ public function store( Request $request ) {
         $factor_item->update( [
             'status_factor' => isset( $item[ 'type' ] ) && $item[ 'type' ] ? 4 : 14,
             'complete' => true,
-            'date' => Helper::vertaToMiladi($item[ 'date' ]),
+            'date' => isset($item[ 'date' ]) ? Helper::vertaToMiladi($item[ 'date' ]) : '',
         ] );
     }
     return redirect()->back()->with([
