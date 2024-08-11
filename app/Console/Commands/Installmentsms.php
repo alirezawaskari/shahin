@@ -58,8 +58,8 @@ class Installmentsms extends Command
         $first_installments = TotalFactorItemInstallment::whereDate('date', Carbon::now()->addDays(5))->where('status', '0')->where('remember', 0)->take(10)->get();
         if (count($first_installments) > 0) {
             foreach ($first_installments as $installment) {
-                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment) : false;
-                if ($installment->totalFactorItem && $installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
+                if ($installment->totalFactorItem && $installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -97,8 +97,8 @@ class Installmentsms extends Command
         $second_installments = TotalFactorItemInstallment::whereDate('date', Carbon::now()->addDays(3))->where('remember', 1)->where('status', '0')->take(10)->get();
         if (count($second_installments) > 0) {
             foreach ($second_installments as $installment) {
-                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment) : false;
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
+                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -132,8 +132,8 @@ class Installmentsms extends Command
         $third_installments = TotalFactorItemInstallment::whereDate('date', Carbon::now()->addDays(1))->where('remember', 2)->where('status', '0')->take(10)->get();
         if (count($third_installments) > 0) {
             foreach ($third_installments as $installment) {
-                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment) : false;
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
+                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -167,8 +167,8 @@ class Installmentsms extends Command
         $final_installments = TotalFactorItemInstallment::whereDate('date', Carbon::now()->toDateString())->where('remember', 3)->where('status', '0')->take(10)->get();
         if (count($final_installments) > 0) {
             foreach ($final_installments as $installment) {
-                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment) : false;
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
+                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -208,8 +208,8 @@ class Installmentsms extends Command
         if (count($expire_installments) > 0) {
             foreach ($expire_installments as $installment) {
                 $total_factor_item = $installment->totalFactorItem;
-                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment) : false;
-                if ($installment->totalFactorItem && $total_factor_item->status_mali != 0 && $is_check) {
+                $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
+                if ($installment->totalFactorItem && $total_factor_item->status_mali != 0 && !$is_check) {
                     $extra_pay = TotalFactorItem::getDebtExtraPay($total_factor_item);
                     $expire_installments_price = TotalFactorItem::getExpireInstallments($total_factor_item)->sum('price');
 
@@ -373,7 +373,7 @@ class Installmentsms extends Command
      */
     private function checkIsExistInstallmentCheck(TotalFactorItem $totalFactorItem)
     {
-        return $totalFactorItem->checks()->where('titls' , 'installment')->exist();
+        return $totalFactorItem->checks()->where('title' , 'installment')->exists();
     }
     /**
      * @param mixed $phone

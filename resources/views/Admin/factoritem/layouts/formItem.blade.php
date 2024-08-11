@@ -130,7 +130,7 @@
 @break
 @case('multi-select')
 <div class="col-12 col-md-4 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+    {!! $form->help !!}
     <select multiple class="form-control select2 {{ $form->class }}" {{ $form->required == true ?
         'required'
         : '' }} name="item[{{ $form->name }}][]">
@@ -165,8 +165,8 @@
 </div>
 @break
 @case('textarea')
-<div class="col-12 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+<div class="col-12 col-md-4 mb-2">
+    {!! $form->help !!}
     <textarea class="form-control {{ $form->class }}" {{
         $form->required == true ? 'required' : '' }} name="item[{{ $form->name }}]"> {{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}</textarea>
 </div>
@@ -178,7 +178,7 @@
 @break
 @case('factor_service')
 <div class="col-12 col-md-12 mb-3">
-    {{ $form->help }}
+    {!! $form->help !!}
 </div>
 <div class="col-12 mb-3">
     <input type="hidden" name="status_factor" value="{{ $factorItem['status_factor'] }}">
@@ -213,7 +213,7 @@
 @break
 @case('other-price')
 <div class="col-12 col-md-4 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+    {!! $form->help !!}
     <input class="form-control {{ $form->class }}" name="item[{{ $form->name }}]"
         value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : 0 }}">
 </div>
@@ -230,7 +230,7 @@
     <div class="col-md-4">
         <div id="addnew" class="file file--upload mb-5">
             <label for="{{ $form->name }}">
-                <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن {{ $form->help }}
+                <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن {!! $form->help !!}
             </label>
             <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
                 class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
@@ -297,7 +297,7 @@
 @break
 @case('number')
 <div class="col-12 col-md-3 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+    {!! $form->help !!}
     <input type="number" class="form-control {{ $form->class }}" {{ $form->required == true ? 'required' :
     '' }}
     placeholder="{{ $form->placeholder }}" value="{{ $user[$form->name] }}"
@@ -306,7 +306,7 @@
 @break
 @case('text')
 <div class="col-12 col-md-3 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+    {!! $form->help !!}
     <input type="text" class="form-control {{ $form->class }}" {{ $form->required == true ? 'required' : ''
     }}
     placeholder="{{ $form->placeholder }}" value="{{ $user[$form->name] }}"
@@ -315,14 +315,14 @@
 @break
 @case('textarea')
 <div class="col-12 col-md-12 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+    {!! $form->help !!}
     <textarea class="form-control {{ $form->class }}" {{
         $form->required == true ? 'required' : '' }} name="item[{{ $form->name }}]"> {{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}</textarea>
 </div>
 @break
 @case('checkbox')
 <div class="col-12 col-md-12 mb-3">
-    {{ $form->help }} :
+    {!! $form->help !!} :
     <br>
     @foreach($form->beforeformitems as $beforeformitem)
     {{ $beforeformitem->title }}
@@ -337,7 +337,7 @@
 @break
 @case('radio')
 <div class="col-12 col-md-12 mb-3">
-    {{ $form->help }} :
+    {!! $form->help !!} :
     <br>
     @foreach($form->beforeformitems as $beforeformitem)
     {{ $beforeformitem->title }}
@@ -353,7 +353,7 @@
 @case('file')
 @if($form->save_data_level == 'user')
 <div class="card ol-12 col-md-3 mb-2">
-    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+    {!! $form->help !!}
     @if(is_null($user[$form->name]))
     <p class="my-4 text-danger text-center">ثبت نشده</p>
     <input name="item[{{ $form->name }}]" type="file" class="filestyle" data-buttonname="btn-white">
@@ -363,7 +363,7 @@
     </a>
     @endif
     <div class="card-body">
-        <h5 class="card-title">{{ $form->help }}</h5>
+        <h5 class="card-title">{!! $form->help !!}</h5>
     </div>
 </div>
 @else
@@ -380,7 +380,7 @@
     </div>
     @endif
     <div class="card-body">
-        <h5 class="card-title">{{ $form->help }}
+        <h5 class="card-title">{!! $form->help !!}
         </h5>
         <label for="{{ $form->name }}" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2"
                 aria-hidden="true"></i>انتخاب
