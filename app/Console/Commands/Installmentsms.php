@@ -59,7 +59,7 @@ class Installmentsms extends Command
         if (count($first_installments) > 0) {
             foreach ($first_installments as $installment) {
                 $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
-                if ($installment->totalFactorItem && $installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                if ($installment->totalFactorItem && $installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -98,7 +98,7 @@ class Installmentsms extends Command
         if (count($second_installments) > 0) {
             foreach ($second_installments as $installment) {
                 $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -133,7 +133,7 @@ class Installmentsms extends Command
         if (count($third_installments) > 0) {
             foreach ($third_installments as $installment) {
                 $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -168,7 +168,7 @@ class Installmentsms extends Command
         if (count($final_installments) > 0) {
             foreach ($final_installments as $installment) {
                 $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
-                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && $is_check) {
+                if ($installment->totalFactorItem->status_mali != 4 && $installment->totalFactorItem->status_mali != 0 && !$is_check) {
                     $factor = new Factor();
                     $factor->title = 'installment';
                     $factor->user_id = $installment->totalFactorItem->factor->user->id;
@@ -209,7 +209,7 @@ class Installmentsms extends Command
             foreach ($expire_installments as $installment) {
                 $total_factor_item = $installment->totalFactorItem;
                 $is_check = $installment->totalFactorItem ? self::checkIsExistInstallmentCheck($installment->totalFactorItem) : false;
-                if ($installment->totalFactorItem && $total_factor_item->status_mali != 0 && $is_check) {
+                if ($installment->totalFactorItem && $total_factor_item->status_mali != 0 && !$is_check) {
                     $extra_pay = TotalFactorItem::getDebtExtraPay($total_factor_item);
                     $expire_installments_price = TotalFactorItem::getExpireInstallments($total_factor_item)->sum('price');
 
