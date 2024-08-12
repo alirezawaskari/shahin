@@ -381,8 +381,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');
     Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
     Route::get('/service/filter', 'ServiceController@filter');
+    Route::get('/service/indexTariffs/{service}', 'ServiceController@getIndexTariffs');
     Route::resource('service', 'ServiceController');
     Route::resource('serviceItem', 'ServiceItemController');
+    //serviceIndexTariff
+    Route::get('/serviceIndexTariff/filter', 'ServiceIndexTariffController@filter');
+    Route::get('/serviceIndexTariff/getPurchasePrice/{id}', 'ServiceIndexTariffController@getPurchasePrice');
+    Route::post('/serviceIndexTariff/createOrUpdate', 'ServiceIndexTariffController@createOrUpdate');
 
     Route::group(['namespace' => 'site', 'prefix' => 'site'], function () {
         Route::resource('/category', 'CategoryController');

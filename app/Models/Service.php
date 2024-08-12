@@ -121,6 +121,13 @@ class Service extends Model
         return $this->hasMany(ServiceTariff::class)->orderBy('id' , 'desc');
     }
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function serviceIndexTariffs()
+    {
+        return $this->hasMany(ServiceIndexTariff::class)->orderBy('id' , 'desc');
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function tags()
