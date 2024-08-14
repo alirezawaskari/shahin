@@ -396,6 +396,7 @@ class User extends Authenticatable
         $province = request('province');
         $city = request('city');
         $role = request('role');
+        $sex = request('sex');
         $representation = request('representation');
         $organization = request('organization');
          if (auth()->user()->hasPermission('user-detail')) {
@@ -438,6 +439,9 @@ class User extends Authenticatable
             }
             if ($province != 'all') {
                 $query->where('province_id', $province);
+            }
+            if (isset($sex) && $sex != 'all') {
+                $query->where('sex', $sex);
             }
             if ($city != 'all') {
                 $query->where('city_id', $city);
