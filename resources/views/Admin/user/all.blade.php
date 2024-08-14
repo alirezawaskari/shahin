@@ -48,6 +48,13 @@
                                 <option value="admin">مدیر</option>
                             </select>
                         </div>
+                        <div class="col-12 col-md-3 mb-2">
+                            <select name="sex" class="custom-select" >
+                                <option value="all">جنسیت</option>
+                                <option value="1">خانم</option>
+                                <option value="0">آقا</option>
+                            </select>
+                        </div>
                         <div class="col-12 col-md-3 mb-2" id="role_box">
                             <select name="role" id="role_id" class="custom-select select2" >
                                 <option value="all">انتخاب نقش</option>
