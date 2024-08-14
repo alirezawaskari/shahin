@@ -29,7 +29,8 @@
                                 <option value="{{$item->id}}">{{$item->title}}</option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="center_id"  value="{{$center->id}}"/>
+                        <input type="hidden" name="center_id" value="{{$center->id}}"/>
+                        <input type="hidden" name="service_id"  value="{{$service->id}}"/>
                     </div>
                     <div class="col-12 col-md-3 mb-2">
                         <div class="custom-control custom-switch mt-2">

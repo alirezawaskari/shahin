@@ -246,7 +246,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/totalFactorItem/reports/desktop/filter' , 'TotalFactorItemController@filterDesktopReport');
     Route::get('/totalFactorItem/filter', 'TotalFactorItemController@filter')->name('totalFactorItem.filter');
     Route::post('/totalFactorItem/sendInitialLink', 'TotalFactorItemController@sendInitialLink')->name('totalFactorItem.sendInitialLink');
-    Route::post('/totalFactorItem/change-status', 'TotalFactorItemController@changeStatus');
+    Route::post('/totalFactorItem/change-status', 'TotalFactorItemController@changeStatus')->name('totalFactorItem.changeStatus');
     Route::post('/totalFactorItem/change-status-mali', 'TotalFactorItemController@changeStatusMaliFactor');
     Route::post('/totalFactorItem/payment', 'TotalFactorItemController@payment')->name('totalFactorItem.sendPayment');
     Route::post('/totalFactorItem/save-installments-paid', 'TotalFactorItemController@saveInstallmentsPaid')->name('totalFactorItem.saveInstallment');
@@ -276,6 +276,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/desktop', 'FactorItemController@desktop')->name('factorItem.desktop');
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');
     Route::get('/factorItem/filter' , 'FactorItemController@filter');
+    Route::get('/factorItem/referral/{factorItem}' , 'FactorItemController@referral')->name('factorItem.referral');
+    Route::get('/factorItem/startWork/{factorItem}' , 'FactorItemController@startWork')->name('factorItem.startWork');
+    Route::get('/factorItem/getForm/{factorItem}' , 'FactorItemController@getForm')->name('factorItem.getForm');
+    Route::post('/factorItem/setRegisterationInitialConsutation', 'FactorItemController@setRegisterationInitialConsutation')->name('factorItem.setRegisterationInitialConsutation');
+
     Route::post('/factorItem/transfer' , 'FactorItemController@transfer');
     Route::post('/factorItem/update-information', 'FactorItemController@updateInformation')->name('factorItem.information');
     Route::post('/factorItem/create-factor', 'FactorItemController@createFactor')->name('factorItem.createFactor');
@@ -292,7 +297,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factorItem/update-service-tariff' , 'FactorItemController@updateServiceTariff')->name('factorItem.updateServiceTariff');
     Route::get('/factorItem/expire', 'FactorItemController@expire');
     Route::post('/factorItem/sendInitialLink', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
-    Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor');
+    Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
     Route::resource('factorItem', 'FactorItemController');
     Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
     Route::post('/factoritem/set-center' , 'FactorItemController@setCenter')->name('factorItem.setCenter');
@@ -375,6 +380,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
     Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');
     Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
+    Route::get('/service/filter', 'ServiceController@filter');
     Route::resource('service', 'ServiceController');
     Route::resource('serviceItem', 'ServiceItemController');
 
@@ -536,7 +542,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //center
     Route::get('/center-service/{center}' , 'CenterController@service')->name('center.service');
     Route::get('/center/filter', 'CenterController@filter')->name('center.filter');
-    Route::get('/center/{center}/serviceTariff', 'CenterController@serviceTariffs')->name('center.serviceTariff');
+    Route::get('/center/{center}/{service}/serviceTariff', 'CenterController@serviceTariffs')->name('center.serviceTariff');
     Route::get('/center/{center}/serviceTariff/create', 'CenterController@createServiceTariff');
     Route::get('/doctorsByCenter/{center_id}', 'CenterController@doctorsByCenter')->name('doctorsByCenter');
     Route::get('/productsByCenterId/{id}', 'CenterController@productsByCenterId')->name('productsByCenterId');
@@ -610,12 +616,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/session/desktop-confirm/filter' , 'SessionController@filterDesktopConfirm');
     Route::get('/session/desktop-complete' , 'SessionController@desktopComplete')->name('session.desktop.complete');
     Route::get('/session/desktop-complete/filter' , 'SessionController@filterDesktopComplete');
+    Route::get('/session/trunRatings/desktop-complete/filter' , 'SessionController@filterDesktopCompleteTurnRatings');
     Route::get('/session/confirm/{session}' , 'SessionController@confirm')->name('session.confirm');
     Route::post('/session/update' , 'SessionController@update');
     Route::get("/session/user-start-entry/{session}" , 'SessionController@userSessionStartEntry')->name('user.session.start_entry');
     Route::get("/session/user-end-entry/{session}" , 'SessionController@userSessionEndEntry')->name('user.session.end_entry');
     Route::resource('session', 'SessionController');
-    Route::get('/session-reject/{id}' , 'SessionController@rejectSession')->name('session.reject');
+    Route::post('/session/reject' , 'SessionController@rejectSession')->name('session.reject');
     //wallet transation
     Route::resource('WalletTransaction', 'WalletTransactionController');
     Route::get('/wallet-update/{wallet}', 'WalletTransactionController@wallet_update')->name('wallet.update');

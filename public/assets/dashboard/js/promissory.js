@@ -135,7 +135,7 @@ $(document).ready(function () {
                     "render": function (data){
                         switch (data.status) {
                             case 0:
-                                return '<span class="badge badge-warning">بایگانی </span> ';
+                                return '<span class="badge badge-warning">رسوب در خزانه </span> ';
                             case 1:
                                 return '<span class="badge badge-success">عودت داده شده</span> ';
                             default:
@@ -156,7 +156,7 @@ $(document).ready(function () {
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                              <a href="../../../dashboard/totalFactorItem/${data.total_factor_item_id}" target="_blank">
-                            <button type="button" class="dropdown-item pointer">امورات اداری و مالی پرونده</button></a>
+                            <button type="button" class="dropdown-item pointer">امور اداری و مالی پرونده</button></a>
                             <button style="display: ${status_display}" type="button" class="dropdown-item pointer list-promissory-status" data-promissory_id="${data.id}" data-front_image="${data.front_image}" data-toggle="modal" data-target="#statusPromissoryModal">وضعیت</button>
                         </div></div>`
                     }
@@ -184,28 +184,7 @@ $("#promissory-change-status").on("change", function () {
 });
 
 //--------------------SELECT PROVINCE OF EXPORTER--------------------
-$('#exporter_province_id').on('change', function () {
-    var token = $('meta[name="csrf-token"]').attr('content');
-    var id = $(this).val();
-    $.ajax({
-        url: '/city/select',
-        type: 'post',
-        dataType: 'json',
-        data: {
-            "_token": token,
-            "id": id,
-        },
-        success: function (data) {
-            $('#exporter_city_id')
-                .empty()
-                .append('<option value="all">انتخاب شهر</option>')
-            ;
-            $.each(data.cities, function (i, d) {
-                $('#exporter_city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
-            });
-        }
-    });
-});
+
 
 $(document).ready(function () {
     //----------------------store promissory ---------------

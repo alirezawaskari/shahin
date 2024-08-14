@@ -139,7 +139,7 @@
                 </div>
                 <div class="row mb-3">
                     @foreach ($item['contract_forms']->where('level',
-                    'original_documents') as $contract_form)
+'original_documents') as $contract_form)
                     @if ($contract_form->value == $item['guarantee_type'])
                     @switch($contract_form->type)
                     @case('file')

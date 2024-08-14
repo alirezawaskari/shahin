@@ -1,6 +1,22 @@
 <footer class="footer">
     <div class="container pt-5">
         <div class="row">
+            <div class="col-4">
+                <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=40920&Code=6abmm9WQ9521uXon0exd'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=40920&Code=6abmm9WQ9521uXon0exd' alt='' style='cursor:pointer' code='6abmm9WQ9521uXon0exd'></a>
+            </div>
+            <div class="col-4">
+                <img referrerpolicy="origin" id='jxlzfukznbqergvjnbqefukz' style='cursor:pointer;'
+                    onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=162326&p=rfthgvkauiwkxlaouiwkgvka", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
+                    alt='logo-samandehi'
+                    src='https://logo.samandehi.ir/logo.aspx?id=162326&p=nbpdwlbqodrfqftiodrfwlbq' />
+            </div>
+            <div class="col-4">
+                <img src="../../images/logo.png" alt="logo_ecunion"
+                    onclick="window.open('https://ecunion.ir/verify/lalecard.ir?token=85848845e539a3c460cf', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=430, height=630, top=30')"
+                    style="cursor:pointer;">
+            </div>
+        </div>
+        <div class="row">
             <div class="col-12 col-md-6 col-top-right ">
                 <a href="http://maps.google.com/maps?daddr=35.764742,51.288443" target="_blank"><img class="img-fluid"
                         src="/assets/site/images/map.png" alt=""></a>
@@ -99,9 +115,6 @@
 
         <div class="position-fixed d-none d-md-block" style="right: 5px; bottom: 0;color:gray">
             ارتباط با کارشناسان
-            <script class="d-none" type="text/javascript">
-                window.$crisp=[];window.CRISP_WEBSITE_ID="9aa6b7fc-b1ba-437f-800d-b26efe273153";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();
-            </script>
             <script type="text/javascript">
                 !function () { var i = "7aaX4j", a = window, d = document; function g() { var g = d.createElement("script"), s = "https://www.goftino.com/widget/" + i, l = localStorage.getItem("goftino_" + i); g.async = !0, g.src = l ? s + "?o=" + l : s; d.getElementsByTagName("head")[0].appendChild(g); } "complete" === d.readyState ? g() : a.attachEvent ? a.attachEvent("onload", g) : a.addEventListener("load", g, !1); }();
             </script>

@@ -64,7 +64,7 @@ class SessionCollection extends ResourceCollection
     {
         if(auth()->user()->isAbleTo('session-detail'))
         {
-            return $item->description .(isset($item->agent) ? '('.$item->agent->name.' '.$item->agent->family.')' : '');
+            return $item->description_before .(isset($item->agent) ? '('.$item->agent->name.' '.$item->agent->family.')' : '');
         }
         elseif(auth()->user()->isAbleTo('session'))
         {

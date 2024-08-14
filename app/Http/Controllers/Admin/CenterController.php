@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Helper;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Center;
@@ -117,6 +118,8 @@ class CenterController extends AdminController
             'status' => $request->status,
             'description' => $request->description,
             'address' => $request->address,
+            'contract_number' => $request->contract_number,
+            'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
             'is_show' => isset($request->is_show) ? $request->is_show : 0,
         ] );
         !auth()->user()->admin_representation_id ? $center->representations()->sync($request->input('representation_id')) : '';
@@ -128,11 +131,9 @@ class CenterController extends AdminController
         ] );
     }
 
-    public function serviceTariffs(Center $center ) {
-        $service_tariffs = $center->serviceTariffs;
-        $tariffs = $center->centerable->tariffs;
-
-        return view( 'Admin.center.serviceTariffList', compact( 'service_tariffs' , 'center','tariffs') );
+    public function serviceTariffs(Center $center , Service $service) {
+        $tariffs = $service->tariffs;
+        return view( 'Admin.center.serviceTariffList', compact('center', 'service' ,'tariffs') );
     }
 
     public function createServiceTariff(Center $center)
@@ -394,6 +395,8 @@ class CenterController extends AdminController
             'title' => $request->title,
             'description' => $request->description,
             'address' => $request->address,
+            'contract_number' => $request->contract_number,
+            'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
         ]);
         self::createRepresentationsCenter($center , $request->representation_id);
     }

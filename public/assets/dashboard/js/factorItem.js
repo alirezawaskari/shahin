@@ -1,6 +1,38 @@
 var basic_doc = $('#basic_documnet_div').html();
 var orginal_doc = $('#original_document_div').html();
-
+var registrationInitialConsultation_doc = $('#registrationInitialConsultation').html();
+var basic_document_executive_doc = $('#basic_document_executive').html();
+//basicDocumentExecutiveAppend
+var elements = document.querySelectorAll('div[id^="basic_document_executive_collection_"]');
+var basic_document_executive_collection_doc = [];
+elements.forEach(element => {
+    basic_document_executive_collection_doc[element.id] = $('#'+element.id).html();
+});
+function basicDocumentExecutiveAppend(basic_document_executive_collection_id) {
+    var elements = document.querySelectorAll('div[id^="basic_document_executive_collection_"]');
+    elements.forEach(element => {
+        $('#'+element.id).empty();
+    });
+    var basic_document_executive_collection_div = document.createElement('div');
+    basic_document_executive_collection_div.innerHTML = basic_document_executive_collection_doc[basic_document_executive_collection_id];
+    $('#'+basic_document_executive_collection_id).append(basic_document_executive_collection_div);
+};
+//consultationReferralAppend
+var elements = document.querySelectorAll('div[id^="consultation_referral_collection_"]');
+var consultation_referral_collection_doc = [];
+elements.forEach(element => {
+    consultation_referral_collection_doc[element.id] = $('#'+element.id).html();
+});
+function consultationReferralAppend(consultation_referral_collection_id) {
+    var elements = document.querySelectorAll('div[id^="consultation_referral_collection_"]');
+    elements.forEach(element => {
+        $('#'+element.id).empty();
+    });
+    var consultation_referral_collection_div = document.createElement('div');
+    consultation_referral_collection_div.innerHTML = consultation_referral_collection_doc[consultation_referral_collection_id];
+    $('#'+consultation_referral_collection_id).append(consultation_referral_collection_div);
+    document.getElementById("defaultOpen").click();
+};
 $("body").on('click', '#orginal-document-panel', function () {
     $("#basic_documnet_div").empty();
     $("#original_document_div").empty();
@@ -15,6 +47,22 @@ $("body").on('click', '#basic-document-tab', function () {
     var basic_div = document.createElement('div');
     basic_div.innerHTML = basic_doc;
     $("#basic_documnet_div").append(basic_div);
+});
+
+$("body").on('click', '#consultation-referral-tab', function () {
+    $("#basic_document_executive").empty();
+    $("#registrationInitialConsultation").empty();
+    var registrationInitialConsultation_div = document.createElement('div');
+    registrationInitialConsultation_div.innerHTML = registrationInitialConsultation_doc;
+    $("#registrationInitialConsultation").append(registrationInitialConsultation_div);
+});
+
+$("body").on('click', '#basic-document-tab', function () {
+    $("#registrationInitialConsultation").empty();
+    $("#basic_document_executive").empty();
+    var basic_document_executive_div = document.createElement('div');
+    basic_document_executive_div.innerHTML = basic_document_executive_doc;
+    $("#basic_document_executive").append(basic_document_executive_div);
 });
 
 $("body").on('change', '#title', function (event) {
@@ -605,6 +653,12 @@ $(document).ready(function () {
                             case 15:
                                 return `<span class="badge badge-dark">پرونده مختومه</span>`;
                                 break;
+                            case 16:
+                                return `<span class="badge badge-danger">ارجاع به مشاوره</span>`;
+                                break;
+                            case 17:
+                                return `<span class="badge badge-warning"> منتظر مشاوره</span>`;
+                                break;
                             default:
                                 return data.status;
                         }
@@ -635,11 +689,11 @@ $(document).ready(function () {
                         output += `
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer" >
-                            امورات اداری و مالی پرونده
+                            امور اداری و مالی پرونده
                             </span></a>
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}/edit">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer">
-                            امورات اجرایی پرونده
+                            امور اجرایی پرونده
                             </span></a>
                         </div></div>`
                         return output;

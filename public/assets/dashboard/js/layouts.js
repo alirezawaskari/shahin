@@ -114,6 +114,16 @@ function date()
         }
     });
 }
+if ($('#type_consultation_online').is(':checked')) {
+    $('.divDate').css('display', 'none');
+}
+$('#select_type_consultation').on('change', function () {
+    if ($('#select_type_consultation').val() == 'inPerson') {
+        $('.divDate').css('display', 'block');
+    } else {
+        $('.divDate').css('display', 'none');
+    }
+});
 
 var
     persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g],
@@ -264,4 +274,20 @@ $("body").on('click','.send_user_password',function () {
 function formQuestionConfirm(){
     return confirm('آیا مطمئن هستید ؟')
 }
+//tab content for call details
+function openTab(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
 

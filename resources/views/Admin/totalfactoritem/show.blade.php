@@ -139,12 +139,12 @@
                     aria-controls="factor" aria-selected="false">پرونده</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link show" id="turnRatings-tab" data-toggle="tab" href="#turnRatings" role="tab"
-                    aria-controls="home" aria-selected="false">نوبت دهی</a>
+                <a class="nav-link show" id="basic-document-tab" data-toggle="tab" href="#basic-document" role="tab"
+                    aria-controls="basic-document" aria-selected="true">مدارک اولیه و پشتیبانی</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link show" id="basic-document-tab" data-toggle="tab" href="#basic-document" role="tab"
-                    aria-controls="basic-document" aria-selected="true">مدارک اولیه</a>
+                <a class="nav-link show" id="consultation-referral-tab" data-toggle="tab" href="#consultationReferral" role="tab"
+                    aria-controls="home" aria-selected="false">ثبت مشاوره و ارجاع</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
@@ -352,275 +352,29 @@
                     @include('Admin.totalfactoritem.show.confirmationForm')
                 </div>
             </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <div class="tab-pane fade p-t-20" id="turnRatings" role="tabpanel" aria-labelledby="home-tab">
+            <div class="tab-pane fade p-t-20" id="basic-document" role="tabpanel" aria-labelledby="basic-document-tab">
+                @include('Admin.totalfactoritem.show.basicDocument')
+            </div>
+            <div class="tab-pane fade p-t-20" id="consultationReferral" role="tabpanel" aria-labelledby="consultation-referral-tab">
+                @foreach ($items as $key => $factor_item)
                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
-                    @foreach ($items as $key => $factorItem)
+                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
                     <li class="nav-item">
-                        <a class="nav-link show {{ $key == 0 ? 'active' : ''}}" id="turnratings-{{ $key }}-tab"
-                            data-toggle="tab" href="#turnratings-{{ $key }}" role="tab"
-                            aria-controls="turnratings-{{ $key }}" aria-selected="false">{{
-                            $factorItem['factoritemable']->title }}</a>
+                        <a class="nav-link show {{ $count == 0 ? 'active' : ''}}" onclick="consultationReferralAppend('consultation_referral_collection_{{$count}}')" id="consultation-referral-{{ $count }}-tab"
+                            data-toggle="tab" href="#consultation_referral_collection_{{ $count }}" role="tab"
+                            aria-controls="consultation_referral_collection_{{ $count }}" aria-selected="false">پرونده {{$factorItem->factor->user->name . ' '.$factorItem->factor->user->family}}</a>
                     </li>
                     @endforeach
                 </ul>
                 <div class="tab-content border p-4" id="myTabContent">
-                    @foreach ($items as $key => $factorItem)
-                    <div class="tab-pane fade p-t-20 {{ $key == 0 ? 'show active' : ''}} " id="turnratings-{{ $key }}"
-                        role="tabpanel" aria-labelledby="turnratings-{{ $key }}-tab">
-                        @include('Admin.factoritem.show.determineCentering')
+                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
+                    <div class="tab-pane fade p-t-20 {{ $count == 0 ? 'show active' : ''}} " id="consultation_referral_collection_{{ $count }}"
+                        role="tabpanel" aria-labelledby="consultationReferral-{{ $count }}-tab">
+                        @include('Admin.totalfactoritem.show.determineCentering')
                     </div>
                     @endforeach
                 </div>
-            </div>
-
-            <div class="tab-pane fade p-t-20" id="basic-document" role="tabpanel" aria-labelledby="basic-document-tab">
-                @include('Admin.totalfactoritem.show.basicDocument')
+                @endforeach
             </div>
             @include('Admin.factoritem.layouts.histories')
             <div class="tab-pane fade p-t-20" id="returnPayment" role="tabpanel" aria-labelledby="return-payment-tab">
@@ -630,12 +384,40 @@
         @endpermission
     </div>
 </div>
-
+<div class="row col-12 col-md-6">
+    <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
+        پیگیری</span>
+    <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
+    @if (in_array(trim($item['status']) , [0,4,14]) )
+    <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+        <input type="hidden" name="status_factor" value="9">
+        <button class="btn btn-danger mr-2">ارجاع به امورتسهیلات</button>
+    </form>
+    @endif
+    @if (in_array(trim($item['status']) , [9,8]) )
+    <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+        <input type="hidden" name="status_factor" value="14">
+        <button class="btn btn-danger mr-2">ارجاع به پشتیبان</button>
+    </form>
+    @endif
+    @if (in_array(trim($item['status']) , [9,5]) )
+    <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+        <input type="hidden" name="status_factor" value="8">
+        <button class="btn btn-success mr-2">ارجاع به مدیرعامل</button>
+    </form>
+    @endif
+</div>
 @stop
 @section('js')
 
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{ asset('/assets/dashboard/js/factorItem.js?v=2.0') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/factorItem.js?v=2.1') }}"></script>
 <script src="/assets/dashboard/js/factorModal.js"></script>
 <script>
     $('body').on('click','#orginal-document-panel',function (){

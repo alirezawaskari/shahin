@@ -23,7 +23,7 @@
                         <p><strong>توضیحات متقاضی:</strong> {{ $resume->text }}</p>
                         <hr>
 
-                        <h5 class="mb-4 alert alert-primary">اطلاعات شخصی</h5>
+                        {{-- <h5 class="mb-4 alert alert-primary">اطلاعات شخصی</h5>
                         <ul class="list-group mb-4">
                             <li class="list-group-item"><strong>شماره شناسنامه: </strong>{{ $resume->detail['number_shenasname'] ??''}}</li>
                             <li class="list-group-item"><strong>تاریخ تولد: </strong>{{ $resume->detail['date_of_birth'] ??''}}</li>
@@ -43,13 +43,13 @@
                             <li class="list-group-item"><strong>تاریخ پایان معافیت از خدمت سربازی: </strong>{{ $resume->detail['exemption_military_service_end_date']??'' }}</li>
                             <li class="list-group-item"><strong>محل خدمت سربازی: </strong>{{ $resume->detail['military_service_location']??'' }}</li>
                             <li class="list-group-item"><strong>تاریخ پایان خدمت سربازی: </strong>{{ $resume->detail['military_service_end_date'] ??''}}</li>
-                        </ul>
+                        </ul> --}}
 
-                        <h5 class="mb-4 alert alert-primary">سابقه کاری</h5>
+                        {{-- <h5 class="mb-4 alert alert-primary">سابقه کاری</h5>
                         <p>{{ $resume->work_history }}</p>
-                        <hr>
+                        <hr> --}}
 
-                        <h5 class="mb-4 alert alert-primary">مهارت‌ها و تحصیلات</h5>
+                        {{-- <h5 class="mb-4 alert alert-primary">مهارت‌ها و تحصیلات</h5>
                         <ul class="list-group mb-4">
                             <li class="list-group-item">
                                 <strong>
@@ -100,9 +100,9 @@
                                 </strong>
                                 {{ $resume->detail['rights_requested'] ?? ''}}</li>
 
-                        </ul>
+                        </ul> --}}
 
-                        <h5 class="mb-4 alert alert-primary">سایر اطلاعات</h5>
+                        {{-- <h5 class="mb-4 alert alert-primary">سایر اطلاعات</h5>
                         <ul class="list-group mb-4">
                             <li class="list-group-item"><strong>آیا در حال حاضر مشغول به کار هستید؟:</strong> {{ $resume->detail['busy_now']?? ''}}</li>
                             <li class="list-group-item"><strong>در صورت انتقال یا ماموریت حاضر به رفتن به شهرستانها و شعبات دیگر هستید؟:</strong> {{ $resume->detail['transfer_job']?? ''}}</li>
@@ -112,7 +112,7 @@
                             <li class="list-group-item"><strong>نوع نسبت:</strong> {{ $resume->detail['relative_family_type']?? '' }}</li>
                             <li class="list-group-item"><strong>نام و نام خانوادگی فرد معرف:</strong> {{ $resume->detail['relative_family_name']?? '' }}</li>
                             <li class="list-group-item"><strong>قسمت فرد معرف:</strong> {{ $resume->detail['relative_family_part']?? '' }}</li>
-                        </ul>
+                        </ul> --}}
                     </div>
                 </div>
             </div>

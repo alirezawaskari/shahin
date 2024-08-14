@@ -91,7 +91,7 @@
                                     <div class="row p-3 position-relative">
                                         @if($item['service']->center && !is_null($item['centers']))
                                         <div class="col-12 col-md-6 mb-2">
-                                            <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
+                                            {{-- <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
                                             <select name="items[{{ $key }}][center]" id="" class="form-control"
                                                 required>
                                                 <option value="">انتخاب مرکز</option>
@@ -101,9 +101,24 @@
                                                     class="font-12">{{ $center->title. ' / ' . $center->address}}
                                                 </option>
                                                 @endforeach
+                                            </select> --}}
+                                            <label>انتخاب نوع دریافت مشاوره پیشنهادی شما :</label>
+                                            <select name="items[{{ $key }}][typeConsultation]" id="select_type_consultation" class="form-control"
+                                                required>
+                                                <option id="type_consultation_online" value="online"
+                                                    {{isset($item['factor_values']['typeConsultation']) &&
+                                                    $item['factor_values']['typeConsultation']=='online' ?'selected'
+                                                    : '' }}>آنلاین</option>
+                                                <option value="inPerson"
+                                                    {{isset($item['factor_values']['typeConsultation']) &&
+                                                    $item['factor_values']['typeConsultation']=='inPerson' ?'selected'
+                                                    : '' }}>حضوری</option>
                                             </select>
-                                            <label>:انتخاب زمان مراجعه پیشنهادی شما</label>
-                                            <input type="text" class="form-control" id="date" name="date">
+                                            <div class="mt-3 divDate">
+                                                <label> انتخاب زمان مراجعه پیشنهادی شما : </label>
+                                                <input type="text" class="form-control" id="date"
+                                                    name="items[{{ $key }}][date]">
+                                            </div>
                                         </div>
                                         <div class="col-12 mb-3">
                                             <label>نوع دریافت خدمت :</label>
@@ -146,7 +161,8 @@
                                         @case('text')
                                         <div class="col-12 col-md-6 mb-2">
                                             {!! $form->help !!}
-{{--                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>--}}
+                                            {{-- <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help
+                                                }}</label>--}}
                                             <input type="text" class="form-control {{ $form->class }}" {{
                                                 $form->required == true ? 'required' : '' }} placeholder="{{
                                             $form->placeholder }}"
@@ -223,7 +239,8 @@
                                                         class="img-fluid">
                                                     <h6>بارگذاری تصاویر</h6>
                                                 </label>
-                                                <input name="items[{{ $key }}][{{ $form->name }}][]" type="file" id="{{ $form->name }}"
+                                                <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
+                                                    id="{{ $form->name }}"
                                                     class="filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white">
                                             </div>
@@ -233,7 +250,8 @@
                                             </div>
                                             <div id="{{ $form->name }}_newlinktpl">
                                                 <div id="{{ $form->name }}_src" class="show"></div>
-                                                <input type="hidden" id="{{ $form->name }}" class="path" name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
+                                                <input type="hidden" id="{{ $form->name }}" class="path"
+                                                    name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
                                             </div>
                                         </div>
 
@@ -365,10 +383,11 @@
                                                     <div class="col-12 mb-2 mt-4">
                                                         @if($item['guarantee_type'] != 'promissorynote')
                                                         <h4>اطلاعات ضامن</h4>
-                                                         @else
+                                                        @else
                                                         <h4>اطلاعات ضامن</h4>
-                                                        <h4 class="alert alert-dark">(منظور از ضامن یک نفر از اعضاء درجه یک خانواده به عنوان معرف کافیست)</h4>
-                                                         @endif
+                                                        <h4 class="alert alert-dark">(منظور از ضامن یک نفر از اعضاء درجه
+                                                            یک خانواده به عنوان معرف کافیست)</h4>
+                                                        @endif
                                                         <hr>
                                                     </div>
                                                     @foreach($item['contract_forms'] as $contract_form)
@@ -407,10 +426,10 @@
                                                     <div class="col-12 col-md-3 mb-2">
 
                                                         {!! $contract_form->help !!}
-{{--                                                        <label for="item[{{ $contract_form->name }}]">--}}
+                                                        {{-- <label for="item[{{ $contract_form->name }}]">--}}
 
-{{--                                                            {{--}}
-{{--                                                            $contract_form->help }}</label>--}}
+                                                            {{-- {{--}}
+                                                            {{-- $contract_form->help }}</label>--}}
                                                         <input type="text"
                                                             class="form-control {{ $contract_form->class }}" {{
                                                             $contract_form->required == true ? 'required' : '' }}
@@ -452,28 +471,31 @@
                                                     باشد
                                                 </li>
                                             </ul>
-{{--                                            if service category is health-service--}}
+                                            {{-- if service category is health-service--}}
                                             @if(false)
                                             @foreach($factor->factorItems as $factorItem)
-                                                @if(isset($factorItem->factoritemable) && isset($factorItem->factoritemable->category) && $factorItem->factoritemable->category->id == 3)
+                                            @if(isset($factorItem->factoritemable) &&
+                                            isset($factorItem->factoritemable->category) &&
+                                            $factorItem->factoritemable->category->id == 3)
 
-                                                    <div class="card">
-                                                        <div class="card-header">
-                                                            اطلاعات پزشکی :
-                                                        </div>
-                                                        <div class="card-body">
-                                                            @foreach($diseases as $disease)
-                                                                <div class="form-check-inline">
-                                                                    <label style="cursor: pointer"  class="form-check-label">
-                                                                        <input name="diseases[]" type="checkbox" class="form-check-input" value="{{$disease->id}}">
-                                                                        {{$disease->name}}
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    اطلاعات پزشکی :
+                                                </div>
+                                                <div class="card-body">
+                                                    @foreach($diseases as $disease)
+                                                    <div class="form-check-inline">
+                                                        <label style="cursor: pointer" class="form-check-label">
+                                                            <input name="diseases[]" type="checkbox"
+                                                                class="form-check-input" value="{{$disease->id}}">
+                                                            {{$disease->name}}
+                                                        </label>
                                                     </div>
-                                                   @break
-                                                @endif
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            @break
+                                            @endif
                                             @endforeach
                                             @endif
                                             <div class="col-12 mb-2 mt-auto pt-2">
@@ -502,14 +524,12 @@
 </div>
 @endauth
 @endsection
-@section('footer')
-<script src="/assets/site/js/checkout.js"></script>
-@endsection
 @section('js')
 <script src="/assets/dashboard/js/site/adminJs.js"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
+<script src="/assets/site/js/checkout.js"></script>
 <script>
     @if(session()->get('successByMessage'))
     toastr.success('{{session()->get('successByMessage')}}');

@@ -200,7 +200,7 @@ $("body").on('click', '#do_transfer', function (event) {
                                 if (data.status=='success'){
                                     fetchData(page)
                                     swal({
-                                        text: "جلسه با موفقیت حذف گردید .",
+                                        text: "رزومه با موفقیت حذف گردید .",
                                         icon: "success",
                                         button: "تایید",
                                         timer:3000,

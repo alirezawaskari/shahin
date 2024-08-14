@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\IranSms;
 use App\Events\factorItemActivation;
+use App\Events\factorItemClosing;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
@@ -16,6 +18,7 @@ use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
 use App\Models\Impunity;
 use App\Models\Province;
+use App\Models\Session;
 use App\Models\TotalFactorItem;
 use App\Models\User;
 use Carbon\Carbon;
@@ -132,7 +135,7 @@ class TotalFactorItemController extends Controller
             $temp['factoritemable'] = $factor_item->factoritemable;
             $temp['service_item'] = !is_null($factor_item->service_item_id) ? $factor_item->serviceItem : null;
             $temp['centers'] = FactorItem::getSelectableCenters($factor_item);
-            $temp['forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', '!=', 'site') : null;
+            $temp['forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms : null;
             $temp['site_forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', 'site') : null;
             $temp['complete'] = $factor_item->complete;
             $temp['values'] = $factor_item->values;
@@ -289,11 +292,6 @@ class TotalFactorItemController extends Controller
         if (auth()->user()->hasRole('consulting_contract_affairs')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 13)->filter()->latest();
         }
-        if (!auth()->user()->admin_representation) {
-            $total_factor_items->whereHas('factor', function ($total_factor_items){
-                $total_factor_items->where('representation_id', auth()->user()->admin_representation_id);
-            });
-        }
         if ($request->exel == 'on') {
             return (new FactorItemsExport($total_factor_items))->download('factorItems.xlsx');
         }
@@ -356,7 +354,7 @@ class TotalFactorItemController extends Controller
     {
         $factor_items = $totalFactorItem->factorItems;
 
-        if (auth()->user()->hasRole('admin-site')) {
+        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id) , [0,4,14])) {
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
@@ -461,9 +459,24 @@ class TotalFactorItemController extends Controller
 
                 $fator_item_collections->update([
                     'status_factor' => 10,
+                    'confirm' => true,
                 ]);
+                //close older sessions
+                Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
+                    'status'=>7,
+                    'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+                ]);
+                //create session
+                if ($factor_item->factoritemable->session==1){
+                Session::create( [
+                    'status' => 5 ,
+                    'user_id' => auth()->user()->id,
+                    'factor_item_id' => $factor_item->id,
+                    'date' => date('Y-m-d H:i:s'),
+                    'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
+                ]);
+                }
             }
-
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }
 
@@ -1100,12 +1113,23 @@ class TotalFactorItemController extends Controller
             ] );
         }
 
-        $total_factor_item->update(['total_factor_item_status_id' => $request->status]);
+        $total_factor_item->update(['total_factor_item_status_id' => 15]);
         foreach ($total_factor_item->factorItems as $factor_item) {
             $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+            $factor_item_able = $factor_item->factoritemable->title;
+        $userMobile = $factor_item->factor->user->phone;
+        $user = $factor_item->factor->user->name.' '.$factor_item->factor->user->family;
+        if (isset($userMobile)) {
+            $body = [
+                'param1' => $user,
+                'param2' => $factor_item_able,
+            ];
+            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
+        }
+            //event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
             $fator_item_collections->update([
-                'status_factor' => $request->status
+                'status_factor' => 15
             ]);
         }
         if ($total_factor_item->confirm) {
@@ -1113,10 +1137,6 @@ class TotalFactorItemController extends Controller
                 'message' => 'این پرونده تایید شده است شما مجاز به انجام این کار نیستید لطفا تسویه حساب پرونده را بزنید.'
             ]);
         }
-
-        $message = 'عضو محترم شبکه خدمات رفاهی لاله پرونده شما مختومه شد. 09366342145 ';
-        $phones = $total_factor_item->factor->user->phone;
-        Helper::sms($phones, $message);
 
         if ($request->comment) {
             $total_factor_item->factor->comments()->create([
