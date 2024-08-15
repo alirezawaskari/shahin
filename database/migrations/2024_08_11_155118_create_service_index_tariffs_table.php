@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('service_id')->nullable();
             $table->foreign('service_id')->references('id')->on('services');
             $table->unsignedInteger('agent_id')->nullable();
-            $table->foreign('agent_id')->references('id')->on('services');
+            $table->foreign('agent_id')->references('id')->on('users');
             $table->string('title');
             $table->unsignedBigInteger('purchase_price');
             $table->softDeletes();

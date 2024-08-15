@@ -1,4 +1,5 @@
 @extends('Admin.master')
+@section('title')فهرست تعرفه ها@endsection
 
 @section('content')
 
@@ -13,7 +14,7 @@
                 </ol>
             </nav>
         </div>
-        <a href="{{ url('dashboard/center/'.$center->id.'/serviceTariff/create') }}" style="float: left" class="btn btn-primary"> ایجاد تعرفه جدید</a>
+        <a href="{{ url('dashboard/center/'.$center->id.'/'.$service->slug.'/serviceTariff/create') }}" style="float: left" class="btn btn-primary"> ایجاد تعرفه جدید</a>
     </div>
     <div class="card">
         <div class="card-body">
@@ -54,7 +55,7 @@
                 <tr>
                     <th>#</th>
                     <th>عنوان تعرفه</th>
-                    <th>قیمت(ریال)</th>
+                    <th>قیمت فروش مرکز(ریال)</th>
                     <th>آخرین ویرایش</th>
                     <th>تاریخ ثبت</th>
                     <th>اقدام</th>

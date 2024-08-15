@@ -135,12 +135,18 @@ class CenterController extends AdminController
         $tariffs = $service->tariffs;
         return view( 'Admin.center.serviceTariffList', compact('center', 'service' ,'tariffs') );
     }
-
-    public function createServiceTariff(Center $center)
+    /**
+     * @param \App\Models\Center $center
+     * @param \App\Models\Service $service
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+    */
+    public function createServiceTariff(Center $center,Service $service)
     {
-        $tariffs = $center->centerable->tariffs;
+        $tariffs = $service->tariffs;
+        $employees = $center->users->where('level' , 'admin');
+        $service_index_tariffs = $service->serviceIndexTariffs;
 
-        return view('Admin.center.serviceTariffCreate' , compact(['center' , 'tariffs']));
+        return view('Admin.center.serviceTariffCreate' , compact(['service_index_tariffs','employees' ,'center' , 'tariffs']));
     }
 
     public function filter()

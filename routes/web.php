@@ -502,7 +502,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/serviceTariff/selectByTariff', 'ServiceTariffController@selectByTariff');
     Route::post('/serviceTariff/getSessionNumber', 'ServiceTariffController@getSessionNumber');
     Route::get('/serviceTariff/filter', 'ServiceTariffController@filter')->name('serviceTariff.filter');
+    Route::post('serviceTariff/store', 'ServiceTariffController@store');
     Route::resource('serviceTariff', 'ServiceTariffController');
+
+    //allocationEmployeeShareCenters
+    Route::resource('allocationEmployeeShareCenter', 'AllocationEmployeeShareCenterController');
 
     //storeroom
     Route::resource('storeRoom', 'StoreRoomController');
@@ -548,7 +552,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/center-service/{center}' , 'CenterController@service')->name('center.service');
     Route::get('/center/filter', 'CenterController@filter')->name('center.filter');
     Route::get('/center/{center}/{service}/serviceTariff', 'CenterController@serviceTariffs')->name('center.serviceTariff');
-    Route::get('/center/{center}/serviceTariff/create', 'CenterController@createServiceTariff');
+    Route::get('/center/{center}/{service}/serviceTariff/create', 'CenterController@createServiceTariff');
     Route::get('/doctorsByCenter/{center_id}', 'CenterController@doctorsByCenter')->name('doctorsByCenter');
     Route::get('/productsByCenterId/{id}', 'CenterController@productsByCenterId')->name('productsByCenterId');
     Route::get('/center/products/{id}/{center_id}/edit', 'CenterController@productEdit')->name('center.products.edit');
