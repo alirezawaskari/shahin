@@ -12,7 +12,6 @@ use App\Models\Center;
 use App\Models\FactorItem;
 use App\Models\ServiceIndexTariff;
 use App\Models\Tariff;
-use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
 
 class ServiceTariffController extends Controller {
     /**
@@ -62,6 +61,7 @@ class ServiceTariffController extends Controller {
         $service_index_tariff = ServiceIndexTariff::find( $request->name );
         $inputs = $request->all();
         $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
+        $selling_price = $request->price ? ( float ) str_replace( ',', '', $request->price ) : 0;
         $center = Center::find( $request->center );
         if ( $service_index_tariff ) {
             if ( count( $center->serviceTariffs->where( 'service_index_tariff_id', $service_index_tariff->id ) ) ) {
@@ -71,44 +71,33 @@ class ServiceTariffController extends Controller {
                     'message'=>'شما قبلا این تعرفه را ثبت کرده اید لطفا از قسمت ویرایش اقدام کنید.'
                 ] );
             }
-            if ( $purchase_price <= $service_index_tariff->purchase_price ) {
-                $service_tariff = ServiceTariff::create( [
-                    'name' => $service_index_tariff->title,
-                    'session_number' => $request->session_number,
-                    'treatment_duration' => $request->treatment_duration,
-                    'tariff_id' => $request->tariff,
-                    'purchase_price' => $purchase_price,
-                    'service_index_tariff_id' => $service_index_tariff->id,
-                ] );
-                $service_tariff->centers()->attach( $request->center );
-                if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
-                    for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
-                    $i++ ) {
-                        AllocationEmployeeShareCenter::create( [
-                            'user_id' => $inputs[ 'employee' ][ $i ],
-                            'agent_id' => auth()->user()->id,
-                            'service_tariff_id' => $service_tariff->id,
-                            'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                        ] );
-                    }
+            $service_tariff = ServiceTariff::create( [
+                'name' => $service_index_tariff->title,
+                'session_number' => $request->session_number,
+                'treatment_duration' => $request->treatment_duration,
+                'tariff_id' => $request->tariff,
+                'purchase_price' => $purchase_price,
+                'price' => $selling_price,
+                'service_index_tariff_id' => $service_index_tariff->id,
+            ] );
+            $service_tariff->centers()->attach( $request->center );
+            if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
+                for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
+                $i++ ) {
+                    AllocationEmployeeShareCenter::create( [
+                        'user_id' => $inputs[ 'employee' ][ $i ],
+                        'agent_id' => auth()->user()->id,
+                        'service_tariff_id' => $service_tariff->id,
+                        'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                    ] );
                 }
-                return response( [
-                    'operator' => true,
-                    'status'=>'success',
-                    'message'=>'ثبت با موفقیت انجام شد .'
-                ] );
-            } else {
-                return response( [
-                    'operator' => true,
-                    'status'=>'error',
-                    'message'=>'جمع مبالغ تخصیص داده شده از حداکثر قیمت فروش بیشتر است لطفا قیمت فروش مرکز را اصلاح کنید.'
-                ] );
             }
+            return response( [
+                'operator' => true,
+                'status'=>'success',
+                'message'=>'ثبت با موفقیت انجام شد .'
+            ] );
         }
-
-        return redirect( url( 'dashboard/center/'.$request->center.'/serviceTariff' ) )->with( [
-            'cereate' => 'success',
-        ] );
     }
 
     /**
@@ -147,36 +136,31 @@ class ServiceTariffController extends Controller {
 
     public function update( Request $request, ServiceTariff $serviceTariff ) {
         $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
+        $selling_price = $request->price ? ( float ) str_replace( ',', '', $request->price ) : $serviceTariff->price;
         $inputs = $request->all();
-        if ( $serviceTariff->serviceInsexTariff && $purchase_price <= $serviceTariff->serviceInsexTariff->purchase_price ) {
-            $serviceTariff->update( [
-                'session_number' => $request->session_number,
-                'treatment_duration' => $request->treatment_duration,
-                'purchase_price' => $purchase_price,
-            ] );
-            if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
-                for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
-                $i++ ) {
-                    AllocationEmployeeShareCenter::create( [
-                        'user_id' => $inputs[ 'employee' ][ $i ],
-                        'agent_id' => auth()->user()->id,
-                        'service_tariff_id' => $serviceTariff->id,
-                        'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                    ] );
-                }
+        $serviceTariff->update( [
+            'session_number' => $request->session_number,
+            'treatment_duration' => $request->treatment_duration,
+            'purchase_price' => $purchase_price,
+            'price' => $selling_price,
+        ] );
+        if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
+            for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
+            $i++ ) {
+                AllocationEmployeeShareCenter::create( [
+                    'user_id' => $inputs[ 'employee' ][ $i ],
+                    'agent_id' => auth()->user()->id,
+                    'service_tariff_id' => $serviceTariff->id,
+                    'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                ] );
             }
-            return response( [
-                'operator' => true,
-                'status'=>'success',
-                'message'=>'ویرایش با موفقیت انجام شد .'
-            ] );
-        } else {
-            return response( [
-                'operator' => true,
-                'status'=>'error',
-                'message'=>'جمع مبالغ تخصیص داده شده از حداکثر قیمت فروش بیشتر است لطفا قیمت فروش مرکز را اصلاح کنید.'
-            ] );
         }
+        return response( [
+            'operator' => true,
+            'status'=>'success',
+            'message'=>'ویرایش با موفقیت انجام شد .'
+        ] );
+
     }
 
     /**

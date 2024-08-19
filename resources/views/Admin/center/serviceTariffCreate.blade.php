@@ -18,7 +18,7 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-12 col-md-6 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>عنوان</label>
                     <select class="form-control select2" name="name" id="serviceIndexTariff">
                         <option>عنوان تعرفه را تایپ کنید</option>
@@ -27,7 +27,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-6 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>انتخاب تعرفه</label>
                     <select class="form-control" name="tariff" id="tariff1">
                         @foreach ($tariffs as $tariff)
@@ -36,10 +36,17 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش مرکز</label>
+                    <label>قیمت فروش مرکز (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         oninput="separatePrices(this)">
                 </div>
+                @permission('service_tariff_selling_price')
+                <div class="col-12 col-md-4 mb-3">
+                    <label>قیمت فروش شرکت (ریال)</label>
+                    <input type="text" class="form-control" name="price" required
+                        oninput="separatePrices(this)">
+                </div>
+                @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>تعداد جلسات</label>
                     <input type="number" value="1" class="form-control" name="session_number" id="session_number1"
@@ -69,7 +76,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
-                    <label>مبلغ مورد نظر</label>
+                    <label>مبلغ مورد نظر (ریال)</label>
                     <input type="text" class="form-control" name="price[]" required
                         oninput="separatePrices(this)">
                 </div>

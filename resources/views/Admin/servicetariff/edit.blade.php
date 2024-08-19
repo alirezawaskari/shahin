@@ -27,10 +27,17 @@
                     <input class="form-control" value="{{$serviceTariff->tariff->title}}" readonly>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش مرکز</label>
+                    <label>قیمت فروش مرکز (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         value="{{number_format($serviceTariff->purchase_price)}}" oninput="separatePrices(this)">
                 </div>
+                @permission('service_tariff_selling_price')
+                <div class="col-12 col-md-4 mb-3">
+                    <label>قیمت فروش شرکت (ریال)</label>
+                    <input type="text" class="form-control" name="price" required
+                        value="{{number_format($serviceTariff->price)}}" oninput="separatePrices(this)">
+                </div>
+                @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>تعداد جلسات</label>
                     <input type="number" value="{{$serviceTariff->session_number}}" class="form-control" name="session_number" id="session_number1"
@@ -52,7 +59,7 @@
                 <thead>
                     <tr>
                         <th>نام و نام خانوادگی</th>
-                        <th>مبلغ سهم</th>
+                        <th>مبلغ سهم (ریال)</th>
                         <th>ثبت کننده</th>
                         <th>تاریخ ثبت</th>
                         <th>اقدام</th>
@@ -98,7 +105,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
-                    <label>مبلغ مورد نظر</label>
+                    <label>مبلغ مورد نظر (ریال)</label>
                     <input type="text" class="form-control" name="price[]"
                         oninput="separatePrices(this)">
                 </div>

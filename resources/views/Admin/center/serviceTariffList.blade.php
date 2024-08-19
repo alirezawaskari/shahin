@@ -55,7 +55,11 @@
                 <tr>
                     <th>#</th>
                     <th>عنوان تعرفه</th>
+                    @if($access_selling_price)
+                    <th>قیمت فروش مرکز (ریال) - قیمت فروش شرکت (ریال)</th>
+                    @else
                     <th>قیمت فروش مرکز(ریال)</th>
+                    @endif
                     <th>آخرین ویرایش</th>
                     <th>تاریخ ثبت</th>
                     <th>اقدام</th>
@@ -72,7 +76,6 @@
             </div>
 
             <p id="page_text"></p>
-            <input type="hidden" value="filter" id="url">
             <input type="hidden" value="complete" id="type">
             <div id="pagination-box">
                 <ul id="pagination-demo" class="pagination"></ul>

@@ -133,7 +133,12 @@ class CenterController extends AdminController
 
     public function serviceTariffs(Center $center , Service $service) {
         $tariffs = $service->tariffs;
-        return view( 'Admin.center.serviceTariffList', compact('center', 'service' ,'tariffs') );
+        $access_selling_price = false;
+        if (auth()->user()->isAbleTo('service_tariff_selling_price')){
+            $access_selling_price = true;
+        }
+
+        return view( 'Admin.center.serviceTariffList', compact('access_selling_price','center', 'service' ,'tariffs') );
     }
     /**
      * @param \App\Models\Center $center
