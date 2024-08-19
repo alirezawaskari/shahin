@@ -296,6 +296,58 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-12 col-md-3">
+                            <div class="card">
+                                @if($employee->imgaccess)
+                                <div id="imgaccess_src"  class="show">
+                                <a href="{{ asset($employee->imgaccess) }}" target="_blank">
+                                    <img src="{{ asset($employee->imgaccess) }}"
+                                        class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imgaccess_src" class="show">
+                                <img class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>تصویر دریافت دسترسی پنل</label>
+                                    <br>
+                                    <label for="imgaccess" id="up-label" class="btn badge-secondary"><i
+                                            class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="employee[imgaccess]" type="file" id="imgaccess"
+                                        class="filestyle file-upload file_upload_ajax file-up"
+                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imgaccess" class="path" name="urlimgaccess">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="card">
+                                @if($employee->imglastcertificate)
+                                <div id="imglastcertificate_src"  class="show">
+                                <a href="{{ asset($employee->imglastcertificate) }}" target="_blank">
+                                    <img src="{{ asset($employee->imglastcertificate) }}"
+                                        class="card-img-top" height="150px">
+                                </a>
+                                </div>
+                                @else
+                                <div id="imglastcertificate_src" class="show">
+                                <img class="card-img-top" height="150px">
+                                </div>
+                                @endif
+                                <div class="card-body">
+                                    <label>تصویر آخرین مدرک تحصیلی یا تخصصی</label>
+                                    <br>
+                                    <label for="imglastcertificate" id="up-label" class="btn badge-secondary"><i
+                                            class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <input name="employee[imglastcertificate]" type="file" id="imglastcertificate"
+                                        class="filestyle file-upload file_upload_ajax file-up"
+                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                    <input type="hidden" id="imglastcertificate" class="path" name="urlimglastcertificate">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

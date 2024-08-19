@@ -114,7 +114,14 @@ class EmployeeController extends AdminController
         $employee_items['contract_start_date'] = Helper::vertaToMiladi($employee_items['contract_start_date']);
         $employee_items['contract_expiration_date'] = Helper::vertaToMiladi($employee_items['contract_expiration_date']);
         $employee_items['parent_id'] =$request->parent_id == 'null'?null:$request->parent_id;
-
+        if ($request->urlimgaccess) {
+            Helper::deleteImage($employee->imgaccess);
+            $employee_items['imgaccess'] = Helper::moveImage($request->urlimgaccess, 'document');
+        }
+        if ($request->urlimglastcertificate) {
+            Helper::deleteImage($employee->imglastcertificate);
+            $employee_items['imglastcertificate'] = Helper::moveImage($request->urlimglastcertificate, 'document');
+        }
         $user->employee->update($employee_items);
         unset($inputs['employee']);
 
@@ -144,6 +151,9 @@ class EmployeeController extends AdminController
         unset($inputs['urlimgsignature']);
         unset($inputs['urlimgmeli']);
         unset($inputs['urlavatar']);
+        unset($inputs['urlimgaccess']);
+        unset($inputs['urlimglastcertificate']);
+
         unset($inputs['role_id']);
         $inputs['wallet'] = (float)str_replace(',', '', $request->wallet);
         if ($inputs['password'] == '') {
