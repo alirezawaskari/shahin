@@ -22,6 +22,7 @@ class ServiceTariffCollection extends ResourceCollection
                     'name' => $item->name,
                     'slug' => $item->slug,
                     'price' => auth()->user()->isAbleTo('service_tariff_selling_price') ? number_format($item->purchase_price).' - '.number_format($item->price) : number_format($item->purchase_price),
+                    'selling_price' => number_format($item->price),
                     'tariff' => $item->tariff->title,
                     'jalali_created_at' => verta($item->created_at)->format('%Y/%m/%d ')
                 ];

@@ -257,7 +257,7 @@ function selectByTariff(id, value) {
                     $('#service_tariff' + id).find('option').remove();
                     $('#service_tariff' + id).append('<option value="" selected disabled>انتخاب کنید</option>');
                     for (var i = 0; i < data.service_tariffs.data.length; i++) {
-                        $('#service_tariff' + id).append('<option value="' + data.service_tariffs.data[i]['id'] + '">' + data.service_tariffs.data[i]['name'] + ' ( ' + data.service_tariffs.data[i]['price'] + 'ریال  -  تعرفه ' + data.service_tariffs.data[i]['tariff'] + ' ) </option>');
+                        $('#service_tariff' + id).append('<option value="' + data.service_tariffs.data[i]['id'] + '">' + data.service_tariffs.data[i]['name'] + ' ( ' + data.service_tariffs.data[i]['selling_price'] + 'ریال  -  تعرفه ' + data.service_tariffs.data[i]['tariff'] + ' ) </option>');
                     }
 
                     select = $('#service_tariff' + id).select2({
