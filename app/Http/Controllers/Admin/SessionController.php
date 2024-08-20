@@ -15,6 +15,7 @@ use App\Models\UserPerformance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\SessionCollection;
+use App\Models\AllocationEmployeeShareCenter;
 use App\Models\PercentageAllocationEmployee;
 
 class SessionController extends Controller {
@@ -336,9 +337,11 @@ class SessionController extends Controller {
 
         if ($session_count === ($factor_item_service_tariff ? $factor_item_service_tariff->session_number : '' )) {
             $factor_item_service_tariff->update( [ 'status' => 1 ] );
-            //set emplloyee performance from percentageAllocation employee
             $price = $factor_item_service_tariff->price - $factor_item_service_tariff->discount;
+            //set emplloyee performance from percentageAllocation employee
             PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price);
+            //set emplloyee performance from allocation employee share centers
+            AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price);
         }
 
         if ($factor_item_service_tariff && $session->agent_id && isset( $session->agent->employee ) ) {

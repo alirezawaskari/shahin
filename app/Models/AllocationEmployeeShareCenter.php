@@ -48,4 +48,16 @@ class AllocationEmployeeShareCenter extends Model
         }
         return $query;
     }
+    /**
+    * @param \App\Models\FactorItem $factor_item
+    * @param mixed $type
+    * @return void
+    */
+    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price ) {
+        $description = $service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
+        $allocation_employee_share_centers = $service_tariff->serviceTariff->allocationEmployeeShareCenters;
+        foreach ( $allocation_employee_share_centers as $item ) {
+            UserPerformance::store( $item, $description, $price, $item->amount, $factor_item );
+        }
+    }
 }
