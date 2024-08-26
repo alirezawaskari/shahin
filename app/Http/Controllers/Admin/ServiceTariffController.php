@@ -61,7 +61,7 @@ class ServiceTariffController extends Controller {
         $service_index_tariff = ServiceIndexTariff::find( $request->name );
         $inputs = $request->all();
         $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
-        $selling_price = $request->price ? ( float ) str_replace( ',', '', $request->price ) : 0;
+        $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : 0;
         $center = Center::find( $request->center );
         if ( $service_index_tariff ) {
             if ( count( $center->serviceTariffs->where( 'service_index_tariff_id', $service_index_tariff->id ) ) ) {
@@ -85,12 +85,15 @@ class ServiceTariffController extends Controller {
             if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
                 for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
                 $i++ ) {
-                    AllocationEmployeeShareCenter::create( [
-                        'user_id' => $inputs[ 'employee' ][ $i ],
-                        'agent_id' => auth()->user()->id,
-                        'service_tariff_id' => $service_tariff->id,
-                        'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                    ] );
+                    if($inputs[ 'price' ][ $i ])
+                    {
+                        AllocationEmployeeShareCenter::create( [
+                            'user_id' => $inputs[ 'employee' ][ $i ],
+                            'agent_id' => auth()->user()->id,
+                            'service_tariff_id' => $service_tariff->id,
+                            'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                        ] );
+                    }
                 }
             }
             return response( [
@@ -137,7 +140,7 @@ class ServiceTariffController extends Controller {
 
     public function update( Request $request, ServiceTariff $serviceTariff ) {
         $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
-        $selling_price = $request->price ? ( float ) str_replace( ',', '', $request->price ) : $serviceTariff->price;
+        $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : $serviceTariff->price;
         $inputs = $request->all();
         $serviceTariff->update( [
             'session_number' => $request->session_number,
@@ -145,15 +148,17 @@ class ServiceTariffController extends Controller {
             'purchase_price' => $purchase_price,
             'price' => $selling_price,
         ] );
-        if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
-            for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
-            $i++ ) {
-                AllocationEmployeeShareCenter::create( [
-                    'user_id' => $inputs[ 'employee' ][ $i ],
-                    'agent_id' => auth()->user()->id,
-                    'service_tariff_id' => $serviceTariff->id,
-                    'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                ] );
+        if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) && isset($inputs[ 'price' ]) ) {
+            for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ; $i++ ) {
+                if($inputs[ 'price' ][ $i ])
+                {
+                    AllocationEmployeeShareCenter::create( [
+                        'user_id' => $inputs[ 'employee' ][ $i ],
+                        'agent_id' => auth()->user()->id,
+                        'service_tariff_id' => $serviceTariff->id,
+                        'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                    ] );
+                }
             }
         }
         return response( [

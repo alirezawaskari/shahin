@@ -31,10 +31,11 @@
                     <input type="text" class="form-control" name="purchase_price" required
                         value="{{number_format($serviceTariff->purchase_price)}}" oninput="separatePrices(this)">
                 </div>
+                <input type="hidden" name="service_tariff_id" id="service_tariff_id" value="{{ $serviceTariff->slug }}">
                 @permission('service_tariff_selling_price')
                 <div class="col-12 col-md-4 mb-3">
                     <label>قیمت مصرف کننده (ریال)</label>
-                    <input type="text" class="form-control" name="price" required
+                    <input type="text" class="form-control" name="selling_price" required
                         value="{{number_format($serviceTariff->price)}}" oninput="separatePrices(this)">
                 </div>
                 @endpermission

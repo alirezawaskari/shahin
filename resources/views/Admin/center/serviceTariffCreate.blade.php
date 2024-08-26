@@ -43,7 +43,7 @@
                 @permission('service_tariff_selling_price')
                 <div class="col-12 col-md-4 mb-3">
                     <label>قیمت مصرف کننده (ریال)</label>
-                    <input type="text" class="form-control" name="price" required
+                    <input type="text" class="form-control" name="selling_price" required
                         oninput="separatePrices(this)">
                 </div>
                 @endpermission

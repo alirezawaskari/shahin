@@ -36,6 +36,7 @@ $(document).ready(function () {
     $("body").on('click', '#updateServiceTariff', function () {
         var form = $('#form_data');
         var formData = form.serialize();
+        var service_tariff_id = $('#service_tariff_id').val();
         var token = $('meta[name="csrf-token"]').attr('content');
         swal({
             title: `آیا مطمئن هستید؟`,
@@ -48,8 +49,8 @@ $(document).ready(function () {
         }).then(res => {
             if (res) {
                 $.ajax({
-                    url: "/dashboard/serviceTariff/update",
-                    type: 'post',
+                    type: "post",
+                    url: "/dashboard/serviceTariff/update/" + service_tariff_id,
                     "_token": token,
                     data: formData,
                     dataType: "json",
