@@ -78,6 +78,7 @@ class ServiceTariffController extends Controller {
                 'tariff_id' => $request->tariff,
                 'purchase_price' => $purchase_price,
                 'price' => $selling_price,
+                'service_id' => $service_index_tariff->service_id,
                 'service_index_tariff_id' => $service_index_tariff->id,
             ] );
             $service_tariff->centers()->attach( $request->center );

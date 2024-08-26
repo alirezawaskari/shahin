@@ -33,7 +33,7 @@
                 </div>
                 @permission('service_tariff_selling_price')
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش شرکت (ریال)</label>
+                    <label>قیمت مصرف کننده (ریال)</label>
                     <input type="text" class="form-control" name="price" required
                         value="{{number_format($serviceTariff->price)}}" oninput="separatePrices(this)">
                 </div>
@@ -129,11 +129,11 @@
     @endpermission
     <input type="hidden" name="center" value="{{ $center->id }}">
     <div class="col-12">
-        <button id="createServiceTariff" type="button" class="btn btn-outline-success py-2 px-4">ثبت</button>
+        <button id="updateServiceTariff" type="button" class="btn btn-outline-success py-2 px-4">ثبت</button>
     </div>
 </form>
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/serviceTariff.js?v=2.0') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/serviceTariff.js?v=2.1') }}"></script>
 @endsection

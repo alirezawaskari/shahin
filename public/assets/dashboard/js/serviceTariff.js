@@ -32,13 +32,47 @@ $(document).ready(function () {
             }
         });
     });
+    //update service tariif
+    $("body").on('click', '#updateServiceTariff', function () {
+        var form = $('#form_data');
+        var formData = form.serialize();
+        var token = $('meta[name="csrf-token"]').attr('content');
+        swal({
+            title: `آیا مطمئن هستید؟`,
+            icon: "warning",
+            buttons: {
+                confirm: 'بله',
+                cancel: 'خیر'
+            },
+            dangerMode: true
+        }).then(res => {
+            if (res) {
+                $.ajax({
+                    url: "/dashboard/serviceTariff/update",
+                    type: 'post',
+                    "_token": token,
+                    data: formData,
+                    dataType: "json",
+                    encode: true,
+                }).done(function (data) {
+                    if (data.status == 'success') {
+                        swal("موفق", data.message, 'success')
+                        location.reload();
+                    } else {
+                        swal("خطا !", data.message, 'error')
+                    }
+                });
+            }
+        });
+    });
 
     //delete
-    $("body").on('click','.allocation_employee_delete',function () {
+    $("body").on('click', '.allocation_employee_delete', function () {
         var id = $(this).data("id");
         var token = $("meta[name='csrf-token']").attr("content");
         $('#excel').prop('checked', false);
         submit();
+
         function submit(event) {
             swal({
                 title: "آیا مطمئن هستید؟",
@@ -51,34 +85,33 @@ $(document).ready(function () {
                 dangerMode: true
             }).then(res => {
                 if (res) {
-                    $.ajax(
-                        {
-                            url: "/dashboard/allocationEmployeeShareCenter/"+id,
-                            type: 'DELETE',
-                            data: {
-                                "_token": token,
-                            },
-                            success: function (data,page){
-                                if (data.status=='success'){
-                                    swal({
-                                        text: " با موفقیت حذف گردید .",
-                                        icon: "success",
-                                        button: "تایید",
-                                        timer:3000,
-                                        allowOutsideClick: true
-                                    });
-                                    location.reload();
-                                }else{
-                                    swal({
-                                        text: " شما مجاز به انجام این کار نیستید ",
-                                        icon: "error",
-                                        button: "تایید",
-                                        timer:3000,
-                                        allowOutsideClick: true
-                                    });
-                                }
+                    $.ajax({
+                        url: "/dashboard/allocationEmployeeShareCenter/" + id,
+                        type: 'DELETE',
+                        data: {
+                            "_token": token,
+                        },
+                        success: function (data, page) {
+                            if (data.status == 'success') {
+                                swal({
+                                    text: " با موفقیت حذف گردید .",
+                                    icon: "success",
+                                    button: "تایید",
+                                    timer: 3000,
+                                    allowOutsideClick: true
+                                });
+                                location.reload();
+                            } else {
+                                swal({
+                                    text: " شما مجاز به انجام این کار نیستید ",
+                                    icon: "error",
+                                    button: "تایید",
+                                    timer: 3000,
+                                    allowOutsideClick: true
+                                });
                             }
-                        });
+                        }
+                    });
                 }
             });
         }
@@ -105,7 +138,7 @@ $(document).ready(function () {
         var formData = form.serialize();
 
         $.ajax({
-            url: "/dashboard/serviceTariff/filter?page="+page,
+            url: "/dashboard/serviceTariff/filter?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
@@ -128,33 +161,48 @@ $(document).ready(function () {
             searching: false,
             retrieve: true,
             data: data.data,
-            order:[[0,"desc"]],
-            columns: [
-                { "data": "sort_by" },
-                { "data": "name" },
-                { "data": "price" },
-                { "data": "tariff" },
-                { "data": "jalali_created_at" },
-                { "data": data,
-                    "render": function (data){
+            order: [
+                [0, "desc"]
+            ],
+            columns: [{
+                    "data": "sort_by"
+                },
+                {
+                    "data": "name"
+                },
+                {
+                    "data": "price"
+                },
+                {
+                    "data": "tariff"
+                },
+                {
+                    "data": "jalali_created_at"
+                },
+                {
+                    "data": data,
+                    "render": function (data) {
                         return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
                     }
                 },
             ],
         });
         //add column count
-        table.on( 'order.dt search.dt', function () {
-            table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                cell.innerHTML = data.meta.from+i;
-            } );
-        } ).draw();
+        table.on('order.dt search.dt', function () {
+            table.column(0, {
+                search: 'applied',
+                order: 'applied'
+            }).nodes().each(function (cell, i) {
+                cell.innerHTML = data.meta.from + i;
+            });
+        }).draw();
     }
 
     /*    click on do filter */
-    $("body").on('click','#do_filter',function (event) {
-        if ($('#excel').prop('checked')==true){
+    $("body").on('click', '#do_filter', function (event) {
+        if ($('#excel').prop('checked') == true) {
             $('form').submit();
-        }else {
+        } else {
             $('#pagination-demo').remove();
             $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
             fetchData(1)
@@ -162,7 +210,7 @@ $(document).ready(function () {
         }
     });
 
-    $("body").on('click','.entry-inserted',function () {
+    $("body").on('click', '.entry-inserted', function () {
         $(`.entry-data-box-${$(this).data('id')}`).toggle()
     });
 });

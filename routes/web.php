@@ -503,6 +503,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/serviceTariff/getSessionNumber', 'ServiceTariffController@getSessionNumber');
     Route::get('/serviceTariff/filter', 'ServiceTariffController@filter')->name('serviceTariff.filter');
     Route::post('serviceTariff/store', 'ServiceTariffController@store');
+    Route::post('serviceTariff/update', 'ServiceTariffController@update');
     Route::resource('serviceTariff', 'ServiceTariffController');
 
     //allocationEmployeeShareCenters
