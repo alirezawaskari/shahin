@@ -114,7 +114,14 @@ class EmployeeController extends AdminController
         $employee_items['contract_start_date'] = Helper::vertaToMiladi($employee_items['contract_start_date']);
         $employee_items['contract_expiration_date'] = Helper::vertaToMiladi($employee_items['contract_expiration_date']);
         $employee_items['parent_id'] =$request->parent_id == 'null'?null:$request->parent_id;
-
+        if ($request->urlimgaccess) {
+            Helper::deleteImage($employee->imgaccess);
+            $employee_items['imgaccess'] = Helper::moveImage($request->urlimgaccess, 'document');
+        }
+        if ($request->urlimglastcertificate) {
+            Helper::deleteImage($employee->imglastcertificate);
+            $employee_items['imglastcertificate'] = Helper::moveImage($request->urlimglastcertificate, 'document');
+        }
         $user->employee->update($employee_items);
         unset($inputs['employee']);
 
@@ -144,6 +151,9 @@ class EmployeeController extends AdminController
         unset($inputs['urlimgsignature']);
         unset($inputs['urlimgmeli']);
         unset($inputs['urlavatar']);
+        unset($inputs['urlimgaccess']);
+        unset($inputs['urlimglastcertificate']);
+
         unset($inputs['role_id']);
         $inputs['wallet'] = (float)str_replace(',', '', $request->wallet);
         if ($inputs['password'] == '') {
@@ -247,11 +257,9 @@ class EmployeeController extends AdminController
         $data_access_date = $user->employee->data_access_date;
 
         $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
-
         if (isset($request->key) && $request->key != 'all') {
             $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->whereBetween('date', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth())])->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         }
-
         return view('Admin.employee.performanceDetail', compact('user', 'user_performances'));
     }
 

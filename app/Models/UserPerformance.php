@@ -90,9 +90,9 @@ class UserPerformance extends Model implements AuditableContract
         $percentage_type = request( 'percentage_type' );
         $user = request( 'user' );
 
-        if ( isset( $user ) && $user != 'all' ) {
-            $query->where('user_id', $user);
-        }
+        // if ( isset( $user ) && $user != 'all' ) {
+        //     $query->where('user_id', $user);
+        // }
         if ( isset( $percentage_type ) && $percentage_type != 'all' ) {
             $query->whereHas('resaons', function ($query) use ($percentage_type) {
                 $query->where( 'type', 'LIKE', '%' . $percentage_type . '%' );
@@ -168,14 +168,14 @@ class UserPerformance extends Model implements AuditableContract
      * @param mixed $description
      * @param mixed $price
      */
-    public static function store($percentage_allocation_employee , $description , $price , $factor_item)
+    public static function store($item , $description , $price , $user_performance_price , $factor_item)
     {
-        $user = $percentage_allocation_employee->user;
+        $user = $item->user;
         $user_performance = UserPerformance::create( [
-            'factor_item_id' => $factor_item,
+            'factor_item_id' => $factor_item->id,
             'description' => $description,
             'price' => $price,
-            'tax' => $price * ( $percentage_allocation_employee->percent / 100 ),
+            'tax' => ( $user_performance_price * ( $user->employee->tax / 100) ),
             'ancillary_costs' => 0,
             'date' => now(),
             'callcenter_id' => auth()->user()->id,
@@ -187,13 +187,13 @@ class UserPerformance extends Model implements AuditableContract
             'user_id' => $user->id,
             'reason_id' => $user_performance->id,
             'resnumber' => $resNum,
-            'price' => $price * ( $percentage_allocation_employee->percent / 100 ),
+            'price' => $user_performance_price,
             'status' => '1',
             'type' => '1',
             'created_at' => $user_performance->date,
         ] );
 
-        $user_performance->resaons()->attach(['percentage_allocation_employee_id' => $percentage_allocation_employee->id]);
+        $user_performance->resaons()->attach(['percentage_allocation_employee_id' => $item->id]);
         $user ? $user->update( [ 'wallet' => $user->wallet + $WalletTransaction->price ] ) : '';
     }
 }

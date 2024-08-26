@@ -60,7 +60,7 @@
     </div>
 @stop
 @section('js')
-    <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.2') }}"></script>
+    <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
     <script src="{{ asset('/assets/dashboard/js/layouts.js?v=1.2') }}"></script>
     <script src="{{asset('assets/dashboard/js/fontawesome.js')}}"></script>
     <script src="{{asset('assets/dashboard/js/bootstrap.min.js')}}"></script>

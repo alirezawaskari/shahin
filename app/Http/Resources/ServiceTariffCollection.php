@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ServiceTariff;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ServiceTariffCollection extends ResourceCollection
@@ -20,7 +21,8 @@ class ServiceTariffCollection extends ResourceCollection
                     'id' => $item->id,
                     'name' => $item->name,
                     'slug' => $item->slug,
-                    'price' => number_format($item->price),
+                    'price' => auth()->user()->isAbleTo('service_tariff_selling_price') ? number_format($item->purchase_price).' -- '.number_format($item->price) : number_format($item->purchase_price),
+                    'selling_price' => number_format($item->price),
                     'tariff' => $item->tariff->title,
                     'jalali_created_at' => verta($item->created_at)->format('%Y/%m/%d ')
                 ];

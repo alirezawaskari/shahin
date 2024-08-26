@@ -99,10 +99,8 @@
                 <th>سال</th>
                 <th>ماه</th>
                 <th>تعداد پرونده انجام شده</th>
-                <th>جمع کل مبلغ(ریال)</th>
-                <th>سهم شرکت(ریال)</th>
-                <th>سهم خدمات دهنده(ریال)</th>
-                <th>مالیات(ریال)</th>
+                <th>مبلغ عملکرد(ریال)</th>
+                <th>مبلغ مالیات(ریال)</th>
                 <th>مبلغ دریافت شده(ریال)</th>
                 <th>باقی مانده | اضافه دریافت (ریال)</th>
                 <th>اقدام</th>
@@ -112,8 +110,6 @@
                 <td>{{ $item['year'] }}</td>
                 <td>{{ $item['month'] }}</td>
                 <td>{{ $item['item_count'] }}</td>
-                <td>{{ number_format($item['total_price']) }}</td>
-                <td>{{ number_format($item['total_price'] - $item['center_income'] - $item['ancillary_costs']) }}</td>
                 <td>{{ number_format($item['center_income']) }}</td>
                 <td>{{ number_format($item['center_income'] * 0.1) }}</td>
                 <td>{{ number_format($item['amount_received']) }}</td>

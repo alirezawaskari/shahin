@@ -91,7 +91,8 @@ class PercentageAllocationEmployee extends Model {
             {
                 $is_applicable = self::checkPercentageAllocationEmployeeConditions($item , $factor_item);
             }
-            $is_applicable ? UserPerformance::store( $item, $description, $price, $factor_item ) : '';
+            $user_performance_price = $price * ( $item->percent / 100 );
+            $is_applicable ? UserPerformance::store( $item, $description, $price, $user_performance_price, $factor_item ) : '';
         }
     }
     private static function checkPercentageAllocationEmployeeConditions($item , $factor_item)

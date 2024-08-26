@@ -1,4 +1,122 @@
 $(document).ready(function () {
+    //create service tariif
+    $("body").on('click', '#createServiceTariff', function () {
+        var form = $('#form_data');
+        var formData = form.serialize();
+        var token = $('meta[name="csrf-token"]').attr('content');
+        swal({
+            title: `آیا مطمئن هستید؟`,
+            icon: "warning",
+            buttons: {
+                confirm: 'بله',
+                cancel: 'خیر'
+            },
+            dangerMode: true
+        }).then(res => {
+            if (res) {
+                $.ajax({
+                    url: "/dashboard/serviceTariff/store",
+                    type: 'post',
+                    "_token": token,
+                    data: formData,
+                    dataType: "json",
+                    encode: true,
+                }).done(function (data) {
+                    if (data.status == 'success') {
+                        swal("موفق", data.message, 'success')
+                        location.reload();
+                    } else {
+                        swal("خطا !", data.message, 'error')
+                    }
+                });
+            }
+        });
+    });
+    //update service tariif
+    $("body").on('click', '#updateServiceTariff', function () {
+        var form = $('#form_data');
+        var formData = form.serialize();
+        var service_tariff_id = $('#service_tariff_id').val();
+        var token = $('meta[name="csrf-token"]').attr('content');
+        swal({
+            title: `آیا مطمئن هستید؟`,
+            icon: "warning",
+            buttons: {
+                confirm: 'بله',
+                cancel: 'خیر'
+            },
+            dangerMode: true
+        }).then(res => {
+            if (res) {
+                $.ajax({
+                    type: "post",
+                    url: "/dashboard/serviceTariff/update/" + service_tariff_id,
+                    "_token": token,
+                    data: formData,
+                    dataType: "json",
+                    encode: true,
+                }).done(function (data) {
+                    if (data.status == 'success') {
+                        swal("موفق", data.message, 'success')
+                        location.reload();
+                    } else {
+                        swal("خطا !", data.message, 'error')
+                    }
+                });
+            }
+        });
+    });
+
+    //delete
+    $("body").on('click', '.allocation_employee_delete', function () {
+        var id = $(this).data("id");
+        var token = $("meta[name='csrf-token']").attr("content");
+        $('#excel').prop('checked', false);
+        submit();
+
+        function submit(event) {
+            swal({
+                title: "آیا مطمئن هستید؟",
+                text: "",
+                icon: "warning",
+                buttons: {
+                    confirm: 'بله',
+                    cancel: 'خیر'
+                },
+                dangerMode: true
+            }).then(res => {
+                if (res) {
+                    $.ajax({
+                        url: "/dashboard/allocationEmployeeShareCenter/" + id,
+                        type: 'DELETE',
+                        data: {
+                            "_token": token,
+                        },
+                        success: function (data, page) {
+                            if (data.status == 'success') {
+                                swal({
+                                    text: " با موفقیت حذف گردید .",
+                                    icon: "success",
+                                    button: "تایید",
+                                    timer: 3000,
+                                    allowOutsideClick: true
+                                });
+                                location.reload();
+                            } else {
+                                swal({
+                                    text: " شما مجاز به انجام این کار نیستید ",
+                                    icon: "error",
+                                    button: "تایید",
+                                    timer: 3000,
+                                    allowOutsideClick: true
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
     fetchData(1);
 
     function pagination(totalPages) {
@@ -21,7 +139,7 @@ $(document).ready(function () {
         var formData = form.serialize();
 
         $.ajax({
-            url: "/dashboard/serviceTariff/filter?page="+page,
+            url: "/dashboard/serviceTariff/filter?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
@@ -44,33 +162,48 @@ $(document).ready(function () {
             searching: false,
             retrieve: true,
             data: data.data,
-            order:[[0,"desc"]],
-            columns: [
-                { "data": "sort_by" },
-                { "data": "name" },
-                { "data": "price" },
-                { "data": "tariff" },
-                { "data": "jalali_created_at" },
-                { "data": data,
-                    "render": function (data){
+            order: [
+                [0, "desc"]
+            ],
+            columns: [{
+                    "data": "sort_by"
+                },
+                {
+                    "data": "name"
+                },
+                {
+                    "data": "price"
+                },
+                {
+                    "data": "tariff"
+                },
+                {
+                    "data": "jalali_created_at"
+                },
+                {
+                    "data": data,
+                    "render": function (data) {
                         return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
                     }
                 },
             ],
         });
         //add column count
-        table.on( 'order.dt search.dt', function () {
-            table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                cell.innerHTML = data.meta.from+i;
-            } );
-        } ).draw();
+        table.on('order.dt search.dt', function () {
+            table.column(0, {
+                search: 'applied',
+                order: 'applied'
+            }).nodes().each(function (cell, i) {
+                cell.innerHTML = data.meta.from + i;
+            });
+        }).draw();
     }
 
     /*    click on do filter */
-    $("body").on('click','#do_filter',function (event) {
-        if ($('#excel').prop('checked')==true){
+    $("body").on('click', '#do_filter', function (event) {
+        if ($('#excel').prop('checked') == true) {
             $('form').submit();
-        }else {
+        } else {
             $('#pagination-demo').remove();
             $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
             fetchData(1)
@@ -78,30 +211,30 @@ $(document).ready(function () {
         }
     });
 
-    $("body").on('click','.entry-inserted',function () {
+    $("body").on('click', '.entry-inserted', function () {
         $(`.entry-data-box-${$(this).data('id')}`).toggle()
     });
 });
 
 var ct = 1;
 
-function newServiceTariffLink() {
+function newAllocationEmployeeShareLink() {
     ct++;
     var div1 = document.createElement('div');
     div1.id = ct;
-    var delLink = '<a class="text-white" href="javascript:delServiceTariffLink(' + ct + ')"><div class="btn badge-red"><i class="fa fa-trash" aria-hidden="true"></i></div></a>';
+    var delLink = '<a class="text-white" href="javascript:delAllocationEmployeeShareLink(' + ct + ')"><div class="btn badge-red"><i class="fa fa-trash" aria-hidden="true"></i></div></a>';
 
-    div1.innerHTML = document.getElementById('newservicetarifftpl').innerHTML;
+    div1.innerHTML = document.getElementById('newallocationemployeesharetpl').innerHTML;
     div1.classList.add("row");
     div1.classList.add("card");
-    document.getElementById('newservicetariff').appendChild(div1);
-    div1.children[0].children[0].children[5].id = "delete" + ct;
+    document.getElementById('newallocationemployeeshare').appendChild(div1);
+    div1.children[0].children[2].children[2].id = "delete" + ct;
     document.getElementById('delete' + ct).innerHTML = delLink;
 }
 
-function delServiceTariffLink(eleId) {
+function delAllocationEmployeeShareLink(eleId) {
     d = document;
     var ele = d.getElementById(eleId);
-    var parentEle = d.getElementById('newservicetariff');
+    var parentEle = d.getElementById('newallocationemployeeshare');
     parentEle.removeChild(ele);
 }

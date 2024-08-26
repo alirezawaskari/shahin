@@ -1,4 +1,5 @@
 @extends('Admin.master')
+@section('title')فهرست تعرفه ها@endsection
 
 @section('content')
 
@@ -13,7 +14,7 @@
                 </ol>
             </nav>
         </div>
-        <a href="{{ url('dashboard/center/'.$center->id.'/serviceTariff/create') }}" style="float: left" class="btn btn-primary"> ایجاد تعرفه جدید</a>
+        <a href="{{ url('dashboard/center/'.$center->id.'/'.$service->slug.'/serviceTariff/create') }}" style="float: left" class="btn btn-primary"> ایجاد تعرفه جدید</a>
     </div>
     <div class="card">
         <div class="card-body">
@@ -54,7 +55,11 @@
                 <tr>
                     <th>#</th>
                     <th>عنوان تعرفه</th>
-                    <th>قیمت(ریال)</th>
+                    @if($access_selling_price)
+                    <th>قیمت فروش مرکز (ریال) | قیمت مصرف کننده (ریال)</th>
+                    @else
+                    <th>قیمت فروش مرکز(ریال)</th>
+                    @endif
                     <th>آخرین ویرایش</th>
                     <th>تاریخ ثبت</th>
                     <th>اقدام</th>
@@ -71,7 +76,6 @@
             </div>
 
             <p id="page_text"></p>
-            <input type="hidden" value="filter" id="url">
             <input type="hidden" value="complete" id="type">
             <div id="pagination-box">
                 <ul id="pagination-demo" class="pagination"></ul>

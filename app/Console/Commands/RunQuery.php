@@ -50,12 +50,12 @@ class RunQuery extends Command {
     public function handle() {
 
             //fill service_id in service_tariffs table
-            $service_tariffs = ServiceTariff::all();
-            foreach($service_tariffs as $service_tariff)
-            {
-                $service_tariff->update(['service_id' => $service_tariff->tariff->service_id]);
-            }
-            dd('finish');
+            // $service_tariffs = ServiceTariff::all();
+            // foreach($service_tariffs as $service_tariff)
+            // {
+            //     $service_tariff->update(['service_id' => $service_tariff->tariff->service_id]);
+            // }
+            // dd('finish');
             $factor_items = FactorItem::whereIn('status_factor' , [0,1,2,3,4,5,8,9,11,12,13,14])->take(400)->get();
             foreach($factor_items as $factor_item)
             {

@@ -7,168 +7,210 @@ use App\Models\ServiceTariff;
 use App\Http\Resources\ServiceTariffCollection;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AllocationEmployeeShareCenter;
 use App\Models\Center;
 use App\Models\FactorItem;
+use App\Models\ServiceIndexTariff;
 use App\Models\Tariff;
 
-class ServiceTariffController extends Controller
-{
+class ServiceTariffController extends Controller {
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
-    public function index()
-    {
+    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+    */
+
+    public function index() {
         $service_tariffs = ServiceTariff::all();
-        //$service_tariffs->where('type' , '!=' , 2)->delete();
-        if(auth()->user()->center)
-        {
-            $service_tariffs = ServiceTariff::where('center_id' , auth()->user()->center->id)->get();
+        //$service_tariffs->where( 'type', '!=', 2 )->delete();
+        if ( auth()->user()->center ) {
+            $service_tariffs = ServiceTariff::where( 'center_id', auth()->user()->center->id )->get();
         }
-		return view('Admin.servicetariff.all' , compact('service_tariffs'));
+        return view( 'Admin.servicetariff.all', compact( 'service_tariffs' ) );
     }
 
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
-    public function create()
-    {
-        $centers = Center::where('status' , true)->get();
+    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+    */
+
+    public function create() {
+        $centers = Center::where( 'status', true )->get();
         $tariffs = Tariff::all();
-        if(auth()->user()->center)
-        {
-            $centers = Center::where('id' , auth()->user()->center_id)->get();
+        if ( auth()->user()->center ) {
+            $centers = Center::where( 'id', auth()->user()->center_id )->get();
         }
-        return view('Admin.servicetariff.create' , compact(['centers' , 'tariffs']));
+        return view( 'Admin.servicetariff.create', compact( [ 'centers', 'tariffs' ] ) );
     }
 
     /**
-     *
-     */
-    public function show()
-    {
+    *
+    */
+
+    public function show() {
     }
 
     /**
-     * @param Request $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request)
-    {
+    * @param Request $request
+    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+    * @throws \Illuminate\Validation\ValidationException
+    */
 
-        $this->validate(request(), [
+    public function store( Request $request ) {
+        $this->validate( request(), [
             'name' => 'required',
-            'price' => 'required',
-        ]);
-
+            'purchase_price' => 'required',
+        ] );
+        $service_index_tariff = ServiceIndexTariff::find( $request->name );
         $inputs = $request->all();
-
-        for($i = 0 ; $i < count( $inputs['name'] ) ; $i++)
-        {
-            $inputs['price'][$i] = (float) str_replace(',', '', $inputs['price'][$i]);
-            $service_tariff = ServiceTariff::create([
-                'name' => $inputs['name'][$i],
-                'price' => $inputs['price'][$i],
-                'session_number' => $inputs['session_number'][$i],
-                'treatment_duration' => $inputs['treatment_duration'][$i],
-                'tariff_id' => $inputs[ 'tariff' ][ $i ],
-            ]);
-            $service_tariff->centers()->attach($request->center);
-        }
-
-        return redirect(url('dashboard/center/'.$request->center.'/serviceTariff'))->with([
-            'cereate' => 'success',
-        ]);
-    }
-
-    /**
-     * @param ServiceTariff $serviceTariff
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
-    public function edit(ServiceTariff $serviceTariff ) {
-        $service = $serviceTariff->centers->first()->centerable;
-        $tariffs = $service->tariffs;
-        return view( 'Admin.servicetariff.edit', compact( 'serviceTariff' , 'tariffs') );
-    }
-
-    /**
-     * @param Request $request
-     * @return ServiceTariffCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    public function filter(Request $request ) {
-        $center = Center::find($request->center_id);
-        $service_tariffs = $center->serviceTariffs()->where('service_id' , $request->service_id)->filter($request)->latest();
-        if (isset($request->excel) && $request->excel == 'on') {
-            return (new ServiceTariffExport($service_tariffs))->download('service_tariffs.xlsx');
-        }
-        return new ServiceTariffCollection( $service_tariffs->paginate( 20 ));
-    }
-
-    /**
-     * @param Request $request
-     * @param ServiceTariff $serviceTariff
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function update(Request $request, ServiceTariff $serviceTariff)
-    {
-        $this->validate(request(), [
-            'name' => 'required|string',
-            'price' => 'required',
-        ]);
-
-        $inputs = $request->all();
-        $inputs['price'] = (float) str_replace(',', '', $request->input('price'));
-
-        $serviceTariff->update($inputs);
-
-        return redirect()->route('center.serviceTariff' , [$serviceTariff->centers[0]->id])->with([
-            'update' => 'success',
-        ]);
-    }
-
-    /**
-     * @param ServiceTariff $serviceTariff
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy(ServiceTariff $serviceTariff)
-    {
-        $serviceTariff->delete();
-        return redirect()->back()->with([
-            'slider_delete' => 'success'
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|void
-     */
-    public function selectByTariff(Request $request)
-    {
-       if ($request->ajax()) {
-           $id = $request->input('id');
-           $factor_item = FactorItem::find($request->factor_item_id);
-           if (ServiceTariff::where('tariff_id', $id)->get()->count() > 0) {
-               $service_tariffs = $factor_item->center ? $factor_item->center->serviceTariffs()->where('tariff_id' , $id)->get() : [];
-               $service_tariffs =  new ServiceTariffCollection($service_tariffs);
-
-               return response()->json(['count' => 'available', 'service_tariffs' => $service_tariffs]);
-           }
-       }
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|void
-     */
-    public function getSessionNumber(Request $request)
-    {
-       if ($request->ajax()) {
-           $id = $request->input('id');
-            if (ServiceTariff::find($id)) {
-                $service_tariff = ServiceTariff::find($id);
-                return response()->json(['count' => 'available', 'service_tariff' => $service_tariff]);
+        $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
+        $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : 0;
+        $center = Center::find( $request->center );
+        if ( $service_index_tariff ) {
+            if ( count( $center->serviceTariffs->where( 'service_index_tariff_id', $service_index_tariff->id ) ) ) {
+                return response( [
+                    'operator' => true,
+                    'status'=>'error',
+                    'message'=>'شما قبلا این تعرفه را ثبت کرده اید لطفا از قسمت ویرایش اقدام کنید.'
+                ] );
             }
-       }
+            $service_tariff = ServiceTariff::create( [
+                'name' => $service_index_tariff->title,
+                'session_number' => $request->session_number,
+                'treatment_duration' => $request->treatment_duration,
+                'tariff_id' => $request->tariff,
+                'purchase_price' => $purchase_price,
+                'price' => $selling_price,
+                'service_id' => $service_index_tariff->service_id,
+                'service_index_tariff_id' => $service_index_tariff->id,
+            ] );
+            $service_tariff->centers()->attach( $request->center );
+            if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
+                for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
+                $i++ ) {
+                    if($inputs[ 'price' ][ $i ])
+                    {
+                        AllocationEmployeeShareCenter::create( [
+                            'user_id' => $inputs[ 'employee' ][ $i ],
+                            'agent_id' => auth()->user()->id,
+                            'service_tariff_id' => $service_tariff->id,
+                            'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                        ] );
+                    }
+                }
+            }
+            return response( [
+                'operator' => true,
+                'status'=>'success',
+                'message'=>'ثبت با موفقیت انجام شد .'
+            ] );
+        }
+    }
+
+    /**
+    * @param ServiceTariff $serviceTariff
+    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+    */
+
+    public function edit( ServiceTariff $serviceTariff ) {
+        $tariffs = $serviceTariff->service->tariffs;
+        $center = $serviceTariff->centers()->first();
+        $employees = $center->users->where( 'level', 'admin' );
+        $allocation_employee_share_centers = $serviceTariff->allocationEmployeeShareCenters;
+        return view( 'Admin.servicetariff.edit', compact( 'allocation_employee_share_centers', 'center', 'employees', 'serviceTariff', 'tariffs' ) );
+    }
+
+    /**
+    * @param Request $request
+    * @return ServiceTariffCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+    */
+
+    public function filter( Request $request ) {
+        $center = Center::find( $request->center_id );
+        $service_tariffs = $center->serviceTariffs()->where( 'service_id', $request->service_id )->filter( $request )->latest();
+        if ( isset( $request->excel ) && $request->excel == 'on' ) {
+            return ( new ServiceTariffExport( $service_tariffs ) )->download( 'service_tariffs.xlsx' );
+        }
+        return new ServiceTariffCollection( $service_tariffs->paginate( 20 ) );
+    }
+
+    /**
+    * @param Request $request
+    * @param ServiceTariff $serviceTariff
+    * @return \Illuminate\Http\RedirectResponse
+    * @throws \Illuminate\Validation\ValidationException
+    */
+
+    public function update( Request $request, ServiceTariff $serviceTariff ) {
+        $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
+        $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : $serviceTariff->price;
+        $inputs = $request->all();
+        $serviceTariff->update( [
+            'session_number' => $request->session_number,
+            'treatment_duration' => $request->treatment_duration,
+            'purchase_price' => $purchase_price,
+            'price' => $selling_price,
+        ] );
+        if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) && isset($inputs[ 'price' ]) ) {
+            for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ; $i++ ) {
+                if($inputs[ 'price' ][ $i ])
+                {
+                    AllocationEmployeeShareCenter::create( [
+                        'user_id' => $inputs[ 'employee' ][ $i ],
+                        'agent_id' => auth()->user()->id,
+                        'service_tariff_id' => $serviceTariff->id,
+                        'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                    ] );
+                }
+            }
+        }
+        return response( [
+            'operator' => true,
+            'status'=>'success',
+            'message'=>'ویرایش با موفقیت انجام شد .'
+        ] );
+
+    }
+
+    /**
+    * @param ServiceTariff $serviceTariff
+    * @return \Illuminate\Http\RedirectResponse
+    */
+
+    public function destroy( ServiceTariff $serviceTariff ) {
+        $serviceTariff->delete();
+        return redirect()->back()->with( [
+            'slider_delete' => 'success'
+        ] );
+    }
+
+    /**
+    * @param Request $request
+    * @return \Illuminate\Http\JsonResponse|void
+    */
+
+    public function selectByTariff( Request $request ) {
+        if ( $request->ajax() ) {
+            $id = $request->input( 'id' );
+            $factor_item = FactorItem::find( $request->factor_item_id );
+            if ( ServiceTariff::where( 'tariff_id', $id )->get()->count() > 0 ) {
+                $service_tariffs = $factor_item->center ? $factor_item->center->serviceTariffs()->where( 'tariff_id', $id )->get() : [];
+                $service_tariffs =  new ServiceTariffCollection( $service_tariffs );
+
+                return response()->json( [ 'count' => 'available', 'service_tariffs' => $service_tariffs ] );
+            }
+        }
+    }
+
+    /**
+    * @param Request $request
+    * @return \Illuminate\Http\JsonResponse|void
+    */
+
+    public function getSessionNumber( Request $request ) {
+        if ( $request->ajax() ) {
+            $id = $request->input( 'id' );
+            if ( ServiceTariff::find( $id ) ) {
+                $service_tariff = ServiceTariff::find( $id );
+                return response()->json( [ 'count' => 'available', 'service_tariff' => $service_tariff ] );
+            }
+        }
     }
 }
