@@ -257,11 +257,9 @@ class EmployeeController extends AdminController
         $data_access_date = $user->employee->data_access_date;
 
         $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
-
         if (isset($request->key) && $request->key != 'all') {
             $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->whereBetween('date', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth())])->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         }
-
         return view('Admin.employee.performanceDetail', compact('user', 'user_performances'));
     }
 
