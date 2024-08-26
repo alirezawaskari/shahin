@@ -397,14 +397,19 @@
                         مالی</span> </a></li>
             @endpermission
 
+            @if(auth()->user()->center)
             @permission('service-tariff')
             <li><a href="#"><i class="icon ti-control-record"></i><span>تعرفه ها</span></a>
                 <ul>
-                    <li><a href="{{ route('center.serviceTariff', [auth()->user()->center_id]) }}">فهرست تعرفه ها</a>
+                    @foreach (auth()->user()->center->services as $service)
+                    <li><a href="{{ route('center.serviceTariff', [auth()->user()->center_id,$service->slug]) }}">فهرست تعرفه ها ({{$service->title}})</a>
                     </li>
+                    @endforeach
                 </ul>
             </li>
             @endpermission
+            @endif
+
             @permission('create_agency')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>عاملیت ها</span> </a>
                 <ul>
