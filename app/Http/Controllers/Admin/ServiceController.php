@@ -672,7 +672,8 @@ class ServiceController extends AdminController
      */
     public function getIndexTariffs(Service $service)
     {
+        $delete = auth()->user()->isAbleTo( 'service_index_tariff_delete' );
         $service_index_tariffs = $service->serviceIndexTariffs;
-        return view('Admin.service.indexTariffs.all', compact('service_index_tariffs' , 'service'));
+        return view('Admin.service.indexTariffs.all', compact('delete','service_index_tariffs' , 'service'));
     }
 }

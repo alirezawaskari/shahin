@@ -433,7 +433,7 @@ class SessionController extends Controller {
             $session->delete();
         }
         if(\request()->ajax()){
-            return response(['status'=>'success']);
+
         }
         return redirect()->back()->with( [
             'delete' => 'success'

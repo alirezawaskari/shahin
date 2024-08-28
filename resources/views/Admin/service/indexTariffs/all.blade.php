@@ -88,6 +88,7 @@
             <br>
             <span>در حال بارگذاری...</span>
         </div>
+        <input type="hidden" value="{{$delete}}" id="delete">
         <p id="page_text"></p>
         <div id="pagination-box">
             <ul id="pagination-demo" class="pagination"></ul>
@@ -97,6 +98,6 @@
 @stop
 
 @section('js')
-<script src="/assets/dashboard/js/serviceIndexTariff.js"></script>
+<script src="/assets/dashboard/js/serviceIndexTariff.js?v=2.0"></script>
 <script src="/assets/dashboard/js/layouts.js"></script>
 @endsection

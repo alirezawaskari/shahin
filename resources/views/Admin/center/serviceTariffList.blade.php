@@ -76,7 +76,6 @@
             </div>
 
             <p id="page_text"></p>
-            <input type="hidden" value="complete" id="type">
             <div id="pagination-box">
                 <ul id="pagination-demo" class="pagination"></ul>
             </div>
@@ -85,5 +84,5 @@
 @stop
 
 @section('js')
-<script src="{{ asset('/assets/dashboard/js/serviceTariff.js?v=2.0') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/serviceTariff.js?v=2.1') }}"></script>
 @endsection

@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceIndexTariff extends Model
 {
-    use Sluggable,SoftDeletes;
+    use SoftDeletes;
 
     /**
      * @var array
@@ -16,30 +15,18 @@ class ServiceIndexTariff extends Model
     protected $guarded = [];
 
     /**
-     * @return \string[][]
-     */
-    public function sluggable():array
-    {
-        return [
-            'slug' => [
-                'source' => 'name'
-            ]
-        ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function serviceTariffs()
+    {
+        return $this->hasMany(ServiceTariff::class);
     }
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
