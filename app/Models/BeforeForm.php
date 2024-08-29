@@ -44,6 +44,7 @@ class BeforeForm extends Model
         'factor-image' => 'تصویر فاکتور',
         'factor_building' => 'فاکتور خدمات ساختمانی',
         'factor_service' => 'فاکتور خدمات',
+        'excel' => 'جدول',
     ];
 
 

@@ -89,7 +89,7 @@
                                         </div>
                                     </div>
                                     <div class="row p-3 position-relative">
-                                        @if($item['service']->center && !is_null($item['centers']))
+                                        @if($item['service']->center && count($item['centers']) > 0)
                                         <div class="col-12 col-md-6 mb-2">
                                             {{-- <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
                                             <select name="items[{{ $key }}][center]" id="" class="form-control"
@@ -191,6 +191,14 @@
                                                 @endforeach
                                             </select>
                                         </div>
+                                        @break
+                                        @case('excel')
+                                        <div class="col-12 mb-2">
+                                            <a href="/upload/2024/8/service/mozayede.xlsx" download>
+                                                <img src="https://images.freeimages.com/fic/images/icons/2795/office_2013_hd/2000/excel.png" class="img-fluid" width="100">
+                                            </a>
+                                        </div>
+                                        <label>{{ $form->help }}</label>
                                         @break
                                         @case('multi-select')
                                         <div class="col-12 col-md-6 mb-2">
