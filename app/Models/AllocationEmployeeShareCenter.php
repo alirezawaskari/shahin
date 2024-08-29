@@ -53,11 +53,15 @@ class AllocationEmployeeShareCenter extends Model
     * @param mixed $type
     * @return void
     */
-    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price ) {
+    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price , $agent , $date) {
         $description = $service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
         $allocation_employee_share_centers = $service_tariff->serviceTariff->allocationEmployeeShareCenters;
         foreach ( $allocation_employee_share_centers as $item ) {
-            UserPerformance::store( $item, $description, $price, $item->amount, $factor_item );
+            $user_role = $item->user->roles->first();
+            if(($user_role->name == 'doctor' && $item->user_id == $agent->id) || $user_role->name != 'doctor')
+            {
+                UserPerformance::store( $item, $description, $price, $item->amount, $factor_item , $date);
+            }
         }
     }
 }

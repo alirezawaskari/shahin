@@ -76,7 +76,7 @@ class PercentageAllocationEmployee extends Model {
     * @param mixed $type
     * @return void
     */
-    public static function setUserPerformance( FactorItem $factor_item, $type, $price ) {
+    public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date) {
         $description = self::TYPE[$type];
         if ( $type == 'register_price' ) {
             $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
@@ -92,7 +92,7 @@ class PercentageAllocationEmployee extends Model {
                 $is_applicable = self::checkPercentageAllocationEmployeeConditions($item , $factor_item);
             }
             $user_performance_price = $price * ( $item->percent / 100 );
-            $is_applicable ? UserPerformance::store( $item, $description, $price, $user_performance_price, $factor_item ) : '';
+            $is_applicable ? UserPerformance::store( $item, $description, $price, $user_performance_price, $factor_item , $date) : '';
         }
     }
     private static function checkPercentageAllocationEmployeeConditions($item , $factor_item)

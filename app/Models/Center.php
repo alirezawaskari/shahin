@@ -164,7 +164,7 @@ class Center extends Model {
     * @param mixed $type
     * @return void
     */
-    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price ) {
+    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price , $date) {
         $description = $service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
         $purchase_price = $service_tariff->serviceTariff->purchase_price;
         $superadmin_center_user = User::where('level' , 'admin')->where('center_id' , $factor_item->center_id)->whereHas('roles',function ($query){
@@ -173,7 +173,7 @@ class Center extends Model {
 
         if(isset($superadmin_center_user->employee))
         {
-            UserPerformance::store( $superadmin_center_user->employee, $description, $price, $purchase_price, $factor_item );
+            UserPerformance::store( $superadmin_center_user->employee, $description, $price, $purchase_price, $factor_item , $date);
         }
     }
 }

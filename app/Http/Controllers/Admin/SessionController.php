@@ -341,11 +341,11 @@ class SessionController extends Controller {
             $factor_item_service_tariff->update( [ 'status' => 1 ] );
             $price = $factor_item_service_tariff->price - $factor_item_service_tariff->discount;
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date);
             //set emplloyee performance from allocation employee share centers
-            AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price);
+            AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price , $agent , $session->date);
            //set superadmin center performance
-           Center::setUserPerformance($factor_item , $factor_item_service_tariff , $price);
+           Center::setUserPerformance($factor_item , $factor_item_service_tariff , $price );
         }
 
         if ($factor_item_service_tariff && $session->agent_id && isset( $session->agent->employee ) ) {

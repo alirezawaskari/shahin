@@ -168,7 +168,7 @@ class UserPerformance extends Model implements AuditableContract
      * @param mixed $description
      * @param mixed $price
      */
-    public static function store($item , $description , $price , $user_performance_price , $factor_item)
+    public static function store($item , $description , $price , $user_performance_price , $factor_item , $date)
     {
         $user = $item->user;
         $user_performance = UserPerformance::create( [
@@ -177,7 +177,7 @@ class UserPerformance extends Model implements AuditableContract
             'price' => $price,
             'tax' => ( $user_performance_price * ( $user->employee->tax / 100) ),
             'ancillary_costs' => 0,
-            'date' => now(),
+            'date' => $date,
             'callcenter_id' => auth()->user()->id,
             'user_id' => $user->id,
         ] );
