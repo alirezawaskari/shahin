@@ -448,8 +448,8 @@ class ServiceController extends AdminController
                 'image' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
                 'icon' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
                 'img_box_1' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
-                'desktop_slider' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
-                'mobile_slider' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
+                // 'desktop_slider' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
+                // 'mobile_slider' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
                 'image_app' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
             ]);
 
@@ -627,24 +627,24 @@ class ServiceController extends AdminController
     private function uploadSliders(Request $request, Service $service): void
     {
         //upload desktop slider
-        if ($request->file('desktop_slider')) {
-            $desktop_slider = File::where('title', 'desktop_slider')->where('fileable_type', Service::class)->where('fileable_id', $service->id)->first();
+        // if ($request->file('desktop_slider')) {
+        //     $desktop_slider = File::where('title', 'desktop_slider')->where('fileable_type', Service::class)->where('fileable_id', $service->id)->first();
 
-            if (!is_null($desktop_slider)) {
-                Helper::deleteImage(public_path($desktop_slider->path));
-                $desktop_slider->delete();
-            }
-            $this->uploadDesktopSliderImage($service, $request->file('desktop_slider'));
-        }   //upload mobile slider
-        if ($request->file('mobile_slider')) {
-            $mobile_slider = File::where('title', 'mobile_slider')->where('fileable_type', Service::class)->where('fileable_id', $service->id)->first();
+        //     if (!is_null($desktop_slider)) {
+        //         Helper::deleteImage(public_path($desktop_slider->path));
+        //         $desktop_slider->delete();
+        //     }
+        //     $this->uploadDesktopSliderImage($service, $request->file('desktop_slider'));
+        // }   //upload mobile slider
+        // if ($request->file('mobile_slider')) {
+        //     $mobile_slider = File::where('title', 'mobile_slider')->where('fileable_type', Service::class)->where('fileable_id', $service->id)->first();
 
-            if (!is_null($mobile_slider)) {
-                Helper::deleteImage(public_path($mobile_slider->path));
-                $mobile_slider->delete();
-            }
-            $this->uploadMobileSliderImage($service, $request->file('mobile_slider'));
-        }
+        //     if (!is_null($mobile_slider)) {
+        //         Helper::deleteImage(public_path($mobile_slider->path));
+        //         $mobile_slider->delete();
+        //     }
+        //     $this->uploadMobileSliderImage($service, $request->file('mobile_slider'));
+        // }
     }
    /**
     * @param \App\Models\Service $service
