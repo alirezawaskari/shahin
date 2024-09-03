@@ -113,12 +113,16 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>حسابداری من</span> </a>
                 <ul>
                     <li><a href="{{ route('employee.financial.report', [auth()->user()->employee->id]) }}">عملکرد
-                            ماهانه</a></li>
-                    <li><a href="{{ route('employee.wallet', [auth()->user()->id, 'key' => 'all']) }}">جزئیات گزارش
-                            مالی</a></li>
-                    @permission('user_performance_detail')
-                    <li><a href="{{ route('employee.performanceDetail', [auth()->user()->id]) }}">کلیات گزارش مالی</a>
+                            ماهانه من</a></li>
+                    @permission('financialReport_employee_list')
+                    <li><a href="{{ route('employee.financialReport.list') }}">عملکرد مالی همکاران</a>
                     </li>
+                    @endpermission
+                    @permission('center_financial_report')
+                    @if (auth()->user()->center_id)
+                    <li><a href="{{ route('center.financialReport' , [auth()->user()->center_id]) }}">عملکرد مالی مرکز</a>
+                    </li>
+                    @endif
                     @endpermission
                 </ul>
             </li>
@@ -175,7 +179,7 @@
                     @permission('percentageAllocationEmployee_report')
                     <li><a href="{{ route('percentageAllocationEmployee.report') }}">گزارش تسهیم</a></li>
                     @endpermission
-              </ul>
+                </ul>
             </li>
             @endpermission
             @permission('center-category')
@@ -194,8 +198,7 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                 <ul>
                     <li><a href="{{ url('/dashboard/factorItem/desktop') }}">پرونده های قابل اجرا</a></li>
-                    <li><a
-                            href="{{ route('factorItem.index') }}">کل پرونده ها</a></li>
+                    <li><a href="{{ route('factorItem.index') }}">کل پرونده ها</a></li>
                     @permission('file-report-installments')
                     <li><a href="{{ route('totalFactorItemInstallment.index') }}">بدهکاری اقساط</a></li>
                     @endpermission
@@ -402,7 +405,8 @@
             <li><a href="#"><i class="icon ti-control-record"></i><span>تعرفه ها</span></a>
                 <ul>
                     @foreach (auth()->user()->center->services as $service)
-                    <li><a href="{{ route('center.serviceTariff', [auth()->user()->center_id,$service->slug]) }}">فهرست تعرفه ها ({{$service->title}})</a>
+                    <li><a href="{{ route('center.serviceTariff', [auth()->user()->center_id,$service->slug]) }}">فهرست
+                            تعرفه ها ({{$service->title}})</a>
                     </li>
                     @endforeach
                 </ul>

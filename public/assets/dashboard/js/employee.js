@@ -49,58 +49,93 @@ $(document).ready(function () {
         }
 
         $('#datatable-json tbody').empty();
-
-        var table = $('#datatable-json').DataTable({
-            paging: false,
-            searching: false,
-            retrieve: true,
-            data: data.data,
-            order:[[0,"desc"]],
-            columns: [
-                { "data": "id" },
-                { "data": "name" },
-                { "data": "phone" },
-                { "data": "representation" },
-                { "data": "work_title" },
-                { "data": "created_at" },
-                {
-                    "targets":1,
-                    "data": "status",
-                    "render": function (data){
-                     //   return data==1?'فعال':'غیر فعال'
-                        return data==1?'<i class="fa fa-check" aria-hidden="true"></i>':'<i class="fa fa-times" aria-hidden="true"></i>'
-
-                    }
-                },
-                {
-                    "targets":1,
-                    "data": "show_status",
-                    "render": function (data){
-                        return data==1?'<i class="fa fa-check" aria-hidden="true"></i>':'<i class="fa fa-times" aria-hidden="true"></i>'
-                    }
-                },
-                {
-                    "targets": 1,
-                    "data": data,
-                    "render": function ( data ) {
-                        let loginDisplay='none';
-
-                        if($('#can-manual-login').val()==1){
-                            loginDisplay='block';
+        if ($('#type_list').val() == 'financialReport') {
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                order:[[0,"desc"]],
+                columns: [
+                    { "data": "id" },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            return `<img src="${data.avatar}" alt="" class="border-radius5" width="80px"></img>`
                         }
-                        return `<div data-v-15965e3b="" class="dropdown">
-                        <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i>
-                        </a><div class="dropdown-menu"><a href="../../dashboard/employee/${data.id}/edit" target="_blank"><button type="button" class="dropdown-item pointer">ویرایش</button></a>
-                          <a style="display: ${loginDisplay}" target="_blank" href="/dashboard/user/login/${data.user_id}"><span  data-id="${data.user_id}" class="task-delete dropdown-item pointer">
-                            ورود
-                            </span></a>
-                            <a href="../../dashboard/employee-financial-report/${data.id}" target="_blank"><button type="button" class="dropdown-item pointer">عملکرد ماهانه</button></a></div></div>`;
-                    }
-                },
+                    },
+                    { "data": "name" },
+                    { "data": "phone" },
+                    { "data": "work_title" },
+                    { "data": "wallet" },
+                    {
+                        "targets": 1,
+                        "data": data,
+                        "render": function ( data ) {
+                            return `<div data-v-15965e3b="" class="dropdown">
+                            <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i>
+                            </a><div class="dropdown-menu">
+                                <a href="../../dashboard/employee-financial-report/${data.id}" target="_blank"><button type="button" class="dropdown-item pointer">عملکرد ماهانه</button></a></div></div>`;
+                        }
+                    },
 
-            ],
+                ],
+            });
+        }
+        else{
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                order:[[0,"desc"]],
+                columns: [
+                    { "data": "id" },
+                    { "data": "name" },
+                    { "data": "phone" },
+                    { "data": "representation" },
+                    { "data": "work_title" },
+                    { "data": "created_at" },
+                    {
+                        "targets":1,
+                        "data": "status",
+                        "render": function (data){
+                         //   return data==1?'فعال':'غیر فعال'
+                            return data==1?'<i class="fa fa-check" aria-hidden="true"></i>':'<i class="fa fa-times" aria-hidden="true"></i>'
 
-        });
+                        }
+                    },
+                    {
+                        "targets":1,
+                        "data": "show_status",
+                        "render": function (data){
+                            return data==1?'<i class="fa fa-check" aria-hidden="true"></i>':'<i class="fa fa-times" aria-hidden="true"></i>'
+                        }
+                    },
+                    {
+                        "targets": 1,
+                        "data": data,
+                        "render": function ( data ) {
+                            let loginDisplay='none';
+
+                            if($('#can-manual-login').val()==1){
+                                loginDisplay='block';
+                            }
+                            return `<div data-v-15965e3b="" class="dropdown">
+                            <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i>
+                            </a><div class="dropdown-menu"><a href="../../dashboard/employee/${data.id}/edit" target="_blank"><button type="button" class="dropdown-item pointer">ویرایش</button></a>
+                              <a style="display: ${loginDisplay}" target="_blank" href="/dashboard/user/login/${data.user_id}"><span  data-id="${data.user_id}" class="task-delete dropdown-item pointer">
+                                ورود
+                                </span></a>
+                                <a href="../../dashboard/employee-financial-report/${data.id}" target="_blank"><button type="button" class="dropdown-item pointer">عملکرد ماهانه</button></a></div></div>`;
+                        }
+                    },
+
+                ],
+
+            });
+        }
+
         //add column count
         table.on( 'order.dt search.dt', function () {
             table.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {

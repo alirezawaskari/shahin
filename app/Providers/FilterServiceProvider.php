@@ -52,7 +52,7 @@ class FilterServiceProvider extends ServiceProvider
                 'roles' => Role::all(),
             ]);
         });
-        view()->composer(['Admin.employee.all'], function ($view) {
+        view()->composer(['Admin.employee.all','Admin.employee.financialReportEmployeeList'], function ($view) {
             $view->with([
                 'roles' => Role::all(),
             ]);

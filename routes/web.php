@@ -328,6 +328,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('purchaseInvoice', 'PurchaseInvoiceController');
     Route::resource('supplier', 'SupplierController');
     //employee
+    Route::get('/employee/financialReportEmployeeList', 'EmployeeController@financialReportEmployeeList')->name('employee.financialReport.list');
     Route::get('/employee/filter', 'EmployeeController@filter')->name('employee.filter');
     Route::get('/seller/filter', 'EmployeeController@sellerFilter')->name('seller.filter');
     Route::get('/employee-financial-report/{employee}' , 'EmployeeController@financialReport')->name('employee.financial.report');
@@ -553,6 +554,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //center
     Route::get('/center-service/{center}' , 'CenterController@service')->name('center.service');
     Route::get('/center/filter', 'CenterController@filter')->name('center.filter');
+    Route::get('/center/financialReport/{center}' , 'CenterController@financialReport')->name('center.financialReport');
     Route::get('/center/{center}/{service}/serviceTariff', 'CenterController@serviceTariffs')->name('center.serviceTariff');
     Route::get('/center/{center}/{service}/serviceTariff/create', 'CenterController@createServiceTariff');
     Route::get('/doctorsByCenter/{center_id}', 'CenterController@doctorsByCenter')->name('doctorsByCenter');

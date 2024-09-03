@@ -93,6 +93,7 @@
         </div>
 
         <p id="page_text"></p>
+        <input type="hidden" value="all" id="type_list">
         <input type="hidden" value="{{$can_manual_login}}" id="can-manual-login">
         <div id="pagination-box">
             <ul id="pagination-demo" class="pagination"></ul>

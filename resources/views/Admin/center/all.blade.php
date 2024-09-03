@@ -38,11 +38,11 @@
                         {{ $item->title }}
                     </td>
                     <td>
-{{--                        {{ $item->centerable ? $item->centerable->title : ''}}--}}
+                        {{-- {{ $item->centerable ? $item->centerable->title : ''}}--}}
                         {{implode(' | ',$item->services->pluck('title')->toArray())}}
                     </td>
                     <td>
-                        {{ $item->creatorRpresentation ? $item->creatorRpresentation->fa_name : 'نمایندگی کل'                    }}
+                        {{ $item->creatorRpresentation ? $item->creatorRpresentation->fa_name : 'نمایندگی کل' }}
                     </td>
                     <td>
                         {{ verta($item->created_at)->format('Y/m/d H:m:s') }}
@@ -68,6 +68,11 @@
                                     target="_blank">ویرایش
                                 </a>
                                 @endif
+                                @endpermission
+                                @permission('center_financial_report_detail')
+                                <a href="{{ route('center.financialReport' , [ $item->id]) }}" class="dropdown-item pointer"
+                                    target="_blank">عملکرد مالی مرکز
+                                </a>
                                 @endpermission
                                 <form class="delete_form" method="post"
                                     action="{{ route('center.destroy',[$item->id]) }}">

@@ -277,4 +277,15 @@ class EmployeeController extends AdminController
             return redirect()->back();
         }
     }
+    /**
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
+    public function financialReportEmployeeList()
+    {
+        if (auth()->user()->isAbleTo('financialReport_employee_list')) {
+            return view('Admin.employee.financialReportEmployeeList');
+        }
+
+        return abort(401);
+    }
 }

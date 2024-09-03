@@ -421,6 +421,10 @@ class CenterController extends AdminController
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $representation;
         $center->representations()->sync($representations);
     }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|void
+     */
     public static function getByService(Request $request)
     {
         if ($request->ajax()) {
@@ -433,5 +437,20 @@ class CenterController extends AdminController
                 return response()->json(['count' => 'available', 'centers' => $centers->get()]);
             }
         }
+    }
+    /**
+     * @param \App\Models\Center $center
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function financialReport(Center $center)
+    {
+        $user = auth()->user();
+        if ($user->isAbleTo('center_financial_report_detail')||$user->isAbleTo('center_financial_report')) {
+            $superadmin_center_user = User::where('level' , 'admin')->where('center_id' , $center->id)->whereHas('roles',function ($query){
+                $query->where('name','superadmin_center');
+            })->first();
+            return redirect()->route('employee.financial.report', [$superadmin_center_user->employee->id]);
+        }
+        return abort(401);
     }
 }
