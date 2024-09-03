@@ -91,6 +91,12 @@ $(document).ready(function () {
                 order:[[0,"desc"]],
                 columns: [
                     { "data": "id" },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            return `<img src="${data.avatar}" alt="" class="border-radius5" width="80px"></img>`
+                        }
+                    },
                     { "data": "name" },
                     { "data": "phone" },
                     { "data": "representation" },

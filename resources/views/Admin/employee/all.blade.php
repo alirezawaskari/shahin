@@ -71,6 +71,7 @@
             <thead class="text-center">
                 <tr>
                     <th>#</th>
+                    <th>تصویر پرسنلی</th>
                     <th>نام و نام خانوادگی</th>
                     <th>موبایل</th>
                     <th>محل کار</th>
@@ -103,5 +104,5 @@
 @stop
 
 @section('js')
-<script src="/assets/dashboard/js/employee.js?v=1.1"></script>
+<script src="/assets/dashboard/js/employee.js?v=1.2"></script>
 @endsection
