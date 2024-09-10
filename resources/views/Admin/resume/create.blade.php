@@ -15,6 +15,22 @@
                     <input type="text" class="form-control" name="family" value="{{ old('family') }}" required>
                 </div>
                 <div class="col-12 col-md-3 mb-3">
+                    <label>استان</label>
+                    <select class="form-control province_id" name="province_id" id="province_id">
+                        @foreach(\App\Models\Province::get() as $pro)
+                        <option value="{{$pro->id}}">{{ $pro->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label>شهر</label>
+                    <select class="form-control city_id" name="city_id" id="city_id">
+                        @foreach(\App\Models\City::get() as $city)
+                        <option value="{{$city->id}}">{{ $city->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
                     <label>ایمیل</label>
                     <input type="text" class="form-control" name="email" value="{{ old('email') }}">
                 </div>
