@@ -48,6 +48,13 @@
                 </div>
                 @endpermission
                 <div class="col-12 col-md-4 mb-3">
+                    <label>پرداخت در چند مرحله</label>
+                    <select class="form-control" name="multi_stage">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
                     <label>تعداد جلسات</label>
                     <input type="number" value="1" class="form-control" name="session_number" id="session_number1"
                         required min="1">
@@ -66,7 +73,7 @@
             <h5>تخصیص سهم همکار</h5>
             <hr>
             <div class="row">
-                <div class="col-12 col-md-6 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>انتخاب همکار</label>
                     <select class="form-control" name="employee[]">
                         <option>همکار مربوطه را انتخاب کنید</option>
@@ -75,12 +82,11 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-6 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>مبلغ مورد نظر (ریال)</label>
                     <input type="text" class="form-control" name="price[]" required
                         oninput="separatePrices(this)">
                 </div>
-
                 <div class="col-12 mb-3 mb-3" id="delete1">
                 </div>
             </div>

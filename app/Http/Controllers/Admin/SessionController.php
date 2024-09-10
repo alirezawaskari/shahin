@@ -335,26 +335,28 @@ class SessionController extends Controller {
         $agent = $session->agent_id ? User::find( $session->agent_id ) : '';
         $factor_item_service_tariff = $session->factor_item_service_tariff_id ? $session->factorItemServiceTariff : '';
         $session->update( [ 'status' => 1 , 'confirmer_id' => auth()->user()->id] );
-        $session_count = $factor_item_service_tariff ? count( $factor_item_service_tariff->sessions->where( 'status', 1 ) ) : 0;
-
-        if ($session_count === ($factor_item_service_tariff ? $factor_item_service_tariff->session_number : '' )) {
-            $factor_item_service_tariff->update( [ 'status' => 1 ] );
-            $price = $factor_item_service_tariff->price - $factor_item_service_tariff->discount;
-            //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date);
-            //set emplloyee performance from allocation employee share centers
-            AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price , $agent , $session->date);
-           //set superadmin center performance
-           Center::setUserPerformance($factor_item , $factor_item_service_tariff , $price );
-        }
-
-        if ($factor_item_service_tariff && $session->agent_id && isset( $session->agent->employee ) ) {
-            if ( $session->agent->employee->pay_type == 'pay_end_work' ) {
-                $this->calculateEndWork( $session, $factor_item_service_tariff, $agent );
-            } else {
-                $this->calculateEndSession( $session, $factor_item_service_tariff, $agent );
+        if ($factor_item_service_tariff) {
+            $session_count = count( $factor_item_service_tariff->sessions->where( 'status', 1 ) );
+            $session_number = $factor_item_service_tariff->session_number;
+            $price = $factor_item_service_tariff ? ($factor_item_service_tariff->price - $factor_item_service_tariff->discount) : 0;
+            if($session_count === $session_number)
+            {
+                $factor_item_service_tariff->update( [ 'status' => 1 ] );
+                //set emplloyee performance from percentageAllocation employee
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date);
+                //set emplloyee performance from allocation employee share centers
+                AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price , $agent , $session->date);
+            }
+            self::checkServiceTariffMultiStage($session_count,$factor_item_service_tariff,$factor_item,$price,$session->date);
+            if ($session->agent_id && isset( $session->agent->employee ) ) {
+                if ( $session->agent->employee->pay_type == 'pay_end_work' ) {
+                    $this->calculateEndWork( $session, $factor_item_service_tariff, $agent );
+                } else {
+                    $this->calculateEndSession( $session, $factor_item_service_tariff, $agent );
+                }
             }
         }
+
         $factor_item = $session->factorItem;
 
         //update credit file
@@ -463,5 +465,23 @@ class SessionController extends Controller {
             'status'=>'success',
             'message'=>'خروج کاربر با موفقیت ثبت شد .'
         ]);
+    }
+    /**
+     * @param mixed $session_count
+     * @param mixed $factor_item_service_tariff
+     * @param mixed $factor_item
+     * @param mixed $price
+     * @param mixed $date
+     * @return void
+     */
+    private function checkServiceTariffMultiStage($session_count,$factor_item_service_tariff,$factor_item,$price,$date)
+    {
+        $number_sessions_required = $factor_item_service_tariff->serviceTariff->session_number/$factor_item_service_tariff->serviceTariff->multi_stage;
+        if($number_sessions_required == $session_count || $factor_item_service_tariff->status == 1)
+        {
+            //set superadmin center performance
+            $purchase_price = $factor_item_service_tariff->serviceTariff->purchase_price/$factor_item_service_tariff->serviceTariff->multi_stage;
+            Center::setUserPerformance($factor_item , $factor_item_service_tariff , $price ,$purchase_price , $date);
+        }
     }
 }

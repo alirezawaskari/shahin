@@ -16,7 +16,8 @@ class CreateServiceTariffsTable extends Migration
 		$table->string('slug',110)->nullable()->default(NULL);
 		$table->integer('price')->nullable()->default(NULL);//selling price
 		$table->integer('purchase_price')->nullable()->default(NULL);//purchase price from the center
-		$table->integer('tariff_id')->nullable()->default(NULL);
+        $table->integer('multi_stage')->default(1);//1 or 2
+        $table->integer('tariff_id')->nullable()->default(NULL);
         $table->foreign('tariff_id')->references('id')->on('tariffs')->onDelete('cascade');
         $table->integer('service_id')->nullable()->default(NULL);
         $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
