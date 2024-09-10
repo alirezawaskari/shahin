@@ -13,6 +13,7 @@ use App\Http\Resources\ResumeCollection;
 use App\Http\Controllers\Controller;
 use App\Exports\ResumsExport;
 use App\Helpers\Helper;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -136,9 +137,7 @@ class ResumeController extends Controller
 
         if ($request->status==0 || $request->status==5 ||$request->status==1 ){
             //create task to follow up
-            $callcenter_roles = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
-                $query->where('name', 'superadmin');
-            })->get();
+            $callcenter_roles = Role::select('id')->where('name' , 'superadmin')->get();
             $description = "جویای کار،
             عنوان شغلی:
            {$recruitment_notice->title}";
@@ -148,6 +147,9 @@ class ResumeController extends Controller
 		unset($inputs['urlresume']);
         $inputs['name']=$request->name.' '.$request->family;
         unset($inputs['family']);
+        unset($inputs['province_id']);
+        unset($inputs['city_id']);
+
         $resume = Resume::create($inputs);
 
         if ($request->urlresume) {
@@ -201,6 +203,8 @@ class ResumeController extends Controller
             $inputs['resume'] = Helper::moveImage($request->urlresume,'document');
         }
 		unset($inputs['urlresume']);
+        unset($inputs['province_id']);
+        unset($inputs['city_id']);
 
         $resume->update($inputs);
 
