@@ -626,7 +626,7 @@ class Factor extends Model implements AuditableContract
     {
         $item->factorItems->map(function ($factor_item) {
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->price);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->price , now());
             if (!$factor_item->property()->exists()) {
                 $factor_item->property()->create();
             }
