@@ -122,7 +122,10 @@
                                                 </option>
                                             </select>
                                         </div>
-
+                                        <div class="col-12 mb-3">
+                                            <label>توضیحات (با ذکر آخرین مدرک تحصیلی و سوابق شغلی مربوطه)</label>
+                                            <textarea name="work_history" class="form-control" required></textarea>
+                                        </div>
 
                                         <div class="col-12 m2">
                                             <label> فایل رزومه: </label>

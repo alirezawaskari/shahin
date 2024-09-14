@@ -82,7 +82,7 @@
                 </div>
                 @endif
                 <div class="col-12 col-md-4 mb-3">
-                    <label>سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)</label>
+                    <label>توضیحات (با ذکر آخرین مدرک تحصیلی و سوابق شغلی مربوطه)</label>
                     <textarea name="work_history" class="form-control" required>{{ $resume->work_history }}</textarea>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
