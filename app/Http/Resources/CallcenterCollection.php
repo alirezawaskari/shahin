@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\Helper;
 use App\Models\Callcenter;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -120,7 +121,9 @@ class CallcenterCollection extends ResourceCollection
     private function setService($phone, Callcenter $item)
     {
         if ($item->request_type == "other") {
-            return $item->description;
+            $histories = Helper::userHistories($item->register);
+            $last_history = $histories[0];
+            return $last_history['description'];
         }
         if ($item->categories()->exists() || $item->services()->exists() && !$item->factors()->exists()) {
           $servicesTitle= implode(" - ",  $item->services()->pluck('title')->toArray());
