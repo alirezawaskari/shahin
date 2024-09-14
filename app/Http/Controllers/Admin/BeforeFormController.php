@@ -37,10 +37,10 @@ class BeforeFormController extends Controller
         $inputs = $request->all();
         unset($inputs['file']);
         if ($request->urlfile) {
-            $inputs['file'] = Helper::moveImage($request->urlfile,'document');
+            $inputs['file'] = Helper::moveImage($request->urlfile,'service');
         }
 		unset($inputs['urlfile']);
-        BeforeForm::create($request->all());
+        BeforeForm::create($inputs);
         alert()->success('','عملیات موفق');
         if ($request->beforeformable_type == Service::class){
             return redirect()->to('/dashboard/service_before_form/' . Service::find($request->beforeformable_id)->slug)->with([
@@ -87,10 +87,10 @@ class BeforeFormController extends Controller
         $inputs = $request->all();
         unset($inputs['file']);
         if ($request->urlfile) {
-            $inputs['file'] = Helper::moveImage($request->urlfile,'document');
+            $inputs['file'] = Helper::moveImage($request->urlfile,'service');
         }
 		unset($inputs['urlfile']);
-        $beforeForm->update($request->all());
+        $beforeForm->update($inputs);
         return redirect()->to('/dashboard/service_before_form/' . Service::find($request->input('beforeformable_id'))->slug)->with([
             'before_form_create' => 'success'
         ]);
