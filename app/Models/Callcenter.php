@@ -391,11 +391,14 @@ class Callcenter extends Model implements AuditableContract
             'description' => $description
         ]);
 
-        $task->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => $callcenter_user->id,
-            'status' => $task->status,
-            'description' => $description,
-        ]);
+        if(auth()->user())
+        {
+            $task->histories()->create([
+                'user_id' => auth()->user()->id,
+                'callcenter_id' => $callcenter_user->id,
+                'status' => $task->status,
+                'description' => $description,
+            ]);
+        }
     }
 }
