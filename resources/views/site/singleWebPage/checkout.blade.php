@@ -147,13 +147,12 @@
                                         @break
                                         @case('excel')
                                         <div class="col-12 mb-2">
-                                            <a href="/upload/2024/8/service/mozayede.xlsx" download>
-                                                <img src="https://images.freeimages.com/fic/images/icons/2795/office_2013_hd/2000/excel.png"
-                                                    class="img-fluid" width="100">
+                                             <a href="{{ asset($form->file) }}" download>
+                                                <img src="https://images.freeimages.com/fic/images/icons/2795/office_2013_hd/2000/excel.png" class="img-fluid" width="100">
                                             </a>
                                         </div>
-                                        <label>{{ $form->help }}</label>
-                                        @break99+
+                                        <label>{{ $form->placeholder }}</label>
+                                        @break
                                         @case('multi-select')
                                         <div class="col-12 col-md-6 mb-2">
                                             <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
