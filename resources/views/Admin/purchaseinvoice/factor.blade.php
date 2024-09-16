@@ -28,6 +28,7 @@
                     <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی درخواست کننده</label>
                         <select class="form-control" name="representation_id">
+                            <option value="">نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{ $representation->id }}" {{ $purchaseInvoice->representation_id ==
                                 $representation->id ? 'selected' : '' }}>{{ $representation->fa_name }}</option>

@@ -1,4 +1,5 @@
 @extends('Admin.master')
+@section('title')ویرایش فاکتور خرید@endsection
 
 @section('content')
 <div class="page-header">
