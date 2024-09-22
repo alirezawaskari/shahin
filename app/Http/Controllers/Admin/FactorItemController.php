@@ -907,7 +907,7 @@ class FactorItemController extends Controller {
                 ] );
             }
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $total_price);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $total_price , now() , null);
         }
     }
     /**

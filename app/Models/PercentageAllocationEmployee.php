@@ -76,7 +76,7 @@ class PercentageAllocationEmployee extends Model {
     * @param mixed $type
     * @return void
     */
-    public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date) {
+    public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date , $factor_item_service_tariff) {
         $description = self::TYPE[$type];
         if ( $type == 'register_price' ) {
             $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
@@ -92,9 +92,21 @@ class PercentageAllocationEmployee extends Model {
                 $is_applicable = self::checkPercentageAllocationEmployeeConditions($item , $factor_item);
             }
             $user_performance_price = $price * ( $item->percent / 100 );
-            $is_applicable ? UserPerformance::store( $item, $description, $price, $user_performance_price, $factor_item , $date) : '';
+            $is_applicable ? ($user_performance = UserPerformance::store( $item, $item->user , $description, $price, $user_performance_price, $factor_item , $date)): '';
+            if($is_applicable && $type == 'all_total_price')
+            {
+                $user_performance_sessions_done = $factor_item_service_tariff->sessions->where( 'status', 1 );
+                //set user performance sessions done
+                UserPerformance::setSessionsDone($user_performance , $user_performance_sessions_done);
+            }
         }
+        
     }
+    /**
+     * @param mixed $item
+     * @param mixed $factor_item
+     * @return bool
+     */
     private static function checkPercentageAllocationEmployeeConditions($item , $factor_item)
     {
         if($item->user_id == $factor_item->factor->callcenter_id)

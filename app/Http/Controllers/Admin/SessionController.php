@@ -244,40 +244,17 @@ class SessionController extends Controller {
         if ( $factor_item_service_tariff->status && $session->agent_id ) {
             $price = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 )->sum( 'price' );
             $laboratory_price = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 )->sum( 'laboratory_price' );
-            $product_sessions = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 );
+            $user_performance_price = $price * ( $agent->employee->percent / 100 ) - ( $laboratory_price / 2 );
+            $user_performance_sessions_done = $factor_item_service_tariff->sessions->where( 'agent_id', $agent->id )->where( 'status', 1 );
             $description = '';
 
-            foreach ( $product_sessions as $session ) {
+            foreach ( $user_performance_sessions_done as $session ) {
                 $description = $description.'/'.$factor_item_service_tariff->value . ' - ' . $session->description . '- هزینه لابراتوار' . number_format( $session->laboratory_price / 2 ) . '(ریال)';
             }
-
-            $user_performance = UserPerformance::create( [
-                'factor_item_id' => $session->factor_item_id,
-                'description' => $description,
-                'price' => $price,
-                'tax' => ( $price * ( $agent->employee->percent / 100 ) - ( $laboratory_price / 2 ) ) * ( $agent->employee->tax / 100 ),
-                'ancillary_costs' => $laboratory_price,
-                'date' => $session->date,
-                'callcenter_id' => auth()->user()->id,
-                'user_id' => $session->agent_id,
-            ] );
-
-            foreach ( $product_sessions as $session ) {
-                $session->update( [ 'user_performance_id' => $user_performance->id ] );
-            }
-
-            $resNum = rand( 12, 99 ) . substr( Carbon::now()->timestamp, 6, 11 ) . substr( $agent->phone, 7, 11 );
-            $WalletTransaction = WalletTransaction::create( [
-                'user_id' => $session->agent_id,
-                'reason_id' => $user_performance->id,
-                'resnumber' => $resNum,
-                'price' => $price * ( $agent->employee->percent / 100 ) - ( $laboratory_price / 2 ),
-                'status' => '1',
-                'type' => '1',
-                'created_at' => $user_performance->date,
-            ] );
-
-            $agent ? $agent->update( [ 'wallet' => $agent->wallet + $WalletTransaction->price ] ) : '';
+            //set emplloyee performance from percentageAllocation employee
+            $user_performance = UserPerformance::store(null, $session->agent , $description , $price , $user_performance_price , $session->factorItem , $session->date);
+            //set user performance sessions done
+            UserPerformance::setSessionsDone($user_performance , $user_performance_sessions_done);
         }
     }
     /**
@@ -343,7 +320,7 @@ class SessionController extends Controller {
             {
                 $factor_item_service_tariff->update( [ 'status' => 1 ] );
                 //set emplloyee performance from percentageAllocation employee
-                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date);
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date , $factor_item_service_tariff);
                 //set emplloyee performance from allocation employee share centers
                 AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price , $agent , $session->date);
             }
@@ -401,25 +378,28 @@ class SessionController extends Controller {
                 }
         }
 
-        $user_performance = $session->userPerformance;
+        $user_performances = $session->userPerformances;
         isset( $session->factorItemServiceTariff ) ? $session->factorItemServiceTariff->update( [ 'status' => 0 ] ) : '';
         $factor_item = $session->factorItem;
+        $price = isset( $session->factorItemServiceTariff ) ? ($session->factorItemServiceTariff->price - $session->factorItemServiceTariff->discount) : 0;
         $supervisor_factor_item = $factor_item->supervisor;
-        if ( $user_performance ) {
+        if ( $user_performances->count() > 0 ) {
             //update credit file
             if ( $supervisor_factor_item->type ) {
                 //$user_performance->factorItem->update( [ 'credit' => $user_performance->factorItem->credit + $user_performance->price ] );
                 $total_factor_item = $supervisor_factor_item->totalFactorItem;
-                $total_factor_item->update( [ 'credit' => $total_factor_item->credit + $user_performance->price ] );
+                $total_factor_item->update( [ 'credit' => $total_factor_item->credit + $price ] );
                 $total_factor_item->factorItems()->where( 'factoritemable_id', $supervisor_factor_item->factoritemable_id )->where( 'factoritemable_type', $supervisor_factor_item->factoritemable_type )->update( [
-                    'credit' => $supervisor_factor_item->credit + $user_performance->price,
+                    'credit' => $supervisor_factor_item->credit + $price,
                 ] );
             }
-
-            $user_performance->sessions()->delete();
-            $wallet_transaction = $user_performance->walletTransaction;
-            $user_performance->walletTransaction()->delete();
-            $user_performance->delete();
+            foreach($user_performances as $user_performance)
+            {
+                $user_performance->sessions()->delete();
+                $wallet_transaction = $user_performance->walletTransaction;
+                $user_performance->walletTransaction()->delete();
+                $user_performance->delete();
+            }
 
             $wallet_transaction->user->update( [ 'wallet' => $wallet_transaction->user->wallet - $wallet_transaction->price ] );
         } else {

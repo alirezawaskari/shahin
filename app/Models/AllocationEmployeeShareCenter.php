@@ -53,14 +53,18 @@ class AllocationEmployeeShareCenter extends Model
     * @param mixed $type
     * @return void
     */
-    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price , $agent , $date) {
-        $description = $service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
-        $allocation_employee_share_centers = $service_tariff->serviceTariff->allocationEmployeeShareCenters;
+    public static function setUserPerformance( FactorItem $factor_item, $factor_item_service_tariff, $price , $agent , $date) {
+        $description = $factor_item_service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
+        $user_performance_sessions_done = $factor_item_service_tariff->sessions->where( 'status', 1 );
+        $allocation_employee_share_centers = $factor_item_service_tariff->serviceTariff->allocationEmployeeShareCenters;
         foreach ( $allocation_employee_share_centers as $item ) {
             $user_role = $item->user->roles->first();
+            $user_role->name == 'doctor' ? ($user_performance_sessions_done = $user_performance_sessions_done->where( 'agent_id', $agent->id)) : '';
             if(($user_role->name == 'doctor' && $item->user_id == $agent->id) || $user_role->name != 'doctor')
             {
-                UserPerformance::store( $item, $description, $price, $item->amount, $factor_item , $date);
+                $user_performance = UserPerformance::store( null , $item->user , $description, $price, $item->amount, $factor_item , $date);
+                //set user performance sessions done
+                UserPerformance::setSessionsDone($user_performance , $user_performance_sessions_done);
             }
         }
     }

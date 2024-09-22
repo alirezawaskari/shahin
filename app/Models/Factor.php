@@ -626,7 +626,7 @@ class Factor extends Model implements AuditableContract
     {
         $item->factorItems->map(function ($factor_item) {
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->price , now());
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->price , now() , null);
             if (!$factor_item->property()->exists()) {
                 $factor_item->property()->create();
             }
@@ -770,7 +770,7 @@ class Factor extends Model implements AuditableContract
                 $wage = $wage + (CalculationHelper::calculateWage($factor_item , $total_price , $factor_item->property->prepayment_price , $factor_item->installments_num)/$factor_item->installments_num);
             }
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage , now() , null);
 
             $debt_price = $debt_price + $item->price - $installment->price;
             $installment = TotalFactorItemInstallment::where('total_factor_item_id', $total_factor_item->id)->where('status', 0)->orderBy('id', 'ASC')->first();
@@ -781,7 +781,7 @@ class Factor extends Model implements AuditableContract
                     'pay_date' => $item->created_at,
                 ]);
                 //set emplloyee performance from percentageAllocation employee
-                PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage);
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage , now() , null);
 
                 foreach ($factor_items as $factor_item) {
                     $factor_item->factorItemInstallments()->where('level', $installment->level)->update(['status' => true]);

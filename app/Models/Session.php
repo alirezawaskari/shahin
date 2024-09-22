@@ -93,15 +93,13 @@ class Session extends Model implements AuditableContract
     {
         return $this->belongsTo(FactorItem::class);
     }
-
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      */
-    public function userPerformance()
+    public function userPerformances()
     {
-        return $this->belongsTo(UserPerformance::class);
+        return $this->belongsToMany(UserPerformance::class);
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

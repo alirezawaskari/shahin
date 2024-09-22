@@ -164,15 +164,18 @@ class Center extends Model {
     * @param mixed $type
     * @return void
     */
-    public static function setUserPerformance( FactorItem $factor_item, $service_tariff, $price , $purchase_price , $date) {
-        $description = $service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
+    public static function setUserPerformance( FactorItem $factor_item, $factor_item_service_tariff, $price , $purchase_price , $date) {
+        $description = $factor_item_service_tariff->serviceTariff->name.' واریز از محل تخصیص سهم از تعرفه';
+        $user_performance_sessions_done = $factor_item_service_tariff->sessions->where( 'status', 1 );
         $superadmin_center_user = User::where('level' , 'admin')->where('center_id' , $factor_item->center_id)->whereHas('roles',function ($query){
             $query->where('name','superadmin_center');
         })->first();
 
         if(isset($superadmin_center_user->employee))
         {
-            UserPerformance::store( $superadmin_center_user->employee, $description, $price, $purchase_price, $factor_item , $date);
+            $user_performance = UserPerformance::store( null , $superadmin_center_user, $description, $price, $purchase_price, $factor_item , $date);
+            //set user performance sessions done
+            UserPerformance::setSessionsDone($user_performance , $user_performance_sessions_done);
         }
     }
 }
