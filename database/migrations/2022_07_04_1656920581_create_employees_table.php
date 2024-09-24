@@ -34,7 +34,8 @@ class CreateEmployeesTable extends Migration
 		$table->boolean('is_terms_accept',110)->nullable()->default(NULL);
         $table->text('imgaccess')->nullable();
         $table->text('imglastcertificate')->nullable();
-        
+        $table->text('resume_detail')->nullable();
+
 		$table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
         $table->softDeletes();

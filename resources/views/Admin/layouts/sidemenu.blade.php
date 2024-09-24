@@ -109,11 +109,15 @@
             @endif
 
             @endpermission
-            @permission('user_wallet')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>حسابداری من</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>حساب کاربری من</span> </a>
                 <ul>
+                    @permission('employee_resume')
+                    <li><a href="{{ route('employee.resume.edit', [auth()->user()->employee->id]) }}">رزومه کاری</a></li>
+                    @endpermission
+                    @permission('user_wallet')
                     <li><a href="{{ route('employee.financial.report', [auth()->user()->employee->id]) }}">عملکرد
                             ماهانه من</a></li>
+                    @endpermission
                     @permission('financialReport_employee_list')
                     <li><a href="{{ route('employee.financialReport.list') }}">عملکرد مالی همکاران</a>
                     </li>
@@ -126,7 +130,6 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
             @permission('session|session-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>جلسات</span> </a>
                 <ul>

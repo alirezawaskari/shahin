@@ -13,8 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\EmployeeCollection;
 use App\Http\Resources\WalletTransactionCollection;
+use App\Models\Callcenter;
+use App\Models\RecruitmentNotice;
+use App\Models\Resume;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends AdminController
 {
@@ -287,5 +291,133 @@ class EmployeeController extends AdminController
         }
 
         return abort(401);
+    }
+    /**
+     * @param \App\Models\Employee $employee
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
+    public function editResume(Employee $employee)
+    {
+        if (auth()->user()->isAbleTo('employee_resume|employee_resume_detail')) {
+            $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
+            $resume = Resume::where('phone' , $employee->user->phone)->get()->last();
+            $recruitment_notice_selected = !is_null($resume) ? $resume->recruitment_notice_id : null;
+            if(session()->has('representation'))
+            {
+                $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
+            }
+            return view('Admin.employee.resume' , compact('employee' , 'recruitment_notices' , 'recruitment_notice_selected'));
+        }
+
+        return abort(401);
+    }
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function updateResune(Employee $employee , Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'email' => 'nullable|email',
+            'text' => 'nullable|string',
+            'sex' => ['string',Rule::in(array(0,1))],
+            'recruitment_notice_id' => 'required',
+        ]);
+
+        if ($validate->fails()){
+            return response([
+                'status'=>'error',
+                'messages'=>$validate->errors()->all()
+            ]);
+        }
+        $inputs = $request->all();
+        $recruitment_notice = RecruitmentNotice::find($inputs['recruitment_notice_id']);
+
+        if (is_null($recruitment_notice)) {
+            return redirect()->back()->with([
+                'resume_success' => 'error'
+            ]);
+        }
+
+        $user = $employee->user;
+
+        $callcenter_roles = Role::select('id')->where('card_id' , 6)->get();
+        $description = " تکمیل فرم رزومه نهایی،
+             ،
+          عنوان شغلی:
+        {$recruitment_notice->title}";
+        Callcenter::createTask($user, $description , $callcenter_roles);
+        $this->updateEmployeeResume($employee , $request);
+
+        if ($request->ajax()) {
+            return response([
+                'status'=>'success',
+                'messages'=>'رزومه کاری شما با موفقیت ثبت شد.'
+            ]);
+        }
+        return redirect()->back()->with([
+            'successByMessage' => 'رزومه کاری شما با موفقیت ثبت شد.'
+        ]);
+    }
+
+    /**
+     * @param $request
+     * @param \App\Models\Employee $employee
+     * @return void
+     */
+    public function updateEmployeeResume(Employee $employee , $request)
+    {
+        $bime_history = 0;
+        if (!is_null($request->mibe_history)) {
+            $bime_history = $request->mibe_history;
+        }
+        
+        $employee->user->update([
+            'sex' => $request->sex,
+            'call' => $request->call,
+            'melicode' => $$request->melicode,
+            'address' => $request->address,
+            'shenasnamecode' => $request->shenasnamecode,
+            'email' => $request->email,
+        ]);
+
+        $employee->update([
+            'resume_detail' =>[
+                "birth_certificate_issuing_place" => $request->input('birth_certificate_issuing_place'),
+                "date_of_birth" => $request->input('date_of_birth'),
+                "religion" => $request->input('religion'),
+                "nationality" => $request->input('nationality'),
+                "marital_status" => $request->input('marital_status'),
+                "housing_situation" => $request->input('housing_situation'),
+                "bime_history" => $bime_history,
+                "work_type" => $request->work_type,
+                "work_history" => $request->work_history,
+                "text" => $request->text,
+                "military_service_status" => $request->input('military_service_status'),
+                "exemption_military_service_" => $request->input('exemption_military_service_'),
+                "exemption_military_service_type" => $request->input('exemption_military_service_type'),
+                "exemption_military_service_end_date" => $request->input('exemption_military_service_end_date'),
+                "military_service_location" => $request->input('military_service_location'),
+                "military_service_end_date" => $request->input('military_service_end_date'),
+                "degree_of_education" => $request->input('degree_of_education'),
+                "field_of_Study" => $request->input('field_of_Study'),
+                "total_average" => $request->input('total_average'),
+                "education_location" => $request->input('education_location'),
+                "education_end_date" => $request->input('education_end_date'),
+                "cooperation_type" => $request->input('cooperation_type'),
+                "description_half_time" => $request->input('description_half_time'),
+                "en_lang_quality" => $request->input('en_lang_quality'),
+                "computer_skill" => $request->input('computer_skill'),
+                "start_work_date" => $request->input('start_work_date'),
+                "busy_now" => $request->input('busy_now'),
+                "can_guarantee" => $request->input('can_guarantee'),
+                "guarantee" => $request->input('guarantee'),
+                "relative_family_type" => $request->input('relative_family_type'),
+                "relative_family_name" => $request->input('relative_family_name'),
+                "relative_family_part" => $request->input('relative_family_part'),
+                "accept_rules" => $request->input('accept_rules')
+            ]
+        ]);
     }
 }

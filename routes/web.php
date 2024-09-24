@@ -336,6 +336,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-performance-detail/{user}' , 'EmployeeController@performanceDetail')->name('employee.performanceDetail');
     Route::get('/employee-performance-detail-filter/{user}' , 'EmployeeController@performanceDetailFilter');
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
+    Route::get('/employee/resume/{employee}' , 'EmployeeController@editResume')->name('employee.resume.edit');
+    Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
     Route::get('/percentageAllocationEmployee/filter', 'PercentageAllocationEmployeeController@filter')->name('percentageAllocationEmployee.filter');
