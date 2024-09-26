@@ -31,6 +31,7 @@
         <form method="post" action="{{route('employee.resume.update' , [ $employee->id])}}"
             enctype="multipart/form-data">
             @csrf
+            @include('Admin.layouts.errors')
             <div class="col-12 mt-4">
                 <div class="form-row">
                     <div class="col-md-12">
@@ -88,7 +89,7 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <label>نوع شغل درخواستی</label>
-                        <select class="form-control select2">
+                        <select class="form-control select2" name="recruitment_notice_id">
                             @foreach ($recruitment_notices as $recruitment_notice)
                             <option value="{{$recruitment_notice->id}}" {{$recruitment_notice_selected == $recruitment_notice->id ? 'selected' : ''}}>{{$recruitment_notice->title}}</option>
                             @endforeach
@@ -97,7 +98,7 @@
                     <div class="col-md-12 mb-2">
                         <label>در صورتی که توضیحی دارید در کادر ذیل وارد نمایید:</label>
                         <textarea name="text"
-                            value="{{isset($employee->resume_detail['date_of_birth']) ? $employee->resume_detail['date_of_birth'] : ''}}"
+                            value="{{isset($employee->resume_detail['text']) ? $employee->resume_detail['text'] : ''}}"
                             class="form-control " rows="6" placeholder="توضیحات مربوطه"></textarea>
                     </div>
                     <div class="col-md-2 form-check form-check-inline mb-2">
@@ -135,11 +136,11 @@
                         <p>*وضعیت مسکن :</p>
                         <input type="radio" id="" name="housing_situation" value="شخصی"
                             {{isset($employee->resume_detail['housing_situation']) &&
-                        $employee->resume_detail['military_service_status'] == "شخصی" ? 'checked' : ''}} required>
+                        $employee->resume_detail['housing_situation'] == "شخصی" ? 'checked' : ''}} required>
                         <label for="html">شخصی</label><br>
                         <input type="radio" id="" name="housing_situation" value="اجاره ای"
                             {{isset($employee->resume_detail['housing_situation']) &&
-                        $employee->resume_detail['military_service_status'] == "اجاره ای" ? 'checked' : ''}} required>
+                        $employee->resume_detail['housing_situation'] == "اجاره ای" ? 'checked' : ''}} required>
                         <label for=" ">اجاره ای</label><br>
                     </div>
                 </div>

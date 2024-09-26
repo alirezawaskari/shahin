@@ -306,6 +306,7 @@ class EmployeeController extends AdminController
             {
                 $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
             }
+            $employee->resume_detail = json_decode($employee->resume_detail , true);
             return view('Admin.employee.resume' , compact('employee' , 'recruitment_notices' , 'recruitment_notice_selected'));
         }
 
@@ -316,27 +317,19 @@ class EmployeeController extends AdminController
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function updateResune(Employee $employee , Request $request)
+    public function updateResume(Employee $employee , Request $request)
     {
-        $validate = Validator::make($request->all(), [
+        $this->validate(request(), [
             'email' => 'nullable|email',
             'text' => 'nullable|string',
-            'sex' => ['string',Rule::in(array(0,1))],
-            'recruitment_notice_id' => 'required',
+            'sex' => ['required',Rule::in(array(0,1))],
         ]);
 
-        if ($validate->fails()){
-            return response([
-                'status'=>'error',
-                'messages'=>$validate->errors()->all()
-            ]);
-        }
-        $inputs = $request->all();
-        $recruitment_notice = RecruitmentNotice::find($inputs['recruitment_notice_id']);
+        $recruitment_notice = RecruitmentNotice::find($request->recruitment_notice_id);
 
         if (is_null($recruitment_notice)) {
             return redirect()->back()->with([
-                'resume_success' => 'error'
+                'failByMessage' => 'انتخاب عنوان شغلی الزامی است.'
             ]);
         }
 
@@ -350,12 +343,6 @@ class EmployeeController extends AdminController
         Callcenter::createTask($user, $description , $callcenter_roles);
         $this->updateEmployeeResume($employee , $request);
 
-        if ($request->ajax()) {
-            return response([
-                'status'=>'success',
-                'messages'=>'رزومه کاری شما با موفقیت ثبت شد.'
-            ]);
-        }
         return redirect()->back()->with([
             'successByMessage' => 'رزومه کاری شما با موفقیت ثبت شد.'
         ]);
@@ -369,14 +356,14 @@ class EmployeeController extends AdminController
     public function updateEmployeeResume(Employee $employee , $request)
     {
         $bime_history = 0;
-        if (!is_null($request->mibe_history)) {
-            $bime_history = $request->mibe_history;
+        if (!is_null($request->bime_history)) {
+            $bime_history = $request->bime_history;
         }
-        
+
         $employee->user->update([
             'sex' => $request->sex,
             'call' => $request->call,
-            'melicode' => $$request->melicode,
+            'melicode' => $request->melicode,
             'address' => $request->address,
             'shenasnamecode' => $request->shenasnamecode,
             'email' => $request->email,
@@ -395,7 +382,7 @@ class EmployeeController extends AdminController
                 "work_history" => $request->work_history,
                 "text" => $request->text,
                 "military_service_status" => $request->input('military_service_status'),
-                "exemption_military_service_" => $request->input('exemption_military_service_'),
+                "exemption_military_service" => $request->input('exemption_military_service'),
                 "exemption_military_service_type" => $request->input('exemption_military_service_type'),
                 "exemption_military_service_end_date" => $request->input('exemption_military_service_end_date'),
                 "military_service_location" => $request->input('military_service_location'),
@@ -410,8 +397,10 @@ class EmployeeController extends AdminController
                 "en_lang_quality" => $request->input('en_lang_quality'),
                 "computer_skill" => $request->input('computer_skill'),
                 "start_work_date" => $request->input('start_work_date'),
+                "transfer_job" => $request->input('transfer_job'),
                 "busy_now" => $request->input('busy_now'),
                 "can_guarantee" => $request->input('can_guarantee'),
+                "relative_familiarity" => $request->input('relative_familiarity'),
                 "guarantee" => $request->input('guarantee'),
                 "relative_family_type" => $request->input('relative_family_type'),
                 "relative_family_name" => $request->input('relative_family_name'),
