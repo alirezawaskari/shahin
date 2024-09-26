@@ -90,7 +90,14 @@ class EmployeeController extends AdminController
     {
         $representations = Representation::whereStatus(true)->get();
         $employees=$employee::where('status',1)->get();
-        return view('Admin.employee.edit', compact('employee', 'representations','employees'));
+        $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
+        $resume = Resume::where('phone' , $employee->user->phone)->get()->last();
+        $recruitment_notice_selected = !is_null($resume) ? $resume->recruitment_notice_id : null;
+        if(session()->has('representation'))
+        {
+            $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
+        }
+        return view('Admin.employee.edit', compact('employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
     }
 
     /**
@@ -101,22 +108,20 @@ class EmployeeController extends AdminController
      */
     public function update(Request $request, Employee $employee)
     {
-
         $user = $employee->user;
         $this->validate(request(), [
-            'name' => 'required|string',
-            'family' => 'required|string',
+            'name' => 'string',
+            'family' => 'string',
             'password' => 'nullable|string|min:6|confirmed',
-            'show_status' => ['required', Rule::in([0, 1])]
+            'show_status' => [Rule::in([0, 1])]
         ]);
 
         $inputs = $request->all();
 
         $employee_items = $request->employee;
 
-        $employee_items['data_access_date'] = Helper::vertaToMiladi($employee_items['data_access_date']);
-        $employee_items['contract_start_date'] = Helper::vertaToMiladi($employee_items['contract_start_date']);
-        $employee_items['contract_expiration_date'] = Helper::vertaToMiladi($employee_items['contract_expiration_date']);
+        $employee_items['contract_start_date'] = isset($employee_items['contract_start_date']) ? Helper::vertaToMiladi($employee_items['contract_start_date']) : '';
+        $employee_items['contract_expiration_date'] = isset($employee_items['contract_expiration_date']) ? Helper::vertaToMiladi($employee_items['contract_expiration_date']) : '';
         $employee_items['parent_id'] =$request->parent_id == 'null'?null:$request->parent_id;
         if ($request->urlimgaccess) {
             Helper::deleteImage($employee->imgaccess);
@@ -160,11 +165,11 @@ class EmployeeController extends AdminController
 
         unset($inputs['role_id']);
         $inputs['wallet'] = (float)str_replace(',', '', $request->wallet);
-        if ($inputs['password'] == '') {
+        if (isset($inputs['password']) && $inputs['password'] == '') {
             unset($inputs['password']);
             unset($inputs['password_confirmation']);
             $user->update($inputs);
-        } else {
+        } elseif(isset($inputs['password'])) {
             $user->update(array_merge($inputs, ['password' => Hash::make($inputs['password'])]));
         }
 
@@ -298,7 +303,7 @@ class EmployeeController extends AdminController
      */
     public function editResume(Employee $employee)
     {
-        if (auth()->user()->isAbleTo('employee_resume|employee_resume_detail')) {
+        if (auth()->user()->isAbleTo('employee_resume') && auth()->user()->employee->id == $employee->id) {
             $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
             $resume = Resume::where('phone' , $employee->user->phone)->get()->last();
             $recruitment_notice_selected = !is_null($resume) ? $resume->recruitment_notice_id : null;
@@ -307,7 +312,7 @@ class EmployeeController extends AdminController
                 $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
             }
             $employee->resume_detail = json_decode($employee->resume_detail , true);
-            return view('Admin.employee.resume' , compact('employee' , 'recruitment_notices' , 'recruitment_notice_selected'));
+            return view('Admin.employee.resume.index' , compact('employee' , 'recruitment_notices' , 'recruitment_notice_selected'));
         }
 
         return abort(401);
@@ -319,33 +324,37 @@ class EmployeeController extends AdminController
      */
     public function updateResume(Employee $employee , Request $request)
     {
-        $this->validate(request(), [
-            'email' => 'nullable|email',
-            'text' => 'nullable|string',
-            'sex' => ['required',Rule::in(array(0,1))],
-        ]);
+        if (auth()->user()->isAbleTo('employee_resume|employee_resume_detail'))
+        {
+            $this->validate(request(), [
+                'email' => 'nullable|email',
+                'text' => 'nullable|string',
+                'sex' => ['required',Rule::in(array(0,1))],
+            ]);
 
-        $recruitment_notice = RecruitmentNotice::find($request->recruitment_notice_id);
+            $recruitment_notice = RecruitmentNotice::find($request->recruitment_notice_id);
 
-        if (is_null($recruitment_notice)) {
+            if (is_null($recruitment_notice)) {
+                return redirect()->back()->with([
+                    'failByMessage' => 'انتخاب عنوان شغلی الزامی است.'
+                ]);
+            }
+
+            $user = $employee->user;
+
+            $callcenter_roles = Role::select('id')->where('card_id' , 1)->get();
+            $description = " تکمیل فرم رزومه نهایی،
+                 ،
+              عنوان شغلی:
+            {$recruitment_notice->title}";
+            Callcenter::createTask($user, $description , $callcenter_roles);
+            $this->updateEmployeeResume($employee , $request);
+
             return redirect()->back()->with([
-                'failByMessage' => 'انتخاب عنوان شغلی الزامی است.'
+                'successByMessage' => 'رزومه کاری شما با موفقیت ثبت شد.'
             ]);
         }
-
-        $user = $employee->user;
-
-        $callcenter_roles = Role::select('id')->where('card_id' , 1)->get();
-        $description = " تکمیل فرم رزومه نهایی،
-             ،
-          عنوان شغلی:
-        {$recruitment_notice->title}";
-        Callcenter::createTask($user, $description , $callcenter_roles);
-        $this->updateEmployeeResume($employee , $request);
-
-        return redirect()->back()->with([
-            'successByMessage' => 'رزومه کاری شما با موفقیت ثبت شد.'
-        ]);
+        return abort(401);
     }
 
     /**
