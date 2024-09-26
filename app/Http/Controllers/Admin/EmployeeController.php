@@ -335,7 +335,7 @@ class EmployeeController extends AdminController
 
         $user = $employee->user;
 
-        $callcenter_roles = Role::select('id')->where('card_id' , 6)->get();
+        $callcenter_roles = Role::select('id')->where('card_id' , 1)->get();
         $description = " تکمیل فرم رزومه نهایی،
              ،
           عنوان شغلی:

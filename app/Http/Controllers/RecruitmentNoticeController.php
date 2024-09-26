@@ -73,7 +73,7 @@ class RecruitmentNoticeController extends Controller
         //check if user not exist -> create user
         User::createUser($request);
         $user = User::where('phone',$request->phone)->first();
-        $callcenter_roles = Role::select('id')->where('card_id' , 6)->get();
+        $callcenter_roles = Role::select('id')->where('card_id' , 1)->get();
         $description = "جویای کار،
         عنوان شغلی:
        {$recruitment_notice}";
@@ -132,7 +132,7 @@ class RecruitmentNoticeController extends Controller
             $file = $this->upload($request->file('resume'));
             $resume->update(['resume' => $file]);
         }
-        $callcenter_roles = Role::select('id')->where('card_id' , 6)->get();
+        $callcenter_roles = Role::select('id')->where('card_id' , 1)->get();
         $province = $recruitment_notice->province ? $recruitment_notice->province->name : 'استخدام کشوری (دورکاری)';
         $description = "جویای کار،
              {$province}
