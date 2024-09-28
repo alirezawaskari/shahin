@@ -131,7 +131,6 @@
                             <option value="false">ندارد</option>
                         </select>
                     </div>
-
                     <div class="col-12 col-md-3 mb-2">
                         <div class="custom-control custom-switch mt-2">
                             <input type="checkbox" class="custom-control-input" name="exel" id="exel">
@@ -211,12 +210,13 @@
                             <th>موبایل</th>
                             <th>تاریخ ثبت</th>
                             <th>تاریخ مراجعه</th>
-                            <th>پشتیبان - شماره پرونده</th>
+                            {{-- <th>پشتیبان - شماره پرونده</th> --}}
                             <th>نوع پرداخت - مبلغ</th>
                             <th>خدمات</th>
 							<th>نمایندگی</th>
                             <th>وضعیت اجرایی</th>
                             <th>پرداختی</th>
+                            <th>اعتبار (ریال)</th>
                             <th>اقدام</th>
                         </tr>
                     </thead>

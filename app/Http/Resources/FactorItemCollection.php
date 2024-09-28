@@ -45,6 +45,7 @@ class FactorItemCollection extends ResourceCollection
                     'per_edit' => $this->setPerEdit(),
                     'per_show' => $this->setPerShow(),
                     'has_payment' => FactorItem::checkPayment($item),
+                    'credit_debt' => number_format($item->supervisor->type ? TotalFactorItem::calculateCredit($item->supervisor->totalFactorItem) : FactorItem::calculateCredit($item->supervisor)),
                 ];
             }),
 			'meta' =>  [
