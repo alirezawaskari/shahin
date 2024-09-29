@@ -199,17 +199,34 @@
                                     </option>
                                     <option value="cash" {{ $factor->type == 'cash' ? 'selected' : '' }}>پول نقد
                                     </option>
+                                    <option value="wallet">کسر از کیف پول</option>
+                                    <option value="credit">کسر از حواله</option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-4 mb-2 d-none" id="number_card_edit_factor">
+                            <div class="col-12 col-md-3 mb-2 d-none" id="number_card_edit_factor">
                                 <label>شماره کارت (4 رقم آخر کارت پرداخت کننده)</label>
-                                <input class="form-control" name="number_card" type="number"
-                                    id="number_card_input_edit_factor" value="{{ $factor->number_card }}">
+                                <input class="form-control" name="number_card" type="number" id="number_card_input_edit_factor">
                             </div>
-                            <div class="col-12 col-md-4 mb-2 d-none" id="payment_code_edit_factor">
+                            <div class="col-12 col-md-2 mb-2 d-none" id="payment_code_edit_factor">
                                 <label>شماره پیگیری (4 رقم آخر)</label>
-                                <input class="form-control" name="payment_code" type="number"
-                                    id="payment_code_input_edit_factor" value="{{ $factor->payment_code }}">
+                                <input class="form-control" name="payment_code" type="number" id="payment_code_input_edit_factor">
+                            </div>
+                            <div class="col-12 col-md-2 mb-2 d-none" id="bill_image_edit_factor">
+                                <label>رسید دریافت وجه</label>
+                                <br>
+                                <label for="bill_image_input_edit_factor" id="up-label" class="btn badge-secondary"><i
+                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                <input class="form-control file-up" name="bill_image" type="file" id="bill_image_input_edit_factor"
+                                    accept=".jpg,.jpeg,.png">
+                            </div>
+                            <div class="col-12 col-md-2 mb-2 d-none" id="password_edit_factor">
+                                <label>رمز عبور کاربر</label>
+                                <input class="form-control" name="password" type="number" id="password_input_edit_factor">
+                                <p>لطفا رمز عبور 6 رقمی که برای کاربر ارسال شده است را وارد کنید.</p>
+                            </div>
+                            <div class="col-12 col-md-2 mb-2 d-none" id="send_password_edit_factor">
+                                <input type="hidden" value="{{ $user->phone }}" name="phone" class="phone">
+                                <span class="send_user_password btn btn-success-default text-white px-3"> ارسال رمز <i class="fa fa-paper-plane mr-1" aria-hidden="true"></i></span>
                             </div>
                             @if(is_null(auth()->user()->id == $factor->support_id) ||
                             auth()->user()->hasRole('superadmin'))
@@ -279,8 +296,9 @@
 
                             </div>
                             <div class="col-12 mb-3">
-                            <p class="alert alert-warning">توجه:درصورت تغییر وضعیت فاکتوربه پرداخت شده ،مبلغ فاکتور از اعتبار شما کسر خواهد شد.
-                            </p>
+                                <p class="alert alert-warning">توجه:درصورت تغییر وضعیت فاکتوربه پرداخت شده ،مبلغ فاکتور
+                                    از اعتبار شما کسر خواهد شد.
+                                </p>
                             </div>
                             <div class="col-12 mb-3">
                                 <span class="btn btn-success border-0 factor-update-submit">ذخیره </span>
@@ -345,7 +363,8 @@
                                 @foreach($changes as $change)
                                 <tr>
                                     <td>{{$i++}}</td>
-                                    <td>{{$change->user ? $change->user->name.' '.$change->user->family : 'ثبت نشده'}}</td>
+                                    <td>{{$change->user ? $change->user->name.' '.$change->user->family : 'ثبت نشده'}}
+                                    </td>
                                     <td>{{$change->event}}</td>
                                     <td>
                                         @foreach($change->getModified() as $field => $value)
