@@ -42,7 +42,6 @@ $(document).ready(function () {
     CKEDITOR.replace( 'txt_box_1',ck_uploader) ;
     CKEDITOR.replace( 'left_content',ck_uploader) ;
     CKEDITOR.replace('content',ck_uploader) ;
-    CKEDITOR.replace( 'demo', ck_uploader);
     CKEDITOR.replace( 'service_rules', ck_uploader);
 
     // work_sample
@@ -135,7 +134,6 @@ function updateService(formId){
 //update texts of service
 function updateTextInformation(){
     var content = CKEDITOR.instances.content.getData();
-    var demo = CKEDITOR.instances.demo.getData();
     var left_content = CKEDITOR.instances.left_content.getData();
     var txt_box_1 = CKEDITOR.instances.txt_box_1.getData();
     $.ajax({
@@ -143,7 +141,6 @@ function updateTextInformation(){
         data: {
             update_type:'text_information',
             content:content,
-            demo:demo,
             left_content:left_content,
             txt_box_1:txt_box_1
         },
