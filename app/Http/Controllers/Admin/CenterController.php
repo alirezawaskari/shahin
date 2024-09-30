@@ -28,7 +28,7 @@ class CenterController extends AdminController
             }
             if(auth()->user()->admin_representation_id)
             {
-                $centers = auth()->user()->admin_representation->centers();
+                $centers = $centers->where('creator_representation_id' , auth()->user()->admin_representation_id);
             }
             return view( 'Admin.center.all', compact( 'centers' ) );
         }
