@@ -449,7 +449,10 @@ class CenterController extends AdminController
             $superadmin_center_user = User::where('level' , 'admin')->where('center_id' , $center->id)->whereHas('roles',function ($query){
                 $query->where('name','superadmin_center');
             })->first();
-            return redirect()->route('employee.financial.report', [$superadmin_center_user->employee->id]);
+            if(isset($superadmin_center_user->employee))
+            {
+                return redirect()->route('employee.financial.report', [$superadmin_center_user->employee->id]);
+            }
         }
         return abort(401);
     }
