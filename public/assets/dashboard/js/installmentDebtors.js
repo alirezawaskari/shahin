@@ -45,20 +45,19 @@ $(document).ready(function () {
                 }
             });
         });
-
-        fetchData(1);
+        fetchDataInstallment(1);
 
         function pagination(totalPages) {
-            $('#pagination-demo').twbsPagination({
+            $('#pagination-demo-installment').twbsPagination({
                 totalPages: totalPages,
                 visiblePages: totalPages >= 5 ? 5 : totalPages,
                 next: '>',
                 prev: '<',
                 onPageClick: function (event, page) {
-                    $('#excel').prop('checked', false);
+                    $('#excel-installment').prop('checked', false);
                     //fetch content and render here
                     if (!first_load && !do_filter_command){
-                        fetchData(page);
+                        fetchDataInstallment(page);
                     }
                     first_load=false
                     do_filter_command=false
@@ -66,9 +65,9 @@ $(document).ready(function () {
             });
         }
 
-        function fetchData(page) {
-            document.getElementById('loading').style.display = 'block';
-            var form = $('#filter_form');
+        function fetchDataInstallment(page) {
+            document.getElementById('loading_installment').style.display = 'block';
+            var form = $('#filter_form_installment');
             var formData = form.serialize();
             $.ajax({
                 url: "/dashboard/accounting/filter-installment-debtors/?page=" + page,
@@ -76,31 +75,31 @@ $(document).ready(function () {
                 data: formData,
                 success: function (data) {
                     createTable(data);
-                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('loading_installment').style.display = 'none';
                 }
             });
         }
 
         function createTable(data) {
             pagination(data.meta.last_page);
-            document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
+            document.getElementById("page_text_installment").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
             let sum_debts = 0;
             $.each(data.data, function (index, value) {
                 $.each(value.total_debts, function (index, value) {
                     sum_debts += value.debt
                 });
             });
-            $('#total-price-page').empty()
-            $('#total-price-page').append(separate(` _ جمع بدهی کل این صفحه : (${Math.round(sum_debts  )} ریال) `))
+            $('#total-price-page-installment').empty()
+            $('#total-price-page-installment').append(separate(` _ جمع بدهی کل این صفحه : (${Math.round(sum_debts  )} ریال) `))
             if(data.meta.all_users_debt_except_penalty!=0){
-                $('#total-price-page').append(separate(` _ جمع بدهی کل  : (${Math.round(data.meta.all_users_debt_except_penalty )} ریال) `))
+                $('#total-price-page-installment').append(separate(` _ جمع بدهی کل  : (${Math.round(data.meta.all_users_debt_except_penalty )} ریال) `))
             }
-            if ($.fn.DataTable.isDataTable('#datatable-json')) {
-                $('#datatable-json').DataTable().destroy();
+            if ($.fn.DataTable.isDataTable('#datatable-json-installment')) {
+                $('#datatable-json-installment').DataTable().destroy();
             }
 
-            $('#datatable-json tbody').empty();
-            var table = $('#datatable-json').DataTable({
+            $('#datatable-json-installment tbody').empty();
+            var table = $('#datatable-json-installment').DataTable({
                 paging: false,
                 searching: false,
                 retrieve: true,
@@ -167,13 +166,13 @@ $(document).ready(function () {
                     {
                         "data": data,
                         "render": function (data) {
-                            let start_amount = $('#start-amount').val();
-                            let end_amount = $('#end-amount').val();
+                            let start_amount = $('#start-amount-installment').val();
+                            let end_amount = $('#end-amount-installment').val();
                             var debt = 0;
                             $.each(data.total_debts, function (index, value) {
                                 debt = debt + value.debt;
                             });
-                            if ($('#by_amount').prop('checked') == true) {
+                            if ($('#by_amount_installment').prop('checked') == true) {
                                 if (debt > start_amount && debt < end_amount) {
                                     return `<i class="fa fa-search ml-2" aria-hidden="true" ></i>` + separate(Math.round(debt));
                                 } else {
@@ -234,10 +233,10 @@ $(document).ready(function () {
 
         //$('#myForm').attr('action');
         /*    click on do filter */
-        $("body").on('click', '#do_filter', function (event) {
+        $("body").on('click', '#do_filter_installment', function (event) {
             let error=false;
-            if ($('#by_amount').is(':checked')) {
-                if ($('#start-amount').val() >= $('#end-amount').val() && !($('#start-amount').val() == '' || $('#end-amount').val() == '')) {
+            if ($('#by_amount_installment').is(':checked')) {
+                if ($('#start-amount-installment').val() >= $('#end-amount-installment').val() && !($('#start-amount-installment').val() == '' || $('#end-amount-installment').val() == '')) {
                     swal({
                         icon: 'error',
                         title: 'خطا',
@@ -245,7 +244,7 @@ $(document).ready(function () {
                     })
                     error=true;
                     event.preventDefault();
-                } else if ($('#start-amount').val() == '' || $('#end-amount').val() == '') {
+                } else if ($('#start-amount-installment').val() == '' || $('#end-amount-installment').val() == '') {
                     swal({
                         icon: 'error',
                         title: 'خطا',
@@ -256,13 +255,13 @@ $(document).ready(function () {
                 }
             }
             if (!error){
-                if ($('#excel').prop('checked') == true) {
+                if ($('#excel-installment').prop('checked') == true) {
                     $('form').submit();
                 } else {
                     do_filter_command=true;
-                    $('#pagination-demo').remove();
-                    $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-                    fetchData(1)
+                    $('#pagination-demo-installment').remove();
+                    $('#pagination-box-installment').html("<ul id='pagination-demo-installment' class='pagination'></ul>");
+                    fetchDataInstallment(1)
                      event.preventDefault();
                 }
             }
@@ -283,17 +282,17 @@ function separate(Number) {
 }
 
 function startAmountOnChange() {
-    $('#start-amount-badge').empty()
-    $('#start-amount-badge').append(' از ' + separate(Math.round($('#start-amount').val() / 10)) + ' تومان ')
+    $('#start-amount-badge-installment').empty()
+    $('#start-amount-badge-installment').append(' از ' + separate(Math.round($('#start-amount-installment').val() / 10)) + ' تومان ')
 }
 
 function endAmountOnChange() {
-    $('#end-amount-badge').empty()
-    $('#end-amount-badge').append(' تا ' + separate(Math.round($('#end-amount').val() / 10)) + ' تومان ')
+    $('#end-amount-badge-installment').empty()
+    $('#end-amount-badge-installment').append(' تا ' + separate(Math.round($('#end-amount-installment').val() / 10)) + ' تومان ')
 }
 
 function selectStatusOnChange() {
     if ($('#select-status').val() == 3) {
-        $('#by_amount').prop("checked", false);
+        $('#by_amount_installment').prop("checked", false);
     }
 }

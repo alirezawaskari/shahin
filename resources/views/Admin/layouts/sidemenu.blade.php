@@ -51,11 +51,8 @@
                     @permission('user-delete')
                     <li><a href="{{ route('user.delete') }}">سطل زباله</a></li>
                     @endpermission
-                    @permission('cash-debtors-list')
-                    <li><a href="{{route('accounting.cash.index')}}"><span>بدهکاران نقدی</span> </a></li>
-                    @endpermission
-                    @permission('installments-debtors-list')
-                    <li><a href="{{route('accounting.installment.index')}}"><span>بدهکاران اقساطی</span> </a></li>
+                    @permission('cash-debtors-list|installments-debtors-list|credit-debt-list')
+                    <li><a href="{{route('accounting.all')}}"><span>حسابرسی</span> </a></li>
                     @endpermission
                     @permission('user-attributes')
                     <li><a href="#"><i class="icon ti-control-record"></i> <span>ویژگی ها</span> </a>

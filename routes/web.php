@@ -143,10 +143,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'fetchUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
-    Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
-    Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cash-debtors');
-    Route::get('/accounting/installment-debtors' , [AccountingController::class,'installmentDebtorsIndex'])->name('accounting.installment.index');
-    Route::get('/accounting/filter-installment-debtors' , [AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installment-debtors');
+    Route::get('/accounting/all' , [AccountingController::class,'index'])->name('accounting.all');
+    Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cashDebtors');
+    Route::get('/accounting/filter-credit-debt' , [AccountingController::class,'filterCreditDebt'])->name('accounting.filter.creditDebt');
+    Route::get('/accounting/filter-installment-debtors' , [AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installmentDebtors');
     Route::get('/accounting/show/{user}' , [AccountingController::class,'show'])->name('accounting.show');
     Route::get('/', 'AdminController@dashboard');
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
