@@ -12,12 +12,12 @@
                     <input type="text" class="form-control" name="phone" placeholder="شماره موبایل" />
                 </div>
                 <div class="col-12 col-md-3 mb-2">
-                    <input class="form-control" id="start-amount" type="number" onkeyup="startAmountOnChange()"
+                    <input class="form-control" id="start-amount" type="text" onkeyup="startAmountOnChange()"
                         name="start_amount" placeholder="از مبلغ(ریال)" oninput="separatePrices(this)">
                 </div>
 
                 <div class="col-12 col-md-3 mb-2">
-                    <input class="form-control" id="end-amount" type="number" onkeyup="endAmountOnChange()"
+                    <input class="form-control" id="end-amount" type="text" onkeyup="endAmountOnChange()"
                         name="end_amount" placeholder="تا مبلغ(ریال) " oninput="separatePrices(this)">
                 </div>
                 @if(is_null(auth()->user()->center_id))

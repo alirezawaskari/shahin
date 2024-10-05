@@ -209,12 +209,16 @@ function separate(Number) {
     return y + z;
 }
 
-function startAmountOnChange() {
+function startAmountOnChangeCreditDebt() {
     $('#start-amount-badge-creditDebt').empty()
-    $('#start-amount-badge-creditDebt').append(' از ' + separate(Math.round($('#start-amount-creditDebt').val() / 10)) + ' تومان ')
+    var start_amount_creditDebt = $('#start-amount-creditDebt').val();
+    start_amount_creditDebt = start_amount_creditDebt.replace (/,/g, "");
+    $('#start-amount-badge-creditDebt').append(' از ' + separate(Math.round(start_amount_creditDebt / 10)) + ' تومان ')
 }
 
-function endAmountOnChange() {
+function endAmountOnChangeCreditDebt() {
     $('#end-amount-badge-creditDebt').empty()
-    $('#end-amount-badge-creditDebt').append(' تا ' + separate(Math.round($('#end-amount-creditDebt').val() / 10)) + ' تومان ')
+    var end_amount_creditDebt = $('#end-amount-creditDebt').val();
+    end_amount_creditDebt = end_amount_creditDebt.replace (/,/g, "");
+    $('#end-amount-badge-creditDebt').append(' تا ' + separate(Math.round(end_amount_creditDebt / 10)) + ' تومان ')
 }

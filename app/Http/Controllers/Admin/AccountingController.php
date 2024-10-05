@@ -31,6 +31,8 @@ class AccountingController extends  Controller
         $name = request('name');
         $family = request('family');
         $phone = request('phone');
+        $start_amount = (float)str_replace(',', '', Helper::numberConverter(request('start_amount')));
+        $end_amount = (float)str_replace(',', '', Helper::numberConverter(request('end_amount')));
 
 //        if (!Cache::has('total_debt_except_penalty')){
 //            $debt=FactorItem::fetchSystemDebtExceptPenalty();
@@ -72,16 +74,16 @@ class AccountingController extends  Controller
                     });
                }
                 if ( request('by_amount')=='on' && request('status')=='all'){
-                    $query->whereHas('property',function ($query){
-                        $query->whereRaw('(prepayment_debt + price_difference_debt) >'. request('start_amount'))
-                            ->whereRaw('(prepayment_debt + price_difference_debt) <'. request('end_amount'));
+                    $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                        $query->whereRaw('(prepayment_debt + price_difference_debt) >'. $start_amount)
+                            ->whereRaw('(prepayment_debt + price_difference_debt) <'. $end_amount);
                     });
                 }
                 if (request()->status == 1  ){
                     if (request('by_amount') == 'on'){
-                        $query->whereHas('property',function ($query){
-                            $query->where( 'prepayment_debt', '>', request('start_amount'))
-                                ->where( 'prepayment_debt', '<', request('end_amount'));
+                        $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                            $query->where( 'prepayment_debt', '>', $start_amount)
+                                ->where( 'prepayment_debt', '<', $end_amount);
                         });
                     }else {
                         $query->whereHas('property', function ($query) {
@@ -92,9 +94,9 @@ class AccountingController extends  Controller
                 if (request()->status == 4 ){
                     $query->where('type',0);
                     if (request('by_amount') == 'on'){
-                        $query->whereHas('property',function ($query){
-                            $query->where( 'prepayment_debt', '>', request('start_amount'))
-                                ->where( 'prepayment_debt', '<', request('end_amount'));
+                        $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                            $query->where( 'prepayment_debt', '>', $start_amount)
+                                ->where( 'prepayment_debt', '<', $end_amount);
                         });
                     }else {
                         $query->whereHas('property', function ($query) {
@@ -104,9 +106,9 @@ class AccountingController extends  Controller
                 }
                 if (request()->status == 2  ){
                     if (request('by_amount') == 'on'){
-                        $query->whereHas('property',function ($query){
-                            $query->where( 'price_difference_debt', '>', request('start_amount'))
-                                ->where( 'price_difference_debt', '<', request('end_amount'));
+                        $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                            $query->where( 'price_difference_debt', '>', $start_amount)
+                                ->where( 'price_difference_debt', '<', $end_amount);
                         });
                     }else{
                         $query->whereHas('property',function ($query){
@@ -151,6 +153,8 @@ class AccountingController extends  Controller
         $name = request('name');
         $family = request('family');
         $phone = request('phone');
+        $start_amount = (float)str_replace(',', '', Helper::numberConverter(request('start_amount')));
+        $end_amount = (float)str_replace(',', '', Helper::numberConverter(request('end_amount')));
 
 //        if (!Cache::has('total_debt_except_penalty')){
 //            $debt=FactorItem::fetchSystemDebtExceptPenalty();
@@ -195,16 +199,16 @@ class AccountingController extends  Controller
                 });
 
                 if ( request('by_amount')=='on' && request('status')=='all'){
-                    $query->whereHas('property',function ($query){
-                        $query->whereRaw('(prepayment_debt + price_difference_debt) >'. request('start_amount'))
-                            ->whereRaw('(prepayment_debt + price_difference_debt) <'. request('end_amount'));
+                    $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                        $query->whereRaw('(prepayment_debt + price_difference_debt) >'. $start_amount)
+                            ->whereRaw('(prepayment_debt + price_difference_debt) <'. $end_amount);
                     });
                 }
                 if (request()->status == 1  ){
                     if (request('by_amount') == 'on'){
-                        $query->whereHas('property',function ($query){
-                            $query->where( 'prepayment_debt', '>', request('start_amount'))
-                                ->where( 'prepayment_debt', '<', request('end_amount'));
+                        $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                            $query->where( 'prepayment_debt', '>', $start_amount)
+                                ->where( 'prepayment_debt', '<', $end_amount);
                         });
                     }else {
                         $query->whereHas('property', function ($query) {
@@ -215,9 +219,9 @@ class AccountingController extends  Controller
                 if (request()->status == 4 ){
                     $query->where('type',0);
                     if (request('by_amount') == 'on'){
-                        $query->whereHas('property',function ($query){
-                            $query->where( 'prepayment_debt', '>', request('start_amount'))
-                                ->where( 'prepayment_debt', '<', request('end_amount'));
+                        $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                            $query->where( 'prepayment_debt', '>', $start_amount)
+                                ->where( 'prepayment_debt', '<', $end_amount);
                         });
                     }else {
                         $query->whereHas('property', function ($query) {
@@ -227,9 +231,9 @@ class AccountingController extends  Controller
                 }
                 if (request()->status == 2  ){
                     if (request('by_amount') == 'on'){
-                        $query->whereHas('property',function ($query){
-                            $query->where( 'price_difference_debt', '>', request('start_amount'))
-                                ->where( 'price_difference_debt', '<', request('end_amount'));
+                        $query->whereHas('property',function ($query , $start_amount , $end_amount){
+                            $query->where( 'price_difference_debt', '>', $start_amount)
+                                ->where( 'price_difference_debt', '<', $end_amount);
                         });
                     }else{
                         $query->whereHas('property',function ($query){
@@ -275,6 +279,8 @@ class AccountingController extends  Controller
         $name = request('name');
         $family = request('family');
         $phone = request('phone');
+        $start_amount = (float)str_replace(',', '', Helper::numberConverter(request('start_amount')));
+        $end_amount = (float)str_replace(',', '', Helper::numberConverter(request('end_amount')));
 
 //        if (!Cache::has('total_debt_except_penalty')){
 //            $debt=FactorItem::fetchSystemDebtExceptPenalty();
@@ -303,16 +309,16 @@ class AccountingController extends  Controller
 
         if (request()->creditType == 'creditUser' ){
             if (request('by_amount') == 'on'){
-                    $usersQuery->where( 'credit', '>', request('start_amount'))
-                        ->where( 'credit', '<', request('end_amount'));
+                    $usersQuery->where( 'credit', '>', $start_amount)
+                        ->where( 'credit', '<', $end_amount);
             }else {
                     $usersQuery->where('credit', '>', 0);
             }
         }
         if (request()->creditType == 'walltUser' ){
             if (request('by_amount') == 'on'){
-                    $usersQuery->where( 'wallet', '>', request('start_amount'))
-                        ->where( 'wallet', '<', request('end_amount'));
+                    $usersQuery->where( 'wallet', '>', $start_amount)
+                        ->where( 'wallet', '<', $end_amount);
             }else {
                 $usersQuery->where('wallet' , '>' , 0);
             }
@@ -321,8 +327,8 @@ class AccountingController extends  Controller
             if (request('by_amount') == 'on'){
                 $usersQuery->whereHas('factors',function ($query){
                     $query->whereHas('totalFactorItem',function ($query){
-                        $query->where('credit', '>', request('start_amount'))
-                        ->where('credit', '<', request('end_amount'));
+                        $query->where('credit', '>', $start_amount)
+                        ->where('credit', '<', $end_amount);
                     });
                 });
             }else {
@@ -335,14 +341,14 @@ class AccountingController extends  Controller
         }
         if (request()->creditType == 'all' ){
             if (request('by_amount') == 'on'){
-                $usersQuery->where('credit' , '>' , request('start_amount'))
-                ->where('credit' , '<' , request('end_amount'))
-                ->orWhere('wallet' , '>' ,  request('start_amount'))
-                ->where('wallet' , '<' ,  request('end_amount'))
+                $usersQuery->where('credit' , '>' , $start_amount)
+                ->where('credit' , '<' , $end_amount)
+                ->orWhere('wallet' , '>' ,  $start_amount)
+                ->where('wallet' , '<' ,  $end_amount)
                 ->orWhereHas('factors',function ($query){
-                    $query->whereHas('totalFactorItem',function ($query){
-                        $query->where('credit', '>', request('start_amount'))
-                        ->where('credit', '<', request('end_amount'));
+                    $query->whereHas('totalFactorItem',function ($query , $start_amount , $end_amount){
+                        $query->where('credit', '>', $start_amount)
+                        ->where('credit', '<', $end_amount);
                     });
                 });
             }else {

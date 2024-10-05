@@ -26,12 +26,12 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-3 mb-2">
-                    <input class="form-control" id="start-amount-installment" type="number" onkeyup="startAmountOnChange()"
+                    <input class="form-control" id="start-amount-installment" type="text" onkeyup="startAmountOnChangeInstallment()"
                         name="start_amount" placeholder="از مبلغ(ریال)" oninput="separatePrices(this)">
                 </div>
 
                 <div class="col-12 col-md-3 mb-2">
-                    <input class="form-control" id="end-amount-installment" type="number" onkeyup="endAmountOnChange()"
+                    <input class="form-control" id="end-amount-installment" type="text" onkeyup="endAmountOnChangeInstallment()"
                         name="end_amount" placeholder="تا مبلغ(ریال) " oninput="separatePrices(this)">
                 </div>
                 @if(is_null(auth()->user()->center_id))

@@ -289,12 +289,16 @@ function separate(Number) {
 
 function startAmountOnChange() {
     $('#start-amount-badge').empty()
-    $('#start-amount-badge').append(' از ' + separate(Math.round($('#start-amount').val() / 10)) + ' تومان ')
+    var start_amount = $('#start-amount').val();
+    start_amount = start_amount.replace (/,/g, "");
+    $('#start-amount-badge').append(' از ' + separate(Math.round(start_amount / 10)) + ' تومان ')
 }
 
 function endAmountOnChange() {
     $('#end-amount-badge').empty()
-    $('#end-amount-badge').append(' تا ' + separate(Math.round($('#end-amount').val() / 10)) + ' تومان ')
+    var end_amount = $('#end-amount').val();
+    end_amount = end_amount.replace (/,/g, "");
+    $('#end-amount-badge').append(' تا ' + separate(Math.round(end_amount / 10)) + ' تومان ')
 }
 
 function selectStatusOnChange() {

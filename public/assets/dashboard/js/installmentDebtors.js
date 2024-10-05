@@ -281,14 +281,18 @@ function separate(Number) {
     return y + z;
 }
 
-function startAmountOnChange() {
+function startAmountOnChangeInstallment() {
     $('#start-amount-badge-installment').empty()
-    $('#start-amount-badge-installment').append(' از ' + separate(Math.round($('#start-amount-installment').val() / 10)) + ' تومان ')
+    var start_amount_installment = $('#start-amount-installment').val();
+    start_amount_installment = start_amount_installment.replace (/,/g, "");
+    $('#start-amount-badge-installment').append(' از ' + separate(Math.round(start_amount_installment / 10)) + ' تومان ')
 }
 
-function endAmountOnChange() {
+function endAmountOnChangeInstallment() {
     $('#end-amount-badge-installment').empty()
-    $('#end-amount-badge-installment').append(' تا ' + separate(Math.round($('#end-amount-installment').val() / 10)) + ' تومان ')
+    var end_amount_installment = $('#end-amount-installment').val();
+    end_amount_installment = end_amount_installment.replace (/,/g, "");
+    $('#end-amount-badge-installment').append(' تا ' + separate(Math.round(end_amount_installment / 10)) + ' تومان ')
 }
 
 function selectStatusOnChange() {
