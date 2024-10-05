@@ -153,7 +153,7 @@ $(document).ready(function () {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
 
-        if ($('#access_selling_price').val() == 1) {
+        if ($('#access_selling_price').val()) {
             $("#page_text").append('( میانگین سود شرکت : ' + data.meta.average_company_profit + '%)');
         }
 
@@ -162,53 +162,81 @@ $(document).ready(function () {
         }
 
         $('#datatable-json tbody').empty();
-        var table = $('#datatable-json').DataTable({
-            paging: false,
-            searching: false,
-            retrieve: true,
-            data: data.data,
-            order: [
-                [0, "desc"]
-            ],
-            columns: [{
-                    "data": "sort_by"
-                },
-                {
-                    "data": "name"
-                },
-                {
-                    "data": "price"
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        if ($('#access_selling_price').val() == 1) {
-                            return `${data.selling_price}`
+        if($('#access_selling_price').val())
+        {
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                order: [
+                    [0, "desc"]
+                ],
+                columns: [{
+                        "data": "sort_by"
+                    },
+                    {
+                        "data": "name"
+                    },
+                    {
+                        "data": "price"
+                    },
+                    {
+                        "data": "selling_price"
+                    },
+                    {
+                        "data": "company_profit"
+                    },
+                    {
+                        "data": "tariff"
+                    },
+                    {
+                        "data": "jalali_created_at"
+                    },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
                         }
-                    }
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        if ($('#access_selling_price').val() == 1) {
-                            return `${data.company_profit}`
+                    },
+                ],
+            });
+        }
+        else
+        {
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                order: [
+                    [0, "desc"]
+                ],
+                columns: [{
+                        "data": "sort_by"
+                    },
+                    {
+                        "data": "name"
+                    },
+                    {
+                        "data": "price"
+                    },
+                    {
+                        "data": "tariff"
+                    },
+                    {
+                        "data": "jalali_created_at"
+                    },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
                         }
-                    }
-                },
-                {
-                    "data": "tariff"
-                },
-                {
-                    "data": "jalali_created_at"
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
-                    }
-                },
-            ],
-        });
+                    },
+                ],
+            });
+        }
+
         //add column count
         table.on('order.dt search.dt', function () {
             table.column(0, {

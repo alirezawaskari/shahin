@@ -135,10 +135,12 @@ class ServiceTariffController extends Controller {
         public function filter( Request $request ) {
             $center = Center::find( $request->center_id );
             $service_tariffs = $center->serviceTariffs()->where( 'service_id', $request->service_id )->filter( $request )->latest();
+            $total_service_tariffs = $center->serviceTariffs()->where( 'service_id', $request->service_id )->filter( $request )->latest();
+
             if ( isset( $request->excel ) && $request->excel == 'on' ) {
                 return ( new ServiceTariffExport( $service_tariffs ) )->download( 'service_tariffs.xlsx' );
             }
-            return new ServiceTariffCollection($service_tariffs , $service_tariffs->paginate( 20 ) );
+            return new ServiceTariffCollection($total_service_tariffs , $service_tariffs->paginate( 20 ) );
         }
 
         /**

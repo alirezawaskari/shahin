@@ -68,7 +68,7 @@ class ServiceTariffCollection extends ResourceCollection
             $amount_company_profit = $item->price - $item->purchase_price;
             $percent_company_profit = $percent_company_profit + (($amount_company_profit * 100)/$item->price);
         }
-        $average_company_profit = $percent_company_profit / $service_tariffs->count();
+        $average_company_profit = $service_tariffs->count() > 0 ? ($percent_company_profit / $service_tariffs->count()) : 0;
         return round($average_company_profit);
     }
 }
