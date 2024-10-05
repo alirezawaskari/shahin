@@ -55,10 +55,10 @@
                 <tr>
                     <th>#</th>
                     <th>عنوان تعرفه</th>
-                    @if($access_selling_price)
-                    <th>قیمت فروش مرکز (ریال) | قیمت مصرف کننده (ریال)</th>
-                    @else
                     <th>قیمت فروش مرکز(ریال)</th>
+                    @if($access_selling_price)
+                    <th>قیمت مصرف کننده (ریال)</th>
+                    <th>سود شرکت</th>
                     @endif
                     <th>آخرین ویرایش</th>
                     <th>تاریخ ثبت</th>
@@ -76,6 +76,7 @@
             </div>
 
             <p id="page_text"></p>
+            <input type="hidden" value="{{$access_selling_price}}" id="access_selling_price">
             <div id="pagination-box">
                 <ul id="pagination-demo" class="pagination"></ul>
             </div>

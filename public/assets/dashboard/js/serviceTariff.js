@@ -152,6 +152,11 @@ $(document).ready(function () {
     function createTable(data) {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
+
+        if ($('#access_selling_price').val() == 1) {
+            $("#page_text").append('( میانگین سود شرکت : ' + data.meta.average_company_profit + '%)');
+        }
+
         if ($.fn.DataTable.isDataTable('#datatable-json')) {
             $('#datatable-json').DataTable().destroy();
         }
@@ -173,6 +178,22 @@ $(document).ready(function () {
                 },
                 {
                     "data": "price"
+                },
+                {
+                    "data": data,
+                    "render": function (data) {
+                        if ($('#access_selling_price').val() == 1) {
+                            return `${data.selling_price}`
+                        }
+                    }
+                },
+                {
+                    "data": data,
+                    "render": function (data) {
+                        if ($('#access_selling_price').val() == 1) {
+                            return `${data.company_profit}`
+                        }
+                    }
                 },
                 {
                     "data": "tariff"

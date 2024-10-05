@@ -138,7 +138,7 @@ class ServiceTariffController extends Controller {
             if ( isset( $request->excel ) && $request->excel == 'on' ) {
                 return ( new ServiceTariffExport( $service_tariffs ) )->download( 'service_tariffs.xlsx' );
             }
-            return new ServiceTariffCollection( $service_tariffs->paginate( 20 ) );
+            return new ServiceTariffCollection($service_tariffs , $service_tariffs->paginate( 20 ) );
         }
 
         /**
@@ -212,7 +212,7 @@ class ServiceTariffController extends Controller {
                 $factor_item = FactorItem::find( $request->factor_item_id );
                 if ( ServiceTariff::where( 'tariff_id', $id )->get()->count() > 0 ) {
                     $service_tariffs = $factor_item->center ? $factor_item->center->serviceTariffs()->where( 'tariff_id', $id )->get() : [];
-                    $service_tariffs =  new ServiceTariffCollection( $service_tariffs );
+                    $service_tariffs =  new ServiceTariffCollection($service_tariffs , $service_tariffs );
 
                     return response()->json( [ 'count' => 'available', 'service_tariffs' => $service_tariffs ] );
                 }
