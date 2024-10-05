@@ -37,7 +37,11 @@ class ServiceTariffExport implements FromCollection , ShouldAutoSize ,WithHeadin
             $temp = [];
             $temp['number'] = ++$i;
             $temp['name'] = $item->name;
-            $temp['price'] = $item->price;
+            $temp['purchase_price'] = $item->purchase_price;
+            if(auth()->user()->isAbleTo('service_tariff_selling_price'))
+            {
+                $temp['selling_price'] = $item->price;
+            }
             $temp['tariff'] = $item->tariff->title;
 			$temp['created_at'] = verta($item->created_at)->format('%Y/%m/%d ');
             return $temp;
@@ -52,7 +56,14 @@ class ServiceTariffExport implements FromCollection , ShouldAutoSize ,WithHeadin
      */
     public function headings(): array
     {
-        return ['سریال','عنوان تعرفه', 'قیمت (ریال)' ,'آخرین ویرایش','تاریخ ثبت' ];
+        if(auth()->user()->isAbleTo('service_tariff_selling_price'))
+        {
+            return ['سریال','عنوان تعرفه', 'قیمت فروش مرکز (ریال)' , 'قیمت مصرف کننده (ریال)','آخرین ویرایش','تاریخ ثبت' ];
+        }
+        else
+        {
+            return ['سریال','عنوان تعرفه', 'قیمت فروش مرکز(ریال)' ,'آخرین ویرایش','تاریخ ثبت' ];
+        }
     }
 
 
