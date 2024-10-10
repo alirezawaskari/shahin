@@ -98,9 +98,7 @@ class FilterServiceProvider extends ServiceProvider
 
         $callcenters = [];
         foreach ($admin_users as $u) {
-            if ($user->isAbleTo('factor') || $user->isAbleTo('factor-detail')) {
-                $callcenters[] = $u;
-            }
+            $callcenters[] = $u;
         }
 
         return [
