@@ -82,7 +82,7 @@ class ResumeController extends Controller
      */
     public function filterDesktop(Request $request)
     {
-        $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->where('status' , '!=' , 3)->where('status' , '!=' , 4)->latest();
+        $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->whereNotIn('status' , [3,4])->latest();
         if(auth()->user()->admin_representation_id)
         {
             $resumes = auth()->user()->admin_representation->resumes()->filter()->where('card_id', auth()->user()->roles->first()->card_id)->where('status' , '!=' , 3)->where('status' , '!=' , 4)->latest();

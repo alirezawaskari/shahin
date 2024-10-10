@@ -439,7 +439,7 @@ class AdminController extends Controller
 
         if(auth()->user()->hasPermission('resume-desktop'))
         {
-            $item['count_resume'] = Resume::where('card_id' , auth()->user()->roles->first()->card_id)->where('status' , '!=' , 4)->count();
+            $item['count_resume'] = Resume::where('card_id' , auth()->user()->roles->first()->card_id)->whereNotIn('status' , [3,4])->count();
         }
 
         /*------------ statistics card --------------*/
