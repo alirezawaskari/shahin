@@ -451,14 +451,21 @@
                 </ul>
             </li>
             @endpermission
-            @permission('resume')
+            @permission('resume|resume-detail')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>رزومه ها</span> </a>
+                <ul>
+                    <li><a href="{{ route('resume.index') }}"> فهرست رزومه ها</a></li>
+                    @permission('resume-desktop')
+                    <li><a href="{{ route('resume.desktop') }}"> میزکار رزومه ها</a></li>
+                    @endpermission
+                </ul>
+            </li>
+            @endpermission
+            @permission('recruitment_notice')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>موقعیت شغلی</span> </a>
                 <ul>
-                    <li><a href="{{ route('resume.index') }}">رزومه ها</a></li>
-                    @permission('recruitment_notice')
                     <li><a href="{{ route('recruitmentNotice.index') }}"> موقعیت های شغلی</a></li>
                     <li><a href="{{ route('recruitmentNotice.create') }}">موقعیت شغلی جدید</a></li>
-                    @endpermission
                 </ul>
             </li>
             @endpermission

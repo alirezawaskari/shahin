@@ -643,7 +643,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/wallet-update/{wallet}', 'WalletTransactionController@wallet_update')->name('wallet.update');
     //resume
     Route::get('/resume/filter' , 'ResumeController@filter');
-    Route::get('/resume/desktop' , 'ResumeController@desktop');
+    Route::get('/resume/desktop' , 'ResumeController@desktop')->name('resume.desktop');
     Route::get('/resume/desktop/filter' , 'ResumeController@filterDesktop');
     Route::post('/resume-delete' , 'ResumeController@delete');
     Route::get('/recruitment-notice/filter', 'RecruitmentNoticeController@filter');

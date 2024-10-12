@@ -26,7 +26,7 @@ class ResumeController extends Controller
     {
         $delete = false;
 
-        if (auth()->user()->hasPermission('resume'))
+        if (auth()->user()->hasPermission('resume|resume-detail'))
         {
             $provinces =Province::all();
             if (auth()->user()->isAbleTo('resume-delete')){
@@ -66,6 +66,10 @@ class ResumeController extends Controller
     public function filter(Request $request)
     {
         $resumes = Resume::filter()->latest();
+        if(auth()->user()->hasPermission('resume'))
+        {
+            $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->latest();
+        }
         if(auth()->user()->admin_representation_id)
         {
             $resumes = auth()->user()->admin_representation->resumes()->filter()->latest();
@@ -98,7 +102,7 @@ class ResumeController extends Controller
      */
     public function create()
     {
-        if (auth()->user()->hasPermission('resume'))
+        if (auth()->user()->hasPermission('resume|resume-detail'))
         {
             $cards = Card::all();
             $recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
@@ -170,7 +174,7 @@ class ResumeController extends Controller
      */
     public function edit(Resume $resume)
     {
-        if (auth()->user()->hasPermission('resume'))
+        if (auth()->user()->hasPermission('resume|resume-detail'))
         {
             $cards = Card::all();
 			$recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
