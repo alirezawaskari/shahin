@@ -1286,6 +1286,34 @@ class CallcenterController extends Controller
         ]);
     }
     /**
+     * @param Request $request
+     * @return response
+     */
+    public function followedTask(Request $request)
+    {
+        $task = Callcenter::find($request->task);
+
+        if(auth()->user()->isAbleTo('close-task'))
+        {
+            //create history
+            History::create($task , $task->user_id , null , 2 , $request->description);
+            $task->update(['status' => 10]);
+            
+            return response([
+                'operator' => true,
+                'data'=> ['histories'=>Helper::userHistories($task->register)],
+                'status'=>'success',
+                'messages'=>'وضعیت درخواست با موفقیت تغییر کرد.'
+            ]);
+        }
+        return response([
+            'operator' => true,
+            'data'=> ['histories'=>Helper::userHistories($task->register)],
+            'status'=>'Unauthorized',
+            'messages'=>'شما مجاز به انجام این کار نیستید'
+        ]);
+    }
+    /**
      * @param Factor $factor
      * @return void
      */

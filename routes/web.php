@@ -187,6 +187,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/transfer-form' , 'CallcenterController@transfer_form');
     Route::post('/task-transfer' , 'CallcenterController@task_transfer');
     Route::post('/callcenter/closeTask' , 'CallcenterController@closeTask');
+    Route::post('/callcenter/followedTask' , 'CallcenterController@followedTask');
     Route::resource('callcenter', 'CallcenterController');
     Route::get('short-link/filter', 'ShortLinkController@filter');
     Route::resource('short-link', 'ShortLinkController');
