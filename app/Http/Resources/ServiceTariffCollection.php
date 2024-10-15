@@ -53,7 +53,7 @@ class ServiceTariffCollection extends ResourceCollection
     private function setCompanyProfit($item)
     {
         $amount_company_profit = $item->price - $item->purchase_price;
-        $percent_company_profit = ($amount_company_profit * 100)/$item->price;
+        $percent_company_profit = $item->price ? ($amount_company_profit * 100)/$item->price : 0;
         return number_format($amount_company_profit).' ریال - '.round($percent_company_profit).'%';
     }
     /**
@@ -66,7 +66,7 @@ class ServiceTariffCollection extends ResourceCollection
         foreach($service_tariffs as $item)
         {
             $amount_company_profit = $item->price - $item->purchase_price;
-            $percent_company_profit = $percent_company_profit + (($amount_company_profit * 100)/$item->price);
+            $percent_company_profit = $item->price ? $percent_company_profit + (($amount_company_profit * 100)/$item->price) : 0;
         }
         $average_company_profit = $service_tariffs->count() > 0 ? ($percent_company_profit / $service_tariffs->count()) : 0;
         return round($average_company_profit);

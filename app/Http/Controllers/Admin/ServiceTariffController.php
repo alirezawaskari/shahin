@@ -92,7 +92,7 @@ class ServiceTariffController extends Controller {
                     'multi_stage' => $request->multi_stage,
                 ] );
                 $service_tariff->centers()->attach( $request->center );
-                if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) ) {
+                if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) && isset( $inputs[ 'price' ] ) ) {
                     for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
                     $i++ ) {
                         if ( $inputs[ 'price' ][ $i ] ) {
@@ -101,7 +101,6 @@ class ServiceTariffController extends Controller {
                                 'agent_id' => auth()->user()->id,
                                 'service_tariff_id' => $service_tariff->id,
                                 'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                                'multi_stage' => $inputs[ 'multi_stage' ][ $i ],
                             ] );
                         }
                     }
