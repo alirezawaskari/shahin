@@ -118,8 +118,7 @@ class EmployeeController extends AdminController
 
         $inputs = $request->all();
 
-        $employee_items = $request->employee;
-
+        $employee_items = isset($inputs['employee']) ? $inputs['employee'] : [];
         $employee_items['contract_start_date'] = isset($employee_items['contract_start_date']) ? Helper::vertaToMiladi($employee_items['contract_start_date']) : '';
         $employee_items['contract_expiration_date'] = isset($employee_items['contract_expiration_date']) ? Helper::vertaToMiladi($employee_items['contract_expiration_date']) : '';
         $employee_items['parent_id'] =$request->parent_id == 'null'?null:$request->parent_id;
@@ -131,8 +130,11 @@ class EmployeeController extends AdminController
             Helper::deleteImage($employee->imglastcertificate);
             $employee_items['imglastcertificate'] = Helper::moveImage($request->urlimglastcertificate, 'document');
         }
-        $user->employee->update($employee_items);
-        unset($inputs['employee']);
+        if(isset($inputs['employee']))
+        {
+            $user->employee->update($employee_items);
+            unset($inputs['employee']);
+        }
 
         $role_id = $request->input('role_id') || $user->roles->count() == 0 ? $request->input('role_id') : $user->roles[0]->id;
         $employee->update([
