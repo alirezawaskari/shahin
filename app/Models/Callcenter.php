@@ -367,9 +367,9 @@ class Callcenter extends Model implements AuditableContract
     * @param \App\Models\User $user
     * @param mixed $description
     * @param array $callcenter_roles
-     * @return void
+    * @return viod
      */
-    public static function createTask(User $user, $description , $callcenter_roles): void
+    public static function createTask(User $user, $description , $callcenter_roles)
     {
         $callcenter_user = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) use ($callcenter_roles) {
             $query->whereIn('id', $callcenter_roles);
@@ -380,7 +380,8 @@ class Callcenter extends Model implements AuditableContract
                 $query->where('name', 'superadmin');
             })->first();
         }
-        Callcenter::create([
+
+        $task = Callcenter::create([
             'reg_id' => $user->id,
             'user_id' => $callcenter_user->id,
             'agent_id' => null,
@@ -389,5 +390,15 @@ class Callcenter extends Model implements AuditableContract
             'status' => 0,
             'description' => $description
         ]);
+
+        if(auth()->user())
+        {
+            $task->histories()->create([
+                'user_id' => auth()->user()->id,
+                'callcenter_id' => $callcenter_user->id,
+                'status' => $task->status,
+                'description' => $description,
+            ]);
+        }
     }
 }

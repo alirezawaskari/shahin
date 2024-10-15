@@ -21,7 +21,7 @@
                     @foreach($services as $service)
                         <article class="col-4 overflow-hidden pr-1 pl-1">
                             <a href="/services/{{ $service->slug }}" class="ml-2">
-                                <img src="{{ $service->image_app }}" class="card-img" alt="{{ $service->title }}">
+                                <img src="{{ $service->icon }}" class="card-img" alt="{{ $service->title }}">
                             </a>
                         </article>
                     @endforeach

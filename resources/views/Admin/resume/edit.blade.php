@@ -1,4 +1,5 @@
 @extends('Admin.master')
+@section('title')ویرایش رزومه@endsection
 
 @section('content')
 
@@ -17,35 +18,50 @@
                 </thead>
                 <tbody>
                     @foreach($comments as $comment)
-                    <tr>
-                        <td>{{ $comment->user->name.' '.$comment->user->family }}</td>
-                        <td>
-                            {{ $comment->created_at }}
-                        </td>
-                        <td>{{ $comment->description }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ $comment['user'] }}</td>
+                            <td>
+                                {{ $comment['date'] }}
+                            </td>
+                            <td>{{ $comment['description'] }}</td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
             @include('Admin.layouts.errors')
             <div class="row">
 
-                <div class="col-12 col-md-3 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>نام</label>
                     <input type="text" value="{{ $resume->name }}" class="form-control" name="name" required>
                 </div>
 
-                <div class="col-12 col-md-3 mb-3">
-                    <label>ایمیل</label>
-                    <input type="text" value="{{ $resume->email }}" class="form-control" name="email">
-                </div>
-
-                <div class="col-12 col-md-3 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>موبایل</label>
                     <input type="text" value="{{ $resume->phone }}" class="form-control" name="phone" required>
                 </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>ایمیل</label>
+                    <input type="text" value="{{ $resume->email }}" class="form-control" name="email">
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>استان</label>
+                    <select class="form-control province_id" name="province_id" id="province_id">
+                        @foreach(\App\Models\Province::get() as $pro)
+                        <option value="{{$pro->id}}" {{ $pro->id == $user->province_id ? 'selected' : '' }}>{{ $pro->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
+                    <label>شهر</label>
+                    <select class="form-control city_id" name="city_id" id="city_id">
+                        @foreach(\App\Models\City::get() as $pro)
+                        <option value="{{$pro->id}}" {{ $pro->id == $user->city_id ? 'selected' : '' }}>{{ $pro->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-                <div class="col-12 col-md-3 mb-3">
+                <div class="col-12 col-md-4 mb-3">
                     <label>سابقه بیمه(درصورت داشتن بیمه براساس ماه)</label>
                     <input type="number" value="{{ $resume->bime_history }}" name="bime_history" class="form-control" min="0" required>
                 </div>
@@ -66,7 +82,7 @@
                 </div>
                 @endif
                 <div class="col-12 col-md-4 mb-3">
-                    <label>سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)</label>
+                    <label>توضیحات (با ذکر آخرین مدرک تحصیلی و سوابق شغلی مربوطه)</label>
                     <textarea name="work_history" class="form-control" required>{{ $resume->work_history }}</textarea>
                 </div>
                 <div class="col-12 col-md-4 mb-3">

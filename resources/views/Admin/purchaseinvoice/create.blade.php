@@ -1,4 +1,5 @@
 @extends('Admin.master')
+@section('title')ایجاد فاکتور خرید@endsection
 
 @section('content')
     <div class="page-header">
@@ -35,8 +36,9 @@
                     </div>
                 @endpermission
                     <div class="col-12 col-md-2 mb-3">
-                        <label>درخواست کننده</label>
+                        <label>نمایندگی درخواست کننده</label>
                         <select class="form-control" name="representation_id">
+                            <option value="">نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{ $representation->id }}">{{ $representation->fa_name }}</option>
                             @endforeach

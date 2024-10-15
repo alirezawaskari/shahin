@@ -626,6 +626,36 @@ class User extends Authenticatable
         return $totalDebts;
     }
 
+
+    /**
+     * return total debts data of user
+     * @param User $user
+     * @return int
+     */
+    public static function fetchTotalCredit(User $user)
+    {
+        $factor_items= FactorItem::whereHas('factor',function ($query)use($user){
+            $query->whereHas('user', function ($query) use ($user) {
+                $query->where('status', 1)->where('id', $user->id);
+            });
+        })->get();
+
+        $factorItem_credit = 0;
+        if($factor_items->count() > 0)
+        {
+            foreach($factor_items as $item)
+            {
+                $factorItem_credit = $factorItem_credit + ($item->supervisor->type && $item->supervisor->totalFactorItem ? TotalFactorItem::calculateCredit($item->supervisor->totalFactorItem) : FactorItem::calculateCredit($item->supervisor));
+            }
+        }
+        else
+        {
+            $factorItem_credit = $factorItem_credit + $user->credit + $user->wallet;
+        }
+
+
+        return $factorItem_credit;
+    }
     /**
      * @param $gender
      * @return string

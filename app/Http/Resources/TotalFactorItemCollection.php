@@ -22,7 +22,7 @@ class TotalFactorItemCollection extends ResourceCollection
                     'name' => $item->factor ? $item->factor->user->name. ' ' . $item->factor->user->family: null,
                     'phone' => $item->factor ? $item->factor->user->phone: null,
                     'total_price' => number_format($item->total_price),
-                    'credit' => number_format($item->credit),
+                    'credit' => number_format(TotalFactorItem::calculateCredit($item)),
                     'prepayment_price' => $item->property()->exists()? number_format($item->property->prepayment_price):null,
                     'installments_num' => $item->installments_num,
                     'installments_num_paid' => $item->totalFactorItemInstallments ? count($item->totalFactorItemInstallments->where('status' , 1)) : 0,

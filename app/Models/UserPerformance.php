@@ -68,11 +68,11 @@ class UserPerformance extends Model implements AuditableContract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      */
     public function sessions()
     {
-        return $this->hasMany(Session::class);
+        return $this->belongsToMany(Session::class);
     }
 
     /**
@@ -167,17 +167,17 @@ class UserPerformance extends Model implements AuditableContract
      * @param mixed $percentage_allocation_employee
      * @param mixed $description
      * @param mixed $price
+     * @return mixed
      */
-    public static function store($item , $description , $price , $user_performance_price , $factor_item)
+    public static function store($percentage_allocation_employee , $user ,$description , $price , $user_performance_price , $factor_item , $date)
     {
-        $user = $item->user;
         $user_performance = UserPerformance::create( [
             'factor_item_id' => $factor_item->id,
             'description' => $description,
             'price' => $price,
             'tax' => ( $user_performance_price * ( $user->employee->tax / 100) ),
             'ancillary_costs' => 0,
-            'date' => now(),
+            'date' => $date,
             'callcenter_id' => auth()->user()->id,
             'user_id' => $user->id,
         ] );
@@ -193,7 +193,19 @@ class UserPerformance extends Model implements AuditableContract
             'created_at' => $user_performance->date,
         ] );
 
-        $user_performance->resaons()->attach(['percentage_allocation_employee_id' => $item->id]);
+        $percentage_allocation_employee ? $user_performance->resaons()->attach(['percentage_allocation_employee_id' => $percentage_allocation_employee->id]) : '';
         $user ? $user->update( [ 'wallet' => $user->wallet + $WalletTransaction->price ] ) : '';
+        return $user_performance;
+    }
+    /**
+     * @param \App\Models\UserPerformance $item
+     * @param mixed $user_performance_sessions_done
+     * @return void
+     */
+    public static function setSessionsDone(UserPerformance $item , $user_performance_sessions_done)
+    {
+        foreach ( $user_performance_sessions_done as $session ) {
+            $session->userPerformances()->syncWithoutDetaching( [ 'user_performance_id' => $item->id ] );
+        }
     }
 }

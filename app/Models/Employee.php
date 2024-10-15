@@ -57,6 +57,11 @@ class Employee extends Model
         $status=request('status');
         $role=request('role');
 
+        if ((!isset($status) || $status == 'all') && trim($name) == '' && trim($family) == '' && trim($phone) == '') {
+            $query->whereHas('user', function ($query) use ($status) {
+                $query->where('status',true);
+            });
+        }
         if (auth()->user()->admin_representation) {
             $representation = auth()->user()->admin_representation->id;
             $query->whereHas('user', function ($query) use ($representation) {

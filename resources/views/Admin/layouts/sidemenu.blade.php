@@ -51,11 +51,8 @@
                     @permission('user-delete')
                     <li><a href="{{ route('user.delete') }}">سطل زباله</a></li>
                     @endpermission
-                    @permission('cash-debtors-list')
-                    <li><a href="{{route('accounting.cash.index')}}"><span>بدهکاران نقدی</span> </a></li>
-                    @endpermission
-                    @permission('installments-debtors-list')
-                    <li><a href="{{route('accounting.installment.index')}}"><span>بدهکاران اقساطی</span> </a></li>
+                    @permission('cash-debtors-list|installments-debtors-list|credit-debt-list')
+                    <li><a href="{{route('accounting.all')}}"><span>حسابرسی</span> </a></li>
                     @endpermission
                     @permission('user-attributes')
                     <li><a href="#"><i class="icon ti-control-record"></i> <span>ویژگی ها</span> </a>
@@ -109,20 +106,27 @@
             @endif
 
             @endpermission
-            @permission('user_wallet')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>حسابداری من</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>حساب کاربری من</span> </a>
                 <ul>
+                    @permission('employee_resume')
+                    <li><a href="{{ route('employee.resume.edit', [auth()->user()->employee->id]) }}">رزومه کاری</a></li>
+                    @endpermission
+                    @permission('user_wallet')
                     <li><a href="{{ route('employee.financial.report', [auth()->user()->employee->id]) }}">عملکرد
-                            ماهانه</a></li>
-                    <li><a href="{{ route('employee.wallet', [auth()->user()->id, 'key' => 'all']) }}">جزئیات گزارش
-                            مالی</a></li>
-                    @permission('user_performance_detail')
-                    <li><a href="{{ route('employee.performanceDetail', [auth()->user()->id]) }}">کلیات گزارش مالی</a>
+                            ماهانه من</a></li>
+                    @endpermission
+                    @permission('financialReport_employee_list')
+                    <li><a href="{{ route('employee.financialReport.list') }}">عملکرد مالی همکاران</a>
                     </li>
+                    @endpermission
+                    @permission('center_financial_report')
+                    @if (auth()->user()->center_id)
+                    <li><a href="{{ route('center.financialReport' , [auth()->user()->center_id]) }}">عملکرد مالی مرکز</a>
+                    </li>
+                    @endif
                     @endpermission
                 </ul>
             </li>
-            @endpermission
             @permission('session|session-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>جلسات</span> </a>
                 <ul>
@@ -175,7 +179,7 @@
                     @permission('percentageAllocationEmployee_report')
                     <li><a href="{{ route('percentageAllocationEmployee.report') }}">گزارش تسهیم</a></li>
                     @endpermission
-              </ul>
+                </ul>
             </li>
             @endpermission
             @permission('center-category')
@@ -194,8 +198,7 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                 <ul>
                     <li><a href="{{ url('/dashboard/factorItem/desktop') }}">پرونده های قابل اجرا</a></li>
-                    <li><a
-                            href="{{ route('factorItem.index') }}">کل پرونده ها</a></li>
+                    <li><a href="{{ route('factorItem.index') }}">کل پرونده ها</a></li>
                     @permission('file-report-installments')
                     <li><a href="{{ route('totalFactorItemInstallment.index') }}">بدهکاری اقساط</a></li>
                     @endpermission
@@ -402,7 +405,8 @@
             <li><a href="#"><i class="icon ti-control-record"></i><span>تعرفه ها</span></a>
                 <ul>
                     @foreach (auth()->user()->center->services as $service)
-                    <li><a href="{{ route('center.serviceTariff', [auth()->user()->center_id,$service->slug]) }}">فهرست تعرفه ها ({{$service->title}})</a>
+                    <li><a href="{{ route('center.serviceTariff', [auth()->user()->center_id,$service->slug]) }}">فهرست
+                            تعرفه ها ({{$service->title}})</a>
                     </li>
                     @endforeach
                 </ul>
@@ -447,14 +451,21 @@
                 </ul>
             </li>
             @endpermission
-            @permission('resume')
+            @permission('resume|resume-detail')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>رزومه ها</span> </a>
+                <ul>
+                    <li><a href="{{ route('resume.index') }}"> فهرست رزومه ها</a></li>
+                    @permission('resume-desktop')
+                    <li><a href="{{ route('resume.desktop') }}"> میزکار رزومه ها</a></li>
+                    @endpermission
+                </ul>
+            </li>
+            @endpermission
+            @permission('recruitment_notice')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>موقعیت شغلی</span> </a>
                 <ul>
-                    <li><a href="{{ route('resume.index') }}">رزومه ها</a></li>
-                    @permission('recruitment_notice')
                     <li><a href="{{ route('recruitmentNotice.index') }}"> موقعیت های شغلی</a></li>
                     <li><a href="{{ route('recruitmentNotice.create') }}">موقعیت شغلی جدید</a></li>
-                    @endpermission
                 </ul>
             </li>
             @endpermission

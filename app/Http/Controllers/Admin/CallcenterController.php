@@ -18,6 +18,7 @@ use App\Models\Center;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
+use App\Models\History;
 use App\Models\Organization;
 use App\Models\Province;
 use App\Models\Reason;
@@ -472,14 +473,11 @@ class CallcenterController extends Controller
             'reason_id' => $request->reason,
             'date_expire' => $request->date,
         ]);
-
-        $task->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => $task->user_id,
-            'status' => $request->reason == 0 ? 3 : 2,
-            'reason_id' => $request->reason,
-            'description' => !is_null($request->description) ? $request->description : Reason::find($request->reason)->title,
-        ]);
+        //create history
+        $description = !is_null($request->description) ? $request->description : Reason::find($request->reason)->title;
+        //create history
+        $status = $request->reason == 0 ? 3 : 2;
+        History::create($task , $task->user_id , $request->reason , $status , $description);
         //transfer task if select callcenter
         if($request->callcenter)
         {
@@ -536,12 +534,10 @@ class CallcenterController extends Controller
             'representation_id' => $callcenter->admin_representation_id,
         ]);
         $auth_user =  auth()->user();
-        $task->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => $request->callcenter,
-            'status' => $task->status,
-            'description' => "درخواست توسط همکار $auth_user->name  $auth_user->family  به همکار $callcenter->name $callcenter->family انتقال پیدا کرد ",
-        ]);
+        //create history
+        $description = "درخواست توسط همکار $auth_user->name  $auth_user->family  به همکار $callcenter->name $callcenter->family انتقال پیدا کرد ";
+        $status = $task->status;
+        History::create($task , $request->callcenter , $request->reason , $status , $description);
 
         return response([
             'operator' => true,
@@ -1125,13 +1121,9 @@ class CallcenterController extends Controller
                 'status' => $callcenter->status == 1 ? 1 : 0,
             ]);
         }
-        $callcenter->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => auth()->user()->id,
-            'status' => 1,
-            'description' => "لینک  {$services_title} ارسال گردید و در انتظار پرداخت قرار دارد",
-        ]);
-
+        //create history
+        $description = "لینک  {$services_title} ارسال گردید و در انتظار پرداخت قرار دارد";
+        History::create($callcenter , auth()->user()->id , null , 1 , $description);
     }
 
     /**
@@ -1142,12 +1134,9 @@ class CallcenterController extends Controller
     private function sendSmsLinkSite($request , $client , $task,array $services)
     {
         $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
-        $task->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => $task->user_id,
-            'status' => 0,
-            'description' => "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .",
-        ]);
+        //create history
+        $description = "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .";
+        History::create($task , $task->user_id , null , 0 , $description);
         $services=Service::whereIn('id',$request->service)->get();
         foreach ($services as $service ){
             event(new fastserviceCallcenter($client, $service , null ,$task, 'online'));
@@ -1250,12 +1239,8 @@ class CallcenterController extends Controller
      */
     private function createHistoryForOtherRequestType($callcenter)
     {
-        $callcenter->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => $callcenter->user_id,
-            'status' => 2,
-            'description' => $callcenter->description,
-        ]);
+        //create history
+        History::create($callcenter , $callcenter->user_id , null , 2 , $callcenter->description);
     }
 
     /**
@@ -1268,12 +1253,8 @@ class CallcenterController extends Controller
 
         if(auth()->user()->isAbleTo('close-task'))
         {
-            $task->histories()->create([
-                'user_id' => auth()->user()->id,
-                'callcenter_id' => $task->user_id,
-                'status' => 2,
-                'description' => $request->description,
-            ]);
+            //create history
+            History::create($task , $task->user_id , null , 2 , $request->description);
             if($request->close_task_type == 'this_task')
             {
                 $task->update(['status' => 5]);
@@ -1295,6 +1276,34 @@ class CallcenterController extends Controller
                 'data'=> ['histories'=>Helper::userHistories($task->register)],
                 'status'=>'success',
                 'messages'=>'درخواست با موفقیت بسته شد.'
+            ]);
+        }
+        return response([
+            'operator' => true,
+            'data'=> ['histories'=>Helper::userHistories($task->register)],
+            'status'=>'Unauthorized',
+            'messages'=>'شما مجاز به انجام این کار نیستید'
+        ]);
+    }
+    /**
+     * @param Request $request
+     * @return response
+     */
+    public function followedTask(Request $request)
+    {
+        $task = Callcenter::find($request->task);
+
+        if(auth()->user()->isAbleTo('close-task'))
+        {
+            //create history
+            History::create($task , $task->user_id , null , 2 , $request->description);
+            $task->update(['status' => 10]);
+            
+            return response([
+                'operator' => true,
+                'data'=> ['histories'=>Helper::userHistories($task->register)],
+                'status'=>'success',
+                'messages'=>'وضعیت درخواست با موفقیت تغییر کرد.'
             ]);
         }
         return response([
@@ -1364,13 +1373,8 @@ class CallcenterController extends Controller
             $description = $suspension_standard->name .' تماس گرفته شد ارتباط با کاربر برقرار نشد.';
         }
         //create history
-        $callcenter->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => $callcenter->user_id,
-            'status' => $request->reason == 0 ? 3 : 2,
-            'reason_id' => $request->reason,
-            'description' => $description,
-        ]);
+        $status = $request->reason == 0 ? 3 : 2;
+        History::create($callcenter , $callcenter->user_id , $request->reason , $status , $description);
     }
     /**
      * @param Callcenter $callcenter

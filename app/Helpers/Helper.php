@@ -8,6 +8,7 @@ use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\CategoryArticle;
 use App\Models\Product;
+use App\Models\Resume;
 use App\Models\User;
 use App\Models\VipUser;
 use Carbon\Carbon;
@@ -147,6 +148,7 @@ class Helper {
         $user = auth()->user();
         $histories = [];
         $histories_sort = [];
+        //callcenter historeies
         if ( $user->isAbleTo( 'history-callcenter' ) ) {
             if ( isset( $register->callcenters ) )
             {
@@ -155,7 +157,7 @@ class Helper {
                 }
             }
         }
-
+        //factor historeies
         if ( $user->isAbleTo( 'history-factor' ) ) {
             if ( isset( $register->factors ) )
             {
@@ -172,7 +174,7 @@ class Helper {
                 }
             }
         }
-
+        //agency historeies
         if (isset($register->phone) && $user->isAbleTo( 'history-agency' ) ) {
             $agencies = Agency::where( 'phone', $register->phone )->get();
             if ( $agencies )
@@ -180,6 +182,16 @@ class Helper {
                 foreach ( $agencies as $agency )
                 {
                     $histories = self::historyCollection($histories , $agency->histories);
+                }
+            }
+        }
+        //resume historeies
+        if (isset($register->phone) && $user->isAbleTo( 'history-resume' ) ) {
+            $resumes = Resume::where( 'phone', $register->phone )->get();
+            if ($resumes)
+            {
+                foreach ( $resumes as $resume ) {
+                    $histories = self::historyCollection($histories , $resume->histories);
                 }
             }
         }

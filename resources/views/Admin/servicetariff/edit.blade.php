@@ -40,6 +40,13 @@
                 </div>
                 @endpermission
                 <div class="col-12 col-md-4 mb-3">
+                    <label>پرداخت در چند مرحله</label>
+                    <select class="form-control" name="multi_stage">
+                        <option value="1" {{$serviceTariff->multi_stage == 1 ? 'selected': ''}}>1</option>
+                        <option value="2" {{$serviceTariff->multi_stage == 2 ? 'selected': ''}}>2</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 mb-3">
                     <label>تعداد جلسات</label>
                     <input type="number" value="{{$serviceTariff->session_number}}" class="form-control" name="session_number" id="session_number1"
                         required min="1">
@@ -61,6 +68,7 @@
                     <tr>
                         <th>نام و نام خانوادگی</th>
                         <th>مبلغ سهم (ریال)</th>
+                        <th>مراحل پرداخت</th>
                         <th>ثبت کننده</th>
                         <th>تاریخ ثبت</th>
                         <th>اقدام</th>
@@ -71,6 +79,7 @@
                     <tr>
                         <td>{{ $item->user->name.' '.$item->user->family }}</td>
                         <td>{{ number_format($item->amount) }}</td>
+                        <td>{{ $item->multi_stage }}</td>
                         <td>{{ $item->agent->name.' '.$item->agent->family }}</td>
                         <td>{{ verta($item->created_at)->format('Y/m/d') }}</td>
                         <td>
@@ -110,7 +119,6 @@
                     <input type="text" class="form-control" name="price[]"
                         oninput="separatePrices(this)">
                 </div>
-
                 <div class="col-12 mb-3 mb-3" id="delete1">
                 </div>
             </div>

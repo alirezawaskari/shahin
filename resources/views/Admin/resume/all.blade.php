@@ -1,4 +1,5 @@
 @extends('Admin.master')
+@section('title')فهرست رزومه ها@endsection
 
 @section('content')
 

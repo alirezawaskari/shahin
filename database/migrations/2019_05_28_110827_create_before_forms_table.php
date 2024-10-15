@@ -24,6 +24,7 @@ class CreateBeforeFormsTable extends Migration
             $table->string('value')->nullable();
             $table->string('class')->nullable();
             $table->string('help')->nullable();
+            $table->text('file')->nullable();
             $table->string('data_save_level' , 110)->nullable();
             $table->string('data_display_level' , 110)->nullable();
         });

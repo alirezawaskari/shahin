@@ -67,7 +67,7 @@ $(document).ready(function () {
         });
     });
 
-    //delete
+    //delete allocation employee centers
     $("body").on('click', '.allocation_employee_delete', function () {
         var id = $(this).data("id");
         var token = $("meta[name='csrf-token']").attr("content");
@@ -152,42 +152,91 @@ $(document).ready(function () {
     function createTable(data) {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
+
+        if ($('#access_selling_price').val()) {
+            $("#page_text").append('( میانگین سود شرکت : ' + data.meta.average_company_profit + '%)');
+        }
+
         if ($.fn.DataTable.isDataTable('#datatable-json')) {
             $('#datatable-json').DataTable().destroy();
         }
 
         $('#datatable-json tbody').empty();
-        var table = $('#datatable-json').DataTable({
-            paging: false,
-            searching: false,
-            retrieve: true,
-            data: data.data,
-            order: [
-                [0, "desc"]
-            ],
-            columns: [{
-                    "data": "sort_by"
-                },
-                {
-                    "data": "name"
-                },
-                {
-                    "data": "price"
-                },
-                {
-                    "data": "tariff"
-                },
-                {
-                    "data": "jalali_created_at"
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
-                    }
-                },
-            ],
-        });
+        if($('#access_selling_price').val())
+        {
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                order: [
+                    [0, "desc"]
+                ],
+                columns: [{
+                        "data": "sort_by"
+                    },
+                    {
+                        "data": "name"
+                    },
+                    {
+                        "data": "price"
+                    },
+                    {
+                        "data": "selling_price"
+                    },
+                    {
+                        "data": "company_profit"
+                    },
+                    {
+                        "data": "tariff"
+                    },
+                    {
+                        "data": "jalali_created_at"
+                    },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
+                        }
+                    },
+                ],
+            });
+        }
+        else
+        {
+            var table = $('#datatable-json').DataTable({
+                paging: false,
+                searching: false,
+                retrieve: true,
+                data: data.data,
+                order: [
+                    [0, "desc"]
+                ],
+                columns: [{
+                        "data": "sort_by"
+                    },
+                    {
+                        "data": "name"
+                    },
+                    {
+                        "data": "price"
+                    },
+                    {
+                        "data": "tariff"
+                    },
+                    {
+                        "data": "jalali_created_at"
+                    },
+                    {
+                        "data": data,
+                        "render": function (data) {
+                            return `<a href="/dashboard/serviceTariff/${data.slug}/edit"><button  class="btn btn-primary">ویرایش</button></a>`
+                        }
+                    },
+                ],
+            });
+        }
+
         //add column count
         table.on('order.dt search.dt', function () {
             table.column(0, {

@@ -85,6 +85,20 @@
                         </select>
                     </div>
 
+                    <div class='col-12 mb-3 file file--upload'>
+                        <label for='file'>
+                            <i class="fa fa-cloud-upload"></i>انتخاب فایل
+                        </label>
+                        <input name="file" type="file" id="file"
+                            class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
+                        <div id="file_src" class="show"></div>
+                        <input type="hidden" id="file" class="path" name="urlfile" value="">
+                        <div class="mr-3">
+                            @if($beforeForm->file)
+                            <a href="{{ $beforeForm->file }}" class="btn btn-primary py-1 px-2">مشاهده فایل</a>
+                            @endif
+                        </div>
+                    </div>
 
                     <div class="col-12">
                         <input type="hidden" value="{{ $beforeForm->beforeformable_id }}"
@@ -99,6 +113,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
+<script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
 <script>
     CKEDITOR.replace('help',ck_uploader)
 </script>

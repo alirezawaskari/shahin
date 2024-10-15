@@ -682,7 +682,79 @@ $(document).ready(function () {
             }
         });
 
-    })
+    });
+    /*  submit status   in status modal*/
+    $("body").on('click', '#submit-followed-task', function () {
+        $('.modal_followed_task_message_box').empty();
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var form = $('#modal-followed-task-form');
+        var formData = form.serialize();
+
+        swal({
+            title: "اطلاعات ارسال گردید !",
+            timer: 2000
+        });
+        $.ajax({
+            url: "/dashboard/callcenter/followedTask",
+            type: 'post',
+            "_token": token,
+            data: formData,
+            success: function (response) {
+                if (response.status == 'success') {
+                    $('#type-badge').empty();
+                    swal(response.messages, {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                    fetchData(1);
+                    $('.history-tbody').empty()
+                    let i = 1;
+                    $.each(response.data.histories, function (index, value) {
+                        $('.history-tbody').append(`
+                        <tr>
+                            <td>
+                                ${i++}
+                            </td>
+                            <td>
+                                ${value.user}
+                            </td>
+                            <td>
+                                ${value.callcenter}
+                            </td>
+                            <td>
+                                ${value.date}
+                            </td>
+                            <td>
+                                ${value.description}
+                            </td>
+                        </tr>
+                        `);
+                    });
+                } else if (response.status == 'Unauthorized') {
+                    swal({
+                        icon: "error",
+                        title: response.messages,
+                        button: "باشه"
+                    });
+                    $('.modal_followed_task_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_followed_task_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
+                } else {
+                    swal({
+                        icon: "error",
+                        title: "خطایی رخ داده است , لطفا مقادیر ارسالی را بررسی نمایید !",
+                        button: "باشه"
+                    });
+                    $('.modal_followed_task_message_box').empty();
+                    $.each(response.messages, function (i, val) {
+                        $('.modal_followed_task_message_box').append(`<span class="mr-1 badge badge-danger">${val}</span>`);
+                    });
+                }
+            }
+        });
+
+    });
     $(document).on('click', '#custom-check-vip', function () {
         if ($('#custom-check-vip').is(':checked')) {
             $('#custom-check-sos').prop('checked', false);
@@ -733,4 +805,7 @@ function getBadgeOfCallCenterStatus(status) {
             return ''
     }
 }
+// Get the element with id="changeStatusTaskDefaultOpen" and click on it
+document.getElementById("changeStatusTaskDefaultOpen").click();
+
 

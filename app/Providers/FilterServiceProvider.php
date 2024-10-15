@@ -52,7 +52,7 @@ class FilterServiceProvider extends ServiceProvider
                 'roles' => Role::all(),
             ]);
         });
-        view()->composer(['Admin.employee.all'], function ($view) {
+        view()->composer(['Admin.employee.all','Admin.employee.financialReportEmployeeList'], function ($view) {
             $view->with([
                 'roles' => Role::all(),
             ]);
@@ -98,9 +98,7 @@ class FilterServiceProvider extends ServiceProvider
 
         $callcenters = [];
         foreach ($admin_users as $u) {
-            if ($user->isAbleTo('factor') || $user->isAbleTo('factor-detail')) {
-                $callcenters[] = $u;
-            }
+            $callcenters[] = $u;
         }
 
         return [

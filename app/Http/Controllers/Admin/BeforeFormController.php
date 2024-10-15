@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Helper;
 use App\Models\BeforeForm;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -33,8 +34,13 @@ class BeforeFormController extends Controller
            'beforeformable_id' => 'required',
            'beforeformable_type' => 'required',
         ]);
-//            return $request->all();
-        BeforeForm::create($request->all());
+        $inputs = $request->all();
+        unset($inputs['file']);
+        if ($request->urlfile) {
+            $inputs['file'] = Helper::moveImage($request->urlfile,'service');
+        }
+		unset($inputs['urlfile']);
+        BeforeForm::create($inputs);
         alert()->success('','عملیات موفق');
         if ($request->beforeformable_type == Service::class){
             return redirect()->to('/dashboard/service_before_form/' . Service::find($request->beforeformable_id)->slug)->with([
@@ -78,8 +84,13 @@ class BeforeFormController extends Controller
             'required' => 'required|numeric',
             'type' => 'required|string',
         ]);
-
-        $beforeForm->update($request->all());
+        $inputs = $request->all();
+        unset($inputs['file']);
+        if ($request->urlfile) {
+            $inputs['file'] = Helper::moveImage($request->urlfile,'service');
+        }
+		unset($inputs['urlfile']);
+        $beforeForm->update($inputs);
         return redirect()->to('/dashboard/service_before_form/' . Service::find($request->input('beforeformable_id'))->slug)->with([
             'before_form_create' => 'success'
         ]);

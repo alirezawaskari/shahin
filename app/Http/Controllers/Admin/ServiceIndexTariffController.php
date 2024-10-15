@@ -127,14 +127,26 @@ class ServiceIndexTariffController extends Controller
     }
 
     /**
-     * @param ServiceTariff $serviceTariff
+     * @param ServiceIndexTariff $serviceIndexTariff
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(ServiceTariff $serviceTariff)
+    public function destroy(ServiceIndexTariff $serviceIndexTariff)
     {
-        $serviceTariff->delete();
-        return redirect()->back()->with([
-            'slider_delete' => 'success'
-        ]);
+        if(auth()->user()->isAbleTo('service_index_tariff_delete'))
+        {
+            if($serviceIndexTariff->serviceTariffs->count() == 0)
+            {
+                $serviceIndexTariff->delete();
+                return response(['status'=>'success']);
+            }
+            else
+            {
+                return response(['message'=>'از این تعرفه شاخص قبلا استفاده شده است امکان حذف آن وجود ندارد.','status'=>'error']);
+            }
+        }
+        else
+        {
+            return response(['message'=>'امکان حذف برای شما وجود ندارد.','status'=>'error']);
+        }
     }
 }

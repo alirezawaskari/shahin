@@ -589,9 +589,9 @@ $(document).ready(function () {
                 {
                     "data": "date_time"
                 },
-                {
+                /*{
                     "data": "supporter"
-                },
+                },*/
                 {
                     "data": "type"
                 },
@@ -673,6 +673,9 @@ $(document).ready(function () {
                             return '<i class="fa fa-close" aria-hidden="true"></i>'
                         }
                     }
+                },
+                {
+                    "data": "credit_debt"
                 },
                 {
                     "data": data,

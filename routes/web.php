@@ -143,10 +143,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'fetchUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
     Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
-    Route::get('/accounting/cash-debtors' , [AccountingController::class,'cashDebtorsIndex'])->name('accounting.cash.index');
-    Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cash-debtors');
-    Route::get('/accounting/installment-debtors' , [AccountingController::class,'installmentDebtorsIndex'])->name('accounting.installment.index');
-    Route::get('/accounting/filter-installment-debtors' , [AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installment-debtors');
+    Route::get('/accounting/all' , [AccountingController::class,'index'])->name('accounting.all');
+    Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cashDebtors');
+    Route::get('/accounting/filter-credit-debt' , [AccountingController::class,'filterCreditDebt'])->name('accounting.filter.creditDebt');
+    Route::get('/accounting/filter-installment-debtors' , [AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installmentDebtors');
     Route::get('/accounting/show/{user}' , [AccountingController::class,'show'])->name('accounting.show');
     Route::get('/', 'AdminController@dashboard');
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
@@ -187,6 +187,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/transfer-form' , 'CallcenterController@transfer_form');
     Route::post('/task-transfer' , 'CallcenterController@task_transfer');
     Route::post('/callcenter/closeTask' , 'CallcenterController@closeTask');
+    Route::post('/callcenter/followedTask' , 'CallcenterController@followedTask');
     Route::resource('callcenter', 'CallcenterController');
     Route::get('short-link/filter', 'ShortLinkController@filter');
     Route::resource('short-link', 'ShortLinkController');
@@ -328,6 +329,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('purchaseInvoice', 'PurchaseInvoiceController');
     Route::resource('supplier', 'SupplierController');
     //employee
+    Route::get('/employee/financialReportEmployeeList', 'EmployeeController@financialReportEmployeeList')->name('employee.financialReport.list');
     Route::get('/employee/filter', 'EmployeeController@filter')->name('employee.filter');
     Route::get('/seller/filter', 'EmployeeController@sellerFilter')->name('seller.filter');
     Route::get('/employee-financial-report/{employee}' , 'EmployeeController@financialReport')->name('employee.financial.report');
@@ -335,6 +337,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-performance-detail/{user}' , 'EmployeeController@performanceDetail')->name('employee.performanceDetail');
     Route::get('/employee-performance-detail-filter/{user}' , 'EmployeeController@performanceDetailFilter');
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
+    Route::get('/employee/resume/{employee}' , 'EmployeeController@editResume')->name('employee.resume.edit');
+    Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
     Route::get('/percentageAllocationEmployee/filter', 'PercentageAllocationEmployeeController@filter')->name('percentageAllocationEmployee.filter');
@@ -388,6 +392,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/serviceIndexTariff/filter', 'ServiceIndexTariffController@filter');
     Route::get('/serviceIndexTariff/getPurchasePrice/{id}', 'ServiceIndexTariffController@getPurchasePrice');
     Route::post('/serviceIndexTariff/createOrUpdate', 'ServiceIndexTariffController@createOrUpdate');
+    Route::resource('serviceIndexTariff', 'ServiceIndexTariffController');
 
     Route::group(['namespace' => 'site', 'prefix' => 'site'], function () {
         Route::resource('/category', 'CategoryController');
@@ -552,6 +557,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //center
     Route::get('/center-service/{center}' , 'CenterController@service')->name('center.service');
     Route::get('/center/filter', 'CenterController@filter')->name('center.filter');
+    Route::get('/center/financialReport/{center}' , 'CenterController@financialReport')->name('center.financialReport');
     Route::get('/center/{center}/{service}/serviceTariff', 'CenterController@serviceTariffs')->name('center.serviceTariff');
     Route::get('/center/{center}/{service}/serviceTariff/create', 'CenterController@createServiceTariff');
     Route::get('/doctorsByCenter/{center_id}', 'CenterController@doctorsByCenter')->name('doctorsByCenter');
@@ -638,7 +644,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/wallet-update/{wallet}', 'WalletTransactionController@wallet_update')->name('wallet.update');
     //resume
     Route::get('/resume/filter' , 'ResumeController@filter');
-    Route::get('/resume/desktop' , 'ResumeController@desktop');
+    Route::get('/resume/desktop' , 'ResumeController@desktop')->name('resume.desktop');
     Route::get('/resume/desktop/filter' , 'ResumeController@filterDesktop');
     Route::post('/resume-delete' , 'ResumeController@delete');
     Route::get('/recruitment-notice/filter', 'RecruitmentNoticeController@filter');

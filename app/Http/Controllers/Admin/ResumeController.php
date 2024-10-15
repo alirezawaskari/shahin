@@ -13,6 +13,7 @@ use App\Http\Resources\ResumeCollection;
 use App\Http\Controllers\Controller;
 use App\Exports\ResumsExport;
 use App\Helpers\Helper;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -25,7 +26,7 @@ class ResumeController extends Controller
     {
         $delete = false;
 
-        if (auth()->user()->hasPermission('resume'))
+        if (auth()->user()->hasPermission('resume|resume-detail'))
         {
             $provinces =Province::all();
             if (auth()->user()->isAbleTo('resume-delete')){
@@ -65,6 +66,10 @@ class ResumeController extends Controller
     public function filter(Request $request)
     {
         $resumes = Resume::filter()->latest();
+        if(auth()->user()->hasPermission('resume'))
+        {
+            $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->latest();
+        }
         if(auth()->user()->admin_representation_id)
         {
             $resumes = auth()->user()->admin_representation->resumes()->filter()->latest();
@@ -81,7 +86,7 @@ class ResumeController extends Controller
      */
     public function filterDesktop(Request $request)
     {
-        $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->where('status' , '!=' , 3)->where('status' , '!=' , 4)->latest();
+        $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->whereNotIn('status' , [3,4])->latest();
         if(auth()->user()->admin_representation_id)
         {
             $resumes = auth()->user()->admin_representation->resumes()->filter()->where('card_id', auth()->user()->roles->first()->card_id)->where('status' , '!=' , 3)->where('status' , '!=' , 4)->latest();
@@ -97,7 +102,7 @@ class ResumeController extends Controller
      */
     public function create()
     {
-        if (auth()->user()->hasPermission('resume'))
+        if (auth()->user()->hasPermission('resume|resume-detail'))
         {
             $cards = Card::all();
             $recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
@@ -131,19 +136,24 @@ class ResumeController extends Controller
             ]);
 		}
         //check if user not exist -> create user
+        User::createUser($request);
         $user = User::where('phone', $request->phone)->first();
-        if (is_null($user)) {
-            //create user
-            $user = $this->createUser($request);
-        }
 
         if ($request->status==0 || $request->status==5 ||$request->status==1 ){
-            $this->createTask($user,$recruitment_notice);
+            //create task to follow up
+            $callcenter_roles = Role::select('id')->where('name' , 'superadmin')->get();
+            $description = "جویای کار،
+            عنوان شغلی:
+           {$recruitment_notice->title}";
+            Callcenter::createTask($user, $description , $callcenter_roles);
         }
         $inputs['resume'] = $request->urlresume;
 		unset($inputs['urlresume']);
         $inputs['name']=$request->name.' '.$request->family;
         unset($inputs['family']);
+        unset($inputs['province_id']);
+        unset($inputs['city_id']);
+
         $resume = Resume::create($inputs);
 
         if ($request->urlresume) {
@@ -164,12 +174,14 @@ class ResumeController extends Controller
      */
     public function edit(Resume $resume)
     {
-        if (auth()->user()->hasPermission('resume'))
+        if (auth()->user()->hasPermission('resume|resume-detail'))
         {
             $cards = Card::all();
 			$recruitment_notices = RecruitmentNotice::whereStatus(true)->get();
-			$comments = $resume->histories;
-            return view('Admin.resume.edit' , compact('resume' , 'cards' , 'recruitment_notices' , 'comments'));
+            $user = User::where('phone', $resume->phone)->first();
+            $comments = Helper::userHistories($user);
+
+            return view('Admin.resume.edit' , compact('user' , 'resume' , 'cards' , 'recruitment_notices' , 'comments'));
         }
         return abort(401);
     }
@@ -195,6 +207,8 @@ class ResumeController extends Controller
             $inputs['resume'] = Helper::moveImage($request->urlresume,'document');
         }
 		unset($inputs['urlresume']);
+        unset($inputs['province_id']);
+        unset($inputs['city_id']);
 
         $resume->update($inputs);
 
@@ -218,47 +232,6 @@ class ResumeController extends Controller
         }
             return response(['status'=>'error']);
 
-    }
-    /**
-     * @param $request
-     * @return mixed
-     */
-    private function createUser($request)
-    {
-        $pass = rand(12345, 99999);
-        $phone = Helper::numberConverter($request->phone);
-
-        return User::create([
-            'name' => $request->name,
-            'family' => $request->family,
-            'phone' => $phone,
-            'password' => Hash::make($pass),
-            'active' => true,
-            'level' => 'user',
-        ]);
-    }
-    /**
-     * @param $user
-     * @return void
-     */
-    private function createTask(User $user,RecruitmentNotice $recruitmentNotice): void
-    {
-        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
-            $query->where('name', 'superadmin');
-        })->first()->id;
-
-        $description = "جویای کار،
-          عنوان شغلی:
-         {$recruitmentNotice->title}";
-        Callcenter::create([
-            'reg_id' => $user->id,
-            'user_id' => $callcenter_user_id,
-            'agent_id' => null,
-            'type' => 0,
-            'request_type' => 'other',
-            'status' => 0,
-            'description' => $description
-        ]);
     }
     /**
      * @param \Illuminate\Http\Request $request

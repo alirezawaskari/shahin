@@ -36,7 +36,7 @@ class PurchaseInvoiceCollection extends ResourceCollection
                     'sort_by' => "created_at",
                     'id' => $item->id,
                     'supplier' => $item->supplier->name,
-                    'representation' => $item->representation->fa_name,
+                    'representation' => $item->representation ? $item->representation->fa_name : 'نمایندگی کل',
                     'requester' => $item->user ? $item->user->name.' '.$item->user->family : 'ندارد',
                     'total_price' => number_format($item->total_price),
                     'created_at' => verta($item->created_at)->format('Y/m/d h:m:s'),

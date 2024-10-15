@@ -53,6 +53,13 @@ class ServiceTariff extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function serviceIndexTariff()
+    {
+        return $this->belongsTo(ServiceIndexTariff::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function service()
     {
         return $this->belongsTo(Service::class);

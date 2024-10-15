@@ -136,10 +136,10 @@
                              کاربر فعال
                         </option>
                         <option value="blockUser" {{ $user->level == 'blockUser' ? 'selected' : '' }}>
-                            کاربر غیرفعال(بلاک)
+                            کاربر غیرفعال(لیست سیاه)
                        </option>
                         <option value="admin" {{ $user->level == 'admin' ? 'selected' : '' }}>
-                            مدیر
+                            همکار
                         </option>
                         <option value="siteAdmin" {{ $user->level == 'siteAdmin' ? 'selected' : '' }}>
                             مدیرسایت

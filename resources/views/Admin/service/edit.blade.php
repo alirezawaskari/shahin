@@ -244,29 +244,17 @@
                                 <div class="col-12 mb-3">
                                     <div class="card">
                                         <div class="card-header">
-                                            دمو
-                                        </div>
-                                        <div class="card-body">
-                                            <textarea class="form-control" name="demo">{{ $service->demo }}</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            متن بالای فرم ثبت نام
+                                            متن بخش اول (بالای فرم ثبت نام)
                                         </div>
                                         <div class="card-body">
                                             <textarea name="left_content">{{ $service->left_content }}</textarea>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="col-12 mb-3">
                                     <div class="card">
                                         <div class="card-header">
-                                            متن باکس اول
+                                            متن بخش دوم
                                         </div>
                                         <div class="card-body">
                                             <textarea name="txt_box_1">{{ $service->txt_box_1 }}</textarea>
@@ -277,7 +265,7 @@
                                 <div class="col-12 mb-3">
                                     <div class="card">
                                         <div class="card-header">
-                                            متن اصلی
+                                            متن بخش سوم (بخش پایانی)
                                         </div>
                                         <div class="card-body">
                                             <textarea class="editor-content"
@@ -306,7 +294,7 @@
                             <div class="row">
                                 <div class="col-12 col-md-3 mb-3 border border">
                                     <img class="img-thumbnail" src="{{asset($service->img_box_1)}}" alt="">
-                                    <label>تصویر باکس اول</label>
+                                    <label>تصویر بخش اول</label>
                                     <label for="img_box_1" class="custom-file-upload">
                                         <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                                     </label>
@@ -318,7 +306,7 @@
 
                                 <div class="col-12 col-md-3 mb-3 border">
                                     <img class="img-thumbnail" src="{{asset($service->thumb)}}" alt="">
-                                    <label>تصویر تامب</label>
+                                    <label>تصویر اسلاید زیر فرم ثبت نام</label>
                                     <label for="thumb" class="custom-file-upload">
                                         <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                                     </label>
@@ -329,7 +317,7 @@
                                 </div>
                                 <div class="col-12 col-md-3 mb-3 border">
                                     <img class="img-thumbnail" src="{{asset($service->image)}}" alt="">
-                                    <label>تصویر اصلی</label>
+                                    <label>تصویر بخش دوم</label>
                                     <label for="image" class="custom-file-upload">
                                         <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                                     </label>
@@ -340,7 +328,7 @@
                                 </div>
                                 <div class="col-12 col-md-3 mb-3 border">
                                     <img class="img-thumbnail" src="{{asset($service->image_app)}}" alt="">
-                                    <label>تصویر موبایل</label>
+                                    <label>تصویر اصلی (استفاده شده درصفحه اول تک صفحه ای و فهرست خدمات)</label>
                                     <label for="image_app" class="custom-file-upload">
                                         <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                                     </label>
@@ -351,7 +339,7 @@
                                 </div>
                                 <div class="col-12 col-md-3 mb-3 border">
                                     <img class="img-thumbnail" src="{{asset($service->icon)}}" alt="">
-                                    <label>تصویر آیکن</label>
+                                    <label>(استفاده شده در صفحه اول سایت) تصویر آیکن</label>
                                     <label for="icon" class="custom-file-upload">
                                         <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                                     </label>
@@ -359,7 +347,7 @@
                                            name="icon"/>
                                     <div id="icon_src" class="show"></div>
                                 </div>
-                                <div class="col-12 col-md-3 mb-3 border">
+                                {{-- <div class="col-12 col-md-3 mb-3 border">
                                     <img class="img-thumbnail" src="{{asset($service->files->where('title','desktop_slider')->first()->path??'')}}" alt="">
                                     <label>تصویر اسلایدر دسکتاپ</label>
                                     <label for="desktop_slider" class="custom-file-upload">
@@ -368,8 +356,8 @@
                                     <input id="desktop_slider" class="form-control btn btn-outline-info file-upload" type="file"
                                            name="desktop_slider"/>
                                     <div id="desktop_slider" class="show"></div>
-                                </div>
-                                <div class="col-12 col-md-3 mb-3 border">
+                                </div> --}}
+                                {{-- <div class="col-12 col-md-3 mb-3 border">
                                     <img class="img-thumbnail" src="{{asset($service->files->where('title','mobile_slider')->first()->path??'')}}" alt="">
                                     <label>تصویر اسلایدر موبایل</label>
                                     <label for="mobile_slider" class="custom-file-upload">
@@ -378,7 +366,7 @@
                                     <input id="mobile_slider" class="form-control btn btn-outline-info file-upload" type="file"
                                            name="mobile_slider"/>
                                     <div id="mobile_slider" class="show"></div>
-                                </div>
+                                </div> --}}
                                 <div class="col-12 col-md-12 mb-3">
                                     <input class="btn btn-success" type="submit" value="ثبت تغییرات"
                                            id="first-images-submit">

@@ -10,7 +10,6 @@
         <form id="form_data">
             <div class="row">
                 <div class="col-md-4">
-                    <label>عنوان تعرفه</label>
                     <select class="form-control select2" name="service_index_tariff" id="serviceIndexTariff">
                         <option>عنوان تعرفه را تایپ کنید</option>
                         @foreach ($service_index_tariffs as $item)
@@ -20,10 +19,9 @@
                 </div>
                 <input type="hidden" name="service_id"  value="{{$service->id}}"/>
                 <div class="col-md-4">
-                    <label>مبلغ خرید</label>
-                    <input class="form-control" type="text" oninput="separatePrices(this)" name="purchase_price" id="purchase_price">
+                    <input class="form-control" placeholder="مبلغ خرید" type="text" oninput="separatePrices(this)" name="purchase_price" id="purchase_price">
                 </div>
-                <div class="col-4-12">
+                <div class="col-md-4">
                     <button id="createUpdeteIndexTariff" type="button" class="btn btn-outline-success py-2 px-4">ثبت</button>
                 </div>
 
@@ -88,6 +86,7 @@
             <br>
             <span>در حال بارگذاری...</span>
         </div>
+        <input type="hidden" value="{{$delete}}" id="delete">
         <p id="page_text"></p>
         <div id="pagination-box">
             <ul id="pagination-demo" class="pagination"></ul>
@@ -97,6 +96,6 @@
 @stop
 
 @section('js')
-<script src="/assets/dashboard/js/serviceIndexTariff.js"></script>
+<script src="/assets/dashboard/js/serviceIndexTariff.js?v=2.0"></script>
 <script src="/assets/dashboard/js/layouts.js"></script>
 @endsection

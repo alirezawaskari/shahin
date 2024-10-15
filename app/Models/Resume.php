@@ -88,14 +88,6 @@ class Resume extends Model
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if (auth()->user()->hasRole('legal')) {
-            $query->where('recruitment_notice_id', '25');
-        }
-
-        if (auth()->user()->hasRole('superadmin-callcenter')) {
-            $query->where('recruitment_notice_id', '27')->orWhere('recruitment_notice_id', '14');
-        }
-
         return $query;
     }
 

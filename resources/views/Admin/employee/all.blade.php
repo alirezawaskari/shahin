@@ -71,6 +71,7 @@
             <thead class="text-center">
                 <tr>
                     <th>#</th>
+                    <th>تصویر پرسنلی</th>
                     <th>نام و نام خانوادگی</th>
                     <th>موبایل</th>
                     <th>محل کار</th>
@@ -93,6 +94,7 @@
         </div>
 
         <p id="page_text"></p>
+        <input type="hidden" value="all" id="type_list">
         <input type="hidden" value="{{$can_manual_login}}" id="can-manual-login">
         <div id="pagination-box">
             <ul id="pagination-demo" class="pagination"></ul>
@@ -102,5 +104,5 @@
 @stop
 
 @section('js')
-<script src="/assets/dashboard/js/employee.js?v=1.1"></script>
+<script src="/assets/dashboard/js/employee.js?v=1.2"></script>
 @endsection

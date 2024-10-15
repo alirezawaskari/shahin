@@ -201,10 +201,29 @@ class FactorController extends Controller
     {
         $factor=Factor::where('resnumber',$request->resnumber)->first();
         $inputs = $request->all();
+        $user = $factor->user;
         $inputs['price'] = isset($request->price) ? (float) str_replace(',', '', $inputs['price']) : $factor->price;
         unset($inputs['support_id']);
         unset($inputs['bill_image']);
 
+        if ( $request->input( 'payment_type' ) == 'credit' ) {
+            $result = User::checkCredit( $user, $inputs['price'], $request->input( 'password' ) , $request->input('title'));
+            if ( !$result[ 'success' ] ) {
+                return redirect()->back()->with( [
+                    'failByMessage' => $result[ 'message' ]
+                ] );
+            }
+        }
+        if ( $request->input( 'payment_type' ) == 'wallet' ) {
+            $result = User::checkWallet( $user, $inputs['price'], $request->input( 'password' ) );
+            if ( !$result[ 'success' ] ) {
+                return redirect()->back()->with( [
+                    'failByMessage' => $result[ 'message' ]
+                ] );
+            }
+        }
+        unset($inputs['password']);
+        unset($inputs['phone']);
         if (!is_null($request->support_id)) {
             $callcenter = User::find($request->support_id);
             $factor->update([

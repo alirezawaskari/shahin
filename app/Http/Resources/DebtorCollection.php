@@ -34,8 +34,12 @@ class DebtorCollection extends ResourceCollection
                     'organization' => $item->organization ? $item->organization->fa_name : 'ندارد',
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setDeletePermission(),
-                     'debt'=>User::fetchDebtItemCount($item),
-                    'total_debts'=>User::fetchTotalDebts($item)
+                    'debt'=>User::fetchDebtItemCount($item),
+                    'total_debts'=>User::fetchTotalDebts($item),
+                    'user_credit' => number_format($item->credit),
+                    'user_wallet' => number_format($item->wallet),
+                    'factorItems_credit' => number_format(User::fetchTotalCredit($item)-$item->wallet-$item->credit),
+                    'credit_debt' => number_format(User::fetchTotalCredit($item)),
                 ];
             })
         ];

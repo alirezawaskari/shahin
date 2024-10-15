@@ -23,7 +23,7 @@
                     <div class="col-12 mt-2">
                         @if($check)
                         <div class="alert alert-warning">
-                        لطفا جهت تکمیل پرونده ، مدارک مورد نیاز را بارگزاری نمائید.
+                            لطفا جهت تکمیل پرونده ، مدارک مورد نیاز را بارگزاری نمائید.
                         </div>
                         @else
                         <div class="alert alert-success">
@@ -114,7 +114,8 @@
                                         @case('text')
                                         <div class="col-12 col-md-6 mb-2">
                                             {!! $form->help !!}
-{{--                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>--}}
+                                            {{-- <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help
+                                                }}</label>--}}
                                             <input type="text" class="form-control {{ $form->class }}" {{
                                                 $form->required == true ? 'required' : '' }} placeholder="{{
                                             $form->placeholder }}"
@@ -143,6 +144,14 @@
                                                 @endforeach
                                             </select>
                                         </div>
+                                        @break
+                                        @case('excel')
+                                        <div class="col-12 mb-2">
+                                             <a href="{{ asset($form->file) }}" download>
+                                                <img src="https://images.freeimages.com/fic/images/icons/2795/office_2013_hd/2000/excel.png" class="img-fluid" width="100">
+                                            </a>
+                                        </div>
+                                        <label>{{ $form->placeholder }}</label>
                                         @break
                                         @case('multi-select')
                                         <div class="col-12 col-md-6 mb-2">
@@ -191,7 +200,8 @@
                                                         class="img-fluid">
                                                     <h6>بارگذاری تصاویر</h6>
                                                 </label>
-                                                <input name="items[{{ $key }}][{{ $form->name }}][]" type="file" id="{{ $form->name }}"
+                                                <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
+                                                    id="{{ $form->name }}"
                                                     class="filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white">
                                             </div>
@@ -201,7 +211,8 @@
                                             </div>
                                             <div id="{{ $form->name }}_newlinktpl">
                                                 <div id="{{ $form->name }}_src" class="show"></div>
-                                                <input type="hidden" id="{{ $form->name }}" class="path" name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
+                                                <input type="hidden" id="{{ $form->name }}" class="path"
+                                                    name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
                                             </div>
                                         </div>
 
@@ -333,10 +344,11 @@
                                                     <div class="col-12 mb-2 mt-4">
                                                         @if($item['guarantee_type'] != 'promissorynote')
                                                         <h4>اطلاعات ضامن</h4>
-                                                         @else
+                                                        @else
                                                         <h4>اطلاعات ضامن</h4>
-                                                        <h4 class="alert alert-dark">(منظور از ضامن یک نفر از اعضاء درجه یک خانواده به عنوان معرف کافیست)</h4>
-                                                         @endif
+                                                        <h4 class="alert alert-dark">(منظور از ضامن یک نفر از اعضاء درجه
+                                                            یک خانواده به عنوان معرف کافیست)</h4>
+                                                        @endif
                                                         <hr>
                                                     </div>
                                                     @foreach($item['contract_forms'] as $contract_form)
@@ -375,10 +387,10 @@
                                                     <div class="col-12 col-md-3 mb-2">
 
                                                         {!! $contract_form->help !!}
-{{--                                                        <label for="item[{{ $contract_form->name }}]">--}}
+                                                        {{-- <label for="item[{{ $contract_form->name }}]">--}}
 
-{{--                                                            {{--}}
-{{--                                                            $contract_form->help }}</label>--}}
+                                                            {{-- {{--}}
+                                                            {{-- $contract_form->help }}</label>--}}
                                                         <input type="text"
                                                             class="form-control {{ $contract_form->class }}" {{
                                                             $contract_form->required == true ? 'required' : '' }}
@@ -420,28 +432,31 @@
                                                     باشد
                                                 </li>
                                             </ul>
-{{--                                            if service category is health-service--}}
+                                            {{-- if service category is health-service--}}
                                             @if(false)
                                             @foreach($factor->factorItems as $factorItem)
-                                                @if(isset($factorItem->factoritemable) && isset($factorItem->factoritemable->category) && $factorItem->factoritemable->category->id == 3)
+                                            @if(isset($factorItem->factoritemable) &&
+                                            isset($factorItem->factoritemable->category) &&
+                                            $factorItem->factoritemable->category->id == 3)
 
-                                                    <div class="card">
-                                                        <div class="card-header">
-                                                            اطلاعات پزشکی :
-                                                        </div>
-                                                        <div class="card-body">
-                                                            @foreach($diseases as $disease)
-                                                                <div class="form-check-inline">
-                                                                    <label style="cursor: pointer"  class="form-check-label">
-                                                                        <input name="diseases[]" type="checkbox" class="form-check-input" value="{{$disease->id}}">
-                                                                        {{$disease->name}}
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    اطلاعات پزشکی :
+                                                </div>
+                                                <div class="card-body">
+                                                    @foreach($diseases as $disease)
+                                                    <div class="form-check-inline">
+                                                        <label style="cursor: pointer" class="form-check-label">
+                                                            <input name="diseases[]" type="checkbox"
+                                                                class="form-check-input" value="{{$disease->id}}">
+                                                            {{$disease->name}}
+                                                        </label>
                                                     </div>
-                                                   @break
-                                                @endif
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            @break
+                                            @endif
                                             @endforeach
                                             @endif
                                             <div class="col-12 mb-2 mt-auto pt-2">

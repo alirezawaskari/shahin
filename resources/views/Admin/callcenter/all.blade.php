@@ -259,9 +259,9 @@
                             aria-controls="detail" aria-selected="false" class="nav-link show">جزئیات</a>
                     </li>
                     @permission('close-task')
-                    <li class="nav-item"><a id="close-task-tab" data-toggle="tab" href="#closeTask" role="tab"
-                            aria-controls="colseTask" aria-selected="false" class="nav-link show">بستن
-                            درخواست</a>
+                    <li class="nav-item"><a id="change-status-task-tab" data-toggle="tab" href="#changeStatusTask" role="tab"
+                            aria-controls="colseTask" aria-selected="false" class="nav-link show">تغییر وضعیت درخواست
+                            </a>
                     </li>
                     @endpermission
                 </ul>
@@ -270,7 +270,8 @@
                         class="tab-pane fade p-t-20 active show">
                         <div class="tab">
                             <div class="row">
-                                <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'noCall')">ثبت خودکار</button>
+                                <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'noCall')">ثبت
+                                    خودکار</button>
 
                                 <button id="defaultOpen" class="tablinks col-12 col-md-6"
                                     onclick="openTab(event, 'callDetails')">ثبت توضیح دستی</button>
@@ -292,7 +293,8 @@
                                     </div>
                                     <input type="hidden" class="task" name="task" value="">
                                     <div class="col-12 mb-3">
-                                        <input value="ثبت" class="btn btn-success border-0 btn-block" id="submit-status-noCall">
+                                        <input value="ثبت" class="btn btn-success border-0 btn-block"
+                                            id="submit-status-noCall">
                                     </div>
                                 </div>
                             </form>
@@ -406,50 +408,75 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="closeTask" role="tabpanel" aria-labelledby="colse-task-tab" class="tab-pane fade p-t-20">
-                        <form id="modal-close-task-form">
+                    <div id="changeStatusTask" role="tabpanel" aria-labelledby="change-status-task-tab" class="tab-pane fade p-t-20">
+                        <div class="tab">
                             <div class="row">
-                                <div class="modal_close_task_message_box col-12 col-md-12 "></div>
-                                <div class="col-12 mb-3"><textarea id="close-task-description" cols="30" rows="5"
-                                        placeholder="دلیل بستن درخواست" name="description"
-                                        class="form-control"></textarea>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <div class="form-check">
-                                        <input style="cursor: pointer" type="checkbox" name="sms_close_task"
-                                            class="form-check-input" id="sms-close-task">
-                                        <label style="cursor: pointer" class="form-check-label"
-                                            for="sms-close-task">پیامک
-                                            بسته شدن
-                                            درخواست و محرومیت 15 روزه از خدمات لاله به کابر ارسال گردد.</label>
-                                    </div>
-                                    <hr>
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="close_task_type"
-                                            id="flexRadioDefault1" value="this_task" checked>
-                                        <label class="form-check-label" for="flexRadioDefault1">
-                                            بستن همین درخواست
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="close_task_type"
-                                            id="flexRadioDefault2" value="all_user_task">
-                                        <label class="form-check-label" for="flexRadioDefault2">
-                                            بستن تمام درخواست های باز این کاربر
-                                        </label>
-                                    </div>
-                                    <p class="text-warning font-weight-bolder mt-4"><i
-                                            class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                        همکار گرامی : درصورتی که میخواهید تمام درخواست های باز این کاربر بسته شود
-                                        گزینه مربوطه را انتخاب کنید.
-                                    </p>
-                                </div>
-                                <input type="hidden" class="task" name="task" value="">
-                                <input value="ثبت" class="btn btn-success border-0 btn-block" id="submit-close-task">
+                                <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'closeTask')">بستن درخواست</button>
+                                <button id="changeStatusTaskDefaultOpen" class="tablinks col-12 col-md-6"
+                                    onclick="openTab(event, 'followedTask')">اقدام شده</button>
                             </div>
-                        </form>
+                        </div>
+                        <div id="closeTask" class="tabcontent">
+                            <form id="modal-close-task-form">
+                                <div class="row">
+                                    <div class="modal_close_task_message_box col-12 col-md-12 "></div>
+                                    <div class="col-12 mb-3"><textarea id="close-task-description" cols="30" rows="5"
+                                            placeholder="دلیل بستن درخواست" name="description"
+                                            class="form-control"></textarea>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check">
+                                            <input style="cursor: pointer" type="checkbox" name="sms_close_task"
+                                                class="form-check-input" id="sms-close-task">
+                                            <label style="cursor: pointer" class="form-check-label"
+                                                for="sms-close-task">پیامک
+                                                بسته شدن
+                                                درخواست و محرومیت 15 روزه از خدمات لاله به کابر ارسال گردد.</label>
+                                        </div>
+                                        <hr>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="close_task_type"
+                                                id="flexRadioDefault1" value="this_task" checked>
+                                            <label class="form-check-label" for="flexRadioDefault1">
+                                                بستن همین درخواست
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="close_task_type"
+                                                id="flexRadioDefault2" value="all_user_task">
+                                            <label class="form-check-label" for="flexRadioDefault2">
+                                                بستن تمام درخواست های باز این کاربر
+                                            </label>
+                                        </div>
+                                        <p class="text-warning font-weight-bolder mt-4"><i
+                                                class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                            همکار گرامی : درصورتی که میخواهید تمام درخواست های باز این کاربر بسته شود
+                                            گزینه مربوطه را انتخاب کنید.
+                                        </p>
+                                    </div>
+                                    <input type="hidden" class="task" name="task" value="">
+                                    <input value="ثبت" class="btn btn-success border-0 btn-block"
+                                        id="submit-close-task">
+                                </div>
+                            </form>
+                        </div>
+
+                        <div id="followedTask" class="tabcontent">
+                            <form id="modal-followed-task-form">
+                                <div class="row">
+                                    <div class="modal_followed_task_message_box col-12 col-md-12 "></div>
+                                    <div class="col-12 mb-3"><textarea id="followed-task-description" cols="30" rows="5"
+                                            placeholder="توضیحات مربوط به اقدام انجام شده" name="description"
+                                            class="form-control"></textarea>
+                                    </div>
+                                    <input type="hidden" class="task" name="task" value="">
+                                    <input value="ثبت" class="btn btn-success border-0 btn-block"
+                                        id="submit-followed-task">
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -576,7 +603,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
-<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.5')}}"></script>
+<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.6')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.2')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

@@ -40,6 +40,10 @@ class RepresentationController extends Controller
     public function single(Representation $representation , Service $service, User $callcenter , Callcenter $task, Factor $factor=null )
     {
         session()->put('representation', $representation);
+        if(!$representation->status)
+        {
+            return redirect('/');
+        }
         $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
         $questions=$service->askedQuestions;
 
