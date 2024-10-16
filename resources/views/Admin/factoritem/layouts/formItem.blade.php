@@ -322,7 +322,7 @@
 @break
 @case('checkbox')
 <div class="col-12 col-md-12 mb-3">
-    {!! $form->help !!} :
+    {!! $form->help !!}
     <br>
     @foreach($form->beforeformitems as $beforeformitem)
     {{ $beforeformitem->title }}
@@ -337,7 +337,7 @@
 @break
 @case('radio')
 <div class="col-12 col-md-12 mb-3">
-    {!! $form->help !!} :
+    {!! $form->help !!}
     <br>
     @foreach($form->beforeformitems as $beforeformitem)
     {{ $beforeformitem->title }}
