@@ -468,7 +468,7 @@ class FactorItem extends Model implements AuditableContract
             '14' => 'منتظر تایید پشتیبان',
             '15' => 'پرونده مختومه',
             '16' => 'ارجاع به مشاوره',
-            '17' => 'منتظر مشاوره',
+            '17' => 'منتظر مشاوره مرکز',
             ][$status_factor];
     }
     /**

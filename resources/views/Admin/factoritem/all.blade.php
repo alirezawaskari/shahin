@@ -60,7 +60,7 @@
                         <select name="status[]" id="select_status" class="custom-select" multiple="multiple">
                             <option value="0">جدید</option>
                             <option value="16">ارجاع به مشاوره</option>
-                            <option value="17">منتظر مشاوره</option>
+                            <option value="17">منتظر مشاوره مرکز</option>
                             <option value="4">منتظر تکمیل مدارک</option>
                             <option value="14">منتظر تایید پشتیبان</option>
                             <option value="3">تعلیق پشتیبان</option>
