@@ -305,7 +305,7 @@ class EmployeeController extends AdminController
      */
     public function editResume(Employee $employee)
     {
-        if (auth()->user()->isAbleTo('employee_resume') && auth()->user()->employee->id == $employee->id) {
+        if (auth()->user()->employee->id == $employee->id) {
             $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
             $resume = Resume::where('phone' , $employee->user->phone)->get()->last();
             $recruitment_notice_selected = !is_null($resume) ? $resume->recruitment_notice_id : null;
@@ -326,7 +326,7 @@ class EmployeeController extends AdminController
      */
     public function updateResume(Employee $employee , Request $request)
     {
-        if (auth()->user()->isAbleTo('employee_resume|employee_resume_detail'))
+        if (auth()->user()->isAbleTo('employee_resume_detail') || auth()->user()->employee->id == $employee->id)
         {
             $this->validate(request(), [
                 'email' => 'nullable|email',

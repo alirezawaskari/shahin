@@ -108,9 +108,7 @@
             @endpermission
             <li><a href="#"><i class="icon ti-control-record"></i> <span>حساب کاربری من</span> </a>
                 <ul>
-                    @permission('employee_resume')
                     <li><a href="{{ route('employee.resume.edit', [auth()->user()->employee->id]) }}">رزومه کاری</a></li>
-                    @endpermission
                     @permission('user_wallet')
                     <li><a href="{{ route('employee.financial.report', [auth()->user()->employee->id]) }}">عملکرد
                             ماهانه من</a></li>
