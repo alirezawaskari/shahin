@@ -152,19 +152,6 @@ class FactorItemController extends Controller
     }
 
     /**
-     * @param $factor
-     * @return float|int
-     */
-    private static function discount($factor)
-    {
-        $amount = $factor->price;
-        if (!is_null($factor->coupon_id)) {
-            $amount = $amount - ($amount * $factor->coupon->discount / 100);
-        }
-        return $amount;
-    }
-
-    /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */

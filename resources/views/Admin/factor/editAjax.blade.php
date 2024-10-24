@@ -123,7 +123,7 @@
                                 <tr>
                                     <th scope="row">کد تخفیف اعمال شده</th>
                                     <td>{{ !is_null($factor->coupon_id) ? $factor->coupon->title .' - '
-                                        .$factor->discount . ' % ' : 'ثبت نشده'}}</td>
+                                        .$factor->coupon->discount . ' % ' : 'ثبت نشده'}}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">مالیات بر ارزش افزوده</th>

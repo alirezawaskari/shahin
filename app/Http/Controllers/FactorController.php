@@ -122,7 +122,12 @@ class FactorController extends Controller {
 
         if ( $coupon ) {
             if ( $coupon->capacity > $coupon->reserved ) {
-                $factor->update( [ 'coupon_id' => $coupon->id ] );
+                $price_with_coupon_discount = self::getPriceWithCouponDiscount($factor , $coupon);
+                $factor->update( [
+                     'coupon_id' => $coupon->id,
+                     'price_without_discount' => $factor->price,
+                     'price' => $price_with_coupon_discount,
+                ] );
                 $coupon->reserved++;
                 $coupon->save();
             } else {
@@ -135,15 +140,13 @@ class FactorController extends Controller {
     }
 
     /**
-    * @param $factor
+    * @param Factor $factor
+    * @param Coupon $coupon
     * @return float|int
     */
-    private static function discount( $factor ) {
-        $amount = $factor->price;
-        if ( !is_null( $factor->coupon_id ) ) {
-            $amount = $amount - ( $amount * $factor->coupon->discount / 100 );
-        }
-        return $amount;
+    private static function getPriceWithCouponDiscount(Factor $factor , Coupon $coupon) {
+        $price_with_coupon_discount = $factor->price - ($factor->price * $coupon->discount / 100);
+        return $price_with_coupon_discount;
     }
 
     /**

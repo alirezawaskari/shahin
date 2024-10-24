@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\FactorItem;
 use Illuminate\Console\Command;
 use App\Classes\External\IranSms;
+use App\Models\Factor;
 use App\Models\Session;
 
 class RunQuery extends Command {
@@ -39,14 +40,27 @@ class RunQuery extends Command {
     */
 
     public function handle() {
-        $sessions = Session::whereNotNull('user_performance_id')->get();
-        foreach($sessions as $session)
+        $factors = Factor::where('coupon_id' , '!=' , null)->get();
+        foreach($factors as $factor)
         {
-            $session->userPerformances()->syncWithoutDetaching([
-                'user_performance_id' => $session->user_performance_id,
-            ]);
+            if(isset($factor->coupon->discount) && $factor->price_without_discount == 0)
+            {
+                $price_with_coupon_discount = $factor->price - ($factor->price * $factor->coupon->discount / 100);
+                $factor->update( [
+                    'price_without_discount' => $factor->price,
+                    'price' => $price_with_coupon_discount,
+               ] );
+            }
         }
         dd('success');
+
+        // $sessions = Session::whereNotNull('user_performance_id')->get();
+        // foreach($sessions as $session)
+        // {
+        //     $session->userPerformances()->syncWithoutDetaching([
+        //         'user_performance_id' => $session->user_performance_id,
+        //     ]);
+        // }
         //close factorItems
         // $factor_items = FactorItem::whereIn( 'status_factor', [ 0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 14 ] )->take( 400 )->get();
         // foreach ( $factor_items as $factor_item ) {

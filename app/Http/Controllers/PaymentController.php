@@ -23,10 +23,6 @@ class PaymentController extends Controller
        if ($request->input('payment') == 'online') {
            session()->put('resnumber', $factor->resnumber);
            $amount = $factor->price/10;
-           if (!is_null($factor->coupon_id)) {
-               $amount = $amount - ($amount * $factor->coupon->discount / 100);
-           }
-
            $order = new zarinpal();
            $res = $order->pay($amount);
            $factor->factorable_type = $res;
@@ -34,7 +30,7 @@ class PaymentController extends Controller
 
            return redirect(config( 'services.zarinpal.url' ).'/pg/StartPay/' . $res);
        } else {
-           if ($factor->user->wallet >= self::discount($factor)) {
+           if ($factor->user->wallet >= $factor->price) {
                $factor->update([
                    'status' => true,
                    'type' => 'wallet',
@@ -44,7 +40,7 @@ class PaymentController extends Controller
                Factor::savePayment($factor);
 
                $user->update([
-                   'wallet' => $user->wallet - self::discount($factor),
+                   'wallet' => $user->wallet - $factor->price,
                ]);
 
                self::sendSMS($factor);
@@ -96,7 +92,10 @@ class PaymentController extends Controller
                     'payment' => 'success',
                 ]);
             } else {
-                return 'خطایی رخ داد، درصورت کم شدن ، مبلغ تا 72 ساعت به حسابتان باز میگردد.';
+                return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال به سامانه امکانپذیر نمیباشد، نگران نباشید در اسرع وقت این مشکل برطرف میگردد، در صورت عدم اتصال به سایت لطفا با شماره پشتیبانی لاله تماس حاصل نمائید
+۰۹۳۶۶۳۴۲۱۴۵
+اداره کل فناوری و‌اطلاعات سجا
+شبکه خدمات درمانی و‌رفاهی لاله';
             }
         }
         return redirect(route('factor', [$factor->resnumber]));
@@ -145,20 +144,6 @@ class PaymentController extends Controller
 			   ]);
 		   }*/
     }
-
-    /**
-     * @param $factor
-     * @return float|int
-     */
-    private static function discount($factor)
-    {
-        $amount = $factor->price;
-        if (!is_null($factor->coupon_id)) {
-            $amount = $amount - ($amount * $factor->coupon->discount / 100);
-        }
-        return $amount;
-    }
-
 }
 
 
