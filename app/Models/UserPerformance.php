@@ -93,6 +93,9 @@ class UserPerformance extends Model implements AuditableContract
         // if ( isset( $user ) && $user != 'all' ) {
         //     $query->where('user_id', $user);
         // }
+        $query->whereHas('walletTransaction', function ($query) {
+            $query->where( 'price' , '>' , 0 );
+        });
         if ( isset( $percentage_type ) && $percentage_type != 'all' ) {
             $query->whereHas('resaons', function ($query) use ($percentage_type) {
                 $query->where( 'type', 'LIKE', '%' . $percentage_type . '%' );
