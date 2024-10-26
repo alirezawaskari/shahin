@@ -174,7 +174,7 @@
                                 number_format($factor->price_without_discount) }}
                                 ریال</span>
                             <span class="bold font-13 my-0 py-0 mx-2 text-danger">تخفیف: {{
-                                number_format($factor->price * $factor->coupon->discount / 100) }}
+                                number_format($factor->price_without_discount - $factor->price) }}
                                 ریال</span>
 
                             <span class="bold font-13 my-0 py-0 mx-2">قابل پرداخت: {{
