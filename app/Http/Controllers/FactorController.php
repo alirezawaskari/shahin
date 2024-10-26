@@ -119,7 +119,14 @@ class FactorController extends Controller {
         $factor = Factor::findOrFail( $request->input( 'factor_id' ) );
         $date = Carbon::now()->toDateString();
         $coupon = Coupon::whereStatus( true )->where( 'start_at', '<=', $date )->where( 'end_at', '>=', $date )->first();
-
+        if($factor->coupon_id)
+        {
+            return redirect()->back()->withErrors( [ 'msg' => 'این کد تخفیف قبلا روی این فاکتور اعمال شده است.' ] );
+        }
+        elseif($factor->title != 'register')
+        {
+            return redirect()->back()->withErrors( [ 'msg' => 'استفاده از این کد تخفیف فقط برای پرداخت هزینه ثبت نام امکان پذیر است.' ] );
+        }
         if ( $coupon ) {
             if ( $coupon->capacity > $coupon->reserved ) {
                 $price_with_coupon_discount = self::getPriceWithCouponDiscount($factor , $coupon);
