@@ -41,29 +41,29 @@ class EmployeeController extends Controller
      */
     public function register( Request $request )
     {
-        $birt_date = Helper::numberConverter(str_replace( "/", "", $request->birthDate ));
-        try {
-            $result = Http::post(config( 'services.emta.url' ).'/api/v1/user/VerifyUserByPartner', [
-                'client_id' => config('services.emta.client_id'),
-                'client_secret' => config('services.emta.secret_id'),
-                'cellphone' => $request->phone,
-                'verificationCode' => $request->verificationCode,
-                'nationalCode' => $request->nationalCode,
-                'birthDate' => $birt_date,
-            ]);
-        } catch (\Exception $e) {
-                Log::error($e->getMessage());
-        }
-        $result = json_decode($result , true);
+        // $birt_date = Helper::numberConverter(str_replace( "/", "", $request->birthDate ));
+        // try {
+        //     $result = Http::post(config( 'services.emta.url' ).'/api/v1/user/VerifyUserByPartner', [
+        //         'client_id' => config('services.emta.client_id'),
+        //         'client_secret' => config('services.emta.secret_id'),
+        //         'cellphone' => $request->phone,
+        //         'verificationCode' => $request->verificationCode,
+        //         'nationalCode' => $request->nationalCode,
+        //         'birthDate' => $birt_date,
+        //     ]);
+        // } catch (\Exception $e) {
+        //         Log::error($e->getMessage());
+        // }
+        // $result = json_decode($result , true);
         User::createUser($request);
-        if($result['Data']['success'])
-        {
-            return redirect()->back()->with([
-                'create' => 'success'
-            ]);
-        }
+        // if($result['Data']['success'])
+        // {
+        //     return redirect()->back()->with([
+        //         'create' => 'success'
+        //     ]);
+        // }
         return redirect()->back()->with([
-            'failByMessage' => $result['Data']['message']
+            'create' => 'success'
         ]);
     }
 

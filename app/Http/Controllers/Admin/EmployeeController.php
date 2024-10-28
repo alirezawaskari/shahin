@@ -170,10 +170,12 @@ class EmployeeController extends AdminController
         if (isset($inputs['password']) && $inputs['password'] == '') {
             unset($inputs['password']);
             unset($inputs['password_confirmation']);
-            $user->update($inputs);
         } elseif(isset($inputs['password'])) {
             $user->update(array_merge($inputs, ['password' => Hash::make($inputs['password'])]));
+            unset($inputs['password']);
+            unset($inputs['password_confirmation']);
         }
+        $user->update($inputs);
 
         if ($role_id == 0) {
             if ($user->roles->count() != 0) {

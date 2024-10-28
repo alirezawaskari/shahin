@@ -57,7 +57,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a href="{{ route('register') }}" class="dropdown-item">ثبت نام اعضا</a>
-                    <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام همکاران در امتا</a>
+                    <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام همکاران</a>
                 </div>
             </div>
             @endif
@@ -227,7 +227,7 @@
                                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                                 <a href="{{ route('register') }}" class="dropdown-item">ثبت نام اعضا</a>
                                                 <a href="{{ route('employee.register') }}" class="dropdown-item">ثبت نام
-                                                    همکاران در امتا</a>
+                                                    همکاران </a>
                                             </div>
                                         </div>
                                         @endif

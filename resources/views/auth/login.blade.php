@@ -41,7 +41,7 @@
                                             <input class="btn btn-orange text-white font-16 px-4  w-100" type="submit" onclick="convertEnglish()" value="ورود"/>
                                         </div>
                                         <div class="col-12 col-md-6 mb-1">
-                                            <a href="{{ route('employee.register') }}" class="btn btn-primary align-items-center d-block">ثبت نام همکاران در امتا</a>
+                                            <a href="{{ route('employee.register') }}" class="btn btn-primary align-items-center d-block">ثبت نام همکاران </a>
                                         </div>
                                     </div>
                                     <a href="{{ route('reset_pass_form') }}" class="text-black-50 border-0 font-14 bold mr-2 mt-2">رمز عبور خود را فراموش کرده اید؟</a>

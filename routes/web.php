@@ -747,9 +747,9 @@ Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee
-Route::get('/employeeRegister', 'employeeController@showRegistrationForm')->name('employee.register');
-Route::post('/employeeRegister', 'employeeController@register');
-Route::get('/employeeRegister/check-user-is-register','employeeController@checkUserIsRegister');
+Route::get('/employeeRegister', 'EmployeeController@showRegistrationForm')->name('employee.register');
+Route::post('/employeeRegister', 'EmployeeController@register');
+Route::get('/employeeRegister/check-user-is-register','EmployeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
 //Factor

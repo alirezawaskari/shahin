@@ -108,7 +108,7 @@ class AppServiceProvider extends ServiceProvider
 
         view()->composer(['Admin.session.all','Admin.session.desktopConfirm','Admin.session.desktopComplete'], function ($view) {
             $admin_users = User::whereHas('employee')->get();
-            $centers = Center::all();
+            $centers = Center::where('status',true)->get();
             $view->with([
                 'admin_users' => $admin_users,
                 'centers' => $centers,
@@ -133,7 +133,7 @@ class AppServiceProvider extends ServiceProvider
 
         view()->composer(['Admin.percentageAllocationEmployee.create','Admin.session.all','Admin.session.desktop','Admin.employee.edit'], function ($view) {
             $admin_users = User::whereHas('employee')->get();
-            $centers = Center::all();
+            $centers = Center::where('status',true)->get();
             $view->with([
                 'admin_users' => $admin_users,
                 'centers' => $centers,
