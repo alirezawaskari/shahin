@@ -40,15 +40,13 @@ class RunQuery extends Command {
     */
 
     public function handle() {
-        $factors = Factor::where('coupon_id' , '!=' , null)->get();
+        $factors = Factor::where('task_id' , '!=' , null)->where('status' , 1)->where('created_at' , '>' , '2024-09-26')->get();
         foreach($factors as $factor)
         {
-            if(isset($factor->coupon->discount) && $factor->price_without_discount == 0)
+            if($factor->task && $factor->task->status == 1)
             {
-                $price_with_coupon_discount = $factor->price - ($factor->price * $factor->coupon->discount / 100);
-                $factor->update( [
-                    'price_without_discount' => $factor->price,
-                    'price' => $price_with_coupon_discount,
+                $factor->task->update( [
+                    'status' => 3,
                ] );
             }
         }
