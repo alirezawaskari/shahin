@@ -104,7 +104,7 @@
         </div>
 
     </div>
-    {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
         class="modal fade phone-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -116,28 +116,33 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://lh4.googleusercontent.com/proxy/U76oMt-BrfPfHGSjC_x_uvomSp2Tj3tEgJLojRxohMlwyOTNf8W1BhUGngxYJ81XLeMXtIQ6Ac_c2w4MS6Srjv2ETzrsdhn55X46SjV54wg0RkoSytRVtAGO0Jj4730Emx_-feYobVswjAt3rhyfaFOmMK5G6J9G650PucybarHXsmBYPQ2DQeNjVrusUe-5qXk_pbWFrB23LMHQtHm18Van9cOauyp7SH05o_pR8vIilC0r2K478wSVrhOIhMncqgM5s5arhhKPe7F14yocAEka2K_lFhWfqHkgmgGD1IlGMqwXf8433Ml67k3g"
+                                <img width="100%"
+                                    src="https://tiktarh.com/wp-content/uploads/2024/10/Cptvct1004267www.tiktarh.com_.jpg"
                                     alt="">
                             </div>
                         </div>
                     </div>
                     <h6>
-                        <h6>
-                            <strong>
-                                روابط عمومی شبکه خدمات درمانی رفاهی لاله
-                                شهادت خادم‌الرضا، سید شهیدان اهل خدمت، آیت‌الله دکتر سید ابراهیم رئیسی و جمعی از همراهان
-                                انقلاب اسلامی را به ملت شریف ایران، تبریک و تسلیت عرض مینماید.
-                            </strong>
-                            <p> اداره کل روابط عمومی سجا کل کشور </p>
-                        </h6>
-
+                        <strong>
+                            ویژه صاحبین کسب و کارها ، فروشندگان کالا و خدمات سوپرمارکت داران ، پوشاک فروشان ، معلم
+                            ها ، پزشکان و وکلا وکالای خانگی موبایل و کامپیوتر برای اجاره و دریافت اطلاعات راجع به
+                            مغازه های دیجیتال فقط تا 13 آبان با شرایط ویژه <a
+                                href="/services/Permanent-employment">اینجا</a> وارد شوید.
+                        </strong>
+                        <br>
+                    </h6>
                 </div>
                 <div class="row col-12">
+                    <div class="mb-1 p-1">
+                        <a href="/services/Permanent-employment" class="btn btn-info">
+                            دریافت مغازه دیجیتال
+                        </a>
+                    </div>
                     <div class="mb-1 p-1" style="margin-right: auto">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
     @endsection
