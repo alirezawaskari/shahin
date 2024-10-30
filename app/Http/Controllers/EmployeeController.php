@@ -55,13 +55,20 @@ class EmployeeController extends Controller
         //         Log::error($e->getMessage());
         // }
         // $result = json_decode($result , true);
-        User::createUser($request);
         // if($result['Data']['success'])
         // {
         //     return redirect()->back()->with([
         //         'create' => 'success'
         //     ]);
         // }
+
+        $response = User::createUser($request);
+        if($response['status'] == 'validation_error')
+        {
+            return redirect()->back()->with([
+                'failByMessage' => $response['messages']
+            ]);
+        }
         return redirect()->back()->with([
             'create' => 'success'
         ]);

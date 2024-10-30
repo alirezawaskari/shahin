@@ -58,7 +58,7 @@
                                 <div class="form-group position-relative box">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
                                     <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
-                                            name="province_id" id="province_id" required>
+                                            name="province" id="province_id" required>
                                         <option value="">انتخاب استان</option>
                                         @foreach($provinces as $pro)
                                             <option value="{{ $pro->id }}">{{ $pro->name }}</option>
@@ -69,7 +69,7 @@
                                 <div class="form-group position-relative box">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
                                     <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
-                                            name="city_id" id="city_id" required>
+                                            name="city" id="city_id" required>
                                         <option value="">انتخاب شهر</option>
                                         @foreach($cities as $city)
                                             <option value="{{ $city->id }}">{{ $city->name }}</option>
