@@ -103,7 +103,7 @@
                                         @switch($form->type)
                                         @case('number')
                                         <div class="col-12 col-md-6 mb-2">
-                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
+                                            {!! $form->help !!}
                                             <input type="number" class="form-control {{ $form->class }}" {{
                                                 $form->required == true ? 'required' : '' }} placeholder="{{
                                             $form->placeholder }}"
@@ -125,7 +125,7 @@
                                         @break
                                         @case('textarea')
                                         <div class="col-12 mb-2">
-                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
+                                            {!! $form->help !!}
                                             <textarea class="form-control {{ $form->class }}" {{
                                                 $form->required == true ? 'required' : '' }} placeholder="{{
                                             $form->placeholder }}"
@@ -134,7 +134,7 @@
                                         @break
                                         @case('select')
                                         <div class="col-12 col-md-6 mb-2">
-                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
+                                            {!! $form->help !!}
                                             <select class="form-control {{ $form->class }}" {{ $form->required == true ?
                                                 'required' : '' }} name="items[{{ $key }}][{{ $form->name }}]">
                                                 <option value="">انتخاب کنید</option>
@@ -155,7 +155,7 @@
                                         @break
                                         @case('multi-select')
                                         <div class="col-12 col-md-6 mb-2">
-                                            <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help }}</label>
+                                            {!! $form->help !!}
                                             <select multiple class="form-control selectpicker {{ $form->class }}" {{
                                                 $form->required == true ? 'required' : '' }} name="items[{{ $key }}][{{
                                                 $form->name }}][]">
@@ -173,8 +173,7 @@
                                                 <p class="my-4 text-danger text-center">
                                                     ثبت نشده</p>
                                                 <div class="card-body">
-                                                    <label for="items[{{ $key }}][{{ $form->name }}]">{{ $form->help
-                                                        }}</label>
+                                                    {!! $form->help !!}
                                                     <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
                                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                 </div>
@@ -184,7 +183,7 @@
                                                         class="card-img-top" height="150px">
                                                 </a>
                                                 <div class="card-body">
-                                                    <h5 class="card-title">{{ $form->help }}</h5>
+                                                    {!! $form->help !!}
                                                     <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
                                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                 </div>
@@ -361,8 +360,7 @@
                                                             <p class="my-4 text-danger text-center">
                                                                 ثبت نشده</p>
                                                             <div class="card-body">
-                                                                <label for="item[{{ $contract_form->name }}]">{{
-                                                                    $contract_form->help }}</label>
+                                                                {!! $contract_form->help !!}
                                                                 <input name="item[{{ $contract_form->name }}]"
                                                                     type="file" data-buttonname="btn-white"
                                                                     accept=".jpg,.jpeg,.png">
@@ -374,7 +372,7 @@
                                                                     class="card-img-top" height="150px">
                                                             </a>
                                                             <div class="card-body">
-                                                                <h5 class="card-title">{{ $contract_form->help }}</h5>
+                                                                {!! $contract_form->help !!}
                                                                 <input name="item[{{ $contract_form->name }}]"
                                                                     type="file" data-buttonname="btn-white"
                                                                     accept=".jpg,.jpeg,.png">
@@ -402,8 +400,7 @@
                                                     @break
                                                     @case('select')
                                                     <div class="col-12 col-md-6 mb-2">
-                                                        <label for="item[{{ $contract_form->name }}]">{{
-                                                            $contract_form->help }}</label>
+                                                        {!! $contract_form->help !!}
                                                         <select class="form-control {{ $contract_form->class }}" {{
                                                             $contract_form->required == true ? 'required' : '' }}
                                                             name="item[{{ $contract_form->name }}]">
