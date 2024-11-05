@@ -28,7 +28,7 @@
                             <div class="card-body">
                                 <form action="{{ route('factorItem.information')}}" method="POST" enctype="multipart/form-data">
                                     @csrf
-                                    <input type="hidden" name="item[id]" value="{{ $factor_item['id'] }}">
+                                    <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">
                                     <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
                                     <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
                                     @if(!is_null($factor_item['centers']) || !is_null($factor_item['forms']))
@@ -60,11 +60,11 @@
                                 @endif
                             </div>
                         </div>
-                        @if (in_array(trim($factor_item['status_factor']) , [0,4,14,16]) )
+                        {{-- @if (in_array(trim($factor_item['status_factor']) , [0,4,14,16]) )
                         @include('Admin.factoritem.show.turnRatings')
-                        @endif
-                        @if (in_array(trim($factor_item['status_factor']) , [0,4,14]) )
-                        <a href="{{route('factorItem.referral' , [ $factor_item['resnumber']])}}"><span
+                        @endif --}}
+                        @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+                        <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
                                 class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به
                                 مشاوره</span></a>
                         @endif
