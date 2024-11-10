@@ -48,7 +48,7 @@ class FactorController extends Controller {
                 if ( !isset( $cart[ 'task_id' ] ) ) {
                     self::createTask( $factor );
                 }
-                $factor->price == 0 ? $factor->task->update( [ 'status' => 10 ] ) : '';
+                $factor->price == 0 ? $factor->task->update( [ 'status' => 10 , 'user_id' => null] ) : '';
                 foreach ( $cart[ 'items' ] as $item ) {
                     auth()->user()->update( [ 'service_id' => $item[ 'service_id' ] ] );
                     $financial_plans_type = FinancialPlansType::findOrFail( $item[ 'financial_plans_type_id' ] );
