@@ -1271,6 +1271,44 @@ class FactorItemController extends Controller {
         return $status_factor;
     }
     /**
+     * @param \App\Models\FactorItem $factorItem
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * send initial link whitout total price
+     */
+    public function sendInitialLink(FactorItem $factorItem , Request $request)
+    {
+        //calculate
+        $user = $factorItem->factor->user;
+        $price = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
+        $prepayment = [];
+        $total_price = $factorItem->total_price ? $factorItem->total_price : $price;
+        $total_price = $total_price + $factorItem->discount;
+        //calculate
+        FactorItem::calculate( $factorItem, $total_price, $factorItem->type, $user );
+        $prepayment['num'] = $factorItem->property->prepayment_num;
+        $prepayment['count'] = $factorItem->property->prepayment_count;
+
+        $factor = new Factor();
+        $factor->title = 'factor';
+        $factor->user_id = $user->id;
+        $factor->price = $price;
+        $factor->level = $prepayment['num'] - $prepayment['count'] + 1;
+        $factor->type = 'online';
+        $factor->factor_item_id = $factorItem->id;
+        $factor->callcenter_id = auth()->user()->id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
+        $factor->center_id = $factorItem->center_id;
+        $factor->expired_at = now()->addDay(3);
+        $factor->save();
+
+        event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
+
+        return redirect()->back()->with([
+            'send' => true
+        ]);
+    }
+    /**
      * @param FactorItem $factor_item
      * @param $value
      * @return void

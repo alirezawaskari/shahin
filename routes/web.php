@@ -297,7 +297,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factorItem/update-product' , 'FactorItemController@updateProduct')->name('factorItem.updateProduct');
     Route::post('/factorItem/update-service-tariff' , 'FactorItemController@updateServiceTariff')->name('factorItem.updateServiceTariff');
     Route::get('/factorItem/expire', 'FactorItemController@expire');
-    Route::post('/factorItem/sendInitialLink', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
+    Route::post('/factorItem/sendInitialLink/{factorItem}', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
     Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
     Route::resource('factorItem', 'FactorItemController');
     Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');

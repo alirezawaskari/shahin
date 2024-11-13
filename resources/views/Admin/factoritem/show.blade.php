@@ -3,7 +3,32 @@
 
 @section('content')
 @include('Admin.factoritem.layouts.info')
-
+<div class="modal fade" id="linkModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">ارسال لینک</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('factorItem.sendInitialLink' , [$factorItem->resnumber]) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row p-4">
+                    <div class="col-12">
+                        <label>مبلغ (ریال)</label>
+                        <input class="form-control px-4 mb-3" name="price" type="text"
+                            oninput="separatePrices(this)">
+                    </div>
+                    <div class="col-md-12">
+                        <button class="btn btn-primary px-4 mb-3 submit_btn">ثبت و ارسال</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="card">
     <div class="card-body">
         @permission('file-detail')
