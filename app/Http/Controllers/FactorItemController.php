@@ -71,6 +71,7 @@ class FactorItemController extends Controller
         $user = $factorItem->factor->user;
         $type = $factorItem->factor->factorable_type;
         $comments = $factorItem->factor->comments;
+        $totalFactorItem = $factorItem->totalFactorItem ?? '';
         $item = [];
         $item['id'] = $factorItem->id;
         $item['service'] = $factorItem->factoritemable;
@@ -81,36 +82,45 @@ class FactorItemController extends Controller
         $item['values'] = $factorItem->values;
         $item['factor_values'] = $factorItem->factor_values;
         $item['supervisor_id'] = $factorItem->supervisor_id;
-        $item['contract_values'] = $factorItem->contract_values;
         $item['factor_image'] = $factorItem->factor_image;
         $item['status_factor'] = $factorItem->status_factor;
-		$item['status_mali'] = $factorItem->totalFactorItem->status_mali??$factorItem->status_mali;
-	  //$item['status_mali'] = $factorItem->status_mali;
-      //$item['status_mali_text'] = FactorItem::statusMali($factorItem->status_mali);
-		$item['status_mali_text'] = isset($factorItem->totalFactorItem)?FactorItem::statusMali($factorItem->totalFactorItem->status_mali): FactorItem::statusMali($factorItem->status_mali);
-
-
         $item['status_user'] = FactorItem::statusFactor($factorItem->status_factor);
         $item['confirms'] = $factorItem->confirms;
         $item['center'] = $factorItem->center;
         $item['date'] = $factorItem->date;
         $item['type'] = $factorItem->type;
-        $item['guarantee_type'] = $factorItem->guarantee_type;
         $item['file_number'] = $factorItem->file_number;
-        $item['approval_date'] = verta($factorItem->approval_date)->format('Y/m/d');
-        $item['total_price'] = $factorItem->total_price + $factorItem->discount;
-        $item['credit'] = $factorItem->credit;
         $item['discount'] = $factorItem->discount;
-        $item['extra_pay'] = $factorItem->type ? TotalFactorItem::getExtraPay($factorItem->supervisor->totalFactorItem) : 0;
-        $item['prepayment']['price'] = $factorItem->property ? $factorItem->property->prepayment_price : 0;
-        $item['price_difference'] = $factorItem->property ? $factorItem->property->price_difference : 0;
-        $item['installments_price'] = $factorItem->installments_price;
-        $item['installments_num'] = $factorItem->installments_num;
-        $item['service_tariffs' ] = $factorItem->serviceTariffs;
-        $item['payments'] = $factorItem->factors;
-        $item[''] = $factorItem->factors;
         $item['complete'] = $factorItem->status_factor == 6 || $factorItem->status_factor == 10 ? true : false;
         $item['factorItems'] = FactorItem::getFatorItemCollection($factorItem)->get();
+        $item['service_tariffs' ] = $factorItem->serviceTariffs;
+        $item['confirm'] = $totalFactorItem->confirm??false;
+        $item['total_price'] = $factorItem->supervisor->total_price + $factorItem->supervisor->discount;
+        $item['prepayment']['price'] = $factorItem->supervisor->property ? $factorItem->supervisor->property->prepayment_price : 0;
+        $item['payments'] = $factorItem->factors;
+        $item['date_first_pay'] = isset($factorItem->factors->where('title', '!=', 'register')->where('status', true)->first()->created_at) ? verta($factorItem->factors->where('title', '!=', 'register')->first()->created_at)->format('Y/m/d') : '';
+        //if factorItem type is installment
+        if($totalFactorItem)
+        {
+            $item['guarantee_type'] = $totalFactorItem->guarantee_type;
+            $item['contract_values'] = $totalFactorItem->contract_values;
+            $item['status_mali'] = $factorItem->status_mali;
+            $item['start_date'] = verta($totalFactorItem->approval_date)->format('Y/m/d');
+            $item['status_mali_text'] = FactorItem::statusMali($factorItem->totalFactorItem->status_mali);
+            $item['approval_date'] = verta($factorItem->approval_date)->format('Y/m/d');
+            $item['total_price'] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum('discount');
+            $item['prepayment']['price'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
+            $item['installments_num'] = $totalFactorItem->installments_num;
+            $item['wage'] = ($item['total_price'] - $item['prepayment']['price']) * 0.04 / 12 * $item['installments_num'];
+            $item['loan'] = $totalFactorItem->totalFactorItemInstallments->sum('price');
+            $item['credit'] = $totalFactorItem->credit;
+            $item['extra_pay'] = TotalFactorItem::getExtraPay($factorItem->supervisor->totalFactorItem);
+            $item['date_first_pay'] = isset($totalFactorItem->factors->where('title', '!=', 'register')->where('status', true)->first()->created_at) ? verta($totalFactorItem->factors->where('title', '!=', 'register')->first()->created_at)->format('Y/m/d') : '';
+            $item['price_difference'] = $totalFactorItem->property ? $totalFactorItem->property->price_difference : 0;
+            $item['payments'] = $totalFactorItem->factors;
+        }
+        $resnumber = $totalFactorItem ? TotalFactorItem::setFatorItemCollectionResnumber($totalFactorItem) : '';
+        $contract_number = $totalFactorItem ? TotalFactorItem::setAgentContractNumber($totalFactorItem) : '';
         $admin_users = User::where('center_id', $factorItem->center_id)->where('center_id', '!=' , null)->get();
         $doctors = [];
         foreach ($admin_users as $u) {
@@ -119,7 +129,7 @@ class FactorItemController extends Controller
             }
         }
         $sessions = $factorItem->sessions;
-        return view('site.profile.layouts.factoritem.show', compact('expire_installments', 'paid_installments' ,'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item'));
+        return view('site.profile.layouts.factoritem.show', compact('resnumber','contract_number','totalFactorItem','expire_installments', 'paid_installments' ,'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item'));
     }
 
     /**
