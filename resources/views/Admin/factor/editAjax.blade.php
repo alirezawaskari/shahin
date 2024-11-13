@@ -320,7 +320,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">آپدیت کننده</th>
-                                        <th scope="col">کالسنتر</th>
+                                        <th scope="col">پیگیری کننده</th>
                                         <th scope="col">تاریخ ثبت</th>
                                         <th scope="col">گزارش ها</th>
                                     </tr>
