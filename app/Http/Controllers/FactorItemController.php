@@ -121,6 +121,7 @@ class FactorItemController extends Controller
         }
         $resnumber = $totalFactorItem ? TotalFactorItem::setFatorItemCollectionResnumber($totalFactorItem) : '';
         $contract_number = $totalFactorItem ? TotalFactorItem::setAgentContractNumber($totalFactorItem) : '';
+        $agents_contract_file = $totalFactorItem ? TotalFactorItem::setAgentContractFile($totalFactorItem) : '';
         $admin_users = User::where('center_id', $factorItem->center_id)->where('center_id', '!=' , null)->get();
         $doctors = [];
         foreach ($admin_users as $u) {
@@ -129,7 +130,7 @@ class FactorItemController extends Controller
             }
         }
         $sessions = $factorItem->sessions;
-        return view('site.profile.layouts.factoritem.show', compact('resnumber','contract_number','totalFactorItem','expire_installments', 'paid_installments' ,'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item'));
+        return view('site.profile.layouts.factoritem.show', compact('agents_contract_file','resnumber','contract_number','totalFactorItem','expire_installments', 'paid_installments' ,'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item'));
     }
 
     /**

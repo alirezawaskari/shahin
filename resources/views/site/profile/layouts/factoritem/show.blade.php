@@ -406,6 +406,14 @@
                                 @else
                                 @include('Admin.totalfactoritem.layouts.contract')
                                 @endif
+                                <hr>
+                                @if($agents_contract_file)
+                                <h6>فایل قرارداد خدمات دهنده</h6>
+                                @foreach ($agents_contract_file as $contract_file)
+                                <a href="{{ $contract_file }}" class="btn btn-primary py-1 px-2"
+                                    target="_blank">مشاهده</a>
+                                @endforeach
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -414,8 +422,6 @@
             </div>
         </div>
     </div>
-</div>
-</div>
 </div>
 @stop
 @section('js')

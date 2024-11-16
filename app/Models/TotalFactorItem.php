@@ -561,13 +561,6 @@ class TotalFactorItem extends Model implements AuditableContract
                 {
                     isset($fator_item_collection->center->contract_number) ? array_push($contract_number, $fator_item_collection->center->contract_number) : array_push($contract_number, '......');
                     isset($fator_item_collection->center->contract_start_date) ? array_push($contract_start_date, verta($fator_item_collection->center->contract_start_date)->format('Y/m/d')) : '.......';
-                    // $center_agents = $fator_item_collection->factor_values['center-agent'];
-                    // foreach($center_agents as $center_agent)
-                    // {
-                    //     $employee = Employee::where('user_id' , $center_agent)->first();
-                    //     isset($employee->contract_number) ? array_push($contract_number, $employee->contract_number) : array_push($contract_number, '......');
-                    //     isset($employee->contract_start_date) ? array_push($contract_start_date, verta($employee->contract_start_date)->format('Y/m/d')) : '';
-                    // }
                 }
             }
         }
@@ -576,6 +569,30 @@ class TotalFactorItem extends Model implements AuditableContract
         $contract_start_date = implode(' , ', $contract_start_date);
 
         return $contract_number.' مورخ '.$contract_start_date;
+    }
+    /**
+     * @param TotalFactorItem $item
+     * @return string
+     * set agents contract file for set contract factorItem
+     */
+    public static function setAgentContractFile(TotalFactorItem $item)
+    {
+        $contract_file = [];
+
+        $factor_items = $item->factorItems;
+
+        foreach($factor_items as $factor_item)
+        {
+            $fator_item_collections = FactorItem::getFatorItemCollection($factor_item)->get();
+            foreach($fator_item_collections as $fator_item_collection)
+            {
+                if(isset($fator_item_collection->center))
+                {
+                    isset($fator_item_collection->center->contract_file) ? array_push($contract_file, $fator_item_collection->center->contract_file) : '';
+                }
+            }
+        }
+        return $contract_file;
     }
     /**
      * @param TotalFactorItem $item
