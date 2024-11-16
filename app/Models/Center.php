@@ -9,7 +9,7 @@ class Center extends Model {
     use SoftDeletes;
     protected $dates = [ 'deleted_at' ];
 
-    protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date',
+    protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
     'pay_type', 'purchase_type', 'status', 'is_show', 'lat', 'lon', 'has_subset', 'type', 'fullName',
     'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' ];
 

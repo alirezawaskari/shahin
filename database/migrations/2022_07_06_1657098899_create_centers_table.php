@@ -29,6 +29,7 @@ class CreateCentersTable extends Migration
 		$table->text('image')->nullable()->default(NULL);
 		$table->integer('status');
         $table->text('contract_number')->default(NULL);
+        $table->text('contract_file')->default(NULL);
 		$table->integer('is_show')->default(0);
         $table->text('description')->nullable()->default(NULL);
 
