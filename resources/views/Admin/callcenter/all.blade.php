@@ -50,6 +50,13 @@
                     <date-picker placeholder="تا تاریخ" locale="fa,en" format="YYYY-M-D" name="endDate"></date-picker>
                 </div>
                 <div class="col-12 col-md-3 mb-2">
+                    <select name="sex" class="form-control" >
+                        <option value="all">جنسیت</option>
+                        <option value="1">خانم</option>
+                        <option value="0">آقا</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-2">
                     <select id="has-factor" name="has_factor" class="form-control">
                         <option value="">فاکتور</option>
                         <option value="1">دارد</option>

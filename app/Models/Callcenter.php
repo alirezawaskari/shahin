@@ -86,6 +86,7 @@ class Callcenter extends Model implements AuditableContract
         $status = request('status');
         $users = request('users');
         $agents = request('agents');
+        $sex = request('sex');
         $service = request('service');
         $representation = request('representation');
         $province = request('province');
@@ -161,6 +162,12 @@ class Callcenter extends Model implements AuditableContract
         if (isset($family) && trim($family) != '') {
             $query->whereHas('register', function ($query) use ($family) {
                 $query->where('family', 'LIKE', '%'.$family.'%');
+            });
+        }
+
+        if (isset($sex) && $sex != 'all') {
+            $query->whereHas('register', function ($query) use ($sex) {
+                $query->where('sex', $sex);
             });
         }
 
