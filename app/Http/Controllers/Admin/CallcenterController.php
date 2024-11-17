@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
 use App\Events\fastserviceCallcenter;
+use App\Events\registerRequestNotification;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\CallcenterExport;
@@ -748,16 +749,17 @@ class CallcenterController extends Controller
                     'description' => $request->description,
                     'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
                 ]);
+                //send a request registeration sms to the user
+                $request->request_type == 'other' ? event(new registerRequestNotification($user)) : '';
         }else{
             $callcenter=  Callcenter::find($request->other_task_id);
 
             $callcenter->update([
                 'description' => $request->description,
             ]);
-
         }
 
-        $request->description ? self::createHistoryForOtherRequestType($callcenter) : '';
+        $request->description ? History::create($callcenter , $callcenter->user_id , null , 2 , $callcenter->description) : '';
         return $callcenter;
     }
 
@@ -1233,16 +1235,6 @@ class CallcenterController extends Controller
             'user_id' => $payment_type == "online" ? $callcenter->user_id : auth()->user()->id,
         ]);
     }
-
-    /**
-     * @param $callcenter
-     */
-    private function createHistoryForOtherRequestType($callcenter)
-    {
-        //create history
-        History::create($callcenter , $callcenter->user_id , null , 2 , $callcenter->description);
-    }
-
     /**
      * @param Request $request
      * @return response
@@ -1298,7 +1290,7 @@ class CallcenterController extends Controller
             //create history
             History::create($task , $task->user_id , null , 2 , $request->description);
             $task->update(['status' => 10]);
-            
+
             return response([
                 'operator' => true,
                 'data'=> ['histories'=>Helper::userHistories($task->register)],
