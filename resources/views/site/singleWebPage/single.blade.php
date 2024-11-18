@@ -8,6 +8,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 col-md-5 py-5 my-auto mr-auto">
+                    <h6 class="alert alert-warning text-center">برای تکمیل فرایند ثبت نام <a href="#login_box">اینجا</a> کلیک کنید</h6>
                     {!! $service->left_content !!}
                     @foreach($errors->all() as $error)
                     <div class="alert alert-danger my-3" role="alert">
@@ -18,6 +19,7 @@
                     @if($service->special == true)
                     <h6 class="text-green my-2 font-16">مرکز واقع در کرج می باشد.</h6>
                     @endif
+                    <div id="login_box">
                     @if(isset($check) && !$check)
                     @if(!is_null($required))
                     @if($required == false)
@@ -40,7 +42,7 @@
                     <br>
                     <br>
                     <a href="{{asset("/singleWebPage/checkout/$singleWebPage->slug/$factor->resnumber")}}">
-                        <span id="upload-docs" class="btn btn-primary">بارگذاری مدارک
+                        <span id="upload-docs" class="btn btn-primary">تکمیل فرایند ثبت نام
                         <i class="fa fa-mouse-pointer"></i>
                         </span>
                     </a>
@@ -136,6 +138,7 @@
                     {{-- <a href="{{ route('login') }}" class="btn btn-orange text-white px-3 mt-2 btn-block">قبلا ثبت
                         نام کرده اید؟اینجا کلیک کنید</a>--}}
                     @endif
+                    </div>
                 </div>
                 <div class="d-none d-md-block col-md-6 pl-0 text-left">
                     <img src="{{ $service->img_box_1 }}" class="img-fluid">
