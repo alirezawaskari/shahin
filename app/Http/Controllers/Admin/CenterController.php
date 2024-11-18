@@ -123,7 +123,7 @@ class CenterController extends AdminController
             'description' => $request->description,
             'address' => $request->address,
             'contract_number' => $request->contract_number,
-            'contract_file' => $contract_file,
+            'contract_file' => isset($contract_file) ? $contract_file : '',
             'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
             'is_show' => isset($request->is_show) ? $request->is_show : 0,
         ] );
