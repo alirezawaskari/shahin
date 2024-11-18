@@ -198,11 +198,7 @@ class FactorItemController extends Controller {
             'status'=>7,
             'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
         ]);
-        //send sms to the user
-        if ( $request->check ) {
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
-        }
+
         //update center_id
         $factor_item->update( [
             'center_id' =>  $request->center_id,
@@ -217,6 +213,14 @@ class FactorItemController extends Controller {
                 'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
                 'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : $request->description.'مشاوره آنلاین',
            ]);
+        }
+        //send sms to the user
+        if ( $request->check ) {
+            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+        }
+        if($factor_item->center->representation_id)
+        {
+            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
         }
         //send sms to the center manager
         event(new referralCenterNotification($factor_item->center));
