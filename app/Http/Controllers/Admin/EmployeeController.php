@@ -97,6 +97,7 @@ class EmployeeController extends AdminController
         {
             $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
         }
+        $employee->resume_detail = json_decode($employee->resume_detail , true); 
         return view('Admin.employee.edit', compact('employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
     }
 
