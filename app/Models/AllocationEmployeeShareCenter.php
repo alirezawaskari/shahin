@@ -68,4 +68,25 @@ class AllocationEmployeeShareCenter extends Model
             }
         }
     }
+    /**
+     * @param mixed $inputs
+     * @param mixed $service_tariff
+     * @return void
+     */
+    public static function store($inputs , $service_tariff)
+    {
+        if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) && isset( $inputs[ 'price' ] ) ) {
+            for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
+            $i++ ) {
+                if ( $inputs[ 'price' ][ $i ] ) {
+                    AllocationEmployeeShareCenter::create( [
+                        'user_id' => $inputs[ 'employee' ][ $i ],
+                        'agent_id' => auth()->user()->id,
+                        'service_tariff_id' => $service_tariff->id,
+                        'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
+                    ] );
+                }
+            }
+        }
+    }
 }

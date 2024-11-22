@@ -73,7 +73,8 @@ class ServiceTariffController extends Controller {
             $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : 0;
             $center = Center::find( $request->center );
             if ( $service_index_tariff ) {
-                if ( count( $center->serviceTariffs->where( 'service_index_tariff_id', $service_index_tariff->id ) ) ) {
+                $count_selected_service_tariff = $center->serviceTariffs->where( 'service_index_tariff_id', $service_index_tariff->id )->where('tariff_id', $request->tariff)->count();
+                if ($count_selected_service_tariff>0) {
                     return response( [
                         'operator' => true,
                         'status'=>'error',
@@ -92,19 +93,8 @@ class ServiceTariffController extends Controller {
                     'multi_stage' => $request->multi_stage,
                 ] );
                 $service_tariff->centers()->attach( $request->center );
-                if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) && isset( $inputs[ 'price' ] ) ) {
-                    for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
-                    $i++ ) {
-                        if ( $inputs[ 'price' ][ $i ] ) {
-                            AllocationEmployeeShareCenter::create( [
-                                'user_id' => $inputs[ 'employee' ][ $i ],
-                                'agent_id' => auth()->user()->id,
-                                'service_tariff_id' => $service_tariff->id,
-                                'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                            ] );
-                        }
-                    }
-                }
+                //allocation of center employees shares
+                AllocationEmployeeShareCenter::store($inputs,$service_tariff);
                 return response( [
                     'operator' => true,
                     'status'=>'success',
@@ -169,19 +159,8 @@ class ServiceTariffController extends Controller {
                 'price' => $selling_price,
                 'multi_stage' => $request->multi_stage,
             ] );
-            if ( auth()->user()->hasPermission( 'allocationEmployeeShareCenter_create' ) && isset( $inputs[ 'price' ] ) ) {
-                for ( $i = 0 ; $i < count( $inputs[ 'employee' ] ) ;
-                $i++ ) {
-                    if ( $inputs[ 'price' ][ $i ] ) {
-                        AllocationEmployeeShareCenter::create( [
-                            'user_id' => $inputs[ 'employee' ][ $i ],
-                            'agent_id' => auth()->user()->id,
-                            'service_tariff_id' => $serviceTariff->id,
-                            'amount' => ( float ) str_replace( ',', '', $inputs[ 'price' ][ $i ] ),
-                        ] );
-                    }
-                }
-            }
+            //allocation of center employees shares
+            AllocationEmployeeShareCenter::store($inputs,$serviceTariff);
             return response( [
                 'operator' => true,
                 'status'=>'success',
