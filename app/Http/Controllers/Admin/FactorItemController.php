@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Classes\External\IranSms;
 use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
+use App\Events\referralCenterNotification;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Events\smsService;
@@ -168,11 +169,6 @@ class FactorItemController extends Controller {
         $item = $request->item;
         $item['id'] = $request->id;
         self::formData( $item );
-        if(isset($item['typeConsultation']) && $item['typeConsultation'] == 'online')
-        {
-            alert()->success('عملیات موفق')->autoclose(4000)->persistent('باشه');
-            return redirect()->back();
-        }
         $validate = Validator::make($request->all(), [
             'id' => 'required|exists:factor_items,id',
             'center_id' => 'required',
@@ -182,17 +178,8 @@ class FactorItemController extends Controller {
             , 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
-
-        //set center_id if not yet determined
-        if (is_null($factor_item->center_id))
-            $factor_item->update(['center_id' =>  $request->center_id ,]);
-
-        //check totalFactorItem is exists and is confirm or not
-        if ( $factor_item->totalFactorItem()->exists() && $factor_item->totalFactorItem->confirm){
-             alert()->error('امکان تغییر مرکز برای پرونده اقساطی تایید شده وجود ندارد  .', 'عملیات ناموفق ')->persistent('باشه');
-            return redirect()->back();
         // check factorItem have serviceTariff or not
-        }elseif ($factor_item->serviceTariffs()->exists()){
+        if ($factor_item->serviceTariffs()->exists()){
             alert()->error(' جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
@@ -211,12 +198,8 @@ class FactorItemController extends Controller {
             'status'=>7,
             'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
         ]);
-        //send sms
-        if ( $request->check ) {
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
-        }
-        // update center_id
+
+        //update center_id
         $factor_item->update( [
             'center_id' =>  $request->center_id,
             'status_factor' => 17,
@@ -228,9 +211,19 @@ class FactorItemController extends Controller {
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
                 'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
-                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : 'مشاوره آنلاین',
-            ]);
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : $request->description.'مشاوره آنلاین',
+           ]);
         }
+        //send sms to the user
+        if ( $request->check ) {
+            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+        }
+        if($factor_item->center->representation_id)
+        {
+            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
+        }
+        //send sms to the center manager
+        event(new referralCenterNotification($factor_item->center));
         alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
         return redirect()->back();
     }
@@ -1280,6 +1273,44 @@ class FactorItemController extends Controller {
         }
 
         return $status_factor;
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * send initial link whitout total price
+     */
+    public function sendInitialLink(FactorItem $factorItem , Request $request)
+    {
+        //calculate
+        $user = $factorItem->factor->user;
+        $price = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
+        $prepayment = [];
+        $total_price = $factorItem->total_price ? $factorItem->total_price : $price;
+        $total_price = $total_price + $factorItem->discount;
+        //calculate
+        FactorItem::calculate( $factorItem, $total_price, $factorItem->type, $user );
+        $prepayment['num'] = $factorItem->property->prepayment_num;
+        $prepayment['count'] = $factorItem->property->prepayment_count;
+
+        $factor = new Factor();
+        $factor->title = 'factor';
+        $factor->user_id = $user->id;
+        $factor->price = $price;
+        $factor->level = $prepayment['num'] - $prepayment['count'] + 1;
+        $factor->type = 'online';
+        $factor->factor_item_id = $factorItem->id;
+        $factor->callcenter_id = auth()->user()->id;
+        $factor->representation_id = auth()->user()->admin_representation_id;
+        $factor->center_id = $factorItem->center_id;
+        $factor->expired_at = now()->addDay(3);
+        $factor->save();
+
+        event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
+
+        return redirect()->back()->with([
+            'send' => true
+        ]);
     }
     /**
      * @param FactorItem $factor_item

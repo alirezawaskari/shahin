@@ -27,7 +27,7 @@ class CreateCallcentersTable extends Migration
             $table->integer('representation_id')->unsigned()->nullable();
             $table->foreign('representation_id')->references('id')->on('representations');
             $table->integer('type');
-            $table->string('request_type')->nullable();
+            $table->string('request_type')->nullable();//other or link
             $table->integer('status');
             $table->text('description')->nullable();
             $table->string('date_expire')->nullable();

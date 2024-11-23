@@ -88,7 +88,7 @@ public function store( Request $request ) {
             ] );
         }
 
-        if ( $factor_item->factoritemable->center ) {
+        if (isset($item[ 'center' ]) && $factor_item->factoritemable->center ) {
             $factor_item->update( [
                 'center_id' =>  $item[ 'center' ],
                 'type' => $item[ 'type' ] ,

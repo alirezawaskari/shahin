@@ -303,16 +303,18 @@
                                 </div>
                                 <div
                                     class="col-12 d-flex justify-content-center justify-content-md-end align-items-center my-3">
-                                    <span class="bold font-14 my-0 py-0 mx-2">کل: {{ number_format($factor->price) }}
-                                        ریال</span>
                                     @if(!is_null($factor->coupon))
+                                    <span class="bold font-14 my-0 py-0 mx-2">کل: {{ number_format($factor->price_without_discount) }}
+                                        ریال</span>
                                     <span class="bold font-13 my-0 py-0 mx-2 text-danger">تخفیف: {{
-                                        number_format($factor->price * $factor->coupon->discount / 100) }}
+                                        number_format($factor->price_without_discount - $factor->price) }}
                                         ریال</span>
 
                                     <span class="bold font-13 my-0 py-0 mx-2">قابل پرداخت: {{
-                                        number_format($factor->price - ($factor->price * $factor->coupon->discount /
-                                        100)) }}
+                                        number_format($factor->price) }}
+                                        ریال</span>
+                                    @else
+                                    <span class="bold font-14 my-0 py-0 mx-2">کل: {{ number_format($factor->price) }}
                                         ریال</span>
                                     @endif
 
@@ -385,9 +387,7 @@
                                                                 <input type="radio" name="payment" value="wallet"
                                                                     id="option2" autocomplete="off">
                                                                 <span class="font-12">کسر {{
-                                                                    number_format($factor->coupon ? $factor->price -
-                                                                    ($factor->price * $factor->coupon->discount / 100 )
-                                                                    : $factor->price) }} ریال از کیف شما</span>
+                                                                    number_format($factor->price) }} ریال از کیف شما</span>
                                                                 <span class="font-12">موجودی شما: {{
                                                                     number_format($factor->user->wallet) }} ریال</span>
                                                             </label>
@@ -396,9 +396,7 @@
                                                                 class="rounded btn btn-secondary disabled d-flex flex-column align-items-center justify-content-center"
                                                                 disabled>
                                                                 <span class="font-12">کسر {{
-                                                                    number_format($factor->coupon ? $factor->price -
-                                                                    ($factor->price * $factor->coupon->discount / 100 )
-                                                                    : $factor->price) }} ریال از کیف شما</span>
+                                                                    number_format($factor->price) }} ریال از کیف شما</span>
                                                                 <span class="font-12">موجودی شما: {{
                                                                     number_format($factor->user->wallet) }} ریال</span>
                                                             </button>

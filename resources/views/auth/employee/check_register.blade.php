@@ -7,7 +7,7 @@
                     class="fas fa-mobile-alt"></i></label>
             <input id="phone_number" type="text"
                    class="border-0 py-2 px-2 w-100 pr-4"
-                   name="phone" value="{{ old('phone') }}" required autofocus
+                   name="phone_number" value="{{ old('phone_number') }}" required autofocus
                    placeholder="شماره موبایل">
         </div>
         <div class="form-group form-button mt-4">

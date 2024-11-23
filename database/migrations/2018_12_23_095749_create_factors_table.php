@@ -54,6 +54,7 @@ class CreateFactorsTable extends Migration
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->string('title' , '110')->default('register');
             $table->integer('level')->default('1');
+            $table->unsignedBigInteger('price_without_discount')->nullable()->default(0);
             $table->timestamp('expired_at')->default(DB::raw('CURRENT_TIMESTAMP'));
 
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
@@ -70,7 +71,6 @@ class CreateFactorsTable extends Migration
             $table->string('request_time')->nullable(true);
             $table->integer('internet_id')->nullable(true);
             $table->integer('night')->nullable(true);
-            $table->integer('profit')->nullable();
             $table->text('description')->nullable();
             $table->text('values')->nullable();
             $table->text('after_values')->nullable();

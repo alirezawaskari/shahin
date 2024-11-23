@@ -108,7 +108,11 @@ class CenterController extends AdminController
         $item['center_category_id'] = $center_category_id;
         unset($item['product_category']);
         unset($item['service_category']);
-
+        unset($item['contract_file']);
+        if ($request->urlcontract_file) {
+            $contract_file = Helper::moveImage($request->urlcontract_file,'document');
+        }
+		unset($item['urlcontract_file']);
         $center->center_request->update($item);
 
         $center->update( [
@@ -119,6 +123,7 @@ class CenterController extends AdminController
             'description' => $request->description,
             'address' => $request->address,
             'contract_number' => $request->contract_number,
+            'contract_file' => isset($contract_file) ? $contract_file : '',
             'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
             'is_show' => isset($request->is_show) ? $request->is_show : 0,
         ] );

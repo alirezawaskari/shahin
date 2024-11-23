@@ -97,6 +97,7 @@ class EmployeeController extends AdminController
         {
             $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
         }
+        $employee->resume_detail = json_decode($employee->resume_detail , true); 
         return view('Admin.employee.edit', compact('employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
     }
 
@@ -170,10 +171,12 @@ class EmployeeController extends AdminController
         if (isset($inputs['password']) && $inputs['password'] == '') {
             unset($inputs['password']);
             unset($inputs['password_confirmation']);
-            $user->update($inputs);
         } elseif(isset($inputs['password'])) {
             $user->update(array_merge($inputs, ['password' => Hash::make($inputs['password'])]));
+            unset($inputs['password']);
+            unset($inputs['password_confirmation']);
         }
+        $user->update($inputs);
 
         if ($role_id == 0) {
             if ($user->roles->count() != 0) {
@@ -305,7 +308,7 @@ class EmployeeController extends AdminController
      */
     public function editResume(Employee $employee)
     {
-        if (auth()->user()->isAbleTo('employee_resume') && auth()->user()->employee->id == $employee->id) {
+        if (auth()->user()->employee->id == $employee->id) {
             $recruitment_notices = RecruitmentNotice::where('status', 1)->orderBy('updated_at', 'desc')->get();
             $resume = Resume::where('phone' , $employee->user->phone)->get()->last();
             $recruitment_notice_selected = !is_null($resume) ? $resume->recruitment_notice_id : null;
@@ -326,7 +329,7 @@ class EmployeeController extends AdminController
      */
     public function updateResume(Employee $employee , Request $request)
     {
-        if (auth()->user()->isAbleTo('employee_resume|employee_resume_detail'))
+        if (auth()->user()->isAbleTo('employee_resume_detail') || auth()->user()->employee->id == $employee->id)
         {
             $this->validate(request(), [
                 'email' => 'nullable|email',

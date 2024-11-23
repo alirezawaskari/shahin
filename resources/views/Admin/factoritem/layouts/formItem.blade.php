@@ -165,7 +165,7 @@
 </div>
 @break
 @case('textarea')
-<div class="col-12 col-md-4 mb-2">
+<div class="col-12 mb-2">
     {!! $form->help !!}
     <textarea class="form-control {{ $form->class }}" {{
         $form->required == true ? 'required' : '' }} name="item[{{ $form->name }}]"> {{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}</textarea>
@@ -322,7 +322,7 @@
 @break
 @case('checkbox')
 <div class="col-12 col-md-12 mb-3">
-    {!! $form->help !!} :
+    {!! $form->help !!}
     <br>
     @foreach($form->beforeformitems as $beforeformitem)
     {{ $beforeformitem->title }}
@@ -337,7 +337,7 @@
 @break
 @case('radio')
 <div class="col-12 col-md-12 mb-3">
-    {!! $form->help !!} :
+    {!! $form->help !!}
     <br>
     @foreach($form->beforeformitems as $beforeformitem)
     {{ $beforeformitem->title }}

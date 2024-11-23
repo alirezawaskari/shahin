@@ -328,7 +328,7 @@ class RegisterController extends Controller
     */
 
     public function checkUserIsRegister( Request $request )
- {
+    {
         session( [ 'login_request_link' => url()->previous() ] );
         $userIsExist = false;
         $user = User::where( 'phone', $request->phone_number )->first();

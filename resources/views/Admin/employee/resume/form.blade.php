@@ -67,8 +67,8 @@
             <div class="col-md-12 mb-2">
                 <label>در صورتی که توضیحی دارید در کادر ذیل وارد نمایید:</label>
                 <textarea name="text"
-                    value="{{isset($employee->resume_detail['text']) ? $employee->resume_detail['text'] : ''}}"
-                    class="form-control " rows="6" placeholder="توضیحات مربوطه"></textarea>
+                    class="form-control " rows="6" placeholder="توضیحات مربوطه">{{isset($employee->resume_detail['text']) ? $employee->resume_detail['text'] : ''}}
+                </textarea>
             </div>
             <div class="col-md-2 form-check form-check-inline mb-2">
                 <p>*وضعیت تاهل :</p>
@@ -143,28 +143,28 @@
             </div>
             <div class="col-md-2">
                 <label>نوع معافیت:</label>
-                <input name="exemption_military_service_type"
-                    {{isset($employee->resume_detail['exemption_military_service_type']) ?
-                $employee->resume_detail['exemption_military_service_type'] : ''}} class="form-control">
+                <input name="exemption_military_service_type" type="text"
+                    value="{{isset($employee->resume_detail['exemption_military_service_type']) ?
+                $employee->resume_detail['exemption_military_service_type'] : ''}}" class="form-control">
             </div>
             <div class="col-md-2">
                 <label>تاریخ اتمام معافیت:</label>
                 <input name="exemption_military_service_end_date" type="text"
                     class="form-control exemption_military_service_end_date"
-                    {{isset($employee->resume_detail['exemption_military_service_end_date']) ?
-                $employee->resume_detail['exemption_military_service_end_date'] : ''}}>
+                    value="{{isset($employee->resume_detail['exemption_military_service_end_date']) ?
+                $employee->resume_detail['exemption_military_service_end_date'] : ''}}">
             </div>
             <div class="col-md-2">
                 <label>محل خدمت:</label>
-                <input name="military_service_location" class="form-control"
-                    {{isset($employee->resume_detail['military_service_location']) ?
-                $employee->resume_detail['military_service_location'] : ''}}>
+                <input name="military_service_location" type="text" class="form-control"
+                    value="{{isset($employee->resume_detail['military_service_location']) ?
+                $employee->resume_detail['military_service_location'] : ''}}">
             </div>
             <div class="col-md-2">
                 <label>تاریخ خاتمه خدمت:</label>
-                <input name="military_service_end_date" class="form-control military_service_end_date"
-                    {{isset($employee->resume_detail['military_service_end_date']) ?
-                $employee->resume_detail['military_service_end_date'] : ''}}>
+                <input name="military_service_end_date" type="text" class="form-control military_service_end_date"
+                    value="{{isset($employee->resume_detail['military_service_end_date']) ?
+                $employee->resume_detail['military_service_end_date'] : ''}}">
             </div>
         </div>
         <hr>
@@ -174,31 +174,31 @@
             </div>
             <div class="col-md-2">
                 <label>*مدرک تحصیلی:</label>
-                <input name="degree_of_education" class="form-control"
-                    {{isset($employee->resume_detail['degree_of_education']) ?
-                $employee->resume_detail['degree_of_education'] : ''}} required>
+                <input name="degree_of_education" type="text" class="form-control"
+                    value="{{isset($employee->resume_detail['degree_of_education']) ?
+                $employee->resume_detail['degree_of_education'] : ''}}" required>
             </div>
             <div class="col-md-2">
                 <label>*رشته تحصیلی:</label>
-                <input name="field_of_Study" class="form-control" {{isset($employee->resume_detail['field_of_Study']) ?
-                $employee->resume_detail['field_of_Study'] : ''}}>
+                <input name="field_of_Study" type="text" class="form-control" value="{{isset($employee->resume_detail['field_of_Study']) ?
+                $employee->resume_detail['field_of_Study'] : ''}}">
             </div>
             <div class="col-md-2">
                 <label>معدل کل:</label>
-                <input name="total_average" class="form-control" {{isset($employee->resume_detail['total_average']) ?
-                $employee->resume_detail['total_average'] : ''}}>
+                <input name="total_average" type="text" class="form-control" value="{{isset($employee->resume_detail['total_average']) ?
+                $employee->resume_detail['total_average'] : ''}}">
             </div>
             <div class="col-md-4">
                 <label>نام و آدرس محل دریافت مدرک تحصیلی :</label>
-                <input name="education_location" class="form-control"
-                    {{isset($employee->resume_detail['education_location']) ?
-                $employee->resume_detail['education_location'] : ''}}>
+                <input name="education_location" type="text" class="form-control"
+                    value="{{isset($employee->resume_detail['education_location']) ?
+                $employee->resume_detail['education_location'] : ''}}">
             </div>
             <div class="col-md-2">
                 <label>تاریخ اخذ مدرک:</label>
-                <input name="education_end_date" class="form-control education_end_date"
-                    {{isset($employee->resume_detail['education_end_date']) ?
-                $employee->resume_detail['education_end_date'] : ''}}>
+                <input name="education_end_date" type="text" class="form-control education_end_date"
+                    value="{{isset($employee->resume_detail['education_end_date']) ?
+                $employee->resume_detail['education_end_date'] : ''}}">
             </div>
         </div>
         <hr>
@@ -211,7 +211,7 @@
                 <p>*تمایل به همکاری به صورت :</p>
                 <input type="radio" id=" " name="cooperation_type" value="تمام وقت"
                     {{isset($employee->resume_detail['cooperation_type']) &&
-                $employee->resume_detail['cooperation_type'] == "تمام وفت" ? 'checked' : ''}} required>
+                $employee->resume_detail['cooperation_type'] == "تمام وقت" ? 'checked' : ''}} required>
                 <label for="html">تمام وقت</label><br>
                 <input type="radio" id="" name="cooperation_type" value="پاره وقت "
                     {{isset($employee->resume_detail['cooperation_type']) &&
@@ -221,8 +221,7 @@
             <div class="col-md-10">
                 <p>در صورت تمایل به کار پاره وقت ساعات و روزهای همکاری را دقیقا اعلام
                     فرمایید :</p>
-                <textarea class="form-control" {{isset($employee->resume_detail['description_half_time']) ? $employee->resume_detail['description_half_time'] : ''}} name="description_half_time">
-
+                <textarea class="form-control" name="description_half_time">{{isset($employee->resume_detail['description_half_time']) ? $employee->resume_detail['description_half_time'] : ''}}
         </textarea>
             </div>
         </div>
@@ -233,8 +232,8 @@
             </div>
             <div class="col-md-12">
                 <label>*سوابق شغلی</label>
-                <textarea name="work_history" {{isset($employee->resume_detail['work_history']) ? $employee->resume_detail['work_history'] : ''}} class="form-control font-14" rows="6"
-                            placeholder="سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)" required></textarea>
+                <textarea name="work_history" class="form-control font-14" rows="6"
+                            placeholder="سوابق شغلی (با ذکر نام محل کار و سمت شغلی مربوطه)" required>{{isset($employee->resume_detail['work_history']) ? $employee->resume_detail['work_history'] : ''}}</textarea>
 
             </div>
         </div>
@@ -271,7 +270,7 @@
             <div class="col-md-10">
                 <p>در صورتی که به نرم افزار های آفیس و یا هر نرم افزار دیگری تسلطی دارید
                     نام برده و میزان تسلط خود را ذکر فرمایید :</p>
-                <textarea class="form-control" {{isset($employee->resume_detail['computer_skill']) ? $employee->resume_detail['computer_skill'] : ''}} name="computer_skill">
+                <textarea class="form-control" name="computer_skill">{{isset($employee->resume_detail['computer_skill']) ? $employee->resume_detail['computer_skill'] : ''}}
         </textarea>
             </div>
         </div>
@@ -332,8 +331,8 @@
             </div>
             <div class="col-md-12">
                 <label>*تاریخی که میتوانید مشغول به کار گردید:</label>
-                <input name="start_work_date" {{isset($employee->resume_detail['start_work_date']) ?
-                $employee->resume_detail['start_work_date'] : ''}} class="form-control
+                <input name="start_work_date" value="{{isset($employee->resume_detail['start_work_date']) ?
+                $employee->resume_detail['start_work_date'] : ''}}" class="form-control
                 start_work_date" required>
             </div>
         </div>
@@ -355,18 +354,18 @@
             </div>
             <div class="col-md-4">
                 <label>نسبت:</label>
-                <input name="relative_family_type" {{isset($employee->resume_detail['relative_family_type']) ?
-                $employee->resume_detail['relative_family_type'] : ''}} class="form-control">
+                <input name="relative_family_type" value="{{isset($employee->resume_detail['relative_family_type']) ?
+                $employee->resume_detail['relative_family_type'] : ''}}" class="form-control">
             </div>
             <div class="col-md-4">
                 <label>نام:</label>
-                <input name="relative_family_name" {{isset($employee->resume_detail['relative_family_name']) ?
-                $employee->resume_detail['relative_family_name'] : ''}} class="form-control">
+                <input name="relative_family_name" type="text" value="{{isset($employee->resume_detail['relative_family_name']) ?
+                $employee->resume_detail['relative_family_name'] : ''}}" class="form-control">
             </div>
             <div class="col-md-4">
                 <label>قسمت:</label>
-                <input name="relative_family_part" {{isset($employee->resume_detail['relative_family_part']) ?
-                $employee->resume_detail['relative_family_part'] : ''}} class="form-control">
+                <input name="relative_family_part" type="text" value="{{isset($employee->resume_detail['relative_family_part']) ?
+                $employee->resume_detail['relative_family_part'] : ''}}" class="form-control">
             </div>
         </div>
         <hr>

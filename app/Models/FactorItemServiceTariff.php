@@ -25,6 +25,11 @@ class FactorItemServiceTariff extends Model
         return $this->belongsTo(ServiceTariff::class);
     }
 
+    public function agent()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function sessions()
     {
         return $this->hasMany(Session::class)->orderBy('date');

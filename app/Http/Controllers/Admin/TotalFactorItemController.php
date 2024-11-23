@@ -86,6 +86,29 @@ class TotalFactorItemController extends Controller
         $comments = Helper::userHistories($user);
         $expire_installments = $totalFactorItem->totalFactorItemInstallments->where('status', 0)->where('date', '<', Carbon::now());
         $paid_installments = $totalFactorItem->totalFactorItemInstallments->where('status', 1);
+        //set totalFactorItem items
+        $item = self::setItem($totalFactorItem);
+        //set totalFactorItem factorItems items
+        $items = self::setFactorItemItems($totalFactorItem);
+
+        $provinces = Province::all();
+        $histories = $totalFactorItem->histories;
+        $user_histories = Helper::userHistories($totalFactorItem->factor->user);
+
+        $resnumber = TotalFactorItem::setFatorItemCollectionResnumber($totalFactorItem);
+        $contract_number = TotalFactorItem::setAgentContractNumber($totalFactorItem);
+
+        $checks=$totalFactorItem->checks;
+        $promissories=$totalFactorItem->promissories;
+
+        return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items','installments','checks','promissories'));
+    }
+    /**
+     * @param \App\Models\TotalFactorItem $totalFactorItem
+     * @return array
+     */
+    private function setItem(TotalFactorItem $totalFactorItem)
+    {
         $item['id'] = $totalFactorItem->id;
         $item['contract_forms'] = ContractForm::orderBy('position' , 'Asc')->get();
         $item['contract_values'] = $totalFactorItem->contract_values;
@@ -126,7 +149,14 @@ class TotalFactorItemController extends Controller
         $item['has_payment'] = $totalFactorItem->factors()->where('status', 1)->exists();
         $item['date_first_pay'] = isset($totalFactorItem->factors->where('title', '!=', 'register')->where('status', true)->first()->created_at) ? verta($totalFactorItem->factors->where('title', '!=', 'register')->first()->created_at)->format('Y/m/d') : '';
         $item['guarantee_types_list'] = TotalFactorItem::getGuaranteeTypeByFinancialPlansType($totalFactorItem);
-
+        return $item;
+    }
+    /**
+     * @param \App\Models\TotalFactorItem $totalFactorItem
+     * @return array
+     */
+    private function setFactorItemItems(TotalFactorItem $totalFactorItem)
+    {
         $items = $totalFactorItem->factorItems->map(function ($factor_item) {
             $temp = [];
             $temp['id'] = $factor_item->id;
@@ -173,20 +203,16 @@ class TotalFactorItemController extends Controller
 
             return $temp;
         });
-
-        $provinces = Province::all();
-        $histories = $totalFactorItem->histories;
-        $user_histories = Helper::userHistories($totalFactorItem->factor->user);
-
-        $resnumber = TotalFactorItem::setFatorItemCollectionResnumber($totalFactorItem);
-        $contract_number = TotalFactorItem::setAgentContractNumber($totalFactorItem);
-
-        $checks=$totalFactorItem->checks;
-        $promissories=$totalFactorItem->promissories;
-
-        return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items','installments','checks','promissories'));
+        //set factorItems centers
+        foreach($items as $supervisor_factor_item)
+        {
+            foreach($supervisor_factor_item['factorItems'] as $factor_item)
+            {
+                $factor_item['centers'] = FactorItem::getSelectableCenters($factor_item);
+            }
+        }
+        return $items;
     }
-
     /**
      * @param TotalFactorItem $totalFactorItem
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse

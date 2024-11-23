@@ -162,10 +162,6 @@
                                     <p class="form-control">{{$item['installments_num']}}</p>
                                 </div>
                                 <div class="col-12 col-md-3 mb-2">
-                                    <label>مبلغ اقساط(ریال)</label>
-                                    <p class="form-control">{{number_format($item['installments_price'])}}</p>
-                                </div>
-                                <div class="col-12 col-md-3 mb-2">
                                     <label>پیش پرداخت(ریال)</label>
                                     <p class="form-control">{{number_format($item['prepayment']['price'])}}</p>
                                 </div>
@@ -264,7 +260,8 @@
                     </div>
                 </div>
                 @endif
-                @if($item['type'] == 1 && $item['status_mali'] != 0)
+                @if($item['type'] == 1)
+                @if($item['confirm'])
                 <div class="card">
                     <div class="card-header">
                         <a class="collapsed card-link" data-toggle="collapse" href="#collapseTwo">
@@ -395,11 +392,36 @@
                     </div>
                 </div>
                 @endif
+                <div class="card">
+                    <div class="card-header">
+                        <a class="collapsed card-link" data-toggle="collapse" href="#collapseContract">
+                            قرارداد
+                        </a>
+                    </div>
+                    <div id="collapseContract" class="collapse" data-parent="#accordion">
+                        <div class="card-body">
+                            <div class="card-body">
+                                @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
+                                @include('Admin.totalfactoritem.layouts.contractLoanCash')
+                                @else
+                                @include('Admin.totalfactoritem.layouts.contract')
+                                @endif
+                                <hr>
+                                @if($agents_contract_file)
+                                <h6>فایل قرارداد خدمات دهنده</h6>
+                                @foreach ($agents_contract_file as $contract_file)
+                                <a href="{{ $contract_file }}" class="btn btn-primary py-1 px-2"
+                                    target="_blank">مشاهده</a>
+                                @endforeach
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
-</div>
-</div>
 </div>
 @stop
 @section('js')

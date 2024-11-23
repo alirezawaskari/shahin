@@ -23,7 +23,7 @@ class PercentageAllocationEmployeeReportCollection extends ResourceCollection
                     'phone' => $item->user->phone,
                     'type' => $item->resaons()->first() ? $item->resaons()->first()::TYPE[$item->resaons()->first()->type] : 'ثبت نشده',
 					'item' => $item->resaons()->first() ? $item->resaons()->first()->percentageAllocationEmployeeable->title : 'ثبت نشده',
-                    'price' => number_format($item->price),
+                    'price' => $item->walletTransaction ? number_format($item->walletTransaction->price) : $item->price,
                     'description' => $item->description,
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setPerDelete(),

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class UserPerformance extends Model implements AuditableContract
@@ -93,6 +94,9 @@ class UserPerformance extends Model implements AuditableContract
         // if ( isset( $user ) && $user != 'all' ) {
         //     $query->where('user_id', $user);
         // }
+        $query->whereHas('walletTransaction', function ($query) {
+            $query->where( 'price' , '>' , 0 );
+        });
         if ( isset( $percentage_type ) && $percentage_type != 'all' ) {
             $query->whereHas('resaons', function ($query) use ($percentage_type) {
                 $query->where( 'type', 'LIKE', '%' . $percentage_type . '%' );
@@ -178,7 +182,7 @@ class UserPerformance extends Model implements AuditableContract
             'tax' => ( $user_performance_price * ( $user->employee->tax / 100) ),
             'ancillary_costs' => 0,
             'date' => $date,
-            'callcenter_id' => auth()->user()->id,
+            'callcenter_id' => Auth::check() ? Auth::id() : null,
             'user_id' => $user->id,
         ] );
 

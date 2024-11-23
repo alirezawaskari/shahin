@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\FactorItem;
 use Illuminate\Console\Command;
 use App\Classes\External\IranSms;
+use App\Models\Factor;
 use App\Models\Session;
 
 class RunQuery extends Command {
@@ -39,14 +40,25 @@ class RunQuery extends Command {
     */
 
     public function handle() {
-        $sessions = Session::whereNotNull('user_performance_id')->get();
-        foreach($sessions as $session)
+        $factors = Factor::where('task_id' , '!=' , null)->where('status' , 1)->where('created_at' , '>' , '2024-09-26')->get();
+        foreach($factors as $factor)
         {
-            $session->userPerformances()->syncWithoutDetaching([
-                'user_performance_id' => $session->user_performance_id,
-            ]);
+            if($factor->task && $factor->task->status == 1)
+            {
+                $factor->task->update( [
+                    'status' => 3,
+               ] );
+            }
         }
         dd('success');
+
+        // $sessions = Session::whereNotNull('user_performance_id')->get();
+        // foreach($sessions as $session)
+        // {
+        //     $session->userPerformances()->syncWithoutDetaching([
+        //         'user_performance_id' => $session->user_performance_id,
+        //     ]);
+        // }
         //close factorItems
         // $factor_items = FactorItem::whereIn( 'status_factor', [ 0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 14 ] )->take( 400 )->get();
         // foreach ( $factor_items as $factor_item ) {

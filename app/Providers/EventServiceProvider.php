@@ -13,6 +13,8 @@ use App\Events\factorItemStartWorking;
 use App\Events\factoritemClosing;
 use App\Events\smsSuccessRegisterPayment;
 use App\Events\ticketNotification;
+use App\Events\referralCenterNotification;
+use App\Events\registerRequestNotification;
 use App\Events\smsService;
 use App\Events\smsServiceSession;
 use App\Events\successFactor;
@@ -22,6 +24,8 @@ use App\Listeners\ExtensionSmsReminder;
 use App\Listeners\FactorItemActivationSMSNotificaion;
 use App\Listeners\FactorItemStartWorkingSMSNotificaion;
 use App\Listeners\FactorItemClosingSMSNotificaion;
+use App\Listeners\ReferralCenterSMSNotification;
+use App\Listeners\RegisterRequestSMSNotification;
 use App\Listeners\SendSmsCheckReminder;
 use App\Listeners\SendSmsSuccessRegisterPayment;
 use App\Listeners\TicketSMSNotification;
@@ -87,6 +91,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         ticketNotification::class => [
             TicketSMSNotification::class,
+        ],
+        referralCenterNotification::class => [
+            ReferralCenterSMSNotification::class,
+        ],
+        registerRequestNotification::class => [
+            RegisterRequestSMSNotification::class,
         ],
         smsSuccessRegisterPayment::class => [
             SendSmsSuccessRegisterPayment::class,

@@ -126,7 +126,7 @@
                             </tr>
                             <tr>
                                 <th scope="row">کد تخفیف اعمال شده</th>
-                                <td>{{ !is_null($factor->coupon_id) ? $factor->coupon->title .' - ' .$factor->discount .
+                                <td>{{ !is_null($factor->coupon_id) ? $factor->coupon->title .' - ' .$factor->coupon->discount .
                                     ' % ' : 'ثبت نشده'}}</td>
                             </tr>
                             <tr>

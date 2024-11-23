@@ -297,7 +297,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factorItem/update-product' , 'FactorItemController@updateProduct')->name('factorItem.updateProduct');
     Route::post('/factorItem/update-service-tariff' , 'FactorItemController@updateServiceTariff')->name('factorItem.updateServiceTariff');
     Route::get('/factorItem/expire', 'FactorItemController@expire');
-    Route::post('/factorItem/sendInitialLink', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
+    Route::post('/factorItem/sendInitialLink/{factorItem}', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
     Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
     Route::resource('factorItem', 'FactorItemController');
     Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
@@ -747,9 +747,9 @@ Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee
-Route::get('/employeeRegister', 'employeeController@showRegistrationForm')->name('employee.register');
-Route::post('/employeeRegister', 'employeeController@register');
-Route::get('/employeeRegister/check-user-is-register','employeeController@checkUserIsRegister');
+Route::get('/employeeRegister', 'EmployeeController@showRegistrationForm')->name('employee.register');
+Route::post('/employeeRegister', 'EmployeeController@register');
+Route::get('/employeeRegister/check-user-is-register','EmployeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
 //Factor

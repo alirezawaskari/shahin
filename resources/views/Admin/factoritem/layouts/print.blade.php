@@ -21,7 +21,7 @@
                 <h5>{{ $factorItem['center'] ? $factorItem['center']->title : '' }}</h5>
             </div>
             <div class="col-md-3 mt-3">
-                <img src="{{ asset('assets/dashboard/images/logo.png') }}" width="150px">
+                <img src="{{ asset('assets/dashboard/images/laleh_icon.png') }}" width="150px">
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@
             </div>
             @break
             @case('text')
-            <div class="col-12 col-md-3 mb-1">
+            <div class="col-3 mb-1">
                 <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
                 <input type="text" class="form-print" placeholder="{{ $form->placeholder }}"
                     value="{{ $user[$form->name] }}" disabled>
@@ -247,37 +247,37 @@
             </h4>
             <div class="row">
                 @if ($factorItem['type'] == 1 && $factorItem['confirm'])
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-3 mb-2">
                     <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
                     <p class="form-control">
                         {{ number_format($item['total_price'] +
                         (isset($item['price_difference']['total']) ?
                         $item['price_difference']['total'] : 0)) }} </p>
                 </div>
-                <div class="col-12 col-md-3 mb-2" data-toggle="tooltip" data-placement="bottom">
+                <div class="col-3 mb-2" data-toggle="tooltip" data-placement="bottom">
                     <label>مبلغ کل اعتبار پرونده(ریال)</label>
                     <p class="form-control border-success">
                         {{ number_format($item['total_price']) }} </p>
                 </div>
                 @else
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-3 mb-2">
                     <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
                     <p class="form-control">
                         {{ number_format($item['total_price']) }} </p>
                 </div>
                 @endif
                 @if($factorItem['type'] == 1)
-                <div class="col-12 col-md-2 mb-2">
+                <div class="col-2 mb-2">
                     <label>تعداد اقساط</label>
                     <p class="form-control">{{$item['installments_num']}}</p>
                 </div>
 
-                <div class="col-12 col-md-2 mb-2">
+                <div class="col-2 mb-2">
                     <label>پیش پرداخت(ریال)</label>
                     <p class="form-control">{{number_format($item['prepayment']['price'])}}</p>
                 </div>
 
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-3 mb-2">
                     <label>تعداد مراحل پرداخت پیش پرداخت</label>
                     <p class="form-control">{{ isset($item['prepayment']['num']) ? $item['prepayment']['num'] : 1}}
                     </p>
@@ -292,7 +292,7 @@
             @if (in_array('panel_print_form' , $form->data_display_level))
             @switch($form->type)
             @case('confirm')
-            <div class="col-12 col-md-3">
+            <div class="col-3">
                 <div class="card border-contract p-2 text-center">
                     @if(isset($factorItem['factor_values'][$form->name]) && $factorItem['factor_values'][$form->name] !=
                     "")
@@ -359,7 +359,7 @@
             <div class="success-overly position-absolute mx-3"></div>
         </div>
         @endif
-        <div class="col-12 col-md-4">
+        <div class="col-4">
             <div class="card border-contract p-2 text-center">
                 @if(isset($user->imgsignature))
                 <a href="{{ asset($user->imgsignature) }}" target="_blank">

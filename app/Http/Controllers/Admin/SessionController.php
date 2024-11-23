@@ -226,10 +226,13 @@ class SessionController extends Controller {
         }
 
         $factor_item = $session->factorItem;
-        $factor_item->update( [
-            'status_factor' => !$factor_item->type || $factor_item->status_factor == 10 ? 6 : $factor_item->status_factor,
-        ] );
-
+        if($factor_item->type == 0 || $factor_item->status_factor == 10)
+        {
+            $factor_item->update( [
+                'status_factor' => 6,
+                'confirm' => 1 
+            ] );
+        }
         $arr = array( 'msg' => 'باموفقیت ثبت شد', 'status' => true);
         return Response()->json( $arr );
     }

@@ -1,15 +1,15 @@
 <div id="printableAreaContract" class="bg-white">
-    <div class="border-contract pr-5 pb-4 mb-4" style="text-align: justify;">
+    <div class="border-contract pr-5 pb-4 mb-4">
         <div class="row">
-            <div class="col-md-3 mt-4">
+            <div class="col-3 mt-4">
                 <p> تاریخ : {{ $item[ 'start_date' ] }} </p>
                 <p> شماره قرارداد : {{ $totalFactorItem->id }} </p>
             </div>
-            <div class="col-md-6 mt-4 text-center">
+            <div class="col-6 mt-4 text-center">
                 <h3> خدمات رفاهی لاله</h3>
                 <h5>قرارداد مالی و اصلی بین خدمات گیرنده و شرکت</h5>
             </div>
-            <div class="col-md-3 mt-3">
+            <div class="col-3 mt-3">
                 <img src="{{ asset('assets/dashboard/images/laleh_icon.png') }}" width="150px">
             </div>
         </div>

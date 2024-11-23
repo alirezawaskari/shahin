@@ -356,9 +356,9 @@
                 @include('Admin.totalfactoritem.show.basicDocument')
             </div>
             <div class="tab-pane fade p-t-20" id="consultationReferral" role="tabpanel" aria-labelledby="consultation-referral-tab">
-                @foreach ($items as $key => $factor_item)
+                @foreach ($items as $key => $supervisor_factor_item)
                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
-                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
+                    @foreach ($supervisor_factor_item['factorItems'] as $count => $factorItem)
                     <li class="nav-item">
                         <a class="nav-link show {{ $count == 0 ? 'active' : ''}}" onclick="consultationReferralAppend('consultation_referral_collection_{{$count}}')" id="consultation-referral-{{ $count }}-tab"
                             data-toggle="tab" href="#consultation_referral_collection_{{ $count }}" role="tab"
@@ -367,7 +367,7 @@
                     @endforeach
                 </ul>
                 <div class="tab-content border p-4" id="myTabContent">
-                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
+                    @foreach ($supervisor_factor_item['factorItems'] as $count => $factorItem)
                     <div class="tab-pane fade p-t-20 {{ $count == 0 ? 'show active' : ''}} " id="consultation_referral_collection_{{ $count }}"
                         role="tabpanel" aria-labelledby="consultationReferral-{{ $count }}-tab">
                         @include('Admin.totalfactoritem.show.determineCentering')

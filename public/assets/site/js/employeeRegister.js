@@ -23,7 +23,7 @@ $(document).ready(function () {
         var formData = form.serialize();
         $.ajax({
             type: "GET",
-            url: "/employeeRegister/check-user-is-register",
+            url: "/register/check-user-is-register",
             data: formData,
             dataType: "json",
             encode: true,
@@ -41,11 +41,6 @@ $(document).ready(function () {
               $('#pass').val();
               $('.phone').val(phone);
           }
-          if(data.data.message != "")
-          {
-            toastr.error(data.data.message);
-          }
-
         });
         }
         event.preventDefault();
