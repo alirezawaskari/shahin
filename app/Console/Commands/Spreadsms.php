@@ -42,7 +42,7 @@ class Spreadsms extends Command {
 
     public function handle() {
         //allocate of received SMS messages that have not been allocated before to users that there is their sms_code in the sms text
-        $user_marketers = User::whereNotNull( 'sms_code' )->get();
+        $user_marketers = User::whereNotNull( 'sms_code' )->where('level' , 'admin')->get();
         if ( count( $user_marketers ) > 0 ) {
             foreach ( $user_marketers as $user_marketer ) {
                 $sms = sms::whereStatus( false )->whereIn( 'body', $user_marketer->sms_code )->get();
@@ -55,7 +55,7 @@ class Spreadsms extends Command {
             }
         }
         //allocate of received SMS messages that have not been allocated before to representations that there is their sms_code in the sms text
-        $representations = Representation::whereNotNull( 'sms_code' )->get();
+        $representations = Representation::whereNotNull( 'sms_code' )->where('status' , true)->get();
         if ( count( $representations ) > 0 ) {
             foreach ( $representations as $representation ) {
                 $sms = sms::whereStatus( false )->whereIn( 'body', $representation->sms_code )->get();
