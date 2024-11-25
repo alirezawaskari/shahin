@@ -100,7 +100,7 @@ class RegisterController extends Controller
             $admin_users = User::where( 'level', 'admin' )->where( 'id', '!=', $last_user->id )->where( 'admin_representation_id', null )->get();
         }
         foreach ( $admin_users as $u ) {
-            if ( $u->hasRole( 'callcenter' ) ) {
+            if ( $u->hasPermission('get_new_task') ) {
                 $callcenterusers[] = $u;
             }
         }

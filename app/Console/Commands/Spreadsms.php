@@ -62,8 +62,8 @@ class Spreadsms extends Command {
                 $users = User::where( 'level', 'admin' )->where( 'admin_representation_id', $representation->id )->get();
                 $callcenterusers = [];
                 foreach ( $users as $user ) {
-                    if ( $user->hasRole( 'callcenter' ) ) {
-                        array_push( $callcenterusers, $user );
+                    if ($user->hasPermission('get_new_task')) {
+                        array_push($callcenterusers, $user);
                     }
                 }
                 self::spread( $sms, count( $callcenterusers ) > 0 ? $callcenterusers : $users );
@@ -74,8 +74,8 @@ class Spreadsms extends Command {
         $users = User::where( 'level', 'admin' )->where( 'admin_representation_id', null )->get();
         $callcenterusers = [];
         foreach ( $users as $user ) {
-            if ( $user->hasRole( 'callcenter' ) ) {
-                array_push( $callcenterusers, $user );
+            if ($user->hasPermission('get_new_task')) {
+                array_push($callcenterusers, $user);
             }
         }
         self::spread( $sms, $callcenterusers );
