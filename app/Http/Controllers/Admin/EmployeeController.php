@@ -133,6 +133,14 @@ class EmployeeController extends AdminController
         }
         if(isset($inputs['employee']))
         {
+            $validate= Validator::make($inputs, [
+                'sales_commitment' => 'numeric|min:0',
+            ]);
+            if ($validate->fails()){
+                return redirect()->back()->with([
+                    'failByMessage' => $validate->errors()->all(),
+                ]);
+            }
             $user->employee->update($employee_items);
             unset($inputs['employee']);
         }

@@ -20,6 +20,7 @@ class CreateEmployeesTable extends Migration
         $table->foreign('center_id')->references('id')->on('centers')->onDelete('cascade');
 		$table->integer('status')->default('1');
 		$table->integer('show_status')->default('1');
+        $table->integer('sales_commitment')->nullable()->default(NULL);
 		$table->integer('tax')->default('10');
 		$table->integer('percent')->default('50');
 		$table->bigInteger('guarantee')->default('0');

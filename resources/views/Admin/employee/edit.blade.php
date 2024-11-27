@@ -215,6 +215,10 @@
                             <input value="{{ $employee->blocked_percentage }}" type="text" name="employee[blocked_percentage]" class="form-control">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
+                            <label>تعهد فروش (براساس روز)</label>
+                            <input value="{{ $employee->sales_commitment }}" type="number" min="0" name="employee[sales_commitment]" class="form-control">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
                             <label>دارای ضمانت</label>
                             <select class="form-control" name="employee[guarantee]">
                                 <option value="1" {{ $employee->guarantee == true ? 'selected' : '' }}>
