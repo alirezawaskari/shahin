@@ -199,7 +199,7 @@ class UserController extends AdminController
         }
         if($user->level == 'admin')
         {
-            $employee = Employee::firstOrCreate(['user_id' => $user->id]);
+            $employee = Employee::firstOrCreate(['user_id' => $user->id , 'contract_start_date' => now()]);
             $employee->update(['status'=>1]);
         }
         if ($request->level != 'admin' && $user->employee()->exists() &&  $user->employee->status != 0 ){
