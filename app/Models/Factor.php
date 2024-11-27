@@ -567,6 +567,7 @@ class Factor extends Model implements AuditableContract
         switch ($item->title) {
             case 'register':
                 self::createAttributes($item);
+                self::setPercentageAllocationEmployee($item);
                 self::closeSimilars($item);
                 self::factorTaskChenge($item);
                 self::setFactorItemRepresentation($item);
@@ -625,8 +626,6 @@ class Factor extends Model implements AuditableContract
     private static function createAttributes(Factor $item)
     {
         $item->factorItems->map(function ($factor_item) {
-            //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->factor->price , now() , null);
             if (!$factor_item->property()->exists()) {
                 $factor_item->property()->create();
             }
@@ -637,6 +636,18 @@ class Factor extends Model implements AuditableContract
                 $item->totalFactorItemReg->property()->create();
             }
         }
+    }
+     /**
+     * @param Factor $item
+     * @return void
+     * set emplloyee performance from percentageAllocation employee
+     */
+    private static function setPercentageAllocationEmployee(Factor $item)
+    {
+        $item->factorItems->map(function ($factor_item) {
+            //set emplloyee performance from percentageAllocation employee
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->factor->price , now() , null);
+        });
     }
     /**
      * @param Factor $item
