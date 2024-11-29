@@ -48,12 +48,28 @@
                 <label>تلفن تماس (ثابت):</label>
                 <input value="{{$employee->user->call}}" name="call" class="form-control">
             </div>
-            <div class="col-md-6 mb-2">
+            <div class="col-md-3 mb-2">
                 <label>*سابقه بیمه</label>
                 <input
                     value="{{isset($employee->resume_detail['bime_history']) ? $employee->resume_detail['bime_history'] : ''}}"
                     type="number" name="bime_history" class="form-control" min="0" value="0"
                     placeholder="سابقه بیمه(درصورت داشتن بیمه براساس ماه)" required>
+            </div>
+            <div class="col-md-12 form-check form-check-inline mb-2">
+                <p>* مشمول دریافت حق بیمه بیکاری :</p>
+                <input type="radio" id="" name="unemployment_insurance" value="1"
+                    {{isset($employee->resume_detail['unemployment_insurance']) &&
+                $employee->resume_detail['unemployment_insurance'] == "1" ? 'checked' : ''}} required>
+                <label for="html"> می باشم </label><br>
+                <input type="radio" id="" name="unemployment_insurance" value="0"
+                    {{isset($employee->resume_detail['unemployment_insurance']) &&
+                $employee->resume_detail['unemployment_insurance'] == "0" ? 'checked' : ''}} required>
+                <label for=" "> نمی باشم </label><br>
+            </div>
+            <div class="col-md-12">
+                <label>درصورت دریافت حق بیمه بیکاری شغل تمام وقت را نمیخواهم:</label>
+                <input name="accept_unemployment_insurance" {{isset($employee->resume_detail['accept_unemployment_insurance']) ? 'checked' : ''}}
+                value="بله" type="checkbox">
             </div>
             <div class="col-md-6 mb-2">
                 <label>نوع شغل درخواستی</label>

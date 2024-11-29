@@ -427,7 +427,10 @@ class EmployeeController extends AdminController
                 "relative_family_type" => $request->input('relative_family_type'),
                 "relative_family_name" => $request->input('relative_family_name'),
                 "relative_family_part" => $request->input('relative_family_part'),
-                "accept_rules" => $request->input('accept_rules')
+                "accept_rules" => $request->input('accept_rules'),
+                "unemployment_insurance" => $request->input('unemployment_insurance'),
+                "accept_unemployment_insurance" => $request->input('accept_unemployment_insurance'),
+
             ]
         ]);
     }
