@@ -27,7 +27,7 @@ class CreateSessionsTable extends Migration
 		$table->integer('user_performance_id')->nullable()->default(NULL);
         $table->foreign('user_performance_id')->references('id')->on('user_performances')->onDelete('cascade');
 		$table->bigInteger('laboratory_price')->default(0);
-		$table->timestamp('date')->nullable()->default(NULL);
+		$table->timestamp('date')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
 		$table->text('description_before')->nullable()->default(NULL);
 		$table->text('description')->nullable()->default(NULL);
 		$table->integer('status')->default(0);
