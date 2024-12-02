@@ -669,6 +669,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
     Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
     Route::resource('groupsms', 'GroupsmsController');
+    Route::get('/gettingIncomingSms', 'SMSController@gettingIncomingSms');
+
     //safe box
     Route::resource('safeBox', 'SafeBoxController');
     //phone & newsletter
