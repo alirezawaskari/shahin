@@ -148,7 +148,7 @@ class FactorItemController extends Controller {
             $factor_items = FactorItem::where( 'status_factor', 10 )->filter();
         }
         elseif (auth()->user()->isAbleTo('file-desktop')){
-            $factor_items = FactorItem::whereIn( 'status_factor', array(0,4,14) )->where('supporter_id', auth()->user()->id)->filter();
+            $factor_items = FactorItem::whereIn( 'status_factor', array(0,2,4,14) )->where('supporter_id', auth()->user()->id)->filter();
         }
         if (auth()->user()->hasPermission('factor_item_referral_to_center'))
         {
