@@ -84,6 +84,7 @@
                     @permission('system-income')
                     <li><a href="{{ route('system.income') }}">درآمد ماهانه و سالانه سیستم</a></li>
                     @endpermission
+                    @permission('treasury-calendar|list-check|list-promissory')
                     <li><a href="#"><i class="icon ti-control-record"></i> <span>خزانه</span> </a>
                         <ul>
                             @permission('treasury-calendar')
@@ -97,6 +98,7 @@
                             @endpermission
                         </ul>
                     </li>
+                    @endpermission
                     @permission('factor-deleted-list')
                     <li><a href="{{ route('factor.delete') }}"><i class="icon ti-control-record"></i> <span>سطل
                                 زباله</span> </a>
