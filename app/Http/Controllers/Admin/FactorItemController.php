@@ -1423,7 +1423,7 @@ class FactorItemController extends Controller {
             ] );
         }
         $factor_item->update( [
-            'status_factor' => 14,
+            'status_factor' => 2,
         ] );
         return redirect()->back()->with( [
             'update' => 'success'
