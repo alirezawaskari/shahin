@@ -50,9 +50,9 @@ return [
     ],
 
     'neginSms' => [
-        'portalcode' => '',
+        'portalcode' => '10002239',
     ],
-    
+
     'emta' => [
         'client_id' => 'E4A4D3E4-B5AC-498C-BAD3-59BD955431E5',
         'secret_id' => 'C9DD48373FB440A5A9D0875F720A3B20',

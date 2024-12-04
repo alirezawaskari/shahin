@@ -130,6 +130,8 @@ Route::group([], function () {
     });
 });
 
+Route::get('/gettingIncomingSms', '\App\Http\Controllers\Admin\SMSController@gettingIncomingSms');
+
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
@@ -669,7 +671,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
     Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
     Route::resource('groupsms', 'GroupsmsController');
-    Route::get('/gettingIncomingSms', 'SMSController@gettingIncomingSms');
 
     //safe box
     Route::resource('safeBox', 'SafeBoxController');

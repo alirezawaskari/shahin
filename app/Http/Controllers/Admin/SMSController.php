@@ -6,6 +6,7 @@ use App\Classes\External\IranSms;
 use App\Models\sms;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class SMSController extends Controller
 {
@@ -106,12 +107,32 @@ class SMSController extends Controller
      */
     public function gettingIncomingSms(Request $request)
     {
+        sms::create([
+            'recipient_number' => $request->smsNumber,
+            'sender_number' => $request->from,
+            'body' => trim($request->body),
+            'date' => now(),
+            'status' => 0,
+        ]);
+        return response([
+            'operator' => true,
+            'status'=>'success',
+            'messages'=>'پیامک با موفقیت ثبت شد .'
+        ]);
         if($request->portalcode == config('sesvices.neginSms.portalcode'))
         {
+            $validation = Validator::make($request->all(), [
+                'smsNumber' => 'required',
+                'from' => 'required',
+                'body' => 'required',
+            ]);
+            if ($validation->fails()){
+                return response(['status'=>'error','messages'=>$validation->messages()->all()]);
+            }
             sms::create([
                 'recipient_number' => $request->smsNumber,
                 'sender_number' => $request->from,
-                'body' => trim($request->Body),
+                'body' => trim($request->body),
                 'date' => now(),
                 'status' => 0,
             ]);
