@@ -375,6 +375,7 @@ class TotalFactorItem extends Model implements AuditableContract
             '13' => 'منتظر تایید امور قراردادها',
             '14' => 'منتظر تایید پشتیبان',
             '15' =>'پرونده مختومه',
+            '18' => 'منتظر تایید قرارداد توسط کاربر',
             'null' => 'تعیین نشده',
         ][$status_factor];
     }
