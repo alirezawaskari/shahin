@@ -242,7 +242,7 @@ class Callcenter extends Model implements AuditableContract
                 });
             })->orWhereHas('services',function ($query)use($serviceCategory){
                 $query->whereIn('callcenterable_id',$serviceCategory->services->pluck('id')->toArray());
-            })->whereHas('register' , function ($query) use ($serviceCategory) {
+            })->orWhereHas('register' , function ($query) use ($serviceCategory) {
                 $query->whereIn('service_id', $serviceCategory->services->pluck('id')->toArray());
             });
         });
