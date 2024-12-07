@@ -89,9 +89,6 @@
                                             <br>
                                             چک <input type="radio" {{$item['guarantee_type']=='check' ?'checked':''}}
                                                 name="items[{{ $key }}][guarantee_type]" value="check">
-                                            گواهی کسراز حقوق <input type="radio"
-                                                {{$item['guarantee_type']=='certificate' ?'checked':''}}
-                                                name="items[{{ $key }}][guarantee_type]" value="certificate">
                                             سفته <input type="radio" {{$item['guarantee_type']=='promissorynote'
                                                 ?'checked':''}} name="items[{{ $key }}][guarantee_type]"
                                                 value="promissorynote">
