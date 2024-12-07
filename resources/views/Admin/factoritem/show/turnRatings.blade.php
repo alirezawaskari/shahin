@@ -24,6 +24,13 @@
                     <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
                     <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
                 </div>
+                <div class="col-12 mb-3">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="turnRatingsCheck" checked="" name="check">
+                        <label class="custom-control-label" for="turnRatingsCheck">زمان مراجعه برای کاربر
+                            پیامک شود.</label>
+                    </div>
+                </div>
             </div>
             @if(!auth()->user()->center_id)
             <div class="col-12 col-md-4 mb-2">
@@ -48,13 +55,7 @@
                     محترم توجه داشته باشید که توضیحات ثبت شده توسط شما به مرکز انتخابی نمایش داده میشود.</p>
 
             </div>
-            <div class="col-12 mb-3">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="turnRatingsCheck" checked="" name="check">
-                    <label class="custom-control-label" for="turnRatingsCheck">زمان مراجعه برای کاربر
-                        پیامک شود.</label>
-                </div>
-            </div>
+
             <div class="col-12 col-md-12 mb-2 mt-auto">
                 <button type="submit" class="btn btn-success">ثبت</button>
             </div>

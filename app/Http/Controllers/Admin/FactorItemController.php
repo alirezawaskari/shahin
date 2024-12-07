@@ -215,7 +215,7 @@ class FactorItemController extends Controller {
            ]);
         }
         //send sms to the user
-        if ( $request->check ) {
+        if ( $request->check && isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ) {
             event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
         }
         if($factor_item->center->representation_id)
