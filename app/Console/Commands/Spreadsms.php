@@ -92,13 +92,13 @@ class Spreadsms extends Command {
             if ( count( $sms ) >= count( $callcenters ) ) {
                 $size = ( integer )round( count( $sms ) / count( $callcenters ) );
                 $items = array_chunk( $sms->toArray(), $size, true );
-
                 foreach ( $callcenters as $key => $call ) {
                     foreach ( $items[ $key ] as $i ) {
                         $smsitem = ( object )$i;
+                        $sms_body_type_numberic = var_dump(is_numeric($smsitem->body));
                         $task = Callcenter::create( [
                             'sms_id' => $smsitem->id,
-                            'user_id' => $call->id,
+                            'user_id' => $sms_body_type_numberic ? $call->id : 63,
                             'type' => 1,
                             'status' => '0',
                             'representation_id' => !is_null( $call->admin_representation_id ) ? $call->admin_representation_id : null,
@@ -120,9 +120,10 @@ class Spreadsms extends Command {
                 foreach ( $sms as $key => $s ) {
                     $number = rand( 0, count( $callcenters ) );
                     $user = $callcenters[ $number == 0 ? 0 : $number - 1 ];
+                    $sms_body_type_numberic = var_dump(is_numeric($s->body));
                     $task = Callcenter::create( [
                         'sms_id' => $s->id,
-                        'user_id' => $user->id,
+                        'user_id' => $sms_body_type_numberic ? $user->id : 63,
                         'type' => 1,
                         'status' => '0',
                         'representation_id' => !is_null( $user->admin_representation_id ) ? $user->admin_representation_id : null,
