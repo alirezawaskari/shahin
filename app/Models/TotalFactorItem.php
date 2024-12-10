@@ -361,7 +361,7 @@ class TotalFactorItem extends Model implements AuditableContract
         return [
             '0' => 'جدید',
             '1' => 'تاییدیه پشتیبان',
-            '2' => 'مشاوره',
+            '2' => 'مشاوره شد',
             '3' =>  'تعلیق پشتیبان',
             '4' => 'منتظر تکمیل مدارک',
             '5' => 'منتظر تایید مالی',

@@ -60,7 +60,7 @@
 @endif
 @permission('supporter_confirmation')
 <div class="mt-3">
-    @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+    @if (in_array(trim($factorItem['status_factor']) , [0,2,4,14]) )
     <form action="{{ route('factorItem.startWork' , [$factorItem['resnumber']]) }}" method="POST" enctype="multipart/form-data">
         @csrf
         <button class="btn btn-danger mr-2 mb-3">تایید پشتیبان</button>

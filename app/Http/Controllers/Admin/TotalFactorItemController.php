@@ -436,13 +436,13 @@ class TotalFactorItemController extends Controller
             $factor_values = Arr::add($values, 'consulting_contract_affairs', auth()->user()->id);
             $totalFactorItem->update([
                 'factor_values' => $factor_values,
-                'total_factor_item_status_id' => 17
+                'total_factor_item_status_id' => 18
             ]);
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
                 $fator_item_collections->update([
-                    'status_factor' => 17
+                    'status_factor' => 18
                 ]);
             }
 

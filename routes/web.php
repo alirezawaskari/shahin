@@ -773,6 +773,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/wallet', 'ProfileController@wallet')->name('profile.wallet');
     Route::get('/profile/factor', 'ProfileController@factor')->name('profile.factor');
     Route::get('/profile/factorItem', 'ProfileController@factorItem')->name('profile.factorItem');
+    Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
+    Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
+
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');
     Route::get('/profile/notifications/read', 'ProfileController@notifications_read')->name('profile.notifications.read');
