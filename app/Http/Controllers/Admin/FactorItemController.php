@@ -174,14 +174,16 @@ class FactorItemController extends Controller {
             'center_id' => 'required',
         ]);
         if ($validate->fails()){
-            alert()->error(implode(" | ", $validate->errors()->all())
-            , 'عملیات ناموفق ')->persistent('باشه');
-            return redirect()->back();
+            return redirect()->back()->with( [
+                'failByMessage' => implode(" | ", $validate->errors()->all())
+                , 'عملیات ناموفق '
+            ] );
         }
         // check factorItem have serviceTariff or not
         if ($factor_item->serviceTariffs()->exists()){
-            alert()->error(' جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .', 'عملیات ناموفق ')->persistent('باشه');
-            return redirect()->back();
+            return redirect()->back()->with( [
+                'failByMessage' => 'جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .'
+            ] );
         }
         // unselected center
         if($request->center_id == null)
@@ -190,8 +192,9 @@ class FactorItemController extends Controller {
                 'center_id' =>  $request->center_id ,
                 'status_factor' => 14,
             ] );
-            alert()->success('مرکز تعیین شده با موفقیت حذف گردید.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
-            return redirect()->back();
+            return redirect()->back()->with( [
+                'successByMessage' => 'مرکز تعیین شده با موفقیت حذف گردید.'
+            ] );
         }
         //close older sessions
         Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
@@ -224,8 +227,9 @@ class FactorItemController extends Controller {
         }
         //send sms to the center manager
         event(new referralCenterNotification($factor_item->center));
-        alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
-        return redirect()->back();
+        return redirect()->back()->with( [
+            'successByMessage' => 'پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.'
+        ] );
     }
     /**
      * @param Request $request
