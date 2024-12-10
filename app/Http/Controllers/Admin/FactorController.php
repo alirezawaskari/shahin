@@ -243,6 +243,9 @@ class FactorController extends Controller
         elseif($request->status != 1 && $factor->status == 1 )
         {
             Factor::returnPaymentBydeleteFactor($factor);
+            $factor->update([
+                'status' => $request->status,
+            ]);
             $message = 'با موفقیت ثبت شد';
             $status = 'success';
         }
