@@ -19,12 +19,12 @@ $(document).ready(function () {
                             }
                         }
                     });
-                    if ($('#type_consultation_online').is(':checked')) {
-                        $('.divDate').css('display', 'none');
-                    }
                 }
             });
     });
+    if ($('#type_consultation_online').is(':checked')) {
+        $('.divDate').css('display', 'none');
+    }
     $('#select_type_consultation').on('change', function () {
         if ($('#select_type_consultation').val() == 'inPerson') {
             $('.divDate').css('display', 'block');
@@ -95,25 +95,25 @@ $(document).ready(function () {
                 { "data": "name" },
                 { "data": "discription" },
                 { "data": "date" },
-                {
-                    "data": data,
-                    "render": function (data){
-                        if (data.entry_start != null && data.entry_end == null){
-                            return `<i class="fa fa-certificate" style="color: #08f108;  text-shadow: 0 0 10px #10e8e1;" aria-hidden="true"></i>`
-                        }else if (data.entry_start != null && data.entry_end != null){
-                            return `<span role="button" data-id="${data.id}" class="fa fa-caret-square-o-down entry-inserted" aria-hidden="true" style=" cursor: pointer;">
-                                <div class="entry-data-box-${data.id}" style="display: none;width: 200px" >
-                                <span class="text-dark">ورود: </span><span >${data.entry_start} </span>
-                                        <hr>
-                                    <span class="text-dark">خروج: </span><span >${data.entry_end}</span>
-                                </div>
-                                </span>
-                                `
-                        }else {
-                            return ``;
-                        }
-                    }
-                },
+                // {
+                //     "data": data,
+                //     "render": function (data){
+                //         if (data.entry_start != null && data.entry_end == null){
+                //             return `<i class="fa fa-certificate" style="color: #08f108;  text-shadow: 0 0 10px #10e8e1;" aria-hidden="true"></i>`
+                //         }else if (data.entry_start != null && data.entry_end != null){
+                //             return `<span role="button" data-id="${data.id}" class="fa fa-caret-square-o-down entry-inserted" aria-hidden="true" style=" cursor: pointer;">
+                //                 <div class="entry-data-box-${data.id}" style="display: none;width: 200px" >
+                //                 <span class="text-dark">ورود: </span><span >${data.entry_start} </span>
+                //                         <hr>
+                //                     <span class="text-dark">خروج: </span><span >${data.entry_end}</span>
+                //                 </div>
+                //                 </span>
+                //                 `
+                //         }else {
+                //             return ``;
+                //         }
+                //     }
+                // },
                 {
                     "targets": 2,
                     "data": "status",

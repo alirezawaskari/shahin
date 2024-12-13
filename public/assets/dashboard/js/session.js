@@ -63,44 +63,44 @@ $(document).ready(function () {
                                 </button>`:''
                     }
                 },
-                {
-                    "data": data,
-                    "render": function (data){
-                        if (data.entry_start == null && data.status == 'پیش جلسه' ){
-                            return `<button type="button" class="btn btn-sm  start-user-session-entry" data-id="${data.id}" data-date="${data.date}">
-                            <i class="fa fa-play" aria-hidden="true"></i> </button>`
-                        }else if(data.entry_start != null && data.entry_end == null && false) {
-                            return `<button type="button" class="btn btn-sm  end-user-session-entry"  data-id="${data.id}">
-                                <span><i class="fa fa-stop" aria-hidden="true"></i>
-                                </span></button>`
-                        }else {
-                            return ``
-                        }
+                // {
+                //     "data": data,
+                //     "render": function (data){
+                //         if (data.entry_start == null && data.status == 'پیش جلسه' ){
+                //             return `<button type="button" class="btn btn-sm  start-user-session-entry" data-id="${data.id}" data-date="${data.date}">
+                //             <i class="fa fa-play" aria-hidden="true"></i> </button>`
+                //         }else if(data.entry_start != null && data.entry_end == null && false) {
+                //             return `<button type="button" class="btn btn-sm  end-user-session-entry"  data-id="${data.id}">
+                //                 <span><i class="fa fa-stop" aria-hidden="true"></i>
+                //                 </span></button>`
+                //         }else {
+                //             return ``
+                //         }
 
-                    }
-                },
+                //     }
+                // },
                 { "data": "user" },
                 { "data": "confirmer" },
                 { "data": "date" },
-                {
-                    "data": data,
-                    "render": function (data){
-                        if (data.entry_start != null && data.entry_end == null){
-                            return `<i class="fa fa-certificate" style="color: #08f108;  text-shadow: 0 0 10px #10e8e1;" aria-hidden="true"></i>`
-                        }else if (data.entry_start != null && data.entry_end != null){
-                            return `<span role="button" data-id="${data.id}" class="fa fa-caret-square-o-down entry-inserted" aria-hidden="true" style=" cursor: pointer;">
-                                <div class="entry-data-box-${data.id}" style="display: none;width: 200px" >
-                                <span class="text-dark">ورود: </span><span >${data.entry_start} </span>
-                                        <hr>
-                                    <span class="text-dark">خروج: </span><span >${data.entry_end}</span>
-                                </div>
-                                </span>
-                                `
-                        }else {
-                            return ``;
-                        }
-                    }
-                },
+                // {
+                //     "data": data,
+                //     "render": function (data){
+                //         if (data.entry_start != null && data.entry_end == null){
+                //             return `<i class="fa fa-certificate" style="color: #08f108;  text-shadow: 0 0 10px #10e8e1;" aria-hidden="true"></i>`
+                //         }else if (data.entry_start != null && data.entry_end != null){
+                //             return `<span role="button" data-id="${data.id}" class="fa fa-caret-square-o-down entry-inserted" aria-hidden="true" style=" cursor: pointer;">
+                //                 <div class="entry-data-box-${data.id}" style="display: none;width: 200px" >
+                //                 <span class="text-dark">ورود: </span><span >${data.entry_start} </span>
+                //                         <hr>
+                //                     <span class="text-dark">خروج: </span><span >${data.entry_end}</span>
+                //                 </div>
+                //                 </span>
+                //                 `
+                //         }else {
+                //             return ``;
+                //         }
+                //     }
+                // },
                 {
                     "targets": 2,
                     "data": "status",
