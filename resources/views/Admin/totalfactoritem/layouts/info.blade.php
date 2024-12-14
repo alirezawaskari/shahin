@@ -3,7 +3,7 @@
         <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
             پیگیری</span>
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
-        @if (in_array(trim($item['status']) , [0,4,14]) )
+        @if (in_array(trim($item['status']) , [0,3,4,14]) )
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">

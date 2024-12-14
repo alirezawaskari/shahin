@@ -42,7 +42,7 @@
                 </div>
                 @endif
                 <div class="mt-3">
-                    @if (in_array(trim($factorItem['status_factor']) , [0,4,14,16]) )
+                    @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14,16]) )
                     @include('Admin.factoritem.show.turnRatings')
                     @endif
                 </div>
@@ -52,7 +52,7 @@
 </div>
 <span class="btn btn-primary py-1 px-2 text-white mt-4" data-toggle="modal" data-target="#linkModal">ارسال لینک
     پرداخت</span>
-@if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+@if (in_array(trim($factorItem['status_factor']) , [0,3,4,14]) )
 <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
         class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به کارشناسی</span></a>
 

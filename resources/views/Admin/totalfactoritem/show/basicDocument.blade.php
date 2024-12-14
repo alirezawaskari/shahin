@@ -63,7 +63,7 @@
                         {{-- @if (in_array(trim($factor_item['status_factor']) , [0,4,14,16]) )
                         @include('Admin.factoritem.show.turnRatings')
                         @endif --}}
-                        @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+                        @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14]) )
                         <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
                                 class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به کارشناسی</span></a>
                         @endif
@@ -269,7 +269,7 @@
     @method('PATCH')
     <input type="hidden" name="type" value="confirm">
     @permission('supporter_confirmation')
-    @if (in_array(trim($item['status']) , [0,4,14]) )
+    @if (in_array(trim($item['status']) , [0,3,4,14]) )
     <p class="text-warning col-12"> همکار محترم تایید مدارک به منظور تایید
         پرونده از جانب شما و ارسال پرونده برای تایید امورتسهیلات می‌باشد.</p>
     <button class="btn btn-success">تایید و ارجاع به امور تسهیلات</button>
