@@ -149,7 +149,7 @@ class Helper {
         $histories = [];
         $histories_sort = [];
         //callcenter historeies
-        if ( $user->isAbleTo( 'history-callcenter' ) ) {
+        if ( $user->isAbleTo( 'history-callcenter' ) || $user->isAbleTo( 'employee-related-history' ) ) {
             if ( isset( $register->callcenters ) )
             {
                 foreach ( $register->callcenters as $task ) {
@@ -158,7 +158,7 @@ class Helper {
             }
         }
         //factor historeies
-        if ( $user->isAbleTo( 'history-factor' ) ) {
+        if ( $user->isAbleTo( 'history-factor' ) || $user->isAbleTo( 'employee-related-history' )) {
             if ( isset( $register->factors ) )
             {
                 foreach ( $register->factors as $factor ) {
@@ -175,7 +175,7 @@ class Helper {
             }
         }
         //agency historeies
-        if (isset($register->phone) && $user->isAbleTo( 'history-agency' ) ) {
+        if (isset($register->phone) && ($user->isAbleTo( 'history-agency' ) || $user->isAbleTo( 'employee-related-history' )) ) {
             $agencies = Agency::where( 'phone', $register->phone )->get();
             if ( $agencies )
             {
@@ -186,7 +186,7 @@ class Helper {
             }
         }
         //resume historeies
-        if (isset($register->phone) && $user->isAbleTo( 'history-resume' ) ) {
+        if (isset($register->phone) && ($user->isAbleTo( 'history-resume' ) || $user->isAbleTo( 'employee-related-history' ))) {
             $resumes = Resume::where( 'phone', $register->phone )->get();
             if ($resumes)
             {
@@ -196,6 +196,11 @@ class Helper {
             }
         }
 
+        //employee related historeies
+        if ($user->isAbleTo( 'employee-related-history' ) )
+        {
+            $histories = collect( $histories )->where( 'user_id' , auth()->user()->id );
+        }
         $histories = collect( $histories )->sortBy( 'created_at' )->reverse()->toArray();
         $number=1;
         foreach ( $histories as $history ) {
@@ -213,6 +218,7 @@ class Helper {
     public static function historyCollection($histories , $item_histories) {
         foreach ( $item_histories as $history ) {
             $histories[] = [
+                'user_id' => $history->user_id ? $history->user_id : 'ثبت نشده',
                 'user' => $history->user ? ($history->user[ 'name' ] . ' ' . $history->user[ 'family' ]) : 'ثبت نشده',
                 'callcenter' => $history->callcenter ? ($history->callcenter[ 'name' ] . ' ' . $history->callcenter[ 'family' ]) : ($history->user ? ($history->user[ 'name' ] . ' ' . $history->user[ 'family' ]) : 'ثبت نشده'),
                 'description' => $history->description,
