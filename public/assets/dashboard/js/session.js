@@ -117,7 +117,7 @@ $(document).ready(function () {
                         {
                             return '<button class="badge badge-success border-0">'+data+'</button><a h_blank">';
                         }
-                        if(data == "مشاوره اولیه")
+                        if(data == "در انتظار مشاوره اولیه")
                         {
                             return '<button class="badge badge-warning border-0">'+data+'</button><a h_blank">';
                         }
