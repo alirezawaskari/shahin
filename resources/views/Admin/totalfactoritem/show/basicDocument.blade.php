@@ -65,8 +65,7 @@
                         @endif --}}
                         @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
                         <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
-                                class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به
-                                مشاوره</span></a>
+                                class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به کارشناسی</span></a>
                         @endif
                     </div>
                     @endforeach

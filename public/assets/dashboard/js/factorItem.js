@@ -654,7 +654,7 @@ $(document).ready(function () {
                                 return `<span class="badge badge-dark">پرونده مختومه</span>`;
                                 break;
                             case 16:
-                                return `<span class="badge badge-danger">ارجاع به مشاوره</span>`;
+                                return `<span class="badge badge-danger">ارجاع به کارشناسی</span>`;
                                 break;
                             case 17:
                                 return `<span class="badge badge-warning"> منتظر مشاوره مرکز</span>`;
