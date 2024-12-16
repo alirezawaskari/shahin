@@ -22,16 +22,6 @@ $(document).ready(function () {
                 }
             });
     });
-    if ($('#type_consultation_online').is(':checked')) {
-        $('.divDate').css('display', 'none');
-    }
-    $('#select_type_consultation').on('change', function () {
-        if ($('#select_type_consultation').val() == 'inPerson') {
-            $('.divDate').css('display', 'block');
-        } else {
-            $('.divDate').css('display', 'none');
-        }
-    });
     $('#visitRejectModal').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget) // Button that triggered the modal
         var getID = button.data('id')

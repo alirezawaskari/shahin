@@ -206,6 +206,7 @@ class FactorItemController extends Controller {
         $factor_item->update( [
             'center_id' =>  $request->center_id,
             'status_factor' => 17,
+            'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
         ] );
         //create session
         if ($factor_item->factoritemable->session==1){
@@ -246,7 +247,7 @@ class FactorItemController extends Controller {
             self::smsStartWork( $factor_item );
         }
         $factor_item->update( [
-             'date' => isset( $request->date ) ? $request->date : $factor_item->date,
+            'date' => isset( $request->date ) ? $request->date : $factor_item->date,
             'complete' => true,
             'supporter_id' => auth()->user()->id,
         ] );

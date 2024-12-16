@@ -156,26 +156,23 @@ class Session extends Model implements AuditableContract
         $center = request('center');
         $employee = request('employee');
 
-        if (auth()->user()->admin_representation) {
-            $representation = auth()->user()->admin_representation->id;
-            $query->whereHas('factorItem', function ($query) use ($representation) {
-                $query->whereHas('factor', function ($query) use ($representation) {
-                    $query->where('representation_id', $representation);
-                });
-            });
-        }
-
         if (auth()->user()->center_id) {
             $center = auth()->user()->center_id;
             $query->whereHas('factorItem', function ($query) use ($center) {
                 $query->where('center_id', $center);
             });
         }
+        elseif (auth()->user()->admin_representation) {
+            $query->whereHas('factorItem', function ($query) {
+                $query->whereHas('representation', function ($query){
+                    $query->where('representation_id', auth()->user()->admin_representation_id);
+                });
+            });
+        }
 
         if (auth()->user()->admin_organization) {
-            $organization = auth()->user()->admin_organization;
-            $query->whereHas('factorItem', function ($query) use ($organization) {
-                $query->whereHas('factor', function ($query) use ($organization) {
+            $query->whereHas('factorItem', function ($query) {
+                $query->whereHas('factor', function ($query) {
                     $query->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
                 });
             });

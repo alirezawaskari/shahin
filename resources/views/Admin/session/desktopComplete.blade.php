@@ -170,6 +170,6 @@
 @stop
 @section('js')
 <script src="/assets/dashboard/js/sessionCompleteTurnRatings.js"></script>
-<script src="/assets/dashboard/js/layouts.js"></script>
+<script src="/assets/dashboard/js/layouts.js?v=1.1"></script>
 <script src="/assets/dashboard/js/session.js"></script>
 @endsection

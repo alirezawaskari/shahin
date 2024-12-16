@@ -221,7 +221,7 @@
 @case('total-price')
 <div class="col-12 mb-2">
     {!! $form->help !!}
-    <input class="form-control" type="text" value="{{ number_format($factorItem['total_price'])}}" name="totalPrice"
+    <input class="col-4 form-control" type="text" value="{{ number_format($factorItem['total_price'])}}" name="totalPrice"
         oninput="separatePrices(this)">
 </div>
 @break

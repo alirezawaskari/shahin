@@ -78,7 +78,7 @@ class SessionController extends Controller {
 
         $sessions = Session::filter()->where( 'status', 0 )->orderBy( 'date', 'desc' );
         if ($request->start_date || $request->end_date){
-            $sessions ->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
+            $sessions->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
         }
         if (isset($request->excel) && $request->excel == 'on') {
             return (new SessionExport($sessions))->download('sessions.xlsx');
@@ -230,7 +230,7 @@ class SessionController extends Controller {
         {
             $factor_item->update( [
                 'status_factor' => 6,
-                'confirm' => 1 
+                'confirm' => 1
             ] );
         }
         $arr = array( 'msg' => 'باموفقیت ثبت شد', 'status' => true);
