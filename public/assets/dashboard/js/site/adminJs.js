@@ -166,12 +166,14 @@ $(document).on('change', '.file_upload_ajax', function () {
             "image/jpeg",
             "image/png",
             "image/svg+xml",
+            "image/psd",
+            "image/tiff",
             "application/pdf",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "application/vnd.ms-excel",
             "application/x-rar-compressed",
-            "application/x-zip-compressed"
+            "application/x-zip-compressed",
         ];
         var size = file.size;
         if ($.inArray(fileType, validImageTypes) > 0) {
