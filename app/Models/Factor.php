@@ -329,10 +329,6 @@ class Factor extends Model implements AuditableContract
                     $query->where('representation_id', $representation);
                 }
             }
-
-            if (auth()->user()->hasRole('admin-site')) {
-                $query->whereStatus(true);
-            }
         } else {
             if (auth()->user()->hasRole('organ-manager')) {
                 $query->whereStatus(true)->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
