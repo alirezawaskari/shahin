@@ -1310,7 +1310,7 @@ class CallcenterController extends Controller
     {
         $task = Callcenter::find($request->task);
 
-        if(auth()->user()->isAbleTo('close-task'))
+        if(auth()->user()->isAbleTo('followed-task'))
         {
             //create history
             History::create($task , $task->user_id , null , 2 , $request->description);

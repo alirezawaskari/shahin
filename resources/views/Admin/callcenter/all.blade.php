@@ -268,7 +268,7 @@
                     <li class="nav-item"><a id="detail-tab" data-toggle="tab" href="#detail" role="tab"
                             aria-controls="detail" aria-selected="false" class="nav-link show">جزئیات</a>
                     </li>
-                    @permission('close-task')
+                    @permission('close-task|followed-task')
                     <li class="nav-item"><a id="change-status-task-tab" data-toggle="tab" href="#changeStatusTask" role="tab"
                             aria-controls="colseTask" aria-selected="false" class="nav-link show">تغییر وضعیت درخواست
                             </a>
@@ -421,11 +421,16 @@
                     <div id="changeStatusTask" role="tabpanel" aria-labelledby="change-status-task-tab" class="tab-pane fade p-t-20">
                         <div class="tab">
                             <div class="row">
+                                @permission('close-task')
                                 <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'closeTask')">بستن درخواست</button>
+                                @endpermission
+                                @permission('followed-task')
                                 <button id="changeStatusTaskDefaultOpen" class="tablinks col-12 col-md-6"
                                     onclick="openTab(event, 'followedTask')">اقدام شده</button>
+                                @endpermission
                             </div>
                         </div>
+                        @permission('close-task')
                         <div id="closeTask" class="tabcontent">
                             <form id="modal-close-task-form">
                                 <div class="row">
@@ -472,7 +477,8 @@
                                 </div>
                             </form>
                         </div>
-
+                        @endpermission
+                        @permission('followed-task')
                         <div id="followedTask" class="tabcontent">
                             <form id="modal-followed-task-form">
                                 <div class="row">
@@ -487,6 +493,7 @@
                                 </div>
                             </form>
                         </div>
+                        @endpermission
                     </div>
                 </div>
             </div>
