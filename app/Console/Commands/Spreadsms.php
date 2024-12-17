@@ -96,15 +96,16 @@ class Spreadsms extends Command {
                     foreach ( $items[ $key ] as $i ) {
                         $smsitem = ( object )$i;
                         $sms_body_type_numberic = var_dump(is_numeric($smsitem->body));
+                        $user_id = $smsitem->body == 11 ? null : $call->id;
                         $task = Callcenter::create( [
                             'sms_id' => $smsitem->id,
-                            'user_id' => $sms_body_type_numberic ? $call->id : 63,
+                            'user_id' => $user_id,
                             'type' => 1,
-                            'status' => '0',
+                            'status' => $smsitem->body == 11 ? 11 : 0,
                             'representation_id' => !is_null( $call->admin_representation_id ) ? $call->admin_representation_id : null,
                         ] );
                         $service = Service::find($smsitem->body);
-                        if($service)
+                        if($service && $service->id != 11)
                         {
                             $task->services()->attach($service);
                         }
@@ -121,15 +122,16 @@ class Spreadsms extends Command {
                     $number = rand( 0, count( $callcenters ) );
                     $user = $callcenters[ $number == 0 ? 0 : $number - 1 ];
                     $sms_body_type_numberic = var_dump(is_numeric($s->body));
+                    $user_id = $s->body == 11 ? null : $user->id;
                     $task = Callcenter::create( [
                         'sms_id' => $s->id,
-                        'user_id' => $sms_body_type_numberic ? $user->id : 63,
+                        'user_id' => $user_id,
                         'type' => 1,
-                        'status' => '0',
+                        'status' => $s->body == 11 ? 11 : 0,
                         'representation_id' => !is_null( $user->admin_representation_id ) ? $user->admin_representation_id : null,
                     ] );
                     $service = Service::find($s->body);
-                    if($service)
+                    if($service && $service->id != 11)
                     {
                         $task->services()->attach($service);
                     }

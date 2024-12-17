@@ -95,12 +95,26 @@ class CallcenterController extends Controller
     }
 
     /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function Cancellation()
+    {
+        $title = 'فهرست انصراف از دریافت پیامک';
+        $url = 'cancellation/filter';
+        $delete=false;
+        if (auth()->user()->isAbleTo('callcenter-delete')){
+            $delete = true;
+        }
+        return view('Admin.callcenter.all' , compact('title' ,'delete', 'url'));
+    }
+
+    /**
      * @param Request $request
      * @return CallcenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function filter(Request $request)
     {
-        $callcenters = Callcenter::filter()->latest();
+        $callcenters = Callcenter::where('status' , '!=' , 11)->filter()->latest();
 
         if ($request->exel == 'on') {
             return (new CallcenterExport($callcenters))->download('callcenters.xlsx');
@@ -150,7 +164,18 @@ class CallcenterController extends Controller
         return new CallcenterCollection($callcenters->paginate(20));
     }
 
-
+    /**
+     * @param Request $request
+     * @return CallcenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function filterCancellation(Request $request)
+    {
+        $callcenters = Callcenter::filter()->where('status', 11)->latest();
+        if ($request->exel == 'true') {
+            return (new CallcenterExport($callcenters))->download('callcenters.xlsx');
+        }
+        return new CallcenterCollection($callcenters->paginate(20));
+    }
 
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response

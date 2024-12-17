@@ -354,6 +354,7 @@ class Callcenter extends Model implements AuditableContract
             '8' => 'بایگانی',
             '9' => 'منقضی شده',
             '10' => 'اقدام شده',
+            '11' => 'انصراف از دریافت پیامک'
         ][$status];
     }
     /**

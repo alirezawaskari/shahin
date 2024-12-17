@@ -91,6 +91,9 @@
                         <option value="7">عودت پرداخت</option>
                         <option value="8">بایگانی</option>
                         <option value="9">منقضی شده</option>
+                        <option value="10">اقدام شده</option>
+                        <option value="11">نصراف از دریافت پیامک</option>
+
                     </select>
                 </div>
                 <div class="col-12 col-md-3 mb-2">
@@ -610,7 +613,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
-<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.6')}}"></script>
+<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.7')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.2')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

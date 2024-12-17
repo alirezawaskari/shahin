@@ -75,7 +75,7 @@ class RegisterController extends Controller
             'level' => 'factor',
             'province_id' => $data[ 'province_id' ],
             'city_id' => $data[ 'city_id' ],
-            'service_id' => $data[ 'service_id' ] ? $data[ 'service_id' ] : null,
+            // 'service_id' => $data[ 'service_id' ] ? $data[ 'service_id' ] : null,
             'area_id' => $data[ 'area_id' ],
             'active' => 1,
             'password' => Hash::make( Helper::numberConverter( $data[ 'phone' ] ) ),
@@ -155,7 +155,7 @@ class RegisterController extends Controller
             'password' => Hash::make( $pass ),
             'representation_id' => $request->has( 'representation_id' ) ? $request->input( 'representation_id' ) : null,
             'callcenter_id' => $request->has( 'callcenter_id' ) ? $request->input( 'callcenter_id' ) : null,
-            'service_id' => $request->has( 'service_id' ) ? $serviceId : null,
+            // 'service_id' => $request->has( 'service_id' ) ? $serviceId : null,
         ] );
         if ( $request->input( 'type_service' ) == 100 )
         {

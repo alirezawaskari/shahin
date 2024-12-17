@@ -801,6 +801,8 @@ function getBadgeOfCallCenterStatus(status) {
             return '<span class="badge badge-dark">منقضی شده</span>'
         case 10:
             return '<span class="badge badge-success">اقدام شده</span>'
+        case 11:
+            return '<span class="badge badge-dark">انصراف از دریافت پیامک</span>'
         default:
             return ''
     }

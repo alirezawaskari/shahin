@@ -13,6 +13,9 @@
                     @permission('callcenter-detail|influencer-marketing|in-person-registration')
                     <li><a href="{{ route('callcenter.index') }}"> <span>درخواست ها</span> </a></li>
                     @endpermission
+                    @permission('callcenter-cancellation')
+                    <li><a href="{{ route('callcenter.cancellation') }}"> <span>انصراف از دریافت پیامک</span> </a>
+                        @endpermission
                     @permission('callcenter-desktop')
                     <li><a href="{{ route('callcenter.desktop') }}"> <span>میزکار درخواست ها</span> </a></li>
                     @endpermission

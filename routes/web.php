@@ -169,7 +169,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/callcenter/suspension', 'CallcenterController@suspension')->name('callcenter.suspension');
     Route::get('/callcenter/suspension/filter' , 'CallcenterController@filterSuspension');
     Route::get('/callcenter/paid', 'CallcenterController@paid')->name('callcenter.paid');
+    Route::get('/callcenter/cancellation', 'CallcenterController@cancellation')->name('callcenter.cancellation');
     Route::get('/callcenter/paid/filter' , 'CallcenterController@filterPaid');
+    Route::get('/callcenter/cancellation/filter' , 'CallcenterController@filterCancellation');
     Route::get('/callcenter/desktop', 'CallcenterController@desktop')->name('callcenter.desktop');
     Route::get('/callcenter/desktop/filter', 'CallcenterController@filterDesktop');
     Route::get('/callcenter/filter' , 'CallcenterController@filter');
