@@ -148,7 +148,7 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                 <ul>
                     @permission('installments-file-desktop')
-                    <li><a href="{{ url('/dashboard/totalFactorItem/desktop') }}">میزکار پرونده ها</a></li>
+                    <li><a href="{{ url('/dashboard/totalFactorItem/desktop') }}">میزکار تایید پرونده های اقساطی</a></li>
                     @endpermission
                     @permission('file-desktop')
                     <li><a href="{{ url('/dashboard/factorItem/desktop') }}">پرونده های قابل اجرا</a></li>

@@ -19,7 +19,7 @@
         @endrole
         @role('consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 13)
-        <button class="btn btn-success">تایید و ارجاع به مدیرعامل</button>
+        <button class="btn btn-success">تایید و ارجاع به کاربر </button>
         @endif
         @endrole
         @role('mali-representation')

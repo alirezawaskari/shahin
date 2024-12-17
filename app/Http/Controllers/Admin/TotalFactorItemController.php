@@ -440,7 +440,10 @@ class TotalFactorItemController extends Controller
             ]);
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-
+                $user_phone_number = $factor_item->factor->user->phone;
+                $approval_date = verta($totalFactorItem->approval_date)->format('Y/m/d');
+                $link = 'https://lalecard.ir/factorItem/'.$factor_item->resnumber;
+                IranSms::sendSingleSms('sendUserContractConfirmLink',$user_phone_number,['param1'=>$totalFactorItem->id,'param2'=> $approval_date, 'param3'=>$link]);
                 $fator_item_collections->update([
                     'status_factor' => 18
                 ]);
