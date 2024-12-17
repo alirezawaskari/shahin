@@ -994,7 +994,7 @@ class FactorItemController extends Controller {
         $factor_item[ 'status_factor_text' ] = FactorItem::statusFactor( $factor_item->status_factor );
         $factor_item[ 'confirms' ] = $factor_item->confirms;
         $factor_item[ 'center' ] = $factor_item->center;
-        $factor_item[ 'date' ] = $factor_item->date ? Helper::vertaToMiladi($factor_item->date) : now();
+        $factor_item[ 'date' ] = $factor_item->date ? $factor_item->date : now();
         $factor_item[ 'type' ] = $factor_item->type;
         $factor_item[ 'file_number' ] = $factor_item->file_number ? $factor_item->file_number : 'ندارد';
         $factor_item[ 'approval_date' ] = verta( $supervisor_factor_item->approval_date )->format( 'Y/m/d' );

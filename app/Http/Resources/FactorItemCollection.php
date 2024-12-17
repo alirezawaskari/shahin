@@ -32,7 +32,7 @@ class FactorItemCollection extends ResourceCollection
                     'organization' => isset($item->factor->organization) ? $item->factor->organization->fa_name : 'ندارد',
                     'confirm' => $item->confirm,
                     'date' => verta($item->created_at)->format('Y/m/d H:i:s'),
-                    'date_time' => $item->date ? $item->date : 'ندارد',
+                    'date_time' => $item->date ? verta($item->date)->format('Y/m/d H:i:s') : 'ندارد',
                     'start_end_date' => $this->startEndDate($item),
                     'supporter' => ($item->supporter ? $item->supporter->family.' - ': 'ندارد - ').($item->file_number ? $item->file_number : 'ندارد'),
                     'type' => $this->setType($item),
