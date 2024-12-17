@@ -3,17 +3,17 @@
 @permission('factor_item_referral_to_center')
 <div class="tab">
     <div class="row">
-        <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'referralCenter')">ارجاع به مرکز</button>
+        <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'referralCenter{{$factorItem->id}}')">ارجاع به مرکز</button>
 
         <button id="defaultOpen" class="tablinks col-12 col-md-6"
-            onclick="openTab(event, 'registrationInitialConsultation')">ثبت مشاوره اولیه</button>
+            onclick="openTab(event, 'registrationInitialConsultation{{$factorItem->id}}')">ثبت مشاوره اولیه</button>
     </div>
 </div>
-<div id="referralCenter" class="tabcontent mb-4">
+<div id="referralCenter{{$factorItem->id}}" class="tabcontent mb-4">
     @include('Admin.factoritem.show.turnRatings')
 </div>
 
-<div id="registrationInitialConsultation" class="tabcontent mb-4">
+<div id="registrationInitialConsultation{{$factorItem->id}}" class="tabcontent mb-4">
     <form action="{{ route('factorItem.information')}}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="item[id]" value="{{ $factorItem->id }}">
