@@ -19,7 +19,7 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
         'family' => 'صفری',
         'phone' => '09386682995',
         'melicode' => '0371267961',
-        'avatar' => '/img/user.jpg',
+        'avatar' => '/img/user.png',
         'password' => \Illuminate\Support\Facades\Hash::make('123456'),
         'province_id' => '9',
         'city_id' => '145',

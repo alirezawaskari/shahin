@@ -108,7 +108,7 @@ class User extends Authenticatable
         static::creating(function ($model) {
             $model->token = self::makeUniqueToken();
             $model->api_token = self::makeUniqueApiToken();
-            $model->avatar = '/img/user.jpg';
+            $model->avatar = '/img/user.png';
         });
     }
 
