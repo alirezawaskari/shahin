@@ -223,6 +223,7 @@
     {!! $form->help !!}
     <input class="col-4 form-control" type="text" value="{{ number_format($factorItem['total_price'])}}" name="totalPrice"
         oninput="separatePrices(this)">
+    <p class="text-warning">همکار گرامی لطفا فقط جمع کل فاکتور را بصورت عددی وارد کنید.</p>
 </div>
 @break
 @case('factor-image')

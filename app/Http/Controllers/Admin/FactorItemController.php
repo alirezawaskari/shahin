@@ -307,6 +307,7 @@ class FactorItemController extends Controller {
             self::storeImageConfirm($factor_item , 'supervisor');
         }
         self::formData( $item );
+        $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
 
         //send sms factoritem start work
         if ( !$factor_item->complete ) {
@@ -319,6 +320,7 @@ class FactorItemController extends Controller {
             'status_factor' => $factor_item->status_factor <= 3 ? 14 : $factor_item->status_factor,
             'complete' => true,
             'status' => 1,
+            'total_price' => $total_price,
             'file_number' => $request->file_number ? $request->file_number : $factor_item->file_number,
         ] );
         //set supervisor
@@ -1418,7 +1420,7 @@ class FactorItemController extends Controller {
         $item = $request->item;
         $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $item );
-
+        $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
         Session::changeVisitStatusByFactorItem($factor_item,6);
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
@@ -1429,6 +1431,7 @@ class FactorItemController extends Controller {
         }
         $factor_item->update( [
             'status_factor' => 2,
+            'total_price' => $total_price,
         ] );
         return redirect()->back()->with( [
             'update' => 'success'
