@@ -32,7 +32,7 @@
                     @switch($form->type)
                     @case('factor_dentist')
                     <div class="col-12 col-md-12 mb-3">
-                        <i class="fa fa-list"></i> {{ $form->help . ' - ' .
+                        <i class="fa fa-list"></i> {{ {!! $form->help !!} . ' - ' .
                         $factoritem->factor->user->name . ' ' .
                         $factoritem->factor->user->family }}
                     </div>

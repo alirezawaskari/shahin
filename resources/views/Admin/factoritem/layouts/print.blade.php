@@ -80,7 +80,7 @@
             </div>
 
             <div class="row col-md-12 mb-3  ">
-                <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+                {!! $form->help !!}
                 <table class="table table-bordered table-striped table-responsive-md">
                     <tr>
                         <th>نوع خدمت</th>
@@ -184,7 +184,7 @@
             @break
             @case('factor_service')
             <div class="col-12 col-md-12 mb-3">
-                {{ $form->help }}
+                {!! $form->help !!}
             </div>
             <div class="row col-md-12">
                 <table class="table table-bordered table-striped table-responsive-md">
@@ -203,7 +203,7 @@
             @case('other-price')
             @if(isset($factorItem['factor_values'][$form->name]))
             <div class="col-12 col-md-4 mb-2">
-                <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+                {!! $form->help !!}
                 <p class="form-control {{ $form->class }}" name="item[{{ $form->name }}]">{{
                     number_format($factorItem['factor_values'][$form->name]) }}</p>
             </div>
@@ -211,7 +211,7 @@
             @break
             @case('radio')
             <div class="col-12 col-md-12 mb-3">
-                {{ $form->help }} :
+                {!! $form->help !!} :
                 <br>
                 @foreach($form->beforeformitems as $beforeformitem)
                 {{ $beforeformitem->title }}
@@ -309,7 +309,7 @@
                     @else
                     <img class="card-img-top" height="150px">
                     <div class="card-body">
-                        <h5 class="card-title">{{ $form->help }}</h5>
+                        <h5 class="card-title">{!! $form->help !!}</h5>
                     </div>
                     @endif
                 </div>
