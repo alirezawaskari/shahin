@@ -238,6 +238,10 @@
                                         @break
                                         @case('multi_file')
                                         <div class="col-12">
+                                            {!! $form->help !!}
+                                            <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
+                                        </div>
+                                        <div class="col-12">
                                             <div id="addnew" class='file file--upload'>
                                                 <label for='{{ $form->name }}'>
                                                     <img class="upload-file" src="{{asset('img/upload.jpg')}}"
@@ -258,11 +262,6 @@
                                                 <input type="hidden" id="{{ $form->name }}" class="path"
                                                     name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
                                             </div>
-                                        </div>
-
-                                        <div class="col-12">
-                                            {!! $form->help !!}
-                                            <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
                                         </div>
                                         <div class="col-12 row">
                                             @if(isset($item['factor_values'][$form->name]))
@@ -522,6 +521,12 @@
                         @endforeach
                     </div>
                 </div>
+                <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 text-center" id="loading">
+                    <div role="status" class="spinner-border text-primary">
+                    </div>
+                    <br>
+                    <span>در حال بارگذاری...</span>
+                </div>
             </div>
         </div>
     </div>
@@ -535,6 +540,7 @@
 <script src="/assets/site/js/get-service.js?v=1"></script>
 <script src="/assets/site/js/checkout.js"></script>
 <script>
+    $('#loading').css('display', 'none');
     @if(session()->get('successByMessage'))
     toastr.success('{{session()->get('successByMessage')}}');
     @elseif(session()->get('failByMessage'))

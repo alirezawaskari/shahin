@@ -33,7 +33,7 @@
                                 @case('factor_dentist')
                                 @foreach($item['factorItems'] as $factoritem)
                                 <div class="col-12 col-md-12 mb-3">
-                                    طرح درمان{{ $factoritem->factor->user->name.'
+                                    طرح درمان {{ $factoritem->factor->user->name.'
                                     '.$factoritem->factor->user->family}}
                                 </div>
                                 <div class="row col-md-12">

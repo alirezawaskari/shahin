@@ -259,6 +259,10 @@
 </div>
 @break
 @case('multi_file')
+<div class="col-12">
+    {!! $form->help !!}
+    <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
+</div>
 <div class="col-12 row">
     <div class="col-md-4">
         <div id="addnew" class="file file--upload mb-5">
@@ -278,10 +282,6 @@
         <div id="{{ $form->name }}_src" class="show"></div>
         <input type="hidden" id="{{ $form->name }}_path" class="path" name="item[{{ 'url'.$form->name }}][]">
     </div>
-</div>
-<div class="col-12">
-    {!! $form->help !!}
-    <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
 </div>
 <div class="col-12 row">
     @if(isset($factorItem['factor_values'][$form->name]))

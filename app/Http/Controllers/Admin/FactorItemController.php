@@ -199,7 +199,7 @@ class FactorItemController extends Controller {
         //close older sessions
         Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
             'status'=>7,
-            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
         ]);
 
         //update center_id
@@ -254,7 +254,7 @@ class FactorItemController extends Controller {
 
         Session::whereIn('status',[3,4,5,6])->where('factor_item_id',$factor_item->id)->update([
             'status'=>7,
-            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
          ]);
          if ($factor_item->factoritemable->session==1){
              Session::create( [

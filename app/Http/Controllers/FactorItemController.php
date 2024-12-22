@@ -112,6 +112,7 @@ class FactorItemController extends Controller {
             $item[ 'total_price' ] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum( 'discount' );
             $item[ 'prepayment' ][ 'price' ] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
             $item[ 'installments_num' ] = $totalFactorItem->installments_num;
+            $item['installments_price'] = $totalFactorItem->totalFactorItemInstallments->first() ? $totalFactorItem->totalFactorItemInstallments->first()->price : 0;
             $item[ 'wage' ] = ( $item[ 'total_price' ] - $item[ 'prepayment' ][ 'price' ] ) * 0.04 / 12 * $item[ 'installments_num' ];
             $item[ 'loan' ] = $totalFactorItem->totalFactorItemInstallments->sum( 'price' );
             $item[ 'credit' ] = $totalFactorItem->credit;
@@ -119,6 +120,8 @@ class FactorItemController extends Controller {
             $item[ 'date_first_pay' ] = isset( $totalFactorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $totalFactorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
             $item[ 'price_difference' ] = $totalFactorItem->property ? $totalFactorItem->property->price_difference : 0;
             $item[ 'payments' ] = $totalFactorItem->factors;
+            $item['percent_fines'] = $totalFactorItem->percent_fines;
+            $item['end_date'] = isset($totalFactorItem->totalFactorItemInstallments->last()->date) ? verta($totalFactorItem->totalFactorItemInstallments->sortBy('date')->last()->date)->format('Y/m/d') : '';
         }
         $resnumber = $totalFactorItem ? TotalFactorItem::setFatorItemCollectionResnumber( $totalFactorItem ) : '';
         $contract_number = $totalFactorItem ? TotalFactorItem::setAgentContractNumber( $totalFactorItem ) : '';
