@@ -521,12 +521,6 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 text-center" id="loading">
-                    <div role="status" class="spinner-border text-primary">
-                    </div>
-                    <br>
-                    <span>در حال بارگذاری...</span>
-                </div>
             </div>
         </div>
     </div>
@@ -540,7 +534,6 @@
 <script src="/assets/site/js/get-service.js?v=1"></script>
 <script src="/assets/site/js/checkout.js"></script>
 <script>
-    $('#loading').css('display', 'none');
     @if(session()->get('successByMessage'))
     toastr.success('{{session()->get('successByMessage')}}');
     @elseif(session()->get('failByMessage'))
