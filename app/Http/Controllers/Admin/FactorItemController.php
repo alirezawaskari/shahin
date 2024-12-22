@@ -308,6 +308,8 @@ class FactorItemController extends Controller {
         }
         self::formData( $item );
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
+        //get calculate financial information
+        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
 
         //send sms factoritem start work
         if ( !$factor_item->complete ) {
@@ -399,16 +401,11 @@ class FactorItemController extends Controller {
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
         $other_price = isset( $item[ 'otherPrice' ] ) ? $item[ 'otherPrice' ] : 0;
         $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
-
         //get supervisor factoritem
         $factor_item = FactorItem::find( $item[ 'id' ] );
         $supervisor_factor_item = $factor_item->supervisor;
-        //get difference price
-        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
-            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
-        } else {
-            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
-        }
+        //get calculate financial information
+        self::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user);
         //save factor image
         if(isset($request->item['urlfactor-image']))
 		{
@@ -420,10 +417,6 @@ class FactorItemController extends Controller {
             'status_factor' => $status_factor,
             'date' => $request->date ? $request->date : $factor_item->date,
         ] );
-        if ($supervisor_factor_item->type)
-        {
-            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
-        }
         if (!isset($factor_item->factor_values['assistant'])) {
             self::storeImageConfirm($factor_item , 'assistant');
         }
@@ -1421,6 +1414,8 @@ class FactorItemController extends Controller {
         $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $item );
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
+        //get calculate financial information
+        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
         Session::changeVisitStatusByFactorItem($factor_item,6);
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
@@ -1466,5 +1461,27 @@ class FactorItemController extends Controller {
             'update' => 'success'
         ] );
 
+    }
+    /**
+     * @param mixed $supervisor_factor_item
+     * @param mixed $total_price
+     * @param mixed $type
+     * @param mixed $user
+     * @return void
+     */
+    private function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
+    {
+        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
+            //get difference price
+            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
+        } else {
+            //get calculate financial information for cash factorItems
+            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
+        }
+        if ($supervisor_factor_item->type)
+        {
+            //get calculate financial information for installment factorItems
+            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
+        }
     }
 }
