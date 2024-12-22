@@ -86,25 +86,26 @@ class FactorItemCollection extends ResourceCollection
     {
         $temp = '';
         $has_supervisor = $item->supervisor_id == $item->id ? false : true;
+        $total_price = $item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال' : 'ندارد';
         if($has_supervisor)
         {
             $supervisor = $item->supervisor->factor->user->name.' '.$item->supervisor->factor->user->family;
             if ($item->type == '1') {
-                $temp = ' اقساط - دارای سرپرست - '.$supervisor;
+                $temp = ' اقساط - دارای سرپرست - '.$supervisor.' - '.$total_price;
             } elseif ($item->type == '0') {
-                $temp = ' نقد - دارای سرپرست -'.$supervisor;
+                $temp = ' نقد - دارای سرپرست -'.$supervisor.' - '.$total_price;
             } else {
-                $temp = 'تعیین نشده';
+                $temp = 'تعیین نشده'.' - '.$total_price;
             }
         }
         else
         {
             if ($item->type == '1') {
-                $temp = 'اقساط - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال' : 'ندارد');
+                $temp = 'اقساط - ' . $total_price;
             } elseif ($item->type == '0') {
-                $temp = 'نقد - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال ' : 'ندارد');
+                $temp = 'نقد - ' . $total_price;
             } else {
-                $temp = 'تعیین نشده - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال ' : 'ندارد');
+                $temp = 'تعیین نشده - ' . $total_price;
             }
         }
 		return $temp;
