@@ -311,6 +311,8 @@
                             <div class="panel-body">
                                 @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
                                 @include('Admin.totalfactoritem.layouts.contractLoanCash')
+                                @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
+                                @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
                                 @else
                                 @include('Admin.totalfactoritem.layouts.contract')
                                 @endif

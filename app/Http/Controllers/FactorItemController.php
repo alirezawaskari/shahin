@@ -101,6 +101,7 @@ class FactorItemController extends Controller {
         $item[ 'prepayment' ][ 'price' ] = $factorItem->supervisor->property ? $factorItem->supervisor->property->prepayment_price : 0;
         $item[ 'payments' ] = $factorItem->factors;
         $item[ 'date_first_pay' ] = isset( $factorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $factorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
+        $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
         //if factorItem type is installment
         if ( $totalFactorItem ) {
             $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
@@ -357,18 +358,29 @@ class FactorItemController extends Controller {
         $has_auth_code = AuthCode::where('phone' , auth()->user()->phone)->where('code' , $request->verification_code)->exists();
         if($has_auth_code)
         {
-            $totalFactorItem = TotalFactorItem::find($request->total_factor_item);
-            $factor_items = $totalFactorItem->factorItems;
-            $totalFactorItem->update([
-                'total_factor_item_status_id' => 8
-            ]);
-            foreach ($factor_items as $factor_item) {
-                $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+            if($request->total_factor_item)
+            {
+                $totalFactorItem = TotalFactorItem::find($request->total_factor_item);
+                $factor_items = $totalFactorItem->factorItems;
+                $totalFactorItem->update([
+                    'total_factor_item_status_id' => 8
+                ]);
+                foreach ($factor_items as $factor_item) {
+                    $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
-                $fator_item_collections->update([
+                    $fator_item_collections->update([
+                        'status_factor' => 8
+                    ]);
+                }
+            }
+            else
+            {
+                $factorItem = FactorItem::find($request->factor_item);
+                $factorItem->update([
                     'status_factor' => 8
                 ]);
             }
+
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );

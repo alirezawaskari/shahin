@@ -405,6 +405,8 @@
                         <div class="card-body">
                             @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
                             @include('Admin.totalfactoritem.layouts.contractLoanCash')
+                            @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
+                            @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
                             @else
                             @include('Admin.totalfactoritem.layouts.contract')
                             @endif
@@ -415,6 +417,27 @@
                             <a href="{{ $contract_file }}" class="btn btn-primary py-1 px-2" target="_blank">مشاهده</a>
                             @endforeach
                             @endif
+                        </div>
+                        @if($item['status_factor'] == 18)
+                        @include('site.profile.layouts.factoritem.confirmContract')
+                        @endif
+                    </div>
+                </div>
+                @endif
+                @elseif ($factorItem->where('factoritemable_id' , 17)->count())
+                @if ($item['status_factor'] == 18 || $item['confirm'] )
+                <div class="card">
+                    <div class="card-header">
+                        <a class="collapsed card-link" data-toggle="collapse" href="#collapseContract">
+                            قرارداد
+                        </a>
+                    </div>
+                    <div id="collapseContract" class="collapse" data-parent="#accordion">
+                        <div class="card-body">
+                            @if ($factorItem->where('factoritemable_id' , 17)->count())
+                            @include('Admin.factoritem.layouts.contractGhorfeOnline')
+                            @endif
+                            <hr>
                         </div>
                         @if($item['status_factor'] == 18)
                         @include('site.profile.layouts.factoritem.confirmContract')

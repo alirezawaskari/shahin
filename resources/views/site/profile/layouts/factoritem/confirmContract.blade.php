@@ -45,7 +45,9 @@
                         <input type="number" min="123456" max="999999" class="form-control" id="verification_code"
                             name="verification_code" placeholder="لطفا کد دریافتی را وارد کنید">
                     </div>
-                    <input type="hidden" id="total_factor_item" value="{{ $factorItem->totalFactorItem->id }}">
+                    <input type="hidden" id="total_factor_item" value="{{ $factorItem->totalFactorItem ? $factorItem->totalFactorItem->id : null}}">
+                    <input type="hidden" id="factor_item" value="{{ $factorItem->id}}">
+
                     <div class="col-12 col-md-4">
                         <button class="send_confirm_contract_code btn btn-success px-3"> درخواست کد <i
                                 class="fa fa-paper-plane mr-1" aria-hidden="true"></i></button>
