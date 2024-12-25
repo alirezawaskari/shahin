@@ -270,7 +270,7 @@
                             </div>
                         </div>
                     </div>
-                    @if ($factorItem->where('factoritemable_id' , 17)->count())
+                    @if ($factorItem->factoritemable_id == 17)
                     <div class="panel">
                         <div class="panel-heading">
                             <h5 class="panel-title">
