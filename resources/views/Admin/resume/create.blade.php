@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>استان</label>
-                    <select class="form-control province_id" name="province_id" id="province_id">
+                    <select class="form-control province_id" name="province" id="province_id">
                         @foreach(\App\Models\Province::get() as $pro)
                         <option value="{{$pro->id}}">{{ $pro->name }}</option>
                         @endforeach
@@ -30,27 +30,38 @@
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>شهر</label>
-                    <select class="form-control city_id" name="city_id" id="city_id">
+                    <select class="form-control city_id" name="city" id="city_id">
                         @foreach(\App\Models\City::get() as $city)
                         <option value="{{$city->id}}">{{ $city->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
+                    <label>جنسیت</label>
+                    <select class="form-control" name="gender">
+                        <option value="0">
+                            مرد
+                        </option>
+                        <option value="1">
+                            زن
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
                     <label>ایمیل</label>
                     <input type="text" class="form-control" name="email" value="{{ old('email') }}">
                 </div>
 
-                <div class="col-12 col-md-4 mb-3">
+                <div class="col-12 col-md-3 mb-3">
                     <label>سابقه بیمه(درصورت داشتن بیمه براساس ماه)</label>
                     <input type="number" name="bime_history" class="form-control" min="0" required>
                 </div>
-                <div class="col-12 col-md-4 mb-3">
+                <div class="col-12 col-md-3 mb-3">
                     <label>نوع شغل درخواستی</label>
                     <input type="text" name="work_type" class="form-control" required>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label>نمایندگی *</label>
                         <select name="representation_id" class="custom-select">
                             @foreach($representations as $representation)
