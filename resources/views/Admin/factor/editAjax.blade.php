@@ -228,9 +228,6 @@
                                     id="bill_image_input" accept=".jpg,.jpeg,.png" onchange="readURL(this)">
                                 <img id="blah" src="#" alt="" />
                             </div>
-
-                            @endpermission
-                            @if(is_null(auth()->user()->id == $factor->support_id))
                             <div class="col-12 col-md-4 mb-3">
                                 <label>انتقال به همکار</label>
                                 <select class="form-control" name="support_id">
@@ -245,7 +242,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            @endif
+                            @endpermission
                             @permission('factor-verify')
                             <div class="col-12 col-md-4 mb-3">
                                 <label>تاییدیه مالی</label>
