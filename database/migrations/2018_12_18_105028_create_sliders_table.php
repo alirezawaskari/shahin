@@ -19,6 +19,7 @@ class CreateSlidersTable extends Migration
             $table->text('img');
             $table->text('title')->nullable(true);
             $table->integer('type')->nullable()->default(NULL);
+            $table->morphs('sliderable', 'sliderable_index');//representation Models || ghorfeOnlineList Models
             $table->text('link')->nullable(true);
             $table->integer('sort')->unsigned()->nullable()->default(NULL);
             $table->integer('status')->default('1');

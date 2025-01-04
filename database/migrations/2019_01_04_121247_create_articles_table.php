@@ -14,6 +14,7 @@ class CreateArticlesTable extends Migration
 		$table->integer('id')->unsigned();
 		$table->integer('user_id')->unsigned();
         $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->morphs('articleable', 'articleable_index');//representation Models || ghorfeOnlineList Models
 		$table->integer('category_article_id')->default('1');
         $table->foreign('category_article_id')->references('id')->on('category_articles')->onDelete('cascade');
 		$table->string('title');
