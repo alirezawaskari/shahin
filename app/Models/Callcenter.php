@@ -290,7 +290,7 @@ class Callcenter extends Model implements AuditableContract
             }
 
         }
-        elseif(auth()->user()->hasPermission('callcenter'))
+        else
         {
                 $query->whereHas('callcenter',function ($query){
                     $query->Where('user_id', auth()->user()->id)->orWhere('agent_id', auth()->user()->id);
