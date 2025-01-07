@@ -235,11 +235,16 @@
                 </ul>
             </li>
             @endpermission
-            @permission('purchase-invoice')
+            @permission('purchase-invoice|purchase-invoice-create')
             <li><a href="#"><i class="icon ti-control-record"></i><span>فاکتور های خرید</span> </a>
                 <ul>
+                    @permission('purchase-invoice')
                     <li><a href="{{ route('purchaseInvoice.desktop') }}">میزکار فاکتورهای خرید</a></li>
                     <li><a href="{{ route('purchaseInvoice.index') }}">فهرست فاکتورهای خرید</a></li>
+                    @endpermission
+                    @permission('purchase-invoice-create')
+                    <li><a href="{{ route('purchaseInvoice.create') }}">فاکتور خرید جدید</a></li>
+                    @endpermission
                 </ul>
             </li>
             @endpermission
