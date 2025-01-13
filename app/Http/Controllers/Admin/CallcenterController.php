@@ -1166,7 +1166,7 @@ class CallcenterController extends Controller
         History::create($task , $task->user_id , null , 0 , $description);
         $services=Service::whereIn('id',$request->service)->get();
         foreach ($services as $service ){
-            event(new fastserviceCallcenter($client, $service , null ,$task, 'online'));
+            event(new fastserviceCallcenter($client->phone, $service , null ,$task, 'callcenter'));
         }
     }
 

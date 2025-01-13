@@ -4,7 +4,6 @@ namespace App\Events;
 
 use App\Models\Callcenter;
 use App\Models\Factor;
-use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -24,12 +23,12 @@ class fastserviceCallcenter
     /**
      * Create a new event instance.
      *
-     * @param User $user
+     * @param $user
      * @param $service
      * @param Factor $factor
      * @param $callcenter
      */
-    public function __construct(User $user  , $service , Factor $factor = null,Callcenter $task,$type)
+    public function __construct($user  , $service , Factor $factor = null,Callcenter $task,$type)
     {
         $this->user = $user;
         $this->service = $service;
