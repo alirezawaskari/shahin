@@ -53,7 +53,11 @@
                     <input type="text" value="{{old('address')}}" class="form-control" name="address">
                 </div>
 
-                <div class="col-12 col-md-4 mb-3">
+                <div class="col-12 col-md-3 mb-2">
+                    <label>دامنه فعال</label>
+                    <input type="text" value="{{old('domain_active')}}" class="form-control" name="domain_active">
+                </div>
+                <div class="col-12 col-md-3 mb-3">
                     <label>وضعیت</label>
 
                     <select class="form-control" name="status">
@@ -65,14 +69,15 @@
                         </option>
                     </select>
                 </div>
-                <div class="col-12 col-md-4 mb-3">
+                <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ شروع اجاره نامه</label>
                     <input type="text" name="contract_start_date" class="form-control date">
                 </div>
-                <div class="col-12 col-md-4 mb-3">
+                <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ پایان اجاره نامه</label>
                     <input type="text" name="contract_expiration_date" class="form-control date">
                 </div>
+
                 <div class="col-12 col-md-4 mt-2">
                     <div class="card">
                         <div id="logo_src" class="show">

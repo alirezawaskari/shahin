@@ -54,6 +54,7 @@ class GhorfeOnlineListController extends AdminController {
                 'contract_start_date' => 'required',
                 'contract_expiration_date' => 'required',
                 'address' => 'required|string',
+                'domain_active' => 'required'
             ] );
             $inputs = $request->all();
 

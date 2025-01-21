@@ -54,7 +54,7 @@ return new class extends Migration
             $table->text('tax_certificate_image');
             $table->text('mohr')->nullable(true);
             $table->integer('status');
-
+            $table->string('domain_active')->length(100);
 
             $table->softDeletes();
 
