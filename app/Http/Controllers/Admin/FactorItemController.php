@@ -222,7 +222,7 @@ class FactorItemController extends Controller {
         if ( $request->check && isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ) {
             event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
         }
-        if($factor_item->center->representation_id)
+        if($factor_item->center->representation)
         {
             $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
         }
