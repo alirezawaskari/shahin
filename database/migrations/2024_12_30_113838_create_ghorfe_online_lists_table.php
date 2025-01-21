@@ -15,10 +15,9 @@ return new class extends Migration
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('useers');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('title');
             $table->string('en_title');
-            $table->string('sms_code');
             $table->string('slug');
             $table->string('type_work');//service || product || all
             $table->string('call');
@@ -36,6 +35,7 @@ return new class extends Migration
             $table->text('index_description');
             $table->text('footer_tag');
             $table->text('sms_code');
+            $table->string('postal_code')->length(10);
             $table->timestamp('contract_start_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('contract_expiration_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->text('instagram')->nullable(true);
@@ -51,7 +51,10 @@ return new class extends Migration
             $table->text('left_small_horizontal_image');
             $table->text('right_small_horizontal_image');
             $table->text('addvertisment_slider');
+            $table->text('tax_certificate_image');
+            $table->text('mohr')->nullable(true);
             $table->integer('status');
+
 
             $table->softDeletes();
 

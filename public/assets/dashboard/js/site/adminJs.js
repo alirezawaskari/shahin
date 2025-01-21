@@ -168,6 +168,7 @@ $(document).on('change', '.file_upload_ajax', function () {
             "image/svg+xml",
             "image/psd",
             "image/tiff",
+            "image/gif",
             "application/pdf",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

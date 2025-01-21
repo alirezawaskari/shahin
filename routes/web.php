@@ -556,6 +556,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/organization/items', 'OrganizationController@items')->name('organization.items');
     Route::resource('organization', 'OrganizationController');
     Route::resource('representation', 'RepresentationController');
+    //ghorfeOnlineList
+    Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
+    Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+
+    Route::resource('ghorfeOnlineList', 'GhorfeOnlineListController');
     //singleWebPage
     Route::resource('singleWebPage', 'SingleWebPageController');
     //center

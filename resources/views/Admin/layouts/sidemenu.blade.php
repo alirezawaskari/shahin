@@ -435,6 +435,16 @@
                 </ul>
             </li>
             @endpermission
+            @permission('ghorfe_online_list')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>مغازه های دیجیتال</span> </a>
+                <ul>
+                    <li><a href="{{ route('ghorfeOnlineList.index') }}">فهرست مغازه های دیجیتال</a></li>
+                    @permission('ghorfe_online_create')
+                    <li><a href="{{ route('ghorfeOnlineList.create') }}">ایجاد مغازه های دیجیتال</a></li>
+                    @endpermission
+                </ul>
+            </li>
+            @endpermission
             @permission('create_organ')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>سازمان ها</span> </a>
                 <ul>
