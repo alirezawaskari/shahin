@@ -174,7 +174,7 @@ class TotalFactorItemController extends Controller
             $temp['factor_image'] = $factor_item->factor_image;
             $temp['confirms'] = $factor_item->confirms;
             $temp['center'] = $factor_item->center;
-            $temp['date'] = $factor_item->date;
+            $temp['date'] = $factor_item->date ? $factor_item->date : now();
             $temp['type'] = $factor_item->type;
             $temp['discount'] = $factor_item->discount;
             $temp['installments_num'] = $factor_item->installments_num;
