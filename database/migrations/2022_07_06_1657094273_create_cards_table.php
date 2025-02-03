@@ -12,6 +12,7 @@ class CreateCardsTable extends Migration
         Schema::create('cards', function (Blueprint $table) {
 
 		$table->integer('id');
+        $table->morphs('cardable', 'cardable_index');//representation Models || ghorfeOnlineList Models
 		$table->string('title',191)->nullable()->default(NULL);
 		$table->string('type',110);
         $table->integer('is_show')->default(0);

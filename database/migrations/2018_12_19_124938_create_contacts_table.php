@@ -18,6 +18,7 @@ class CreateContactsTable extends Migration
             $table->increments('id');
             $table->integer('card_id')->nullable()->unsigned();
             $table->foreign('card_id')->references('id')->on('cards');
+            $table->morphs('contactable', 'contactable_index');//representation Models || ghorfeOnlineList Models
             $table->integer('representation_id')->nullable()->unsigned();
             $table->foreign('representation_id')->references('id')->on('representations');
             $table->string('name');
