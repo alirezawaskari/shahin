@@ -32,7 +32,7 @@ class FactorItemCollection extends ResourceCollection
                     'organization' => isset($item->factor->organization) ? $item->factor->organization->fa_name : 'ندارد',
                     'confirm' => $item->confirm,
                     'date' => verta($item->created_at)->format('Y/m/d H:i:s'),
-                    'date_time' => $item->date ? $item->date : 'ندارد',
+                    'date_time' => $item->date ? verta($item->date)->format('Y/m/d H:i:s') : 'ندارد',
                     'start_end_date' => $this->startEndDate($item),
                     'supporter' => ($item->supporter ? $item->supporter->family.' - ': 'ندارد - ').($item->file_number ? $item->file_number : 'ندارد'),
                     'type' => $this->setType($item),
@@ -86,25 +86,26 @@ class FactorItemCollection extends ResourceCollection
     {
         $temp = '';
         $has_supervisor = $item->supervisor_id == $item->id ? false : true;
+        $total_price = $item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال' : 'ندارد';
         if($has_supervisor)
         {
             $supervisor = $item->supervisor->factor->user->name.' '.$item->supervisor->factor->user->family;
             if ($item->type == '1') {
-                $temp = ' اقساط - دارای سرپرست - '.$supervisor;
+                $temp = ' اقساط - دارای سرپرست - '.$supervisor.' - '.$total_price;
             } elseif ($item->type == '0') {
-                $temp = ' نقد - دارای سرپرست -'.$supervisor;
+                $temp = ' نقد - دارای سرپرست -'.$supervisor.' - '.$total_price;
             } else {
-                $temp = 'تعیین نشده';
+                $temp = 'تعیین نشده'.' - '.$total_price;
             }
         }
         else
         {
             if ($item->type == '1') {
-                $temp = 'اقساط - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال' : 'ندارد');
+                $temp = 'اقساط - ' . $total_price;
             } elseif ($item->type == '0') {
-                $temp = 'نقد - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال ' : 'ندارد');
+                $temp = 'نقد - ' . $total_price;
             } else {
-                $temp = 'تعیین نشده - ' . ($item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال ' : 'ندارد');
+                $temp = 'تعیین نشده - ' . $total_price;
             }
         }
 		return $temp;

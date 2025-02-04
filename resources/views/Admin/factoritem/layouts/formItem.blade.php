@@ -219,10 +219,11 @@
 </div>
 @break
 @case('total-price')
-<div class="col-12 col-md-2 mb-2">
-    <label>جمع کل(ریال)</label>
-    <input class="form-control" type="text" value="{{ number_format($factorItem['total_price'])}}" name="totalPrice"
+<div class="col-12 mb-2">
+    {!! $form->help !!}
+    <input class="col-md-4 form-control" type="text" value="{{ number_format($factorItem['total_price'])}}" name="totalPrice"
         oninput="separatePrices(this)">
+    <p class="text-warning">همکار گرامی لطفا فقط جمع کل فاکتور را بصورت عددی وارد کنید.</p>
 </div>
 @break
 @case('factor-image')
@@ -259,6 +260,10 @@
 </div>
 @break
 @case('multi_file')
+<div class="col-12">
+    {!! $form->help !!}
+    <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
+</div>
 <div class="col-12 row">
     <div class="col-md-4">
         <div id="addnew" class="file file--upload mb-5">
@@ -278,10 +283,6 @@
         <div id="{{ $form->name }}_src" class="show"></div>
         <input type="hidden" id="{{ $form->name }}_path" class="path" name="item[{{ 'url'.$form->name }}][]">
     </div>
-</div>
-<div class="col-12">
-    {!! $form->help !!}
-    <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
 </div>
 <div class="col-12 row">
     @if(isset($factorItem['factor_values'][$form->name]))

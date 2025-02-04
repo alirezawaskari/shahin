@@ -151,8 +151,11 @@ class CallcenterCollection extends ResourceCollection
                 }
                 return implode(',', $temp);
             }
-            if ($user->service) {
+            if ($item->type != 1 && $user->service) {
                 return $user->service->title;
+            }
+            else{
+                return 'ندارد';
             }
         } else {
             return 'ندارد';

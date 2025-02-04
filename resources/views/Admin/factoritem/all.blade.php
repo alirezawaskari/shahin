@@ -59,12 +59,12 @@
                     <div class="col-12 col-md-3 mb-2">
                         <select name="status[]" id="select_status" class="custom-select" multiple="multiple">
                             <option value="0">جدید</option>
-                            <option value="16">ارجاع به مشاوره</option>
+                            <option value="16">ارجاع به کارشناسی</option>
                             <option value="17">منتظر مشاوره مرکز</option>
                             <option value="4">منتظر تکمیل مدارک</option>
                             <option value="14">منتظر تایید پشتیبان</option>
                             <option value="3">تعلیق پشتیبان</option>
-                            <option value="2"> مشاوره</option>
+                            <option value="2"> مشاوره شد</option>
                             <option value="9">منتظر تایید امور تسهیلات</option>
                             <option value="5">منتظرتایید مالی</option>
                             <option value="13">منتظر تایید امور قراردادها</option>
@@ -74,7 +74,8 @@
                             <option value="7">اتمام کار</option>
                             <option value="15">پرونده مختومه</option>
                             <option value="11">منتظرتایید مالی نمایندگی</option>
-                            <option value="12">منتظر تایید مدیر نمایندگی</option>
+                            <option value="18">منتظر تایید قرارداد توسط کاربر</option>
+
                         </select>
                     </div>
                     <div class="col-12 col-md-3 mb-2">

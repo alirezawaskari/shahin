@@ -106,11 +106,9 @@
                                     )
                                 </span>
                             </th>
-                            <th>حضور کاربر</th>
                             <th>ثبت کننده</th>
                             <th>تایید کننده</th>
                             <th>تاریخ و ساعت</th>
-                            <th>حضور</th>
                             <th>وضعیت</th>
                             <th>اقدام</th>
                         </tr>
@@ -172,6 +170,6 @@
 @stop
 @section('js')
 <script src="/assets/dashboard/js/sessionCompleteTurnRatings.js"></script>
-<script src="/assets/dashboard/js/layouts.js"></script>
+<script src="/assets/dashboard/js/layouts.js?v=1.1"></script>
 <script src="/assets/dashboard/js/session.js"></script>
 @endsection

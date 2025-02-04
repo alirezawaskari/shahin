@@ -19,18 +19,8 @@ $(document).ready(function () {
                             }
                         }
                     });
-                    if ($('#type_consultation_online').is(':checked')) {
-                        $('.divDate').css('display', 'none');
-                    }
                 }
             });
-    });
-    $('#select_type_consultation').on('change', function () {
-        if ($('#select_type_consultation').val() == 'inPerson') {
-            $('.divDate').css('display', 'block');
-        } else {
-            $('.divDate').css('display', 'none');
-        }
     });
     $('#visitRejectModal').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget) // Button that triggered the modal
@@ -95,25 +85,25 @@ $(document).ready(function () {
                 { "data": "name" },
                 { "data": "discription" },
                 { "data": "date" },
-                {
-                    "data": data,
-                    "render": function (data){
-                        if (data.entry_start != null && data.entry_end == null){
-                            return `<i class="fa fa-certificate" style="color: #08f108;  text-shadow: 0 0 10px #10e8e1;" aria-hidden="true"></i>`
-                        }else if (data.entry_start != null && data.entry_end != null){
-                            return `<span role="button" data-id="${data.id}" class="fa fa-caret-square-o-down entry-inserted" aria-hidden="true" style=" cursor: pointer;">
-                                <div class="entry-data-box-${data.id}" style="display: none;width: 200px" >
-                                <span class="text-dark">ورود: </span><span >${data.entry_start} </span>
-                                        <hr>
-                                    <span class="text-dark">خروج: </span><span >${data.entry_end}</span>
-                                </div>
-                                </span>
-                                `
-                        }else {
-                            return ``;
-                        }
-                    }
-                },
+                // {
+                //     "data": data,
+                //     "render": function (data){
+                //         if (data.entry_start != null && data.entry_end == null){
+                //             return `<i class="fa fa-certificate" style="color: #08f108;  text-shadow: 0 0 10px #10e8e1;" aria-hidden="true"></i>`
+                //         }else if (data.entry_start != null && data.entry_end != null){
+                //             return `<span role="button" data-id="${data.id}" class="fa fa-caret-square-o-down entry-inserted" aria-hidden="true" style=" cursor: pointer;">
+                //                 <div class="entry-data-box-${data.id}" style="display: none;width: 200px" >
+                //                 <span class="text-dark">ورود: </span><span >${data.entry_start} </span>
+                //                         <hr>
+                //                     <span class="text-dark">خروج: </span><span >${data.entry_end}</span>
+                //                 </div>
+                //                 </span>
+                //                 `
+                //         }else {
+                //             return ``;
+                //         }
+                //     }
+                // },
                 {
                     "targets": 2,
                     "data": "status",
@@ -134,7 +124,7 @@ $(document).ready(function () {
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
                                 ${(data.status == 'در انتظار مشاوره اصلی')? `<a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امور اجرایی پرونده</button></a>`:''}
-                                ${(data.status == 'مشاوره اولیه')? `<button data-id="${data.factor_item}" type="button" class="registrationInitialConsultationModal dropdown-item pointer" data-toggle="modal" data-target="#registrationInitialConsultationModal">ثبت مشاوره اولیه</button>`:''}
+                                ${(data.status == 'در انتظار مشاوره اولیه')? `<button data-id="${data.factor_item}" type="button" class="registrationInitialConsultationModal dropdown-item pointer" data-toggle="modal" data-target="#registrationInitialConsultationModal">ثبت مشاوره اولیه</button>`:''}
                                 <button data-id="${data.id}" type="button" class="dropdown-item pointer visit-reject" data-toggle="modal" data-target="#visitRejectModal">لغو مشاوره</button>
                                 <button style="display: ${display}"  data-id="${data.id}" class="session_delete dropdown-item pointer">حذف</button>
                                 </div>

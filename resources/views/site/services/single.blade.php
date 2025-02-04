@@ -4,9 +4,9 @@
 
 @section('content')
 
-<div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+{{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
     class="modal fade phone-modal">
-    <div class="modal-dialog" role="document">
+     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-start">
                 <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
@@ -22,8 +22,8 @@
                 </div>
                 <h5 style="text-align: center;">
                     <strong>
-                        یلداتون پیشاپیش مبارک خدمات دندانپزشکی با<span style="color:#c0392b"> ۳۵٪ تخفیف</span> ویژه شما
-                        لاله ای های عزیز
+                        خدمات دندانپزشکی با<span style="color:#c0392b"> ۳۵٪ تخفیف</span> ویژه شما
+                        لاله ای های عزیز تنها تا آخر دی ماه
                     </strong>
                 </h5>
             </div>
@@ -34,7 +34,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <div class="service">
     <div class="register-section py-4" id="one-section">
         <div class="container-fluid">

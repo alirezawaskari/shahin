@@ -5,7 +5,7 @@
                 @switch($form->type)
                 @case('factor_dentist')
                     <div class="card-header">
-                        <h4>{{$form->help}}</h4>
+                        <h4>{!! $form->help !!}</h4>
                     </div>
                 <table class="table table-bordered table-striped table-responsive-md">
                     <tr>

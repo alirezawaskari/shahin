@@ -42,7 +42,7 @@
                 </div>
                 @endif
                 <div class="mt-3">
-                    @if (in_array(trim($factorItem['status_factor']) , [0,4,14,16]) )
+                    @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14,16]) )
                     @include('Admin.factoritem.show.turnRatings')
                     @endif
                 </div>
@@ -52,15 +52,14 @@
 </div>
 <span class="btn btn-primary py-1 px-2 text-white mt-4" data-toggle="modal" data-target="#linkModal">ارسال لینک
     پرداخت</span>
-@if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+@if (in_array(trim($factorItem['status_factor']) , [0,3,4,14]) )
 <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
-        class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به
-        مشاوره</span></a>
+        class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به کارشناسی</span></a>
 
 @endif
 @permission('supporter_confirmation')
 <div class="mt-3">
-    @if (in_array(trim($factorItem['status_factor']) , [0,4,14]) )
+    @if (in_array(trim($factorItem['status_factor']) , [0,2,4,14]) )
     <form action="{{ route('factorItem.startWork' , [$factorItem['resnumber']]) }}" method="POST" enctype="multipart/form-data">
         @csrf
         <button class="btn btn-danger mr-2 mb-3">تایید پشتیبان</button>

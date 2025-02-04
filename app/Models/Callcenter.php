@@ -38,7 +38,13 @@ class Callcenter extends Model implements AuditableContract
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -97,6 +103,8 @@ class Callcenter extends Model implements AuditableContract
         $subServiceCategory = request('sub_service_category');
         $serviceItems = request('service_items');
         $has_factor = request('has_factor');
+
+        $query->whereDoesntHave('ghorfeOnlineLists');
 
         if (isset($status) && !is_null($status) && is_array($status)) {
             $query->whereIn('status',$status);
@@ -242,7 +250,7 @@ class Callcenter extends Model implements AuditableContract
                 });
             })->orWhereHas('services',function ($query)use($serviceCategory){
                 $query->whereIn('callcenterable_id',$serviceCategory->services->pluck('id')->toArray());
-            })->whereHas('register' , function ($query) use ($serviceCategory) {
+            })->orWhereHas('register' , function ($query) use ($serviceCategory) {
                 $query->whereIn('service_id', $serviceCategory->services->pluck('id')->toArray());
             });
         });
@@ -290,7 +298,7 @@ class Callcenter extends Model implements AuditableContract
             }
 
         }
-        elseif(auth()->user()->hasPermission('callcenter'))
+        else
         {
                 $query->whereHas('callcenter',function ($query){
                     $query->Where('user_id', auth()->user()->id)->orWhere('agent_id', auth()->user()->id);
@@ -354,6 +362,7 @@ class Callcenter extends Model implements AuditableContract
             '8' => 'بایگانی',
             '9' => 'منقضی شده',
             '10' => 'اقدام شده',
+            '11' => 'انصراف از دریافت پیامک'
         ][$status];
     }
     /**

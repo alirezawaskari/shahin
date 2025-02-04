@@ -97,7 +97,7 @@ class EmployeeController extends AdminController
         {
             $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
         }
-        $employee->resume_detail = json_decode($employee->resume_detail , true); 
+        $employee->resume_detail = json_decode($employee->resume_detail , true);
         return view('Admin.employee.edit', compact('employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
     }
 
@@ -133,6 +133,14 @@ class EmployeeController extends AdminController
         }
         if(isset($inputs['employee']))
         {
+            $validate= Validator::make($inputs, [
+                'sales_commitment' => 'numeric|min:0',
+            ]);
+            if ($validate->fails()){
+                return redirect()->back()->with([
+                    'failByMessage' => $validate->errors()->all(),
+                ]);
+            }
             $user->employee->update($employee_items);
             unset($inputs['employee']);
         }
@@ -203,7 +211,7 @@ class EmployeeController extends AdminController
     public function financialReport(Employee $employee)
     {
         $user = $employee->user;
-        $data_access_date = $employee->data_access_date;
+        $data_access_date = $employee->data_access_date ? $employee->data_access_date : now();
         $items = WalletTransaction::where('user_id', $user->id)->where('created_at', '>=', $data_access_date)->filter()->latest()->get()->each(function ($item) {
             $item->verta_created_at = verta($item->created_at)->format('Y-m');
         })->groupBy('verta_created_at')->map(function (Collection $item) {
@@ -250,7 +258,7 @@ class EmployeeController extends AdminController
      */
     public function walletTransactionFilter(Request $request, User $user)
     {
-        $data_access_date = $user->employee->data_access_date;
+        $data_access_date = $user->employee->data_access_date ? $user->employee->data_access_date : now();
         //all walletTransactions user
         $wallet_transactions = WalletTransaction::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->filter()->latest();
         //filter walletTransactions user by created_at value
@@ -268,7 +276,7 @@ class EmployeeController extends AdminController
      */
     public function performanceDetail(User $user, Request $request)
     {
-        $data_access_date = $user->employee->data_access_date;
+        $data_access_date = $user->employee->data_access_date ? $user->employee->data_access_date : now();
 
         $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         if (isset($request->key) && $request->key != 'all') {
@@ -419,7 +427,10 @@ class EmployeeController extends AdminController
                 "relative_family_type" => $request->input('relative_family_type'),
                 "relative_family_name" => $request->input('relative_family_name'),
                 "relative_family_part" => $request->input('relative_family_part'),
-                "accept_rules" => $request->input('accept_rules')
+                "accept_rules" => $request->input('accept_rules'),
+                "unemployment_insurance" => $request->input('unemployment_insurance'),
+                "accept_unemployment_insurance" => $request->input('accept_unemployment_insurance'),
+
             ]
         ]);
     }

@@ -14,6 +14,7 @@ class CreateTicketsTable extends Migration
 		$table->integer('id');
 		$table->integer('user_id');//ticket sender
         $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->morphs('ticketable', 'ticketable_index');//representation Models || ghorfeOnlineList Models
 		$table->text('file')->nullable()->default(NULL);
 		$table->string('title',200);
 		$table->text('content');

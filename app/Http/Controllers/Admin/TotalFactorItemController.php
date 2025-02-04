@@ -174,7 +174,7 @@ class TotalFactorItemController extends Controller
             $temp['factor_image'] = $factor_item->factor_image;
             $temp['confirms'] = $factor_item->confirms;
             $temp['center'] = $factor_item->center;
-            $temp['date'] = $factor_item->date;
+            $temp['date'] = $factor_item->date ? $factor_item->date : now();
             $temp['type'] = $factor_item->type;
             $temp['discount'] = $factor_item->discount;
             $temp['installments_num'] = $factor_item->installments_num;
@@ -380,7 +380,7 @@ class TotalFactorItemController extends Controller
     {
         $factor_items = $totalFactorItem->factorItems;
 
-        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id) , [0,4,14])) {
+        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id) , [0,3,4,14])) {
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
@@ -436,13 +436,16 @@ class TotalFactorItemController extends Controller
             $factor_values = Arr::add($values, 'consulting_contract_affairs', auth()->user()->id);
             $totalFactorItem->update([
                 'factor_values' => $factor_values,
-                'total_factor_item_status_id' => 8
+                'total_factor_item_status_id' => 18
             ]);
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-
+                $user_phone_number = $factor_item->factor->user->phone;
+                $approval_date = verta($totalFactorItem->approval_date)->format('Y/m/d');
+                $link = 'https://lalecard.ir/factorItem/'.$factor_item->resnumber;
+                IranSms::sendSingleSms('sendUserContractConfirmLink',$user_phone_number,['param1'=>$totalFactorItem->id,'param2'=> $approval_date, 'param3'=>$link]);
                 $fator_item_collections->update([
-                    'status_factor' => 8
+                    'status_factor' => 18
                 ]);
             }
 

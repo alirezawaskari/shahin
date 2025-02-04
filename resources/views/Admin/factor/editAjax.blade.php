@@ -26,11 +26,11 @@
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link show active" id="home-tab" data-toggle="tab" href="#home" role="tab"
-                        aria-controls="home" aria-selected="false">اطلاعات</a>
+                        aria-controls="home" aria-selected="false">جزئیات</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link show" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
-                        aria-controls="profile" aria-selected="true">وضعیت ها</a>
+                        aria-controls="profile" aria-selected="true">ویرایش اطلاعات مالی</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link show" id="comments-tab" data-toggle="tab" href="#comments" role="tab"
@@ -151,20 +151,7 @@
                         {{-- @method('PATCH')--}}
                         <div class="row">
                             @include('Admin.layouts.errors')
-                            @role('superadmin|mali')
-                            @permission('factor-verify')
-                            <div class="col-12 col-md-4 mb-3">
-                                <label>تاییدیه مالی</label>
-                                <select class="form-control" name="confirm">
-                                    <option value="0" {{ $factor->confirm == '0' ? 'selected' : '' }}>
-                                        تایید نشده
-                                    </option>
-                                    <option value="1" {{ $factor->confirm == '1' ? 'selected' : '' }}>
-                                        تایید شده
-                                    </option>
-                                </select>
-                            </div>
-                            @endpermission
+                            @permission('factor-mali-information-edit')
                             <div class="col-12 col-md-4 mb-3">
                                 <label>مبلغ کل (ریال)</label>
                                 <input type="text" value="{{ number_format($factor->price) }}" class="form-control"
@@ -205,31 +192,42 @@
                             </div>
                             <div class="col-12 col-md-3 mb-2 d-none" id="number_card_edit_factor">
                                 <label>شماره کارت (4 رقم آخر کارت پرداخت کننده)</label>
-                                <input class="form-control" name="number_card" type="number" id="number_card_input_edit_factor">
+                                <input class="form-control" name="number_card" type="number"
+                                    id="number_card_input_edit_factor">
                             </div>
                             <div class="col-12 col-md-2 mb-2 d-none" id="payment_code_edit_factor">
                                 <label>شماره پیگیری (4 رقم آخر)</label>
-                                <input class="form-control" name="payment_code" type="number" id="payment_code_input_edit_factor">
+                                <input class="form-control" name="payment_code" type="number"
+                                    id="payment_code_input_edit_factor">
                             </div>
                             <div class="col-12 col-md-2 mb-2 d-none" id="bill_image_edit_factor">
                                 <label>رسید دریافت وجه</label>
                                 <br>
                                 <label for="bill_image_input_edit_factor" id="up-label" class="btn badge-secondary"><i
                                         class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                <input class="form-control file-up" name="bill_image" type="file" id="bill_image_input_edit_factor"
-                                    accept=".jpg,.jpeg,.png">
+                                <input class="form-control file-up" name="bill_image" type="file"
+                                    id="bill_image_input_edit_factor" accept=".jpg,.jpeg,.png">
                             </div>
                             <div class="col-12 col-md-2 mb-2 d-none" id="password_edit_factor">
                                 <label>رمز عبور کاربر</label>
-                                <input class="form-control" name="password" type="number" id="password_input_edit_factor">
+                                <input class="form-control" name="password" type="number"
+                                    id="password_input_edit_factor">
                                 <p>لطفا رمز عبور 6 رقمی که برای کاربر ارسال شده است را وارد کنید.</p>
                             </div>
                             <div class="col-12 col-md-2 mb-2 d-none" id="send_password_edit_factor">
                                 <input type="hidden" value="{{ $user->phone }}" name="phone" class="phone">
-                                <span class="send_user_password btn btn-success-default text-white px-3"> ارسال رمز <i class="fa fa-paper-plane mr-1" aria-hidden="true"></i></span>
+                                <span class="send_user_password btn btn-success-default text-white px-3"> ارسال رمز <i
+                                        class="fa fa-paper-plane mr-1" aria-hidden="true"></i></span>
                             </div>
-                            @if(is_null(auth()->user()->id == $factor->support_id) ||
-                            auth()->user()->hasRole('superadmin'))
+                            <div class="col-12 col-md-4 mb-2 d-none" id="bill_image_edit_factor">
+                                <label>رسید دریافت وجه</label>
+                                <br>
+                                <label for="bill_image_input" id="up-label" class="btn badge-secondary"><i
+                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                <input class="form-control file-up" name="bill_image[]" type="file"
+                                    id="bill_image_input" accept=".jpg,.jpeg,.png" onchange="readURL(this)">
+                                <img id="blah" src="#" alt="" />
+                            </div>
                             <div class="col-12 col-md-4 mb-3">
                                 <label>انتقال به همکار</label>
                                 <select class="form-control" name="support_id">
@@ -242,6 +240,19 @@
                                         {{ $item->name . ' ' . $item->family }}
                                     </option>
                                     @endforeach
+                                </select>
+                            </div>
+                            @endpermission
+                            @permission('factor-verify')
+                            <div class="col-12 col-md-4 mb-3">
+                                <label>تاییدیه مالی</label>
+                                <select class="form-control" name="confirm">
+                                    <option value="0" {{ $factor->confirm == '0' ? 'selected' : '' }}>
+                                        تایید نشده
+                                    </option>
+                                    <option value="1" {{ $factor->confirm == '1' ? 'selected' : '' }}>
+                                        تایید شده
+                                    </option>
                                 </select>
                             </div>
                             @if($factor->verify)
@@ -261,21 +272,10 @@
                                 </div>
                             </div>
                             @endif
-                            @endif
-
-                            <div class="col-12 col-md-4 mb-2 d-none" id="bill_image_edit_factor">
-                                <label>رسید دریافت وجه</label>
-                                <br>
-                                <label for="bill_image_input" id="up-label" class="btn badge-secondary"><i
-                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                <input class="form-control file-up" name="bill_image[]" type="file"
-                                    id="bill_image_input" accept=".jpg,.jpeg,.png" onchange="readURL(this)">
-                                <img id="blah" src="#" alt="" />
-                            </div>
+                            @endpermission
                             <div class="col-12 col-md-4 mb-3">
                                 <input class="btn btn-success border-0 factor-update-submit" value="ذخیره">
                             </div>
-                            @endrole
 
                             @role('superadmin-representation')
                             <div class="col-12 col-md-4 mb-3">

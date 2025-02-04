@@ -13,13 +13,13 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('factorItem.sendInitialLink' , [$factorItem->resnumber]) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('factorItem.sendInitialLink' , [$factorItem->resnumber]) }}" method="POST"
+                enctype="multipart/form-data">
                 @csrf
                 <div class="row p-4">
                     <div class="col-12">
                         <label>مبلغ (ریال)</label>
-                        <input class="form-control px-4 mb-3" name="price" type="text"
-                            oninput="separatePrices(this)">
+                        <input class="form-control px-4 mb-3" name="price" type="text" oninput="separatePrices(this)">
                     </div>
                     <div class="col-md-12">
                         <button class="btn btn-primary px-4 mb-3 submit_btn">ثبت و ارسال</button>
@@ -57,7 +57,7 @@
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade p-t-20 active show" id="factor" role="tabpanel" aria-labelledby="contact-tab">
                 <div id="accordion" class="panel-group">
-                @include('Admin.factoritem.show.factor')
+                    @include('Admin.factoritem.show.factor')
                     @if ($factorItem['factoritemable']->session)
                     <div class="panel">
                         <div class="panel-heading">
@@ -76,10 +76,12 @@
                                     </div>
                                     <table class="table table-bordered table-striped table-responsive-md">
                                         <tr>
-                                            @if(!is_null($factoritem->factoritemable->session_attributes) && isset($factoritem->factoritemable->session_attributes['session_titles']) )
-                                                @foreach($factoritem->factoritemable->session_attributes['session_titles'] as $session_title)
-                                                    <th>{{$session_title}}</th>
-                                                @endforeach
+                                            @if(!is_null($factoritem->factoritemable->session_attributes) &&
+                                            isset($factoritem->factoritemable->session_attributes['session_titles']) )
+                                            @foreach($factoritem->factoritemable->session_attributes['session_titles']
+                                            as $session_title)
+                                            <th>{{$session_title}}</th>
+                                            @endforeach
                                             @else
                                             <th>تاریخ و ساعت</th>
                                             <th>شماره دندان</th>
@@ -268,7 +270,22 @@
                             </div>
                         </div>
                     </div>
-            </div>
+                    @if ($factorItem->factoritemable_id == 17)
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">
+                                <a href="#contract" class="accordion-toggle collapsed" data-toggle="collapse"
+                                    data-parent="#accordion">قرارداد</a>
+                            </h5>
+                        </div>
+                        <div id="contract" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                @include('Admin.factoritem.layouts.contractGhorfeOnline')
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
             </div>
             <div class="tab-pane fade p-t-20" id="turnRatings" role="tabpanel" aria-labelledby="home-tab">
                 @include('Admin.factoritem.show.determineCentering')
@@ -276,7 +293,7 @@
             <div class="tab-pane fade p-t-20" id="basic-document" role="tabpanel" aria-labelledby="basic-document-tab">
                 @include('Admin.factoritem.show.basicDocument')
             </div>
-                @include('Admin.factoritem.layouts.histories',['user_histories'=>$factorItem['user_histories'],'factor'=>$factorItem['factor']])
+            @include('Admin.factoritem.layouts.histories',['user_histories'=>$factorItem['user_histories'],'factor'=>$factorItem['factor']])
             <div class="tab-pane fade p-t-20" id="returnPayment" role="tabpanel" aria-labelledby="return-payment-tab">
                 @include('Admin.factoritem.layouts.file.returnPayment')
             </div>

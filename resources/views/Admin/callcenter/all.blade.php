@@ -91,6 +91,9 @@
                         <option value="7">عودت پرداخت</option>
                         <option value="8">بایگانی</option>
                         <option value="9">منقضی شده</option>
+                        <option value="10">اقدام شده</option>
+                        <option value="11">نصراف از دریافت پیامک</option>
+
                     </select>
                 </div>
                 <div class="col-12 col-md-3 mb-2">
@@ -265,7 +268,7 @@
                     <li class="nav-item"><a id="detail-tab" data-toggle="tab" href="#detail" role="tab"
                             aria-controls="detail" aria-selected="false" class="nav-link show">جزئیات</a>
                     </li>
-                    @permission('close-task')
+                    @permission('close-task|followed-task')
                     <li class="nav-item"><a id="change-status-task-tab" data-toggle="tab" href="#changeStatusTask" role="tab"
                             aria-controls="colseTask" aria-selected="false" class="nav-link show">تغییر وضعیت درخواست
                             </a>
@@ -418,11 +421,16 @@
                     <div id="changeStatusTask" role="tabpanel" aria-labelledby="change-status-task-tab" class="tab-pane fade p-t-20">
                         <div class="tab">
                             <div class="row">
+                                @permission('close-task')
                                 <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'closeTask')">بستن درخواست</button>
+                                @endpermission
+                                @permission('followed-task')
                                 <button id="changeStatusTaskDefaultOpen" class="tablinks col-12 col-md-6"
                                     onclick="openTab(event, 'followedTask')">اقدام شده</button>
+                                @endpermission
                             </div>
                         </div>
+                        @permission('close-task')
                         <div id="closeTask" class="tabcontent">
                             <form id="modal-close-task-form">
                                 <div class="row">
@@ -469,7 +477,8 @@
                                 </div>
                             </form>
                         </div>
-
+                        @endpermission
+                        @permission('followed-task')
                         <div id="followedTask" class="tabcontent">
                             <form id="modal-followed-task-form">
                                 <div class="row">
@@ -484,6 +493,7 @@
                                 </div>
                             </form>
                         </div>
+                        @endpermission
                     </div>
                 </div>
             </div>
@@ -610,7 +620,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
-<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.6')}}"></script>
+<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.7')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.2')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

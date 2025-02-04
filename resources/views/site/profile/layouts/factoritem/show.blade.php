@@ -20,10 +20,11 @@
                             <div class="row p-3 position-relative">
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
+                                @if (in_array('site' , $form->data_display_level))
                                 @switch($form->type)
                                 @case('textarea')
                                 <div class="col-12 col-md-6 mb-2">
-                                    <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+                                    {!! $form->help !!}
                                     <textarea class="form-control {{ $form->class }}" {{
                                         $form->required == true ? 'required' : '' }}
                                                         name="item[{{ $form->name }}]"> {{ isset($item['factor_values'][$form->name]) ? $item['factor_values'][$form->name] : $user[$form->name] }}</textarea>
@@ -32,7 +33,7 @@
                                 @case('factor_dentist')
                                 @foreach($item['factorItems'] as $factoritem)
                                 <div class="col-12 col-md-12 mb-3">
-                                    {{ $form->help }} {{ $factoritem->factor->user->name.'
+                                    طرح درمان {{ $factoritem->factor->user->name.'
                                     '.$factoritem->factor->user->family}}
                                 </div>
                                 <div class="row col-md-12">
@@ -84,7 +85,7 @@
                                 @break
                                 @case('factor_service')
                                 <div class="col-12 col-md-12 mb-3">
-                                    {{ $form->help }}
+                                    {!! $form->help !!}
                                 </div>
                                 <div class="row col-md-12">
                                     <table class="table table-bordered table-striped table-responsive-md"
@@ -136,6 +137,7 @@
                                 @endif
                                 @break
                                 @endswitch
+                                @endif
                                 @endforeach
                                 @endif
                             </div>
@@ -170,8 +172,8 @@
                                     <br>
                                     چک <input type="radio" name="guarantee_type" value="check" {{
                                         $item['guarantee_type']=='check' ? 'checked' : '' }}>
-                                    گواهی کسراز حقوق <input type="radio" name="guarantee_type" value="certificate" {{
-                                        $item['guarantee_type']=='certificate' ? 'checked' : '' }}>
+                                    سفته <input type="radio" name="guarantee_type" value="promissorynote" {{
+                                        $item['guarantee_type']=='promissorynote' ? 'checked' : '' }}>
                                 </div>
                                 @endif
                                 <div class="col-12 col-md-12 mb-3">
@@ -392,6 +394,7 @@
                     </div>
                 </div>
                 @endif
+                @if ($item['status_factor'] == 18 || $item['confirm'] )
                 <div class="card">
                     <div class="card-header">
                         <a class="collapsed card-link" data-toggle="collapse" href="#collapseContract">
@@ -400,24 +403,48 @@
                     </div>
                     <div id="collapseContract" class="collapse" data-parent="#accordion">
                         <div class="card-body">
-                            <div class="card-body">
-                                @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
-                                @include('Admin.totalfactoritem.layouts.contractLoanCash')
-                                @else
-                                @include('Admin.totalfactoritem.layouts.contract')
-                                @endif
-                                <hr>
-                                @if($agents_contract_file)
-                                <h6>فایل قرارداد خدمات دهنده</h6>
-                                @foreach ($agents_contract_file as $contract_file)
-                                <a href="{{ $contract_file }}" class="btn btn-primary py-1 px-2"
-                                    target="_blank">مشاهده</a>
-                                @endforeach
-                                @endif
-                            </div>
+                            @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
+                            @include('Admin.totalfactoritem.layouts.contractLoanCash')
+                            @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
+                            @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
+                            @else
+                            @include('Admin.totalfactoritem.layouts.contract')
+                            @endif
+                            <hr>
+                            @if($agents_contract_file)
+                            <h6>فایل قرارداد خدمات دهنده</h6>
+                            @foreach ($agents_contract_file as $contract_file)
+                            <a href="{{ $contract_file }}" class="btn btn-primary py-1 px-2" target="_blank">مشاهده</a>
+                            @endforeach
+                            @endif
                         </div>
+                        @if($item['status_factor'] == 18)
+                        @include('site.profile.layouts.factoritem.confirmContract')
+                        @endif
                     </div>
                 </div>
+                @endif
+                @elseif ($factorItem->where('factoritemable_id' , 17)->count())
+                @if ($item['status_factor'] == 18 || $item['confirm'] )
+                <div class="card">
+                    <div class="card-header">
+                        <a class="collapsed card-link" data-toggle="collapse" href="#collapseContract">
+                            قرارداد
+                        </a>
+                    </div>
+                    <div id="collapseContract" class="collapse" data-parent="#accordion">
+                        <div class="card-body">
+                            @if ($factorItem->where('factoritemable_id' , 17)->count())
+                            @include('Admin.factoritem.layouts.contractGhorfeOnline')
+                            @endif
+                            <hr>
+                        </div>
+                        @if($item['status_factor'] == 18)
+                        @include('site.profile.layouts.factoritem.confirmContract')
+                        @endif
+                    </div>
+                </div>
+                @endif
                 @endif
             </div>
         </div>
@@ -425,10 +452,58 @@
 </div>
 @stop
 @section('js')
+<script>
+    $('#loading').css('display', 'none');
+    $('#confirm-contract-check').prop('checked', false);
+    $('#confirm-contract-check').change(function () {
+        if (this.checked) {
+            $('#step-two-cover').slideUp();
+        } else {
+            $('#step-two-cover').slideDown();
+        }
+    });
+    $("body").on('click','.send_confirm_contract_code',function () {
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var confirm_contract_check = $('#confirm-contract-check').prop('checked');
+    $.ajax({
+        url: "/factorItem/sendConfirmContractCode",
+        type: 'post',
+        data: {
+            "_token": token,
+            "confirm_contract_check": confirm_contract_check,
+        },
+        success: function (response) {
+            swal(response['message'], "", response['status'])
+        }
+    });
+    });
+    $("body").bind('keyup','#verification_code',function () {
+    var token = $('meta[name="csrf-token"]').attr('content');
+    var verification_code = $('#verification_code').val();
+    var total_factor_item = $('#total_factor_item').val();
+
+    if(verification_code.length == 6)
+    {
+        $('#loading').css('display', 'block');
+        $.ajax({
+        url: "/factorItem/verificationConfirmContractCode",
+        type: 'post',
+        data: {
+            "_token": token,
+            "verification_code": verification_code,
+            "total_factor_item": total_factor_item,
+        },
+        success: function (response) {
+            swal(response['message'], "", response['status']);
+            if(response['status'] == 'success')
+            {
+                location.reload();
+            }
+            $('#loading').css('display', 'none');
+        }
+    });
+    }
+});
+</script>
 <script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
-@if(session()->get('contact_success')=='success')
-<span id="contact_success"></span>
-@elseif(session()->get('contact_error')=='success')
-<span id="contact_error"></span>
-@endif
 @endsection

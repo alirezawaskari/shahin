@@ -29,6 +29,7 @@
                 <div class="col-12 col-md-2 mb-3">
                         <label>تامین کننده</label>
                         <select class="form-control" name="supplier_id">
+                            <option>بدون تامین کننده</option>
                             @foreach($suppliers as $supplier)
                                 <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                             @endforeach

@@ -76,7 +76,7 @@
                     ریال</h5>
             </div>
             <div class="col-12 col-md-5">
-                <h5> تاریخ شروع همکاری : {{ $employee->contract_start_date ? verta($employee->contract_start_date)->format('Y/m/d') : 'ثبت نشده' }}</h5>
+                <h5> تاریخ شروع همکاری : {{ verta($employee->contract_start_date)->format('Y/m/d') }}</h5>
                 <h5> تاریخ انقضاء قرارداد : {{ $employee->contract_expiration_date ? verta($employee->contract_expiration_date)->format('Y/m/d') : 'ثبت نشده' }}</h5>
                 <h5> درصد مالیات : {{ $employee->tax ? $employee->tax.'درصد' : 'ندارد (توسط شرکت پرداخت می شود.)'}}
                 </h5>

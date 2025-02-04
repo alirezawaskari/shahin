@@ -311,6 +311,8 @@
                             <div class="panel-body">
                                 @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
                                 @include('Admin.totalfactoritem.layouts.contractLoanCash')
+                                @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
+                                @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
                                 @else
                                 @include('Admin.totalfactoritem.layouts.contract')
                                 @endif
@@ -356,9 +358,9 @@
                 @include('Admin.totalfactoritem.show.basicDocument')
             </div>
             <div class="tab-pane fade p-t-20" id="consultationReferral" role="tabpanel" aria-labelledby="consultation-referral-tab">
-                @foreach ($items as $key => $supervisor_factor_item)
+                @foreach ($items as $key => $factor_item)
                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
-                    @foreach ($supervisor_factor_item['factorItems'] as $count => $factorItem)
+                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
                     <li class="nav-item">
                         <a class="nav-link show {{ $count == 0 ? 'active' : ''}}" onclick="consultationReferralAppend('consultation_referral_collection_{{$count}}')" id="consultation-referral-{{ $count }}-tab"
                             data-toggle="tab" href="#consultation_referral_collection_{{ $count }}" role="tab"
@@ -367,7 +369,7 @@
                     @endforeach
                 </ul>
                 <div class="tab-content border p-4" id="myTabContent">
-                    @foreach ($supervisor_factor_item['factorItems'] as $count => $factorItem)
+                    @foreach ($factor_item['factorItems'] as $count => $factorItem)
                     <div class="tab-pane fade p-t-20 {{ $count == 0 ? 'show active' : ''}} " id="consultation_referral_collection_{{ $count }}"
                         role="tabpanel" aria-labelledby="consultationReferral-{{ $count }}-tab">
                         @include('Admin.totalfactoritem.show.determineCentering')
@@ -388,7 +390,7 @@
     <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
         پیگیری</span>
     <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
-    @if (in_array(trim($item['status']) , [0,4,14]) )
+    @if (in_array(trim($item['status']) , [0,3,4,14]) )
     <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="item[id]" value="{{ $item['id'] }}">

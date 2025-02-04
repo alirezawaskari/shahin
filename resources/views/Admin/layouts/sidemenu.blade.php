@@ -13,6 +13,9 @@
                     @permission('callcenter-detail|influencer-marketing|in-person-registration')
                     <li><a href="{{ route('callcenter.index') }}"> <span>درخواست ها</span> </a></li>
                     @endpermission
+                    @permission('callcenter-cancellation')
+                    <li><a href="{{ route('callcenter.cancellation') }}"> <span>انصراف از دریافت پیامک</span> </a>
+                        @endpermission
                     @permission('callcenter-desktop')
                     <li><a href="{{ route('callcenter.desktop') }}"> <span>میزکار درخواست ها</span> </a></li>
                     @endpermission
@@ -84,6 +87,7 @@
                     @permission('system-income')
                     <li><a href="{{ route('system.income') }}">درآمد ماهانه و سالانه سیستم</a></li>
                     @endpermission
+                    @permission('treasury-calendar|list-check|list-promissory')
                     <li><a href="#"><i class="icon ti-control-record"></i> <span>خزانه</span> </a>
                         <ul>
                             @permission('treasury-calendar')
@@ -97,6 +101,7 @@
                             @endpermission
                         </ul>
                     </li>
+                    @endpermission
                     @permission('factor-deleted-list')
                     <li><a href="{{ route('factor.delete') }}"><i class="icon ti-control-record"></i> <span>سطل
                                 زباله</span> </a>
@@ -143,7 +148,7 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                 <ul>
                     @permission('installments-file-desktop')
-                    <li><a href="{{ url('/dashboard/totalFactorItem/desktop') }}">میزکار پرونده ها</a></li>
+                    <li><a href="{{ url('/dashboard/totalFactorItem/desktop') }}">میزکار تایید پرونده های اقساطی</a></li>
                     @endpermission
                     @permission('file-desktop')
                     <li><a href="{{ url('/dashboard/factorItem/desktop') }}">پرونده های قابل اجرا</a></li>
@@ -230,11 +235,16 @@
                 </ul>
             </li>
             @endpermission
-            @permission('purchase-invoice')
+            @permission('purchase-invoice|purchase-invoice-create')
             <li><a href="#"><i class="icon ti-control-record"></i><span>فاکتور های خرید</span> </a>
                 <ul>
+                    @permission('purchase-invoice')
                     <li><a href="{{ route('purchaseInvoice.desktop') }}">میزکار فاکتورهای خرید</a></li>
                     <li><a href="{{ route('purchaseInvoice.index') }}">فهرست فاکتورهای خرید</a></li>
+                    @endpermission
+                    @permission('purchase-invoice-create')
+                    <li><a href="{{ route('purchaseInvoice.create') }}">فاکتور خرید جدید</a></li>
+                    @endpermission
                 </ul>
             </li>
             @endpermission
@@ -421,6 +431,16 @@
                     <li><a href="{{ route('representation.index') }}">فهرست عاملیت ها</a></li>
                     @permission('agency-type')
                     <li><a href="{{ route('agencyType.index') }}">انواع عاملیت</a></li>
+                    @endpermission
+                </ul>
+            </li>
+            @endpermission
+            @permission('ghorfe_online_list')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>مغازه های دیجیتال</span> </a>
+                <ul>
+                    <li><a href="{{ route('ghorfeOnlineList.index') }}">فهرست مغازه های دیجیتال</a></li>
+                    @permission('ghorfe_online_create')
+                    <li><a href="{{ route('ghorfeOnlineList.create') }}">ایجاد مغازه های دیجیتال</a></li>
                     @endpermission
                 </ul>
             </li>

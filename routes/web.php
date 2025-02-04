@@ -130,6 +130,8 @@ Route::group([], function () {
     });
 });
 
+Route::get('/gettingIncomingSms', '\App\Http\Controllers\Admin\SMSController@gettingIncomingSms');
+
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
@@ -167,7 +169,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/callcenter/suspension', 'CallcenterController@suspension')->name('callcenter.suspension');
     Route::get('/callcenter/suspension/filter' , 'CallcenterController@filterSuspension');
     Route::get('/callcenter/paid', 'CallcenterController@paid')->name('callcenter.paid');
+    Route::get('/callcenter/cancellation', 'CallcenterController@cancellation')->name('callcenter.cancellation');
     Route::get('/callcenter/paid/filter' , 'CallcenterController@filterPaid');
+    Route::get('/callcenter/cancellation/filter' , 'CallcenterController@filterCancellation');
     Route::get('/callcenter/desktop', 'CallcenterController@desktop')->name('callcenter.desktop');
     Route::get('/callcenter/desktop/filter', 'CallcenterController@filterDesktop');
     Route::get('/callcenter/filter' , 'CallcenterController@filter');
@@ -552,6 +556,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/organization/items', 'OrganizationController@items')->name('organization.items');
     Route::resource('organization', 'OrganizationController');
     Route::resource('representation', 'RepresentationController');
+    //ghorfeOnlineList
+    Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
+    Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+
+    Route::resource('ghorfeOnlineList', 'GhorfeOnlineListController');
     //singleWebPage
     Route::resource('singleWebPage', 'SingleWebPageController');
     //center
@@ -669,6 +678,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
     Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
     Route::resource('groupsms', 'GroupsmsController');
+
     //safe box
     Route::resource('safeBox', 'SafeBoxController');
     //phone & newsletter
@@ -770,6 +780,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/wallet', 'ProfileController@wallet')->name('profile.wallet');
     Route::get('/profile/factor', 'ProfileController@factor')->name('profile.factor');
     Route::get('/profile/factorItem', 'ProfileController@factorItem')->name('profile.factorItem');
+    Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
+    Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
+
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');
     Route::get('/profile/notifications/read', 'ProfileController@notifications_read')->name('profile.notifications.read');

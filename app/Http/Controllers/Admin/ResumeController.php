@@ -151,8 +151,9 @@ class ResumeController extends Controller
 		unset($inputs['urlresume']);
         $inputs['name']=$request->name.' '.$request->family;
         unset($inputs['family']);
-        unset($inputs['province_id']);
-        unset($inputs['city_id']);
+        unset($inputs['province']);
+        unset($inputs['city']);
+        unset($inputs['gender']);
 
         $resume = Resume::create($inputs);
 

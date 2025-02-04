@@ -19,7 +19,7 @@
         @endrole
         @role('consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 13)
-        <button class="btn btn-success">تایید و ارجاع به مدیرعامل</button>
+        <button class="btn btn-success">تایید و ارجاع به کاربر </button>
         @endif
         @endrole
         @role('mali-representation')
@@ -32,6 +32,17 @@
         @role('filing|mali|consulting_contract_affairs|superadmin|superadmin-representation')
         @if ($item['status'] == 9)
         <button class="btn btn-success">تایید و ارجاع به مدیر مالی</button>
+        @endif
+        @endrole
+    </form>
+    <form action="/dashboard/totalFactorItem/change-status" method="POST"
+        enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+        <input type="hidden" name="status_factor" value="9">
+        @role('mali|consulting_contract_affairs|superadmin|superadmin-representation')
+        @if ($item['status'] == 5)
+        <button class="btn btn-danger mr-2">ارجاع مجدد به امورتسهیلات</button>
         @endif
         @endrole
     </form>

@@ -7,7 +7,7 @@
             @if (in_array('panel_factor' , $form->data_display_level))
             @switch($form->type)
             @case('factor_dentist')
-            <h4 class="mb-3 card-header"><i class="fas fa-list"></i> {{ $form->help }} </h4>
+            <h4 class="mb-3 card-header"><i class="fas fa-list"></i> طرح درمان </h4>
             <table class="table table-bordered table-striped table-responsive-md">
                 <tr>
                     <th>#</th>

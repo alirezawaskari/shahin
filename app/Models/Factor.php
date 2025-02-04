@@ -279,6 +279,13 @@ class Factor extends Model implements AuditableContract
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
+    /**
      * @param $query
      * @return mixed
      */
@@ -308,6 +315,8 @@ class Factor extends Model implements AuditableContract
         $province = request('province');
         $city = json_decode(request('city'));
 
+        $query->whereDoesntHave('ghorfeOnlineLists');
+
         $query->where('price', '!=', 0);
         if (auth()->user()->hasPermission('factor-detail')) {
             if (auth()->user()->center_id) {
@@ -328,10 +337,6 @@ class Factor extends Model implements AuditableContract
                 } else {
                     $query->where('representation_id', $representation);
                 }
-            }
-
-            if (auth()->user()->hasRole('admin-site')) {
-                $query->whereStatus(true);
             }
         } else {
             if (auth()->user()->hasRole('organ-manager')) {
@@ -964,7 +969,7 @@ class Factor extends Model implements AuditableContract
      */
     private static function setUnpaidTask(Factor $item)
     {
-        isset($item->task) ? $item->task->update(['status' => 9]) : '';
+        $item->task ? $item->task->update(['status' => 9]) : '';
     }
     /**
      * @param Factor $item
@@ -977,10 +982,21 @@ class Factor extends Model implements AuditableContract
             foreach ($item->factorItems as $factor_item) {
                 if ($factor_item->purchase_type == 0) {
                     //factor price for purchase type online
-                    $factor_item->property->update([
-                        'prepayment_debt' => $factor_item->total_price,
-                        'prepayment_count' => 1,
-                    ]);
+                    if ($factor_item->property()->exists()) {
+                        $$factor_item->property->update([
+                            'prepayment_debt' => $factor_item->total_price,
+                            'prepayment_price' => $factor_item->total_price,
+                            'prepayment_count' => 1,
+                        ]);
+                    } else {
+                        $factor_item->property()->create([
+                            'prepayment_debt' => $factor_item->total_price,
+                            'prepayment_price' => $factor_item->total_price,
+                            'prepayment_count' => 1,
+                            'prepayment_num' => 1,
+                        ]);
+                    }
+
                 } else {
                     //register price for purchase type person
                     if ($factor_item->property()->exists()) {

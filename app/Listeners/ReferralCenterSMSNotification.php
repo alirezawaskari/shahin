@@ -31,15 +31,18 @@ class ReferralCenterSMSNotification
         $center_manager = User::where('level' , 'admin')->where('center_id' , $center->id)->whereHas('roles',function ($query){
             $query->where('name','center-manager');
         })->first();
-        $userMobile = $center_manager->phone;
+        if($center_manager)
+        {
+            $userMobile = $center_manager->phone;
 
-        if (isset($userMobile)) {
-            $name = $center_manager->name .' '. $center_manager->family;
+            if (isset($userMobile)) {
+                $name = $center_manager->name .' '. $center_manager->family;
 
-            $body = [
-                'param1' => $name,
-            ];
-            IranSms::sendSingleSms('referralCenterNotification',$userMobile,$body);
+                $body = [
+                    'param1' => $name,
+                ];
+                IranSms::sendSingleSms('referralCenterNotification',$userMobile,$body);
+            }
         }
     }
 }

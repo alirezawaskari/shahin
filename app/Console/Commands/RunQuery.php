@@ -14,6 +14,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Classes\External\IranSms;
 use App\Events\factorItemClosing;
+use App\Models\Callcenter;
 use App\Models\ServiceTariff;
 
 class RunQuery extends Command
@@ -51,18 +52,13 @@ class RunQuery extends Command
 
     public function handle()
     {
-        $factors = Factor::where('status' , true)->where('created_at' , '>' , '2024-10-01')->get();
-        foreach ($factors as $item) {
-            $item->factorItems->map(function ($factor_item) {
-                if (!$factor_item->property()->exists()) {
-                    $factor_item->property()->create();
-                }
-            });
-
-            if ($item->totalFactorItemReg) {
-                if (!$item->totalFactorItemReg->property()->exists()) {
-                    $item->totalFactorItemReg->property()->create();
-                }
+        $callcenters = Callcenter::where('sms_id' , '!=' , null)->whereIn('status' , ['0,2,5,8,9,10'])->get();
+        foreach($callcenters as $callcenter)
+        {
+            if($callcenter->sms && $callcenter->sms->body == 11)
+            {
+                $callcenter->update(['status' => 11]);
+                $callcenter->register ? $callcenter->register->update(['service_id' , null]) : '';
             }
         }
         dd('success');

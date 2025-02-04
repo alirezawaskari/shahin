@@ -136,9 +136,6 @@
                                             <br>
                                             چک <input type="radio" {{$item['guarantee_type']=='check' ?'checked':''}}
                                                 name="items[{{ $key }}][guarantee_type]" value="check">
-                                            گواهی کسراز حقوق <input type="radio"
-                                                {{$item['guarantee_type']=='certificate' ?'checked':''}}
-                                                name="items[{{ $key }}][guarantee_type]" value="certificate">
                                             سفته <input type="radio" {{$item['guarantee_type']=='promissorynote'
                                                 ?'checked':''}} name="items[{{ $key }}][guarantee_type]"
                                                 value="promissorynote">
@@ -241,6 +238,10 @@
                                         @break
                                         @case('multi_file')
                                         <div class="col-12">
+                                            {!! $form->help !!}
+                                            <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
+                                        </div>
+                                        <div class="col-12">
                                             <div id="addnew" class='file file--upload'>
                                                 <label for='{{ $form->name }}'>
                                                     <img class="upload-file" src="{{asset('img/upload.jpg')}}"
@@ -261,11 +262,6 @@
                                                 <input type="hidden" id="{{ $form->name }}" class="path"
                                                     name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
                                             </div>
-                                        </div>
-
-                                        <div class="col-12">
-                                            {!! $form->help !!}
-                                            <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
                                         </div>
                                         <div class="col-12 row">
                                             @if(isset($item['factor_values'][$form->name]))

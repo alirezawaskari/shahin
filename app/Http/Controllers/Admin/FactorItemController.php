@@ -148,7 +148,7 @@ class FactorItemController extends Controller {
             $factor_items = FactorItem::where( 'status_factor', 10 )->filter();
         }
         elseif (auth()->user()->isAbleTo('file-desktop')){
-            $factor_items = FactorItem::whereIn( 'status_factor', array(0,4,14) )->where('supporter_id', auth()->user()->id)->filter();
+            $factor_items = FactorItem::whereIn( 'status_factor', array(0,2,4,14) )->where('supporter_id', auth()->user()->id)->filter();
         }
         if (auth()->user()->hasPermission('factor_item_referral_to_center'))
         {
@@ -174,14 +174,16 @@ class FactorItemController extends Controller {
             'center_id' => 'required',
         ]);
         if ($validate->fails()){
-            alert()->error(implode(" | ", $validate->errors()->all())
-            , 'عملیات ناموفق ')->persistent('باشه');
-            return redirect()->back();
+            return redirect()->back()->with( [
+                'failByMessage' => implode(" | ", $validate->errors()->all())
+                , 'عملیات ناموفق '
+            ] );
         }
         // check factorItem have serviceTariff or not
         if ($factor_item->serviceTariffs()->exists()){
-            alert()->error(' جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .', 'عملیات ناموفق ')->persistent('باشه');
-            return redirect()->back();
+            return redirect()->back()->with( [
+                'failByMessage' => 'جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .'
+            ] );
         }
         // unselected center
         if($request->center_id == null)
@@ -190,19 +192,21 @@ class FactorItemController extends Controller {
                 'center_id' =>  $request->center_id ,
                 'status_factor' => 14,
             ] );
-            alert()->success('مرکز تعیین شده با موفقیت حذف گردید.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
-            return redirect()->back();
+            return redirect()->back()->with( [
+                'successByMessage' => 'مرکز تعیین شده با موفقیت حذف گردید.'
+            ] );
         }
         //close older sessions
         Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
             'status'=>7,
-            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
         ]);
 
         //update center_id
         $factor_item->update( [
             'center_id' =>  $request->center_id,
             'status_factor' => 17,
+            'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
         ] );
         //create session
         if ($factor_item->factoritemable->session==1){
@@ -215,17 +219,18 @@ class FactorItemController extends Controller {
            ]);
         }
         //send sms to the user
-        if ( $request->check ) {
+        if ( $request->check && isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ) {
             event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
         }
-        if($factor_item->center->representation_id)
+        if($factor_item->center->representation)
         {
             $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
         }
         //send sms to the center manager
         event(new referralCenterNotification($factor_item->center));
-        alert()->success('پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.', 'عملیات موفق ')->autoclose(4000)->persistent('باشه');
-        return redirect()->back();
+        return redirect()->back()->with( [
+            'successByMessage' => 'پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.'
+        ] );
     }
     /**
      * @param Request $request
@@ -242,14 +247,14 @@ class FactorItemController extends Controller {
             self::smsStartWork( $factor_item );
         }
         $factor_item->update( [
-             'date' => isset( $request->date ) ? $request->date : $factor_item->date,
+            'date' => isset( $request->date ) ? $request->date : $factor_item->date,
             'complete' => true,
             'supporter_id' => auth()->user()->id,
         ] );
 
         Session::whereIn('status',[3,4,5,6])->where('factor_item_id',$factor_item->id)->update([
             'status'=>7,
-            'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
          ]);
          if ($factor_item->factoritemable->session==1){
              Session::create( [
@@ -302,6 +307,9 @@ class FactorItemController extends Controller {
             self::storeImageConfirm($factor_item , 'supervisor');
         }
         self::formData( $item );
+        $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
+        //get calculate financial information
+        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
 
         //send sms factoritem start work
         if ( !$factor_item->complete ) {
@@ -314,6 +322,7 @@ class FactorItemController extends Controller {
             'status_factor' => $factor_item->status_factor <= 3 ? 14 : $factor_item->status_factor,
             'complete' => true,
             'status' => 1,
+            'total_price' => $total_price,
             'file_number' => $request->file_number ? $request->file_number : $factor_item->file_number,
         ] );
         //set supervisor
@@ -392,16 +401,11 @@ class FactorItemController extends Controller {
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
         $other_price = isset( $item[ 'otherPrice' ] ) ? $item[ 'otherPrice' ] : 0;
         $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
-
         //get supervisor factoritem
         $factor_item = FactorItem::find( $item[ 'id' ] );
         $supervisor_factor_item = $factor_item->supervisor;
-        //get difference price
-        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
-            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
-        } else {
-            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
-        }
+        //get calculate financial information
+        self::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user);
         //save factor image
         if(isset($request->item['urlfactor-image']))
 		{
@@ -413,10 +417,6 @@ class FactorItemController extends Controller {
             'status_factor' => $status_factor,
             'date' => $request->date ? $request->date : $factor_item->date,
         ] );
-        if ($supervisor_factor_item->type)
-        {
-            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
-        }
         if (!isset($factor_item->factor_values['assistant'])) {
             self::storeImageConfirm($factor_item , 'assistant');
         }
@@ -989,7 +989,7 @@ class FactorItemController extends Controller {
         $factor_item[ 'status_factor_text' ] = FactorItem::statusFactor( $factor_item->status_factor );
         $factor_item[ 'confirms' ] = $factor_item->confirms;
         $factor_item[ 'center' ] = $factor_item->center;
-        $factor_item[ 'date' ] = $factor_item->date ? Helper::vertaToMiladi($factor_item->date) : now();
+        $factor_item[ 'date' ] = $factor_item->date ? $factor_item->date : now();
         $factor_item[ 'type' ] = $factor_item->type;
         $factor_item[ 'file_number' ] = $factor_item->file_number ? $factor_item->file_number : 'ندارد';
         $factor_item[ 'approval_date' ] = verta( $supervisor_factor_item->approval_date )->format( 'Y/m/d' );
@@ -1025,6 +1025,7 @@ class FactorItemController extends Controller {
         $item[ 'payment' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->factor : $supervisor_factor_item->factor;
         $item[ 'payments' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->factors : $supervisor_factor_item->factors;
         $item[ 'has_payment' ] = $supervisor_factor_item->purchase_type ? $supervisor_factor_item->factors()->where( 'status', 1 )->exists() : $supervisor_factor_item->factor()->where( 'status', 1 )->exists();
+        $item['start_date'] = verta($supervisor_factor_item->approval_date)->format('Y/m/d');
 
         //fill prepayment array
         $item['prepayment'] = self::getPrepayment($supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem:$supervisor_factor_item);
@@ -1413,7 +1414,9 @@ class FactorItemController extends Controller {
         $item = $request->item;
         $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $item );
-
+        $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
+        //get calculate financial information
+        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
         Session::changeVisitStatusByFactorItem($factor_item,6);
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
@@ -1423,7 +1426,8 @@ class FactorItemController extends Controller {
             ] );
         }
         $factor_item->update( [
-            'status_factor' => 14,
+            'status_factor' => 2,
+            'total_price' => $total_price,
         ] );
         return redirect()->back()->with( [
             'update' => 'success'
@@ -1458,5 +1462,27 @@ class FactorItemController extends Controller {
             'update' => 'success'
         ] );
 
+    }
+    /**
+     * @param mixed $supervisor_factor_item
+     * @param mixed $total_price
+     * @param mixed $type
+     * @param mixed $user
+     * @return void
+     */
+    private function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
+    {
+        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
+            //get difference price
+            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
+        } else {
+            //get calculate financial information for cash factorItems
+            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
+        }
+        if ($supervisor_factor_item->type)
+        {
+            //get calculate financial information for installment factorItems
+            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
+        }
     }
 }

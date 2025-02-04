@@ -45,7 +45,7 @@
                         @switch($form->type)
                         @case('factor_dentist')
                         <div class="col-12 col-md-12 mb-3">
-                            <i class="fa fa-list"></i> {{ $form->help . ' - ' .
+                            <i class="fa fa-list"></i>{{ 'طرح درمان - ' .
                             $factor_item->factor->user->name . ' ' .
                             $factor_item->factor->user->family }}
                         </div>
@@ -260,7 +260,7 @@
                         @break
                         @case('factor_building')
                         <div class="col-12 col-md-12 mb-3">
-                            <i class="fa fa-list"></i> {{ $form->help . ' - ' .
+                            <i class="fa fa-list"></i>{{ 'فاکتور - ' .
                             $factor_item->factor->user->name . ' ' .
                             $factor_item->factor->user->family }}
                         </div>
@@ -462,7 +462,7 @@
                         @break
                         @case('factor')
                         <div class="col-12 col-md-12 mb-3">
-                            {{ $form->help }}
+                            {!! $form->help !!}
                         </div>
                         <div class="row col-md-12">
                             <table class="table table-bordered table-striped table-responsive-md">
@@ -494,7 +494,7 @@
                         @break
                         @case('factor_service')
                         <div class="col-12 col-md-12 mb-3">
-                            {{ $form->help }}
+                            {!! $form->help !!}
                         </div>
                         <div class="row col-md-12">
                             <table class="table table-bordered table-striped table-responsive-md">
@@ -526,7 +526,7 @@
                         @case('other-price')
                         @if (isset($factor_item['factor_values'][$form->name]))
                         <div class="col-12 col-md-4 mb-2">
-                            <label for="item[{{ $form->name }}]">{{ $form->help }}</label>
+                            {!! $form->help !!}
                             <p class="form-control {{ $form->class }}" name="item[{{ $form->name }}]">
                                 {{ number_format($factor_item['factor_values'][$form->name]) }}
                             </p>

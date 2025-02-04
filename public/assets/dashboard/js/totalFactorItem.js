@@ -216,6 +216,9 @@ $(document).ready(function () {
                         if (data == "پرونده مختومه") {
                             return '<button class="badge badge-dark border-0">' + data + '</button><a h_blank">';
                         }
+                        if (data == "منتظر تایید تسویه حساب امورقراردادها") {
+                            return '<button class="badge badge-purple border-0">' + data + '</button><a h_blank">';
+                        }
                     }
                 },
                 {
