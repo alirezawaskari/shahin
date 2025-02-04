@@ -60,13 +60,7 @@ class GhorfeOnlineList extends Model
     {
         return "/$this->slug";
     }
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class , 'user_id');
-    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -123,12 +117,33 @@ class GhorfeOnlineList extends Model
     {
         return $this->morphMany(Article::class , 'articleable');
     }
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function tickets()
+    {
+        return $this->morphMany(Ticket::class , 'ticketable');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function sliders()
     {
         return $this->morphMany(Slider::class , 'sliderable');
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function contacts()
+    {
+        return $this->morphMany(Contact::class , 'contactable');
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function cards()
+    {
+        return $this->morphMany(Card::class , 'cardable');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany

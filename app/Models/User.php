@@ -323,6 +323,13 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Representation::class);
     }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -399,6 +406,9 @@ class User extends Authenticatable
         $sex = request('sex');
         $representation = request('representation');
         $organization = request('organization');
+
+        $query->whereDoesntHave('ghorfeOnlineLists');
+
          if (auth()->user()->hasPermission('user-detail')) {
             if (auth()->user()->admin_representation) {
                 $query->where('representation_id', auth()->user()->admin_representation->id);

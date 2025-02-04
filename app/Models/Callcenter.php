@@ -38,7 +38,13 @@ class Callcenter extends Model implements AuditableContract
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -97,6 +103,8 @@ class Callcenter extends Model implements AuditableContract
         $subServiceCategory = request('sub_service_category');
         $serviceItems = request('service_items');
         $has_factor = request('has_factor');
+
+        $query->whereDoesntHave('ghorfeOnlineLists');
 
         if (isset($status) && !is_null($status) && is_array($status)) {
             $query->whereIn('status',$status);

@@ -279,6 +279,13 @@ class Factor extends Model implements AuditableContract
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
+    /**
      * @param $query
      * @return mixed
      */
@@ -307,6 +314,8 @@ class Factor extends Model implements AuditableContract
         $serviceItems = request('service_items');
         $province = request('province');
         $city = json_decode(request('city'));
+
+        $query->whereDoesntHave('ghorfeOnlineLists');
 
         $query->where('price', '!=', 0);
         if (auth()->user()->hasPermission('factor-detail')) {
