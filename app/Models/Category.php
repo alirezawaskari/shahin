@@ -378,6 +378,21 @@ class Category extends Model
     {
         return $this->hasMany(Service::class,'category_id','id');
     }
+  /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        
 
-
+        return $query;
+    }
 }

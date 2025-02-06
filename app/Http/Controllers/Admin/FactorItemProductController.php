@@ -17,7 +17,7 @@ class FactorItemProductController extends Controller
      */
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::filter()->get();
         return view('Admin.factoritemproduct.all' , compact('categories'));
     }
 

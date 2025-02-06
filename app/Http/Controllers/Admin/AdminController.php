@@ -332,7 +332,7 @@ class AdminController extends Controller
         }
         $label_month = ['6 ماه قبل', '5 ماه قبل', '4 ماه قبل', '3 ماه قبل', '2 ماه قبل', '1 ماه قبل', 'ماه جاری'];
         $label_week = ['6 روز قبل', '5 روز قبل', '4 روز قبل', '3 روز قبل', '2 روز قبل', '1 روز قبل', 'امروز'];
-        $services = Service::orderBy('created_at', 'desc')->get();
+        $services = Service::filter()->orderBy('created_at', 'desc')->get();
         $start_date = "";
         $service_name = [];
         $service_count = [];

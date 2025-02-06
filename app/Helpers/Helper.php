@@ -263,7 +263,7 @@ class Helper {
     public static function getCallcenter($province , $representation) {
         if($representation)
         {
-            $admin_user_id = User::where( 'level', 'admin' )->where('admin_representation_id' , $representation)->where( 'province_id', $province )->whereHas('roles',function ($query){
+            $admin_user_id = User::filter()->where( 'level', 'admin' )->where('admin_representation_id' , $representation)->where( 'province_id', $province )->whereHas('roles',function ($query){
                 $query->where('name','callcenter');
             })->with('tasks')->get()->sortBy(function($admin_users)
             {
@@ -272,7 +272,7 @@ class Helper {
         }
         else
         {
-            $admin_user_id = User::where( 'level', 'admin' )->where( 'province_id', $province )->whereHas('roles',function ($query){
+            $admin_user_id = User::filter()->where( 'level', 'admin' )->where( 'province_id', $province )->whereHas('roles',function ($query){
                 $query->where('name','callcenter');
             })->with('tasks')->get()->sortBy(function($admin_users)
             {
@@ -281,7 +281,7 @@ class Helper {
         }
 
          if (is_null($admin_user_id)){
-            $admin_user_id = User::where( 'level', 'admin' )->where( 'province_id', 5 )->whereHas('roles',function ($query){
+            $admin_user_id = User::filter()->where( 'level', 'admin' )->where( 'province_id', 5 )->whereHas('roles',function ($query){
                 $query->where('name','callcenter');
             })->with('tasks')->get()->sortBy(function($admin_users)
             {

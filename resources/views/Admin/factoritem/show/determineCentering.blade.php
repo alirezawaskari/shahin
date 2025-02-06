@@ -138,14 +138,14 @@
                         <div class="col-12 mb-5">
                             <select name="service{{ $factorItem['id'] }}" class="form-control d-none"
                                 id="service{{ $factorItem['id'] }}">
-                                @foreach (App\Models\Service::all() as $service)
+                                @foreach (App\Models\Service::filter()->get() as $service)
                                 <option value="{{ $service->id }}">{{ $service->title}}</option>
                                 @endforeach
                             </select>
                             <select name="category{{ $factorItem['id'] }}" class="form-control"
                                 id="category{{ $factorItem['id'] }}">
 
-                                @foreach(App\Models\Category::where('parent_id' , 1)->get() as $category)
+                                @foreach(App\Models\Category::filter()->where('parent_id' , 1)->get() as $category)
                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
                                 @endforeach
                             </select>

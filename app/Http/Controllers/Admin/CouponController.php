@@ -28,7 +28,7 @@ class CouponController extends Controller
      */
     public function create()
     {
-        $services = Service::get();
+        $services = Service::filter()->get();
         return view('Admin.coupon.create', compact('services'));
     }
 
@@ -79,7 +79,7 @@ class CouponController extends Controller
      */
     public function edit(Coupon $coupon)
     {
-        $services = Service::all();
+        $services = Service::filter()->get();
         return view('Admin.coupon.edit', compact('coupon' , 'services'));
     }
 

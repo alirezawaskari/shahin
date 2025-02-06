@@ -151,7 +151,7 @@
                                     <label>پیش نیاز ها</label>
 
                                     <select class="form-control select2" name="required[]" multiple>
-                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
+                                        @foreach(\App\Models\Service::filter()->whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
                                             <option
                                                 value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->required ?? []) ?  'selected' : '' }}>{{ $ser->title }}</option>
                                         @endforeach
@@ -202,7 +202,7 @@
                                 <div class="col-12 col-md-6 mb-3">
                                     <label>خدمات رایگان همراه این خدمت</label>
                                     <select class="form-control select2" name="gift[]" multiple>
-                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
+                                        @foreach(\App\Models\Service::filter()->whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
                                             <option value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->gift ?? []) ? 'selected' :'' }}>{{ $ser->title }}</option>
                                         @endforeach
                                     </select>

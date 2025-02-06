@@ -24,7 +24,7 @@ class SingleWebPageController extends AdminController
      */
     public function create()
     {
-        $services = Service::where('status' , true)->get();
+        $services = Service::filter()->where('status' , true)->get();
         return view('Admin.singleWebPage.create' , compact('services'));
     }
 
@@ -66,7 +66,7 @@ class SingleWebPageController extends AdminController
      */
     public function edit(SingleWebPage $singleWebPage)
     {
-        $services = Service::all();
+        $services = Service::filter()->get();
         $provinces = Province::all();
         return view('Admin.singleWebPage.edit' ,compact('singleWebPage' , 'services' , 'provinces'));
     }

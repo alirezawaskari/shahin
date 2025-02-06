@@ -38,8 +38,8 @@ class CategoryArticleController extends Controller
      */
     public function create()
     {
-        $all_categories = Category::select('id','title')->get();
-        $all_services = Service::select('id','title')->get();
+        $all_categories = Category::filter()->select('id','title')->get();
+        $all_services = Service::filter()->select('id','title')->get();
         return view('Admin.site.categoryArticle.create',['all_categories'=>$all_categories,'all_services'=>$all_services]);
     }
 
@@ -76,8 +76,8 @@ class CategoryArticleController extends Controller
     {
         if ($id) {
             $category_article = CategoryArticle::find($id);
-            $all_categories = Category::select('id','title')->get();
-            $all_services = Service::select('id','title')->get();
+            $all_categories = Category::filter()->select('id','title')->get();
+            $all_services = Service::filter()->select('id','title')->get();
             $similar_categories=$category_article->similarGroupsCategories()->where('similar_model',CategoryArticle::class)->where('relation_model',Category::class)->pluck('relation_id')->toArray();
             $similar_services=$category_article->similarGroupsServices()->where('similar_model' ,CategoryArticle::class)->where('relation_model',Service::class)->pluck('relation_id')->toArray();
 

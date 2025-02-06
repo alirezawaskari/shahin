@@ -20,7 +20,7 @@ class OrganizationController extends Controller
     {
         if ($organization->status){
             $organization->load('services');
-            $services = Service::whereStatus(false)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
+            $services = Service::filter()->whereStatus(false)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
             return view('site.organization.index', compact('organization', 'services'));
         }
        return abort(404);

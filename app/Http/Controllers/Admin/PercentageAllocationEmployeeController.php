@@ -47,9 +47,9 @@ class PercentageAllocationEmployeeController extends AdminController {
     */
 
     public function create() {
-        $service_categories = Category::where( 'parent_id', 2 )->where( 'isActive', 1 )->get();
-        $services = Service::whereStatus( true )->get();
-        $employees = Employee::whereStatus( true )->get();
+        $service_categories = Category::filter()->where( 'parent_id', 2 )->where( 'isActive', 1 )->get();
+        $services = Service::filter()->whereStatus( true )->get();
+        $employees = Employee::filter()->whereStatus( true )->get();
 
         return view( 'Admin.percentageAllocationEmployee.create', compact( [ 'service_categories', 'services', 'employees' ] ) );
     }

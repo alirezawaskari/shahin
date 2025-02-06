@@ -82,8 +82,8 @@ class AppServiceProvider extends ServiceProvider
             $product_categories = CenterCategory::where( 'type', 'category' )->get();
             $service_categories = CenterCategory::where( 'type', 'service' )->get();
 
-            $categories = Category::where( 'isActive', true )->where( 'depth', 1 )->get();
-            $services = Service::all();
+            $categories = Category::filter()->where( 'isActive', true )->where( 'depth', 1 )->get();
+            $services = Service::filter()->get();
 
             $view->with([
                 'product_categories' => $product_categories,
@@ -120,8 +120,8 @@ class AppServiceProvider extends ServiceProvider
             $product_categories = CenterCategory::where( 'type', 'category' )->get();
             $service_categories = CenterCategory::where( 'type', 'service' )->get();
 
-            $categories = Category::where( 'isActive', true )->where( 'depth', 1 )->get();
-            $services = Service::all();
+            $categories = Category::filter()->where( 'isActive', true )->where( 'depth', 1 )->get();
+            $services = Service::filter()->get();
 
             $view->with([
                 'product_categories' => $product_categories,

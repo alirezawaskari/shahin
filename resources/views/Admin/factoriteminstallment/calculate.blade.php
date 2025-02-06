@@ -38,7 +38,7 @@
                                         <label>خدمت</label>
                                         <select class="form-control" name="service" required id="service1">
                                             <option value="">انتخاب خدمت</option>
-                                            @foreach(\App\Models\Service::all() as $service)
+                                            @foreach(\App\Models\Service::filter()->get() as $service)
                                             <option value="{{ $service->id }}">{{ $service->title }}</option>
                                             @endforeach
                                         </select>
@@ -71,7 +71,7 @@
                                     <label>جمع تسهیلات (ریال)</label>
                                     <p id="loan1" class="form-control"></p>
                                 </div>
-								
+
 								<div class="col-12 col-md-10 mt-3">
                                     <label>مبلغ ضمانت (ریال)</label>
                                     <p id="guarantee1" class="form-control"></p>
@@ -92,7 +92,7 @@
                                         <label>خدمت</label>
                                         <select class="form-control" name="service" required id="service2">
                                             <option value="">انتخاب خدمت</option>
-                                            @foreach(\App\Models\Service::all() as $service)
+                                            @foreach(\App\Models\Service::filter()->get() as $service)
                                             <option value="{{ $service->id }}">{{ $service->title }}</option>
                                             @endforeach
                                         </select>
@@ -112,7 +112,7 @@
                                     <label>جمع کل (ریال)</label>
                                     <p id="totalPrice2" class="form-control"></p>
                                 </div>
-								
+
 								 <div class="col-12 col-md-5">
                                     <label>جمع تسهیلات (ریال)</label>
                                     <p id="loan2" class="form-control"></p>
@@ -125,7 +125,7 @@
                                     <label>تعداد قسط</label>
                                     <p id="installmentsNum2" class="form-control"></p>
                                 </div>
-								
+
 								<div class="col-12 col-md-10 mt-3">
                                     <label>مبلغ ضمانت (ریال)</label>
                                     <p id="guarantee2" class="form-control"></p>
@@ -146,7 +146,7 @@
                                         <label>خدمت</label>
                                         <select class="form-control" name="service" id="service3">
                                             <option value="">انتخاب خدمت</option>
-                                            @foreach(\App\Models\Service::all() as $service)
+                                            @foreach(\App\Models\Service::filter()->get() as $service)
                                             <option value="{{ $service->id }}">{{ $service->title }}</option>
                                             @endforeach
                                         </select>
@@ -179,7 +179,7 @@
                                     <label>جمع تسهیلات (ریال)</label>
                                     <p id="loan3" class="form-control"></p>
                                 </div>
-								
+
 								<div class="col-12 col-md-10 mt-3">
                                     <label>مبلغ ضمانت (ریال)</label>
                                     <p id="guarantee3" class="form-control"></p>

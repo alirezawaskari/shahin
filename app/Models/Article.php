@@ -53,7 +53,13 @@ class Article extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+    */
+    public function articleable()
+    {
+        return $this->morphTo();
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -86,4 +92,14 @@ class Article extends Model
         }
     }
 
+      /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        $query->whereDoesntHave('articleable');
+
+        return $query;
+    }
 }

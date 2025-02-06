@@ -105,7 +105,7 @@
                                     }}</a>
                                 @endforeach
                                 @else
-                                @foreach(\App\Models\Service::whereStatus(true)->where('isShow' ,
+                                @foreach(\App\Models\Service::filter()->whereStatus(true)->where('isShow' ,
                                 true)->orderBy('created_at', 'desc')->get() as $item) <a
                                     class="dropdown-item text-orange py-2"
                                     href="{{ $item->path().'/'.(isset($callcenter) ? $callcenter->id : '') }}">{{

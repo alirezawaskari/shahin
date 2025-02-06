@@ -69,15 +69,15 @@ class FilterServiceProvider extends ServiceProvider
         $user = auth()->user();
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
         $admin_users = User::where('level', 'admin')->withCount('tasks')->get();
-        $services = Service::where('status' , 1)->get();
-        $product_categories = Category::where('parent_id', 1)->where('isActive' , 1)->get();
-        $service_categories = Category::where('parent_id', 2)->where('isActive' ,1)->get();
+        $services = Service::filter()->where('status' , 1)->get();
+        $product_categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
+        $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' ,1)->get();
         $permission = false;
 
         if (auth()->user()->center_id && !auth()->user()->hasPermission('center-all-services')) {
-            $services = Service::whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
+            $services = Service::filter()->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
             $service_categories = auth()->user()->center->centerable_type == Service::class && auth()->user()->center->centerable ? Category::where('id', auth()->user()->center->centerable->category_id)->get() : collect([]);
-            $product_categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
+            $product_categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }elseif ($user->admin_representation) {
             $admin_users = User::where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
         }

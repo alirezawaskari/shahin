@@ -47,7 +47,7 @@ class RegisterController extends Controller
  {
         $provinces = Province::get();
         $citys = City::get();
-        $services = Service::whereStatus( true )->where( 'isShow', true )->orderBy( 'created_at', 'desc' )->get();
+        $services = Service::filter()->whereStatus( true )->where( 'isShow', true )->orderBy( 'created_at', 'desc' )->get();
         $financial_plans_types = FinancialPlansType::whereStatus( true )->where( 'is_show', true )->get();
         return view( 'auth.register', compact( 'financial_plans_types' , 'provinces', 'citys', 'services' ) );
     }
@@ -95,9 +95,9 @@ class RegisterController extends Controller
         // assign to callcenter
         $last_user = Callcenterstatus::latest()->first();
         if ( Arr::has( $data, 'representation' ) ) {
-            $admin_users = User::where( 'level', 'admin' )->where( 'admin_representation_id', $data[ 'representation' ] )->get();
+            $admin_users = User::filter()->where( 'level', 'admin' )->where( 'admin_representation_id', $data[ 'representation' ] )->get();
         } else {
-            $admin_users = User::where( 'level', 'admin' )->where( 'id', '!=', $last_user->id )->where( 'admin_representation_id', null )->get();
+            $admin_users = User::filter()->where( 'level', 'admin' )->where( 'id', '!=', $last_user->id )->where( 'admin_representation_id', null )->get();
         }
         foreach ( $admin_users as $u ) {
             if ( $u->hasPermission('get_new_task') ) {

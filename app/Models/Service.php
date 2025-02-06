@@ -180,7 +180,13 @@ class Service extends Model
     {
         return $this->hasMany(ServiceItem::class);
     }
-
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
@@ -195,6 +201,7 @@ class Service extends Model
     {
         return $this->morphMany(PercentageAllocationEmployee::class , 'percentage_allocation_employeeable');
     }
+
     /**
      * @param $query
      * @return mixed
@@ -343,14 +350,15 @@ class Service extends Model
         $title = request('title');
         $purchase_type = request('purchase_type');
         $pay_type = request('pay_type');
+        $query->whereDoesntHave('ghorfeOnlineLists');
 
-        if (auth()->user()->admin_representation) {
+        if (auth()->user() && auth()->user()->admin_representation) {
             $representation = auth()->user()->admin_representation->id;
             $query->whereHas('representations', function ($query) use ($representation) {
                 $query->where('representation_id', $representation);
             });
         }
-        if (auth()->user()->center_id) {
+        if (auth()->user() && auth()->user()->center_id) {
             $center = auth()->user()->center_id;
             $query->whereHas('centers', function ($query) use ($center) {
                 $query->where('center_id', $center);

@@ -23,7 +23,7 @@ class ArticleController extends Controller
             $articles = session()->get('representation')->articles()->latest()->paginate(10);
         }
         else{
-            $articles = Article::whereStatus(1)->latest()->paginate(10);
+            $articles = Article::filter()->whereStatus(1)->latest()->paginate(10);
         }
         return view('site.articles.index' , compact('articles'));
     }

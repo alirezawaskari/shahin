@@ -24,7 +24,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
+        $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
         return view('Admin.site.category.lists', compact('categories'));
     }
 
@@ -44,9 +44,9 @@ class CategoryController extends Controller
     public function show($cat_id)
     {
         //دسته بندی مشابه
-        $all_categories = Category::select('id', 'title')->where('depth',1)->get();
+        $all_categories = Category::filter()->select('id', 'title')->where('depth',1)->get();
         //خدمات مشابه
-        $all_services = Service::select('id', 'title')->get();
+        $all_services = Service::filter()->select('id', 'title')->get();
         $parent = Category::find($cat_id);
         $path = '';
         if ($parent->depth == 0) { $path = $parent->id; }
@@ -57,10 +57,10 @@ class CategoryController extends Controller
         //for depth = 2
         if ($parent->depth > 1)  $path = $parent->path . '/' . $parent->id;
         $path_explode = explode('/',$path);
-        $cateDepthOne = Category::where('depth', 1)->where('path', $path_explode[0])->get();
+        $cateDepthOne = Category::filter()->where('depth', 1)->where('path', $path_explode[0])->get();
 
         $depth=$parent->depth + 1;
-        $family_cat_ids_list= Category::select('id','title')->where('parent_id', $cat_id)->get();
+        $family_cat_ids_list= Category::filter()->select('id','title')->where('parent_id', $cat_id)->get();
 
         return view('Admin.site.category.create', compact('parent','path','all_categories'
                 ,'all_services','depth','cateDepthOne','family_cat_ids_list'));
@@ -194,7 +194,7 @@ class CategoryController extends Controller
 
 
         if ($category->parent_id == 0) {
-            $categories = Category::where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
+            $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
             return view('Admin.site.category.lists', ['categories' => $categories,'create' => 'success']);
         } else
             return redirect('/dashboard/category/sub/' . $category->parent_id )->with([
@@ -212,10 +212,10 @@ class CategoryController extends Controller
             $category = Category::find($id);
             $parent_id = $category->parent_id;
             //دسته بندی های مشابه
-            $all_categories = Category::where('id', '!=', $id)->select('id', 'title')->get();
+            $all_categories = Category::filter()->where('id', '!=', $id)->select('id', 'title')->get();
             //خدمات مشابه
-            $all_services = Service::select('id', 'title')->get();
-            $parents = Category::where('parent_id', 0)->get();
+            $all_services = Service::filter()->select('id', 'title')->get();
+            $parents = Category::filter()->where('parent_id', 0)->get();
 
 
             //مرتبط با دسته بندی
@@ -223,20 +223,20 @@ class CategoryController extends Controller
             if($category->depth > 1) {
                 $path = explode('/', $category->path);
                 $path = $path[0] . '/' . $path[1];
-                $child_of_parent = Category::where('path', 'like', $path)->pluck('id');
+                $child_of_parent = Category::filter()->where('path', 'like', $path)->pluck('id');
             }
 
             if($category->depth == 2){
-                $family_cat_ids_list = Category::where('path', $category->path)->get();
+                $family_cat_ids_list = Category::filter()->where('path', $category->path)->get();
             }
 
             if($category->depth == 3){
-                $family_cat_ids_list= Category::whereIn('parent_id',$child_of_parent->toArray())->get();
+                $family_cat_ids_list= Category::filter()->whereIn('parent_id',$child_of_parent->toArray())->get();
             }
 
             if($category->depth == 4){
-                $childs = Category::whereIn('parent_id',$child_of_parent->toArray())->pluck('id');
-                $family_cat_ids_list= Category::whereIn('parent_id',$childs->toArray())->get();
+                $childs = Category::filter()->whereIn('parent_id',$child_of_parent->toArray())->pluck('id');
+                $family_cat_ids_list= Category::filter()->whereIn('parent_id',$childs->toArray())->get();
             }
 
             $related_category = $category->related()->pluck('related_id')->toArray() ;
@@ -416,7 +416,7 @@ class CategoryController extends Controller
         }
 
         if ($cat->parent_id == 0) {
-            $categories = Category::where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
+            $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
             return view('Admin.site.category.lists', ['categories' => $categories,'update' => 'success']);
         }
         else
@@ -457,7 +457,7 @@ class CategoryController extends Controller
                     $father = Category::find($selected_cat->path);
                     $path = $father->id . '/' . $selected_cat->id;
                 }
-            $categories = Category::where('parent_id', $category_id)->orderBy('id', 'DESC');
+            $categories = Category::filter()->where('parent_id', $category_id)->orderBy('id', 'DESC');
             $columns = ['id', 'title'];
             $queries = [];
             foreach ($columns as $column) {
@@ -492,8 +492,8 @@ class CategoryController extends Controller
     {
         if (isset($request->id)) {
             $brands=[]; $view_result='';$depth=null;
-            $categories = Category::select('id', 'title')->where('parent_id', $request->id)->get();
-            $cat = Category::select('id', 'title','depth')->where('parent_id', $request->id)->first();
+            $categories = Category::filter()->select('id', 'title')->where('parent_id', $request->id)->get();
+            $cat = Category::filter()->select('id', 'title','depth')->where('parent_id', $request->id)->first();
             if($cat)$depth = $cat->depth ;
             $hasChild = Category::hasChild($request->id);
 
@@ -575,8 +575,8 @@ class CategoryController extends Controller
      */
     public function searchCategory(Request $request)
     {
-        $service_cat = Category::where('id',2)->select('id','title')->first();
-        $categories = Category::select('id','title')->where('isActive',1)
+        $service_cat = Category::filter()->where('id',2)->select('id','title')->first();
+        $categories = Category::filter()->select('id','title')->where('isActive',1)
             ->where('id','!=',2)->where('parent_id','!=',$service_cat->id)
             ->where('title','like','%'. $request->keyword .'%')->get();
 

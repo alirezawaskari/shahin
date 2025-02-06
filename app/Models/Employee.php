@@ -57,6 +57,10 @@ class Employee extends Model
         $status=request('status');
         $role=request('role');
 
+        $query->whereHas('user', function ($query) {
+            $query->whereDoesntHave('ghorfeOnlineLists');
+        });
+
         if ((!isset($status) || $status == 'all') && trim($name) == '' && trim($family) == '' && trim($phone) == '') {
             $query->whereHas('user', function ($query) use ($status) {
                 $query->where('status',true);

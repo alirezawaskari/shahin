@@ -16,7 +16,7 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
+        $services = Service::filter()->whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
         return view('site.services.index', compact('services'));
     }
 

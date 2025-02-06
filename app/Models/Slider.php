@@ -19,6 +19,13 @@ class Slider extends Model
     protected $fillable=['img','title','link','type','category_id','representation_id'];
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+    */
+    public function sliderable()
+    {
+        return $this->morphTo();
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
@@ -31,5 +38,15 @@ class Slider extends Model
     public function representation()
     {
         return $this->belongsTo(Representation::class);
+    }
+      /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        $query->where('sliderable_id' , null);
+
+        return $query;
     }
 }

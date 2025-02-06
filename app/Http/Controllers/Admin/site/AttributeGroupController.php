@@ -31,7 +31,7 @@ class AttributeGroupController extends Controller
         }
 
         $attribute_groups = $attribute_groups->paginate(15)->appends($queries);
-        $last_categories = Category::lastCategory();
+        $last_categories = Category::filter()->lastCategory();
         return view('Admin.site.attributeGroup.list',compact('attribute_groups',
             'last_categories','queries'));
     }

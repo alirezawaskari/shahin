@@ -55,7 +55,7 @@ class FactorItemInstallmentController extends Controller
      */
     public function showCalculate()
 	{
-		$services = Service::all();
+		$services = Service::filter()->get();
 		return view('Admin.factoriteminstallment.calculate', compact('services'));
 	}
 
