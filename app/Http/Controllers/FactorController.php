@@ -28,7 +28,7 @@ class FactorController extends Controller {
         if ( $cart ) {
             $representation = $cart[ 'representation' ] == 0 ? null : $cart[ 'representation' ];
             $admin_user = Helper::getCallcenter( auth()->user()->province_id, $representation );
-            $admin_user_representation = User::find( $admin_user )->admin_representation_id;
+            $admin_user_representation = $admin_user ? User::find( $admin_user )->admin_representation_id : null;
             $status = auth()->user()->organization_id && auth()->user()->credit >= $cart[ 'total' ][ 'price' ] + $cart[ 'total' ][ 'price_tax' ] ? true : false;
             $factor_items = Factor::setFactorItemsInArray( $cart[ 'items' ] );
             $factor = Factor::checkExistSimilarFactor( $factor_items, auth()->user() );
@@ -170,9 +170,13 @@ class FactorController extends Controller {
             'representation_id' => $factor->representation_id,
             'status' => '0'
         ] );
-        Callcenterstatus::create( [
-            'user_id' => $callcenter_id,
-        ] );
+        if($callcenter_id)
+        {
+            Callcenterstatus::create( [
+                'user_id' => $callcenter_id,
+            ] );
+        }
+
         $factor->update( [ 'task_id' => $task->id ] );
     }
     /**
