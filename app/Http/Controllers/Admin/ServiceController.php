@@ -99,7 +99,7 @@ class ServiceController extends AdminController
             'category_id'=>'required',
             'min_credit'=>'required',
             'max_credit'=>'required',
-            'status'=>array('required',Rule::in(0,2)),
+            'status'=>array('required',Rule::in(0,1)),
             'isShow'=>array('required',Rule::in(0,1)),
             'items'=>array('required',Rule::in(0,1)),
             'center'=>array('required',Rule::in(0,1)),

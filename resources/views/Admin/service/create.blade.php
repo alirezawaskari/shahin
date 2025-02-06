@@ -46,7 +46,7 @@
                                 <option selected="selected" value="0">
                                     فعال
                                 </option>
-                                <option value="2">
+                                <option value="1">
                                     غیر فعال
                                 </option>
                             </select>
