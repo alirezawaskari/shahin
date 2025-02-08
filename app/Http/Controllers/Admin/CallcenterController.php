@@ -750,7 +750,6 @@ class CallcenterController extends Controller
         $id = Helper::getCallcenter($user->province_id , auth()->user()->admin_representation_id);
         $agent = !auth()->user()->hasPermission('callcenter') ? auth()->user()->id : null;
         $callcenter = ($request->request_type == "link" && $payment_type == "online" && !auth()->user()->hasPermission('callcenter')) ? $id : auth()->user()->id;
-
         $type_task = self::getType();
 
         if ($request->task) {

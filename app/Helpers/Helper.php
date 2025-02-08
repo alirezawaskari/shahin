@@ -263,32 +263,30 @@ class Helper {
     public static function getCallcenter($province , $representation) {
         if($representation)
         {
-            $admin_user_id = User::filter()->where( 'level', 'admin' )->where('admin_representation_id' , $representation)->where( 'province_id', $province )->whereHas('roles',function ($query){
-                $query->where('name','callcenter');
-            })->with('tasks')->get()->sortBy(function($admin_users)
+            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where('admin_representation_id' , $representation)->where( 'province_id', $province )->with('tasks')->get()->sortBy(function($admin_users)
             {
                 return $admin_users->tasks->count();
-            })->pluck('id')->first();
+            });
         }
         else
         {
-            $admin_user_id = User::filter()->where( 'level', 'admin' )->where( 'province_id', $province )->whereHas('roles',function ($query){
-                $query->where('name','callcenter');
-            })->with('tasks')->get()->sortBy(function($admin_users)
-            {
-                return $admin_users->tasks->count();
-            })->pluck('id')->first();
+            $admin_users = User::where( 'level', 'admin' )->where( 'admin_representation_id', null )->whereDoesntHave('ghorfeOnlineLists')->get();
         }
 
-         if (is_null($admin_user_id)){
-            $admin_user_id = User::filter()->where( 'level', 'admin' )->where( 'province_id', 5 )->whereHas('roles',function ($query){
-                $query->where('name','callcenter');
-            })->with('tasks')->get()->sortBy(function($admin_users)
-            {
-                return $admin_users->tasks->count();
-            })->pluck('id')->first();
-         }
-         return $admin_user_id;
+        if (is_null($admin_users)){
+            $admin_users = User::where( 'level', 'admin' )->where( 'admin_representation_id', null )->whereDoesntHave('ghorfeOnlineLists')->get();
+        }
+        if($admin_users)
+        {
+            $callcenterusers = [];
+            foreach ( $admin_users as $user ) {
+                if ( $user->hasPermission('get_new_task') ) {
+                    $callcenterusers[] = $user->id;
+                }
+            }
+			$key = array_rand( $callcenterusers );
+            return $callcenterusers[$key];
+        }
     }
 
     /**
