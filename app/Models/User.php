@@ -139,7 +139,13 @@ class User extends Authenticatable
     {
         return $this->level == 'admin' ? true : false;
     }
-
+    /**
+     * @return bool
+     */
+    public function notIsGhorfeOnlineUser()
+    {
+        return ($this->ghorfeOnlineLists()->exists() ? false : true);
+    }
     /**
      * @return bool
      */
@@ -409,7 +415,7 @@ class User extends Authenticatable
 
         $query->whereDoesntHave('ghorfeOnlineLists');
 
-         if (auth()->user()->hasPermission('user-detail')) {
+         if (auth()->user() && auth()->user()->hasPermission('user-detail')) {
             if (auth()->user()->admin_representation) {
                 $query->where('representation_id', auth()->user()->admin_representation->id);
             }
