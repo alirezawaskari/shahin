@@ -66,7 +66,7 @@ $(document).ready(function () {
                 // {
                 //     "data": data,
                 //     "render": function (data){
-                //         if (data.entry_start == null && data.status == 'پیش جلسه' ){
+                //         if (data.entry_start == null && data.status == 'در انتظار انجام کار' ){
                 //             return `<button type="button" class="btn btn-sm  start-user-session-entry" data-id="${data.id}" data-date="${data.date}">
                 //             <i class="fa fa-play" aria-hidden="true"></i> </button>`
                 //         }else if(data.entry_start != null && data.entry_end == null && false) {
@@ -105,7 +105,7 @@ $(document).ready(function () {
                     "targets": 2,
                     "data": "status",
                     "render": function ( data ) {
-                        if(data == "پیش جلسه")
+                        if(data == "در انتظار انجام کار")
                         {
                             return '<button class="badge badge-danger border-0">'+data+'</button><a h_blank">';
                         }

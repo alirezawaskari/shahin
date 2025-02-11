@@ -242,7 +242,7 @@ class Session extends Model implements AuditableContract
     public static function status($status)
     {
         return [
-            '0' => 'پیش جلسه',
+            '0' => 'در انتظار انجام کار',
             '1' => 'انجام شده',
             '2' => 'منتظر تایید',
             '3' => 'در انتظار مشاوره اولیه',

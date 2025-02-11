@@ -43,7 +43,7 @@
                         <select class="form-control select2" name="status">
                             <option value="all">انتخاب وضعیت جلسه</option>
                             <option value="0">
-                                پیش جلسه
+                                در انتظار انجام کار
                             </option>
                             <option value="2">
                                 منتظر تایید
