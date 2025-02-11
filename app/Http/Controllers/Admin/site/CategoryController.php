@@ -625,22 +625,4 @@ class CategoryController extends Controller
         return null;
     }
 
-    /**
-     * fetch services of category
-     * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
-     */
-    public function fetchServicesByCategory(Request $request)
-    {
-        $validator = Validator::make($request->all(), ['id'=>['required',Rule::exists('categories','id')]]);
-        if ($validator->fails()) {
-            return response(['status'=>'error','messages'=>$validator->messages()->all()]);
-        } else {
-            $category=Category::find($request->id);
-            return response(['status'=>'success','data'=>   new ServiceCollection($category->services)]);
-        }
-    }
-
-
-
 }

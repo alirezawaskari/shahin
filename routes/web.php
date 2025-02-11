@@ -405,8 +405,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
         Route::post('/changePosition', 'CategoryController@changePosition');
         Route::get('/categoryPosition/{id}', 'CategoryController@categoryPosition')->name('categoryPosition');
         Route::post('/removeCatMenu', 'CategoryController@removeCatMenu');
-        Route::post('/category/fetch-services-by-category', 'CategoryController@fetchServicesByCategory');
-
 
         Route::resource('/attributeGroup', 'AttributeGroupController');
         Route::get('/createByCategory/{cat_id}', 'AttributeGroupController@createByCategory')->name('attributeGroup.createByCategory');
