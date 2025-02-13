@@ -110,7 +110,7 @@ class Spreadsms extends Command {
                         $user = User::where( 'phone', $task->sms->sender_number )->first();
                         if ( $service && $service->id != 11 ) {
                             $task->services()->attach( $service );
-                            event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
+                            //event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
                         } elseif ( $smsitem->body == 11 ) {
                             self::answerCancelReceivingSms( $task->sms->sender_number );
                         }
@@ -138,7 +138,7 @@ class Spreadsms extends Command {
                     $service = Service::find( $s->body );
                     if ( $service && $service->id != 11 ) {
                         $task->services()->attach( $service );
-                        event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
+                        //event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
                     } elseif ( $s->body == 11 ) {
                         self::answerCancelReceivingSms( $task->sms->sender_number );
                     }
