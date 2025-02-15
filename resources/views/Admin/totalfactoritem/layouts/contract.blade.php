@@ -58,7 +58,8 @@
             </span>
             <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 2 : موضوع قرارداد :<br></span>
         </p>
-        <table class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
+        <table
+            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
             <thead>
                 <tr>
                     <th scope="col">خدمات گیرنده</th>
@@ -88,7 +89,7 @@
             </span>
             <span lang="FA" style="line-height: 150%;">این قرارداد
                 دارای یک الحاقیه به شماره ی {{ $contract_number ? $contract_number : ''}}
-                 راجع به تعهدات خدمات دهندگان می باشد که جزء لاینفک قرارداد است.<br>
+                راجع به تعهدات خدمات دهندگان می باشد که جزء لاینفک قرارداد است.<br>
             </span>
             <span lang="FA" style="line-height: 150%;">&nbsp;</span>
             <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 3 : مبلغ
@@ -125,10 +126,12 @@
                 ابلاغ نموده است پرداخت نماید.<br>
             </span>
             <span lang="FA" style="line-height: 150%;">تبصره 1 : در
-                صورتی که به واسطه نبود اینترنت ، نداشتن اعتبار تلفن ، یا قطع غیر مترقبه در ارسال پیامکهای مربوطه اختلالی ایجاد گردد ،
+                صورتی که به واسطه نبود اینترنت ، نداشتن اعتبار تلفن ، یا قطع غیر مترقبه در ارسال پیامکهای مربوطه اختلالی
+                ایجاد گردد ،
             </span>
         </p>
-        <table class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-2 text-center">
+        <table
+            class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-2 text-center">
             <thead>
                 <tr>
                     <th scope="col">خدمات گیرنده</th>
@@ -148,7 +151,7 @@
     <div class="border-contract page-break p-6" style="text-align: justify;">
         <p style="line-height:50px;font-size:18px;font-weight: 500;">
             <span lang="FA" style="line-height: 150%;">
-                 متقاضی ( خدمات گیرنده ) مکلف به واریز مبلغ اقساط یاد شده
+                متقاضی ( خدمات گیرنده ) مکلف به واریز مبلغ اقساط یاد شده
                 از طریق ورود به وبسایت رسمی لاله کارت ، قسمت پرونده های من ، پرداخت اقساط یا به شماره کارت و حساب اعلام
                 شده از طریق شماره تماس صاحب امضای مجاز در سررسید خود بدون اتلاف زمان و تطویل اوقات به بهانه قطع و اختلال
                 در سیستم های الکترونیکی به صورت کارت به کارت یا واریز از حساب به کارت یا ارائه نقدی وجه اقساط به شرکت (
@@ -184,7 +187,8 @@
                 <o:p></o:p>
             </span>
         </p>
-        <table class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
+        <table
+            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
             <thead>
                 <tr>
                     <th scope="col">خدمات گیرنده</th>
@@ -232,6 +236,11 @@
                 نموده و تأیید پرونده نیز به خدمات گیرنده ابلاغ میگردد ، لذا امضای قرارداد حاضر بدون پرداخت مبیع یا ارائه
                 تأیید اسناد برای خدمات گیرنده هیچ قابلیتی نداشته و صرفاً پس از تأیید الکترونیکی از سوی شرکت قابلیت اجرا
                 و پیگیری دارد. </span>
+            <br>
+            <span lang="FA" style="line-height: 150%;">3-11 : چنانچه متقاضی به واسطه عواملی خارج از تعهدات شرکت و یا به
+                هر علت دیگر ، از بهره برداری از اعتبار صادره و اعطاء شده جهت اجرای موضوع قرارداد امتناع ورزد ، با توجه
+                به کارسازی چکهای ارائه شده و عدم امکان استرداد وجه یا اسناد مذکور ، متقاضی صرفا می تواند شخصا و یا با
+                معرفی مرتبطین یا بستگان و نزدیکان خود از اعتبار تخصیص یافته استفاده کرده و بهره مند گردد . </span>
             <br>
         </p>
         <table
