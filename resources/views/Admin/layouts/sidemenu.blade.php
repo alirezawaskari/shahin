@@ -10,7 +10,7 @@
             @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>درخواست ها</span> </a>
                 <ul>
-                    @permission('callcenter-detail|influencer-marketing|in-person-registration')
+                    @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
                     <li><a href="{{ route('callcenter.index') }}"> <span>درخواست ها</span> </a></li>
                     @endpermission
                     @permission('callcenter-cancellation')
@@ -277,131 +277,6 @@
             <li><a href="{{ route('contact.index') }}"><i class="icon ti-control-record"></i> <span>تماس با ما</span>
                 </a></li>
             @endpermission
-            <li><a href="#"><i class="icon ti-control-record"></i><span>سایت</span> </a>
-                <ul>
-                    @permission('product-detail')
-                    <li><a href="#"><i class="icon ti-control-record"></i><span>محصولات</span></a>
-                        <ul>
-                            @if(\App\Models\User::checkManager() != null)
-                            <li><a href="{{ route('products.show', 1) }}"><i
-                                        class="icon ti-control-record"></i><span>مدیریت محصولات</span></a></li>
-                            <li><a href="{{ route('editInformation', 1) }}"><i
-                                        class="icon ti-control-record"></i><span>مدیریت تنوع و قیمت گذاری</span></a>
-                            </li>
-                            <li><a href="{{ route('periodicPrices.index') }}"><i
-                                        class="icon ti-control-record"></i><span>تخفیف های هوشمند</span></a></li>
-
-                            @else
-                            <li><a href="{{ route('products.index') }}"><i class="icon ti-control-record"></i><span>مواد
-                                        اولیه</span></a></li>
-                            <li><a href="{{ route('products.show', 1) }}"><i
-                                        class="icon ti-control-record"></i><span>مدیریت محصولات</span></a></li>
-                            @endif
-
-                        </ul>
-                    </li>
-                    <li><a href="{{ route('pack.index') }}"><i class="icon ti-control-record"></i>پک محصولات</a></li>
-
-                    @if(\App\Models\User::checkManager() != null)
-                    <li><a href="/dashboard/find/product">
-                            <i class="icon ti-control-record"></i>جستجو و درج محصول </a>
-                    </li>
-                    @endif
-                    @endpermission
-
-                    @permission('center-manager-list')
-                    @if(\App\Models\User::hasDoctor(\App\Models\User::checkManager()) > 0)
-                    <li><a href="/dashboard/doctorsByCenter/{{\App\Models\User::checkManager()}}"><i
-                                class="icon ti-control-record"></i>لیست پزشکان </a></li>
-                    @endif
-                    @endpermission
-
-                    @permission('categories')
-                    <li><a href="#"><i class="icon ti-control-record"></i><span> دسته بندی </span> </a>
-                        <ul>
-                            <li><a href="{{ route('category.index') }}"><i class="icon ti-control-record"></i> <span>
-                                        لیست دسته بندی</span> </a></li>
-                            <li><a href="{{ route('categoryPosition', 1) }}"><i class="icon ti-control-record"></i>
-                                    <span> نمایش دسته بندی کالا در منو</span> </a></li>
-                            <li><a href="{{ route('categoryPosition', 2) }}"><i class="icon ti-control-record"></i>
-                                    <span> نمایش خدمات در منو</span> </a></li>
-                        </ul>
-                    </li>
-                    @endpermission
-                    @permission('attributes-category')
-                    <li><a href="#"><i class="icon ti-control-record"></i> <span>گروه های ویژگی</span></a>
-                        <ul>
-                            <li><a href="{{ route('attributeGroup.index') }}"> <i class="icon ti-control-record"></i>
-                                    گروه های ویژگی </a></li>
-                            <li><a href="{{ route('attributeRequest.suggest') }}"> <i
-                                        class="icon ti-control-record"></i>ویژگی های درخواستی</a></li>
-                        </ul>
-                    </li>
-                    @endpermission
-                    @permission('attributes-category')
-                    <li><a href="{{ route('color.index') }}"><i class="icon ti-control-record"></i>رنگ</a></li>
-                    <li><a href="{{ route('brand.index') }}"><i class="icon ti-control-record"></i>برند</a></li>
-                    @endpermission
-                    @permission('slider')
-                    <li><a href="{{ route('slider.index') }}"><i class="icon ti-control-record"></i>اسلایدر</a></li>
-                    @endpermission
-
-                    @permission('about-page')
-                    <li><a href="{{ route('about.index') }}"><i class="icon ti-control-record"></i>درباره ما</a></li>
-                    @endpermission
-
-                    @permission('user-invite')
-                    <li><a href="#"><i class="icon ti-control-record"></i> <span>دعوت از کاربران</span></a>
-                        <ul>
-                            <li><a href="{{ route('userInvite.index') }}"> <i class="icon ti-control-record"></i>
-                                    لیست</a></li>
-                            <li><a href="{{ route('inviteCategory.index') }}"> <i class="icon ti-control-record"></i>
-                                    دسته بندی دعوت </a></li>
-                        </ul>
-                    </li>
-                    @endpermission
-                    @permission('article')
-                    <li><a href="#"><i class="icon ti-control-record"></i><span>مقاله</span></a>
-                        <ul>
-                            <li><a href="{{ route('categoryArticle.index') }}"><i class="icon ti-control-record"></i>
-                                    <span> دسته بندی </span> </a></li>
-                            <li><a href="{{ route('article.index') }}"><i class="icon ti-control-record"></i> <span>
-                                        مقاله ها </span> </a></li>
-                        </ul>
-                    </li>
-                    @endpermission
-                    @permission('news')
-                    <li><a href="#"><i class="icon ti-control-record"></i><span>اخبار</span></a>
-                        <ul>
-                            <li><a href="{{ route('categoryNews.index') }}"><i class="icon ti-control-record"></i>
-                                    <span> دسته بندی </span> </a></li>
-                            <li><a href="{{ route('news.index') }}"><i class="icon ti-control-record"></i> <span> اخبار
-                                    </span> </a></li>
-                        </ul>
-                    </li>
-                    @endpermission
-
-                    @permission('validation')
-                    <li><a href="{{ route('validation.index') }}"><i class="icon ti-control-record"></i> اعتبارسنجی
-                            محصولات </a></li>
-                    @endpermission
-
-                    @permission('comment-detail')
-                    <li><a href="{{ route('comment.index') }}"><i class="icon ti-control-record"></i>نظرات </a></li>
-                    @endpermission
-
-                    @permission('coupon')
-                    <li><a href="#"><i class="icon ti-control-record"></i> <span> کد تخفیف</span></a>
-                        <ul>
-                            <li><a href="{{ route('coupon.index') }}"> <i class="icon ti-control-record"></i> کد تخفیف
-                                    عمومی</a></li>
-                            <li><a href="{{ route('coupons.discountVarietyProduct') }}"> <i
-                                        class="icon ti-control-record"></i>کد تخفیف تنوع محصولات توسط مراکز</a></li>
-                        </ul>
-                    </li>
-                    @endpermission
-                </ul>
-            </li>
 
             @permission('financial-plans-type')
             <li><a href="{{ route('financialPlansType.index') }}"><i class="icon ti-control-record"></i> <span>طرح های
@@ -563,6 +438,131 @@
             <li><a href="{{ route('settings.index') }}"><i class="fa fa-gears "></i> <span class="mr-2">تنظیمات</span>
                 </a></li>
             @endrole
+            <li><a href="#"><i class="icon ti-control-record"></i><span>سایت</span> </a>
+                <ul>
+                    @permission('product-detail')
+                    <li><a href="#"><i class="icon ti-control-record"></i><span>محصولات</span></a>
+                        <ul>
+                            @if(\App\Models\User::checkManager() != null)
+                            <li><a href="{{ route('products.show', 1) }}"><i
+                                        class="icon ti-control-record"></i><span>مدیریت محصولات</span></a></li>
+                            <li><a href="{{ route('editInformation', 1) }}"><i
+                                        class="icon ti-control-record"></i><span>مدیریت تنوع و قیمت گذاری</span></a>
+                            </li>
+                            <li><a href="{{ route('periodicPrices.index') }}"><i
+                                        class="icon ti-control-record"></i><span>تخفیف های هوشمند</span></a></li>
+
+                            @else
+                            <li><a href="{{ route('products.index') }}"><i class="icon ti-control-record"></i><span>مواد
+                                        اولیه</span></a></li>
+                            <li><a href="{{ route('products.show', 1) }}"><i
+                                        class="icon ti-control-record"></i><span>مدیریت محصولات</span></a></li>
+                            @endif
+
+                        </ul>
+                    </li>
+                    <li><a href="{{ route('pack.index') }}"><i class="icon ti-control-record"></i>پک محصولات</a></li>
+
+                    @if(\App\Models\User::checkManager() != null)
+                    <li><a href="/dashboard/find/product">
+                            <i class="icon ti-control-record"></i>جستجو و درج محصول </a>
+                    </li>
+                    @endif
+                    @endpermission
+
+                    @permission('center-manager-list')
+                    @if(\App\Models\User::hasDoctor(\App\Models\User::checkManager()) > 0)
+                    <li><a href="/dashboard/doctorsByCenter/{{\App\Models\User::checkManager()}}"><i
+                                class="icon ti-control-record"></i>لیست پزشکان </a></li>
+                    @endif
+                    @endpermission
+
+                    @permission('categories')
+                    <li><a href="#"><i class="icon ti-control-record"></i><span> دسته بندی </span> </a>
+                        <ul>
+                            <li><a href="{{ route('category.index') }}"><i class="icon ti-control-record"></i> <span>
+                                        لیست دسته بندی</span> </a></li>
+                            <li><a href="{{ route('categoryPosition', 1) }}"><i class="icon ti-control-record"></i>
+                                    <span> نمایش دسته بندی کالا در منو</span> </a></li>
+                            <li><a href="{{ route('categoryPosition', 2) }}"><i class="icon ti-control-record"></i>
+                                    <span> نمایش خدمات در منو</span> </a></li>
+                        </ul>
+                    </li>
+                    @endpermission
+                    @permission('attributes-category')
+                    <li><a href="#"><i class="icon ti-control-record"></i> <span>گروه های ویژگی</span></a>
+                        <ul>
+                            <li><a href="{{ route('attributeGroup.index') }}"> <i class="icon ti-control-record"></i>
+                                    گروه های ویژگی </a></li>
+                            <li><a href="{{ route('attributeRequest.suggest') }}"> <i
+                                        class="icon ti-control-record"></i>ویژگی های درخواستی</a></li>
+                        </ul>
+                    </li>
+                    @endpermission
+                    @permission('attributes-category')
+                    <li><a href="{{ route('color.index') }}"><i class="icon ti-control-record"></i>رنگ</a></li>
+                    <li><a href="{{ route('brand.index') }}"><i class="icon ti-control-record"></i>برند</a></li>
+                    @endpermission
+                    @permission('slider')
+                    <li><a href="{{ route('slider.index') }}"><i class="icon ti-control-record"></i>اسلایدر</a></li>
+                    @endpermission
+
+                    @permission('about-page')
+                    <li><a href="{{ route('about.index') }}"><i class="icon ti-control-record"></i>درباره ما</a></li>
+                    @endpermission
+
+                    @permission('user-invite')
+                    <li><a href="#"><i class="icon ti-control-record"></i> <span>دعوت از کاربران</span></a>
+                        <ul>
+                            <li><a href="{{ route('userInvite.index') }}"> <i class="icon ti-control-record"></i>
+                                    لیست</a></li>
+                            <li><a href="{{ route('inviteCategory.index') }}"> <i class="icon ti-control-record"></i>
+                                    دسته بندی دعوت </a></li>
+                        </ul>
+                    </li>
+                    @endpermission
+                    @permission('article')
+                    <li><a href="#"><i class="icon ti-control-record"></i><span>مقاله</span></a>
+                        <ul>
+                            <li><a href="{{ route('categoryArticle.index') }}"><i class="icon ti-control-record"></i>
+                                    <span> دسته بندی </span> </a></li>
+                            <li><a href="{{ route('article.index') }}"><i class="icon ti-control-record"></i> <span>
+                                        مقاله ها </span> </a></li>
+                        </ul>
+                    </li>
+                    @endpermission
+                    @permission('news')
+                    <li><a href="#"><i class="icon ti-control-record"></i><span>اخبار</span></a>
+                        <ul>
+                            <li><a href="{{ route('categoryNews.index') }}"><i class="icon ti-control-record"></i>
+                                    <span> دسته بندی </span> </a></li>
+                            <li><a href="{{ route('news.index') }}"><i class="icon ti-control-record"></i> <span> اخبار
+                                    </span> </a></li>
+                        </ul>
+                    </li>
+                    @endpermission
+
+                    @permission('validation')
+                    <li><a href="{{ route('validation.index') }}"><i class="icon ti-control-record"></i> اعتبارسنجی
+                            محصولات </a></li>
+                    @endpermission
+
+                    @permission('comment-detail')
+                    <li><a href="{{ route('comment.index') }}"><i class="icon ti-control-record"></i>نظرات </a></li>
+                    @endpermission
+
+                    @permission('coupon')
+                    <li><a href="#"><i class="icon ti-control-record"></i> <span> کد تخفیف</span></a>
+                        <ul>
+                            <li><a href="{{ route('coupon.index') }}"> <i class="icon ti-control-record"></i> کد تخفیف
+                                    عمومی</a></li>
+                            <li><a href="{{ route('coupons.discountVarietyProduct') }}"> <i
+                                        class="icon ti-control-record"></i>کد تخفیف تنوع محصولات توسط مراکز</a></li>
+                        </ul>
+                    </li>
+                    @endpermission
+                </ul>
+            </li>
         </ul>
     </div>
 </div>
