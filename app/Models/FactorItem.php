@@ -267,6 +267,10 @@ class FactorItem extends Model implements AuditableContract
         $has_payment = request('has_payment');
 
         $query->whereHas('factor', function ($query) {
+            $query->whereDoesntHave('ghorfeOnlineLists');
+        });
+
+        $query->whereHas('factor', function ($query) {
             $query->where('status', 1);
         });
 
