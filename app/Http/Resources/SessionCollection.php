@@ -43,6 +43,8 @@ class SessionCollection extends ResourceCollection
                     'user' => $item->user->family,
                     'confirmer' => $item->confirmer ? $item->confirmer->family : 'ندارد',
                     'date' => verta($item->date)->format('%d %B ، %Y - H:i'),
+                    'has_center' => auth()->user()->center->exists(),
+                    'center' => $item->factorItem->center ? $item->factorItem->center->title : 'ثبت نشده',
                     'status' => $this->setStatus($item->status),
                     'factor_item' => $item->factorItem ? $item->factorItem->resnumber : '',
                     'histories' => isset($item->factorItem->factor->user)? Helper::userHistories($item->factorItem->factor->user):[],

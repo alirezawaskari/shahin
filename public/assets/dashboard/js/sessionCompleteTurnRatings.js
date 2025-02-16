@@ -85,6 +85,7 @@ $(document).ready(function () {
                 { "data": "name" },
                 { "data": "discription" },
                 { "data": "date" },
+                { "data": "center" },
                 // {
                 //     "data": data,
                 //     "render": function (data){

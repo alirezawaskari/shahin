@@ -28,8 +28,9 @@ class SessionController extends Controller {
         $user = auth()->user();
         if ( $user->isAbleTo(['session-detail','session']) ) {
             $delete = $user->isAbleTo( 'session-delete' );
+            $has_center = $user->center->exists();
             $confirm = $user->isAbleTo( 'session-confirm' );
-            return view( 'Admin.session.all', compact( 'delete', 'confirm' ) );
+            return view( 'Admin.session.all', compact( 'delete', 'confirm' , 'has_center' ) );
         }
         return abort( 401 );
     }
@@ -62,9 +63,10 @@ class SessionController extends Controller {
         if ( $user->isAbleTo( 'session-desktop-complete' ) ) {
             $title = 'میزکار مراجعات';
             $delete = $user->isAbleTo( 'session-delete' );
+            $has_center = $user->center->exists();
             $type = 'complete';
             $url = 'desktop-complete/filter';
-            return view( 'Admin.session.desktopComplete', compact( 'delete', 'type', 'url' , 'title') );
+            return view( 'Admin.session.desktopComplete', compact('has_center', 'delete', 'type', 'url' , 'title') );
         }
         return abort( 401 );
     }
@@ -109,9 +111,10 @@ class SessionController extends Controller {
         if ( $user->isAbleTo('session-desktop-confirm') ) {
             $title = 'میزکار تایید جلسات';
             $delete = $user->isAbleTo( 'session-delete' );
+            $has_center = $user->center->exists();
             $type = 'confirm';
             $url = 'desktop-confirm/filter';
-            return view( 'Admin.session.desktopConfirm', compact( 'delete', 'type', 'url' , 'title') );
+            return view( 'Admin.session.desktopConfirm', compact('has_center' , 'delete', 'type', 'url' , 'title') );
         }
         return abort( 401 );
     }

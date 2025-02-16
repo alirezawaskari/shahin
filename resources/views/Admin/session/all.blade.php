@@ -52,7 +52,7 @@
                                 انجام شده
                             </option>
                             <option value="3">
-                                ویزیت اولیه
+                                در انتظار مشاوره اولیه
                             </option>
                             <option value="5">
                                 در انتظار مشاوره اصلی
@@ -70,6 +70,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @if(!$has_center)
                     <div class="col-12 col-md-3 mb-2">
                         <select class="form-control select2" name="center">
                             <option value="all">انتخاب مرکز</option>
@@ -78,6 +79,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
                     <div class="col-12 col-md-3 mb-2">
                         <div class="custom-control custom-switch mt-2">
                             <input type="checkbox" class="custom-control-input" name="excel" id="excel">
@@ -119,6 +121,7 @@
                     <th>تایید کننده</th>
                     <th>تاریخ و ساعت</th>
                     <th>حضور</th>
+                    <th>مرکز</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>
                 </tr>
@@ -174,5 +177,5 @@
 
 @section('js')
     <script src="/assets/dashboard/js/layouts.js"></script>
-    <script src="/assets/dashboard/js/session.js?v=1.1"></script>
+    <script src="/assets/dashboard/js/session.js?v=1.2"></script>
 @endsection

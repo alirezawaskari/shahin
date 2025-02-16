@@ -13,6 +13,17 @@
                 </div>
 
                 <div class="col-12 col-md-3 mb-2">
+                    <select class="form-control select2" name="status">
+                        <option value="all">انتخاب وضعیت جلسه</option>
+                        <option value="3">
+                            در انتظار مشاوره اولیه
+                        </option>
+                        <option value="5">
+                            در انتظار مشاوره اصلی
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-2">
                     <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="start_date">
                     </date-picker>
                 </div>
@@ -29,6 +40,7 @@
                         @endforeach
                     </select>
                 </div>
+                @if(!$has_center)
                 <div class="col-12 col-md-3 mb-2">
                     <select class="form-control select2" name="center">
                         <option value="all">انتخاب مرکز</option>
@@ -37,6 +49,7 @@
                         @endforeach
                     </select>
                 </div>
+                @endif
                 <div class="col-12 col-md-3 mb-2">
                     <div class="custom-control custom-switch mt-2">
                         <input type="checkbox" class="custom-control-input" name="excel" id="excel-trun-ratings">
@@ -64,6 +77,7 @@
                     <th>نام و نام خانوادگی</th>
                     <th>توضیحات قبل مشاوره</th>
                     <th>تاریخ و ساعت</th>
+                    <th>مرکز</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>
                 </tr>

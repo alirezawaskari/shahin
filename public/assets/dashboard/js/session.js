@@ -101,6 +101,7 @@ $(document).ready(function () {
                 //         }
                 //     }
                 // },
+                { "data": "center" },
                 {
                     "targets": 2,
                     "data": "status",
@@ -165,7 +166,7 @@ $(document).ready(function () {
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
                                 <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امور اجرایی پرونده</button></a>
-                                ${(data.status == 'ویزیت اولیه')? `<button data-id="${data.id}" type="button" class="dropdown-item pointer visit-confirm">تایید برای ویزیت </button>`:''}
+                                ${(data.status == 'در انتظار مشاوره اولیه')? `<button data-id="${data.id}" type="button" class="dropdown-item pointer visit-confirm">تایید برای ویزیت </button>`:''}
                                 <button style="display: ${display}"  data-id="${data.id}" class="session_delete dropdown-item pointer">حذف</button>
                                 </div>
                                 </div>`;
