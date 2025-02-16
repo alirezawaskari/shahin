@@ -68,6 +68,7 @@ class GhorfeOnlineListController extends AdminController {
             $inputs[ 'contract_expiration_date' ] = isset( $inputs[ 'contract_expiration_date' ] ) ? Helper::vertaToMiladi( $inputs[ 'contract_expiration_date' ] ) : '';
 
             $ghorfeOnlineList = GhorfeOnlineList::create( $inputs );
+            $ghorfeOnlineList->about()->create();
             $codes = [];
             $array = explode( ',', $request->input( 'sms_code' ) );
             foreach ( $array as $item ) {
