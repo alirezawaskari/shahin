@@ -468,16 +468,13 @@ class User extends Authenticatable
             if (auth()->user()->admin_organization) {
                 $query->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
             }
-            elseif (auth()->user()->center_id) {
+            if (auth()->user()->center_id) {
                 $center = auth()->user()->center_id;
-                $roleName = "doctor";
-                $query->whereHas('roles', function ($q) use ($roleName) {
-                    $q->where('name', $roleName);
-                })->where('center_id', $center)->get();
-
+                $query->where('center_id', $center)->get();
             }
         }
         else{
+            $query->where('callcenter_id' , auth()->user()->id);
 			if (isset($organization) && trim($organization) != 'all') {
                 $query->where('organization_id', $organization);
             }
