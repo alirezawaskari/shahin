@@ -194,9 +194,7 @@ class AppServiceProvider extends ServiceProvider
             if ($user->avatar != '') {
                 $count++;
             }
-            if ($user->imgsignature != '') {
-                $count++;
-            }
+
             if ($user->email != '') {
                 $count++;
             }

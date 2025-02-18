@@ -158,17 +158,13 @@ class EmployeeController extends AdminController
             Helper::deleteImage($user->imgmeli);
             $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli, 'document');
         }
-        if ($request->urlimgsignature) {
-            Helper::deleteImage($user->imgsignature);
-            $inputs['imgsignature'] = Helper::moveImage($request->urlimgsignature, 'document');
-        }
+
         if ($request->urlavatar) {
             Helper::deleteImage($user->avatar);
             $inputs['avatar'] = Helper::moveImage($request->urlavatar, 'document');
         }
 
         unset($inputs['urlimgshenasname']);
-        unset($inputs['urlimgsignature']);
         unset($inputs['urlimgmeli']);
         unset($inputs['urlavatar']);
         unset($inputs['urlimgaccess']);

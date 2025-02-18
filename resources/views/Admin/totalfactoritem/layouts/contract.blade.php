@@ -36,6 +36,7 @@
                 isset($user->work_phone) ? $user->work_phone : '...' }} که
                 از این پس در این قرارداد "خدمات گیرنده" نامیده می شوند.<br>
             </span>
+            @if ($totalFactorItem->guarantor_checked)
             <span lang="FA" style="line-height: 150%;">1-3 : ضامنِ خدمات
                 گیرنده، {{ isset($item['contract_values']['gender']) ?
                 $user::getGenderTitle($item['contract_values']['gender']) : 'خانم/آقای' }} {{
@@ -56,6 +57,13 @@
                 '...' }} نوع ضمانت {{ $totalFactorItem::GuaranteeTYPE[$item['guarantee_type']] }} که
                 از این پس در این قرارداد ضامن نامیده می شوند.<br>
             </span>
+            @else
+            <span lang="FA" style="line-height: 150%;">1-3 : ضامنِ خدمات
+                گیرنده
+            </span>
+            <p>با توافق طرفین در این قرارداد ضامن خدمات گیرنده شخص خدمات گیرنده با مشخصات مندرج فوق میباشد.</p>
+            @endif
+
             <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 2 : موضوع قرارداد :<br></span>
         </p>
         <table

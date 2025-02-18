@@ -334,7 +334,7 @@
                                             @include('layout.uploadSample')
                                             <div class="col-12">
                                                 <div class="card-group">
-                                                    <div class="col-12 col-md-6">
+                                                    <div class="col-12 col-md-4">
                                                         <div class="card">
                                                             @if(is_null($factor->user->imgmeli))
                                                             <p class="my-4 text-danger text-center">
@@ -359,7 +359,7 @@
                                                             @endif
                                                         </div>
                                                     </div>
-                                                    <div class="col-12 col-md-6">
+                                                    <div class="col-12 col-md-4">
                                                         <div class="card">
                                                             @if(is_null($factor->user->imgshenasname))
                                                             <p class="my-4 text-danger text-center">
@@ -382,6 +382,32 @@
                                                                     accept=".jpg,.jpeg,.png">
                                                             </div>
                                                             @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <div class="card">
+                                                            @if($factor->user->imgturnover)
+                                                            <div id="imgturnover_src" class="show">
+                                                            <a href="{{ asset($factor->user->imgturnover) }}" target="_blank">
+                                                                <img src="{{ asset($factor->user->imgturnover) }}"
+                                                                    class="card-img-top" height="150px">
+                                                            </a>
+                                                            </div>
+                                                            @else
+                                                            <div id="imgturnover_src" class="show">
+                                                            <img class="card-img-top" height="150px">
+                                                            </div>
+                                                            @endif
+                                                            <div class="card-body">
+                                                                <label>تصویر ثنا</label>
+                                                                <br>
+                                                                <label for="imgturnover" id="up-label" class="btn badge-secondary"><i
+                                                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                                                <input name="imgturnover" type="file" id="imgturnover"
+                                                                    class="filestyle file-upload file_upload_ajax file-up"
+                                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                                <input type="hidden" id="imgturnover" class="path" name="urlimgturnover">
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 mb-2 mt-4">

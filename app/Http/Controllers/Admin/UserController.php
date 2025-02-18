@@ -153,11 +153,7 @@ class UserController extends AdminController
             Helper::deleteImage($user->imgshenasname);
             $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname,'document');
         }
-        if($request->urlimgsignature)
-        {
-            Helper::deleteImage($user->imgsignature);
-            $inputs['imgsignature'] = Helper::moveImage($request->urlimgsignature,'document');
-        }
+       
         if($request->urlimgmeli)
         {
             Helper::deleteImage($user->imgmeli);
