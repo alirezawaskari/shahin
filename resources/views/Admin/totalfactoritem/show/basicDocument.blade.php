@@ -103,8 +103,8 @@
                                             </div>
                                             @endif
                                             <div class="card-body">
-                                                <label>تصویر ثنا</label>
-                                                <br>
+                                                <h5 class="card-title">تصویر ثنا
+                                                </h5>
                                                 <label for="imgturnover" id="up-label" class="btn badge-secondary"><i
                                                         class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                                 </label>
@@ -168,11 +168,12 @@
                                         <input type="text" class="form-control" placeholder="تلفن محل کار"
                                             value="{{ $user->work_phone }}" name="user[work_phone]">
                                     </div>
-                                    <div class="col-12 col-md-6 mb-3 mt-3">
+                                    <div class="col-12 mb-3 mt-3">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" name="guarantor_checked" class="custom-control-input guarantor_checked" id="customCheck"
-                                                checked="" name="check">
-                                            <label class="custom-control-label" for="customCheck">این پرونده دارای ضامن می باشد.</label>
+                                            <input type="checkbox" name="guarantor_checked"
+                                                class="custom-control-input guarantor_checked" id="customCheck" {{ $totalFactorItem->guarantor_checked ? 'checked' : ''}}>
+                                            <label class="custom-control-label" for="customCheck">این پرونده دارای ضامن
+                                                می باشد.</label>
                                         </div>
                                     </div>
                                 </div>
@@ -561,10 +562,6 @@
 
                     @foreach ($factor_item['factorItems'] as $count => $factorItem)
                     <li class="nav-item">
-                        <div class="col-md-2">
-                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
-                                data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
-                        </div>
                         <a class="nav-link show {{$count==0 ? 'active' :''}}"
                             onclick="basicDocumentExecutiveAppend('basic_document_executive_collection_{{$factorItem->id}}')"
                             id="basic_document_executive_collection_{{$factorItem->id}}-tab" data-toggle="tab"
@@ -579,9 +576,17 @@
                     <div class="tab-pane fade p-t-20 {{$count==0 ? 'active show' :''}}"
                         id="basic_document_executive_collection_{{$factorItem->id}}" role="tabpanel"
                         aria-labelledby="basic_document_executive_collection_{{$factorItem->id}}-tab">
+                        <div class="row">
+                        <div class="col-md-10">
                         <h6> <i class="fa fa-list"></i> {{ $factorItem->factor->user->name . ' '
                             .$factorItem->factor->user->family.' : '.$factor_item['factoritemable']->title .' - '.
                             $factor_item['financial_plans_type']}}</h6>
+                        </div>
+                        <div class="col-md-2">
+                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
+                                data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
+                        </div>
+                        </div>
                         <div class="card border shadow-lg">
                             <div class="card-header"> تکمیل اطلاعات اجرایی پرونده: </div>
                             <div class="card-body">

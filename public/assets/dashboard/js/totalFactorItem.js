@@ -308,13 +308,4 @@ $(document).ready(function () {
             event.preventDefault();
         }
     });
-
-    //guarantor checked
-    $("body").on('click', '.guarantor_checked', function (event) {
-        if ($('.guarantor_checked').prop('checked') == true) {
-            $('.guarantor_info').css('display' , 'block');
-        } else {
-            $('.guarantor_info').css('display' , 'none');
-        }
-    });
 });
