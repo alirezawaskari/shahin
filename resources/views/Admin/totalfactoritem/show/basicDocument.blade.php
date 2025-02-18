@@ -558,8 +558,13 @@
             <div class="panel-body">
                 @foreach ($items as $key => $factor_item)
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
+
                     @foreach ($factor_item['factorItems'] as $count => $factorItem)
                     <li class="nav-item">
+                        <div class="col-md-2">
+                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
+                                data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
+                        </div>
                         <a class="nav-link show {{$count==0 ? 'active' :''}}"
                             onclick="basicDocumentExecutiveAppend('basic_document_executive_collection_{{$factorItem->id}}')"
                             id="basic_document_executive_collection_{{$factorItem->id}}-tab" data-toggle="tab"
