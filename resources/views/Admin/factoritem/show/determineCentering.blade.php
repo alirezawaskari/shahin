@@ -50,20 +50,6 @@
 @endpermission
 @endif
 <div class="{{ $factorItem['complete'] ? 'bg-success-bright' : 'bg-light' }} p-3 rounded mb-3 shadow-lg border">
-    <div class="mb-3">
-        @if (!is_null($factorItem['service_item']))
-        <span>{{ $factorItem['factoritemable']->title . '-' . $factorItem['service_item']->title }}</span>
-        @else
-        <span>{{ $factorItem['factoritemable']->title }}</span>
-        @endif
-        @if ($factorItem['complete'])
-        <span class="text-warning mr-2">(تکمیل شده)</span>
-        @endif
-        @if(!$factorItem['total_price'] || $factorItem['status_factor'] == 14 || $factorItem['status_factor'] == 4)
-        <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
-            خدمت | دسته بندی</button>
-        @endif
-    </div>
     <div>
         @if ($factorItem['complete'])
         <span class="text-warning">{{ $factorItem['date'] }}</span>

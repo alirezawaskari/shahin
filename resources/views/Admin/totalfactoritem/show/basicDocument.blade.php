@@ -171,7 +171,8 @@
                                     <div class="col-12 mb-3 mt-3">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" name="guarantor_checked"
-                                                class="custom-control-input guarantor_checked" id="customCheck" {{ $totalFactorItem->guarantor_checked ? 'checked' : ''}}>
+                                                class="custom-control-input guarantor_checked" id="customCheck" {{
+                                                $totalFactorItem->guarantor_checked ? 'checked' : ''}}>
                                             <label class="custom-control-label" for="customCheck">این پرونده دارای ضامن
                                                 می باشد.</label>
                                         </div>
@@ -576,17 +577,11 @@
                     <div class="tab-pane fade p-t-20 {{$count==0 ? 'active show' :''}}"
                         id="basic_document_executive_collection_{{$factorItem->id}}" role="tabpanel"
                         aria-labelledby="basic_document_executive_collection_{{$factorItem->id}}-tab">
-                        <div class="row">
-                        <div class="col-md-10">
+
                         <h6> <i class="fa fa-list"></i> {{ $factorItem->factor->user->name . ' '
                             .$factorItem->factor->user->family.' : '.$factor_item['factoritemable']->title .' - '.
                             $factor_item['financial_plans_type']}}</h6>
-                        </div>
-                        <div class="col-md-2">
-                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
-                                data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
-                        </div>
-                        </div>
+
                         <div class="card border shadow-lg">
                             <div class="card-header"> تکمیل اطلاعات اجرایی پرونده: </div>
                             <div class="card-body">
@@ -632,6 +627,22 @@
                         <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
                                 class="btn btn-warning py-1 px-2 text-white mt-2 mb-2">ارجاع به کارشناسی</span></a>
                         @endif
+                        <div class="{{ $factorItem->complete ? 'bg-success-bright' : 'bg-light' }} p-3 rounded mb-3 shadow-lg border">
+                            <div class="mb-3">
+                                @if (!is_null($factor_item['service_item']))
+                                <span>{{ $factor_item['factoritemable']->title . '-' . $factor_item['service_item']->title }}</span>
+                                @else
+                                <span>{{ $factor_item['factoritemable']->title }}</span>
+                                @endif
+                                @if ($factorItem->complete)
+                                <span class="text-warning mr-2">(تکمیل شده)</span>
+                                @endif
+                                @if(!$factorItem->total_price || in_array(trim($factorItem->status_factor) , [0,4,14]) )
+                                <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
+                                    خدمت | دسته بندی</button>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                     @endforeach
                 </div>
