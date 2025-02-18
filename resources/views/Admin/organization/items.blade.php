@@ -57,7 +57,7 @@
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                                 <a href="../../dashboard/organization/{{$organization->slug}}/edit" target="_blank"><button type="button" class="dropdown-item pointer">مشاهده  </button></a>
-                               @permission('organization-delete')
+                               @permission('delete_organ')
                                 <form method="post" action="{{route('organization.destroy',[$organization->slug])}}">
                                     {{ method_field('DELETE') }}  {{csrf_field()}}
                                     <button type="submit" class="dropdown-item pointer showConfirmDelete">حذف

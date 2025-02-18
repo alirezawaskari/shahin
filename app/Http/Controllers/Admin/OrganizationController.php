@@ -18,7 +18,7 @@ class OrganizationController extends AdminController {
      */
     public function index() {
         $organizations = Organization::latest()->get();
-        $delete = auth()->user()->isAbleTo( 'organization-delete' );
+        $delete = auth()->user()->isAbleTo( 'delete_organ' );
         return view( 'Admin.organization.all', compact( 'organizations' ,'delete') );
     }
 
@@ -187,7 +187,7 @@ class OrganizationController extends AdminController {
      */
     public function destroy(Organization $organization ) {
 
-        if (!auth()->user()->hasPermission('organization-delete')) {
+        if (!auth()->user()->hasPermission('delete_organ')) {
             abort(403);
         }
         $organization->delete();
