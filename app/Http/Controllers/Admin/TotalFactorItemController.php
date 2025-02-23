@@ -482,7 +482,10 @@ class TotalFactorItemController extends Controller
             foreach ($factor_items as $factor_item) {
                 $factor_item->update(['credit' => $factor_item->total_price + $factor_item->credit]);
 
-                event(new factorItemActivation($factor_item->factor->user, $factor_item->center->title));
+                if($factor_item->center)
+                {
+                    event(new factorItemActivation($factor_item->factor->user, $factor_item->center->title));
+                }
 
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
@@ -539,6 +542,11 @@ class TotalFactorItemController extends Controller
         if ($request->urlimgshenasname) {
             Helper::deleteImage($user->imgshenasname);
             $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname,'document')]);
+        }
+
+        if ($request->urlimgturnover) {
+            Helper::deleteImage($user->imgturnover);
+            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover,'document')]);
         }
 
         $input = $request->user;
