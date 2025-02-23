@@ -104,7 +104,7 @@
         </div>
 
     </div>
-    {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
         class="modal fade phone-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -116,33 +116,34 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%"
-                                    src="https://tiktarh.com/wp-content/uploads/2024/10/Cptvct1004267www.tiktarh.com_.jpg"
-                                    alt="">
+                                <img width="100%" src="https://i1.delgarm.com/i/828/021207/65dc6aa8987ee.jpeg" alt="">
                             </div>
                         </div>
                     </div>
-                    <h6>
+                    <h6 class="text-center">
                         <strong>
-                            ویژه صاحبین کسب و کارها ، فروشندگان کالا و خدمات سوپرمارکت داران ، پوشاک فروشان ، معلم
-                            ها ، پزشکان و وکلا وکالای خانگی موبایل و کامپیوتر برای اجاره و دریافت اطلاعات راجع به
-                            مغازه های دیجیتال فقط تا 13 آبان با شرایط ویژه <a
-                                href="/services/Permanent-employment">اینجا</a> وارد شوید.
+                            طرح ویژه اقساطی لاله به مناسبت نوروز وام های <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
+                            میلیون تومانی تنها برای خدمات دندانپزشکی و زیبایی لاله
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="mb-1 p-1">
-                        <a href="/services/Permanent-employment" class="btn btn-info">
-                            دریافت مغازه دیجیتال
+                    <div class="col-6">
+                        <a href="/services/beauty" class="btn btn-info">
+                            دریافت خدمت زیبایی
                         </a>
                     </div>
-                    <div class="mb-1 p-1" style="margin-right: auto">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
+                    <div class="col-6">
+                        <a href="/services/dentistry" class="btn btn-info">
+                            دریافت خدمت دندانپزشکی
+                        </a>
                     </div>
+                </div>
+                <div class="mb-1 p-1" style="margin-right: auto">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
     @endsection
