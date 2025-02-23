@@ -116,11 +116,9 @@
                             <i class="fa fa-list text-dark" aria-hidden="true"></i> کلیک نمایید .
                             )
                        </span> </th>
-                    <th>حضور کاربر</th>
                     <th>ثبت کننده</th>
                     <th>تایید کننده</th>
                     <th>تاریخ و ساعت</th>
-                    <th>حضور</th>
                     <th>مرکز</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>

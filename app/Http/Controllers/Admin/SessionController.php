@@ -28,7 +28,7 @@ class SessionController extends Controller {
         $user = auth()->user();
         if ( $user->isAbleTo(['session-detail','session']) ) {
             $delete = $user->isAbleTo( 'session-delete' );
-            $has_center = $user->center->exists();
+            $has_center = $user->center()->exists();
             $confirm = $user->isAbleTo( 'session-confirm' );
             return view( 'Admin.session.all', compact( 'delete', 'confirm' , 'has_center' ) );
         }
@@ -63,7 +63,7 @@ class SessionController extends Controller {
         if ( $user->isAbleTo( 'session-desktop-complete' ) ) {
             $title = 'میزکار مراجعات';
             $delete = $user->isAbleTo( 'session-delete' );
-            $has_center = $user->center->exists();
+            $has_center = $user->center()->exists();
             $type = 'complete';
             $url = 'desktop-complete/filter';
             return view( 'Admin.session.desktopComplete', compact('has_center', 'delete', 'type', 'url' , 'title') );
@@ -101,7 +101,7 @@ class SessionController extends Controller {
         if (isset($request->excel) && $request->excel == 'on') {
             return (new SessionExport($sessions))->download('sessions.xlsx');
         }
-        return new SessionCollection($sessions , $sessions->paginate(20));
+        return new SessionCollection( $sessions , $sessions->paginate(20));
     }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
@@ -111,7 +111,7 @@ class SessionController extends Controller {
         if ( $user->isAbleTo('session-desktop-confirm') ) {
             $title = 'میزکار تایید جلسات';
             $delete = $user->isAbleTo( 'session-delete' );
-            $has_center = $user->center->exists();
+            $has_center = $user->center()->exists();
             $type = 'confirm';
             $url = 'desktop-confirm/filter';
             return view( 'Admin.session.desktopConfirm', compact('has_center' , 'delete', 'type', 'url' , 'title') );

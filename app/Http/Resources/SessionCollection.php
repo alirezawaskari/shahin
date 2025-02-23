@@ -43,7 +43,7 @@ class SessionCollection extends ResourceCollection
                     'user' => $item->user->family,
                     'confirmer' => $item->confirmer ? $item->confirmer->family : 'ندارد',
                     'date' => verta($item->date)->format('%d %B ، %Y - H:i'),
-                    'has_center' => auth()->user()->center->exists(),
+                    'has_center' => auth()->user()->center ? true : false,
                     'center' => $item->factorItem->center ? $item->factorItem->center->title : 'ثبت نشده',
                     'status' => $this->setStatus($item->status),
                     'factor_item' => $item->factorItem ? $item->factorItem->resnumber : '',
