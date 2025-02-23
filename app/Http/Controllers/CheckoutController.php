@@ -144,15 +144,19 @@ public function upload_document( Request $request ) {
         }
 
         $user = User::find( $request->user_id );
-        $imgmeli = $request->file( 'imgmeli' );
-        $imgshenasname = $request->file( 'imgshenasname' );
-        if ( $imgmeli ) {
-            $urlimgmeli = Helper::uploadImage( $imgmeli, 'document' );
-            $user->update( [ 'imgmeli' => $urlimgmeli ] );
+        if ($request->urlimgmeli) {
+            Helper::deleteImage($user->imgmeli);
+            $user->update(['imgmeli' => Helper::moveImage($request->urlimgmeli,'document')]);
         }
-        if ( $imgshenasname ) {
-            $urlimgshenasname = Helper::uploadImage( $imgshenasname, 'document' );
-            $user->update( [ 'imgshenasname' => $urlimgshenasname ] );
+
+        if ($request->urlimgshenasname) {
+            Helper::deleteImage($user->imgshenasname);
+            $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname,'document')]);
+        }
+
+        if ($request->urlimgturnover) {
+            Helper::deleteImage($user->imgturnover);
+            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover,'document')]);
         }
 
         $this->formData( $request->item );
