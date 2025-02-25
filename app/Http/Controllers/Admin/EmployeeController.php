@@ -214,7 +214,7 @@ class EmployeeController extends AdminController
             return [
                 'year' => verta($item[0]->created_at)->format('Y'),
                 'month' => verta($item[0]->created_at)->format('%B'),
-                'amount_received' => WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($item[0]->created_at)->startMonth()), Helper::vertaTocarbon(verta($item[0]->created_at)->endMonth())])->whereType('0')->where('user_id', $item[0]->user_id)->sum('price'),
+                'amount_received' => WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($item[0]->created_at)->startMonth()->addDays(1)), Helper::vertaTocarbon(verta($item[0]->created_at)->endMonth()->addDays(1))])->whereType('0')->where('user_id', $item[0]->user_id)->sum('price'),
                 'item_count' => UserPerformance::whereBetween('date', [Helper::vertaTocarbon(verta($item[0]->created_at)->startMonth()), Helper::vertaTocarbon(verta($item[0]->created_at)->endMonth()->addDays(1))])->where('user_id', $item[0]->user_id)->distinct('factor_item_id')->count('factor_item_id'),
                 'total_price' => UserPerformance::whereBetween('date', [Helper::vertaTocarbon(verta($item[0]->created_at)->startMonth()), Helper::vertaTocarbon(verta($item[0]->created_at)->endMonth()->addDays(1))])->where('user_id', $item[0]->user_id)->sum('price'),
                 'ancillary_costs' => UserPerformance::whereBetween('date', [Helper::vertaTocarbon(verta($item[0]->created_at)->startMonth()), Helper::vertaTocarbon(verta($item[0]->created_at)->endMonth()->addDays(1))])->where('user_id', $item[0]->user_id)->sum('ancillary_costs'),
@@ -259,7 +259,7 @@ class EmployeeController extends AdminController
         $wallet_transactions = WalletTransaction::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->filter()->latest();
         //filter walletTransactions user by created_at value
         if (isset($request->key) && $request->key != 'all') {
-            $wallet_transactions = WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth())])->where('user_id', $user->id)->filter()->latest();
+            $wallet_transactions = WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($request->key)->startMonth()->addDays(1)), Helper::vertaTocarbon(verta($request->key)->endMonth()->addDays(1))])->where('user_id', $user->id)->filter()->latest();
         }
 
         return new WalletTransactionCollection($wallet_transactions, $wallet_transactions->paginate(20));
@@ -276,7 +276,7 @@ class EmployeeController extends AdminController
 
         $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         if (isset($request->key) && $request->key != 'all') {
-            $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->whereBetween('date', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth())])->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
+            $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->whereBetween('date', [Helper::vertaTocarbon(verta($request->key)->startMonth()->addDays(1)), Helper::vertaTocarbon(verta($request->key)->endMonth()->addDays(1))])->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         }
         return view('Admin.employee.performanceDetail', compact('user', 'user_performances'));
     }
