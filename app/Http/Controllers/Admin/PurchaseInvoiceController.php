@@ -407,6 +407,12 @@ class PurchaseInvoiceController extends Controller {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function savePayment(Request $request, PurchaseInvoice $purchaseInvoice ) {
+        if(!$purchaseInvoice->supplier)
+        {
+            return redirect( route( 'purchaseInvoice.index' ) )->with( [
+               'failByMessage' => 'امکان ثبت پرداختی برای فاکتور بدون تامین کننده وجود ندارد.'
+            ] );
+        }
         $user = $purchaseInvoice->supplier->user_id;
 
         $factor = new Factor();
