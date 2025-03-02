@@ -130,7 +130,7 @@
                 </div>
                 <div class="row col-12">
                     <div class="col-6">
-                        <a href="/services/beauty" class="btn btn-info">
+                        <a href="/services/skin_and_hair" class="btn btn-info">
                             دریافت خدمت زیبایی
                         </a>
                     </div>
