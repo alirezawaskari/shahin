@@ -392,4 +392,4 @@
     $(document).ready( function () {
         $('#datatable-history-blade').DataTable({searching: false});
     } );
-</script>
+</script+++++>

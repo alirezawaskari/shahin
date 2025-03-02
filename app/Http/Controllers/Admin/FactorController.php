@@ -253,7 +253,7 @@ class FactorController extends Controller
         {
             $factor->update($inputs);
 
-            if (!is_null($factor->task_id) && $factor->status == 0) {
+            if ($factor->task && $factor->status == 0) {
                 $factor->task->update([
                     'status' => 2,
                 ]);
