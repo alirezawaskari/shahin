@@ -743,4 +743,18 @@ class User extends Authenticatable
             'city_id' => $city_id
         ]);
     }
+    /**
+     * @return array
+     */
+    public static function getSupporterUserAdmin()
+    {
+        $users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where( 'admin_representation_id', auth()->user()->admin_representation_id )->get();
+        $supporter_users = [];
+        foreach ( $users as $user ) {
+            if ( $user->hasPermission('supporter_new_file') ) {
+                array_push( $supporter_users, $user );
+            }
+        }
+        return $supporter_users;
+    }
 }

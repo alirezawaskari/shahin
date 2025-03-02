@@ -591,9 +591,9 @@ $(document).ready(function () {
                 {
                     "data": "date_time"
                 },
-                /*{
+                {
                     "data": "supporter"
-                },*/
+                },
                 {
                     "data": "type"
                 },

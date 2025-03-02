@@ -211,7 +211,7 @@
                             <th>موبایل</th>
                             <th>تاریخ ثبت</th>
                             <th>تاریخ مراجعه</th>
-                            {{-- <th>پشتیبان - شماره پرونده</th> --}}
+                            <th>پشتیبان - شماره پرونده</th>
                             <th>نوع پرداخت - مبلغ</th>
                             <th>خدمات</th>
 							<th>نمایندگی</th>
@@ -273,7 +273,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.2')}}"></script>
+<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.3')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection
