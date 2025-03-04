@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Symfony\Component\CssSelector\Node\ElementNode;
 
 class Factor extends Model implements AuditableContract
 {
@@ -103,15 +104,25 @@ class Factor extends Model implements AuditableContract
     private static function setSupporter(Factor $factor)
     {
         $supporter_id=null;
-        $supporter_users = User::getSupporterUserAdmin();
-        if(is_null($supporter_users)){
-            $supporter_user_selected = User::find(16983);
+
+        if($factor->callcenter && $factor->callcenter()->isAbleTo('supporter_user_file'))
+        {
+            $supporter_id = $factor->callcenter_id;
+            $supporter_user_selected = $factor->callcenter;
         }
         else
         {
-            $supporter_user_selected = $supporter_users[array_rand( $supporter_users )];
+            $supporter_users = User::getSupporterUserAdmin($factor->representation_id);
+            if(is_null($supporter_users)){
+                $supporter_user_selected = User::find(16983);
+            }
+            else
+            {
+                $supporter_user_selected = $supporter_users[array_rand( $supporter_users )];
+            }
+            $supporter_id = $supporter_user_selected->id;
         }
-        $supporter_id = $supporter_user_selected->id;
+
         $factor->factorItems()->update([
             'supporter_id'=>$supporter_id
         ]);

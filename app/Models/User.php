@@ -746,9 +746,9 @@ class User extends Authenticatable
     /**
      * @return array
      */
-    public static function getSupporterUserAdmin()
+    public static function getSupporterUserAdmin($representation)
     {
-        $users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin')->get();
+        $users = User::whereDoesntHave('ghorfeOnlineLists')->where('admin_representation_id' , $representation)->where( 'level', 'admin')->get();
         $supporter_users = [];
         foreach ( $users as $user ) {
             if ( $user->hasPermission('supporter_new_file') ) {
