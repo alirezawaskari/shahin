@@ -198,6 +198,15 @@
                                         </div>
                                         <label>{{ $form->placeholder }}</label>
                                         @break
+                                        @case('image')
+                                        <div class="col-12 mb-2">
+                                            <a href="{{ asset($form->file) }}" download>
+                                                <img src="{{ asset($form->file) }}"
+                                                    class="img-fluid" width="300">
+                                            </a>
+                                        </div>
+                                        <label class="text-center">{{ $form->placeholder }}</label>
+                                        @break
                                         @case('multi-select')
                                         <div class="col-12 col-md-6 mb-2">
                                             {!! $form->help !!}
@@ -332,7 +341,7 @@
                                                 نمایید .
                                             </div>
                                             @include('layout.uploadSample')
-                                            
+
                                             <div class="col-12">
                                                 <div class="card-group">
                                                     <div class="col-12 mb-2 mt-4">
