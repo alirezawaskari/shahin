@@ -20,8 +20,8 @@ class NeginSms
         $client = new nusoap_client('https://dev.homais.com/services/sms/index.asmx?wsdl', array('encoding'=>'UTF-8'));
 
         $parameters['PortalCode'] = $portal_code ; //portal code
-        $parameters['UserName'] = config('services.negin_sms.user_name');//username
-        $parameters['PassWord'] = config('services.negin_sms.password'); //password
+        $parameters['UserName'] = config('services.neginSms.username');//username
+        $parameters['PassWord'] = config('services.neginSms.password'); //password
         $parameters['Mobile'] = $phone; //phone number
         $parameters['Message'] = $message;//message
         $parameters['ServerType'] = $service_type; //server type

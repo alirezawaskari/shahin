@@ -51,6 +51,8 @@ return [
 
     'neginSms' => [
         'portalcode' => '10002239',
+        'username' => 'fr50568',
+        'password' => '12121364',
     ],
 
     'emta' => [
@@ -68,10 +70,5 @@ return [
     'zarinpal' => [
         'id' => env('ZARIN_ID'),
         'url' => 'https://www.zarinpal.com',//if test => convert www to the sandbox
-    ],
-
-    'negin_sms' => [
-        'user_name' => env('NEGIN_SMS_USER_NAME','username'),
-        'password' => env('NEGIN_SMS_PASSWORD','pass'),
     ],
 ];
