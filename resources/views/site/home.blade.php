@@ -123,20 +123,25 @@
                     <h6 class="text-center">
                         <strong>
                             طرح ویژه اقساطی لاله به مناسبت نوروز وام های <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
-                            میلیون تومانی تنها برای خدمات دندانپزشکی و زیبایی لاله
+                            میلیون تومانی تنها برای خدمات دندانپزشکی ، زیبایی لاله و مغازه دیجیتال
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="col-6">
+                    <div class="col-4">
                         <a href="/services/skin_and_hair" class="btn btn-info">
                             دریافت خدمت زیبایی
                         </a>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         <a href="/services/dentistry" class="btn btn-info">
                             دریافت خدمت دندانپزشکی
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="/services/Permanent-employment" class="btn btn-info">
+                            دریافت مغازه دیجیتال
                         </a>
                     </div>
                 </div>
