@@ -83,10 +83,8 @@ class SupplierController extends Controller
     }
     private function getSupplierUsers()
     {
-        $users = User::where('level' , 'admin')->whereHas('roles', function ($query) {
-            $query->where('name' , 'supplier');
-        })->get();
-        
+        $users = User::where('level' , 'admin')->get();
+
         return $users;
     }
 }
