@@ -105,7 +105,7 @@ class Factor extends Model implements AuditableContract
     {
         $supporter_id=null;
 
-        if($factor->callcenter && $factor->callcenter()->isAbleTo('supporter_user_file'))
+        if($factor->callcenter && $factor->callcenter->hasPermission('supporter_user_file'))
         {
             $supporter_id = $factor->callcenter_id;
             $supporter_user_selected = $factor->callcenter;
@@ -122,7 +122,6 @@ class Factor extends Model implements AuditableContract
             }
             $supporter_id = $supporter_user_selected->id;
         }
-
         $factor->factorItems()->update([
             'supporter_id'=>$supporter_id
         ]);
