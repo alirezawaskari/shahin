@@ -1385,7 +1385,13 @@ class CallcenterController extends Controller
         //suspention task
         if(isset($suspension_standard->id))
         {
-            $callcenter->update(['date_expire'=> now()->addHours($suspension_standard->waitting_time)]);
+            if($suspension_standard->waitting_time < 1)
+            {
+                $callcenter->update(['date_expire'=> now()->addMinutes($suspension_standard->waitting_time*60)]);
+            }
+            else{
+                $callcenter->update(['date_expire'=> now()->addHours($suspension_standard->waitting_time)]);
+            }
             $description = $suspension_standard->name .' تماس گرفته شد ارتباط با کاربر برقرار نشد.';
         }
         //create history
