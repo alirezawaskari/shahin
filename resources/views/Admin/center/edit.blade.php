@@ -8,6 +8,7 @@
     @method('PATCH')
 
     @include('Admin.layouts.errors')
+
     <div class="card">
         <div class="card-body">
             <div class="form-row">
@@ -16,26 +17,30 @@
                     <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
                     <br>
                     <br>
-                    فروش کالا <input id="category-type" type="radio" name="cat_type" value="category" onclick="catType(this.value)" {{
-                        $center->centerable_type == 'App\Category' ? 'checked' : ''}}>
-                    ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service" onclick="catType(this.value)" {{
-                        $center->centerable_type == 'App\Models\Service' ? 'checked' : ''}}>
+                    فروش کالا <input id="category-type" type="radio" name="cat_type" value="category"
+                        onclick="catType(this.value)" {{ $center->centerable_type == 'App\Category' ? 'checked' : ''}}>
+                    ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service"
+                        onclick="catType(this.value)" {{ $center->centerable_type == 'App\Models\Service' ? 'checked' :
+                    ''}}>
                 </div>
                 <div class="col-12 mb-5">
                     <select class="form-control mb-3" name="item[service_category]" id="service_category">
                         <option selected disabled>انتخاب دسته بندی خدمت مربوطه</option>
                         @foreach ($service_categories as $service_category)
-                        <option value="{{ $service_category->id }}" {{ $center_request->center_category_id == $service_category->id ? 'selected' :
+                        <option value="{{ $service_category->id }}" {{ $center_request->center_category_id ==
+                            $service_category->id ? 'selected' :
                             ''
                             }}>{{ $service_category->title }}
                         </option>
                         @endforeach
                     </select>
-{{--                    @dd($center->services->where('id',2)->count())--}}
-                    <select class="form-control mb-3 services-select" multiple="multiple" name="services[]" id="service">
-{{--                        <option  disabled>انتخاب خدمت مربوطه</option>--}}
+                    {{-- @dd($center->services->where('id',2)->count())--}}
+                    <select class="form-control mb-3 services-select" multiple="multiple" name="services[]"
+                        id="service">
+                        {{-- <option disabled>انتخاب خدمت مربوطه</option>--}}
                         @foreach ($services as $service)
-                        <option value="{{ $service->id }}" {{$center->services->where('id',$service->id )->count()==1?'selected' :
+                        <option value="{{ $service->id }}" {{$center->services->where('id',$service->id
+                            )->count()==1?'selected' :
                             '' }}>{{ $service->title }}
                         </option>
                         @endforeach
@@ -44,7 +49,8 @@
                     <select class="form-control mb-3" name="item[product_category]" id="product_category">
                         <option selected disabled>انتخاب دسته بندی محصول مربوطه</option>
                         @foreach ($product_categories as $product_category)
-                        <option value="{{ $product_category->id }}" {{ $center_request->center_category_id == $product_category->id ? 'selected'
+                        <option value="{{ $product_category->id }}" {{ $center_request->center_category_id ==
+                            $product_category->id ? 'selected'
                             : ''
                             }}>{{ $product_category->title }}
                         </option>
@@ -69,15 +75,19 @@
                     <h5>2 - انتخاب جایگاه شغلی</h5>
                     <br>
                     <br>
-                    فروشنده <input type="radio" value="seller" name="item[type]" {{ $center_request->type == 'seller' ? 'checked' : ''
-                    }}>
-                    تولید کننده <input type="radio" value="producer" name="item[type]" {{ $center_request->type == 'producer' ?
+                    فروشنده <input type="radio" value="seller" name="item[type]" {{ $center_request->type == 'seller' ?
                     'checked' : ''
                     }}>
-                    تامین کننده <input type="radio" value="supplier" name="item[type]" {{ $center_request->type == 'supplier' ?
+                    تولید کننده <input type="radio" value="producer" name="item[type]" {{ $center_request->type ==
+                    'producer' ?
                     'checked' : ''
                     }}>
-                    خدمات دهنده <input type="radio" value="service_provider" name="item[type]" {{ $center_request->type ==
+                    تامین کننده <input type="radio" value="supplier" name="item[type]" {{ $center_request->type ==
+                    'supplier' ?
+                    'checked' : ''
+                    }}>
+                    خدمات دهنده <input type="radio" value="service_provider" name="item[type]" {{ $center_request->type
+                    ==
                     'service_provider'
                     ? 'checked' : '' }}>
                 </div>
@@ -93,7 +103,8 @@
                 <div class="row">
                     <div class="col-12 col-md-4 mb-3">
                         <label>موضوع</label>
-                        <input type="text" value="{{ $center_request->subject }}" class="form-control" name="item[subject]" required>
+                        <input type="text" value="{{ $center_request->subject }}" class="form-control"
+                            name="item[subject]" required>
                     </div>
 
                     <div class="col-12 col-md-4 mb-3">
@@ -110,7 +121,8 @@
 
                     <div class="col-12 col-md-4 mb-3">
                         <label>نحوه آشنایی</label>
-                        <input type="text" value="{{ $center_request->connections }}" class="form-control" name="item[connections]">
+                        <input type="text" value="{{ $center_request->connections }}" class="form-control"
+                            name="item[connections]">
                     </div>
 
                     <div class="col-12 col-md-4 mb-3">
@@ -118,7 +130,8 @@
                         <select class="form-control" type="int" name="item[province_id]" id="province_id" required>
                             <option value="">انتخاب استان</option>
                             @foreach(\App\Models\Province::all() as $province)
-                            <option value="{{ $province->id }}" {{ $center_request->province_id == $province->id ? 'selected' :
+                            <option value="{{ $province->id }}" {{ $center_request->province_id == $province->id ?
+                                'selected' :
                                 '' }}>{{
                                 $province->name }}</option>
                             @endforeach
@@ -130,7 +143,8 @@
                         <select class="form-control" type="int" name="item[city_id]" id="city_id" required>
                             <option value="">انتخاب شهر</option>
                             @foreach(\App\Models\City::all() as $city)
-                            <option value="{{ $city->id }}" {{ $center_request->city_id == $city->id ? 'selected' : '' }}>{{
+                            <option value="{{ $city->id }}" {{ $center_request->city_id == $city->id ? 'selected' : ''
+                                }}>{{
                                 $city->name
                                 }}</option>
                             @endforeach
@@ -157,18 +171,20 @@
                         <label>نمایندگی</label>
                         <select name="representation_id[]" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
-                                <option value="{{$representation->id}}" {{ in_array(trim($representation->id) , $center->representations()->pluck('id')->toArray()) ? 'selected' : '' }}>{{$representation->fa_name}}</option>
+                            <option value="{{$representation->id}}" {{ in_array(trim($representation->id) ,
+                                $center->representations()->pluck('id')->toArray()) ? 'selected' : ''
+                                }}>{{$representation->fa_name}}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-12 mb-4">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="is_show" value="1"
-                                       @if($center->is_show == 1) checked @endif> نمایش در سایت نمایندگی کل
+                                <input type="checkbox" name="is_show" value="1" @if($center->is_show == 1) checked
+                                @endif> نمایش در سایت نمایندگی کل
                             </label>
                             @if($errors->has('is_show'))<span
-                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
+                                class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                         </div>
                     </div>
                     @endif
@@ -178,11 +194,13 @@
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>شماره قرارداد</label>
-                        <input type="text" value="{{ $center->contract_number }}" class="form-control" name="contract_number">
+                        <input type="text" value="{{ $center->contract_number }}" class="form-control"
+                            name="contract_number">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>تاریخ قرارداد</label>
-                        <input value="{{ $center->contract_start_date }}" type="text" name="contract_start_date" class="form-control date">
+                        <input value="{{ $center->contract_start_date }}" type="text" name="contract_start_date"
+                            class="form-control date">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>توضیحات مرکز</label>
@@ -191,7 +209,8 @@
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>توضیحات بررسی همکار</label>
-                        <textarea type="text" class="form-control" name="description">{{ $center->description }}</textarea>
+                        <textarea type="text" class="form-control"
+                            name="description">{{ $center->description }}</textarea>
                     </div>
 
                     <div class='col-12 mb-3 file file--upload'>

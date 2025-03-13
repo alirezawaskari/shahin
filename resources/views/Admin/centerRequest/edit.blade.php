@@ -223,6 +223,6 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/center.js') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/centerRequest.js') }}"></script>
 
 @endsection

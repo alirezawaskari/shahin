@@ -79,40 +79,33 @@ class Center extends Model {
     }
 
     public function scopeFilter( $query ) {
-        $name = request( 'name' );
-        $phone = request( 'phone' );
-        $province = request( 'province' );
-        $type = request( 'type' );
+        $title = request( 'title' );
         $service = request( 'service' );
         $category = request( 'category' );
         $status = request( 'status' );
 
-        if ( isset( $name ) && trim( $name ) != '' ) {
-            $query->where( 'name', 'LIKE', '%' . $name . '%' );
+        if(auth()->user()->admin_representation_id)
+        {
+            $query->where('creator_representation_id' , auth()->user()->admin_representation_id);
         }
-
-        if ( isset( $phone ) && trim( $phone ) != '' ) {
-            $query->where( 'phone', $phone );
-        }
-
-        if ( isset( $province ) && trim( $province ) != 'all' ) {
-            $query->where( 'province_id', $province );
+        if ( isset( $title ) && trim( $title ) != '' ) {
+            $query->where( 'title', 'LIKE', '%' . $title . '%' );
         }
 
         if ( isset( $status ) && trim( $status ) != 'all' ) {
             $query->where( 'status', $status );
         }
 
-        if ( isset( $type ) && trim( $type ) != 'all' ) {
-            $query->where( 'type', $type );
-        }
-
         if ( isset( $category ) && trim( $category ) != 'all' ) {
-            $query->where( 'center_category_id', $category );
+            $query->whereHas('categories', function ($query) use ($category) {
+                $query->where('centerable_id',$category);
+            });
         }
 
         if ( isset( $service ) && trim( $service ) != 'all' ) {
-            $query->where( 'center_category_id', $service );
+            $query->whereHas('services', function ($query) use ($service) {
+                $query->where('centerable_id',$service);
+            });
         }
 
         return $query;

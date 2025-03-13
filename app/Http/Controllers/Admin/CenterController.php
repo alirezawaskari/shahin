@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Http\Resources\CenterCollection;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Center;
@@ -19,26 +20,36 @@ use Illuminate\Http\Request;
 class CenterController extends AdminController
 {
     public function index() {
-        if(auth()->user()->isAbleTo('center'))
+        $user = auth()->user();
+        if($user->isAbleTo('center'))
         {
-            $centers = Center::all();
-            if ( auth()->user()->center_id )
-            {
-                $centers = Center::find( auth()->user()->center_id );
-            }
-            if(auth()->user()->admin_representation_id)
-            {
-                $centers = $centers->where('creator_representation_id' , auth()->user()->admin_representation_id);
-            }
-            return view( 'Admin.center.all', compact( 'centers' ) );
+            $delete = $user->isAbleTo('delete_center');
+
+            $edit = $user->isAbleTo('edit-center');
+            $financial_report_detail = $user->isAbleTo('center_financial_report_detail');
+            return view( 'Admin.center.all', compact( 'delete' , 'edit' , 'financial_report_detail' ) );
         }
         return abort('401');
     }
-
+    /**
+     * @param Request $request
+     * @return CenterCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function filter(Request $request)
+    {
+        $centers = Center::filter()->latest();
+        return new CenterCollection($centers->paginate(20));
+    }
+    /**
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function create() {
         return view( 'Admin.center.create');
     }
-
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
     public function store( Request $request ) {
 
         $this->validate( request(), [
@@ -73,11 +84,10 @@ class CenterController extends AdminController
             'create' => 'success',
         ] );
     }
-
-    public function show( Center $center ) {
-        //
-    }
-
+    /**
+     * @param \App\Models\Center $center
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function edit( Center $center ) {
         if(auth()->user()->isAbleTo('edit-center'))
         {
@@ -86,7 +96,11 @@ class CenterController extends AdminController
         }
         return abort('401');
     }
-
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Center $center
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function update( Request $request, Center $center ) {
         if(auth()->user()->admin_representation)
         {
@@ -111,6 +125,7 @@ class CenterController extends AdminController
         unset($item['contract_file']);
         if ($request->urlcontract_file) {
             $contract_file = Helper::moveImage($request->urlcontract_file,'document');
+            $center->update( ['contract_file' => $contract_file]);
         }
 		unset($item['urlcontract_file']);
         $center->center_request->update($item);
@@ -123,7 +138,6 @@ class CenterController extends AdminController
             'description' => $request->description,
             'address' => $request->address,
             'contract_number' => $request->contract_number,
-            'contract_file' => isset($contract_file) ? $contract_file : '',
             'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
             'is_show' => isset($request->is_show) ? $request->is_show : 0,
         ] );
@@ -135,7 +149,11 @@ class CenterController extends AdminController
             'update' => 'success',
         ] );
     }
-
+    /**
+     * @param \App\Models\Center $center
+     * @param \App\Models\Service $service
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function serviceTariffs(Center $center , Service $service) {
         $tariffs = $service->tariffs;
         $access_selling_price = false;
@@ -158,21 +176,10 @@ class CenterController extends AdminController
 
         return view('Admin.center.serviceTariffCreate' , compact(['service_index_tariffs','employees' ,'center' , 'tariffs']));
     }
-
-    public function filter()
-    {
-        $centers = Center::filter()->latest();
-
-        $provinces = Center::all();
-        foreach ($provinces as $province) {
-            $count = Center::where('province', 'LIKE', '%' . $province->name . '%')->count();
-            $province->code = $count;
-        }
-
-        $centers = $centers->get();
-        return view('Admin.center.all', compact('centers', 'provinces'));
-    }
-
+    /**
+     * @param \App\Models\Center $center
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Center $center)
     {
         $center->delete();
@@ -180,7 +187,10 @@ class CenterController extends AdminController
             'delete' => 'success'
         ]);
     }
-
+    /**
+     * @param mixed $center_id
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function doctorsByCenter($center_id)
     {
         $users = User::with('roles')->whereHas('roles', function ($query) {
@@ -188,9 +198,12 @@ class CenterController extends AdminController
         })->where('level', 'admin')->where('center_id', $center_id)->paginate(15);
         return view('Admin.center.doctorsByCenter', ['users' => $users]);
     }
-
-
-    //list of product centers
+    /**
+     * @param mixed $id
+     * @param \Illuminate\Http\Request $request
+     * @return string|\Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     * list of product centers
+     */
     public function productsByCenterId($id, Request $request)
     {
         $products = Product::with('centers')->whereHas('centers', function ($query) use ($id) {
@@ -248,7 +261,11 @@ class CenterController extends AdminController
             , 'categories' => $categories, 'queries' => $queries, 'center_id' => $id, 'brands' => $brands,
            'create_link' => $create_link, 'page_link' => $page_link]);
     }
-
+    /**
+     * @param mixed $id
+     * @param mixed $center_id
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function productEdit($id, $center_id)
     {
         $product = Product::find($id);
@@ -296,7 +313,11 @@ class CenterController extends AdminController
             'parent_category_id', 'category_center_id', 'category_center', 'product_centers_ids',
             'product_attributes', 'brands', 'product_validation', 'validations', 'attributes'));
     }
-
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $id
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
     public function productUpdate(Request $request, $id)
     {
         $request->validate(['good.name' => 'required'], ['good.name.required' => 'لطفا عنوان را وارد کنید']);
@@ -386,7 +407,9 @@ class CenterController extends AdminController
 
         return redirect(route('productsByCenterId',$request->center_id))->with(['update' => 'success']);
     }
-
+    /**
+     * @return array{centers: mixed}
+     */
     public function getCenterCategory()
     {
         $centers = Center::select('id', 'title')->where('title', '!=', null)

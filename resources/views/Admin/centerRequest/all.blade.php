@@ -156,6 +156,6 @@
 
 @section('js')
 
-<script src="/assets/dashboard/js/center.js?v=1.1"></script>
+<script src="/assets/dashboard/js/centerRequest.js?v=1.1"></script>
 
 @endsection

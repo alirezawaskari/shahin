@@ -34,7 +34,7 @@ class FilterServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->composer(['Admin.callcenter.sendLink' , 'Admin.callcenter.all','Admin.factoritem.all','Admin.factor.all','Admin.factor.desktop','Admin.totalfactoritem.all','Admin.totalfactoritem.report'], function ($view) {
+        view()->composer(['Admin.center.all','Admin.callcenter.sendLink' , 'Admin.callcenter.all','Admin.factoritem.all','Admin.factor.all','Admin.factor.desktop','Admin.totalfactoritem.all','Admin.totalfactoritem.report'], function ($view) {
             $data =$this->tasks_requires();
             $view->with($data);
         });
