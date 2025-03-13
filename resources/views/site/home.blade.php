@@ -129,18 +129,18 @@
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="col-4">
-                        <a href="/services/skin_and_hair" class="btn btn-info">
+                    <div class="col-12 col-md-4 mb-3">
+                        <a href="/services/skin_and_hair" class="w-100 btn btn-info">
                             دریافت خدمت زیبایی
                         </a>
                     </div>
-                    <div class="col-4">
-                        <a href="/services/dentistry" class="btn btn-info">
+                    <div class="col-12 col-md-4 mb-3">
+                        <a href="/services/dentistry" class="w-100 btn btn-info">
                             دریافت خدمت دندانپزشکی
                         </a>
                     </div>
-                    <div class="col-4">
-                        <a href="/services/Permanent-employment" class="btn btn-info">
+                    <div class="col-12 col-md-4 mb-3">
+                        <a href="/services/Permanent-employment" class="w-100 btn btn-info">
                             دریافت مغازه دیجیتال
                         </a>
                     </div>
