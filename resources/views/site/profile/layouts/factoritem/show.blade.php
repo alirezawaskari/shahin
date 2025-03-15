@@ -327,7 +327,7 @@
                     </div>
                 </div>
                 @endif
-                @if($item['type'] == 1)
+                @if($item['type'] == 1 && $totalFactorItem)
                 @if($item['confirm'])
                 <div class="card">
                     <div class="card-header">
@@ -459,7 +459,7 @@
                     </div>
                 </div>
                 @endif
-                @if ($item['status_factor'] == 18 || $item['confirm'] )
+                @if ($totalFactorItem->total_factor_item_status_id == 18 || $item['confirm'] )
                 <div class="card">
                     <div class="card-header">
                         <a class="collapsed card-link" data-toggle="collapse" href="#collapseContract">
@@ -483,7 +483,7 @@
                             @endforeach
                             @endif
                         </div>
-                        @if($item['status_factor'] == 18)
+                        @if($totalFactorItem->total_factor_item_status_id == 18)
                         @include('site.profile.layouts.factoritem.confirmContract')
                         @endif
                     </div>
