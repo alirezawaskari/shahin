@@ -462,9 +462,7 @@ class SessionController extends Controller {
      */
     private function checkServiceTariffMultiStage($session_count,$factor_item_service_tariff,$factor_item,$price,$date)
     {
-        // $number_sessions_required = $factor_item_service_tariff->serviceTariff->session_number/$factor_item_service_tariff->serviceTariff->multi_stage;
-        $number_sessions_required = 1;
-        if($factor_item_service_tariff->status == 1)
+        if(($factor_item_service_tariff->serviceTariff->multi_stage == 2 && $session_count == 1) || $factor_item_service_tariff->status == 1)
         {
             //set superadmin center performance
             $purchase_price = $factor_item_service_tariff->serviceTariff->purchase_price/$factor_item_service_tariff->serviceTariff->multi_stage;
