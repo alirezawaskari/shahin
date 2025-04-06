@@ -61,7 +61,8 @@ class Service extends Model
     {
         return [
             'slug' => [
-                'source' => 'en_title'
+                'source' => 'en_title',
+                'onUpdate' => true,
             ]
         ];
     }

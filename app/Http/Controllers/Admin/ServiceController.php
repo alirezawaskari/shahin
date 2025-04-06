@@ -95,6 +95,7 @@ class ServiceController extends AdminController
 
         $this->validate(request(), [
             'title' => 'required|string',
+            'en_title' => 'required',
             'price' => 'required',
             'category_id'=>'required',
             'min_credit'=>'required',

@@ -64,18 +64,18 @@
                               id="basic-information-form">
                             <input type="hidden" name="update_type" value="basic_information">
                             <div class="row">
-                                <div class="col-12 col-md-4 mb-3">
+                                <div class="col-12 col-md-3 mb-3">
                                     <label>عنوان</label>
                                     <input type="text" value="{{ $service->title }}" class="form-control" name="title"
                                            required>
                                 </div>
 
-                                <div class="col-12 col-md-4 mb-3">
-                                    <label>عنوان لاتین</label>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>عنوان لاتین (توجه داشته باشید که این عنوان در url نمایش داده میشود و حتما باید به صورت انگلیسی وارد شود.)</label>
                                     <input type="text" value="{{ $service->en_title }}" class="form-control"
                                            name="en_title" required>
                                 </div>
-                                <div class="col-12 col-md-4 mb-3">
+                                <div class="col-12 col-md-3 mb-3">
                                     <label>عنوان فاکتور</label>
                                     <input type="text" value="{{ $service->factor_title }}" class="form-control"
                                            name="factor_title" required>
