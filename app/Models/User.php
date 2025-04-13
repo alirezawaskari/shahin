@@ -419,6 +419,13 @@ class User extends Authenticatable
             if (auth()->user()->admin_representation) {
                 $query->where('representation_id', auth()->user()->admin_representation->id);
             }
+			if (auth()->user()->admin_organization) {
+                $query->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
+            }
+            if (auth()->user()->center_id) {
+                $center = auth()->user()->center_id;
+                $query->where('center_id', $center)->get();
+            }
             if (isset($representation) && trim($representation) != 'all') {
                 if (trim($representation) == 'center') {
                     $query->where('representation_id', null);
@@ -453,24 +460,17 @@ class User extends Authenticatable
                     $query->whereLevel('admin');
                 }
             }
-            if ($province != 'all') {
-                $query->where('province_id', $province);
-            }
             if (isset($sex) && $sex != 'all') {
                 $query->where('sex', $sex);
             }
-            if ($city != 'all') {
+			if (isset($province) && $province != 'all') {
+                $query->where('province_id', $province);
+            }
+            if (isset($city) && $city != 'all') {
                 $query->where('city_id', $city);
             }
             if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
                 $query->whereDate('created_at', '>=' ,$startDate)->whereDate('created_at', '<=' ,$endDate);
-            }
-            if (auth()->user()->admin_organization) {
-                $query->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
-            }
-            if (auth()->user()->center_id) {
-                $center = auth()->user()->center_id;
-                $query->where('center_id', $center)->get();
             }
         }
         else{
