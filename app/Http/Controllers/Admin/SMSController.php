@@ -145,7 +145,7 @@ class SMSController extends Controller
         return response([
             'operator' => false,
             'status'=>'error',
-            'messages'=>'شما دسترسی ندارید .'
+            'messages'=>'امکان فراخوانی برای شما وجود ندارد .'
         ]);
     }
 }
