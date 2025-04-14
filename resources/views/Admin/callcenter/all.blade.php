@@ -111,7 +111,6 @@
                 </div>
 
                 @include('Admin.filter.productServiceFilterInputs')
-                @permission('callcenter-detail')
                 <div class="col-12 col-md-3 mb-2">
                     <select name="users[]" multiple="multiple" class="custom-select select2" id="user_callcenter">
                         @foreach($callcenters as $item)
@@ -133,7 +132,6 @@
                         @endforeach
                     </select>
                 </div>
-                @endpermission
                 <div class="col-12 col-md-3 mb-2">
                     <div class="custom-control custom-switch mt-2">
                         <input type="checkbox" class="custom-control-input" name="exel" id="exel">

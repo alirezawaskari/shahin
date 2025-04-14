@@ -288,15 +288,6 @@ class Callcenter extends Model implements AuditableContract
                     $query->where('representation_id', $representation);
                 }
             }
-
-            if (isset($users) && count($users) > 0) {
-                $query->whereIn('user_id',$users);
-            }
-
-            if (isset($agents) && count($agents) > 0) {
-                $query->whereIn('agent_id',$agents);
-            }
-
         }
         else
         {
@@ -308,6 +299,13 @@ class Callcenter extends Model implements AuditableContract
             });
         }
 
+        if (isset($users) && count($users) > 0) {
+            $query->whereIn('user_id',$users);
+        }
+
+        if (isset($agents) && count($agents) > 0) {
+            $query->whereIn('agent_id',$agents);
+        }
         return $query;
     }
 
