@@ -412,8 +412,14 @@ class User extends Authenticatable
         $sex = request('sex');
         $representation = request('representation');
         $organization = request('organization');
-
-        $query->whereDoesntHave('ghorfeOnlineLists');
+        if(request('has_ghorfe_online'))
+        {
+            $query->whereHas('ghorfeOnlineLists');
+        }
+        else
+        {
+            $query->whereDoesntHave('ghorfeOnlineLists');
+        }
 
          if (auth()->user() && auth()->user()->hasPermission('user-detail')) {
             if (auth()->user()->admin_representation) {

@@ -1,15 +1,15 @@
 @extends('Admin.master')
-@section('title')فهرست کاربران@endsection
+@section('title'){{ $title }}@endsection
 
 @section('content')
 
     <div class="page-header">
         <div>
-            <h3>فهرست کاربران</h3>
+            <h3>{{ $title }}</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">فهرست کاربران</li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $title }}</li>
                 </ol>
             </nav>
         </div>
@@ -20,7 +20,7 @@
         @endif
     </div>
     <div>
-        <form id="filter_form" action="/dashboard/users" method="get">
+        <form id="filter_form" action="/dashboard/{{$url}}" method="get">
             @csrf
             <div class="card">
                 <div class="card-body">
@@ -136,7 +136,7 @@
                 </div>
 
                 <p id="page_text" style="display: initial" ></p><p id="sum_price" style="display: initial" ></p>
-                <input type="hidden" value="filter" id="url">
+                <input type="hidden" value="{{ $url }}" id="url">
                 <input type="hidden" value="complete" id="type">
                 <input type="hidden" value="{{$delete}}" id="delete">
                 <input type="hidden" value="{{$can_manual_login}}" id="can-manual-login">

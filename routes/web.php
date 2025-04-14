@@ -354,7 +354,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/user-deleted' , 'UserController@delete')->name('user.delete');
     Route::get('/user-restore' , 'UserController@restore')->name('user.restore');
     Route::get('/user/user-histories/{user}' , 'UserController@fetchUserHistories')->name('user.histories');
-    Route::get('/userfilter', 'UserController@filter')->name('user.filter');
+    Route::get('/user/filter', 'UserController@filter')->name('user.filter');
     Route::post('/user/sendPassword' , 'UserController@sendPassword');
     Route::get('/user/creditDetail/{user}' , 'UserController@creditDetail');
     Route::get('/user/login/{user}' , 'UserController@login');
@@ -557,6 +557,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //ghorfeOnlineList
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+    Route::get('ghorfeOnlineList/users', 'GhorfeOnlineListController@showUsersList')->name('ghorfeOnlineList.users');
+    Route::get('ghorfeOnlineList/users/filter', 'GhorfeOnlineListController@filterUsers')->name('ghorfeOnlineList.users.filter');
 
     Route::resource('ghorfeOnlineList', 'GhorfeOnlineListController');
     //singleWebPage

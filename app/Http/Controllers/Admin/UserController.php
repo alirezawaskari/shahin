@@ -23,6 +23,8 @@ class UserController extends AdminController
      */
     public function index()
     {
+        $title = 'فهرست کاربران';
+        $url = 'users/filter';
         $user = auth()->user();
 
         $create = false;
@@ -47,9 +49,8 @@ class UserController extends AdminController
             $organ = true;
         }
 
-        return view('Admin.user.all' , compact('delete' , 'create', 'organ','can_manual_login'));
+        return view('Admin.user.all' , compact('title', 'url' ,'delete' , 'create', 'organ','can_manual_login'));
     }
-
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -153,7 +154,7 @@ class UserController extends AdminController
             Helper::deleteImage($user->imgshenasname);
             $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname,'document');
         }
-       
+
         if($request->urlimgmeli)
         {
             Helper::deleteImage($user->imgmeli);

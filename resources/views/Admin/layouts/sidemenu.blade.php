@@ -48,6 +48,9 @@
                     @permission('user-detail')
                     <li><a href="{{ route('user.index') }}">فهرست کاربران</a></li>
                     @endpermission
+                    @permission('ghorfe_online_list_users')
+                    <li><a href="{{ route('ghorfeOnlineList.users') }}">فهرست کاربران مغازه دیجیتال</a></li>
+                    @endpermission
                     @permission('employee-detail')
                     <li><a href="{{ route('employee.index') }}">فهرست همکاران</a></li>
                     @endpermission
