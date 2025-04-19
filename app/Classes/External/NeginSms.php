@@ -2,7 +2,7 @@
 
 namespace App\Classes\External;
 
-use App\Lib\nusoap_client;
+use nusoap_client;
 
 
 class NeginSms
