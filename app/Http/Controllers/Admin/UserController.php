@@ -24,7 +24,7 @@ class UserController extends AdminController
     public function index()
     {
         $title = 'فهرست کاربران';
-        $url = 'users/filter';
+        $url = 'user/filter';
         $user = auth()->user();
 
         $create = false;
