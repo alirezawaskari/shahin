@@ -232,6 +232,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/promissory/update/{promissory}', 'PromissoryController@update')->name('promissory.update');
     //treasury
     Route::get('/treasury/index' , 'TreasuryController@calendar')->name('treasury.calendar');
+    //sms templates
+    Route::get('/smsTemplate/filter', 'SmsTemplateController@filter');
+    Route::resource('/smsTemplate', 'SmsTemplateController');
     //total factor item
     Route::post('/totalFactorItem/suspension', 'TotalFactorItemController@suspension')->name('totalFactorItem.suspension');
     Route::get('/totalFactorItem/desktop', 'TotalFactorItemController@desktop')->name('totalFactorItem.desktop');

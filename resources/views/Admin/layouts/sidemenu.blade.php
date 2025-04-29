@@ -323,6 +323,16 @@
                 </ul>
             </li>
             @endpermission
+            @permission('sms-template')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>قالب های پیامکی</span> </a>
+                <ul>
+                    <li><a href="{{ route('smsTemplate.index') }}">فهرست قالب های پیامکی</a></li>
+                    @permission('sms-template-create')
+                    <li><a href="{{ route('smsTemplate.create') }}">ایجاد قالب پیامکی</a></li>
+                    @endpermission
+                </ul>
+            </li>
+            @endpermission
             @permission('create_organ')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>سازمان ها</span> </a>
                 <ul>
