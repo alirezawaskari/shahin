@@ -116,32 +116,28 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://i1.delgarm.com/i/828/021207/65dc6aa8987ee.jpeg" alt="">
+                                <img width="100%" src="https://lalecard.ir/upload/2025/4/service/1745899910313.jpg" alt="">
                             </div>
                         </div>
                     </div>
                     <h6 class="text-center">
                         <strong>
-                            طرح ویژه اقساطی لاله به مناسبت نوروز وام های <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
-                            میلیون تومانی تنها برای خدمات دندانپزشکی ، زیبایی لاله و مغازه دیجیتال
+                            به مناسبت روز دخترخانوم های عزیز لاله ای اعتبار <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
+                            میلیون تومانی تا ۵ ماه بدون سود و ضامن فقط به مدت یک هفته با سفته و‌بدون چک هم از دم قسط شد!!!
+                            این فرصت رو از دست ندید و خدماتتون رو همین الان ثبت نام و ۵ دقیقه ای دریافت کنید
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         <a href="/services/skin_and_hair" class="w-100 btn btn-info">
                             دریافت خدمت زیبایی
                         </a>
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         <a href="/services/dentistry" class="w-100 btn btn-info">
                             دریافت خدمت دندانپزشکی
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        <a href="/services/Permanent-employment" class="w-100 btn btn-info">
-                            دریافت مغازه دیجیتال
                         </a>
                     </div>
                 </div>
