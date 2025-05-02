@@ -59,8 +59,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::where('type', 0)->orderBy('id', 'DESC');
-        $categories = Category::where('depth', 2)->get();
+        $products = Product::filter()->where('type', 0)->orderBy('id', 'DESC');
+        $categories = Category::filter()->where('depth', 2)->get();
         $create_link = route('createMaterials');
         $queries = [];
         $columns = ['id', 'name','brand_id'];
@@ -1173,7 +1173,7 @@ class ProductController extends Controller
         if (User::checkManager() != null) {
             $center_id = User::checkManager();
             $center = Center::find($center_id);
-            $child_categories = Category::select('id', 'title')->where('parent_id', $center->centerable_id)->get();
+            $child_categories = Category::filter()->select('id', 'title')->where('parent_id', $center->centerable_id)->get();
         }
         return ['child' => $child_categories];
     }

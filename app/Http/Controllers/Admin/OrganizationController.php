@@ -18,7 +18,7 @@ class OrganizationController extends AdminController {
      */
     public function index() {
         $organizations = Organization::latest()->get();
-        $delete = auth()->user()->isAbleTo( 'organization-delete' );
+        $delete = auth()->user()->isAbleTo( 'delete_organ' );
         return view( 'Admin.organization.all', compact( 'organizations' ,'delete') );
     }
 
@@ -36,7 +36,7 @@ class OrganizationController extends AdminController {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
     public function create(Request $request) {
-        $services = Service::where('status' , true)->get();
+        $services = Service::filter()->where('status' , true)->get();
         $parent= Organization::find($request->parent_id);
         return view( 'Admin.organization.create', compact('parent', 'services' ) );
     }
@@ -110,7 +110,7 @@ class OrganizationController extends AdminController {
      */
     public function edit(Organization $organization ) {
 //        $services = Service::status()->get();
-        $services = Service::all();
+        $services = Service::filter()->get();
         return view( 'Admin.organization.edit', compact( 'organization', 'services' ) );
     }
 
@@ -187,7 +187,7 @@ class OrganizationController extends AdminController {
      */
     public function destroy(Organization $organization ) {
 
-        if (!auth()->user()->hasPermission('organization-delete')) {
+        if (!auth()->user()->hasPermission('delete_organ')) {
             abort(403);
         }
         $organization->delete();

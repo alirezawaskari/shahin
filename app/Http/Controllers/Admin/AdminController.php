@@ -114,58 +114,58 @@ class AdminController extends Controller
         /*------------ statistics card --------------*/
         if ($representation) {
             $link = "lalecard.ir/".$representation->slug.'/link/'.auth()->user()->id;
-            $totalUser = User::where('representation_id', $representation->id)->count();
-            $totalDayUser = User::where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->count();
-            $totalMonthUser = User::where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
-            $totalDayFactor = Factor::where('representation_id', $representation->id)->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
-            $totalMonthFactor = Factor::where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
-            $totalDayFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' ,'!=', 'organ')->sum('price');
-            $totalDayFactorPriceOrgan = Factor::where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type','organ')->sum('price');
-            $totalYesterdayFactorPrice = Factor::where('representation_id', $representation->id)->whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->sum('price');
-            $totalWeekFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->sum('price');
-            $totalMonthFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->sum('price');
-            $totalBeforeMonthFactorPrice = Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->sum('price');
-            $totalSixMonthFactorPrice = Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->sum('price');
-            $totalYearFactorPrice =  Factor::where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->sum('price');
-            $totalAllFactorPrice = Factor::where('representation_id', $representation->id)->where('status', true)->sum('price');
+            $totalUser = User::filter()->where('representation_id', $representation->id)->count();
+            $totalDayUser = User::filter()->wfilter()->here('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->count();
+            $totalMonthUser = User::filter()->where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalDayFactor = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
+            $totalMonthFactor = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
+            $totalDayFactorPrice = Factor::filter()->where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' ,'!=', 'organ')->sum('price');
+            $totalDayFactorPriceOrgan = Factor::filter()->where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type','organ')->sum('price');
+            $totalYesterdayFactorPrice = Factor::filter()->where('representation_id', $representation->id)->whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->sum('price');
+            $totalWeekFactorPrice = Factor::filter()->filter()->where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->sum('price');
+            $totalMonthFactorPrice = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->sum('price');
+            $totalBeforeMonthFactorPrice = Factor::filter()->where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->sum('price');
+            $totalSixMonthFactorPrice = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->sum('price');
+            $totalYearFactorPrice =  Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->sum('price');
+            $totalAllFactorPrice = Factor::filter()->where('representation_id', $representation->id)->where('status', true)->sum('price');
         }
         else
         {
             $link = config('app.url')."/mobile/link/".auth()->user()->id;
-            $totalUser = User::count();
-            $totalDayUser = User::where('created_at', 'like', date("Y-m-d").'%')->count();
-            $totalMonthUser = User::where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
-            $totalDayFactor = Factor::where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
-            $totalMonthFactor = Factor::where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
-            $totalDayFactorPrice = Factor::where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalDayFactorPriceOrgan = Factor::where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' , 'credit')->sum('price');
-            $totalYesterdayFactorPrice = Factor::whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalWeekFactorPrice = Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalMonthFactorPrice = Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalBeforeMonthFactorPrice = Factor::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalSixMonthFactorPrice = Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalYearFactorPrice =  Factor::where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalAllFactorPrice = Factor::where('status', true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalUser = User::filter()->count();
+            $totalDayUser = User::filter()->where('created_at', 'like', date("Y-m-d").'%')->count();
+            $totalMonthUser = User::filter()->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalDayFactor = Factor::filter()->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
+            $totalMonthFactor = Factor::filter()->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
+            $totalDayFactorPrice = Factor::filter()->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalDayFactorPriceOrgan = Factor::filter()->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' , 'credit')->sum('price');
+            $totalYesterdayFactorPrice = Factor::filter()->whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalWeekFactorPrice = Factor::filter()->filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalMonthFactorPrice = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalBeforeMonthFactorPrice = Factor::filter()->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalSixMonthFactorPrice = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalYearFactorPrice =  Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalAllFactorPrice = Factor::filter()->where('status', true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
         }
         if(auth()->user()->hasPermission('view-sales-revenue'))
         {
-            $totalMonthFactorCount = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->count();
-            $totalMonthFactorPaidCount = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
+            $totalMonthFactorCount = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalMonthFactorPaidCount = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
 
-            $totalUser = User::where('callcenter_id' , auth()->user()->id)->count();
-            $totalDayUser = User::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Carbon::now()->subDay())->count();
-            $totalMonthUser = User::where('callcenter_id' , auth()->user()->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
-            $totalDayFactor = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
-            $totalMonthFactor = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
-            $totalDayFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalDayFactorPriceOrgan = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' , 'credit')->sum('price');
-            $totalYesterdayFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalWeekFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalMonthFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalBeforeMonthFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalSixMonthFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalYearFactorPrice =  Factor::where('callcenter_id' , auth()->user()->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
-            $totalAllFactorPrice = Factor::where('callcenter_id' , auth()->user()->id)->where('status', true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalUser = User::filter()->count();
+            $totalDayUser = User::filter()->where('created_at', '>', Carbon::now()->subDay())->count();
+            $totalMonthUser = User::filter()->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalDayFactor = Factor::filter()->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
+            $totalMonthFactor = Factor::filter()->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
+            $totalDayFactorPrice = Factor::filter()->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalDayFactorPriceOrgan = Factor::filter()->where('created_at', 'like', date("Y-m-d").'%')->where('status', '1')->where('type' , 'credit')->sum('price');
+            $totalYesterdayFactorPrice = Factor::filter()->whereBetween('created_at',[Helper::vertaTocarbon(verta()->subDays(1)->startDay()->addHours(1)), Helper::vertaTocarbon(verta()->subDays(1)->endDay()->addHours(1))])->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalWeekFactorPrice = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startWeek()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalMonthFactorPrice = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalBeforeMonthFactorPrice = Factor::filter()->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonth(1)->startMonth()), Helper::vertaTocarbon(verta()->subMonth(1)->endMonth()->addDays(1))])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalSixMonthFactorPrice = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->subMonths(6)))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalYearFactorPrice =  Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startYear()))->where('status', '1')->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+            $totalAllFactorPrice = Factor::filter()->where('status', true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
         }
         if(auth()->user()->center_id)
         {
@@ -188,35 +188,35 @@ class AdminController extends Controller
 //            -------------------------------------------------------------------
             $factor_month['success']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_month['success'][$i]= Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+                $factor_month['success'][$i]= Factor::filter()->where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
             }
             $factor_month['success'] = array_reverse($factor_month['success']);
             //            -------------------------------------------------------------------
             $factor_month['unsuccess']= array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_month['unsuccess'][$i]= Factor::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->where('status' , '!=' , 1)->sum('price');
+                $factor_month['unsuccess'][$i]= Factor::filter()->where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->where('status' , '!=' , 1)->sum('price');
             }
             $factor_month['unsuccess'] = array_reverse(  $factor_month['unsuccess']);
             //            -------------------------------------------------------------------
             for ($i = 0; $i <= 6; $i++) {
-                $factor_week['success'][$i]=  Factor::where('representation_id', $representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->whereStatus(true)->sum('price');
+                $factor_week['success'][$i]=  Factor::filter()->where('representation_id', $representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->whereStatus(true)->sum('price');
             }
             $factor_week['success'] = array_reverse($factor_week['success']);
             //            -------------------------------------------------------------------
             for ($i = 0; $i <= 6; $i++) {
-                $factor_week['unsuccess'][$i]=  Factor::where('representation_id', $representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , '!=' , true)->sum('price');
+                $factor_week['unsuccess'][$i]=  Factor::filter()->where('representation_id', $representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , '!=' , true)->sum('price');
             }
             $factor_week['unsuccess'] = array_reverse($factor_week['unsuccess']);
             //            -------------------------------------------------------------------
             $user_week=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_week[$i]= User::where('representation_id', $representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->count();
+                $user_week[$i]= User::filter()->where('representation_id', $representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->count();
             }
             $user_week=array_reverse($user_week);
             //            -------------------------------------------------------------------
             $user_month=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_month[$i]= User::where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->count();
+                $user_month[$i]= User::filter()->where('representation_id', $representation->id)->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->count();
             }
             $user_month=array_reverse($user_month);
         } else {
@@ -226,7 +226,7 @@ class AdminController extends Controller
             for ($i = 0; $i <= 6; $i++) {
                 $from = date(Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()));
                 $to = date(Helper::vertaTocarbon(verta()->subMonths($i)->endMonth()));
-                $factor_month['success'][$i]= Factor::whereBetween('created_at', [$from, $to])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+                $factor_month['success'][$i]= Factor::filter()->whereBetween('created_at', [$from, $to])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
             }
             $factor_month['success'] = array_reverse( $factor_month['success']);
             //            -------------------------------------------------------------------
@@ -234,31 +234,31 @@ class AdminController extends Controller
             for ($i = 0; $i <= 6; $i++) {
                 $from = date(Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()));
                 $to = date(Helper::vertaTocarbon(verta()->subMonths($i)->endMonth()));
-                $factor_month['unsuccess'][$i]= Factor::whereBetween('created_at', [$from , $to])->where('status','!=',1)->sum('price');
+                $factor_month['unsuccess'][$i]= Factor::filter()->whereBetween('created_at', [$from , $to])->where('status','!=',1)->sum('price');
             }
             $factor_month['unsuccess'] = array_reverse( $factor_month['unsuccess']);
             //            -------------------------------------------------------------------
             $factor_week['success']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_week['success'][$i]=  Factor::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
+                $factor_week['success'][$i]=  Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
             }
             $factor_week['success'] = array_reverse($factor_week['success']);
             //            -------------------------------------------------------------------
             $factor_week['unsuccess']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_week['unsuccess'][$i]=    Factor::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , '!=' , true)->sum('price');
+                $factor_week['unsuccess'][$i]= Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , '!=' , true)->sum('price');
             }
             $factor_week['unsuccess'] = array_reverse(  $factor_week['unsuccess']);
             //            -------------------------------------------------------------------
             $user_week=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_week[$i]= User::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->count();
+                $user_week[$i]= User::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->count();
             }
             $user_week = array_reverse($user_week);
             //            -------------------------------------------------------------------
             $user_month=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_month[$i]=  User::whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->count();
+                $user_month[$i]=  User::filter()->whereBetween('created_at', [Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()), Helper::vertaTocarbon(verta()->subMonths($i)->endMonth())])->count();
             }
             $user_month = array_reverse($user_month);
             //            -------------------------------------------------------------------
@@ -269,70 +269,39 @@ class AdminController extends Controller
             for ($i = 0; $i <= 6; $i++) {
                 $from = date(Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()));
                 $to = date(Helper::vertaTocarbon(verta()->subMonths($i)->endMonth()));
-                $factor_month['success'][$i]= Factor::whereBetween('created_at', [$from, $to])->where('status',1)->whereIn('type' , Factor::getCashPaymentType())->where('callcenter_id' , auth()->user()->id)->orWhereHas('task',function ($query){
-                    $query->whereHas('callcenter',function ($query){
-                        $query->whereHas('employee',function ($query){
-                            $query->where('parent_id',auth()->user()->employee->id);
-                        });
-                    });
-                })->sum('price');
+                $factor_month['success'][$i]= Factor::filter()->whereBetween('created_at', [$from, $to])->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price');
             }
-
             $factor_month['success'] = array_reverse( $factor_month['success']);
             //            -------------------------------------------------------------------
             $factor_month['unsuccess'] =array();
             for ($i = 0; $i <= 6; $i++) {
                 $from = date(Helper::vertaTocarbon(verta()->subMonths($i)->startMonth()));
                 $to = date(Helper::vertaTocarbon(verta()->subMonths($i)->endMonth()));
-                $factor_month['unsuccess'][$i]=  Factor::whereBetween('created_at', [$from , $to])->where('status','!=',1)->whereIn('type' , Factor::getCashPaymentType())->where('callcenter_id' , auth()->user()->id)->orWhereHas('task',function ($query){
-                    $query->whereHas('callcenter',function ($query){
-                        $query->whereHas('employee',function ($query){
-                            $query->where('parent_id',auth()->user()->employee->id);
-                        });
-                    });
-                })->sum('price');
+                $factor_month['unsuccess'][$i]=  Factor::filter()->whereBetween('created_at', [$from , $to])->where('status','!=',1)->whereIn('type' , Factor::getCashPaymentType())->filter()->sum('price');
             }
             $factor_month['unsuccess'] = array_reverse($factor_month['unsuccess']);
             //            -------------------------------------------------------------------
             $factor_week['success']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_week['success'][$i]= Factor::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , 1)->whereIn('type' , Factor::getCashPaymentType())->where('callcenter_id' , auth()->user()->id)->orWhereHas('task',function ($query){
-                    $query->whereHas('callcenter',function ($query){
-                        $query->whereHas('employee',function ($query){
-                            $query->where('parent_id',auth()->user()->employee->id);
-                        });
-                    });
-                })->sum('price');
+                $factor_week['success'][$i]= Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , 1)->whereIn('type' , Factor::getCashPaymentType())->filter()->sum('price');
             }
             $factor_week['success'] = array_reverse($factor_week['success']);
             //            -------------------------------------------------------------------
             $factor_week['unsuccess']=array();
             for ($i = 0; $i <= 6; $i++) {
-                $factor_week['unsuccess'][$i]= Factor::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , '!=' , 1)->whereIn('type' , Factor::getCashPaymentType())->where('callcenter_id' , auth()->user()->id)->orWhereHas('task',function ($query){
-                    $query->whereHas('callcenter',function ($query){
-                        $query->whereHas('employee',function ($query){
-                            $query->where('parent_id',auth()->user()->employee->id);
-                        });
-                    });
-                })->sum('price');
+                $factor_week['unsuccess'][$i]= Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('status' , '!=' , 1)->whereIn('type' , Factor::getCashPaymentType())->filter()->sum('price');
             }
             $factor_week['unsuccess'] = array_reverse($factor_week['unsuccess']);
             //            -------------------------------------------------------------------
             $user_week=array();
             for ($i = 0; $i <= 6; $i++) {
-                $user_week[$i]= User::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->where('callcenter_id' , auth()->user()->id)->orWhereHas('tasks',function ($query){
-                    $query->whereHas('callcenter',function ($query){
-                        $query->whereHas('employee',function ($query){
-                            $query->where('parent_id',auth()->user()->employee->id);
-                        });
-                    });
-                })->count();
+                $user_week[$i]= User::whereDate('created_at', Helper::vertaTocarbon(verta()->subDays($i)))->filter()->count();
             }
             $user_week = array_reverse($user_week);
         }
         $label_month = ['6 ماه قبل', '5 ماه قبل', '4 ماه قبل', '3 ماه قبل', '2 ماه قبل', '1 ماه قبل', 'ماه جاری'];
         $label_week = ['6 روز قبل', '5 روز قبل', '4 روز قبل', '3 روز قبل', '2 روز قبل', '1 روز قبل', 'امروز'];
-        $services = Service::orderBy('created_at', 'desc')->get();
+        $services = Service::filter()->orderBy('created_at', 'desc')->get();
         $start_date = "";
         $service_name = [];
         $service_count = [];

@@ -64,18 +64,18 @@
                               id="basic-information-form">
                             <input type="hidden" name="update_type" value="basic_information">
                             <div class="row">
-                                <div class="col-12 col-md-4 mb-3">
+                                <div class="col-12 col-md-3 mb-3">
                                     <label>عنوان</label>
                                     <input type="text" value="{{ $service->title }}" class="form-control" name="title"
                                            required>
                                 </div>
 
-                                <div class="col-12 col-md-4 mb-3">
-                                    <label>عنوان لاتین</label>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>عنوان لاتین (توجه داشته باشید که این عنوان در url نمایش داده میشود و حتما باید به صورت انگلیسی وارد شود.)</label>
                                     <input type="text" value="{{ $service->en_title }}" class="form-control"
                                            name="en_title" required>
                                 </div>
-                                <div class="col-12 col-md-4 mb-3">
+                                <div class="col-12 col-md-3 mb-3">
                                     <label>عنوان فاکتور</label>
                                     <input type="text" value="{{ $service->factor_title }}" class="form-control"
                                            name="factor_title" required>
@@ -151,7 +151,7 @@
                                     <label>پیش نیاز ها</label>
 
                                     <select class="form-control select2" name="required[]" multiple>
-                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
+                                        @foreach(\App\Models\Service::filter()->whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
                                             <option
                                                 value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->required ?? []) ?  'selected' : '' }}>{{ $ser->title }}</option>
                                         @endforeach
@@ -202,7 +202,7 @@
                                 <div class="col-12 col-md-6 mb-3">
                                     <label>خدمات رایگان همراه این خدمت</label>
                                     <select class="form-control select2" name="gift[]" multiple>
-                                        @foreach(\App\Models\Service::whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
+                                        @foreach(\App\Models\Service::filter()->whereStatus(false)->where('id' , '!=' , $service->id)->get() as $ser)
                                             <option value="{{ $ser->id }}" {{ in_array(trim($ser->id) , $service->gift ?? []) ? 'selected' :'' }}>{{ $ser->title }}</option>
                                         @endforeach
                                     </select>

@@ -134,6 +134,13 @@ class GhorfeOnlineList extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
+    public function about()
+    {
+        return $this->hasOne(About::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function contacts()
     {
         return $this->morphMany(Contact::class , 'contactable');

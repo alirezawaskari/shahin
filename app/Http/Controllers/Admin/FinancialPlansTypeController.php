@@ -62,8 +62,8 @@ class FinancialPlansTypeController extends Controller
      */
     public function create()
     {
-        $categories = Category::where('isActive' , true)->get();
-        $services = Service::where('status' , true)->get();
+        $categories = Category::filter()->where('isActive' , true)->get();
+        $services = Service::filter()->where('status' , true)->get();
 
         return view('Admin.financialplanstype.create' , compact(['categories' , 'services']));
     }
@@ -110,8 +110,8 @@ class FinancialPlansTypeController extends Controller
      */
     public function edit(FinancialPlansType $financialPlansType)
     {
-        $categories = Category::where('isActive' , true)->get();
-        $services = Service::where('status' , true)->get();
+        $categories = Category::filter()->where('isActive' , true)->get();
+        $services = Service::filter()->where('status' , true)->get();
 
         return view('Admin.financialplanstype.edit' , compact(['financialPlansType' , 'categories' , 'services']));
     }

@@ -30,8 +30,8 @@
                     <tr>
                     @foreach($callcenters as $key => $callcenter)
                         <tr>
-                            <td>{{ $callcenter->register['name'] . ' ' . $callcenter->register['family'] }}</td>
-                            <td>{{  $callcenter->register['phone'] }}</td>
+                            <td>{{ $callcenter->register ? ($callcenter->register['name'] . ' ' . $callcenter->register['family']) : 'کاربر حذف شده' }}</td>
+                            <td>{{  $callcenter->register ? $callcenter->register['phone'] : 'کاربر حذف شده' }}</td>
                             <td>{{ $callcenter->callcenter ? $callcenter->callcenter['family'] : 'ندارد' }}</td>
                             <td>
                                 <a href="{{ route('callcenter.restore' , ['id'=>$callcenter->id]) }}"

@@ -17,7 +17,9 @@ class CheckAdminAuthenticated
     {
         if (auth()->check()){
             if (auth()->user()->isAdmin()){
-                return $next($request);
+                if (auth()->user()->notIsGhorfeOnlineUser()){
+                    return $next($request);
+                }
             }
         }
 

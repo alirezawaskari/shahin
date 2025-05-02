@@ -68,6 +68,10 @@ class ServiceIndexTariffController extends Controller
         $service_index_tariff = ServiceIndexTariff::find($id);
         return response(number_format($service_index_tariff->purchase_price));
     }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
     public function createOrUpdate(Request $request)
     {
         $validation = Validator::make($request->all(), [

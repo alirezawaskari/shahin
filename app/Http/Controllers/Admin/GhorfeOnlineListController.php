@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\UsersExport;
 use App\Models\GhorfeOnlineList;
 use App\Models\Service;
 use App\Models\Province;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
+use App\Http\Resources\UserCollection;
 use App\Models\Employee;
+use App\Models\User;
 
 class GhorfeOnlineListController extends AdminController {
     /**
@@ -19,8 +22,6 @@ class GhorfeOnlineListController extends AdminController {
             $ghorfeOnlineLists = GhorfeOnlineList::latest()->get();
             return view( 'Admin.ghorfeOnlineList.all', compact( 'ghorfeOnlineLists' ) );
         }
-        $ghorfeOnlineLists = GhorfeOnlineList::latest()->get();
-        return view( 'Admin.ghorfeOnlineList.all', compact( 'ghorfeOnlineLists' ) );
         return abort( 401 );
     }
 
@@ -68,6 +69,7 @@ class GhorfeOnlineListController extends AdminController {
             $inputs[ 'contract_expiration_date' ] = isset( $inputs[ 'contract_expiration_date' ] ) ? Helper::vertaToMiladi( $inputs[ 'contract_expiration_date' ] ) : '';
 
             $ghorfeOnlineList = GhorfeOnlineList::create( $inputs );
+            $ghorfeOnlineList->about()->create();
             $codes = [];
             $array = explode( ',', $request->input( 'sms_code' ) );
             foreach ( $array as $item ) {
@@ -219,5 +221,58 @@ class GhorfeOnlineListController extends AdminController {
         return redirect( route( 'ghorfeOnlineList.index' ) )->with( [
             'delete' => 'success'
         ] );
+    }
+
+     /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function showUsersList()
+    {
+        if ( auth()->user()->hasPermission( 'ghorfe_online_list_users' ) )
+        {
+            $title = 'فهرست کاربران مغازه دیجیتال';
+            $url = 'ghorfeOnlineList/users/filter';
+            $user = auth()->user();
+
+            $create = false;
+            $delete = false;
+            $organ = false;
+            $can_manual_login = false;
+
+            if (!$user->isAbleTo('user-detail')){
+                abort(403);
+            }
+            if ($user->isAbleTo('user-create')){
+                $create = true;
+            }
+            if ($user->isAbleTo('user-delete')){
+                $delete = true;
+            }
+            if ($user->isAbleTo('manual-login-user')){
+                $can_manual_login = true;
+            }
+
+            if ($user->admin_organization_id){
+                $organ = true;
+            }
+
+            return view('Admin.user.all' , compact('title', 'url' ,'delete' , 'create', 'organ','can_manual_login'));
+        }
+        return abort( 401 );
+    }
+    /**
+     * @param Request $request
+     * @return UserCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function filterUsers(Request $request)
+    {
+        $request['has_ghorfe_online'] = true;
+        $users = User::filter($request)->latest();
+
+        if ($request->exel == 'on') {
+            return (new UsersExport($users))->download('users.xlsx');
+        }
+
+        return new UserCollection($users->paginate(20));
     }
 }

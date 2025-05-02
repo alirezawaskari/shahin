@@ -42,7 +42,7 @@ class CouponItemsController extends Controller
      */
     public function createByCouponId($coupon_id)
     {
-        $centers=Center::all(); $services = Category::where('parent_id', 2)->get();
+        $centers=Center::all(); $services = Category::filter()->where('parent_id', 2)->get();
         $parents = Category::where('parent_id', 1)->get();
         $category_center_id = 0;
         if(User::checkManager() != null) {

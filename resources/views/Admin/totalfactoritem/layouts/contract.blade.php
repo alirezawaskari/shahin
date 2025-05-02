@@ -36,6 +36,7 @@
                 isset($user->work_phone) ? $user->work_phone : '...' }} که
                 از این پس در این قرارداد "خدمات گیرنده" نامیده می شوند.<br>
             </span>
+            @if ($totalFactorItem->guarantor_checked)
             <span lang="FA" style="line-height: 150%;">1-3 : ضامنِ خدمات
                 گیرنده، {{ isset($item['contract_values']['gender']) ?
                 $user::getGenderTitle($item['contract_values']['gender']) : 'خانم/آقای' }} {{
@@ -56,9 +57,16 @@
                 '...' }} نوع ضمانت {{ $totalFactorItem::GuaranteeTYPE[$item['guarantee_type']] }} که
                 از این پس در این قرارداد ضامن نامیده می شوند.<br>
             </span>
-            <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 2 : موضوع قرارداد :<br></span>
+            @else
+            <span lang="FA" style="line-height: 150%;">1-3 : ضامنِ خدمات
+                گیرنده
+            </span>
+            <span lang="FA" style="line-height: 150%;">با توافق طرفین در این قرارداد ضامن خدمات گیرنده شخص خدمات گیرنده
+                با مشخصات مندرج فوق میباشد.</span>
+            @endif
         </p>
-        <table class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
+        <table
+            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
             <thead>
                 <tr>
                     <th scope="col">خدمات گیرنده</th>
@@ -77,18 +85,29 @@
     </div>
     <div class="border-contract page-break p-6" style="text-align: justify;">
         <p style="line-height:50px;font-size:18px;font-weight: 500;">
+            <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 2 : موضوع قرارداد :<br></span>
             <span lang="FA" style="line-height: 150%;">عبارت است از معرفی
                 خدمات گیرنده برای دریافت خدمات {{ App\Models\totalFactorItem::setFactorItemable($totalFactorItem) }} از
                 مراکز طرف قرارداد با شرکت که با
             </span>
             <span lang="FA" style="line-height: 150%;">
-                دریافت تسهیلات مندرج در ماده 3 زیر و خدمات مالی از شرکت به صورت اقساطی از خدمات دریافتی مورد
-                نیاز ( فاکتور میزان خدمات مورد نیاز با گواهی امضاء خدمات گیرنده و خدمات
-                دهنده ضمیمه قرارداد است) بهره مند می گردد.<br>
+                دریافت تسهیلات مندرج در ماده 3 و خدمات مالی از شرکت به صورت اقساطی از خدمات دریافتی مورد
+                نیاز بهره مند می گردد.<br>
             </span>
             <span lang="FA" style="line-height: 150%;">این قرارداد
                 دارای یک الحاقیه به شماره ی {{ $contract_number ? $contract_number : ''}}
-                 راجع به تعهدات خدمات دهندگان می باشد که جزء لاینفک قرارداد است.<br>
+                راجع به تعهدات خدمات دهندگان به همراه فاکتور فروش به شماره ی {{ $resnumber }} مورخ {{
+                $item['date_first_pay'] }} می باشد که جزء لاینفک قرارداد است.<br>
+            </span>
+            <span lang="FA" style="line-height: 150%;">
+
+                تبصره 1 : نظر به این مهم که معمولا اجرای خدمات درمانی در بازه زمانی طولانی تر از ۳ ماه با افزایش بهای واحد
+                کالا و خدمات مصرفی مواجه گردیده و تورم ناشی از آن بر نرخ کلی خدمات ارائه شده اثر گذار و موجب افزایش بهای
+                تمام شده میگردد لذا با اعلام نظر موافق خدمات گیرنده و تراضی و آگاهی وی در صورت افزایش بها در طول مدت
+                اجرای خدمات، در انتهای اجرای خدمات امور انجام شده بازبینی گردیده و خدمات گیرنده مکلف به تسویه دیون باقی
+                مانده به طریق مشروح در قرارداد میباشد ، در این خصوص فاکتور و تصاویر مستندات در انتهای کار ضمیمه قرارداد
+                و آخرین حکایت مالی بین طرفین و جایگزین فاکتور اولیه است.
+                <br>
             </span>
             <span lang="FA" style="line-height: 150%;">&nbsp;</span>
             <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 3 : مبلغ
@@ -124,11 +143,13 @@
                 سامانه پیامکی که نخستین بار پیامک ثبت نام و تشکیل پرونده و موفقیت در پرداخت ثبت نام را به خدمات گیرنده
                 ابلاغ نموده است پرداخت نماید.<br>
             </span>
-            <span lang="FA" style="line-height: 150%;">تبصره 1 : در
-                صورتی که به واسطه نبود اینترنت ، نداشتن اعتبار تلفن ، یا قطع غیر مترقبه در ارسال پیامکهای مربوطه اختلالی ایجاد گردد ،
+            <span lang="FA" style="line-height: 150%;">تبصره 2 : در
+                صورتی که به واسطه نبود اینترنت ، نداشتن اعتبار تلفن ، یا قطع غیر مترقبه در ارسال پیامکهای مربوطه اختلالی
+                ایجاد گردد ،
             </span>
         </p>
-        <table class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-2 text-center">
+        <table
+            class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-2 text-center">
             <thead>
                 <tr>
                     <th scope="col">خدمات گیرنده</th>
@@ -148,14 +169,14 @@
     <div class="border-contract page-break p-6" style="text-align: justify;">
         <p style="line-height:50px;font-size:18px;font-weight: 500;">
             <span lang="FA" style="line-height: 150%;">
-                 متقاضی ( خدمات گیرنده ) مکلف به واریز مبلغ اقساط یاد شده
+                متقاضی ( خدمات گیرنده ) مکلف به واریز مبلغ اقساط یاد شده
                 از طریق ورود به وبسایت رسمی لاله کارت ، قسمت پرونده های من ، پرداخت اقساط یا به شماره کارت و حساب اعلام
                 شده از طریق شماره تماس صاحب امضای مجاز در سررسید خود بدون اتلاف زمان و تطویل اوقات به بهانه قطع و اختلال
                 در سیستم های الکترونیکی به صورت کارت به کارت یا واریز از حساب به کارت یا ارائه نقدی وجه اقساط به شرکت (
                 صرفاً صاحب امضاء یاد شده) بوده و مکلف است رسید وجه پرداختی را نگهداری و تصویر یا رونوشت آن را جهت درج در
                 پرونده به حساب کاربری خود منعکس یا به شرکت تحویل نماید.<br>
             </span>
-            <span lang="FA" style="line-height: 150%;">تبصره 2 : خدمات گیرنده حق واریز اقساط به هیچ حسابی غیر از آنچه که
+            <span lang="FA" style="line-height: 150%;">تبصره 3 : خدمات گیرنده حق واریز اقساط به هیچ حسابی غیر از آنچه که
                 از طریق درگاه الکترونیکی و درگاه موجود در وبسایت رسمی شرکت اعلام می شود را ندارد و در صورت واریز هرگونه
                 وجه ، پرداخت نقدی آن و دیگر مواردی که به حساب رسمی یاد شده واریز نشده یا به سایر افراد عیر از مرجع اصلی
                 و طرف قرارداد باشد آن قسط یا وجه ، دریافت نشده طلقی و قابل پیگرد از سوی شرکت میگردد.<br>
@@ -184,7 +205,8 @@
                 <o:p></o:p>
             </span>
         </p>
-        <table class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
+        <table
+            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
             <thead>
                 <tr>
                     <th scope="col">خدمات گیرنده</th>
@@ -232,6 +254,11 @@
                 نموده و تأیید پرونده نیز به خدمات گیرنده ابلاغ میگردد ، لذا امضای قرارداد حاضر بدون پرداخت مبیع یا ارائه
                 تأیید اسناد برای خدمات گیرنده هیچ قابلیتی نداشته و صرفاً پس از تأیید الکترونیکی از سوی شرکت قابلیت اجرا
                 و پیگیری دارد. </span>
+            <br>
+            <span lang="FA" style="line-height: 150%;">3-11 : چنانچه متقاضی به واسطه عواملی خارج از تعهدات شرکت و یا به
+                هر علت دیگر ، از بهره برداری از اعتبار صادره و اعطاء شده جهت اجرای موضوع قرارداد امتناع ورزد ، با توجه
+                به کارسازی چکهای ارائه شده و عدم امکان استرداد وجه یا اسناد مذکور ، متقاضی صرفا می تواند شخصا و یا با
+                معرفی مرتبطین یا بستگان و نزدیکان خود از اعتبار تخصیص یافته استفاده کرده و بهره مند گردد . </span>
             <br>
         </p>
         <table
@@ -317,7 +344,7 @@
             </span>
             @else
             <span lang="FA" style="line-height: 150%;">5-1 : خدمات گیرنده
-                به منظور تضمین پرداخت اقساط خود، یک برگ سفته به مبلغ {{
+                به منظور تضمین پرداخت اقساط خود، سفته ها به مبلغ {{
                 isset($item['contract_values']['promissorynoteprice']) ? $item['contract_values']['promissorynoteprice']
                 : '...' }} ریال به شماره
                 {{ isset($item['contract_values']['promissorynotenumber']) ?
@@ -414,8 +441,7 @@
                 :<br>
             </span>
             <span lang="FA" style="line-height: 150%;">این قرارداد
-                در 9 ماده و 4 نسخه، به همراه یک الحاقیه به شماره ی {{ $resnumber }} مورخ {{ $item['date_first_pay'] }} ،
-                به همراه 2پیوست دیگر (فاکتوراولیه و نهایی-آموزش های مربوط به استفاده از خدمات )،
+                در 9 ماده و 3 نسخه، به همراه یک الحاقیه و پیوست ها،
                 تنظیم گردیده و هرکدام از موارد مذکور جزئی غیرقابل تجزیه بوده و در صورت اختلاف،
                 صرفاً استناد به همه ی موارد ذکر شده نافذ می باشد.
             </span>

@@ -271,29 +271,7 @@
 
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
-                            <div class="card">
-                                @if($user->imgsignature)
-                                <div id="imgsignature_src" class="show">
-                                <a href="{{ asset($user->imgsignature) }}" target="_blank">
-                                    <img src="{{ asset($user->imgsignature) }}" class="card-img-top" height="150px">
-                                </a>
-                                </div>
-                                @else
-                                <div id="imgsignature_src" class="show">
-                                <img class="card-img-top" height="150px">
-                                </div>
-                                @endif
-                                <div class="card-body">
-                                    <label>امضاء کاربر</label>
-                                    <br>
-                                    <label for="imgsignature" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                    <input name="imgsignature"  type="file" id="imgsignature" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="imgsignature" class="path" name="urlimgsignature">
-                                </div>
-                            </div>
-                        </div>
-
+                    
                         <div class="col-12 col-md-4">
                             <div class="card">
                                 @if($user->avatar)

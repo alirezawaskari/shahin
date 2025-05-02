@@ -24,7 +24,7 @@ class RepresentationController extends AdminController
      */
     public function create()
     {
-        $services = Service::where('status' , true)->get();
+        $services = Service::filter()->where('status' , true)->get();
         return view('Admin.representation.create' , compact('services'));
     }
 
@@ -85,7 +85,7 @@ class RepresentationController extends AdminController
     public function edit(Representation $representation)
     {
 //        $services = Service::status()->get();
-        $services = Service::all();
+        $services = Service::filter()->all();
         $provinces = Province::all();
         return view('Admin.representation.edit' ,compact('representation' , 'services' , 'provinces'));
     }

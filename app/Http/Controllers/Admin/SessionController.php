@@ -28,8 +28,9 @@ class SessionController extends Controller {
         $user = auth()->user();
         if ( $user->isAbleTo(['session-detail','session']) ) {
             $delete = $user->isAbleTo( 'session-delete' );
+            $has_center = $user->center()->exists();
             $confirm = $user->isAbleTo( 'session-confirm' );
-            return view( 'Admin.session.all', compact( 'delete', 'confirm' ) );
+            return view( 'Admin.session.all', compact( 'delete', 'confirm' , 'has_center' ) );
         }
         return abort( 401 );
     }
@@ -62,9 +63,10 @@ class SessionController extends Controller {
         if ( $user->isAbleTo( 'session-desktop-complete' ) ) {
             $title = 'میزکار مراجعات';
             $delete = $user->isAbleTo( 'session-delete' );
+            $has_center = $user->center()->exists();
             $type = 'complete';
             $url = 'desktop-complete/filter';
-            return view( 'Admin.session.desktopComplete', compact( 'delete', 'type', 'url' , 'title') );
+            return view( 'Admin.session.desktopComplete', compact('has_center', 'delete', 'type', 'url' , 'title') );
         }
         return abort( 401 );
     }
@@ -99,7 +101,7 @@ class SessionController extends Controller {
         if (isset($request->excel) && $request->excel == 'on') {
             return (new SessionExport($sessions))->download('sessions.xlsx');
         }
-        return new SessionCollection($sessions , $sessions->paginate(20));
+        return new SessionCollection( $sessions , $sessions->paginate(20));
     }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
@@ -109,9 +111,10 @@ class SessionController extends Controller {
         if ( $user->isAbleTo('session-desktop-confirm') ) {
             $title = 'میزکار تایید جلسات';
             $delete = $user->isAbleTo( 'session-delete' );
+            $has_center = $user->center()->exists();
             $type = 'confirm';
             $url = 'desktop-confirm/filter';
-            return view( 'Admin.session.desktopConfirm', compact( 'delete', 'type', 'url' , 'title') );
+            return view( 'Admin.session.desktopConfirm', compact('has_center' , 'delete', 'type', 'url' , 'title') );
         }
         return abort( 401 );
     }
@@ -459,9 +462,7 @@ class SessionController extends Controller {
      */
     private function checkServiceTariffMultiStage($session_count,$factor_item_service_tariff,$factor_item,$price,$date)
     {
-        // $number_sessions_required = $factor_item_service_tariff->serviceTariff->session_number/$factor_item_service_tariff->serviceTariff->multi_stage;
-        $number_sessions_required = 1;
-        if($number_sessions_required == $session_count || $factor_item_service_tariff->status == 1)
+        if(($factor_item_service_tariff->serviceTariff->multi_stage == 2 && $session_count == 1) || $factor_item_service_tariff->status == 1)
         {
             //set superadmin center performance
             $purchase_price = $factor_item_service_tariff->serviceTariff->purchase_price/$factor_item_service_tariff->serviceTariff->multi_stage;

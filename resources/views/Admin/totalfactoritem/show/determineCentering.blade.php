@@ -50,22 +50,6 @@
 @endif
 @endpermission
 @endif
-<div class="{{ $factorItem->complete ? 'bg-success-bright' : 'bg-light' }} p-3 rounded mb-3 shadow-lg border">
-    <div class="mb-3">
-        @if (!is_null($factor_item['service_item']))
-        <span>{{ $factor_item['factoritemable']->title . '-' . $factor_item['service_item']->title }}</span>
-        @else
-        <span>{{ $factor_item['factoritemable']->title }}</span>
-        @endif
-        @if ($factorItem->complete)
-        <span class="text-warning mr-2">(تکمیل شده)</span>
-        @endif
-        @if(!$factorItem->total_price || in_array(trim($factorItem->status_factor) , [4,14]) )
-        <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
-            خدمت | دسته بندی</button>
-        @endif
-    </div>
-</div>
 @endif
 <div class="modal fade" id="changeFactoritemableModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -90,14 +74,14 @@
                         <div class="col-12 mb-5">
                             <select name="service{{ $factorItem->id }}" class="form-control d-none"
                                 id="service{{ $factorItem->id }}">
-                                @foreach (App\Models\Service::all() as $service)
+                                @foreach (App\Models\Service::filter()->get() as $service)
                                 <option value="{{ $service->id }}">{{ $service->title}}</option>
                                 @endforeach
                             </select>
                             <select name="category{{ $factorItem->id }}" class="form-control"
                                 id="category{{ $factorItem->id }}">
 
-                                @foreach(App\Models\Category::where('parent_id' , 1)->get() as $category)
+                                @foreach(App\Models\Category::filter()->where('parent_id' , 1)->get() as $category)
                                 <option value="{{ $category->id }}">{{ $category->title}}</option>
                                 @endforeach
                             </select>

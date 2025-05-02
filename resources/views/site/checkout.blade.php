@@ -179,8 +179,7 @@
                                         @case('select')
                                         <div class="col-12 col-md-6 mb-2">
                                             {!! $form->help !!}
-                                             <select class="form-control {{ $form->class }}" {{
-                                                $form->required == true ?
+                                            <select class="form-control {{ $form->class }}" {{ $form->required == true ?
                                                 'required' : '' }} name="items[{{ $key }}][{{ $form->name }}]">
                                                 <option value="">انتخاب کنید</option>
                                                 @foreach($form->beforeformitems as $select_item)
@@ -198,6 +197,15 @@
                                             </a>
                                         </div>
                                         <label>{{ $form->placeholder }}</label>
+                                        @break
+                                        @case('image')
+                                        <div class="col-12 mb-2">
+                                            <a href="{{ asset($form->file) }}" download>
+                                                <img src="{{ asset($form->file) }}"
+                                                    class="img-fluid" width="300">
+                                            </a>
+                                        </div>
+                                        <label class="text-center">{{ $form->placeholder }}</label>
                                         @break
                                         @case('multi-select')
                                         <div class="col-12 col-md-6 mb-2">
@@ -230,7 +238,8 @@
                                                 </a>
                                                 <div class="card-body">
                                                     {!! $form->help !!}
-                                                    <input name="items[{{ $key }}][{{ $form->name }}]" type="file" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                    <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
+                                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                 </div>
                                                 @endif
                                             </div>
@@ -332,56 +341,105 @@
                                                 نمایید .
                                             </div>
                                             @include('layout.uploadSample')
+
                                             <div class="col-12">
                                                 <div class="card-group">
-                                                    <div class="col-12 col-md-6">
+                                                    <div class="col-12 mb-2 mt-4">
+                                                        <h4>اطلاعات وام گیرنده</h4>
+                                                        <hr>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
                                                         <div class="card">
-                                                            @if(is_null($factor->user->imgmeli))
-                                                            <p class="my-4 text-danger text-center">
-                                                                ثبت نشده</p>
-                                                            <div class="card-body">
-                                                                <h5 class="card-title">کارت ملی</h5>
-                                                                <input name="imgmeli" type="file" class="filestyle"
-                                                                    data-buttonname="btn-white" required
-                                                                    accept=".jpg,.jpeg,.png">
+                                                            @if($factor->user->imgmeli)
+                                                            <div id="imgmeli_src" class="show">
+                                                                <a href="{{ asset($factor->user->imgmeli) }}"
+                                                                    target="_blank">
+                                                                    <img src="{{ asset($factor->user->imgmeli) }}"
+                                                                        class="card-img-top" height="150px">
+                                                                </a>
                                                             </div>
                                                             @else
-                                                            <a href="{{ asset($factor->user->imgmeli) }}">
-                                                                <img src="{{ asset($factor->user->imgmeli) }}"
-                                                                    class="card-img-top" height="150px">
-                                                            </a>
+                                                            <div id="imgmeli_src" class="show">
+                                                                <img class="card-img-top" height="150px">
+                                                            </div>
+                                                            @endif
                                                             <div class="card-body">
-                                                                <h5 class="card-title">کارت ملی</h5>
-                                                                <input name="imgmeli" type="file" class="filestyle"
+                                                                <label>تصویر کارت ملی</label>
+                                                                <br>
+                                                                <label for="imgmeli" id="up-label"
+                                                                    class="btn badge-secondary"><i
+                                                                        class="fa fa-upload ml-2"
+                                                                        aria-hidden="true"></i> انتخاب تصویر </label>
+                                                                <input name="imgmeli" type="file" id="imgmeli"
+                                                                    class="filestyle file-upload file_upload_ajax file-up"
                                                                     data-buttonname="btn-white"
                                                                     accept=".jpg,.jpeg,.png">
+                                                                <input type="hidden" id="imgmeli" class="path"
+                                                                    name="urlimgmeli">
                                                             </div>
-                                                            @endif
                                                         </div>
                                                     </div>
-                                                    <div class="col-12 col-md-6">
+                                                    <div class="col-12 col-md-4">
                                                         <div class="card">
-                                                            @if(is_null($factor->user->imgshenasname))
-                                                            <p class="my-4 text-danger text-center">
-                                                                ثبت نشده</p>
-                                                            <div class="card-body">
-                                                                <h5 class="card-title">شناسنامه</h5>
-                                                                <input name="imgshenasname" type="file"
-                                                                    class="filestyle" data-buttonname="btn-white"
-                                                                    required accept=".jpg,.jpeg,.png">
+                                                            @if($factor->user->imgshenasname)
+                                                            <div id="imgshenasname_src" class="show">
+                                                                <a href="{{ asset($factor->user->imgshenasname) }}"
+                                                                    target="_blank">
+                                                                    <img src="{{ asset($factor->user->imgshenasname) }}"
+                                                                        class="card-img-top" height="150px">
+                                                                </a>
                                                             </div>
                                                             @else
-                                                            <a href="{{ asset($factor->user->imgshenasname) }}">
-                                                                <img src="{{ asset($factor->user->imgshenasname) }}"
-                                                                    class="card-img-top" height="150px">
-                                                            </a>
-                                                            <div class="card-body">
-                                                                <h5 class="card-title">شناسنامه</h5>
-                                                                <input name="imgshenasname" type="file"
-                                                                    class="filestyle" data-buttonname="btn-white"
-                                                                    accept=".jpg,.jpeg,.png">
+                                                            <div id="imgshenasname_src" class="show">
+                                                                <img class="card-img-top" height="150px">
                                                             </div>
                                                             @endif
+                                                            <div class="card-body">
+                                                                <label>تصویر شناسنامه</label>
+                                                                <br>
+                                                                <label for="imgshenasname" id="up-label"
+                                                                    class="btn badge-secondary"><i
+                                                                        class="fa fa-upload ml-2"
+                                                                        aria-hidden="true"></i> انتخاب تصویر </label>
+                                                                <input name="imgshenasname" type="file"
+                                                                    id="imgshenasname"
+                                                                    class="filestyle file-upload file_upload_ajax file-up"
+                                                                    data-buttonname="btn-white"
+                                                                    accept=".jpg,.jpeg,.png">
+                                                                <input type="hidden" id="imgshenasname" class="path"
+                                                                    name="urlimgshenasname">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <div class="card">
+                                                            @if($factor->user->imgturnover)
+                                                            <div id="imgturnover_src" class="show">
+                                                                <a href="{{ asset($factor->user->imgturnover) }}"
+                                                                    target="_blank">
+                                                                    <img src="{{ asset($factor->user->imgturnover) }}"
+                                                                        class="card-img-top" height="150px">
+                                                                </a>
+                                                            </div>
+                                                            @else
+                                                            <div id="imgturnover_src" class="show">
+                                                                <img class="card-img-top" height="150px">
+                                                            </div>
+                                                            @endif
+                                                            <div class="card-body">
+                                                                <label>تصویر ثنا</label>
+                                                                <br>
+                                                                <label for="imgturnover" id="up-label"
+                                                                    class="btn badge-secondary"><i
+                                                                        class="fa fa-upload ml-2"
+                                                                        aria-hidden="true"></i> انتخاب تصویر </label>
+                                                                <input name="imgturnover" type="file" id="imgturnover"
+                                                                    class="filestyle file-upload file_upload_ajax file-up"
+                                                                    data-buttonname="btn-white"
+                                                                    accept=".jpg,.jpeg,.png">
+                                                                <input type="hidden" id="imgturnover" class="path"
+                                                                    name="urlimgturnover">
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 mb-2 mt-4">

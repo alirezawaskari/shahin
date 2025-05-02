@@ -15,6 +15,7 @@ class CreateAboutsTable1 extends Migration
     {
         Schema::create('abouts', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('ghorfe_online_list_id')->nullable();
             $table->text('content');
             $table->text('content2');
             $table->text('content_one');

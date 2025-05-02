@@ -139,7 +139,13 @@ class User extends Authenticatable
     {
         return $this->level == 'admin' ? true : false;
     }
-
+    /**
+     * @return bool
+     */
+    public function notIsGhorfeOnlineUser()
+    {
+        return ($this->ghorfeOnlineLists()->exists() ? false : true);
+    }
     /**
      * @return bool
      */
@@ -406,12 +412,25 @@ class User extends Authenticatable
         $sex = request('sex');
         $representation = request('representation');
         $organization = request('organization');
+        if(request('has_ghorfe_online'))
+        {
+            $query->whereHas('ghorfeOnlineLists');
+        }
+        else
+        {
+            $query->whereDoesntHave('ghorfeOnlineLists');
+        }
 
-        $query->whereDoesntHave('ghorfeOnlineLists');
-
-         if (auth()->user()->hasPermission('user-detail')) {
+         if (auth()->user() && auth()->user()->hasPermission('user-detail')) {
             if (auth()->user()->admin_representation) {
                 $query->where('representation_id', auth()->user()->admin_representation->id);
+            }
+			if (auth()->user()->admin_organization) {
+                $query->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
+            }
+            if (auth()->user()->center_id) {
+                $center = auth()->user()->center_id;
+                $query->where('center_id', $center)->get();
             }
             if (isset($representation) && trim($representation) != 'all') {
                 if (trim($representation) == 'center') {
@@ -447,31 +466,21 @@ class User extends Authenticatable
                     $query->whereLevel('admin');
                 }
             }
-            if ($province != 'all') {
-                $query->where('province_id', $province);
-            }
             if (isset($sex) && $sex != 'all') {
                 $query->where('sex', $sex);
             }
-            if ($city != 'all') {
+			if (isset($province) && $province != 'all') {
+                $query->where('province_id', $province);
+            }
+            if (isset($city) && $city != 'all') {
                 $query->where('city_id', $city);
             }
             if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
                 $query->whereDate('created_at', '>=' ,$startDate)->whereDate('created_at', '<=' ,$endDate);
             }
-            if (auth()->user()->admin_organization) {
-                $query->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
-            }
-            elseif (auth()->user()->center_id) {
-                $center = auth()->user()->center_id;
-                $roleName = "doctor";
-                $query->whereHas('roles', function ($q) use ($roleName) {
-                    $q->where('name', $roleName);
-                })->where('center_id', $center)->get();
-
-            }
         }
         else{
+            $query->where('callcenter_id' , auth()->user()->id);
 			if (isset($organization) && trim($organization) != 'all') {
                 $query->where('organization_id', $organization);
             }
@@ -739,5 +748,19 @@ class User extends Authenticatable
             'province_id' => $province_id,
             'city_id' => $city_id
         ]);
+    }
+    /**
+     * @return array
+     */
+    public static function getSupporterUserAdmin($representation)
+    {
+        $users = User::whereDoesntHave('ghorfeOnlineLists')->where('admin_representation_id' , $representation)->where( 'level', 'admin')->get();
+        $supporter_users = [];
+        foreach ( $users as $user ) {
+            if ( $user->hasPermission('supporter_new_file') ) {
+                array_push( $supporter_users, $user );
+            }
+        }
+        return $supporter_users;
     }
 }

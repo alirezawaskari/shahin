@@ -66,7 +66,7 @@ $(document).ready(function () {
                 // {
                 //     "data": data,
                 //     "render": function (data){
-                //         if (data.entry_start == null && data.status == 'پیش جلسه' ){
+                //         if (data.entry_start == null && data.status == 'در انتظار انجام کار' ){
                 //             return `<button type="button" class="btn btn-sm  start-user-session-entry" data-id="${data.id}" data-date="${data.date}">
                 //             <i class="fa fa-play" aria-hidden="true"></i> </button>`
                 //         }else if(data.entry_start != null && data.entry_end == null && false) {
@@ -101,11 +101,12 @@ $(document).ready(function () {
                 //         }
                 //     }
                 // },
+                { "data": "center" },
                 {
                     "targets": 2,
                     "data": "status",
                     "render": function ( data ) {
-                        if(data == "پیش جلسه")
+                        if(data == "در انتظار انجام کار")
                         {
                             return '<button class="badge badge-danger border-0">'+data+'</button><a h_blank">';
                         }
@@ -165,7 +166,7 @@ $(document).ready(function () {
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
                                 <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امور اجرایی پرونده</button></a>
-                                ${(data.status == 'ویزیت اولیه')? `<button data-id="${data.id}" type="button" class="dropdown-item pointer visit-confirm">تایید برای ویزیت </button>`:''}
+                                ${(data.status == 'در انتظار مشاوره اولیه')? `<button data-id="${data.id}" type="button" class="dropdown-item pointer visit-confirm">تایید برای ویزیت </button>`:''}
                                 <button style="display: ${display}"  data-id="${data.id}" class="session_delete dropdown-item pointer">حذف</button>
                                 </div>
                                 </div>`;

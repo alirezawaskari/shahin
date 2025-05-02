@@ -29,7 +29,7 @@ class GroupsmsController extends Controller
      */
     public function create()
     {
-        $services = Service::get();
+        $services = Service::filter()->get();
         return view('Admin.groupsms.create', compact('services'));
     }
 
@@ -83,7 +83,7 @@ class GroupsmsController extends Controller
      */
     public function edit(Groupsms $groupsm)
     {
-        $services = Service::get();
+        $services = Service::filter()->get();
         return view('Admin.groupsms.edit', compact('groupsm', 'services'));
     }
 

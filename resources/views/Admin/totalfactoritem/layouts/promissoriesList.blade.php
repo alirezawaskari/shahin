@@ -44,11 +44,8 @@
                             <td>{{$promissory->serial_code}}</td>
                             <td>
                                 @switch($promissory->title)
-                                    @case('installment')
-                                    <span class="badge badge-primary"> قسط</span>
-                                    @break
-                                    @case('guaranty')
-                                    <span class="badge badge-info"> ضمانت</span>
+                                    @case('factor_item_guaranty')
+                                    <span class="badge badge-info">ضمانت پرونده</span>
                                     @break
                                     @default
                                     <span>{{$promissory->title}}</span>
@@ -67,22 +64,16 @@
                             </td>
                             <td>
                                 @switch ($promissory->status)
-                                @case(0)
-                                <span class="badge badge-warning">در انتظار وصول</span>
-                                @break
-                                @case(1)
-                                <span class="badge badge-success">وصول شده</span>
-                                @break
-                                @case(2)
-                                <span class="badge badge-danger">برگشت خورده</span>
-                                @break
-                                @case(3)
-                                <span class="badge badge-info">عودت داده شده</span>
-                                @break
-                                @default
-                                <span class="badge badge-info">{{$promissory->status}}</span>
-                                @break
-                            @endswitch
+                                    @case(0)
+                                    <span class="badge badge-warning">رسوب در خزانه</span>
+                                    @break
+                                    @case(1)
+                                    <span class="badge badge-success">عودت داده شده</span>
+                                    @break
+                                    @default
+                                    <span class="badge badge-info">{{$promissory->status}}</span>
+                                    @break
+                                @endswitch
                         </tr>
                     @endforeach
                     </tbody>

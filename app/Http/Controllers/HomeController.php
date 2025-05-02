@@ -31,9 +31,9 @@ class HomeController extends Controller
             $organ = Organization::find(auth()->user()->organization_id);
             return redirect(url('organizations/'.$organ->slug));
         }
-        $sliders = Slider::whereNULL('representation_id')->whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
-        $sliders_mobile = Slider::whereNULL('representation_id')->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
-        $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
+        $sliders = Slider::filter()->whereNULL('representation_id')->whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
+        $sliders_mobile = Slider::filter()->whereNULL('representation_id')->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
+        $services = Service::filter()->whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
 
         //dd(Factor::whereType('online')->whereStatus(true)->sum('price'));
         return view('site.home', compact('callcenter','sliders', 'services','sliders_mobile'));
@@ -52,8 +52,8 @@ class HomeController extends Controller
      */
     public function challenge()
     {
-		 $sliders = Slider::whereStatus(true)->get();
-         $services = Service::whereStatus(1)->where('challenge' , true)->orderBy('created_at', 'desc')->get();
+		 $sliders = Slider::filter()->whereStatus(true)->get();
+         $services = Service::filter()->whereStatus(1)->where('challenge' , true)->orderBy('created_at', 'desc')->get();
         //dd(Factor::whereType('online')->whereStatus(true)->sum('price'));
         return view('site.challenge', compact('sliders', 'services'));
     }
@@ -64,8 +64,8 @@ class HomeController extends Controller
      */
     public function mobile(User $callcenter)
     {
-        $sliders = Slider::whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->get();
-        $services = Service::whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
+        $sliders = Slider::filter()->whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->get();
+        $services = Service::filter()->whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
         return view('site.mobile', compact('callcenter' ,'sliders', 'services'));
     }
 

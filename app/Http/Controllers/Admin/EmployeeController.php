@@ -158,19 +158,20 @@ class EmployeeController extends AdminController
             Helper::deleteImage($user->imgmeli);
             $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli, 'document');
         }
+
         if ($request->urlimgsignature) {
             Helper::deleteImage($user->imgsignature);
             $inputs['imgsignature'] = Helper::moveImage($request->urlimgsignature, 'document');
         }
+
         if ($request->urlavatar) {
             Helper::deleteImage($user->avatar);
             $inputs['avatar'] = Helper::moveImage($request->urlavatar, 'document');
         }
-
         unset($inputs['urlimgshenasname']);
-        unset($inputs['urlimgsignature']);
         unset($inputs['urlimgmeli']);
         unset($inputs['urlavatar']);
+        unset($inputs['urlimgsignature']);
         unset($inputs['urlimgaccess']);
         unset($inputs['urlimglastcertificate']);
 
@@ -263,7 +264,7 @@ class EmployeeController extends AdminController
         $wallet_transactions = WalletTransaction::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->filter()->latest();
         //filter walletTransactions user by created_at value
         if (isset($request->key) && $request->key != 'all') {
-            $wallet_transactions = WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth())])->where('user_id', $user->id)->filter()->latest();
+            $wallet_transactions = WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($request->key)->startMonth()->addDays(1)), Helper::vertaTocarbon(verta($request->key)->endMonth()->addDays(1))])->where('user_id', $user->id)->filter()->latest();
         }
 
         return new WalletTransactionCollection($wallet_transactions, $wallet_transactions->paginate(20));
@@ -280,7 +281,7 @@ class EmployeeController extends AdminController
 
         $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         if (isset($request->key) && $request->key != 'all') {
-            $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->whereBetween('date', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth())])->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
+            $user_performances = UserPerformance::where('created_at', '>=', $data_access_date)->whereBetween('date', [Helper::vertaTocarbon(verta($request->key)->startMonth()->addDays(1)), Helper::vertaTocarbon(verta($request->key)->endMonth()->addDays(1))])->where('user_id', $user->id)->groupBy('factor_item_id')->filter()->latest()->get();
         }
         return view('Admin.employee.performanceDetail', compact('user', 'user_performances'));
     }

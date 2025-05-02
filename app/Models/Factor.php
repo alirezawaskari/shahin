@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Symfony\Component\CssSelector\Node\ElementNode;
 
 class Factor extends Model implements AuditableContract
 {
@@ -102,18 +103,25 @@ class Factor extends Model implements AuditableContract
      */
     private static function setSupporter(Factor $factor)
     {
-       $supporter_id=null;
-        $supporter_user=User::where('level' , 'admin')->where('admin_representation_id',$factor->representation_id)->whereHas('roles',function ($query){
-            $query->where('name','admin-site');
-        });
+        $supporter_id=null;
 
-        $supporter_user = $supporter_user->whereHas('employee',function ($query){
-            $query->where('status',1);
-        })->inRandomOrder()->first();
-        if(is_null($supporter_user)){
-            $supporter_user = User::find(16983);
+        if($factor->callcenter && $factor->callcenter->hasPermission('supporter_user_file'))
+        {
+            $supporter_id = $factor->callcenter_id;
+            $supporter_user_selected = $factor->callcenter;
         }
-        $supporter_id=$supporter_user->id;
+        else
+        {
+            $supporter_users = User::getSupporterUserAdmin($factor->representation_id);
+            if(is_null($supporter_users)){
+                $supporter_user_selected = User::find(16983);
+            }
+            else
+            {
+                $supporter_user_selected = $supporter_users[array_rand( $supporter_users )];
+            }
+            $supporter_id = $supporter_user_selected->id;
+        }
         $factor->factorItems()->update([
             'supporter_id'=>$supporter_id
         ]);
@@ -124,7 +132,7 @@ class Factor extends Model implements AuditableContract
                 ]);
             }
         }
-        return $supporter_user;
+        return $supporter_user_selected;
     }
 
     /**
@@ -342,11 +350,9 @@ class Factor extends Model implements AuditableContract
             if (auth()->user()->hasRole('organ-manager')) {
                 $query->whereStatus(true)->whereIn('organization_id', auth()->user()->admin_organization->organ_code);
             } else {
-                $query->whereHas('task',function ($query){
-                    $query->whereHas('callcenter',function ($query){
-                        $query->whereHas('employee',function ($query){
-                            $query->where('parent_id',auth()->user()->employee->id);
-                        });
+                $query->whereHas('callcenter',function ($query){
+                    $query->whereHas('employee',function ($query){
+                        $query->where('parent_id',auth()->user()->employee->id);
                     });
                 })->orWhere('callcenter_id', auth()->user()->id);
             }

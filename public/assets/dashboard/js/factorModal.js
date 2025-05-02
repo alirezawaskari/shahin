@@ -57,7 +57,7 @@ $(document).ready(function () {
     /*  submit comment for factor */
     $("body").on('click', '.factor-update-submit', function () {
         var token = $('meta[name="csrf-token"]').attr('content');
-        var file= $($('#bill_image_input')).prop('files')[0];
+        var file= $('#bill_image_input_edit_factor').prop('files')[0];
         var url = $('#form-status-mali').attr('action');
 
           var form = $('#form-status-mali');

@@ -20,18 +20,13 @@
                                    name="title" required>
                         </div>
 
-                        <div class="col-12 col-md-4 mb-4">
-                            <label>عنوان لاتین</label>
+                        <div class="col-12 col-md-8 mb-4">
+                            <label>عنوان لاتین (توجه داشته باشید که این عنوان در url نمایش داده میشود و حتما باید به صورت انگلیسی وارد شود.)</label>
                             <input type="text" value="{{old('en_title')}}"
                                    class="form-control" placeholder="لطفا عنوان انگلیسی را وارد کنید"
                                    name="en_title" required>
                         </div>
-                        <div class="col-12 col-md-4 mb-4">
-                            <label>عنوان لینک</label>
-                            <input type="text" value="{{old('slug')}}"
-                                   class="form-control" placeholder="لطفا عنوان لیتک را وارد کنید"
-                                   name="slug" required>
-                        </div>
+
                         <div class="col-12 col-md-12 mb-4">
                             <label>توضیحات</label>
                             <input type="text" value="{{old('description')}}"
@@ -46,7 +41,7 @@
                                 <option selected="selected" value="0">
                                     فعال
                                 </option>
-                                <option value="2">
+                                <option value="1">
                                     غیر فعال
                                 </option>
                             </select>

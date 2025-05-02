@@ -26,7 +26,7 @@ class ServiceController extends AdminController
      */
     public function index(Request $request)
     {
-        $services = Service::orderBy('id', 'DESC');
+        $services = Service::filter()->orderBy('id', 'DESC');
         // $columns=['title','pay_type','purchase_type'];
 
         // foreach ($columns as $column) {
@@ -72,13 +72,13 @@ class ServiceController extends AdminController
     public function create()
     {
         $service_categories=[];
-        $category_service=Category::where('slug','service')->first();
+        $category_service=Category::filter()->where('slug','service')->first();
         if(isset($category_service) && $category_service != ''){
-            $service_categories = Category::where('parent_id',$category_service->id)->select('id','title','parent_id')
+            $service_categories = Category::filter()->where('parent_id',$category_service->id)->select('id','title','parent_id')
                 ->orderBy('id', 'DESC')->get();
         }
-        $all_categories = Category::select('id','title')->get();
-        $all_services = Service::select('id','title')->get();
+        $all_categories = Category::filter()->select('id','title')->get();
+        $all_services = Service::filter()->select('id','title')->get();
         return view('Admin.service.create',['all_categories'=>$all_categories,
             'all_services'=>$all_services,'service_categories'=>$service_categories]);
     }
@@ -95,11 +95,12 @@ class ServiceController extends AdminController
 
         $this->validate(request(), [
             'title' => 'required|string',
+            'en_title' => 'required',
             'price' => 'required',
             'category_id'=>'required',
             'min_credit'=>'required',
             'max_credit'=>'required',
-            'status'=>array('required',Rule::in(0,2)),
+            'status'=>array('required',Rule::in(0,1)),
             'isShow'=>array('required',Rule::in(0,1)),
             'items'=>array('required',Rule::in(0,1)),
             'center'=>array('required',Rule::in(0,1)),
@@ -149,14 +150,14 @@ class ServiceController extends AdminController
      */
     public function edit(Service $service)
     {
-        $all_categories = Category::select('id','title')->get();
-        $all_services = Service::select('id','title')->where('id','!=',$service->id)->get();
+        $all_categories = Category::filter()->select('id','title')->get();
+        $all_services = Service::filter()->select('id','title')->where('id','!=',$service->id)->get();
         $similar_services=$service->similarGroups()->where('similar_model',Service::class)->where('relation_model',Service::class)->pluck('relation_id')->toArray();
         $similar_categories=$service->similarGroupCategories()->where('similar_model',Service::class)->where('relation_model',Category::class)->pluck('relation_id')->toArray();
         $service_categories=[];
-        $category_service=Category::where('slug','service')->first();
+        $category_service=Category::filter()->where('slug','service')->first();
         if(isset($category_service) && $category_service != ''){
-            $service_categories = Category::where('parent_id',$category_service->id)->select('id','title','parent_id')
+            $service_categories = Category::filter()->where('parent_id',$category_service->id)->select('id','title','parent_id')
                 ->orderBy('id', 'DESC')->get();
         }
 
@@ -283,8 +284,8 @@ class ServiceController extends AdminController
     {
         if ($request->ajax()) {
             $id = is_array($request->input('id')) ? $request->input('id') : [$request->input('id')];
-            if (Service::whereIn('category_id', $id)->get()->count() > 0) {
-                $services = Service::whereIn('category_id', $id)->get();
+            if (Service::filter()->whereIn('category_id', $id)->get()->count() > 0) {
+                $services = Service::filter()->whereIn('category_id', $id)->get();
                 return response()->json(['count' => 'available', 'services' => $services]);
             }
         }

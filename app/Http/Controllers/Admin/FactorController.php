@@ -36,22 +36,22 @@ class FactorController extends Controller
         if ($user->admin_representation) {
             if ($user->hasPermission('factor-detail')) {
                 $values = [
-                    Factor::where('representation_id', $user->admin_representation->id)->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
-                    Factor::where('representation_id', $user->admin_representation->id)->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
                 ];
                 $day_values = [
-                    Factor::where('representation_id', $user->admin_representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
-                    Factor::where('representation_id', $user->admin_representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
                 ];
 
             } else {
                 $values = [
-                    Factor::where('representation_id', $user->admin_representation->id)->where('callcenter_id', $user->id)->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
-                    Factor::where('representation_id', $user->admin_representation->id)->where('callcenter_id', $user->id)->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
                 ];
                 $day_values = [
-                    Factor::where('representation_id', $user->admin_representation->id)->where('callcenter_id', $user->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
-                    Factor::where('representation_id', $user->admin_representation->id)->where('callcenter_id', $user->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
+                    Factor::filter()->where('representation_id', $user->admin_representation->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
                 ];
 
             }
@@ -59,22 +59,22 @@ class FactorController extends Controller
             if ($user->hasPermission('factor-detail')) {
 
                 $values = [
-                    Factor::whereStatus(true)->sum('price'),
-                    Factor::where('status' , '!=' , true)->sum('price')
+                    Factor::filter()->whereStatus(true)->sum('price'),
+                    Factor::filter()->where('status' , '!=' , true)->sum('price')
                 ];
                 $day_values = [
-                    Factor::whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
-                    Factor::whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
+                    Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
+                    Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
                 ];
 
             } else {
                 $values = [
-                    Factor::whereStatus(true)->where('callcenter_id', $user->id)->sum('price'),
-                    Factor::where('status' , '!=' , true)->where('callcenter_id', $user->id)->sum('price')
+                    Factor::filter()->whereStatus(true)->sum('price'),
+                    Factor::filter()->where('status' , '!=' , true)->sum('price')
                 ];
                 $day_values = [
-                    Factor::where('callcenter_id', $user->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
-                    Factor::where('callcenter_id', $user->id)->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
+                    Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->whereStatus(true)->whereIn('type' , Factor::getCashPaymentType())->sum('price'),
+                    Factor::filter()->whereDate('created_at', Helper::vertaTocarbon(verta()->today()))->where('status' , '!=' , true)->whereIn('type' , Factor::getCashPaymentType())->sum('price')
                 ];
             }
         }
@@ -253,7 +253,7 @@ class FactorController extends Controller
         {
             $factor->update($inputs);
 
-            if (!is_null($factor->task_id) && $factor->status == 0) {
+            if ($factor->task && $factor->status == 0) {
                 $factor->task->update([
                     'status' => 2,
                 ]);

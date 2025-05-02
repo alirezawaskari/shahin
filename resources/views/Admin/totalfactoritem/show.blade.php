@@ -35,7 +35,7 @@
 </div>
 
 <div class="row page-header">
-    <div class="col-lg-3 col-md-12">
+    <div class="{{$totalFactorItem->guarantor_checked ? 'col-lg-3' : 'col-lg-4'}} col-md-12">
         <div class="file-box card overflow-hidden">
             <div class="card-body text-center">
                 <h5 class="title-box">پیش پرداخت</h5>
@@ -49,7 +49,7 @@
             <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-12">
+    <div class="{{$totalFactorItem->guarantor_checked ? 'col-lg-3' : 'col-lg-4'}} col-md-12">
         <div class="file-box card overflow-hidden">
             <div class="card-body text-center">
                 <h5 class="title-box">مدارک هویتی وام گیرنده</h5>
@@ -59,13 +59,14 @@
                     <p>تصویر شناسنامه <i
                             class="fa {{ isset($factor->user->imgshenasname) ? 'fa-check' : 'fa-close' }}"></i></p>
                     <p> تصویر ثنا <i
-                            class="fa {{ isset($item['contract_values']['imgauthenticationuser']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ isset($factor->user->imgturnover) ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                 </div>
             </div>
             <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
         </div>
     </div>
+    @if ($totalFactorItem->guarantor_checked)
     <div class="col-lg-3 col-md-12">
         <div class="file-box card overflow-hidden">
             <div class="card-body text-center">
@@ -86,7 +87,8 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-12">
+    @endif
+    <div class="{{$totalFactorItem->guarantor_checked ? 'col-lg-3' : 'col-lg-4'}} col-md-12">
         <div class="file-box card overflow-hidden">
             <div class="card-body text-center">
                 <h5 class="title-box">مدارک مالی</h5>

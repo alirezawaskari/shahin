@@ -60,6 +60,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @if(!$has_center)
                         <div class="col-12 col-md-3 mb-2">
                             <select class="form-control select2" name="center">
                                 <option value="all">انتخاب مرکز</option>
@@ -68,6 +69,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
                         <div class="col-12 col-md-3 mb-2">
                             <div class="custom-control custom-switch mt-2">
                                 <input type="checkbox" class="custom-control-input" name="excel" id="excel">
@@ -88,7 +90,8 @@
 
         <div class="card position-relative">
             <div class="card-body table-responsive w-100">
-                <table class="vuetable table table-bordered table-striped table-responsive-md w-100" id="datatable-json">
+                <table class="vuetable table table-bordered table-striped table-responsive-md w-100"
+                    id="datatable-json">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -109,6 +112,7 @@
                             <th>ثبت کننده</th>
                             <th>تایید کننده</th>
                             <th>تاریخ و ساعت</th>
+                            <th>مرکز</th>
                             <th>وضعیت</th>
                             <th>اقدام</th>
                         </tr>
@@ -169,7 +173,7 @@
 </div>
 @stop
 @section('js')
-<script src="/assets/dashboard/js/sessionCompleteTurnRatings.js"></script>
+<script src="/assets/dashboard/js/sessionCompleteTurnRatings.js?v=1.1"></script>
 <script src="/assets/dashboard/js/layouts.js?v=1.1"></script>
 <script src="/assets/dashboard/js/session.js"></script>
 @endsection

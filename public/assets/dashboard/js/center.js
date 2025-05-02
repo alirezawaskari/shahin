@@ -38,7 +38,7 @@ $(document).ready(function () {
         var formData = form.serialize();
 
         $.ajax({
-            url: "/dashboard/centerRequest/filter/?page=" + page,
+            url: "/dashboard/center/filter/?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
@@ -64,42 +64,41 @@ $(document).ready(function () {
             order: [[0, "desc"]],
             columns: [
                 { "data": "sort_by" },
-                { "data": "subject" },
-                { "data": "name" },
-                { "data": "phone" },
-                { "data": "province" },
-                { "data": "category" },
-                { "data": "type" },
-                { "data": "user" },
-                { "data": "representation" },
+                { "data": "title" },
+                { "data": "items" },
+                { "data": "creator_rpresentation" },
                 { "data": "created_at" },
                 {
                     "targets": 2,
                     "data": "status",
                     "render": function (data) {
-                        if (data == "جدید") {
-                            return '<button class="badge badge-danger border-0">' + data + '</button><a h_blank">';
-                        }
-                        if (data == "فعال") {
-                            return '<button class="badge badge-success border-0">' + data + '</button><a h_blank">';
-                        }
-                        if (data == "معلق") {
-                            return '<button class="badge badge-warning border-0">' + data + '</button><a h_blank">';
-                        }
-                        if (data == "رد شده") {
-                            return '<button class="badge badge-dark border-0">' + data + '</button><a h_blank">';
-                        }
+                        return data==1?'<i class="fa fa-check" aria-hidden="true"></i>':'<i class="fa fa-times" aria-hidden="true"></i>'
                     }
                 },
                 {
                     "targets": 1,
                     "data": data,
                     "render": function (data) {
+                        let delete_display='none';
+                        if($('#delete').val()==1){
+                            delete_display='block';
+                        }let edit_display='none';
+                        if($('#edit').val()==1){
+                            edit_display='block';
+                        }let financial_report_detail_display='none';
+                        if($('#financial_report_detail').val()==1){
+                            financial_report_detail_display='block';
+                        }
+                        let services = data.services;
                         return '<div data-v-15965e3b="" class="dropdown">' +
                             '<a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>' +
                             '<div class="dropdown-menu">' +
-                            '<a href="../../dashboard/centerRequest/' + data.id + '/edit"><button type="button" class="dropdown-item pointer">ویرایش</button></a>' +
-                            '<button  data-id="' + data.id + '" class="center_request_delete dropdown-item pointer">حذف</button>' +
+                            services.forEach(element => {
+                                '<a href="../../dashboard/center/'+ data.id +'/'+element.slug+'/serviceTariff"><button type="button" class="dropdown-item pointer">'+element.title+'</button></a>'
+                            }),
+                            '<a style="display: ${edit_display}" href="../../dashboard/center/' + data.id + '/edit"><button type="button" class="dropdown-item pointer">ویرایش</button></a>' +
+                            '<a style="display: ${financial_report_detail_display}" href="../../dashboard/center/financialReport/' + data.id +'"><button type="button" class="dropdown-item pointer">عملکرد مالی</button></a>' +
+                            '<button style="display: ${delete_display}" data-id="' + data.id + '" class="center_delete dropdown-item pointer">حذف</button>' +
                             '</div>' +
                             '</div>';
                     }
@@ -126,7 +125,7 @@ $(document).ready(function () {
         }
     });
 
-    $("body").on('click', '.center_request_delete', function () {
+    $("body").on('click', '.center_delete', function () {
         var id = $(this).data("id");
         var token = $("meta[name='csrf-token']").attr("content");
         $('#excel').prop('checked', false);
@@ -145,7 +144,7 @@ $(document).ready(function () {
                 if (res) {
                     $.ajax(
                         {
-                            url: "/dashboard/centerRequest/" + id,
+                            url: "/dashboard/center/" + id,
                             type: 'DELETE',
                             data: {
                                 "_token": token,

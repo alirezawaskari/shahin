@@ -94,7 +94,7 @@
                             <input type="hidden" id="logo" class="path" name="urllogo">
                         </div>
                     </div>
-                </div>
+                </div> 
 
                 <div class="col-12">
                     <input type="submit" class="btn btn-success border-0" value="ثبت">

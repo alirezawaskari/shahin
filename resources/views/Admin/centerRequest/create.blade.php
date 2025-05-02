@@ -136,7 +136,7 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/center.js') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/centerRequest.js') }}"></script>
 
 @if (session()->get('center_success') == 'success')
 <span id="contact_success"></span>

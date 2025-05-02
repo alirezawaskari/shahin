@@ -73,10 +73,13 @@ class Session extends Model implements AuditableContract
      */
     public static function checkAndEndEntrySession($factor_item)
     {
-        $session=Session::whereIn('status',[3,4,5])->where('factor_item_id',$factor_item->id)->latest()->first();
-        if (!is_null($session)){
-            self::userSessionEndEntry($session);
-        }
+        Session::whereIn('status',[3,4,5])->where('factor_item_id',$factor_item->id)->update([
+            'status' => 6,
+        ]);
+
+        // if (!is_null($session)){
+        //     self::userSessionEndEntry($session);
+        // }
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -242,7 +245,7 @@ class Session extends Model implements AuditableContract
     public static function status($status)
     {
         return [
-            '0' => 'پیش جلسه',
+            '0' => 'در انتظار انجام کار',
             '1' => 'انجام شده',
             '2' => 'منتظر تایید',
             '3' => 'در انتظار مشاوره اولیه',

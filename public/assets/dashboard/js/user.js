@@ -46,10 +46,11 @@ $(document).ready(function () {
         document.getElementById('loading').style.display = 'block';
         var form = $('#filter_form');
         var formData = form.serialize();
-        // var basicUrl = document.getElementById('url').value;
+        var basicUrl = $('#url').val();
 
         $.ajax({
-            url: "/dashboard/users/?page=" + page,
+            url: "/dashboard/" + basicUrl + "?page=" + page,
+
             data: formData,
             success: function (data) {
                 createTable(data);

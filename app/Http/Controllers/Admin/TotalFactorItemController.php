@@ -113,7 +113,7 @@ class TotalFactorItemController extends Controller
         $item['contract_forms'] = ContractForm::orderBy('position' , 'Asc')->get();
         $item['contract_values'] = $totalFactorItem->contract_values;
         $item['guarantee_type'] = $totalFactorItem->guarantee_type;
-        $item['file_number_mali'] = $totalFactorItem->file_number_mali;
+        $item['file_number_mali'] = $totalFactorItem->file_number_mali ? $totalFactorItem->file_number_mali : $totalFactorItem->id;
         $item['approval_date'] = $totalFactorItem->approval_date ? $totalFactorItem->approval_date : now();
         $item['credit'] = TotalFactorItem::calculateCredit($totalFactorItem);
         $item['total_debt'] = TotalFactorItem::calculateTotalDebt($totalFactorItem);
@@ -482,7 +482,10 @@ class TotalFactorItemController extends Controller
             foreach ($factor_items as $factor_item) {
                 $factor_item->update(['credit' => $factor_item->total_price + $factor_item->credit]);
 
-                event(new factorItemActivation($factor_item->factor->user, $factor_item->center->title));
+                if($factor_item->center)
+                {
+                    event(new factorItemActivation($factor_item->factor->user, $factor_item->center->title));
+                }
 
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
@@ -529,7 +532,7 @@ class TotalFactorItemController extends Controller
             ]);
         }
 
-        $total_factor_item->update(['file_number_mali' => $request->file_number_mali, 'total_factor_item_status_id' => $request->status_factor ? $request->status_factor : $total_factor_item->total_factor_item_status_id]);
+        $total_factor_item->update(['guarantor_checked' => $request->guarantor_checked ,'file_number_mali' => $request->file_number_mali, 'total_factor_item_status_id' => $request->status_factor ? $request->status_factor : $total_factor_item->total_factor_item_status_id]);
         $user = User::find($request->user_id);
         if ($request->urlimgmeli) {
             Helper::deleteImage($user->imgmeli);
@@ -539,6 +542,11 @@ class TotalFactorItemController extends Controller
         if ($request->urlimgshenasname) {
             Helper::deleteImage($user->imgshenasname);
             $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname,'document')]);
+        }
+
+        if ($request->urlimgturnover) {
+            Helper::deleteImage($user->imgturnover);
+            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover,'document')]);
         }
 
         $input = $request->user;

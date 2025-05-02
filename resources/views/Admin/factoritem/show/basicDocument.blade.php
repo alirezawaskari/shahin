@@ -57,6 +57,22 @@
         class="btn btn-warning py-1 px-2 text-white mt-4">ارجاع به کارشناسی</span></a>
 
 @endif
+<hr>
+<div class="mb-3">
+    @if (!is_null($factorItem['service_item']))
+    <span>{{ $factorItem['factoritemable']->title . '-' . $factorItem['service_item']->title }}</span>
+    @else
+    <span>{{ $factorItem['factoritemable']->title }}</span>
+    @endif
+    @if ($factorItem['complete'])
+    <span class="text-warning mr-2">(تکمیل شده)</span>
+    @endif
+    @if(!$factorItem['total_price'] || $factorItem['status_factor'] == 14 || $factorItem['status_factor'] == 4)
+    <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
+        خدمت | دسته بندی</button>
+    @endif
+</div>
+<hr>
 @permission('supporter_confirmation')
 <div class="mt-3">
     @if (in_array(trim($factorItem['status_factor']) , [0,2,4,14]) )

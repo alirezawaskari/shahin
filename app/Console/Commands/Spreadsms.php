@@ -44,7 +44,7 @@ class Spreadsms extends Command {
 
     public function handle() {
         //allocate of received SMS messages that have not been allocated before to users that there is their sms_code in the sms text
-        $user_marketers = User::whereNotNull( 'sms_code' )->where( 'level', 'admin' )->get();
+        $user_marketers = User::whereDoesntHave('ghorfeOnlineLists')->whereNotNull( 'sms_code' )->where( 'level', 'admin' )->get();
         if ( count( $user_marketers ) > 0 ) {
             foreach ( $user_marketers as $user_marketer ) {
                 $sms = sms::whereStatus( false )->whereIn( 'body', $user_marketer->sms_code )->get();
@@ -61,7 +61,7 @@ class Spreadsms extends Command {
         if ( count( $representations ) > 0 ) {
             foreach ( $representations as $representation ) {
                 $sms = sms::whereStatus( false )->whereIn( 'body', $representation->sms_code )->get();
-                $users = User::where( 'level', 'admin' )->where( 'admin_representation_id', $representation->id )->get();
+                $users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where( 'admin_representation_id', $representation->id )->get();
                 $callcenterusers = [];
                 foreach ( $users as $user ) {
                     if ( $user->hasPermission( 'get_new_task' ) ) {
@@ -73,7 +73,7 @@ class Spreadsms extends Command {
         }
         //allocate of received SMS messages that have not been allocated before to admin users
         $sms = sms::whereStatus( false )->get();
-        $users = User::where( 'level', 'admin' )->where( 'admin_representation_id', null )->get();
+        $users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where( 'admin_representation_id', null )->get();
         $callcenterusers = [];
         foreach ( $users as $user ) {
             if ( $user->hasPermission( 'get_new_task' ) ) {
@@ -110,7 +110,7 @@ class Spreadsms extends Command {
                         $user = User::where( 'phone', $task->sms->sender_number )->first();
                         if ( $service && $service->id != 11 ) {
                             $task->services()->attach( $service );
-                            event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
+                            //event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
                         } elseif ( $smsitem->body == 11 ) {
                             self::answerCancelReceivingSms( $task->sms->sender_number );
                         }
@@ -138,7 +138,7 @@ class Spreadsms extends Command {
                     $service = Service::find( $s->body );
                     if ( $service && $service->id != 11 ) {
                         $task->services()->attach( $service );
-                        event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
+                        //event( new fastserviceCallcenter( $task->sms->sender_number, $service, null, $task, 'sms' ) );
                     } elseif ( $s->body == 11 ) {
                         self::answerCancelReceivingSms( $task->sms->sender_number );
                     }
@@ -160,7 +160,7 @@ class Spreadsms extends Command {
     * answer cancel receiving sms
     */
     private static function answerCancelReceivingSms( $user ) {
-        $message = 'شهروند گرامی ، در خواست عدم ارسال پیامک اطلاع رسانی سامانه سجا تنها مرجع رسمی و الکترونیکی اعطاء وامهای قرض الحسنه خرید کالا و خدمات بدون سود و ربا در کشور‌ و مجموعه حمایتی از کسب و کارها و بنگاه های اقتصادی و اعطاء تسهیلات و اشتغالزایی در شهرها و استانهای کشور و خدمات متنوع درمانی و رفاهی از طریق شما ثبت گردیده و منبعد ارتباط سامانه با شما قطع خواهد شد. در صورت تصمیم قطعی پاسخی به این پیام ندهید و در صورت تصمیم به دریافت مجدد پیامهای رایگان سجا عدد ۱۲ را به همان سامانه پیامکی ارسال نمائید. اداره کل فناوری و اطلاعات سجا.لغو 11';
-        Helper::sms( $user, $message );
+        // $message = 'شهروند گرامی ، در خواست عدم ارسال پیامک اطلاع رسانی سامانه سجا تنها مرجع رسمی و الکترونیکی اعطاء وامهای قرض الحسنه خرید کالا و خدمات بدون سود و ربا در کشور‌ و مجموعه حمایتی از کسب و کارها و بنگاه های اقتصادی و اعطاء تسهیلات و اشتغالزایی در شهرها و استانهای کشور و خدمات متنوع درمانی و رفاهی از طریق شما ثبت گردیده و منبعد ارتباط سامانه با شما قطع خواهد شد. در صورت تصمیم قطعی پاسخی به این پیام ندهید و در صورت تصمیم به دریافت مجدد پیامهای رایگان سجا عدد ۱۲ را به همان سامانه پیامکی ارسال نمائید. اداره کل فناوری و اطلاعات سجا.لغو 11';
+        // Helper::sms( $user, $message );
     }
 }

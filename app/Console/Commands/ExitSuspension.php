@@ -47,7 +47,7 @@ class ExitSuspension extends Command
         FactorItem::where( 'status_factor', 3 )->where( DB::raw("(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))"), '<=', now() )->take(100)->update( [ 'status_factor' => 14 ] );
 
         //change status callcenters at the expired_at
-        Callcenter::where('status' , 2)->where(DB::raw("(DATE_FORMAT(date_expire,'%Y-%m-%d %h:%m:%s'))") , '<=' , now())->take(100)->update(['status' => 4]);
+        Callcenter::where('status' , 2)->whereBetween('date_expire',[now()->subDays(5), now()])->take(100)->update(['status' => 4]);
 
         //archive callcenters
         Callcenter::where('status' , 2)->where(DB::raw("(DATE_FORMAT(date_expire,'%Y-%m-%d %h:%m:%s'))") , '>' , now()->addMonths(11))->take(100)->update(['status' => 8]);

@@ -6,31 +6,33 @@ var basic_document_executive_doc = $('#basic_document_executive').html();
 var elements = document.querySelectorAll('div[id^="basic_document_executive_collection_"]');
 var basic_document_executive_collection_doc = [];
 elements.forEach(element => {
-    basic_document_executive_collection_doc[element.id] = $('#'+element.id).html();
+    basic_document_executive_collection_doc[element.id] = $('#' + element.id).html();
 });
+
 function basicDocumentExecutiveAppend(basic_document_executive_collection_id) {
     var elements = document.querySelectorAll('div[id^="basic_document_executive_collection_"]');
     elements.forEach(element => {
-        $('#'+element.id).empty();
+        $('#' + element.id).empty();
     });
     var basic_document_executive_collection_div = document.createElement('div');
     basic_document_executive_collection_div.innerHTML = basic_document_executive_collection_doc[basic_document_executive_collection_id];
-    $('#'+basic_document_executive_collection_id).append(basic_document_executive_collection_div);
+    $('#' + basic_document_executive_collection_id).append(basic_document_executive_collection_div);
 };
 //consultationReferralAppend
 var elements = document.querySelectorAll('div[id^="consultation_referral_collection_"]');
 var consultation_referral_collection_doc = [];
 elements.forEach(element => {
-    consultation_referral_collection_doc[element.id] = $('#'+element.id).html();
+    consultation_referral_collection_doc[element.id] = $('#' + element.id).html();
 });
+
 function consultationReferralAppend(consultation_referral_collection_id) {
     var elements = document.querySelectorAll('div[id^="consultation_referral_collection_"]');
     elements.forEach(element => {
-        $('#'+element.id).empty();
+        $('#' + element.id).empty();
     });
     var consultation_referral_collection_div = document.createElement('div');
     consultation_referral_collection_div.innerHTML = consultation_referral_collection_doc[consultation_referral_collection_id];
-    $('#'+consultation_referral_collection_id).append(consultation_referral_collection_div);
+    $('#' + consultation_referral_collection_id).append(consultation_referral_collection_div);
     document.getElementById("defaultOpen").click();
 };
 $("body").on('click', '#orginal-document-panel', function () {
@@ -78,11 +80,11 @@ $("#transfer_type").change(function () {
         $('#representation_list_box').css('display', 'block');
         $('#supporter_list_box').css('display', 'none');
         $('#center_list_box').css('display', 'none');
-    } else if(this.value == 'supporter'){
+    } else if (this.value == 'supporter') {
         $('#supporter_list_box').css('display', 'block');
         $('#representation_list_box').css('display', 'none');
         $('#center_list_box').css('display', 'none');
-    } else if(this.value == 'center'){
+    } else if (this.value == 'center') {
         $('#center_list_box').css('display', 'block');
         $('#representation_list_box').css('display', 'none');
         $('#supporter_list_box').css('display', 'none');
@@ -589,9 +591,9 @@ $(document).ready(function () {
                 {
                     "data": "date_time"
                 },
-                /*{
+                {
                     "data": "supporter"
-                },*/
+                },
                 {
                     "data": "type"
                 },
@@ -762,4 +764,13 @@ $("body").on('change', 'input[name=type]', function (event) {
             }
         }
     });
-})
+});
+
+//guarantor checked
+$("body").on('click', '.guarantor_checked', function (event) {
+    if ($('.guarantor_checked').prop('checked') == true) {
+        $('.guarantor_info').css('display', 'block');
+    } else {
+        $('.guarantor_info').css('display', 'none');
+    }
+});

@@ -184,15 +184,15 @@ class CallcenterController extends Controller
     {
         $user = auth()->user();
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
-        $admin_users = User::where('level', 'admin')->withCount('tasks')->get();
+        $admin_users = User::filter()->where('level', 'admin')->withCount('tasks')->get();
 
-        $services = Service::where('status' , 1)->get();
-        $categories = Category::where('parent_id', 1)->where('isActive' , 1)->get();
+        $services = Service::filter()->where('status' , 1)->get();
+        $categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
         $permission = false;
 
         if (auth()->user()->center_id) {
-            $services = Service::whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
-            $categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
+            $services = Service::filter()->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
+            $categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }
         if($user->isAbleTo('record_payment'))
         {
@@ -201,7 +201,7 @@ class CallcenterController extends Controller
         if ($user->admin_representation) {
             $services = auth()->user()->admin_representation->services;
             $categories = auth()->user()->admin_representation->categories;
-            $admin_users = User::where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
+            $admin_users = User::filter()->where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
         }
 
         $old_callcenters = [];
@@ -300,19 +300,19 @@ class CallcenterController extends Controller
         $provinces = Province::all();
 
         if (auth()->user()->center_id) {
-            $service_categories = Category::where('parent_id', 2)->where('isActive' , 1)->whereIn('id', auth()->user()->center->services->pluck('category_id')->toArray())->get();
-            $product_categories = Category::where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
+            $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' , 1)->whereIn('id', auth()->user()->center->services->pluck('category_id')->toArray())->get();
+            $product_categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }elseif (auth()->user()->admin_representation) {
             $service_categories = auth()->user()->admin_representation->services;
             $product_categories = auth()->user()->admin_representation->categories;
         }else{
-            $product_categories = Category::where('parent_id', 1)->where('isActive' , 1)->get();
-            $service_categories = Category::where('parent_id', 2)->where('isActive' ,1)->get();
+            $product_categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
+            $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' ,1)->get();
         }
 
         if(auth()->user()->center && auth()->user()->center->centerable_type == Service::class)
         {
-            $service_categories = Category::where('id', auth()->user()->center->centerable->category_id)->get();
+            $service_categories = Category::filter()->where('id', auth()->user()->center->centerable->category_id)->get();
         }
 
         return view('Admin.callcenter.sendLink', compact('provinces','service_categories','product_categories'));
@@ -750,7 +750,6 @@ class CallcenterController extends Controller
         $id = Helper::getCallcenter($user->province_id , auth()->user()->admin_representation_id);
         $agent = !auth()->user()->hasPermission('callcenter') ? auth()->user()->id : null;
         $callcenter = ($request->request_type == "link" && $payment_type == "online" && !auth()->user()->hasPermission('callcenter')) ? $id : auth()->user()->id;
-
         $type_task = self::getType();
 
         if ($request->task) {
@@ -1386,7 +1385,13 @@ class CallcenterController extends Controller
         //suspention task
         if(isset($suspension_standard->id))
         {
-            $callcenter->update(['date_expire'=> now()->addHours($suspension_standard->waitting_time)]);
+            if($suspension_standard->waitting_time < 1)
+            {
+                $callcenter->update(['date_expire'=> now()->addMinutes($suspension_standard->waitting_time*60)]);
+            }
+            else{
+                $callcenter->update(['date_expire'=> now()->addHours($suspension_standard->waitting_time)]);
+            }
             $description = $suspension_standard->name .' تماس گرفته شد ارتباط با کاربر برقرار نشد.';
         }
         //create history

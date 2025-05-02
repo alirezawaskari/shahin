@@ -25,7 +25,7 @@ $(document).ready(function () {
         var categoryId = $(this).val();
         $.ajax(
             {
-                url: "/dashboard/site/category/fetch-services-by-category",
+                url: '/dashboard/service/selectByCategory',
                 type: 'post',
                 data: {
                     "_token": token,
@@ -36,7 +36,7 @@ $(document).ready(function () {
                     $('#sub_service_category')
                         .empty().append('<option value="all">انتخاب خدمت درخواستی</option>')
                     ;
-                    $.each(response.data.data, function (i, d) {
+                    $.each(response.services, function (i, d) {
                         $('#sub_service_category').append('<option value="' + d.id + '">' + d.title + '</option>');
                     });
                 }

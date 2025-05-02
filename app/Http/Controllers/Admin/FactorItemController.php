@@ -48,9 +48,7 @@ class FactorItemController extends Controller {
     public function index() {
         $title = 'فهرست پرونده ها';
         $url = 'filter';
-        $supporter_users=User::where('level' , 'admin')->where('admin_representation_id',auth()->user()->admin_representation_id)->whereHas('roles',function ($query){
-            $query->where('name','admin-site');
-        })->get();
+        $supporter_users = User::getSupporterUserAdmin(auth()->user()->admin_representation_id);
 
         return view( 'Admin.factoritem.all' , compact('title' , 'url' , 'supporter_users'));
     }
@@ -61,9 +59,8 @@ class FactorItemController extends Controller {
     public function desktop() {
         $title = 'میزکار پرونده ها';
         $url = 'desktop/filter';
-        $supporter_users=User::where('level' , 'admin')->where('admin_representation_id',auth()->user()->admin_representation_id)->whereHas('roles',function ($query){
-            $query->where('name','admin-site');
-        })->get();
+        $supporter_users = User::getSupporterUserAdmin(auth()->user()->admin_representation_id);
+
         return view( 'Admin.factoritem.all' , compact('title' , 'url' , 'supporter_users'));
     }
 

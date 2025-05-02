@@ -104,7 +104,7 @@
         </div>
 
     </div>
-    {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
         class="modal fade phone-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -116,33 +116,35 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%"
-                                    src="https://tiktarh.com/wp-content/uploads/2024/10/Cptvct1004267www.tiktarh.com_.jpg"
-                                    alt="">
+                                <img width="100%" src="https://lalecard.ir/upload/2025/4/service/1745899910313.jpg" alt="">
                             </div>
                         </div>
                     </div>
-                    <h6>
+                    <h6 class="text-center">
                         <strong>
-                            ویژه صاحبین کسب و کارها ، فروشندگان کالا و خدمات سوپرمارکت داران ، پوشاک فروشان ، معلم
-                            ها ، پزشکان و وکلا وکالای خانگی موبایل و کامپیوتر برای اجاره و دریافت اطلاعات راجع به
-                            مغازه های دیجیتال فقط تا 13 آبان با شرایط ویژه <a
-                                href="/services/Permanent-employment">اینجا</a> وارد شوید.
+                            به مناسبت روز دخترخانوم های عزیز لاله ای اعتبار <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
+                            میلیون تومانی تا ۵ ماه بدون سود و ضامن فقط به مدت یک هفته با سفته و‌بدون چک هم از دم قسط شد!!!
+                            این فرصت رو از دست ندید و خدماتتون رو همین الان ثبت نام و ۵ دقیقه ای دریافت کنید
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="mb-1 p-1">
-                        <a href="/services/Permanent-employment" class="btn btn-info">
-                            دریافت مغازه دیجیتال
+                    <div class="col-12 col-md-6 mb-3">
+                        <a href="/services/skin_and_hair" class="w-100 btn btn-info">
+                            دریافت خدمت زیبایی
                         </a>
                     </div>
-                    <div class="mb-1 p-1" style="margin-right: auto">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
+                    <div class="col-12 col-md-6 mb-3">
+                        <a href="/services/dentistry" class="w-100 btn btn-info">
+                            دریافت خدمت دندانپزشکی
+                        </a>
                     </div>
+                </div>
+                <div class="mb-1 p-1" style="margin-right: auto">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
     @endsection

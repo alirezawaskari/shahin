@@ -182,10 +182,9 @@
                                         }}>کارتخوان</option>
                                     <option value="card" {{ $factor->type == 'card' ? 'selected' : '' }}>کارت به کارت
                                     </option>
-                                    <option value="wallet" {{ $factor->type == 'wallet' ? 'selected' : '' }}>کیف پول
-                                    </option>
                                     <option value="cash" {{ $factor->type == 'cash' ? 'selected' : '' }}>پول نقد
                                     </option>
+                                    <option value="account">واریز به حساب</option>
                                     <option value="wallet">کسر از کیف پول</option>
                                     <option value="credit">کسر از حواله</option>
                                 </select>
@@ -199,6 +198,10 @@
                                 <label>شماره پیگیری (4 رقم آخر)</label>
                                 <input class="form-control" name="payment_code" type="number"
                                     id="payment_code_input_edit_factor">
+                            </div>
+                            <div class="col-12 col-md-3 mb-2 d-none" id="sheba_number_edit_factor">
+                                <label>شماره شبا</label>
+                                <input class="form-control" name="sheba_number" type="text" id="sheba_number_input_edit_factor">
                             </div>
                             <div class="col-12 col-md-2 mb-2 d-none" id="bill_image_edit_factor">
                                 <label>رسید دریافت وجه</label>
@@ -219,15 +222,7 @@
                                 <span class="send_user_password btn btn-success-default text-white px-3"> ارسال رمز <i
                                         class="fa fa-paper-plane mr-1" aria-hidden="true"></i></span>
                             </div>
-                            <div class="col-12 col-md-4 mb-2 d-none" id="bill_image_edit_factor">
-                                <label>رسید دریافت وجه</label>
-                                <br>
-                                <label for="bill_image_input" id="up-label" class="btn badge-secondary"><i
-                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                <input class="form-control file-up" name="bill_image[]" type="file"
-                                    id="bill_image_input" accept=".jpg,.jpeg,.png" onchange="readURL(this)">
-                                <img id="blah" src="#" alt="" />
-                            </div>
+
                             <div class="col-12 col-md-4 mb-3">
                                 <label>انتقال به همکار</label>
                                 <select class="form-control" name="support_id">
@@ -397,4 +392,4 @@
     $(document).ready( function () {
         $('#datatable-history-blade').DataTable({searching: false});
     } );
-</script>
+</script+++++>

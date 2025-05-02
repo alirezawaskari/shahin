@@ -32,6 +32,7 @@ class CreateTotalFactorItemsTable extends Migration
             $table->unsignedBigInteger('credit');
             $table->integer('installments_num')->default(false);
             $table->integer('percent_fines')->default(2);
+            $table->integer('guarantor_checked')->default(false);
             $table->integer('remember')->default(0);
             $table->timestamp('approval_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('expired_at')->nullable(true);
