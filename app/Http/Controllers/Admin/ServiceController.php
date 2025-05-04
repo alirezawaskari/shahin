@@ -329,7 +329,7 @@ class ServiceController extends AdminController
             'price'=>['required'],
             'tax'=>['required'],
             ]);
-        $request->price = (float) str_replace(',', '', $request-> price);
+        $request->price = (float) str_replace(',', '', $request->price);
         if ($validator->fails()) {
             return response(['status'=>'error','messages'=>$validator->messages()->all()]);
         }
