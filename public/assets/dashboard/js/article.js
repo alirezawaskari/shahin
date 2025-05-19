@@ -77,7 +77,7 @@
                 {"data":"title"},
                 {"data":data,
                 "render":function (data){
-                    return data.user.name+ " " + data.user.family
+                    return data.user
                 }},
                 {"data": 'category_article.title'},
                 {"data":data,
