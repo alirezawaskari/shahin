@@ -71,7 +71,7 @@
         </a>
     </div>
     @endif
-    <a href="/services/business-agency">
+    {{-- <a href="/services/business-agency">
         <div class="container">
             <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
                 <div class="col-md-8">
@@ -88,7 +88,7 @@
                 </div>
             </div>
         </div>
-    </a>
+    </a> --}}
     {{--category--}}
     <div style="padding: 5px">
         <div class="row ">
@@ -140,6 +140,7 @@
                             دریافت خدمت دندانپزشکی
                         </a>
                     </div>
+
                 </div>
                 <div class="mb-1 p-1" style="margin-right: auto">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
