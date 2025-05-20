@@ -59,34 +59,31 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::filter()->where('type', 0)->orderBy('id', 'DESC');
-        $categories = Category::filter()->where('depth', 2)->get();
+        $products = Product::where('type', 0)->orderBy('id', 'DESC');
+        $categories = Category::where('depth', 2)->get();
         $create_link = route('createMaterials');
         $queries = [];
-        $columns = ['id', 'name','brand_id'];
 
-        foreach ($columns as $column) {
-            if ($request->has($column)) {
-                if ($request->$column != null) {
-                    if ($column == 'id') {
-                        $products = $products->where($column, $request->$column);
-                        $queries[$column] = $request->$column;
-                    }
-                    if ($column == 'name') {
-                        $products = $products->where($column, 'like', '%' . $request->$column . '%');
-                        $queries[$column] = $request->$column;
-                    }
-                    if ($column == 'brand_id') {
-                        if ($request->$column != 'all') {
-                            $products = $products->where($column, $request->$column);
-                            $queries[$column] = $request->$column;
-                        } else {
-                            $queries[$column] = 'all';
-                        }
-                    }
-                }
+        if ($request->filled('id')) {
+            $products->where('id', $request->input('id'));
+            $queries['id'] = $request->input('id');
+        }
+
+        if ($request->filled('name')) {
+            $name = trim(preg_replace('/\s+/', ' ', $request->input('name')));
+            $products->where('name', 'like', '%' . $name . '%');
+            $queries['name'] = $request->input('name');
+        }
+
+        if ($request->has('brand_id')) {
+            if ($request->input('brand_id') !== 'all') {
+                $products->where('brand_id', $request->input('brand_id'));
+                $queries['brand_id'] = $request->input('brand_id');
+            } else {
+                $queries['brand_id'] = 'all';
             }
         }
+
 
         $products = $products->paginate(15)->appends($queries);
 
@@ -108,7 +105,7 @@ class ProductController extends Controller
             $product['sellers'] = $sellers;
         }
 
-        $page_link = "/dashboard/products";
+        $page_link = url()->current();
 
         $brands = [];
         $product_brands = Product::with(['brand'])->where('type', 0)->get();

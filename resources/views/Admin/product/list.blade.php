@@ -33,7 +33,6 @@
         <div class="card-body">
             <form method="get" action="{{$page_link}}">
                 <div class="row">
-
                     <div class="col-12 col-md-3 mb-2">
                         <input class="form-control" name="id" placeholder="کد محصول"
                                value="@if(isset($queries['id'])) @if($queries['id']) {{$queries['id']}} @endif @endif">

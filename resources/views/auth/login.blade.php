@@ -93,5 +93,28 @@
 
 @endsection
 @section('js')
+    <script>
+        String.prototype.toEnglishDigit = function() {
+            const find = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+            const replace = ['0','1','2','3','4','5','6','7','8','9'];
+            let str = this;
+            find.forEach((f, i) => {
+                str = str.replace(new RegExp(f, 'g'), replace[i]);
+            });
+            return str;
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('login_form');
+            form.addEventListener('submit', function(e) {
+                const phoneInput = form.querySelector('input[name="phone"]');
+                phoneInput.value = phoneInput.value.toEnglishDigit();
+
+                const passInput = form.querySelector('input[name="password"]');
+                passInput.value = passInput.value.toEnglishDigit();
+
+            });
+        });
+    </script>
     <script src="/assets/site/js/login.js?v=1"></script>
 @endsection
