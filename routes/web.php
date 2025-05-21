@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\site\BrandController;
 use App\Http\Controllers\Admin\site\CategoryArticleController;
 use App\Http\Controllers\Admin\site\ColorController;
 use App\Http\Controllers\Admin\site\NewsController;
+use App\Http\Controllers\Admin\site\WorkSampleController;
 use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
@@ -178,7 +179,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+
+    // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
+    Route::resource('workSample',WorkSampleController::class)->except(['show','destroy']);
+    Route::post('/admin/work-sample/get-items', [WorkSampleController::class, 'getItemsByType'])
+        ->name('workSample.getItemsByType');
+
     Route::post('/service/fetch-serviceitem-by-service', [ServiceController::class,'fetchServiceItemsByServiceId']);
     Route::get('/dailyDesktop', [AdminController::class,'dailyDesktop']);
     Route::get('/set-link/{slug}', [AdminController::class,'setLink']);
