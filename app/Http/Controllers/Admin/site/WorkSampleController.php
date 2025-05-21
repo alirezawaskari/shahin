@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreWorkSampleRequest;
+use App\Http\Requests\UpdateWorkSampleRequest;
 use App\Models\Center;
 use App\Models\Service;
 use App\Models\WorkSample;
@@ -34,16 +36,9 @@ class WorkSampleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreWorkSampleRequest $request)
     {
-        $data = $request->validate([
-            'center_id' => 'required|integer',
-            'title' => 'required|string|max:255',
-            'image' => 'nullable|image',
-            'status' => 'required|boolean',
-            'worksampleable_type' => 'required|string',
-            'worksampleable_id' => 'required|integer',
-        ]);
+        $data = $request->validated();
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('upload/worksamples', 'public');
@@ -70,20 +65,11 @@ class WorkSampleController extends Controller
         return view('Admin.workSample.edit', compact('workSample', 'worksampleableTypes'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateWorkSampleRequest $request, $id)
     {
         $workSample = WorkSample::findOrFail($id);
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'status' => 'required|in:0,1',
-            'center_id' => 'required|exists:centers,id',
-            'worksampleable_type' => 'required|string',
-            'worksampleable_id' => 'required|integer',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-        ]);
-
-        $data = $request->only('title', 'status', 'center_id', 'worksampleable_type', 'worksampleable_id');
+        $data = $request->validated();
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('work_samples', 'public');
