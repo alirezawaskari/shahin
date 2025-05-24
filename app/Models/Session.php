@@ -250,7 +250,7 @@ class Session extends Model implements AuditableContract
             '2' => 'منتظر تایید',
             '3' => 'در انتظار مشاوره اولیه',
             '4' => 'ویزیت تایید شده',//Currently not developed
-            '5' => 'در انتظار مشاوره اصلی',
+            '5' => 'در انتظار فاکتور اصلی',
             '6' => 'مشاوره شد',
             '7' => 'ویزیت لغو شد',
         ][$status];
