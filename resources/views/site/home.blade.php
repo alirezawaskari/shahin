@@ -110,37 +110,36 @@
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-start">
                     <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                    <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
+                    <h6 class="modal-title" id="phoneModalLable">آغاز مناقصه :</h6>
                 </div>
                 <div class="modal-body">
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://lalecard.ir/upload/2025/4/service/1745899910313.jpg" alt="">
+                                <img width="100%" src="https://assets1.drugstorenews.com/styles/primary_articles_short/s3/2023-06/pharmacists-doctors-teaser.png?h=73306683&itok=Z-35IsiZ" alt="">
                             </div>
                         </div>
                     </div>
                     <h6 class="text-center">
                         <strong>
-                            به مناسبت روز دخترخانوم های عزیز لاله ای اعتبار <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
-                            میلیون تومانی تا ۵ ماه بدون سود و ضامن فقط به مدت یک هفته با سفته و‌بدون چک هم از دم قسط شد!!!
-                            این فرصت رو از دست ندید و خدماتتون رو همین الان ثبت نام و ۵ دقیقه ای دریافت کنید
+عقد قرارداد خرید خدمات درمانی و اعطاء تسهیلات غیر نقدی بدون سود و ضامن به بیماران <span class="alert-danger">مراکز درمانی/جراحان/پزشکان/دندانپزشکان</span>
+جهت دریافت مشاوره تماس با:
+<a href="tel:02191095745">۰۲۱۹۱۰۹۵۷۴۵</a> داخلی ۴
+<br>
+							<hr>
+<a href="/contact">
+تماس با ما
+</a>
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="col-12 col-md-6 mb-3">
-                        <a href="/services/skin_and_hair" class="w-100 btn btn-info">
-                            دریافت خدمت زیبایی
+                    <div class="col-12 mb-3">
+                        <a href="/singleWebPage/logistic/monaghese3" class="w-100 btn btn-info">
+                            جهت  شرکت در مناقصه از این صفحه وارد شوید
                         </a>
                     </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <a href="/services/dentistry" class="w-100 btn btn-info">
-                            دریافت خدمت دندانپزشکی
-                        </a>
-                    </div>
-
                 </div>
                 <div class="mb-1 p-1" style="margin-right: auto">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
