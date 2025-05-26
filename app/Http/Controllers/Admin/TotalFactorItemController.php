@@ -31,6 +31,12 @@ use Verta;
 
 class TotalFactorItemController extends Controller
 {
+    protected $sessionService;
+
+    public function __construct(SessionService $sessionService)
+    {
+        $this->sessionService = $sessionService;
+    }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -500,13 +506,7 @@ class TotalFactorItemController extends Controller
                 ]);
                 //create session
                 if ($factor_item->factoritemable->session==1){
-                Session::create( [
-                    'status' => 5 ,
-                    'user_id' => auth()->user()->id,
-                    'factor_item_id' => $factor_item->id,
-                    'date' => date('Y-m-d H:i:s'),
-                    'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
-                ]);
+                    $this->sessionService->createSessionPendingMainInvoice($factor_item->id);
                 }
             }
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);

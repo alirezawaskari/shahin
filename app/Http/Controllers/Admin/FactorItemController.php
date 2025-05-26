@@ -30,6 +30,7 @@ use App\Models\TotalFactorItem;
 use App\Models\User;
 use App\Models\UserPerformance;
 use App\Models\WalletTransaction;
+use App\Services\SessionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -41,6 +42,12 @@ use Illuminate\Support\Str;
 
 class FactorItemController extends Controller {
 
+    protected $sessionService;
+
+    public function __construct(SessionService $sessionService)
+    {
+        $this->sessionService = $sessionService;
+    }
     //all factorItems list
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -1418,6 +1425,10 @@ class FactorItemController extends Controller {
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
         {
+            $factor_item->update( [
+               'status_factor' => 10,
+            ] );
+            $this->sessionService->createSessionPendingMainInvoice($factor_item->id);
             return redirect()->back()->with( [
                 'update' => 'success'
             ] );
