@@ -11,6 +11,17 @@ class PercentageAllocationEmployeeReportCollection extends ResourceCollection
      * @param \Illuminate\Http\Request $request
      * @return array
      */
+    public $percentage_allocation_employee_reports;
+
+    /**
+     * @param $percentage_allocation_employee_reports
+     * @param $collection
+     */
+    public function __construct($percentage_allocation_employee_reports , $collection)
+    {
+        parent::__construct($collection);
+        $this->percentage_allocation_employee_reports = $percentage_allocation_employee_reports;
+    }
     public function toArray($request)
     {
         return [
@@ -28,7 +39,15 @@ class PercentageAllocationEmployeeReportCollection extends ResourceCollection
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setPerDelete(),
                 ];
-            })
+            }),
+            'meta' =>  [
+                'sum_price' => number_format($this->collection->sum(function ($item) {
+                    return $item->walletTransaction->price;
+                })),
+                'total_price' => number_format($this->percentage_allocation_employee_reports->sum(function ($item) {
+                    return $item->walletTransaction->price;
+                })),
+            ]
         ];
     }
 
