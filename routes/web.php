@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\CallcenterController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryPermissionController;
@@ -720,6 +721,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
     Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
     Route::resource('groupsms', 'GroupsmsController');
+
+    // Ai
+// AI Settings (باید قبل از {id} باشه)
+    Route::get('/chat-messages/setting', [AiController::class, 'setting'])->name('ai_settings.setting');
+    Route::put('/chat-messages/setting/{id}', [AiController::class, 'updateSetting'])->name('ai_settings.update');
+
+// Chat Messages
+    Route::get('/chat-messages', [AiController::class, 'index'])->name('chat_messages.index');
+    Route::get('/chat-messages/{id}', [AiController::class, 'show'])->name('chat_messages.show');
 
     //safe box
     Route::resource('safeBox', 'SafeBoxController');
