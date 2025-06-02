@@ -20,7 +20,7 @@
                         <th scope="col">متقاضی</th>
                         <th scope="col">صادر کننده</th>
                         <th scope="col">در وجه</th>
-                        <th scope="col">شماره سریال</th>
+                        <th scope="col">شناسه صیادی</th>
                         <th scope="col">موضوع</th>
                         <th scope="col">تصاویر</th>
                         <th scope="col">توضیحات</th>
@@ -368,9 +368,9 @@
                                             {{--                                                       value="سید مصطفی میرحسینی" required>--}}
                                             {{--                                            </div>--}}
                                             <div class="form-group col-md-4">
-                                                <label>شماره سریال :</label>
+                                                <label>شناسه صیادی :</label>
                                                 <input id="serial-code" name="serial_code" class="form-control"
-                                                       placeholder="شماره سریال چک"
+                                                       placeholder="شناسه صیادی چک (16 رقمی)"
                                                        value="" required>
                                             </div>
                                             <div class="form-group col-md-4  ">
@@ -469,9 +469,9 @@
                                     </div>
 
                                     <div class="form-group col-md-4">
-                                        <label>شماره سریال :</label>
+                                        <label>شناسه صیادی :</label>
                                         <input id="edit-serial-code" name="serial_code" class="form-control"
-                                               placeholder="شماره سریال"
+                                               placeholder="شناسه صیادی چک (16 رقمی)"
                                                value=" " required>
                                     </div>
 
