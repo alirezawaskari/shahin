@@ -640,7 +640,14 @@ class User extends Authenticatable
 
         $totalDebts=array();
         foreach ($factorItems as $factorItem){
-            $totalDebts[] =FactorItem::calculateTotalDebt($factorItem);
+            if($factorItem->type)
+            {
+                $totalDebts[] =TotalFactorItem::calculateTotalDebt($factorItem->totalFactorItem);
+            }
+            else
+            {
+                $totalDebts[] =FactorItem::calculateTotalDebt($factorItem);
+            }
         }
         return $totalDebts;
     }
