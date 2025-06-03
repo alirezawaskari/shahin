@@ -55,14 +55,9 @@ class CenterRequestController extends Controller
             $center_category_id = $request->service ? $request->service : 30;
         }
         //check if user not exist -> create user
-        $user=User::where('phone',$request->phone)->first();
         $request['representation_id'] = session()->has('representation') ? session()->get('representation')->id : '';
-
-        if (is_null($user)){
-            //create user
-            $user = \App\Http\Controllers\Admin\CenterRequestController::createUser($request);
-        }
-
+        User::createUser($request);
+        $user = User::where('phone',$request->phone)->first();
         //create task (callCenter)
         \App\Http\Controllers\Admin\CenterRequestController::createTask($user,$request);
         $center_request =\App\Http\Controllers\Admin\CenterRequestController::createCenterRequest($center_category_id, $request);
