@@ -78,10 +78,11 @@ class PercentageAllocationEmployee extends Model {
     */
     public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date , $factor_item_service_tariff) {
         $description = self::TYPE[$type];
+        $percentage_allocation_employees = [];
         if ( $type == 'register_price' ) {
             $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
-        else
+        elseif($factor_item->center)
         {
             $percentage_allocation_employees = $factor_item->center->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
