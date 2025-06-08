@@ -110,34 +110,27 @@
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-start">
                     <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                    <h6 class="modal-title" id="phoneModalLable">آغاز مناقصه :</h6>
+                    <h6 class="modal-title" id="phoneModalLable">کاربران گرامی :</h6>
                 </div>
                 <div class="modal-body">
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://assets1.drugstorenews.com/styles/primary_articles_short/s3/2023-06/pharmacists-doctors-teaser.png?h=73306683&itok=Z-35IsiZ" alt="">
+                                <img width="100%" src="https://cdn.donya-e-eqtesad.com/thumbnail/PmoES1h60ZU1/QHn8O9nsSzT8qCU7RegsN6Pbb5v74eEtbKeSOh05Rab9E2s2ofnRJkt7TZyzEhnm/n00168214-b.jpg" alt="">
                             </div>
                         </div>
                     </div>
                     <h6 class="text-center">
                         <strong>
-عقد قرارداد خرید خدمات درمانی و اعطاء تسهیلات غیر نقدی بدون سود و ضامن به بیماران <span class="alert-danger">مراکز درمانی/جراحان/پزشکان/دندانپزشکان</span>
-جهت دریافت مشاوره تماس با:
-<a href="tel:02191095745">۰۲۱۹۱۰۹۵۷۴۵</a> داخلی ۴
-<br>
-							<hr>
-<a href="/contact">
-تماس با ما
-</a>
+جشنواره عید تا عید لاله فقط تا عید غدیر تسهیلات <span class="alert-danger">بدون سود و ضامن و از دم قسط </span>شامل تمام خدمات لاله
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
                     <div class="col-12 mb-3">
-                        <a href="/singleWebPage/logistic/monaghese3" class="w-100 btn btn-info">
-                            جهت  شرکت در مناقصه از این صفحه وارد شوید
+                        <a href="/services" class="w-100 btn btn-info">
+                            برای مشاهده و دریافت خدمات روی لینک زیر کلیک کنید
                         </a>
                     </div>
                 </div>
