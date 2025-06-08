@@ -10,6 +10,7 @@ use App\Models\CenterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Center;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class CenterRequestController extends AdminController
@@ -79,15 +80,10 @@ class CenterRequestController extends AdminController
         unset($input['service_category']);
         unset($input['cat_type']);
         //check if user not exist -> create user
-        $user = User::where('phone', $request->phone)->first();
-        if (is_null($user)) {
-            //create user
-            $user = self::createUser($request);
-        }
+        User::createUser($request);
+        $user = User::where('phone',$request->phone)->first();
         //create task (callCenter)
         self::createTask($user , $request);
-
-//        CenterRequest::create($input);
         $center_request = self::createCenterRequest($center_category_id, $request);
         if(auth()->user()->admin_representation_id)
         {
@@ -197,31 +193,6 @@ class CenterRequestController extends AdminController
             ]);
         }
     }
-
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    public static function createUser(Request $request)
-    {
-        $pass = rand(12345, 99999);
-        $phone = Helper::numberConverter($request->phone);
-
-        return User::create([
-            'name' => $request->name,
-            'family' => $request->family,
-            'phone' => $phone,
-            'sex' =>  $request->gender,
-            'province_id' => $request->province_id,
-            'representation_id' => $request->representation_id,
-            'city_id' => $request->city_id,
-            'password' => Hash::make($pass),
-            'active' => true,
-            'level' => 'user',
-        ]);
-    }
-
-
     /**
      * @param \App\Models\User $user
      * @param \Illuminate\Http\Request $request
@@ -229,9 +200,7 @@ class CenterRequestController extends AdminController
      */
     public static function createTask(User $user, Request $request): void
     {
-        $callcenter_user_id = User::where('level', 'admin')->where('active', 1)->whereHas('roles', function ($query) {
-            $query->where('name', 'superadmin');
-        })->first()->id;
+        $callcenter_roles = Role::select('id')->where('name' , 'superadmin')->get();
         $center_description = '';
         if (isset($request->description) && $request->description != '') {
             $center_description = $request->description;
@@ -242,16 +211,7 @@ class CenterRequestController extends AdminController
          توضیحات درخواست دهنده :
          {$center_description}،
          ";
-        Callcenter::create([
-            'reg_id' => $user->id,
-            'user_id' => $callcenter_user_id,
-            'agent_id' => null,
-            'type' => 0,
-            'request_type' => 'other',
-            'status' => 0,
-            'description' => $description,
-            'representation_id' => $request->representation_id,
-        ]);
+        Callcenter::createTask($user, $description , $callcenter_roles);
     }
 
 

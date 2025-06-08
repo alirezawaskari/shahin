@@ -32,6 +32,6 @@ class ServiceCollection extends ResourceCollection
                     'status' => $item->status,
                 ];
             })
-        ];;
+        ];
     }
 }

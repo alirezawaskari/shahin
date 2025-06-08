@@ -32,7 +32,7 @@ class UserPerformanceController extends AdminController {
         if ( $request->excel == 'on' ) {
             //return ( new Export( $percentage_allocation_employees ) )->download( 'percentage_allocation_employees.xlsx' );
         }
-        return new PercentageAllocationEmployeeReportCollection( $percentage_allocation_employee_reports->paginate( 20 ) );
+        return new PercentageAllocationEmployeeReportCollection($percentage_allocation_employee_reports->get() , $percentage_allocation_employee_reports->paginate( 20 ) );
     }
 
 }

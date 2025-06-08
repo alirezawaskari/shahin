@@ -71,7 +71,7 @@
         </a>
     </div>
     @endif
-    <a href="/services/business-agency">
+    {{-- <a href="/services/business-agency">
         <div class="container">
             <div class="row m-4 p-2 shadow-sm" style="background: rgba(86, 244, 244, 0.34);">
                 <div class="col-md-8">
@@ -88,7 +88,7 @@
                 </div>
             </div>
         </div>
-    </a>
+    </a> --}}
     {{--category--}}
     <div style="padding: 5px">
         <div class="row ">
@@ -110,34 +110,27 @@
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-start">
                     <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                    <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
+                    <h6 class="modal-title" id="phoneModalLable">کاربران گرامی :</h6>
                 </div>
                 <div class="modal-body">
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://lalecard.ir/upload/2025/4/service/1745899910313.jpg" alt="">
+                                <img width="100%" src="https://cdn.donya-e-eqtesad.com/thumbnail/PmoES1h60ZU1/QHn8O9nsSzT8qCU7RegsN6Pbb5v74eEtbKeSOh05Rab9E2s2ofnRJkt7TZyzEhnm/n00168214-b.jpg" alt="">
                             </div>
                         </div>
                     </div>
                     <h6 class="text-center">
                         <strong>
-                            به مناسبت روز دخترخانوم های عزیز لاله ای اعتبار <span class="alert-danger">۱۰ و ۲۰ و ۳۰</span>
-                            میلیون تومانی تا ۵ ماه بدون سود و ضامن فقط به مدت یک هفته با سفته و‌بدون چک هم از دم قسط شد!!!
-                            این فرصت رو از دست ندید و خدماتتون رو همین الان ثبت نام و ۵ دقیقه ای دریافت کنید
+جشنواره عید تا عید لاله فقط تا عید غدیر تسهیلات <span class="alert-danger">بدون سود و ضامن و از دم قسط </span>شامل تمام خدمات لاله
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
-                    <div class="col-12 col-md-6 mb-3">
-                        <a href="/services/skin_and_hair" class="w-100 btn btn-info">
-                            دریافت خدمت زیبایی
-                        </a>
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <a href="/services/dentistry" class="w-100 btn btn-info">
-                            دریافت خدمت دندانپزشکی
+                    <div class="col-12 mb-3">
+                        <a href="/services" class="w-100 btn btn-info">
+                            برای مشاهده و دریافت خدمات روی لینک زیر کلیک کنید
                         </a>
                     </div>
                 </div>

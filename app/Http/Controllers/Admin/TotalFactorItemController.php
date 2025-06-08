@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
 use App\Events\factorItemActivation;
-use App\Events\factorItemClosing;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
@@ -25,9 +24,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use phpDocumentor\Reflection\Types\Object_;
-use UxWeb\SweetAlert\SweetAlert;
-use Verta;
 
 class TotalFactorItemController extends Controller
 {
@@ -500,13 +496,7 @@ class TotalFactorItemController extends Controller
                 ]);
                 //create session
                 if ($factor_item->factoritemable->session==1){
-                Session::create( [
-                    'status' => 5 ,
-                    'user_id' => auth()->user()->id,
-                    'factor_item_id' => $factor_item->id,
-                    'date' => date('Y-m-d H:i:s'),
-                    'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
-                ]);
+                    Session::createSessionPendingMainInvoice($factor_item->id);
                 }
             }
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);

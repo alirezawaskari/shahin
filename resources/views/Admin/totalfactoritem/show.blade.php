@@ -101,7 +101,7 @@
                             class="fa {{ isset($item['contract_values']['imgcheck']) ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p> تصویر معدل کارکرد سه ماهه <i
-                            class="fa {{ isset($item['contract_values']['imgturnover']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ isset($item['contract_values']['imgValidation']) ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     @elseif($item['guarantee_type'] == 'certificate')
                     <p>تصویر گواهی کسر از حقوق<i
@@ -118,7 +118,7 @@
                             class="fa {{ isset($item['contract_values']['imgpromissorynote']) ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p> تصویر معدل کارکرد سه ماهه <i
-                            class="fa {{ isset($item['contract_values']['imgturnover']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ isset($item['contract_values']['imgValidation']) ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p>تصویر ثنا <i
                             class="fa {{ isset($item['contract_values']['imgauthentication']) ? 'fa-check' : 'fa-close' }}"></i>

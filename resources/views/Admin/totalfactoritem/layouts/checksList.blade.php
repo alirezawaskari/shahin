@@ -14,7 +14,7 @@
                         <th scope="col">متقاضی </th>
                         <th scope="col">صادر کننده </th>
                         <th scope="col">در وجه </th>
-                        <th scope="col">شماره سریال</th>
+                        <th scope="col">شناسه صیادی</th>
                         <th scope="col">موضوع</th>
                         <th scope="col">تصاویر</th>
                         <th scope="col">توضیحات</th>
