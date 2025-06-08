@@ -2,13 +2,39 @@
 
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AiController;
+use App\Http\Controllers\Admin\CallcenterController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CategoryPermissionController;
+use App\Http\Controllers\Admin\CheckController;
 use App\Http\Controllers\Admin\ContextController;
+use App\Http\Controllers\Admin\DiseaseController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\EmployeeTermsController;
+use App\Http\Controllers\Admin\FactorController;
+use App\Http\Controllers\Admin\FinancialPlansTypeController;
+use App\Http\Controllers\Admin\PromissoryController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ShortLinkController;
 use App\Http\Controllers\Admin\site\ArticleController;
 use App\Http\Controllers\Admin\site\BrandController;
 use App\Http\Controllers\Admin\site\CategoryArticleController;
 use App\Http\Controllers\Admin\site\ColorController;
 use App\Http\Controllers\Admin\site\NewsController;
+use App\Http\Controllers\Admin\site\WorkSampleController;
+use App\Http\Controllers\Admin\SMSController;
+use App\Http\Controllers\Admin\SmsTemplateController;
+use App\Http\Controllers\Admin\SuspensionStandardController;
+use App\Http\Controllers\Admin\TotalFactorItemContractSettlementController;
+use App\Http\Controllers\Admin\TotalFactorItemController;
+use App\Http\Controllers\Admin\TotalFactorItemInstallmentController;
+use App\Http\Controllers\Admin\TreasuryController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Models\Center;
+use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -27,11 +53,11 @@ use Illuminate\Support\Facades\Artisan;
 
 //Auth Routes
 Auth::routes();
-Route::get('/pass1word/reset', 'Auth\ResetPasswordController@resetform')->name('reset_pass_form');
-Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('reset_pass');
+Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
+Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name('reset_pass');
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
-Route::post('/fastregister', 'Auth\RegisterController@fastregister');
+Route::post('/fastregister', [RegisterController::class,'fastregister']);
 
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
@@ -39,7 +65,7 @@ Route::post('/fastregister', 'Auth\RegisterController@fastregister');
 //Reset & Command Routes
 Route::group([], function () {
 
-    Route::get('/l/{link}', [\App\Http\Controllers\Admin\ShortLinkController::class,'redirect']);
+    Route::get('/l/{link}', [ShortLinkController::class,'redirect']);
     Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
 
     Route::get('/documentShare', function () {
@@ -71,7 +97,7 @@ Route::group([], function () {
     });
 
     Route::get('/fix-centers', function () {
-      $centers= \App\Models\Center::where('centerable_type',\App\Models\Service::class)->get();
+      $centers= Center::where('centerable_type', Service::class)->get();
         foreach ($centers as $center) {
             $center->services()->sync(array($center->centerable_id));
       }
@@ -130,7 +156,7 @@ Route::group([], function () {
     });
 });
 
-Route::get('/gettingIncomingSms', '\App\Http\Controllers\Admin\SMSController@gettingIncomingSms');
+Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
@@ -142,135 +168,149 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
             'run_query' => 'success'
         ]);
     });
-    Route::post('/create-user' , [\App\Http\Controllers\Admin\UserController::class,'fetchUser'])->name('admin.createUser');
+    Route::post('/create-user' , [UserController::class,'fetchUser'])->name('admin.createUser');
     Route::get('/logs' , [AdminController::class,'showLogs'])->name('admin.showLogs');
-    Route::post('/sms/iran-sms-credit' , [\App\Http\Controllers\Admin\SMSController::class,'fetchSmsCredit']);
+    Route::post('/sms/iran-sms-credit' , [SMSController::class,'fetchSmsCredit']);
     Route::get('/accounting/all' , [AccountingController::class,'index'])->name('accounting.all');
     Route::get('/accounting/filter-cash-debtors' , [AccountingController::class,'filterCashDebtors'])->name('accounting.filter.cashDebtors');
     Route::get('/accounting/filter-credit-debt' , [AccountingController::class,'filterCreditDebt'])->name('accounting.filter.creditDebt');
     Route::get('/accounting/filter-installment-debtors' , [AccountingController::class,'filterInstallmentDebtors'])->name('accounting.filter.installmentDebtors');
     Route::get('/accounting/show/{user}' , [AccountingController::class,'show'])->name('accounting.show');
-    Route::get('/', 'AdminController@dashboard');
+    Route::get('/', [AdminController::class,'dashboard']);
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
-    Route::patch('/settings/update-company-info', [\App\Http\Controllers\Admin\SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
-    Route::post('removeImgWorkSample', 'AdminController@removeImgWorkSample');
-    Route::post('/service/fetch-serviceitem-by-service', 'ServiceController@fetchServiceItemsByServiceId');
-    Route::get('/dailyDesktop', 'AdminController@dailyDesktop');
-    Route::get('/set-link/{slug}', 'AdminController@setLink');
-    Route::get('/filter/{type}', 'AdminController@dashboard');
-    Route::post('/cities' , 'AdminController@cities');
-    Route::post('/fetch-user' , 'AdminController@user');
-    Route::post('/summernote-image' , 'AdminController@summernote_image');
-    Route::post('/uploadImage', 'AdminController@uploadImage');
+    Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+
+    // نمونه کارها
+    Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
+    Route::resource('workSample',WorkSampleController::class)->except(['show','destroy']);
+    Route::post('/admin/work-sample/get-items', [WorkSampleController::class, 'getItemsByType'])
+        ->name('workSample.getItemsByType');
+
+    Route::post('/service/fetch-serviceitem-by-service', [ServiceController::class,'fetchServiceItemsByServiceId']);
+    Route::get('/dailyDesktop', [AdminController::class,'dailyDesktop']);
+    Route::get('/set-link/{slug}', [AdminController::class,'setLink']);
+    Route::get('/filter/{type}', [AdminController::class,'dashboard']);
+    Route::post('/cities' , [AdminController::class,'cities']);
+    Route::post('/fetch-user' , [AdminController::class,'user']);
+    Route::post('/summernote-image' , [AdminController::class,'summernote_image']);
+    Route::post('/uploadImage', [AdminController::class , 'uploadImage']);
     Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
     Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
-    Route::get('/callcenter/suspension', 'CallcenterController@suspension')->name('callcenter.suspension');
-    Route::get('/callcenter/suspension/filter' , 'CallcenterController@filterSuspension');
-    Route::get('/callcenter/paid', 'CallcenterController@paid')->name('callcenter.paid');
-    Route::get('/callcenter/cancellation', 'CallcenterController@cancellation')->name('callcenter.cancellation');
-    Route::get('/callcenter/paid/filter' , 'CallcenterController@filterPaid');
-    Route::get('/callcenter/cancellation/filter' , 'CallcenterController@filterCancellation');
-    Route::get('/callcenter/desktop', 'CallcenterController@desktop')->name('callcenter.desktop');
-    Route::get('/callcenter/desktop/filter', 'CallcenterController@filterDesktop');
-    Route::get('/callcenter/filter' , 'CallcenterController@filter');
-    Route::post('/callcenter/registerForm' , 'CallcenterController@registerForm')->name('callcenter.registerForm');
-    Route::get('/callcenter/fetchUser' , 'CallcenterController@fetchUser');
-    Route::get('/callcenter/deleted' , 'CallcenterController@delete')->name('callcenter.delete');
-    Route::get('/callcenter/restore' , 'CallcenterController@restore')->name('callcenter.restore');
-    Route::post('/fastregister', 'CallcenterController@fastregister')->name('fastregister_callcenter');
-    Route::post('/fastservice', 'CallcenterController@fastservice')->name('fastservice');
-    Route::post('/reason', 'CallcenterController@reason')->name('callcenter.reason');
-    Route::post('/callcenter/change', 'CallcenterController@change')->name('callcenter.change');
-    Route::get('/tasks-requires' , 'CallcenterController@tasks_requires');
-    Route::post('/task-detail' , 'CallcenterController@taskDetail');
-    Route::post('/status-form' , 'CallcenterController@statusForm');
-    Route::post('/service-form' , 'CallcenterController@service_form');
-    Route::post('/service-form-global' , 'CallcenterController@service_form_global');
-    Route::post('/transfer-form' , 'CallcenterController@transfer_form');
-    Route::post('/task-transfer' , 'CallcenterController@task_transfer');
-    Route::post('/callcenter/closeTask' , 'CallcenterController@closeTask');
-    Route::post('/callcenter/followedTask' , 'CallcenterController@followedTask');
-    Route::resource('callcenter', 'CallcenterController');
-    Route::get('short-link/filter', 'ShortLinkController@filter');
-    Route::resource('short-link', 'ShortLinkController');
-    Route::get('/disease/filter' , 'DiseaseController@filter')->name('disease.filter');
-    Route::resource('disease', 'DiseaseController');
-    Route::get('employee-terms', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'index'])->name('employee.terms.index');
-    Route::post('employee-terms-accept', [\App\Http\Controllers\Admin\EmployeeController::class,'acceptTerms'])->name('employee.terms.accept');
-    Route::post('employee-terms-store', [\App\Http\Controllers\Admin\EmployeeTermsController::class,'store'])->name('employee.terms.store');
-    Route::resource('suspensionStandard', 'SuspensionStandardController');
+    Route::get('/callcenter/suspension', [CallcenterController::class, 'suspension'])->name('callcenter.suspension');
+    Route::get('/callcenter/suspension/filter', [CallcenterController::class, 'filterSuspension']);
+    Route::get('/callcenter/paid', [CallcenterController::class, 'paid'])->name('callcenter.paid');
+    Route::get('/callcenter/cancellation', [CallcenterController::class, 'cancellation'])->name('callcenter.cancellation');
+    Route::get('/callcenter/paid/filter', [CallcenterController::class, 'filterPaid']);
+    Route::get('/callcenter/cancellation/filter', [CallcenterController::class, 'filterCancellation']);
+    Route::get('/callcenter/desktop', [CallcenterController::class, 'desktop'])->name('callcenter.desktop');
+    Route::get('/callcenter/desktop/filter', [CallcenterController::class, 'filterDesktop']);
+    Route::get('/callcenter/filter', [CallcenterController::class, 'filter']);
+    Route::post('/callcenter/registerForm', [CallcenterController::class, 'registerForm'])->name('callcenter.registerForm');
+    Route::get('/callcenter/fetchUser', [CallcenterController::class, 'fetchUser']);
+    Route::get('/callcenter/deleted', [CallcenterController::class, 'delete'])->name('callcenter.delete');
+    Route::get('/callcenter/restore', [CallcenterController::class, 'restore'])->name('callcenter.restore');
+    Route::post('/fastregister', [CallcenterController::class, 'fastregister'])->name('fastregister_callcenter');
+    Route::post('/fastservice', [CallcenterController::class, 'fastservice'])->name('fastservice');
+    Route::post('/reason', [CallcenterController::class, 'reason'])->name('callcenter.reason');
+    Route::post('/callcenter/change', [CallcenterController::class, 'change'])->name('callcenter.change');
+    Route::get('/tasks-requires', [CallcenterController::class, 'tasks_requires']);
+    Route::post('/task-detail', [CallcenterController::class, 'taskDetail']);
+    Route::post('/status-form', [CallcenterController::class, 'statusForm']);
+    Route::post('/service-form', [CallcenterController::class, 'service_form']);
+    Route::post('/service-form-global', [CallcenterController::class, 'service_form_global']);
+    Route::post('/transfer-form', [CallcenterController::class, 'transfer_form']);
+    Route::post('/task-transfer', [CallcenterController::class, 'task_transfer']);
+    Route::post('/callcenter/closeTask', [CallcenterController::class, 'closeTask']);
+    Route::post('/callcenter/followedTask', [CallcenterController::class, 'followedTask']);
+    Route::resource('callcenter', CallcenterController::class);
+
+    Route::get('short-link/filter', [ShortLinkController::class, 'filter']);
+    Route::resource('short-link', ShortLinkController::class);
+
+    Route::get('/disease/filter', [DiseaseController::class, 'filter'])->name('disease.filter');
+    Route::resource('disease', DiseaseController::class);
+
+    Route::get('employee-terms', [EmployeeTermsController::class, 'index'])->name('employee.terms.index');
+    Route::post('employee-terms-accept', [EmployeeController::class, 'acceptTerms'])->name('employee.terms.accept');
+    Route::post('employee-terms-store', [EmployeeTermsController::class, 'store'])->name('employee.terms.store');
+
+    Route::resource('suspensionStandard', SuspensionStandardController::class);
     //factor
-    Route::get('/factor/desktop' , 'FactorController@desktop')->name('factor.desktop');
-    Route::get('/system-income' , 'FactorController@systemIncome')->name('system.income');
-    Route::get('/factor-desktop' , 'FactorController@filterDesktop');
-    Route::get('/factorexel', 'FactorController@exel')->name('factor.exel');
-    Route::get('/factorfilter', 'FactorController@filter')->name('factor.filter');
-    Route::post('/factor-comment', 'FactorController@comment')->name('factor.comment');
-    Route::post('/factor-manager' , 'FactorController@factor_manager');
-    Route::post('/factor/sms', 'FactorController@sms')->name('factor.sms');
-    Route::get('/factors' , 'FactorController@filter');
-    Route::get('/factor/deleted' , 'FactorController@deletedList')->name('factor.delete');
-    Route::get('/factor/deleted/filter', 'FactorController@filterDeletedList');
-    Route::post('/factor/restore', 'FactorController@restore');
-    Route::post('/factor/sendMe/{factor}', 'FactorController@sendMe')->name('factor.sendMe');
-    Route::resource('/factor', 'FactorController');
-    Route::resource('/category-permission', 'CategoryPermissionController');
-    Route::post('/factor-update' , 'FactorController@update');
+    Route::get('/factor/desktop', [FactorController::class, 'desktop'])->name('factor.desktop');
+    Route::get('/system-income', [FactorController::class, 'systemIncome'])->name('system.income');
+    Route::get('/factor-desktop', [FactorController::class, 'filterDesktop']);
+    Route::get('/factorexel', [FactorController::class, 'exel'])->name('factor.exel');
+    Route::get('/factorfilter', [FactorController::class, 'filter'])->name('factor.filter');
+    Route::post('/factor-comment', [FactorController::class, 'comment'])->name('factor.comment');
+    Route::post('/factor-manager', [FactorController::class, 'factor_manager']);
+    Route::post('/factor/sms', [FactorController::class, 'sms'])->name('factor.sms');
+    Route::get('/factors', [FactorController::class, 'filter']);
+    Route::get('/factor/deleted', [FactorController::class, 'deletedList'])->name('factor.delete');
+    Route::get('/factor/deleted/filter', [FactorController::class, 'filterDeletedList']);
+    Route::post('/factor/restore', [FactorController::class, 'restore']);
+    Route::post('/factor/sendMe/{factor}', [FactorController::class, 'sendMe'])->name('factor.sendMe');
+    Route::post('/factor-update', [FactorController::class, 'update']);
+
+    Route::resource('/factor', FactorController::class);
+    Route::resource('/category-permission', CategoryPermissionController::class);
     //check
-    Route::get('/check/repair' , 'CheckController@repair');
-    Route::get('/check/filter' , 'CheckController@filter');
-    Route::post('/check/update-status' , 'CheckController@updateStatus');
-    Route::resource('/check', 'CheckController');
-    Route::post('/check/update/{check}', 'CheckController@update')->name('check.update');
+    Route::get('/check/repair', [CheckController::class, 'repair']);
+    Route::get('/check/filter', [CheckController::class, 'filter']);
+    Route::post('/check/update-status', [CheckController::class, 'updateStatus']);
+    Route::post('/check/update/{check}', [CheckController::class, 'update'])->name('check.update');
+    Route::resource('/check', CheckController::class);
     //promissory
-    Route::get('/promissory/repair' , 'PromissoryController@repair');
-    Route::get('/promissory/filter' , 'PromissoryController@filter');
-    Route::post('/promissory/update-status' , 'PromissoryController@updateStatus');
-    Route::resource('/promissory', 'PromissoryController');
-    Route::post('/promissory/update/{promissory}', 'PromissoryController@update')->name('promissory.update');
+    Route::get('/promissory/repair', [PromissoryController::class, 'repair']);
+    Route::get('/promissory/filter', [PromissoryController::class, 'filter']);
+    Route::post('/promissory/update-status', [PromissoryController::class, 'updateStatus']);
+    Route::post('/promissory/update/{promissory}', [PromissoryController::class, 'update'])->name('promissory.update');
+    Route::resource('/promissory', PromissoryController::class);
     //treasury
-    Route::get('/treasury/index' , 'TreasuryController@calendar')->name('treasury.calendar');
-    //sms templates
-    Route::get('/smsTemplate/filter', 'SmsTemplateController@filter');
-    Route::resource('/smsTemplate', 'SmsTemplateController');
+    Route::get('/treasury/index', [TreasuryController::class, 'calendar'])->name('treasury.calendar');
+
+    // SMS templates
+    Route::get('/smsTemplate/filter', [SmsTemplateController::class, 'filter']);
+    Route::resource('/smsTemplate', SmsTemplateController::class);
+
     //total factor item
-    Route::post('/totalFactorItem/suspension', 'TotalFactorItemController@suspension')->name('totalFactorItem.suspension');
-    Route::get('/totalFactorItem/desktop', 'TotalFactorItemController@desktop')->name('totalFactorItem.desktop');
-    Route::get('/totalFactorItem/desktop/filter' , 'TotalFactorItemController@filterDesktop');
-    Route::post('/totalFactorItem/request-contract-settlement', 'TotalFactorItemController@requestContractSettlement')->name('totalFactorItem.requestContractSettlement');
-    Route::post('/totalFactorItem/contract-settlement', 'TotalFactorItemController@contractSettlement')->name('totalFactorItem.contractSettlement');
-    Route::get('/totalFactorItem/{totalFactorItem}/installment', 'TotalFactorItemController@installments');
-    Route::get('/totalFactorItem/checks/{totalFactorItem}', 'TotalFactorItemController@checks')->name('totalFactorItem.checks');
-    Route::get('/totalFactorItem/promissory/{totalFactorItem}', 'TotalFactorItemController@promissories')->name('totalFactorItem.promissories');
-    Route::post('/totalFactorItem/upload-document', 'TotalFactorItemController@uploadDocument')->name('totalFactorItem.uploadDocument');
-    Route::post('/totalFactorItem/save-extra-pay', 'TotalFactorItemController@saveExtraPay')->name('totalFactorItem.saveExtraPay');
-    Route::post('/totalFactorItem/store-impunity', 'TotalFactorItemController@storeImpunity')->name('totalFactorItem.storeImpunity');
-    Route::delete('/totalFactorItem/destroy-impunity/{impunity}', 'TotalFactorItemController@destroyImpunity')->name('totalFactorItem.destroyImpunity');
-    Route::get('/totalFactorItem/reports', 'TotalFactorItemController@reports');
-    Route::get('/totalFactorItem/reports/filter' , 'TotalFactorItemController@filterReport');
-    Route::get('/totalFactorItem/reports/desktop', 'TotalFactorItemController@desktopReports');
-    Route::get('/totalFactorItem/reports/desktop/filter' , 'TotalFactorItemController@filterDesktopReport');
-    Route::get('/totalFactorItem/filter', 'TotalFactorItemController@filter')->name('totalFactorItem.filter');
-    Route::post('/totalFactorItem/sendInitialLink', 'TotalFactorItemController@sendInitialLink')->name('totalFactorItem.sendInitialLink');
-    Route::post('/totalFactorItem/change-status', 'TotalFactorItemController@changeStatus')->name('totalFactorItem.changeStatus');
-    Route::post('/totalFactorItem/change-status-mali', 'TotalFactorItemController@changeStatusMaliFactor');
-    Route::post('/totalFactorItem/payment', 'TotalFactorItemController@payment')->name('totalFactorItem.sendPayment');
-    Route::post('/totalFactorItem/save-installments-paid', 'TotalFactorItemController@saveInstallmentsPaid')->name('totalFactorItem.saveInstallment');
-    Route::post('/totalFactorItem/return-payment', 'TotalFactorItemController@returnPayment')->name('totalFactorItem.returnPayment');
-    Route::get('/totalFactorItem/calculate', 'TotalFactorItemInstallmentController@showCalculate');
-    Route::post('/totalFactorItem/calculate', 'TotalFactorItemController@updateCalculate')->name('totalFactorItem.calculate');
-    Route::post('/totalFactorItem/close', 'TotalFactorItemController@close');
-    Route::resource('totalFactorItem', 'TotalFactorItemController');
-    Route::get('/totalFactorItemInstallment/filter', 'TotalFactorItemInstallmentController@filter')->name('totalFactorItemInstallment.filter');
-    Route::resource('totalFactorItemInstallment', 'TotalFactorItemInstallmentController');
+    Route::post('/totalFactorItem/suspension', [TotalFactorItemController::class, 'suspension'])->name('totalFactorItem.suspension');
+    Route::get('/totalFactorItem/desktop', [TotalFactorItemController::class, 'desktop'])->name('totalFactorItem.desktop');
+    Route::get('/totalFactorItem/desktop/filter', [TotalFactorItemController::class, 'filterDesktop']);
+    Route::post('/totalFactorItem/request-contract-settlement', [TotalFactorItemController::class, 'requestContractSettlement'])->name('totalFactorItem.requestContractSettlement');
+    Route::post('/totalFactorItem/contract-settlement', [TotalFactorItemController::class, 'contractSettlement'])->name('totalFactorItem.contractSettlement');
+    Route::get('/totalFactorItem/{totalFactorItem}/installment', [TotalFactorItemController::class, 'installments']);
+    Route::get('/totalFactorItem/checks/{totalFactorItem}', [TotalFactorItemController::class, 'checks'])->name('totalFactorItem.checks');
+    Route::get('/totalFactorItem/promissory/{totalFactorItem}', [TotalFactorItemController::class, 'promissories'])->name('totalFactorItem.promissories');
+    Route::post('/totalFactorItem/upload-document', [TotalFactorItemController::class, 'uploadDocument'])->name('totalFactorItem.uploadDocument');
+    Route::post('/totalFactorItem/save-extra-pay', [TotalFactorItemController::class, 'saveExtraPay'])->name('totalFactorItem.saveExtraPay');
+    Route::post('/totalFactorItem/store-impunity', [TotalFactorItemController::class, 'storeImpunity'])->name('totalFactorItem.storeImpunity');
+    Route::delete('/totalFactorItem/destroy-impunity/{impunity}', [TotalFactorItemController::class, 'destroyImpunity'])->name('totalFactorItem.destroyImpunity');
+    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports']);
+    Route::get('/totalFactorItem/reports/filter', [TotalFactorItemController::class, 'filterReport']);
+    Route::get('/totalFactorItem/reports/desktop', [TotalFactorItemController::class, 'desktopReports']);
+    Route::get('/totalFactorItem/reports/desktop/filter', [TotalFactorItemController::class, 'filterDesktopReport']);
+    Route::get('/totalFactorItem/filter', [TotalFactorItemController::class, 'filter'])->name('totalFactorItem.filter');
+    Route::post('/totalFactorItem/sendInitialLink', [TotalFactorItemController::class, 'sendInitialLink'])->name('totalFactorItem.sendInitialLink');
+    Route::post('/totalFactorItem/change-status', [TotalFactorItemController::class, 'changeStatus'])->name('totalFactorItem.changeStatus');
+    Route::post('/totalFactorItem/change-status-mali', [TotalFactorItemController::class, 'changeStatusMaliFactor']);
+    Route::post('/totalFactorItem/payment', [TotalFactorItemController::class, 'payment'])->name('totalFactorItem.sendPayment');
+    Route::post('/totalFactorItem/save-installments-paid', [TotalFactorItemController::class, 'saveInstallmentsPaid'])->name('totalFactorItem.saveInstallment');
+    Route::post('/totalFactorItem/return-payment', [TotalFactorItemController::class, 'returnPayment'])->name('totalFactorItem.returnPayment');
+    Route::get('/totalFactorItem/calculate', [TotalFactorItemInstallmentController::class, 'showCalculate']);
+    Route::post('/totalFactorItem/calculate', [TotalFactorItemController::class, 'updateCalculate'])->name('totalFactorItem.calculate');
+    Route::post('/totalFactorItem/close', [TotalFactorItemController::class, 'close']);
+    Route::resource('totalFactorItem', TotalFactorItemController::class);
+    Route::get('/totalFactorItemInstallment/filter', [TotalFactorItemInstallmentController::class, 'filter'])->name('totalFactorItemInstallment.filter');
+    Route::resource('totalFactorItemInstallment', TotalFactorItemInstallmentController::class);
     //total factor item contract settlement
-    Route::post('/totalFactorItemContractSettlement', 'TotalFactorItemContractSettlementController@confirm')->name('totalFactorItemContractSettlement.confirm');
-    //financial plans types
-    Route::post('/financialPlansType/selectByCategory', 'CategoryController@child')->name('category.get.child');
-    Route::post('/financialPlansType/setByPaymentType', 'FinancialPlansTypeController@setFinancialPlansTypeByPaymentType');
-    Route::get('/financialPlansType/filter', 'FinancialPlansTypeController@filter');
+    Route::post('/totalFactorItemContractSettlement', [TotalFactorItemContractSettlementController::class, 'confirm'])->name('totalFactorItemContractSettlement.confirm');
+
+// Financial plans types
+    Route::post('/financialPlansType/selectByCategory', [CategoryController::class, 'child'])->name('category.get.child');
+    Route::post('/financialPlansType/setByPaymentType', [FinancialPlansTypeController::class, 'setFinancialPlansTypeByPaymentType']);
+    Route::get('/financialPlansType/filter', [FinancialPlansTypeController::class, 'filter']);
     // Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
 
     Route::resource('financialPlansType' , 'FinancialPlansTypeController');
@@ -681,6 +721,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
     Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
     Route::resource('groupsms', 'GroupsmsController');
+
+    // Ai
+// AI Settings (باید قبل از {id} باشه)
+    Route::get('/chat-messages/setting', [AiController::class, 'setting'])->name('ai_settings.setting');
+    Route::put('/chat-messages/setting/{id}', [AiController::class, 'updateSetting'])->name('ai_settings.update');
+
+// Chat Messages
+    Route::get('/chat-messages', [AiController::class, 'index'])->name('chat_messages.index');
+    Route::get('/chat-messages/{id}', [AiController::class, 'show'])->name('chat_messages.show');
 
     //safe box
     Route::resource('safeBox', 'SafeBoxController');

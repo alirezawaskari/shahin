@@ -12,7 +12,7 @@ class WorkSample extends Model
     /**
      * @var string[]
      */
-    protected $fillable=['worksampleable_id','worksampleable_type','title','image','status'];
+    protected $fillable=['worksampleable_id','worksampleable_type','title','image','status', 'center_id'];
 
     /**
      * @var string[]
@@ -25,5 +25,9 @@ class WorkSample extends Model
     public function worksampleable()
     {
         return $this->morphTo();
+    }
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
     }
 }
