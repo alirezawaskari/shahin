@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
 use App\Events\factorItemActivation;
-use App\Events\factorItemClosing;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
@@ -25,18 +24,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use phpDocumentor\Reflection\Types\Object_;
-use UxWeb\SweetAlert\SweetAlert;
-use Verta;
 
 class TotalFactorItemController extends Controller
 {
-    protected $sessionService;
-
-    public function __construct(SessionService $sessionService)
-    {
-        $this->sessionService = $sessionService;
-    }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -506,7 +496,7 @@ class TotalFactorItemController extends Controller
                 ]);
                 //create session
                 if ($factor_item->factoritemable->session==1){
-                    $this->sessionService->createSessionPendingMainInvoice($factor_item->id);
+                    Session::createSessionPendingMainInvoice($factor_item->id);
                 }
             }
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);

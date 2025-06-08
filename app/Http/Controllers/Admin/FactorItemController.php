@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
-use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\referralCenterNotification;
 use App\Events\sendlinkFactor;
@@ -13,7 +12,6 @@ use App\Exports\FactorItemsExport;
 use App\Helpers\CalculationHelper;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CheckResource;
 use App\Http\Resources\FactorItemCollection;
 use App\Models\Factor;
 use App\Models\FactorItem;
@@ -30,7 +28,6 @@ use App\Models\TotalFactorItem;
 use App\Models\User;
 use App\Models\UserPerformance;
 use App\Models\WalletTransaction;
-use App\Services\SessionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -41,13 +38,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class FactorItemController extends Controller {
-
-    protected $sessionService;
-
-    public function __construct(SessionService $sessionService)
-    {
-        $this->sessionService = $sessionService;
-    }
     //all factorItems list
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -1428,7 +1418,7 @@ class FactorItemController extends Controller {
             $factor_item->update( [
                'status_factor' => 10,
             ] );
-            $this->sessionService->createSessionPendingMainInvoice($factor_item->id);
+            Session::createSessionPendingMainInvoice($factor_item->id);
             return redirect()->back()->with( [
                 'update' => 'success'
             ] );
