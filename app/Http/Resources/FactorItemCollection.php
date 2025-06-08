@@ -39,7 +39,7 @@ class FactorItemCollection extends ResourceCollection
                     'payment_type' => $item->type,
                     'status' => $item->status_factor,
                     'representation' => $item->representation ? $item->representation->representation->fa_name : 'م تهران',
-                    'status_mali' => $item->status_mali,
+                    'status_administrative' => $item->totalFactorItem ? TotalFactorItem::statusFactor($item->totalFactorItem->total_factor_item_status_id) : 'ثبت نشده',
                     'items' => $this->setItems($item),
                     'per_detail' => $this->setPerDetail(),
                     'per_edit' => $this->setPerEdit(),
