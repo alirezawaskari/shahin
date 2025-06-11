@@ -71,12 +71,13 @@ class History extends Model
     public static function create($task , $callcenter , $reason , $status , $description)
     {
         $task->histories()->create([
-            'user_id' => auth()->user()->id,
+            'user_id' => auth()->user() ? auth()->user()->id : $task->reg_id,
             'callcenter_id' => $callcenter,
             'status' => $status,
             'reason_id' => $reason,
             'description' => $description,
         ]);
+    
         $task->update(['description' => $description]);
     }
 }

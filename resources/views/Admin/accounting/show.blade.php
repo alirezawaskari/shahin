@@ -123,10 +123,10 @@
 
                 @include('Admin.factoritem.layouts.financialInfo')
 
-                @if ($item['type'] == 1)
-                    @include('Admin.factoritem.installment.titles',['expire_installments'=>$item['expire_installments']])
+                @if ($item['type'] == 1 && $item['confirm'] == 1)
+                    @include('Admin.totalfactoritem.installment.titles',['expire_installments'=>$item['expire_installments']])
+                    @include('Admin.totalfactoritem.installment.list',['installments'=>$item['detail']['installments']])
                 @endif
-                @include('Admin.factoritem.installment.list',['installments'=>$item['detail']['installments']])
                 @if($item['service_tariffs']->count()>0)
                     @include('Admin.accounting.layouts.service_tariff',
                         ['center_service_tariffs'=>$item['detail']['center_service_tariffs'] ])

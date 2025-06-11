@@ -250,7 +250,7 @@ class Session extends Model implements AuditableContract
             '2' => 'منتظر تایید',
             '3' => 'در انتظار مشاوره اولیه',
             '4' => 'ویزیت تایید شده',//Currently not developed
-            '5' => 'در انتظار مشاوره اصلی',
+            '5' => 'در انتظار فاکتور اصلی',
             '6' => 'مشاوره شد',
             '7' => 'ویزیت لغو شد',
         ][$status];
@@ -291,5 +291,21 @@ class Session extends Model implements AuditableContract
             $output=true;
         }
         return $output;
+    }
+    /**
+     * @param mixed $factorItem_id
+     * @return mixed
+     */
+    public static function createSessionPendingMainInvoice($factorItem_id)
+    {
+        $session = Session::create([
+            'status' => 5,
+            'user_id' => auth()->user() ? auth()->user()->id : null,
+            'factor_item_id' => $factorItem_id,
+            'date' => now(),
+            'description_before' => 'این پرونده آماده اجرا جهت شروع کار می باشد.',
+        ]);
+
+        return $session;
     }
 }

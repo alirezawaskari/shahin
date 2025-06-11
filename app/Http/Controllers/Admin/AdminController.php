@@ -407,7 +407,6 @@ class AdminController extends Controller
         }
 
         $representation = auth()->user()->admin_representation;
-
         $item['count_contact'] = Contact::where('card_id' , auth()->user()->roles->first()->card_id)->whereStatus(false)->count();
 
         if(auth()->user()->hasPermission('resume-desktop'))

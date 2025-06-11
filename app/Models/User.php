@@ -9,13 +9,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Laratrust\Traits\LaratrustUserTrait;
+use Laratrust\Traits\HasRolesAndPermissions;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-
-class User extends Authenticatable
+use Laratrust\Contracts\LaratrustUser;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+class User extends Authenticatable implements LaratrustUser
 {
-    use LaratrustUserTrait;
+    use HasRolesAndPermissions;
     use Notifiable;
     use SoftDeletes;
 
@@ -194,14 +195,19 @@ class User extends Authenticatable
         return $this->hasMany(FactorItemProduct::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class);
-    }
+//    /**
+//     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+//     */
+//
+//    public function roles()
+//    {
+//        return $this->belongsToMany(Role::class);
+//    }
 
+    public function getMorphClass()
+    {
+        return 'App\User';
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -640,7 +646,14 @@ class User extends Authenticatable
 
         $totalDebts=array();
         foreach ($factorItems as $factorItem){
-            $totalDebts[] =FactorItem::calculateTotalDebt($factorItem);
+            if($factorItem->type)
+            {
+                $totalDebts[] =TotalFactorItem::calculateTotalDebt($factorItem->totalFactorItem);
+            }
+            else
+            {
+                $totalDebts[] =FactorItem::calculateTotalDebt($factorItem);
+            }
         }
         return $totalDebts;
     }

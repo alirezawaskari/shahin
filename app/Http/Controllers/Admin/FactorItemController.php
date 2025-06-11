@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
-use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\referralCenterNotification;
 use App\Events\sendlinkFactor;
@@ -13,7 +12,6 @@ use App\Exports\FactorItemsExport;
 use App\Helpers\CalculationHelper;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CheckResource;
 use App\Http\Resources\FactorItemCollection;
 use App\Models\Factor;
 use App\Models\FactorItem;
@@ -40,7 +38,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class FactorItemController extends Controller {
-
     //all factorItems list
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -1418,6 +1415,10 @@ class FactorItemController extends Controller {
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
         {
+            $factor_item->update( [
+               'status_factor' => 10,
+            ] );
+            Session::createSessionPendingMainInvoice($factor_item->id);
             return redirect()->back()->with( [
                 'update' => 'success'
             ] );

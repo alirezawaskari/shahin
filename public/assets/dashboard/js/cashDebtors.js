@@ -139,37 +139,6 @@ $(document).ready(function () {
                 {
                     "data": data,
                     "render": function (data) {
-                        var prepayment_debt = 0;
-                        $.each(data.total_debts, function (index, value) {
-                            prepayment_debt = prepayment_debt + value.prepayment_debt;
-                        });
-                        return separate(Math.round(prepayment_debt));
-                    }
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        var price_difference_debt = 0;
-                        $.each(data.total_debts, function (index, value) {
-                            price_difference_debt = price_difference_debt + value.price_difference_debt;
-                        });
-                        return separate(Math.round(price_difference_debt));
-                    }
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        var expire_installments_price = 0;
-                        $.each(data.total_debts, function (index, value) {
-                            expire_installments_price = expire_installments_price + value.expire_installments_price;
-                        });
-                        // return separate(debt);
-                        return separate(Math.round(expire_installments_price));
-                    }
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
                         let start_amount = $('#start-amount').val();
                         let end_amount = $('#end-amount').val();
                         var debt = 0;
@@ -185,28 +154,6 @@ $(document).ready(function () {
                         } else {
                             return separate(Math.round(debt));
                         }
-                    }
-                },
-                {
-                    "data": data,
-                    "render": function (data) {
-                        let debt = '';
-                        if (data['debt']['factorItems_prepayment_debt_count'] > 0) {
-                            debt = debt.concat(`<span class="badge badge-danger">
-                                   پیش پرداخت
-                            </span>`)
-                        }
-                        if (data['debt']['factorItems_price_difference_debt_count'] > 0) {
-                            debt = debt.concat(`
-                              <span class="badge badge-primary"> اختلاف حساب</span>`)
-                        }
-                        if (data['debt']['factorItems_installments_debt_count'] > 0) {
-                            debt = debt.concat(`
-                             <span class="badge badge-warning">
-                             اقساط
-                            </span>`)
-                        }
-                        return debt;
                     }
                 },
                 {

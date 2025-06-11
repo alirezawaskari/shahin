@@ -108,10 +108,17 @@ class ServiceTariff extends Model
             });
 
         }
-        if (isset($tariff_id) && trim($tariff_id) != '') {
-
+        if (isset($tariff_id) && trim($tariff_id) != '')
+        {
             $query->whereHas('tariff', function ($query) use ($tariff_id) {
                 $query->where('id', $tariff_id);
+            });
+        }
+        else
+        {
+            $last_tariff_id = request('last_tariff_id');
+            $query->whereHas('tariff', function ($query) use ($last_tariff_id) {
+                $query->where('id', $last_tariff_id);
             });
         }
 

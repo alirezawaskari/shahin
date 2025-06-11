@@ -9,6 +9,7 @@ use App\Models\sms;
 use App\Models\User;
 use App\Events\fastserviceCallcenter;
 use App\Helpers\Helper;
+use App\Models\History;
 use Illuminate\Console\Command;
 
 class Spreadsms extends Command {
@@ -115,6 +116,8 @@ class Spreadsms extends Command {
                             self::answerCancelReceivingSms( $task->sms->sender_number );
                         }
                         $user ? $task->update( [ 'reg_id' => $user->id ] ) : '';
+                        $description = 'متن پیامک : '.$smsitem->body;
+                        History::create($task , $task->user_id , null , $task->status , $description);
 
                         sms::where( 'id', $smsitem->id )->update( [
                             'status' => true
@@ -143,6 +146,8 @@ class Spreadsms extends Command {
                         self::answerCancelReceivingSms( $task->sms->sender_number );
                     }
                     $user ? $task->update( [ 'reg_id' => $user->id ] ) : '';
+                    $description = 'متن پیامک : '.$s->body;
+                    History::create($task , $task->user_id , null , $task->status , $description);
 
                     sms::where( 'id', $s->id )->update( [
                         'status' => true

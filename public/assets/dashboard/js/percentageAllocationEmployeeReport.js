@@ -41,6 +41,7 @@ $(document).ready(function () {
     function createTable(data) {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
+        $("#page_text").append('( جمع کل صفحه : '+data.meta.sum_price+' ریال - جمع کل :'+data.meta.total_price+ ' ریال )');
         if ($.fn.DataTable.isDataTable('#datatable-json')) {
             $('#datatable-json').DataTable().destroy();
         }

@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="col-12 col-md-4 mb-2">
-                        <input type="text" class="form-control" name="serial_code" placeholder="شماره سریال" />
+                        <input type="text" class="form-control" name="serial_code" placeholder="شناسه صیادی چک" />
                     </div>
                     <div class="col-12 col-md-4 mb-2">
                         <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="start_date">
@@ -121,7 +121,7 @@
                     <th scope="col">متقاضی </th>
                     <th scope="col">صادر کننده </th>
                     <th scope="col">در وجه </th>
-                    <th scope="col">شماره سریال </th>
+                    <th scope="col">شناسه صیادی </th>
                     <th scope="col">موضوع </th>
                     <th scope="col">تصاویر</th>
                     <th scope="col">توضیحات </th>

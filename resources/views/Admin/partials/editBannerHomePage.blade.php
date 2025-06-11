@@ -1,7 +1,8 @@
 <div class="col-md-12 col-sm-12 col-xs-12 mb-3 ">
     <h4>عکس های صفحه اصلی *</h4>
     <span>تمامی عکس های صفحه اصلی الزامی هستند.</span><br/>
-    <span>دو عکس افقی و دو عکس عمودی در سایت نمایش داده می شوند.</span><br/>
+    <span>2 عکس افقی و 2 عکس عمودی در pc نمایش داده می شوند.</span><br/>
+    <span>4 عکس افقی در موبایل نمایش داده می شوند.</span><br/>
 </div>
 
 <div class="col-12 col-md-12 mb-5">
@@ -43,7 +44,7 @@
 
 
         @else
-            @for($i=0;$i < 2;$i++)
+            @for($i=0;$i < 4;$i++)
                 <div class="col-md-12">
                     <input type="text" placeholder="عنوان عکس" name="horizontalImages[{{$i}}][file_title]"
                            class="form-control disInline width30"/>
