@@ -36,7 +36,7 @@
                     <select name="type" class="custom-select select2" id="type">
                         <option value="all">انتخاب نوع تسهیم</option>
                         @foreach(\App\Models\PercentageAllocationEmployee::TYPE as $key => $type)
-                        <option value="{{ $key }}">{{ $type }}</option>
+                            <option value="{{ $key }}">{{ $type }}</option>
                         @endforeach
                     </select>
                 </div>
