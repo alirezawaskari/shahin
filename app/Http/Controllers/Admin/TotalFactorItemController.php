@@ -522,7 +522,11 @@ class TotalFactorItemController extends Controller
             ]);
         }
 
-        $total_factor_item->update(['guarantor_checked' => $request->guarantor_checked ,'file_number_mali' => $request->file_number_mali, 'total_factor_item_status_id' => $request->status_factor ? $request->status_factor : $total_factor_item->total_factor_item_status_id]);
+        $total_factor_item->update([
+            'guarantor_checked' => $request->guarantor_checked ? 1 : 0,
+            'file_number_mali' => $request->file_number_mali,
+            'total_factor_item_status_id' => $request->status_factor ?? $total_factor_item->total_factor_item_status_id,
+        ]);
         $user = User::find($request->user_id);
         if ($request->urlimgmeli) {
             Helper::deleteImage($user->imgmeli);
