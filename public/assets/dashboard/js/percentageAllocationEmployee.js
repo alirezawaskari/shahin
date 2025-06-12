@@ -152,50 +152,6 @@ $(document).ready(function () {
             event.preventDefault();
         }
     });
-    //--------------------delete-percentageAllocationEmployee--------------------
-    $("body").on('click', '.percentage_allocation_employee_delete', function () {
-        var id = $(this).data("id");
-        var token = $("meta[name='csrf-token']").attr("content");
-        $('#excel').prop('checked', false);
-        submit();
-
-        function submit(event) {
-            swal({
-                title: "آیا مطمئن هستید؟",
-                text: "",
-                icon: "warning",
-                buttons: {
-                    confirm: 'بله',
-                    cancel: 'خیر'
-                },
-                dangerMode: true
-            }).then(res => {
-                if (res) {
-                    $.ajax({
-                        url: "/dashboard/percentageAllocationEmployee/" + id,
-                        type: 'DELETE',
-                        data: {
-                            "_token": token,
-                        },
-                        success: function (data, page) {
-                            if (data.status == 'success') {
-                                fetchData(page)
-                                swal({
-                                    text: " با موفقیت حذف گردید .",
-                                    icon: "success",
-                                    button: "تایید",
-                                    timer: 3000,
-                                    allowOutsideClick: true
-                                });
-                            } else {
-                                swal("خطا !", data.message, 'error')
-                            }
-                        }
-                    });
-                }
-            });
-        }
-    });
 });
 $(".checkbox_type").change(function () {
     if (this.checked) {
@@ -312,3 +268,103 @@ function selectByService() {
         });
     }
 }
+document.addEventListener('DOMContentLoaded', function () {
+    $(document).on('change', '.percent-input', function () {
+        const input = $(this);
+        const id = input.data('id');
+        const percent = input.val();
+
+        $.ajax({
+            url: '{{ route("percentageAllocationEmployee.update") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: id,
+                percent: percent
+            },
+            success: function (response) {
+                Swal.fire('موفق', response.message, 'success');
+            },
+            error: function (xhr) {
+                Swal.fire('خطا', xhr.responseJSON?.message || 'خطای نامشخص', 'error');
+            }
+        });
+    });
+    //--------------------delete-percentageAllocationEmployee--------------------
+    $("body").on('click', '.percentage_allocation_employee_delete', function () {
+        var id = $(this).data("id");
+        var token = $("meta[name='csrf-token']").attr("content");
+
+        swal({
+            title: "آیا مطمئن هستید؟",
+            icon: "warning",
+            buttons: {
+                confirm: 'بله',
+                cancel: 'خیر'
+            },
+            dangerMode: true
+        }).then(res => {
+            if (res) {
+                $.ajax({
+                    url: "/dashboard/percentageAllocationEmployee/" + id,
+                    type: 'DELETE',
+                    data: {
+                        "_token": token,
+                    },
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            // حذف ردیف از جدول DataTable
+                            var table = $('#datatable-json').DataTable();
+                            // پیدا کردن ردیف با id حذف شده
+                            var row = table.rows().nodes().to$().filter(function() {
+                                return $(this).find('td').eq( /* شماره ستون id یا سلولی که id توش هست */ ).text() == data.id;
+                            });
+
+                            if(row.length){
+                                table.row(row).remove().draw();
+                            }
+
+                            swal({
+                                text: "با موفقیت حذف گردید.",
+                                icon: "success",
+                                button: false,
+                                timer: 2000,
+                            });
+                        } else {
+                            swal("خطا!", data.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        swal("خطا!", "خطایی در ارتباط با سرور رخ داده.", 'error');
+                    }
+                });
+            }
+        });
+    });
+    document.querySelectorAll('button[data-bs-toggle="collapse"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const selector = btn.getAttribute('data-bs-target');
+            const targets = document.querySelectorAll(selector);
+            const icon = btn.querySelector('i');
+
+            let anyIsOpen = false;
+
+            targets.forEach(function (el) {
+                if (el.classList.contains('show')) {
+                    el.classList.remove('show');
+                } else {
+                    el.classList.add('show');
+                    anyIsOpen = true;
+                }
+            });
+
+            if (anyIsOpen) {
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-minus');
+            } else {
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
+            }
+        });
+    });
+});

@@ -336,6 +336,21 @@
     @endforeach
 </div>
 @break
+@case('accept_rules')
+<div class="col-12 col-md-12 mb-3">
+    {!! $form->help !!}
+    <br>
+    @foreach($form->beforeformitems as $beforeformitem)
+    {{ $beforeformitem->title }}
+    @if(isset($factorItem['factor_values'][$form->name]))
+    <input type="{{ $form->type }}" value="{{ $beforeformitem->value }}" {{
+        in_array($beforeformitem->value , $factorItem['factor_values'][$form->name]) ? 'checked' : '' }} disabled>
+    @else
+    <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}">
+    @endif
+    @endforeach
+</div>
+@break
 @case('radio')
 <div class="col-12 col-md-12 mb-3">
     {!! $form->help !!}

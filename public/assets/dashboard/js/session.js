@@ -110,11 +110,11 @@ $(document).ready(function () {
                         {
                             return '<button class="badge badge-danger border-0">'+data+'</button><a h_blank">';
                         }
-                        if(data == "منتظر تایید ناظر")
+                        if(data == "منتظر تایید")
                         {
                             return '<button class="badge badge-danger border-0">'+data+'</button><a h_blank">';
                         }
-                        if(data == "تایید شده")
+                        if(data == "انجام شده")
                         {
                             return '<button class="badge badge-success border-0">'+data+'</button><a h_blank">';
                         }

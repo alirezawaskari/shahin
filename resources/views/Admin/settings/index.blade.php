@@ -33,6 +33,10 @@
                                     <input type="text" name="company_call_phone" class="form-control  "   value="{{$company_info->call}}">
                                 </div>
                                 <div class="col-md-4 form-group">
+                                    <label for="fullName">شماره شبا</label>
+                                    <input type="text" name="company_shaba_number" class="form-control  "   value="{{$company_info->shaba_number}}">
+                                </div>
+                                <div class="col-md-4 form-group">
                                     <label for="fullName">ایمیل</label>
                                     <input type="text" name="company_email" class="form-control  "   value="{{$company_info->email}}">
                                 </div>

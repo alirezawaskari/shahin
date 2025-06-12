@@ -126,4 +126,35 @@ class Employee extends Model
     {
         return $this->belongsTo(self::class, 'parent_id');
     }
+    public function children()
+    {
+        return $this->hasMany(Employee::class, 'parent_id');
+    }
+
+// بارگذاری بازگشتی
+    public function childrenRecursive()
+    {
+        return $this->hasMany(Employee::class, 'parent_id')->with('childrenRecursive');
+    }
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
+    }
+    public function percentageAllocations()
+    {
+        return $this->hasManyThrough(
+            PercentageAllocationEmployee::class,
+            User::class,
+            'id',           // foreign key in User table...
+            'user_id',      // foreign key in PercentageAllocationEmployee table...
+            'user_id',      // local key on Employee table...
+            'id'            // local key on User table...
+        );
+    }
+
 }

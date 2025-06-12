@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Http\Controllers\Admin\FactorController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
+use App\Http\Controllers\Admin\GatewayChooseController;
+use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
@@ -180,6 +182,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+
+    // درگاه انتخابی
+    Route::resource('gatewaysChoose', GatewayChooseController::class);
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
@@ -388,6 +393,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
+    Route::get('/dashboard/percentageAllocationEmployee/tree', [PercentageAllocationEmployeeController::class, 'tree']);
     Route::get('/percentageAllocationEmployee/filter', 'PercentageAllocationEmployeeController@filter')->name('percentageAllocationEmployee.filter');
     Route::get('/percentageAllocationEmployee/report', 'UserPerformanceController@report')->name('percentageAllocationEmployee.report');
     Route::get('/percentageAllocationEmployee/report/filter', 'UserPerformanceController@reportFilter')->name('percentageAllocationEmployee.report.filter');

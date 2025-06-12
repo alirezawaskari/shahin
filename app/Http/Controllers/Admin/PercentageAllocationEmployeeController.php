@@ -15,18 +15,59 @@ class PercentageAllocationEmployeeController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
     */
-    public function index() {
+    public function index(Request $request)
+    {
+        $title = 'فهرست تسهیم';
         $user = auth()->user();
-        if ( $user->isAbleTo( 'percentageAllocationEmployee_all' ) ) {
-            $delete = false;
-            $employees = Employee::whereStatus( true )->get();
-            if ( auth()->user()->isAbleTo( 'percentageAllocationEmployee_delete' ) ) {
-                $delete = true;
-            }
-            return view( 'Admin.percentageAllocationEmployee.all', compact( 'employees', 'delete' ) );
+        abort_unless($user->isAbleTo('percentageAllocationEmployee_all'), 401);
+
+        if ($user->hasRole('admin')) {
+            $employeesQuery = Employee::with(['service', 'center', 'user', 'childrenRecursive.user'])
+                ->whereNull('deleted_at');
+        } else {
+            $employeesQuery = Employee::with(['service', 'center', 'user', 'childrenRecursive.user'])
+                ->whereNull('employees.deleted_at')
+                ->whereHas('percentageAllocations', function ($q) {
+                    $q->whereNull('percentage_allocation_employees.deleted_at');
+                });
         }
 
-        return abort( 401 );
+        if ($request->filled('name')) {
+            $employeesQuery->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->name . '%');
+            });
+        }
+
+        if ($request->filled('type')) {
+            $employeesQuery->whereHas('percentageAllocations', function ($q) use ($request) {
+                $q->where('type', $request->type)->whereNull('deleted_at');
+            });
+        }
+
+        if ($request->filled('startDate')) {
+            $employeesQuery->whereDate('contract_start_date', '>=', $request->startDate);
+        }
+
+        if ($request->filled('endDate')) {
+            $employeesQuery->whereDate('contract_expiration_date', '<=', $request->endDate);
+        }
+
+        $employees = $employeesQuery->get();
+
+        $percentageAllocations = PercentageAllocationEmployee::with('user')
+            ->whereNull('deleted_at')
+            ->whereIn('user_id', $employees->pluck('user_id')->toArray())
+            ->get()
+            ->groupBy('user_id');
+
+        $delete = $user->isAbleTo('percentageAllocationEmployee_delete');
+
+        return view('Admin.percentageAllocationEmployee.all', compact(
+            'employees',
+            'percentageAllocations',
+            'delete',
+            'title'
+        ));
     }
     /**
     * @param Request $request
@@ -57,12 +98,14 @@ class PercentageAllocationEmployeeController extends AdminController {
     }
 
     public function store( Request $request ) {
+
         if ( auth()->user()->isAbleTo( 'percentageAllocationEmployee_create' ) ) {
             $this->validate( request(), [
                 'startDate' => 'required',
                 'endDate' => 'required',
                 'employee' => 'required',
             ] );
+
             if ( $request->register_price && $request->service ) {
 
                 foreach ( $request->service as $item ) {
@@ -131,12 +174,27 @@ class PercentageAllocationEmployeeController extends AdminController {
      */
     public function destroy(PercentageAllocationEmployee $percentageAllocationEmployee)
     {
-        if (auth()->user()->hasPermission('percentageAllocationEmployee_delete'))
-        {
-           $percentageAllocationEmployee->delete();
-            return response(['status'=>'success']);
+        if (!auth()->user()->hasPermission('percentageAllocationEmployee_delete')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'شما مجاز به حذف این مورد نیستید'
+            ], 403);
         }
-            return response(['status'=>'error']);
 
+        $percentageAllocationEmployee->delete();
+
+        $stillExists = PercentageAllocationEmployee::where('user_id', $percentageAllocationEmployee->user_id)
+            ->whereNull('deleted_at')
+            ->exists();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'حذف با موفقیت انجام شد',
+            'id' => $percentageAllocationEmployee->id,
+            'user_id' => $percentageAllocationEmployee->user_id,
+            'still_has_allocations' => $stillExists, // برای کلاینت که بدونه کارمند رو نگه داره یا نه
+        ]);
     }
+
+
 }
