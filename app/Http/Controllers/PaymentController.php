@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\sendlinkFactor;
 use App\Lib\zarinpal;
 use App\Lib\saman;
 use App\Models\Employee;
@@ -21,9 +22,11 @@ class PaymentController extends Controller
         $gateway = 'saman';
         $factor = Factor::findOrFail($request->input('factor_id'));
         $user = $factor->user;
-        // event(new sendlinkFactor($user, $factor, $user->family, 'card'));
-        //  exit('شماره کارت جهت واریز به موبایل شما ارسال گردید' );
-       if ($request->input('payment') == 'online') {
+        if ($request->input('payment') == 'card') {
+            event(new sendlinkFactor($user, $factor, $user->family, 'card'));
+            exit('شماره کارت جهت واریز به موبایل شما ارسال گردید' );
+        }
+        if ($request->input('payment') == 'online') {
            session()->put('resnumber', $factor->resnumber);
            if ($gateway == 'zarinpal'){
             $amount = $factor->price/10;
@@ -59,7 +62,7 @@ class PaymentController extends Controller
                         'status'       => 200
                     ], 200);
                 }
-       } else {
+        } else {
            if ($factor->user->wallet >= $factor->price) {
                $factor->update([
                    'status' => true,
