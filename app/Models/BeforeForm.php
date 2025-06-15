@@ -46,7 +46,6 @@ class BeforeForm extends Model
         'factor_service' => 'فاکتور خدمات',
         'excel' => 'فایل اکسل',
         'image' => 'تصویر',
-        'accept_rules' => 'تیک پذیرش قوانین',
     ];
 
 
