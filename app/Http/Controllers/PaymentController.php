@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Lib\zarinpal;
 use App\Lib\saman;
+use App\Models\Employee;
 use App\Models\Factor;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use nusoap_client;
 
 class PaymentController extends Controller
 {
-    /** 
+    /**
      * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|void
      */
@@ -34,8 +36,7 @@ class PaymentController extends Controller
                 }
                 if ($gateway == 'saman') {
                     $amount = $factor->price;
-                    $gateway = new saman();
-                    $tokenResult = $gateway->token($amount);
+                    $tokenResult = $this->doPayment($amount);
 
                     if (is_array($tokenResult) && isset($tokenResult['errorCode'])) {
                         return response()->json([
@@ -49,6 +50,14 @@ class PaymentController extends Controller
                     }
 
                     return redirect('https://sep.shaparak.ir/OnlinePG/SendToken?token=' . $tokenResult);
+                    return response()->json([
+                        'success'      => true,
+                        'message'      => 'توکن سامان با موفقیت دریافت شد',
+                        'gateway'      => 'saman',
+                        'token'        => $tokenResult,
+                        'redirect_url' => $redirectUrl,
+                        'status'       => 200
+                    ], 200);
                 }
        } else {
            if ($factor->user->wallet >= $factor->price) {
@@ -74,7 +83,48 @@ class PaymentController extends Controller
            }
        }
     }
+    private function calculateIBANShares(float $totalAmount): array
+    {
+        $employees = Employee::where('percent', '>', 0)
+            ->whereNotNull('shaba_number')
+            ->get();
+        $ibanShares = [];
+        $totalShared = 0;
 
+        foreach ($employees as $emp) {
+            $shareAmount = intval($totalAmount * $emp->percent / 100);
+
+            if ($shareAmount > 0) {
+                $ibanShares[] = [
+                    'IBAN'       => $emp->shaba_number,
+                    'Amount'     => $shareAmount,
+                    'PurchaseID' => str_pad($emp->id, 30, '0', STR_PAD_LEFT),
+                ];
+                $totalShared += $shareAmount;
+            }
+        }
+        $mainIBN = Setting::where('key','shaba_number')->firstorfail();
+        $remainingAmount = $totalAmount - $totalShared;
+        if ($remainingAmount > 0) {
+            if ($mainIBN && $mainIBN->value) {
+                $ibanShares[] = [
+                    'IBAN'       => $mainIBN->value,
+                    'Amount'     => $remainingAmount,
+                    'PurchaseID' => str_pad($mainIBN->id, 30, '0', STR_PAD_LEFT),
+                ];
+            }
+        }
+        return $ibanShares;
+    }
+
+    private function doPayment(float $amount)
+    {
+        $ibanShares = $this->calculateIBANShares($amount);
+        $gateway = new Saman();
+        $tokenResult = $gateway->token($amount, $ibanShares);
+
+        return $tokenResult;
+    }
     /**
      * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|string
