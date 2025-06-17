@@ -220,7 +220,7 @@ $(document).ready(function () {
                             return '<button class="badge badge-purple border-0">' + data + '</button><a h_blank">';
                         }
                         if (data == "تعلیق اجرا") {
-                            return '<button class="badge badge-warning border-0">' + data + '</button>';
+                            return '<button class="badge badge-secondary border-0">' + data + '</button>';
                         }
                     }
                 },

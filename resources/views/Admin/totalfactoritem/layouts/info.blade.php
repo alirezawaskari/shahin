@@ -1,7 +1,6 @@
 <div class="row page-header">
     <div class="row col-12 col-md-6">
-        <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
-            پیگیری</span>
+        <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">تعلیق پرونده</span>
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
         @if (in_array(trim($item['status']) , [0,3,4,14]) )
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
@@ -144,7 +143,7 @@
             <div class="modal-body">
                 <ul id="myTab" role="tablist" class="nav nav-tabs">
                     <li class="nav-item"><a id="remember-tab" data-toggle="tab" href="#remember" role="tab"
-                            aria-controls="remember" aria-selected="false" class="nav-link show active">یادآوری</a></li>
+                            aria-controls="remember" aria-selected="false" class="nav-link show active">یادآوری پیگیری</a></li>
                     <li class="nav-item"><a id="SuspensionOfExecution-tab" data-toggle="tab" href="#SuspensionOfExecution" role="tab"
                                             aria-controls="SuspensionOfExecution" aria-selected="false" class="nav-link">تعلیق اجرا</a></li>
                     <li class="nav-item"><a id="detail-tab" data-toggle="tab" href="#detail" role="tab"
@@ -208,28 +207,15 @@
                                         <input type="hidden" name="type" value="execution">
                                         <input type="hidden" name="id" value="{{ $item['id'] }}">
                                         <div class="row">
-                                            <div class="col-12 col-md-6 mb-2">
-                                                <label>تاریخ یادآوری</label>
-                                                <date-picker placeholder="انتخاب تاریخ" format="YYYY/M/D HH:mm"
-                                                    name="date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
-                                                </date-picker>
-                                            </div>
-                                            <div class="col-12 col-md-6 mb-2">
-                                                <label>انتخاب دلیل</label>
-                                                <select class="form-control" name="reason">
-                                                    <option value="1">پاسخ ندادند مجددا تماس گرفته شود.</option>
-                                                    <option value="2">سایر</option>
-                                                </select>
-                                            </div>
                                             <div class="col-12">
                                                 <textarea required class="form-control" name="description" id=""
                                                     cols="30" rows="10"
                                                     placeholder="توضیح خود را بنویسید..."></textarea>
                                             </div>
                                             <div class="col-12">
-                                                <p class="text-danger text-sm"><strong>ملاحظات : </strong> همکار گرامی توجه داشته باشید .
-                                                <br>
-                                                    درصورت تعلیق اجرا پرونده اقساط واموراداری و اجرایی پرونده به حالت تعلیق درمیاد
+                                                <p class="text-danger text-sm"><strong>ملاحظات : </strong>
+                                                    <br>
+                                                    همکار گرامی توجه داشته باشید. درصورت تعلیق اجرا پرونده اقساط واموراداری و اجرایی پرونده به حالت تعلیق درمیاد
                                                 </p>
                                             </div>
                                         </div>
