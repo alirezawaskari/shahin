@@ -474,7 +474,9 @@ class FactorItem extends Model implements AuditableContract
             '16' => 'ارجاع به کارشناسی',
             '17' => 'منتظر مشاوره مرکز',
             '18' => 'منتظر تایید قرارداد توسط کاربر',
-            ][$status_factor];
+            '19' => 'تعلیق اجرا',
+
+        ][$status_factor];
     }
     /**
      * @param mixed $status_factor

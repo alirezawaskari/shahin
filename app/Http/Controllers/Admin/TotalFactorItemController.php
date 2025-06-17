@@ -285,8 +285,8 @@ class TotalFactorItemController extends Controller
      */
     public function filter(Request $request)
     {
-        $total_factor_items = TotalFactorItem::filter()->latest();
 
+        $total_factor_items = TotalFactorItem::filter()->latest();
         if ($request->exel == 'on') {
             return (new FactorItemsExport($total_factor_items))->download('factorItems.xlsx');
         }
@@ -563,28 +563,51 @@ class TotalFactorItemController extends Controller
             'date' => 'required',
             'description' => 'required',
         ]);
+        if($request->type === 'execution'){
+            $total_factor_item = TotalFactorItem::find($request->id);
+            if (!$total_factor_item->confirm) {
+                $total_factor_item->update([
+                    'total_factor_item_status_id' => 19,
+                    'expired_at' => Helper::vertaToMiladi($request->date),
+                ]);
+            }
 
-        $total_factor_item = TotalFactorItem::find($request->id);
-        if (!$total_factor_item->confirm) {
-            $total_factor_item->update([
-                'total_factor_item_status_id' => 3,
-                'expired_at' => Helper::vertaToMiladi($request->date),
+            foreach ($total_factor_item->factorItems as $factor_item) {
+                $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+
+                $fator_item_collections->update([
+                    'status_factor' => 19,
+                    'expired_at' => Helper::vertaToMiladi($request->date),
+                ]);
+            }
+
+            $total_factor_item->factor->comments()->create([
+                'user_id' => auth()->user()->id,
+                'comment' => nl2br($request->description),
+            ]);
+        }
+        elseif($request->type === 'support'){
+            $total_factor_item = TotalFactorItem::find($request->id);
+            if (!$total_factor_item->confirm) {
+                $total_factor_item->update([
+                    'total_factor_item_status_id' => 3,
+                    'expired_at' => Helper::vertaToMiladi($request->date),
+                ]);
+            }
+            foreach ($total_factor_item->factorItems as $factor_item) {
+                $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+
+                $fator_item_collections->update([
+                    'status_factor' => 3,
+                    'expired_at' => Helper::vertaToMiladi($request->date),
+                ]);
+            }
+            $total_factor_item->factor->comments()->create([
+                'user_id' => auth()->user()->id,
+                'comment' => nl2br($request->description),
             ]);
         }
 
-        foreach ($total_factor_item->factorItems as $factor_item) {
-            $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-
-            $fator_item_collections->update([
-                'status_factor' => 3,
-                'expired_at' => Helper::vertaToMiladi($request->date),
-            ]);
-        }
-
-        $total_factor_item->factor->comments()->create([
-            'user_id' => auth()->user()->id,
-            'comment' => nl2br($request->description),
-        ]);
 
         if ($request->reason == 1) {
             event(new smsNotAnswer($total_factor_item->factor->user , auth()->user() , 'پشتیبانی'));

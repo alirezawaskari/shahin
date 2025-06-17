@@ -1,6 +1,5 @@
 @extends('Admin.master')
 @section('title')پرونده {{ $user['family'] }}@endsection
-
 @section('content')
 @include('Admin.totalfactoritem.layouts.info')
 <div class="modal fade" id="linkModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -33,7 +32,6 @@
         </div>
     </div>
 </div>
-
 <div class="row page-header">
     <div class="{{$totalFactorItem->guarantor_checked ? 'col-lg-3' : 'col-lg-4'}} col-md-12">
         <div class="file-box card overflow-hidden">

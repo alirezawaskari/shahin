@@ -219,6 +219,9 @@ $(document).ready(function () {
                         if (data == "منتظر تایید تسویه حساب امورقراردادها") {
                             return '<button class="badge badge-purple border-0">' + data + '</button><a h_blank">';
                         }
+                        if (data == "تعلیق اجرا") {
+                            return '<button class="badge badge-warning border-0">' + data + '</button>';
+                        }
                     }
                 },
                 {

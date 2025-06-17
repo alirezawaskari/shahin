@@ -145,6 +145,8 @@
                 <ul id="myTab" role="tablist" class="nav nav-tabs">
                     <li class="nav-item"><a id="remember-tab" data-toggle="tab" href="#remember" role="tab"
                             aria-controls="remember" aria-selected="false" class="nav-link show active">یادآوری</a></li>
+                    <li class="nav-item"><a id="SuspensionOfExecution-tab" data-toggle="tab" href="#SuspensionOfExecution" role="tab"
+                                            aria-controls="SuspensionOfExecution" aria-selected="false" class="nav-link">تعلیق اجرا</a></li>
                     <li class="nav-item"><a id="detail-tab" data-toggle="tab" href="#detail" role="tab"
                             aria-controls="detail" aria-selected="false" class="nav-link show">جزئیات</a>
                     </li>
@@ -161,6 +163,45 @@
                                     <div class="modal-body">
                                         <input type="hidden" name="type" value="supporter">
                                         <input type="hidden" name="status_factor" value="3">
+                                        <input type="hidden" name="id" value="{{ $item['id'] }}">
+                                        <div class="row">
+                                            <div class="col-12 col-md-6 mb-2">
+                                                <label>تاریخ یادآوری</label>
+                                                <date-picker placeholder="انتخاب تاریخ" format="YYYY/M/D HH:mm"
+                                                    name="date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
+                                                </date-picker>
+                                            </div>
+                                            <div class="col-12 col-md-6 mb-2">
+                                                <label>انتخاب دلیل</label>
+                                                <select class="form-control" name="reason">
+                                                    <option value="1">پاسخ ندادند مجددا تماس گرفته شود.</option>
+                                                    <option value="2">سایر</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <textarea required class="form-control" name="description" id=""
+                                                    cols="30" rows="10"
+                                                    placeholder="توضیح خود را بنویسید..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">ثبت</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="SuspensionOfExecution" role="SuspensionOfExecution" aria-labelledby="SuspensionOfExecution-tab"
+                        class="tab-pane fade p-t-20">
+                        <div class="row">
+                            <div class="col-12"></div>
+                            <div class="col-12">
+                                <form class="form-horizontal" role="form" method="post"
+                                    action="{{ route('totalFactorItem.suspension') }}">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <input type="hidden" name="type" value="execution">
                                         <input type="hidden" name="id" value="{{ $item['id'] }}">
                                         <div class="row">
                                             <div class="col-12 col-md-6 mb-2">
