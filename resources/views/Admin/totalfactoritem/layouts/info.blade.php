@@ -197,8 +197,12 @@
                         <div class="row">
                             <div class="col-12"></div>
                             <div class="col-12">
-                                <form class="form-horizontal" role="form" method="post"
-                                    action="{{ route('totalFactorItem.suspension') }}">
+                                <form
+                                    class="form-horizontal"
+                                    role="form"
+                                    method="post"
+                                    action="{{ route('totalFactorItem.suspension') }}"
+                                >
                                     @csrf
                                     <div class="modal-body">
                                         <input type="hidden" name="type" value="execution">
@@ -221,6 +225,12 @@
                                                 <textarea required class="form-control" name="description" id=""
                                                     cols="30" rows="10"
                                                     placeholder="توضیح خود را بنویسید..."></textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <p class="text-danger text-sm"><strong>ملاحظات : </strong> همکار گرامی توجه داشته باشید .
+                                                <br>
+                                                    درصورت تعلیق اجرا پرونده اقساط واموراداری و اجرایی پرونده به حالت تعلیق درمیاد
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
