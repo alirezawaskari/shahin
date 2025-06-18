@@ -51,6 +51,15 @@ use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Artisan;
 
+
+route::get('test/sms',function (){
+    $params = [
+        '%param1%'  => 'علی اصلانی',
+        '%param2%'  => 'تست',
+        '%param3%'  => 'https://test.com',
+    ];
+    \App\Classes\External\IranSms::sendSingleSms('ticketnotification' ,auth()->user()->phone, $params);
+});
 //Auth Routes
 Auth::routes();
 Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
