@@ -282,6 +282,8 @@
                                     <label>نحوه پرداخت فاکتور</label>
                                     <select class="form-control" name="payment_type" id="payment_type2"
                                         onchange="paymentType(2)">
+                                        <option value="send_card_number">ارسال شماره کارت</option>
+                                        <option value="send_shaba_number">ارسال شماره شبا</option>
                                         <option value="online">آنلاین</option>
                                         @permission('record_payment')
                                         <option value="card_reader">کارتخوان</option>

@@ -39,16 +39,22 @@ class SendLinkSMSNotification {
                 ];
                 IranSms::sendSingleSms('sendlinkfactor',$userMobile,$body);
 
-            } elseif ( $event->type == 'card' ) {
-                $card_number = Setting::first()->card_number;
-                $param3 = ' به شماره کارت : '. $card_number .' به نام سید مصطفی میر حسینی ' ;
+            } elseif ( $event->type == 'send_card_number' ) {
+                $settings = Setting::firstorfail();
+                $param3 = ' به شماره کارت : '. $settings->card_number .' به نام ' . $settings->card_holder;
                 $body = [
-                    'param1' => 'هزینه',
-                    'param2' => number_format( $event->factor->price ),
-                    'param3' => $param3
+                    'param1' => number_format( $event->factor->price ),
+                    'param2' => $param3
                 ];
                 IranSms::sendSingleSms('sendcardnumber',$userMobile,$body);
-
+            } elseif ( $event->type == 'send_shaba_number' ) {
+                $settings = Setting::firstorfail();
+                $param3 = ' به شماره شبا : '. $settings->shaba_number .' به نام ' . $settings->card_holder;
+                $body = [
+                    'param1' => number_format( $event->factor->price ),
+                    'param2' => $param3
+                ];
+                IranSms::sendSingleSms('sendcardnumber',$userMobile,$body);
             }
         }
     }
