@@ -59,9 +59,15 @@ Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name(
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
+Route::get('/campaign/register', [RegisterController::class,'campaignRegister']);
+Route::post('/campaign/register/insert', [RegisterController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
+
+
+Route::post('category/service', [RegisterController::class,'getServiceCategory']);
+
 
 //Reset & Command Routes
 Route::group([], function () {
@@ -774,6 +780,7 @@ Route::get('/mobile/link/{callcenter}', 'HomeController@mobile');
 Route::post('/newsletter', 'HomeController@newsletter')->name('newsletter');
 Route::post('/phone', 'HomeController@phone')->name('phone');
 Route::post('/service/financialPlansType', 'ServiceController@getFinancialPlansType');
+Route::post('/service/item', [\App\Http\Controllers\ServiceController::class,'getServiceItem']);
 Route::get('/services', 'ServiceController@index')->name('services');
 Route::get('/services/{service}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}', 'ServiceController@single');

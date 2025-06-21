@@ -377,6 +377,10 @@ class Callcenter extends Model implements AuditableContract
     {
         return $this->morphedByMany(Service::class, 'callcenterable','callcenterables');
     }
+    public function services_item()
+    {
+        return $this->morphedByMany(ServiceItem::class, 'callcenterable','callcenterables');
+    }
     /**
     * @param \App\Models\User $user
     * @param mixed $description
@@ -404,7 +408,6 @@ class Callcenter extends Model implements AuditableContract
             'status' => 0,
             'description' => $description
         ]);
-
         History::create($task , $task->user_id , null , $task->status , $description);
     }
 }
