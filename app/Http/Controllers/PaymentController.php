@@ -106,7 +106,7 @@ class PaymentController extends Controller
                 $totalShared += $shareAmount;
             }
         }
-        $mainIBN = Setting::where('key','shaba_number')->firstorfail();
+        $mainIBN = Setting::firstorfail()->shaba_number;
         $remainingAmount = $totalAmount - $totalShared;
         if ($remainingAmount > 0) {
             if ($mainIBN && $mainIBN->value) {
