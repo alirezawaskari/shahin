@@ -557,6 +557,11 @@ class FactorItemController extends Controller {
             }
             TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
         } else {
+            if ($supervisor_factor_item->property()->exists()){
+                $supervisor_factor_item->property->update($prepayment);
+            }else{
+                $supervisor_factor_item->property()->create($prepayment);
+            }
             $supervisor_factor_item->update( [
                 'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
             ] );
