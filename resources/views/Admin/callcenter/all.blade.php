@@ -316,7 +316,6 @@
                                             placeholder="توضیح مختصر" name="description"
                                             class="form-control"></textarea>
                                     </div>
-
                                     <div class="col-12 col-md-6 mb-3"><label>انتخاب تاریخ یادآوری</label>
                                         <date-picker placeholder="انتخاب تاریخ" locale="fa,en" format="YYYY-M-D HH:mm"
                                             name="date" type="datetime">
