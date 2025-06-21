@@ -402,7 +402,12 @@
                                                             </button>
                                                             @endif
                                                             @endauth
-
+                                                            {{-- پرداخت کارت به کارت --}}
+                                                            <label
+                                                                class="rounded btn btn-outline-warning text-dark mx-2 d-flex flex-column align-items-center justify-content-center pointer">
+                                                                <input type="radio" name="payment" value="card" id="option3" autocomplete="off">
+                                                                <span class="font-14">پرداخت کارت به کارت</span>
+                                                            </label>
                                                         </div>
                                                         <input id="btn_factor" type="submit"
                                                             value="جهت پرداخت اینجا کلیک کنید"
