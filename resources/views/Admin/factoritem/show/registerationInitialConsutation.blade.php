@@ -32,7 +32,7 @@
                         @endif
                         <div class="success-overly position-absolute mx-3"></div>
                     </div>
-                    @if (in_array(trim($factorItem['status_factor']) , [16,17]) )
+                    @if (in_array(trim($factorItem['status_factor']) , [10,16,17]) )
                     <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت">
                     @else
                     <p class="alert alert-warning">امکان ثبت مشاوره اولیه برای این پرونده وجود ندارد.</p>
@@ -43,7 +43,7 @@
         </div>
     </div>
     <div class="tab-pane fade p-t-20" id="saveTrunRatings" role="tabpanel" aria-labelledby="saveTrunRatings-tab">
-        @if (in_array(trim($factorItem['status_factor']) , [16,17]) )
+        @if (in_array(trim($factorItem['status_factor']) , [10,16,17]) )
         @include('Admin.factoritem.show.turnRatings')
         @endif
     </div>
