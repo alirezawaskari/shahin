@@ -144,6 +144,9 @@
                         <option value="siteAdmin" {{ $user->level == 'siteAdmin' ? 'selected' : '' }}>
                             مدیرسایت
                         </option>
+                        <option value="ghorfeAdmin" {{ $user->level == 'ghorfeAdmin' ? 'selected' : '' }}>
+                             همکار غرفه
+                        </option>
                     </select>
                 </div>
                 @endpermission
@@ -271,7 +274,7 @@
 
                             </div>
                         </div>
-                    
+
                         <div class="col-12 col-md-4">
                             <div class="card">
                                 @if($user->avatar)
