@@ -25,19 +25,19 @@
                                 <div class="form-group position-relative box">
                                     <label for="name" class="position-absolute"><i class="far fa-user"></i></label>
                                     <input id="name" type="text"
-                                           class="border-0 py-2 px-2 w-100 pr-4"
+                                           class="border-0 py-2 px-2 w-100 pr-4 name"
                                            name="name" value="{{ old('name') }}" required autofocus placeholder="نام">
                                 </div>
                                 <div class="form-group position-relative box">
                                     <label for="family" class="position-absolute"><i class="far fa-user"></i></label>
                                     <input id="family" type="text"
-                                           class="border-0 py-2 px-2 w-100 pr-4"
+                                           class="border-0 py-2 px-2 w-100 pr-4 family"
                                            name="family" value="{{ old('family') }}" required autofocus
                                            placeholder="نام خانوادگی">
                                 </div>
                                 <div class="form-group position-relative box">
                                     <label for="gender" class="position-absolute"><i class="fas fa-user"></i></label>
-                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50 gender"
                                             name="gender" id="gender" required>
                                         <option value="" disabled selected>جنسیت</option>
                                         <option value="0">آقا</option>
@@ -91,9 +91,10 @@
                                         @foreach($categories as $category)
                                             <option value="{{ $category->id }}">{{ $category->title }}</option>
                                         @endforeach
+                                        <option value="more">سایر</option>
                                     </select>
                                 </div>
-                                <div class="form-group position-relative box">
+                                <div class="form-group position-relative box service_id">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
                                     <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
                                             name="service_id" id="service_id">
@@ -116,8 +117,14 @@
                                     </select>
                                 </div>
                                 <div class="form-group position-relative box d-none" id="register_description">
-                                    <label>توضیحات خود را وارد کنید</label>
-                                    <textarea class="border-0 py-2 px-2 w-100 pr-4 border-primary text-black-50" name="description"></textarea>
+                                    <label>نیاز خرید خود را وارد کنید</label>
+                                    <textarea
+                                        rows="4"
+                                        cols="33"
+                                        placeholder="مثال : روغن مایع"
+                                        class="p-2 border-primary text-black-500"
+                                        name="description"
+                                    ></textarea>
                                 </div>
                                 <div class="form-group form-button mt-4">
                                     <div class="row my-2">

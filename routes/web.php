@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\TreasuryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\RegisterCampaignController;
 use App\Models\Center;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
@@ -59,14 +60,15 @@ Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name(
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
-Route::get('/campaign/register', [RegisterController::class,'campaignRegister']);
-Route::post('/campaign/register/insert', [RegisterController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
+Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
+Route::get('/campaign/register', [RegisterCampaignController::class,'campaignRegister'])->name('campaign.register');
+Route::post('/campaign/register/insert', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
 
 
-Route::post('category/service', [RegisterController::class,'getServiceCategory']);
+Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
 
 //Reset & Command Routes

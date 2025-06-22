@@ -8,7 +8,9 @@
             <input id="phone_number" type="text"
                    class="border-0 py-2 px-2 w-100 pr-4"
                    name="phone_number" value="{{ old('phone_number') }}" required autofocus
-                   placeholder="شماره موبایل">
+                   placeholder="شماره موبایل"
+                   @auth value="{{ auth()->user()->phone }}" @endauth
+            >
         </div>
         <div class="form-group form-button mt-4">
             <div class="row my-2">

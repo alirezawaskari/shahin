@@ -133,7 +133,8 @@ class CallcenterCollection extends ResourceCollection
         if ($item->categories()->exists() || $item->services()->exists() && !$item->factors()->exists()) {
           $servicesTitle= implode(" - ",  $item->services()->pluck('title')->toArray());
           $categoriesTitle=implode(" - ",  $item->categories()->pluck('title')->toArray());
-          return $servicesTitle.' - '.$categoriesTitle;
+          $servicesItemTitle=implode(" - ",  $item->services_item()->pluck('title')->toArray());
+          return $servicesItemTitle .' - '.$servicesTitle.' - '.$categoriesTitle;
         }
 
         $user = User::wherePhone($phone)->first();

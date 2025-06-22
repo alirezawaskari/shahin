@@ -11,25 +11,22 @@ $(document).ready(function () {
             var formData = form.serialize();
             $.ajax({
                 type: "GET",
-                url: "/register/check-user-is-register",
+                url: "/register/check-exist-user",
                 data: formData,
                 dataType: "json",
                 encode: true,
             }).done(function (data) {
-                var userIsRegistered =data.data.userIsRegistered
-                var phone =data.data.phone
-
-                if (userIsRegistered ==false){
-                    $('#register_box').show();
-                    $('.phone').val(phone);
-                    $('#check_mobile_box').hide();
-                }else{
-                    $('#check_mobile_box').hide();
-                    $('#login_box').show();
-                    $('#pass').val();
-                    $('.phone').val(phone);
+                console.log(data.data);
+                $('#register_box').show();
+                $('#check_mobile_box').hide();
+                if (data.exist == true){
+                    $('.phone').val(data.data.phone);
+                    $('.name').val(data.data.name);
+                    $('.family').val(data.data.family);
+                    $('#gender').val(data.data.gender);
+                    $('#province_id').val(data.data.province_id);
+                    $('#city_id').val(data.data.city_id);
                 }
-
             });
         }
         event.preventDefault();
@@ -55,6 +52,13 @@ $(document).ready(function () {
                             $('#service_id').append('<option value="' + data.service[i]['id'] + '">' + data.service[i]['title'] + '</option>');
                         }
                         $('#service_id').append('<option value="more" class="description_register">سایر</option>');
+                        $('.service_id').removeClass('d-none');
+                        $('.service_item_id').removeClass('d-none');
+                        $('#register_description').addClass('d-none');
+                    }else {
+                        $('.service_item_id').addClass('d-none');
+                        $('.service_id').addClass('d-none');
+                        $('#register_description').removeClass('d-none');
                     }
                 }
             });
