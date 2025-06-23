@@ -10,6 +10,7 @@ use App\Models\Province;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\ServiceItem;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,8 @@ class RegisterCampaignController extends Controller
         $categories = Category::filter()->orderBy('created_at', 'desc')->get();
         $services = Service::filter()->whereStatus(true)->where('isShow', true)->orderBy('created_at', 'desc')->get();
         $service_items = ServiceItem::get();
-        return view('auth.register-campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories'));
+        $content_campaign = Setting::first()->content_campaign;
+        return view('auth.register-campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories','content_campaign'));
     }
     public function campaignRegisterInsert(Request $request)
     {
@@ -57,6 +59,17 @@ class RegisterCampaignController extends Controller
 
     }
 
+    public function getTypeCategory(Request $request)
+    {
+        if ($request->ajax()) {
+            $category = Category::where('parent_id',$request->input('id'))->get();
+            if (empty(!$category))
+                return response()->json(['count' => 'available', 'service' => $category, 'length' => count($category)]);
+            else
+                return response()->json(['count' => 'notavailable']);
+        }
+        abort(404);
+    }
     public function getServiceCategory(Request $request)
     {
         if ($request->ajax()) {

@@ -31,6 +31,7 @@ class SettingController extends AdminController
         alert()->success('','عملیات موفق');
         return redirect()->back();
     }
+
     /**
      * Show the form for creating a new resource.
      *

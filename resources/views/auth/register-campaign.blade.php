@@ -14,7 +14,7 @@
                 <div class="login-box bg-white shadow col-12 rounded-20px py-5 px-md-5 " id="register_box" style="display: none">
                     <div class="row">
                         <div class="col-12 col-md-6 px-md-5 d-flex justify-content-center flex-column">
-                            <h2 class="text-orange bold mb-4 text-black-50">ثبت نام</h2>
+                            {!! $content_campaign !!}
                             @foreach($errors->all() as $error)
                                 <div class="alert alert-danger" role="alert">
                                     {{ $error }}
@@ -86,6 +86,15 @@
                                 <div class="form-group position-relative box">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
                                     <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                            name="type_id" id="type_id" required>
+                                        <option disabled selected>انتخاب نوع خدمات</option>
+                                        <option value="1">محصول</option>
+                                        <option value="2">خدمات</option>
+                                    </select>
+                                </div>
+                                <div class="form-group position-relative box">
+                                    <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50" disabled
                                             name="category_id" id="category_id" required>
                                         <option value="">انتخاب دسته بندی</option>
                                         @foreach($categories as $category)
@@ -96,7 +105,7 @@
                                 </div>
                                 <div class="form-group position-relative box service_id">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
-                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50" disabled
                                             name="service_id" id="service_id">
                                         <option value="">انتخاب نوع خدمت</option>
                                         @foreach($services as $service)
@@ -107,7 +116,7 @@
                                 </div>
                                 <div class="form-group position-relative box service_item_id">
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
-                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
+                                    <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50" disabled
                                             name="service_item_id" id="service_item_id">
                                         <option value="">انتخاب آیتم ها</option>
                                         @foreach($service_items as $service_item)

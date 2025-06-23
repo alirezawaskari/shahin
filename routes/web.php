@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\CallcenterController;
+use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryPermissionController;
 use App\Http\Controllers\Admin\CheckController;
@@ -68,6 +69,7 @@ Route::post('/campaign/register/insert', [RegisterCampaignController::class,'cam
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
 
 
+Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
 
@@ -189,6 +191,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+
+    Route::get('/campaign', [CampaignController::class,'campaign'])->name('campaign.index');
+    Route::patch('/settings/update-content-campaign', [CampaignController::class,'updateContentCampaign'])->name('settings.update.content.campaign');
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
