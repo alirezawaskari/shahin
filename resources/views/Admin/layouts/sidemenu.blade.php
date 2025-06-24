@@ -275,13 +275,12 @@
                 </ul>
             </li>
             @endpermission
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>کمپین</span> </a>
-                <ul>
-                    @permission('center-request|center-request-detail')
-                    <li><a href="{{ route('campaign.index') }}">اطلاعات کمپین</a></li>
-                    @endpermission
-                </ul>
-            </li>
+
+            @permission('campaign')
+            <li><a href="{{ route('campaign.index') }}"><i class="icon ti-control-record"></i> <span>کمپین</span>
+                </a></li>
+            @endpermission
+
             @permission('contact|contact-detail')
             <li><a href="{{ route('contact.index') }}"><i class="icon ti-control-record"></i> <span>تماس با ما</span>
                 </a></li>

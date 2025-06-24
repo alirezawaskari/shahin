@@ -16,7 +16,6 @@ $(document).ready(function () {
                 dataType: "json",
                 encode: true,
             }).done(function (data) {
-                console.log(data.data);
                 $('#register_box').show();
                 $('#check_mobile_box').hide();
                 if (data.exist == true){
