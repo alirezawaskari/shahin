@@ -76,7 +76,7 @@ class RegisterCampaignController extends Controller
             if($request->input('id') === "more")
                 return response()->json(['count' => 'more']);
             $category = Category::find($request->input('id'));
-            $services = $category?->services;
+            $services = Service::filter()->where('category_id', $category->id)->get();
             if (empty(!$services))
                 return response()->json(['count' => 'available', 'service' => $services, 'length' => count($services)]);
             else

@@ -48,6 +48,13 @@ $(document).ready(function () {
                         $('#category_id').removeAttr('disabled');
                         $('#category_id').find('option').remove();
                         $('#category_id').append('<option value="">انتخاب دسته بندی</option>');
+
+                        $('#service_id').find('option').remove();
+                        $('#service_id').append('<option value="">انتخاب نوع خدمت</option>');
+
+                        $('#service_item_id').find('option').remove();
+                        $('#service_item_id').append('<option value="">انتخاب آیتم</option>');
+
                         for (var i = 0; i < data.length; i++) {
                             $('#category_id').append('<option value="' + data.service[i]['id'] + '">' + data.service[i]['title'] + '</option>');
                         }

@@ -88,7 +88,7 @@
                                     <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50"
                                             name="type_id" id="type_id" required>
                                         <option disabled selected>انتخاب نوع خدمات</option>
-                                        <option value="1">محصول</option>
+                                        <option value="1">کالا</option>
                                         <option value="2">خدمات</option>
                                     </select>
                                 </div>
@@ -118,7 +118,7 @@
                                     <label for="phone" class="position-absolute"><i class="fas fa-map-pin"></i></label>
                                     <select class="border-0 py-2 px-2 w-100 pr-4 text-black-50" disabled
                                             name="service_item_id" id="service_item_id">
-                                        <option value="">انتخاب آیتم ها</option>
+                                        <option value="">انتخاب آیتم</option>
                                         @foreach($service_items as $service_item)
                                             <option value="{{ $service_item->id }}">{{ $service_item->title }}</option>
                                         @endforeach
