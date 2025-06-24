@@ -1,6 +1,5 @@
 @extends('Admin.master')
 @section('title')مشاهده درخواست مرکز@endsection
-
 @section('content')
 <div class="card">
     <div class="card-body">
@@ -11,20 +10,29 @@
                     <thead>
                         <tr>
                             <th>آپدیت کننده</th>
+                            <th>پیگیری کننده</th>
                             <th>تاریخ</th>
                             <th>توضیحات</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($comments as $comment)
+                        @forelse($histories as $history)
+
                             <tr>
-                                <td>{{ $comment['user'] }}</td>
+                                <td>{{ $history?->user->name .' '.$history?->user->family }}</td>
                                 <td>
-                                    {{ $comment['date'] }}
+                                    {{ $history?->callcenter?->name .' '.$history?->callcenter?->family }}
                                 </td>
-                                <td>{{ $comment['description'] }}</td>
+                                <td>
+                                    {{ verta( $history->created_at )->format( '%d %B ، %Y - H:i' ) }}
+                                </td>
+                                <td>{{ $history->description }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -35,7 +43,6 @@
     enctype="multipart/form-data">
     @csrf
     @method('PATCH')
-
     @include('Admin.layouts.errors')
     <div class="card">
         <div class="card-body">

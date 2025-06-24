@@ -261,7 +261,6 @@ class CallcenterController extends Controller
         if ($user->isAbleTo('callcenter-detail')) {
             $detail = true;
         }
-
         $user = $task->type == 1 ? User::where('phone' , $task->sms->sender_number)->first() : $task->register;
         $user ? $task->update(['reg_id' => $user->id]) : '';
         $histories = Helper::userHistories($task->register);
