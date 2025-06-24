@@ -31,9 +31,7 @@ class ServiceCallcenterSMSNotification
         $callcenter = $event->callcenter->family;
         $type = $event->type;
         $link = self::createLink($event);
-
         if (isset($userMobile) && $link) {
-
             if (!is_null($event->factor)) {
                 $body = [
                     'param1' => 'services/' . $service . '/' . $event->task->user_id . '/' . $event->task->id . '/' . $event->factor->resnumber,
