@@ -161,7 +161,6 @@
                                         <select class="form-control" name="service_category[]" id="service_category_id1"
                                             onchange="selectByCategory(this.id , this.value)">
                                             <option selected disabled> انتخاب دسته بندی</option>
-
                                             @foreach ($service_categories as $category)
                                             <option value="{{ $category['id'] }}">{{
                                                 $category['label'] }}

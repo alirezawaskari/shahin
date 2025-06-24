@@ -66,9 +66,10 @@ class ServiceCallcenterSMSNotification
 
     private function createLink($event)
     {
+        if($event->service->id == 104)
+            return 'centerRequest/create';
         $link = "";
         $single_web_page = $event->service->singleWebPages->first();
-
         $link = 'services/' . $event->service->slug . '/' . $event->task->user_id . '/' . $event->task->id;
         if (auth()->user() && auth()->user()->admin_representation) {
             $link = '/' . auth()->user()->admin_representation->slug . '/' . $event->service->slug;
@@ -76,7 +77,6 @@ class ServiceCallcenterSMSNotification
         if ($single_web_page) {
             $link = 'singleWebPage/' . $single_web_page->slug . '/' . $event->service->slug;
         }
-
         return $link;
     }
 }
