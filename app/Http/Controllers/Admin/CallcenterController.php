@@ -261,7 +261,6 @@ class CallcenterController extends Controller
         if ($user->isAbleTo('callcenter-detail')) {
             $detail = true;
         }
-
         $user = $task->type == 1 ? User::where('phone' , $task->sms->sender_number)->first() : $task->register;
         $user ? $task->update(['reg_id' => $user->id]) : '';
         $histories = Helper::userHistories($task->register);
@@ -391,8 +390,8 @@ class CallcenterController extends Controller
 
         $payment_type = $request->payment_type != null ? $request->payment_type : 'online';
         if ($client) {
+            $services = $request->service ?: [];
             //sum price factor cash or credit
-            $services = $request->service ? $request->service : [];
             $categories = $request->product_category ? $request->product_category : [];
             $result_sum_price_factors = self::getSumPriceFactorItems($request , $services , $categories);
             if ( $payment_type == 'credit' ) {
@@ -449,7 +448,15 @@ class CallcenterController extends Controller
                     $cash_factor ? Factor::savePayment($cash_factor) : '';
                     $credit_factor ? Factor::savePayment($credit_factor) : '';
                 }
-            }elseif (is_array($services) && count($services)>0){
+            }
+            elseif (is_array($services) && count($services)>0){
+                foreach ($services as $service) {
+                    if($service->id === 104){
+                        return redirect()->back()->with( [
+                            'create' => 'success'
+                        ]);
+                    }
+                }
                 self::sendSmsLinkSite($request , $client , $task,$services);
             }
             Helper::vipUser($request->vip, $client->id);
@@ -1157,6 +1164,18 @@ class CallcenterController extends Controller
      * @param $task
      */
     private function sendSmsLinkSite($request , $client , $task,array $services)
+    {
+        $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
+        //create history
+        $description = "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .";
+        History::create($task , $task->user_id , null , 0 , $description);
+        $services=Service::whereIn('id',$request->service)->get();
+        foreach ($services as $service ){
+            event(new fastserviceCallcenter($client->phone, $service , null ,$task, 'callcenter'));
+        }
+    }
+
+    private function sendSmsLinkCampign($request , $client , $task,array $services)
     {
         $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
         //create history

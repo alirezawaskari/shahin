@@ -195,18 +195,10 @@ class User extends Authenticatable implements LaratrustUser
         return $this->hasMany(FactorItemProduct::class);
     }
 
-//    /**
-//     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-//     */
-//
-//    public function roles()
-//    {
-//        return $this->belongsToMany(Role::class);
-//    }
 
     public function getMorphClass()
     {
-        return 'App\User';
+        return 'App\Models\User';
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

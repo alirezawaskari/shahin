@@ -276,6 +276,12 @@
             </li>
             @endpermission
 
+            @permission('')
+            <li>
+                <a href=""><i class="icon ti-control-record"></i><span></span></a>
+            </li>
+            @endpermission
+
             @permission('contact|contact-detail')
             <li><a href="{{ route('contact.index') }}"><i class="icon ti-control-record"></i> <span>تماس با ما</span>
                 </a></li>
@@ -400,11 +406,16 @@
                                 جدید</span> </a></li>
                 </ul>
             </li>
-            @permission('coupon')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>کد تخفیف</span> </a>
+            @permission('coupon|campaign')
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>کمپین و کد تخفیف</span> </a>
                 <ul>
-                    <li><a href="{{ route('coupon.index') }}">فهرست کد ها</a></li>
-                    <li><a href="{{ route('coupon.create') }}">کد جدید</a></li>
+                    @permission('campaign')
+                        <li><a href="{{ route('campaign.index') }}">اطلاعات کمپین</a></li>
+                    @endpermission
+                    @permission('coupon')
+                        <li><a href="{{ route('coupon.index') }}">فهرست کدتخفیف ها</a></li>
+                        <li><a href="{{ route('coupon.create') }}">کدتخفیف جدید</a></li>
+                    @endpermission
                 </ul>
             </li>
             @endpermission

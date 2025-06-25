@@ -63,6 +63,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         $level = auth()->user()->level;
+
         if ($level == 'admin') {
             return redirect('dashboard/dailyDesktop');
         }

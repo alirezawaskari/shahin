@@ -134,6 +134,7 @@
                                 @endif
                             </div>
                         </li>
+
                         {{-- <li class="nav-item">--}}
                             {{-- <a class="nav-link text-dark " href="/rules">قوانین سایت</a>--}}
                             {{-- </li>--}}
@@ -160,7 +161,9 @@
                         </li>
                         @endif
                         @endforeach
-
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="{{ route('campaign.register') }}">ثبت نام کمپین</a>
+                        </li>
                     </ul>
                     @if(auth()->check())
                     <ul

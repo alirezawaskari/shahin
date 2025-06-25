@@ -18,7 +18,6 @@ function catType(catType) {
 $(document).ready(function () {
    $('#service-type').click();
     fetchData(1);
-
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,
@@ -31,7 +30,6 @@ $(document).ready(function () {
             }
         });
     }
-
     function fetchData(page) {
         document.getElementById('loading').style.display = 'block';
         var form = $('#form');
@@ -47,7 +45,6 @@ $(document).ready(function () {
         });
 
     }
-
     function createTable(data) {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
@@ -113,7 +110,6 @@ $(document).ready(function () {
             });
         }).draw();
     }
-
     /*    click on do filter */
     $("body").on('click', '#filter', function (event) {
         if ($('#exel').prop('checked') == true) {

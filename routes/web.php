@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\CallcenterController;
+use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryPermissionController;
 use App\Http\Controllers\Admin\CheckController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\Admin\TreasuryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\RegisterCampaignController;
 use App\Models\Center;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +55,7 @@ use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Artisan;
 
+
 //Auth Routes
 Auth::routes();
 // Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
@@ -60,9 +63,17 @@ Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name(
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
+Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
+Route::get('/campaign/register', [RegisterCampaignController::class,'campaignRegister'])->name('campaign.register');
+Route::post('/campaign/register/insert', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
+
+
+Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
+Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
+
 
 //Reset & Command Routes
 Route::group([], function () {
@@ -184,6 +195,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+
+    Route::get('/campaign', [CampaignController::class,'campaign'])->name('campaign.index');
+    Route::patch('/settings/update-content-campaign', [CampaignController::class,'updateContentCampaign'])->name('settings.update.content.campaign');
 
     // درگاه انتخابی
     Route::resource('gatewaysChoose', GatewayChooseController::class);
@@ -781,6 +795,7 @@ Route::get('/mobile/link/{callcenter}', 'HomeController@mobile');
 Route::post('/newsletter', 'HomeController@newsletter')->name('newsletter');
 Route::post('/phone', 'HomeController@phone')->name('phone');
 Route::post('/service/financialPlansType', 'ServiceController@getFinancialPlansType');
+Route::post('/service/item', [\App\Http\Controllers\ServiceController::class,'getServiceItem']);
 Route::get('/services', 'ServiceController@index')->name('services');
 Route::get('/services/{service}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}', 'ServiceController@single');

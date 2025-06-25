@@ -391,8 +391,6 @@ class Category extends Model
      */
     public function scopeFilter($query)
     {
-        
-
         return $query;
     }
 }

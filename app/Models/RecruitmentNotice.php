@@ -65,12 +65,11 @@ class RecruitmentNotice extends Model
             $query->where('representation_id', $representation);
         }
 
-
         if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-
+        $query->where('ghorfe_onlinerecruitment_list_id',null);
         return $query;
     }
 

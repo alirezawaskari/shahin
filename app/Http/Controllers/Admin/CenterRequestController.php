@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\CenterRequestExport;
 use App\Helpers\Helper;
+use App\Http\Resources\CallcenterCollection;
 use App\Http\Resources\CenterRequestCollection;
 use App\Models\Callcenter;
 use App\Models\CenterRequest;
+use App\Models\History;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Center;
@@ -108,12 +110,15 @@ class CenterRequestController extends AdminController
      */
     public function edit(CenterRequest $centerRequest)
     {
-        $center_request = $centerRequest;
-        $histories = [];
-        $comments = $center_request->histories ? Helper::historyCollection($histories, $center_request->histories) : [];
-        $galleries = $centerRequest->galleries;
 
-        return view('Admin.centerRequest.edit', compact('galleries', 'comments', 'center_request'));
+        $center_request = $centerRequest;
+        $histories = $center_request->user_id !== null ? History::where('user_id',$center_request->user_id)
+            ->orderBy('created_at', 'desc')
+            ->take(50)
+            ->get()
+            : [];
+        $galleries = $centerRequest->galleries;
+        return view('Admin.centerRequest.edit', compact('galleries', 'histories', 'center_request'));
     }
 
     /**

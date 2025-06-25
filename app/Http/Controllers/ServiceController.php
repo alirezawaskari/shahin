@@ -99,4 +99,19 @@ class ServiceController extends Controller
             }
         }
     }
+    public function getServiceItem(Request $request)
+    {
+        if ($request->ajax()) {
+            if($request->input('id') === "more")
+                return response()->json(['count' => 'more']);
+            $service = Service::find($request->input('id'));
+			$item = $service?->service_items;
+            if (!empty($item))
+                return response()->json(['count' => 'available', 'item' => $item , 'length' => count($item)]);
+            else
+                return response()->json(['count' => 'not available']);
+        }
+        abort(404);
+    }
+
 }

@@ -351,7 +351,7 @@ class FactorItemController extends Controller {
         $factor_item->update( [
             'status_factor' => 3,
             'expired_at' => Helper::vertaToMiladi($request->date),
-        ] );
+        ]);
 
         $factor_item->factor->comments()->create([
             'user_id' => auth()->user()->id,

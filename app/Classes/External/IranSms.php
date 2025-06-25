@@ -2,21 +2,29 @@
 
 namespace App\Classes\External;
 
+use App\Models\SmsTemplate;
+use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class IranSms
 {
+
     /**
-     * @param $phone
      * @param string $template
-     * @param array $params like : ['param1'=>'example','param2'=>'',..]
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @param $phone
+     * @param array $params
+     * @return void
+     * @throws GuzzleException
      */
-    public static function sendSingleSms(string $template, $phone, array $params)
-    {    $headers = [
-        'apikey' => config('services.sms.apikey'),
-        'Content-Type' => 'application/x-www-form-urlencoded'
-    ];
+    public static function sendSingleSms(string $template, $phone, array $params): void
+    {
+        $SmsTemplate = SmsTemplate::where('name',$template)->first()->content;
+        $message = (new SmsServicer())->generateSms($SmsTemplate, $params);
+        $headers = [
+            'apikey' => config('services.sms.apikey'),
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ];
         $client = new Client([
             'headers' => $headers
         ]);
@@ -24,14 +32,13 @@ class IranSms
         $body = [
             'receptor' => config('app.test_status')? config('app.test_true_sms_to'):$phone,
             'type' => 1,
-            'template' => $template,
+            'message' => $message,
         ];
         $body=array_merge($body,$params);
         $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
             'form_params' => $body
         ]);
     }
-
     /**
      * @return string
      * @throws \GuzzleHttp\Exception\GuzzleException
