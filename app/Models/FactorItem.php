@@ -788,7 +788,7 @@ class FactorItem extends Model implements AuditableContract
         $sum_service_tariff_total_price != 0 ? $total_price = $sum_service_tariff_total_price : '';
         //apply financialPlansType discount percent if exist
         $financial_plans_type_discount_price = $factor_item->financialPlansType ? ($factor_item->financialPlansType->discount_percent/100) * $total_price : 0;
-		$total_price = $total_price + $factor_item->supervisor->discount - $financial_plans_type_discount_price;
+		$total_price = $total_price + ($factor_item->supervisor ? $factor_item->supervisor->discount : 0) - $financial_plans_type_discount_price;
 
 		return $total_price;
     }
@@ -964,15 +964,15 @@ class FactorItem extends Model implements AuditableContract
      */
     public static function checkPayment(FactorItem $item)
     {
-        if($item->supervisor->totalFactorItem)
+        if($item->supervisor && $item->supervisor->totalFactorItem)
         {
             $return_payment_price = $item->supervisor->totalFactorItem->factors()->where('status' , 2)->sum('price');
             $paid_price = $item->supervisor->totalFactorItem->factors()->where('status' , 1)->sum('price');
         }
         else
         {
-            $return_payment_price = $item->supervisor->factors()->where('status' , 2)->sum('price');
-            $paid_price = $item->supervisor->factors()->where('status' , 1)->sum('price');
+            $return_payment_price = $item->supervisor ? $item->supervisor->factors()->where('status' , 2)->sum('price') : 0;
+            $paid_price = $item->supervisor ? $item->supervisor->factors()->where('status' , 1)->sum('price') : 0;
         }
 
         $result = $paid_price - $return_payment_price > 0 ? true : false;
