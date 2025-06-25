@@ -9,7 +9,6 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class IranSms
 {
-
     /**
      * @param string $template
      * @param $phone
@@ -17,10 +16,8 @@ class IranSms
      * @return void
      * @throws GuzzleException
      */
-    public static function sendSingleSms(string $template, $phone, array $params): void
+    public static function sendSingleSms(string $message, $phone): void
     {
-        $SmsTemplate = SmsTemplate::where('name',$template)->first()->content;
-        $message = (new SmsServicer())->generateSms($SmsTemplate, $params);
         $headers = [
             'apikey' => config('services.sms.apikey'),
             'Content-Type' => 'application/x-www-form-urlencoded'
@@ -28,13 +25,11 @@ class IranSms
         $client = new Client([
             'headers' => $headers
         ]);
-
         $body = [
             'receptor' => config('app.test_status')? config('app.test_true_sms_to'):$phone,
             'type' => 1,
             'message' => $message,
         ];
-        $body=array_merge($body,$params);
         $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
             'form_params' => $body
         ]);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Classes\External\SendSms;
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
@@ -62,16 +63,15 @@ Route::get('/register/check-user-is-register',[RegisterController::class,'checkU
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
 Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
+//Campaign
 Route::get('/campaign/register', [RegisterCampaignController::class,'campaignRegister'])->name('campaign.register');
 Route::post('/campaign/register/insert', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
-
-//Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
-//Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
-
-
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
+
+//Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
+//Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
 
 //Reset & Command Routes
 Route::group([], function () {
