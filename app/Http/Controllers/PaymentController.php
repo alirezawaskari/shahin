@@ -19,7 +19,7 @@ class PaymentController extends Controller
      */
     public function pay(Request $request)
     {
-        $gateway = 'saman';
+        $gateway = 'zarinpal';
         $factor = Factor::findOrFail($request->input('factor_id'));
         $user = $factor->user;
         if ($request->input('payment') == 'card') {
@@ -141,44 +141,46 @@ class PaymentController extends Controller
     }
     protected function handleZarinpalCallback(Request $request)
     {
-        $authority = $request->get('Authority');
-        $status    = $request->get('Status');
+        $Authority = $request->get('Authority') ;
+        $factor = Factor::where('factorable_type', $Authority)->firstOrFail();
+        if ($request->get('Status') == 'OK') {
+            $client = new nusoap_client(config( 'services.zarinpal.url' ).'/pg/services/WebGate/wsdl', 'wsdl');
+            $client->soap_defencoding = 'UTF-8';
+            //در خط زیر یک درخواست به زرین پال ارسال می کنیم تا از صحت پرداخت کاربر مطمئن شویم
+            $result = $client->call('PaymentVerification', [
+                [
+                    //این مقادیر را به سایت زرین پال برای دریافت تاییدیه نهایی ارسال می کنیم
+                    'MerchantID'     => config( 'services.zarinpal.id' ),
+                    'Authority'      => $Authority,
+                    'Amount'         => $factor->price/10,
+                ],
+            ]);
 
-        $factor = Factor::where('factorable_type', $authority)->firstOrFail();
-
-        if ($status === 'OK') {
-            $client = new nusoap_client(
-                'https://www.zarinpal.com/pg/services/WebGate/wsdl',
-                ['encoding' => 'UTF-8']
-            );
-            $result = $client->call('PaymentVerification', [[
-                'MerchantID' => config('services.zarinpal.id'),
-                'Authority'  => $authority,
-                'Amount'     => $factor->price / 10,
-            ]]);
-
-            if (!empty($result['Status']) && $result['Status'] == 100) {
+            if ($result['Status'] == 100) {
                 $factor->update([
-                    'status'    => true,
-                    'type'      => 'online',
-                    'confirm'   => true,
+                    'status' => true,
+                    'type' => 'online',
+                    'confirm' => true,
                     'refnumber' => $result['RefID'],
                 ]);
+
                 Factor::savePayment($factor);
                 Factor::invoiceRevenueSharing($factor);
+
                 self::sendSMS($factor);
 
                 return redirect(route('checkout', [$factor->resnumber]))->with([
                     'payment' => 'success',
                 ]);
-            }
-
+            } else {
 return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال به سامانه امکانپذیر نمیباشد، نگران نباشید در اسرع وقت این مشکل برطرف میگردد، در صورت عدم اتصال به سایت لطفا با شماره پشتیبانی لاله تماس حاصل نمائید
 ۰۹۳۶۶۳۴۲۱۴۵
 اداره کل فناوری و‌اطلاعات سجا
 شبکه خدمات درمانی و‌رفاهی لاله';
+            }
         }
         return redirect(route('factor', [$factor->resnumber]));
+
     }
     protected function handleSamanCallback(Request $request){
 
@@ -195,7 +197,7 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
         }
 
         $response = \Illuminate\Support\Facades\Http::post('https://sep.shaparak.ir/onlinepg/onlinepg', [
-            'action'      => 'verify',
+            'action'      => 'verify', 
             'TerminalId'  => config('services.saman.id'),
             'Token'       => $token,
         ]);
