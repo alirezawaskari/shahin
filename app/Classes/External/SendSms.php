@@ -12,7 +12,7 @@ class SendSms
         $SmsTemplate = SmsTemplate::where('name',$template)->first()->content;
         $message = (new SmsServicer())->generateSms($SmsTemplate, $params);
         dd($message);
-        $smsService = config('services.sms.name');
+        $smsService = config('services.sms.name','IranSms');
         if ($smsService === 'NeginSms') {
             NeginSms::sendSingleSms($phone, $message,null,service_type:'test');
         } else {
