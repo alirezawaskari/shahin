@@ -27,6 +27,7 @@ class SettingController extends AdminController
            'address'=>$request->company_address,
            'call'=>$request->company_call_phone,
            'email'=>$request->company_email,
+            'shaba_number'=>$request->company_shaba_number
         ]);
         alert()->success('','عملیات موفق');
         return redirect()->back();

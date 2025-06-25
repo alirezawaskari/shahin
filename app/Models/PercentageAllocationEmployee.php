@@ -101,7 +101,7 @@ class PercentageAllocationEmployee extends Model {
                 UserPerformance::setSessionsDone($user_performance , $user_performance_sessions_done);
             }
         }
-        
+
     }
     /**
      * @param mixed $item
@@ -129,5 +129,18 @@ class PercentageAllocationEmployee extends Model {
         }
 
         return false;
+    }
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'user_id');
+    }
+    public function parent()
+    {
+        return $this->belongsTo(PercentageAllocationEmployee::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(PercentageAllocationEmployee::class, 'parent_id');
     }
 }

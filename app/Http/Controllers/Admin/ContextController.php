@@ -45,7 +45,7 @@ class ContextController extends Controller
     {
         $this->generateSettingsKeys();
         $expire_dates=self::fetchExpireDates();
-        $company_info= Setting::select('address','call','email')->first();
+        $company_info= Setting::select('address','call','email','shaba_number')->first();
 
         return view('Admin.settings.index', compact('expire_dates','company_info'));
     }

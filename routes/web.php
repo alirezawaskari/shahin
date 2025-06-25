@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Http\Controllers\Admin\FactorController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
+use App\Http\Controllers\Admin\GatewayChooseController;
+use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
@@ -57,7 +59,7 @@ use Illuminate\Support\Facades\Artisan;
 
 //Auth Routes
 Auth::routes();
-Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
+// Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
 Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name('reset_pass');
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
@@ -78,7 +80,9 @@ Route::group([], function () {
 
     Route::get('/l/{link}', [ShortLinkController::class,'redirect']);
     Route::get('/factor-item/a-transfer', [AccountingController::class,'transfer']);
-
+    Route::get('/contractElectronic', function () {
+        return view('site.layouts.contractElectronic');
+    });
     Route::get('/documentShare', function () {
         return view('site.document');
     });
@@ -194,6 +198,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     Route::get('/campaign', [CampaignController::class,'campaign'])->name('campaign.index');
     Route::patch('/settings/update-content-campaign', [CampaignController::class,'updateContentCampaign'])->name('settings.update.content.campaign');
+
+    // درگاه انتخابی
+    Route::resource('gatewaysChoose', GatewayChooseController::class);
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
@@ -402,6 +409,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
+    Route::get('/dashboard/percentageAllocationEmployee/tree', [PercentageAllocationEmployeeController::class, 'tree']);
     Route::get('/percentageAllocationEmployee/filter', 'PercentageAllocationEmployeeController@filter')->name('percentageAllocationEmployee.filter');
     Route::get('/percentageAllocationEmployee/report', 'UserPerformanceController@report')->name('percentageAllocationEmployee.report');
     Route::get('/percentageAllocationEmployee/report/filter', 'UserPerformanceController@reportFilter')->name('percentageAllocationEmployee.report.filter');
@@ -820,7 +828,8 @@ Route::get('/calculate', 'InstallmentController@showCalculate');
 //Payment
 Route::post('/pay', 'PaymentController@pay')->name('pay');
 Route::post('/payPrepayment', 'PaymentController@payPrepayment')->name('payPrepayment');
-Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
+// Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
+Route::match(['get', 'post'], '/callback', ['PaymentController@callback'])->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee

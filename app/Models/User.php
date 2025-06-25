@@ -768,4 +768,14 @@ class User extends Authenticatable implements LaratrustUser
         }
         return $supporter_users;
     }
+    public function allocatedChildren()
+    {
+        return $this->hasMany(Employee::class, 'parent_id');
+    }
+
+    public function allocatedParent()
+    {
+        return $this->belongsTo(Employee::class, 'parent_id');
+    }
+
 }

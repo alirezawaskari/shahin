@@ -424,6 +424,7 @@
 <script>
     $('body').on('click','#orginal-document-panel',function (){
         job();
+        guarantorChecked();
     })
 </script>
 @endsection

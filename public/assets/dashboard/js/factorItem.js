@@ -425,8 +425,6 @@ $(document).ready(function () {
 //----------------------------------------------------------------------------------------------
 //create table & fetch data table & filter
 $(document).ready(function () {
-
-
     $("body").on('click', '.factor_item_service_tariff_delete', function () {
         var id = $(this).data("id");
         var token = $("meta[name='csrf-token']").attr("content");
@@ -767,10 +765,15 @@ $("body").on('change', 'input[name=type]', function (event) {
 });
 
 //guarantor checked
-$("body").on('click', '.guarantor_checked', function (event) {
+$("body").on('click', '.guarantor_checked', function () {
+    guarantorChecked();
+});
+
+function guarantorChecked()
+{
     if ($('.guarantor_checked').prop('checked') == true) {
         $('.guarantor_info').css('display', 'block');
     } else {
         $('.guarantor_info').css('display', 'none');
     }
-});
+}

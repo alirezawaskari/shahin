@@ -442,8 +442,8 @@ class CallcenterController extends Controller
                 }
 
                 //send sms for online factors
-                if ($payment_type == 'online') {
-                    self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor,$services,$categories);
+                if ($payment_type == 'online' || $payment_type == 'send_card_number' || $payment_type == 'send_shaba_number') {
+                    self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor,$services,$categories,$payment_type);
                 } else {
                     $cash_factor ? Factor::savePayment($cash_factor) : '';
                     $credit_factor ? Factor::savePayment($credit_factor) : '';
@@ -690,7 +690,7 @@ class CallcenterController extends Controller
      */
     private function getStatusFactorByPayType($payment_type)
     {
-        return $payment_type == 'supervisor' || $payment_type == 'online' ? false : true;
+        return $payment_type == 'send_card_number' || $payment_type == 'send_shaba_number' || $payment_type == 'supervisor' || $payment_type == 'online' ? false : true;
     }
 
     /**
@@ -783,7 +783,7 @@ class CallcenterController extends Controller
                 //send a request registeration sms to the user
                 $request->request_type == 'other' ? event(new registerRequestNotification($user)) : '';
         }else{
-            $callcenter=  Callcenter::find($request->other_task_id);
+            $callcenter= Callcenter::find($request->other_task_id);
 
             $callcenter->update([
                 'description' => $request->description,
@@ -1132,15 +1132,14 @@ class CallcenterController extends Controller
      * @param $cash_factor
      * @param $credit_factor
      */
-    private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor,$services,$categories)
+    private function sendSmsFactor($callcenter , $result_factor_items , $cash_factor , $credit_factor,$services,$categories,$payment_type)
     {
-
-         $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
+        $services_title=implode(' _ ',Service::whereIn('id',$services)->get()->pluck('title')->toArray());
 
         if ($result_factor_items['cash_price']) {
             //if created task now send link site
 
-            event(new sendlinkFactor($callcenter->register, $cash_factor, auth()->user()->family ,'online'));
+            event(new sendlinkFactor($callcenter->register, $cash_factor, auth()->user()->family ,$payment_type));
             $callcenter->update([
                 'status' => $callcenter->status == 1 ? 1 : 0,
             ]);
@@ -1149,7 +1148,7 @@ class CallcenterController extends Controller
         if ($result_factor_items['credit_price']) {
             //if created task now send link site
 
-            event(new sendlinkFactor($callcenter->register, $credit_factor, auth()->user()->family, 'online'));
+            event(new sendlinkFactor($callcenter->register, $credit_factor, auth()->user()->family,$payment_type));
             $callcenter->update([
                 'status' => $callcenter->status == 1 ? 1 : 0,
             ]);

@@ -116,21 +116,26 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="https://cdn.donya-e-eqtesad.com/thumbnail/PmoES1h60ZU1/QHn8O9nsSzT8qCU7RegsN6Pbb5v74eEtbKeSOh05Rab9E2s2ofnRJkt7TZyzEhnm/n00168214-b.jpg" alt="">
+                                <img width="100%" src="https://photobag.ir/mihantarh/img/product/2520304_preview.jpg" alt="">
                             </div>
                         </div>
                     </div>
                     <h6 class="text-center">
                         <strong>
-جشنواره عید تا عید لاله فقط تا عید غدیر تسهیلات <span class="alert-danger">بدون سود و ضامن و از دم قسط </span>شامل تمام خدمات لاله
+                            
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
                     <div class="col-12 mb-3">
+                        <a href="/centerRequest/create" class="w-100 btn btn-info">
+                            کمک دهنده
+                        </a>
+                    </div>
+                    <div class="col-12 mb-3">
                         <a href="/services" class="w-100 btn btn-info">
-                            برای مشاهده و دریافت خدمات روی لینک زیر کلیک کنید
+                            کمک گیرنده
                         </a>
                     </div>
                 </div>
