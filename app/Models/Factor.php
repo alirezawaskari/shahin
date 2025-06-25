@@ -52,6 +52,8 @@ class Factor extends Model implements AuditableContract
         'supervisor' => 'دارای سرپرست',
         'in_factor_item' => 'بین پرونده ای',
         'check' => 'چک',
+        'send_card_number' => 'کارت به کارت',
+        'send_shaba_number' => 'واریز به حساب',
     ];
 
     /**
@@ -479,6 +481,20 @@ class Factor extends Model implements AuditableContract
         }
         isset($item->factorItem) ? array_push($temp, $item->factorItem->factoritemable->title) : '';
         array_push($temp, $item::TITLE[$item->title]);
+        return implode(' - ', $temp);
+    }
+    /**
+     * @param Factor $item
+     * @return string
+     * Get the factor items and factor title.
+     * items include services or categories
+     */
+    public static function setServiceItems(Factor $item)
+    {
+        $temp = [];
+        foreach ($item->factorItems as $factor_item) {
+            array_push($temp, $factor_item->factoritemable->title);
+        }
         return implode(' - ', $temp);
     }
     /**

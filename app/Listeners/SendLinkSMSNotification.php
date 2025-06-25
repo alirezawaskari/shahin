@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\sendlinkFactor;
-
+use App\Models\Setting;
 
 class SendLinkSMSNotification {
     /**
@@ -38,7 +38,7 @@ class SendLinkSMSNotification {
                 $body = [
                     'param1' => $factor,
                 ];
-                SendSms::sendSingleSms('sendlinkfactor',$userMobile,$body);
+                IranSms::sendSingleSms('sendlinkfactor',$userMobile,$body);
 
             } elseif ( $event->type == 'card' ) {
                 $param3 = ' به شماره کارت : '.' 8174 6519 0610 5047 '.' به نام سید مصطفی میر حسینی ' ;
@@ -47,7 +47,7 @@ class SendLinkSMSNotification {
                     'param2' => number_format( $event->factor->price ),
                     'param3' => $param3
                 ];
-                SendSms::sendSingleSms('sendcardnumber',$userMobile,$body);
+                IranSms::sendSingleSms('sendcardnumber',$userMobile,$body);
 
             }
         }

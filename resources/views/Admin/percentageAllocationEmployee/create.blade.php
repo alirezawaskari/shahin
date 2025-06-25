@@ -157,6 +157,15 @@
                         oninput="separatePrices(this)">
                 </div>
             </div>
+            <div class="form-group">
+                <label>انتخاب کاربر بالادستی (در صورت وجود)</label>
+                <select name="parent_id" class="form-control">
+                    <option value="">ندارد</option>
+                    @foreach($employees as $emp)
+                        <option value="{{ $emp->id }}">{{ $emp->user->name }} {{ $emp->user->family }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="col-12 col-md-4 mb-3 mt-2">
                 <input value="all_total_price" type="radio" name="total_price" class="checkbox_type"> برداشت از جمع کل
                 فاکتور

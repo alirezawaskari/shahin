@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="col-12 col-md-3 mb-2 mb-md-0">
-                    <select class="form-control" name="user">
+                    <select class="form-control select2" name="user">
                         <option value="all">ارسال کننده</option>
                         @foreach($employees as $employee)
                             <option value="{{$employee->user->id}}">{{ $employee->user->name }} - {{ $employee->user->family }}</option>

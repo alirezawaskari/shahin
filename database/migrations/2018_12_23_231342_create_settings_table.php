@@ -40,6 +40,7 @@ class CreateSettingsTable extends Migration
             $table->text('video')->nullable(true);
             $table->text('agency')->nullable(true);
             $table->text('rules')->nullable(true);
+            $table->text('card_number')->nullable(true);
 
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));

@@ -189,6 +189,21 @@
                                             </select>
                                         </div>
                                         @break
+										@case('checkbox')
+                                        <div class="col-12 col-md-12 mb-3">
+                                            {!! $form->help !!}
+                                            <br>
+                                            @foreach($form->beforeformitems as $beforeformitem)
+                                                {{ $beforeformitem->title }}
+                                                @if(isset($item['factor_values'][$form->name]))
+                                                    <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}" {{
+                                                        in_array($beforeformitem->value , $item['factor_values'][$form->name]) ? 'checked' : '' }}>
+                                                    @else
+                                                    <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}">
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        @break
                                         @case('excel')
                                         <div class="col-12 mb-2">
                                             <a href="{{ asset($form->file) }}" download>

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/persian-datepicker.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/adminCss.css')}}">
     <link rel="stylesheet" href="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.css')}}">
+    <link href="{{asset('assets/dashboard/css/bootstrap.min.css')}}" rel="stylesheet">
     <script src="{{asset('assets/dashboard/js/sweetalert.min.js')}}"></script>
      <!-- begin::favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/dashboard/images/laleh_icon.png') }}">
@@ -43,6 +44,7 @@
 <script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/jquery.twbsPagination.min.js')}}"></script>
 <script src="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.js')}}"></script>
+<script src="{{asset('assets/script/bootstrap.bundle.min.js')}}"></script>
 
 <script>
   ck_uploader=  {
@@ -57,6 +59,7 @@
     });
 </script>
 @yield('js')
+@yield('scripts')
 <footer class="footer">
     <p>کلیه حقوق این نرم افزار  متعلق به شبکه خدمات رفاهی لاله می باشد.</p>
 </footer>

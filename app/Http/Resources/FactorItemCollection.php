@@ -19,7 +19,7 @@ class FactorItemCollection extends ResourceCollection
                 return [
                     'sort_by' => "created_at",
                     'id' => $item->id,
-                    'total_factor_item_id' => $item->supervisor->total_factor_item_id ? $item->supervisor->total_factor_item_id : '',
+                    'total_factor_item_id' => $item->supervisor && $item->supervisor->total_factor_item_id ? $item->supervisor->total_factor_item_id : '',
                     'name' => $item->factor ? $item->factor->user->name. ' ' . $item->factor->user->family: null,
                     'phone' => $item->factor ? $item->factor->user->phone: null,
                     'total_price' => number_format($this->setTotalPrice($item)),
@@ -45,7 +45,7 @@ class FactorItemCollection extends ResourceCollection
                     'per_edit' => $this->setPerEdit(),
                     'per_show' => $this->setPerShow(),
                     'has_payment' => FactorItem::checkPayment($item),
-                    'credit_debt' => number_format($item->supervisor->type ? TotalFactorItem::calculateCredit($item->supervisor->totalFactorItem) : FactorItem::calculateCredit($item->supervisor)),
+                    'credit_debt' => $item->supervisor ? number_format($item->supervisor->type ? TotalFactorItem::calculateCredit($item->supervisor->totalFactorItem) : FactorItem::calculateCredit($item->supervisor)) : '',
                 ];
             }),
 			'meta' =>  [
@@ -89,7 +89,7 @@ class FactorItemCollection extends ResourceCollection
         $total_price = $item->total_price ? number_format($this->setTotalPrice($item)) . 'ریال' : 'ندارد';
         if($has_supervisor)
         {
-            $supervisor = $item->supervisor->factor->user->name.' '.$item->supervisor->factor->user->family;
+            $supervisor = $item->supervisor ? $item->supervisor->factor->user->name.' '.$item->supervisor->factor->user->family : '';
             if ($item->type == '1') {
                 $temp = ' اقساط - دارای سرپرست - '.$supervisor.' - '.$total_price;
             } elseif ($item->type == '0') {
@@ -151,4 +151,3 @@ class FactorItemCollection extends ResourceCollection
         return $total_price;
     }
 }
-
