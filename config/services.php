@@ -45,6 +45,7 @@ return [
     ],
 
     'sms' => [
+        'name' => 'NeginSms',
         'apikey' => 'cpCIuUbmtBhYFw41+kpYs0mSNw+mkN4aZBELwgUMN+A',
         'linenumber' => '10002622'
     ],
