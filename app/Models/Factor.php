@@ -485,6 +485,20 @@ class Factor extends Model implements AuditableContract
     }
     /**
      * @param Factor $item
+     * @return string
+     * Get the factor items and factor title.
+     * items include services or categories
+     */
+    public static function setServiceItems(Factor $item)
+    {
+        $temp = [];
+        foreach ($item->factorItems as $factor_item) {
+            array_push($temp, $factor_item->factoritemable->title);
+        }
+        return implode(' - ', $temp);
+    }
+    /**
+     * @param Factor $item
      * @return void
      * save of representation income from payment of the registration factor
      */

@@ -53,11 +53,13 @@ class Factorsms extends Command
         $final_factors = Factor::whereDate('expired_at' , Carbon::now()->toDateString())->where('remember' , 0)->where('status' , '!=' , '1')->where('title' , '!=' , 'installment')->take(10)->get();
         if (count($final_factors) > 0){
             foreach ($final_factors as $factor) {
+                    $items = Factor::setServiceItems($factor);
                     $body = [
                         'receptor' => $factor->user->phone,
                         'type' => 1,
                         'template' => 'finalrememberfactor',
                         'param1' => 'lalecard.ir/pf/'.$factor->resnumber,
+                        'param2' => $items,
                     ];
                     $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
                         'form_params' => $body
