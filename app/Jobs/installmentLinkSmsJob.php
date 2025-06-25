@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Models\SmsLinkFactorLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,14 +43,12 @@ class installmentLinkSmsJob implements ShouldQueue {
             $log->type = 1;
             $log->title = 'installmentSms';
             $log->save();
-
-
             $body = [
                 'param1' => $this->detail[ 'param1' ],
                 'param2' => $this->detail[ 'param2' ],
                 'param3' => config( 'app.url' ).'/pf/' . $this->detail[ 'resnumber' ],
             ];
-            IranSms::sendSingleSms($this->detail[ 'template' ],$this->detail[ 'receptor' ],$body);
+            SendSms::sendSingleSms($this->detail[ 'template' ],$this->detail[ 'receptor' ],$body);
         }
     }
 

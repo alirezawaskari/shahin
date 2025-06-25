@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\factorItemActivation;
 
 class FactorItemActivationSMSNotificaion
@@ -32,7 +33,7 @@ class FactorItemActivationSMSNotificaion
 
         if (isset($userMobile)) {
             $name = $event->user->name .' '. $event->user->family;
-            IranSms::sendSingleSms('factoritemactivation',$userMobile,array('param1' => $name, 'param2' => $center));
+            SendSms::sendSingleSms('factoritemactivation',$userMobile,array('param1' => $name, 'param2' => $center));
 
         }
     }

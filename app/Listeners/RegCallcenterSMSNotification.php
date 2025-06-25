@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\fastregisterCallcenter;
 
 
@@ -34,7 +35,7 @@ class RegCallcenterSMSNotification
                 'param1' => $userMobile,
                 'param2' => $pass,
             ];
-            IranSms::sendSingleSms('callcenterfastregister',$userMobile,$body);
+            SendSms::sendSingleSms('callcenterfastregister',$userMobile,$body);
 
         }
     }

@@ -162,7 +162,7 @@
                         @endif
                         @endforeach
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="{{ route('campaign.register') }}">ثبت نام کمپین</a>
+                            <a class="nav-link text-dark" href="{{ route('campaign.register') }}">ثبت نام پویش</a>
                         </li>
                     </ul>
                     @if(auth()->check())

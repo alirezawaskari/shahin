@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Classes\External\SendSms;
 use App\Models\BeforeFormItem;
 use App\Models\Center;
 use App\Models\ContractForm;
@@ -78,7 +79,7 @@ class RunQuery extends Command
                     'param1' => $factor_item->factor->user->name . ' ' . $factor_item->factor->user->family,
                     'param2' => 'درخواست تسهیلات خرید کالا یا خدمات اقساطی ',
                 ];
-                IranSms::sendSingleSms('factoritemClosing', $phones, $body);
+                SendSms::sendSingleSms('factoritemClosing', $phones, $body);
 
                 $factor_item->update(['status_factor' => 15]);
                 $factor_item->totalFactoItem ? $factor_item->totalFactoItem->update(['total_factor_item_status_id' => 15]) : '';

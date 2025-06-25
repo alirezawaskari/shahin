@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\smsServiceSession;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -28,7 +29,7 @@ class smsServiceSessionNotification
             'param2' => $date,
         ];
 
-        IranSms::sendSingleSms('dateservicesession',$userMobile,$body);
+        SendSms::sendSingleSms('dateservicesession',$userMobile,$body);
 
     }
 }

@@ -1,35 +1,4 @@
 $(document).ready(function () {
-    $('#pass').val('');
-    var regexname= /^09[0-9][0-9]{8}$/;
-    $("#check_register").submit(function (event) {
-        var phone = $('#phone_number').val()
-        phone = fixNumbers(phone);
-        if (!phone.match(regexname)) {
-            alert('لطفا شماره موبایل را درست وارد نمایید !');
-        }else{
-            var form = $(this);
-            var formData = form.serialize();
-            $.ajax({
-                type: "GET",
-                url: "/register/check-exist-user",
-                data: formData,
-                dataType: "json",
-                encode: true,
-            }).done(function (data) {
-                $('#register_box').show();
-                $('#check_mobile_box').hide();
-                if (data.exist == true){
-                    $('.phone').val(data.data.phone);
-                    $('.name').val(data.data.name);
-                    $('.family').val(data.data.family);
-                    $('#gender').val(data.data.gender);
-                    $('#province_id').val(data.data.province_id);
-                    $('#city_id').val(data.data.city_id);
-                }
-            });
-        }
-        event.preventDefault();
-    });
     $('#type_id').on('change', function () {
         var id = $(this).val();
         if (id == 0) {

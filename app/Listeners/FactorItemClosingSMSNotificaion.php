@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\factorItemClosing;
 
 class FactorItemClosingSMSNotificaion
@@ -15,7 +16,7 @@ class FactorItemClosingSMSNotificaion
     public function __construct()
     {
         //
-    }   
+    }
 
     /**
      * Handle the event.
@@ -34,7 +35,7 @@ class FactorItemClosingSMSNotificaion
                 'param1' => $user,
                 'param2' => $factor_item_able,
             ];
-            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
+            SendSms::sendSingleSms('factoritemClosing',$userMobile,$body);
         }
     }
 }

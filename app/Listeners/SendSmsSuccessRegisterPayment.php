@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\smsNotAnswer;
 use App\Events\smsSuccessRegisterPayment;
 use App\Models\Factor;
@@ -37,7 +38,7 @@ class SendSmsSuccessRegisterPayment
                 'param2' => 'حسینی',
                 'param3' => '09366342145',
             ];
-            IranSms::sendSingleSms('sendsmssuccessregisterpayment',$userMobile,$body);
+            SendSms::sendSingleSms('sendsmssuccessregisterpayment',$userMobile,$body);
 
         }
     }

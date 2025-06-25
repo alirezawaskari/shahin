@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\smsNotAnswer;
 use App\Events\smsSuccessRegisterPayment;
 
@@ -36,7 +37,7 @@ class SendSmsCheckReminder
                 'param2' => number_format($check->amount),
 
             ];
-            IranSms::sendSingleSms('checkremindersms',$user_mobile,$body);
+            SendSms::sendSingleSms('checkremindersms',$user_mobile,$body);
 
         }
     }

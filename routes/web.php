@@ -55,6 +55,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
 
+
 //Auth Routes
 Auth::routes();
 Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
@@ -69,7 +70,13 @@ Route::post('/campaign/register/insert', [RegisterCampaignController::class,'cam
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
-
+Route::get('test/sms',function (){
+    $body = [
+        'param1' => 'ali',
+        'param2' => '123135131'
+    ];
+    SendSms::sendSingleSms('fastregister','09227659746',$body);
+});
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
 
@@ -193,7 +200,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
 
     Route::get('/campaign', [CampaignController::class,'campaign'])->name('campaign.index');
-    Route::patch('/settings/update-content-campaign', [CampaignController::class,'updateContentCampaign'])->name('settings.update.content.campaign');
+    Route::patch('/update/campaign', [CampaignController::class,'updateCampaign'])->name('update.campaign');
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
