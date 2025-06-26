@@ -197,8 +197,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
 
-    Route::get('/campaign', [CampaignController::class,'campaign'])->name('campaign.index');
-    Route::patch('/update/campaign', [CampaignController::class,'updateCampaign'])->name('update.campaign');
+    Route::resource('/campaign', CampaignController::class);
+    Route::post('/campaign/company', [CampaignController::class,'createCompany'])->name('campaign.create.company');
 
     // درگاه انتخابی
     Route::resource('gatewaysChoose', GatewayChooseController::class);
