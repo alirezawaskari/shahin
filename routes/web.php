@@ -71,7 +71,6 @@ Route::post('/campaign/register/insert', [RegisterCampaignController::class,'cam
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
-
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
 
@@ -813,6 +812,7 @@ Route::get('/partner', 'PartnerController@partner');
 Route::get('/agency', 'AgencyController@index')->name('agency');
 Route::post('/agency', 'AgencyController@store');
 Route::get('/centerRequest/create', 'CenterRequestController@create');
+Route::get('/centerCampaign', 'CenterRequestController@centerCampaign');
 Route::post('/centerRequest/store', 'CenterRequestController@store');
 Route::get('/agencies', 'AgencyController@index')->name('agencies');
 Route::get('/articles', 'ArticleController@articles');

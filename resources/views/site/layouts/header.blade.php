@@ -161,9 +161,19 @@
                         </li>
                         @endif
                         @endforeach
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="{{ route('campaign.register') }}">ثبت نام کمپین</a>
-                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle  " href="#" id="navbarDropdownMenuLink"
+                                role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                پویش ها
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right text-right mt-3"
+                                aria-labelledby="navbarDropdownMenuLink">
+                                <a class="dropdown-item text-orange py-2"
+                                    href="{{ url('/centerCampaign') }}">پویش 360</a>
+                                <a class="dropdown-item text-orange py-2"
+                                    href="{{ route('campaign.register') }}">پویش اتحاد</a>
+                            </div>
+                        </li> 
                     </ul>
                     @if(auth()->check())
                     <ul

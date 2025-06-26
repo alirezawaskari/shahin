@@ -27,6 +27,15 @@ class CenterRequestController extends Controller
         $services = CenterCategory::where('type' , 'service')->get();
         return view('site.centerRequest', compact('categories', 'services'));
     }
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function centerCampaign()
+    {
+        $categories = CenterCategory::where('type' , 'category')->get();
+        $services = CenterCategory::where('type' , 'service')->get();
+        return view('site.centerCampaign', compact('categories', 'services'));
+    }
 
     /**
      * @param Request $request
