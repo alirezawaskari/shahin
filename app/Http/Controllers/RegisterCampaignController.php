@@ -56,6 +56,8 @@ class RegisterCampaignController extends Controller
                 $task->services_item()->attach(array($request->service_item_id));
             }
             $Campaign = Campaign::findOrFail($campaign_id);
+            $Campaign->usage = $Campaign->usage - 1;
+            $Campaign->update();
             $description =  "برای کمپین : $Campaign->name";
             History::create($task , $task->user_id , null , $task->status , $description);
         }
