@@ -14,6 +14,7 @@ class Campaign extends Model
         'subject',
         'keyword',
         'capacity',
+        'usage',
         'content',
         'image',
         'image_header',

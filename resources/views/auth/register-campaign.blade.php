@@ -1,20 +1,28 @@
 @extends('site.master')
 
+@section('title'){{$campaign->name}}@endsection
 @section('content')
     <div class="login">
         <div class="login-section bg-gray py-5">
             <div class="container">
                 <div class="login-box bg-white shadow col-12 rounded-20px py-5 px-md-5 " id="register_box">
                     <div class="row">
-                        <div class="col-12 px-md-5 d-flex justify-content-center align-items-center flex-column">
-                            {!! $content_campaign !!}
+                        <div class="col-12 px-md-5 d-flex flex-column">
+                            <h2 class="mb-3">{{$campaign->subject}}</h2>
+                            <img
+                                src="{{ asset($campaign->image) }}"
+                                alt="{{ $campaign->subject }}"
+                                class="img-fluid w-100 mb-3"
+                            />
+                            {!! $campaign->content !!}
                             @foreach($errors->all() as $error)
                                 <div class="alert alert-danger" role="alert">
                                     {{ $error }}
                                 </div>
                             @endforeach
+
                             <form id="user_register_form" class="mt-3" method="POST"
-                                  action="{{ route('campaign.register.insert') }}">
+                                  action="{{ route('campaign.register.insert',['id' => $campaign->id]) }}">
                                 @csrf
                                 <div class="form-group position-relative box">
                                     <label for="name" class="position-absolute"><i class="far fa-user"></i></label>
@@ -143,25 +151,57 @@
                                         <option value="more">سایر</option>
                                     </select>
                                 </div>
-                                <div class="form-group position-relative box d-none" id="register_description">
-                                    <label>نیاز خرید خود را وارد کنید</label>
+                                <div class="form-group position-relative d-none" id="register_description">
+                                    <label for="description" class="form-label fw-bold mb-2">نیاز خرید خود را وارد کنید</label>
                                     <textarea
-                                        rows="4"
-                                        cols="33"
-                                        placeholder="مثال : روغن مایع"
-                                        class="p-2 border-primary text-black-500"
+                                        id="description"
                                         name="description"
+                                        rows="4"
+                                        class="form-control border-primary text-black-50"
+                                        placeholder="مثال: روغن مایع"
                                     ></textarea>
                                 </div>
+
                                 <div class="form-group form-button mt-4">
                                     <div class="row my-2">
-                                        <div class="col-12 col-md-6 mb-1">
-                                            <input class="btn btn-orange text-white font-16 px-4  w-100" type="submit"
-                                                   value="ثبت"/>
+                                        <div class="col-12 mb-1 d-flex justify-content-center">
+                                            <input
+                                                class="btn btn-orange text-white font-16 px-4 col-6 col-md-3"
+                                                type="submit"
+                                                value="ثبت"
+                                            />
                                         </div>
+
                                     </div>
                                 </div>
                             </form>
+                            <div class="col-12  mx-auto">
+                                <h3 class="text-center mb-4">مشارکت‌کنندگان این کمپین</h3>
+                                <div class="row justify-content-center">
+                                    @foreach($campaign->campaign_collaboration as $campaign_collaboration)
+                                        <div class="col-12 col-md-6 mb-4 d-flex justify-content-center">
+                                            <div class="card shadow-sm h-100 w-100 text-center">
+                                                <div class="card-body">
+                                                    <a
+                                                        class="text-black-50"
+                                                        href="{{$campaign_collaboration->url}}"
+                                                    >
+                                                    <h4 class="card-title mb-3">{{ $campaign_collaboration->name }}</h4>
+                                                    <img
+                                                        src="{{ asset($campaign_collaboration->logo) }}"
+                                                        alt="{{ $campaign_collaboration->name }}"
+                                                        class="img-fluid mb-3"
+                                                        style="max-height: 150px; object-fit: contain;"
+                                                    >
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
                         </div>
                     </div>
                 </div>

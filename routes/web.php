@@ -67,8 +67,8 @@ Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm']
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
 Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
 //Campaign
-Route::get('/campaign/register', [RegisterCampaignController::class,'campaignRegister'])->name('campaign.register');
-Route::post('/campaign/register/insert', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
+Route::get('/campaign/{id:int}', [RegisterCampaignController::class,'campaignRegister'])->name('campaign');
+Route::post('/campaign/register/insert/{id:int}', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 

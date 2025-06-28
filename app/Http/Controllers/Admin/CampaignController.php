@@ -9,6 +9,7 @@ use App\Models\CampaignCollaboration;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 
 class CampaignController extends Controller
 {
@@ -35,6 +36,7 @@ class CampaignController extends Controller
             'subject' => $request->subject,
             'keyword' => $request->keyword,
             'capacity' => $request->capacity,
+            'usage' => $request->capacity,
             'content' => $request->content,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -47,6 +49,36 @@ class CampaignController extends Controller
     public function edit(Campaign $campaign)
     {
         return view('Admin.campaign.edit',compact('campaign'));
+    }
+    public function update(Request $request,$campaign)
+    {
+        $campaign = Campaign::find($campaign);
+        if($request->url_profile_image){
+            if (File::exists(public_path($campaign->image))) {
+                    File::delete(public_path($campaign->image));
+            }
+            $image = Helper::moveImage($request->url_profile_image,'campaign');
+        }
+        if($request->url_header_image){
+            if (File::exists(public_path($campaign->image_header))) {
+                    File::delete(public_path($campaign->image_header));
+            }
+            $image_header = Helper::moveImage($request->url_header_image,'campaign');
+        }
+        $campaign->update([
+            'name' => $request->name,
+            'subject' => $request->subject,
+            'keyword' => $request->keyword,
+            'capacity' => $request->capacity,
+            'usage' => $request->capacity,
+            'content' => $request->content,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'image' => $image ?? null,
+            'image_header' =>  $image_header?? null,
+        ]);
+        alert()->success('', 'عملیات موفق');
+        return redirect(route('campaign.index'));
     }
     public function createCompany(Request $request,$campaign_id)
     {

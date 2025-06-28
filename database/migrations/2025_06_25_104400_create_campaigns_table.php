@@ -19,7 +19,8 @@ return new class extends Migration
             $table->text('content')->nullable();
             $table->string('image',191)->nullable();
             $table->string('image_header',191)->nullable();
-            $table->string('capacity')->nullable();
+            $table->integer('capacity')->nullable();
+            $table->integer('usage')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->timestamps();

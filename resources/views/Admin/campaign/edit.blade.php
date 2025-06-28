@@ -41,8 +41,9 @@
                             <div class="container">
                                 <div class="row justify-content-center mt-5">
                                     <div class="col-md-12">
-                                        <form action="{{route('campaign.store')}}" method="post">
+                                        <form action="{{ route('campaign.update',['campaign' => $campaign]) }}" method="POST">
                                             @csrf
+                                            @method('put')
                                             <div class="form-row border">
                                                 <div
                                                     class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">
@@ -72,7 +73,7 @@
                                                                     <img height="150px" src="{{$campaign->image}}" class="card-img-top">
                                                                 </div>
                                                             @endif
-                                                            <label>تصویر نمایه</label>
+                                                            <label>تصویر بالا</label>
                                                             <br>
                                                             <label for="profile_image" id="profile_up_label"
                                                                    class="btn badge-secondary">
@@ -95,7 +96,7 @@
                                                             </div>
                                                         @endif
                                                         <div class="card-body">
-                                                            <label>تصویر بالا</label>
+                                                            <label>تصویر نمایه</label>
                                                             <br>
                                                             <label for="header_image" id="header_up_label"
                                                                    class="btn badge-secondary">
@@ -110,26 +111,31 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 col-md-6 mb-2">
+                                                <div class="col-12 col-md-6 mb-3">
+                                                    <label for="start_date" class="form-label fw-bold mb-2">تاریخ شروع پویش</label>
                                                     <date-picker
+                                                        id="start_date"
+                                                        name="start_date"
                                                         placeholder="تاریخ شروع پویش"
                                                         locale="fa,en"
                                                         format="YYYY-M-D"
-                                                        name="start_date"
-                                                        value="{{$campaign->start_date}}"
-                                                    >
-                                                    </date-picker>
+                                                        value="{{ $campaign->start_date }}"
+                                                    ></date-picker>
                                                 </div>
-                                                <div class="col-12 col-md-6 mb-2">
+
+
+                                                <div class="col-12 col-md-6 mb-3">
+                                                    <label for="end_date" class="form-label fw-bold mb-2">تاریخ پایان پویش</label>
                                                     <date-picker
+                                                        id="end_date"
+                                                        name="end_date"
                                                         placeholder="تاریخ پایان پویش"
                                                         locale="fa,en"
                                                         format="YYYY-M-D"
-                                                        name="end_date"
-                                                        value="{{$campaign->end_date}}"
-                                                    >
-                                                    </date-picker>
+                                                        value="{{ $campaign->start_date }}"
+                                                    ></date-picker>
                                                 </div>
+
                                                 <div class="form-group col-md-12 mt-2">
                                                     <button type="submit" class="btn btn-success">ثبت</button>
                                                 </div>
