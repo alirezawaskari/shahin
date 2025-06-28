@@ -48,10 +48,25 @@ class CampaignController extends Controller
     {
         return view('Admin.campaign.edit',compact('campaign'));
     }
-    public function createCompany(Request $request)
+    public function createCompany(Request $request,$campaign_id)
     {
-//        dd();
-//        foreach ($request->)
-//        CampaignCollaboration::create();
+        $names = $request->name_company;
+        $urls = $request->url_company;
+        $logos = $request->logo_company_url;
+
+        foreach ($names as $i => $name) {
+            CampaignCollaboration::create([
+                'campaign_id'     => $campaign_id,
+                'name'     => $name,
+                'url'      => $urls[$i],
+                'logo' => Helper::moveImage($logos[$i], 'company'),
+            ]);
+        }
+        return redirect(route('campaign.index'));
+    }
+    public function deleteCompany($campaign_id)
+    {
+        CampaignCollaboration::findOrFail($campaign_id)->delete();
+        return redirect()->back();
     }
 }

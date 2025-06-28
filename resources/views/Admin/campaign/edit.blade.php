@@ -251,7 +251,7 @@
                                 <div class="row justify-content-center mt-5">
                                     <div class="col-md-12">
                                         <form
-                                            action="{{route('campaign.create.company')}}"
+                                            action="{{route('campaign.create.company',['campaign_id' => $campaign->id])}}"
                                             method="POST"
                                             enctype="multipart/form-data"
                                         >
@@ -260,6 +260,45 @@
                                                 <div
                                                     class="card-header col-md-12 border border-right-0 border-left-0  text-center ">
                                                     اطلاعات شرکت کنندگان
+                                                </div>
+                                                <div id="companies" class="container-fluid">
+                                                    <div class="row">
+                                                        <table class="vuetable table table-bordered table-striped table-responsive-md w-100"
+                                                               id="data-table-factors">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>نام</th>
+                                                                <th>ادرس</th>
+                                                                <th>لوگو</th>
+                                                                <th>عملیات</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach($campaign->campaign_collaboration as $campaign_collaboration)
+                                                                    <tr>
+                                                                        <td>{{$loop->iteration}}</td>
+                                                                        <td>{{$campaign_collaboration->name}}</td>
+                                                                        <td>{{$campaign_collaboration->url}}</td>
+                                                                        <td>
+                                                                            <a href="{{ asset($campaign_collaboration->logo) }}" target="_blank">
+                                                                                <img src="{{ asset($campaign_collaboration->logo) }}" width="70px" alt="">
+                                                                            </a>
+                                                                        </td>
+                                                                        <td>
+                                                                            <a
+                                                                                class="btn btn-danger rounded-1"
+                                                                                href="{{ route('campaign.delete.company',['campaign_id' => $campaign_collaboration->id]) }}"
+                                                                                target="_blank"
+                                                                            >
+                                                                                حذف
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                                 <div id="companies" class="container-fluid">
                                                     <div class="row" id="company">

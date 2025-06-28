@@ -198,7 +198,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
 
     Route::resource('/campaign', CampaignController::class);
-    Route::post('/campaign/company', [CampaignController::class,'createCompany'])->name('campaign.create.company');
+    Route::post('/campaign/company/{campaign_id}', [CampaignController::class,'createCompany'])->name('campaign.create.company');
+    Route::get('/campaign/company/delete/{campaign_id}', [CampaignController::class,'deleteCompany'])->name('campaign.delete.company');
 
     // درگاه انتخابی
     Route::resource('gatewaysChoose', GatewayChooseController::class);
