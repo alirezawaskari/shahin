@@ -58,12 +58,14 @@ class CampaignController extends Controller
                     File::delete(public_path($campaign->image));
             }
             $image = Helper::moveImage($request->url_profile_image,'campaign');
+            $campaign->image = $image;
         }
         if($request->url_header_image){
             if (File::exists(public_path($campaign->image_header))) {
                     File::delete(public_path($campaign->image_header));
             }
             $image_header = Helper::moveImage($request->url_header_image,'campaign');
+            $campaign->image_header = $image_header;
         }
         $campaign->update([
             'name' => $request->name,
@@ -74,8 +76,6 @@ class CampaignController extends Controller
             'content' => $request->content,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'image' => $image ?? null,
-            'image_header' =>  $image_header?? null,
         ]);
         alert()->success('', 'عملیات موفق');
         return redirect(route('campaign.index'));

@@ -122,8 +122,6 @@
                                                         value="{{ $campaign->start_date }}"
                                                     ></date-picker>
                                                 </div>
-
-
                                                 <div class="col-12 col-md-6 mb-3">
                                                     <label for="end_date" class="form-label fw-bold mb-2">تاریخ پایان پویش</label>
                                                     <date-picker
@@ -132,7 +130,7 @@
                                                         placeholder="تاریخ پایان پویش"
                                                         locale="fa,en"
                                                         format="YYYY-M-D"
-                                                        value="{{ $campaign->start_date }}"
+                                                        value="{{ $campaign->end_date }}"
                                                     ></date-picker>
                                                 </div>
 
