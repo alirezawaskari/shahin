@@ -164,85 +164,80 @@
                                 <div class="row justify-content-center mt-5">
                                     <div class="card-body">
                                         <form class="form-horizontal" role="form" method="post"
-                                              action="{{route('before_form.store')}}">
+                                              action="{{route('campaign.create.form')}}">
                                             @csrf
                                             @include('Admin.layouts.errors')
-                                            <div class="row">
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>placeholder</label>
-                                                    <input type="text" value="{{old('placeholder')}}"
-                                                           class="form-control" name="placeholder" required>
+                                            <div class="form-row border p-2">
+                                                <div
+                                                    class="card-header col-md-12 border  border-right-0 border-left-0  text-center">
+                                                    اطلاعات فرم
                                                 </div>
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>name</label>
-                                                    <input type="text" value="{{old('name')}}" class="form-control"
-                                                           name="name" required>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>محل نمایش فیلد</label>
-                                                    <select name="data_display_level[]" id="data-display-name"
-                                                            class="form-control" multiple="multiple">
-                                                        @foreach($data_display_levels as $key=>$value)
-                                                            <option value="{{$key}}">{{$value}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>محل ذخیره فیلد</label>
-                                                    <select name="data_save_level" id="data_save_level" class="form-control">
-                                                        @foreach($level_save_data as $key => $value)
-                                                            <option value="{{$key}}">{{$value}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-12 col-md-12 mb-12">
-                                                    <label>help</label>
-                                                    <textarea required name="help">
+                                                <div class="row mt-2">
+                                                    <div class="col-12 col-md-4 mb-3">
+                                                        <label>متن پس زمینه ورودی</label>
+                                                        <input type="text" value="{{old('placeholder')}}"
+                                                               class="form-control" name="placeholder" required>
+                                                    </div>
+                                                    <div class="col-12 col-md-4 mb-3">
+                                                        <label>نام ورودی</label>
+                                                        <input type="text" value="{{old('name')}}" class="form-control"
+                                                               name="name" required>
+                                                    </div>
+                                                    <div class="col-12 col-md-4 mb-3">
+                                                        <label>محل ذخیره ورودی</label>
+                                                        <select name="data_save_level" id="data_save_level"
+                                                                class="form-control">
+                                                            @foreach($level_save_data as $key => $value)
+                                                                <option value="{{$key}}">{{$value}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12 col-md-12 mb-12">
+                                                        <label>help</label>
+                                                        <textarea required name="help">
                                                         {{old('help')}}
                                                      </textarea>
-                                                </div>
-
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>class</label>
-                                                    <input type="text" value="class" class="form-control" name="class"
-                                                           required>
-                                                </div>
-
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>الزامی</label>
-                                                    <select class="form-control" name="required">
-                                                        <option value="0">غیر اجباری</option>
-                                                        <option value="1">اجباری</option>
-                                                    </select>
-                                                </div>
-
-
-                                                <div class="col-12 col-md-3 mb-3">
-                                                    <label>نوع ورودی</label>
-                                                    <select class="form-control" name="type">
-                                                        @foreach(\App\Models\BeforeForm::TYPE as $key => $type)
-                                                            <option value="{{ $key }}">{{ $type }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-
-                                                <div class='col-12 mb-3 file file--upload'>
-                                                    <label for='file'>
-                                                        <i class="fa fa-cloud-upload"></i>انتخاب فایل
-                                                    </label>
-                                                    <input name="file" type="file" id="file"
-                                                           class="filestyle file-upload file_upload_ajax file-up"
-                                                           data-buttonname="btn-white">
-                                                    <div id="file_src" class="show"></div>
-                                                    <input type="hidden" id="file" class="path" name="urlfile" value="">
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <input type="hidden" value="{{ $campaign->id }}"
-                                                           name="beforeformable_id">
-                                                    <input type="hidden" value="{{  get_class($campaign) }}"
-                                                           name="beforeformable_type">
-                                                    <input type="submit" class="btn btn-success border-0" value="ثبت">
+                                                    </div>
+                                                    <div class="col-12 col-md-3 mb-3">
+                                                        <label>class</label>
+                                                        <input type="text" value="class" class="form-control"
+                                                               name="class"
+                                                               required>
+                                                    </div>
+                                                    <div class="col-12 col-md-3 mb-3">
+                                                        <label>الزامی</label>
+                                                        <select class="form-control" name="required">
+                                                            <option value="0">غیر اجباری</option>
+                                                            <option value="1">اجباری</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12 col-md-3 mb-3">
+                                                        <label>نوع ورودی</label>
+                                                        <select class="form-control" name="type">
+                                                            @foreach(\App\Models\BeforeForm::TYPE as $key => $type)
+                                                                <option value="{{ $key }}">{{ $type }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class='col-12 mb-3 file file--upload'>
+                                                        <label for='file'>
+                                                            <i class="fa fa-cloud-upload"></i>انتخاب فایل
+                                                        </label>
+                                                        <input name="file" type="file" id="file"
+                                                               class="filestyle file-upload file_upload_ajax file-up"
+                                                               data-buttonname="btn-white">
+                                                        <div id="file_src" class="show"></div>
+                                                        <input type="hidden" id="file" class="path" name="urlfile"
+                                                               value="">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <input type="hidden" value="{{ $campaign->id }}"
+                                                               name="beforeformable_id">
+                                                        <input type="hidden" value="{{  get_class($campaign) }}"
+                                                               name="beforeformable_type">
+                                                        <input type="submit" class="btn btn-success border-0"
+                                                               value="ثبت">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </form>
@@ -377,7 +372,7 @@
     <script src="{{ asset('/assets/dashboard/js/campaign.js') }}"></script>
     <script src="/assets/script/ckeditor/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('help',ck_uploader)
+        CKEDITOR.replace('help', ck_uploader)
     </script>
     <script>
         $(document).ready(function () {

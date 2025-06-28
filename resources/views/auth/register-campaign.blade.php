@@ -20,7 +20,6 @@
                                     {{ $error }}
                                 </div>
                             @endforeach
-
                             <form id="user_register_form" class="mt-3" method="POST"
                                   action="{{ route('campaign.register.insert',['campaign_id' => $campaign->id]) }}">
                                 @csrf

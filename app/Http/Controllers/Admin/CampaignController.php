@@ -104,4 +104,9 @@ class CampaignController extends Controller
         CampaignCollaboration::findOrFail($campaign_id)->delete();
         return redirect()->back();
     }
+    public function createForm(Request $request)
+    {
+
+        dd($request);
+    }
 }

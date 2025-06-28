@@ -11,13 +11,11 @@
                     <div class="row">
                         <div class="col-12 col-md-6 px-md-5 d-flex justify-content-center flex-column">
                             <h2 class="text-orange bold mb-4 text-black-50">ورود همکاران </h2>
-
                             @foreach($errors->all() as $error)
                                 <div class="alert alert-danger" role="alert">
                                     {{ $error }}
                                 </div>
                             @endforeach
-
                             <form method="POST" id="login_form" class="mt-2" action="{{ route('login') }}">
                                 @csrf
                                 <div class="form-group position-relative box">
@@ -46,7 +44,6 @@
                                     </div>
                                     <a href="{{ route('reset_pass_form') }}" class="text-black-50 border-0 font-14 bold mr-2 mt-2">رمز عبور خود را فراموش کرده اید؟</a>
 								   {{-- <a href="https://admin.lalecard.ir/" class="text-black-50 border-0 font-14 bold mr-2 mt-2">ورود فروشندگان و تامین کنندگان کالا و خدمات (برای ورود اینجا کلیک کنید)</a> --}}
-
                                 </div>
                             </form>
 
