@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\BeforeForm;
 use App\Models\Campaign;
 use App\Models\CampaignCollaboration;
 use App\Models\Setting;
@@ -48,7 +49,9 @@ class CampaignController extends Controller
     }
     public function edit(Campaign $campaign)
     {
-        return view('Admin.campaign.edit',compact('campaign'));
+        $data_display_levels=BeforeForm::getDataDisplayLevel();
+        $level_save_data=BeforeForm::getLevelSaveData();
+        return view('Admin.campaign.edit',compact('campaign','data_display_levels','level_save_data'));
     }
     public function update(Request $request,$campaign)
     {

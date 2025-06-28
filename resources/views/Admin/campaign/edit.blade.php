@@ -41,7 +41,8 @@
                             <div class="container">
                                 <div class="row justify-content-center mt-5">
                                     <div class="col-md-12">
-                                        <form action="{{ route('campaign.update',['campaign' => $campaign]) }}" method="POST">
+                                        <form action="{{ route('campaign.update',['campaign' => $campaign]) }}"
+                                              method="POST">
                                             @csrf
                                             @method('put')
                                             <div class="form-row border">
@@ -51,15 +52,18 @@
                                                 </div>
                                                 <div class="col-12 col-md-4 form-group mb-2 mt-2">
                                                     <label>نام پویش</label>
-                                                    <input class="form-control" name="name" value="{{$campaign->name}}"/>
+                                                    <input class="form-control" name="name"
+                                                           value="{{$campaign->name}}"/>
                                                 </div>
                                                 <div class="col-12 col-md-4 form-group mb-2 mt-2">
                                                     <label>موضوع پویش</label>
-                                                    <input class="form-control" name="subject" value="{{$campaign->subject}}"/>
+                                                    <input class="form-control" name="subject"
+                                                           value="{{$campaign->subject}}"/>
                                                 </div>
                                                 <div class="col-12 col-md-4 form-group mb-2 mt-2">
                                                     <label>ظرفیت پویش</label>
-                                                    <input class="form-control" name="capacity" value="{{$campaign->capacity}}"/>
+                                                    <input class="form-control" name="capacity"
+                                                           value="{{$campaign->capacity}}"/>
                                                 </div>
                                                 <div class="col-12 form-group mb-2">
                                                     <label>توضیح</label>
@@ -70,7 +74,8 @@
                                                         <div class="card-body">
                                                             @if($campaign->image)
                                                                 <div>
-                                                                    <img height="150px" src="{{$campaign->image}}" class="card-img-top">
+                                                                    <img height="150px" src="{{$campaign->image}}"
+                                                                         class="card-img-top">
                                                                 </div>
                                                             @endif
                                                             <label>تصویر بالا</label>
@@ -92,7 +97,8 @@
                                                     <div class="card">
                                                         @if($campaign->image_header)
                                                             <div>
-                                                                <img height="150px" src="{{$campaign->image_header}}" class="card-img-top">
+                                                                <img height="150px" src="{{$campaign->image_header}}"
+                                                                     class="card-img-top">
                                                             </div>
                                                         @endif
                                                         <div class="card-body">
@@ -112,7 +118,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-12 col-md-6 mb-3">
-                                                    <label for="start_date" class="form-label fw-bold mb-2">تاریخ شروع پویش</label>
+                                                    <label for="start_date" class="form-label fw-bold mb-2">تاریخ شروع
+                                                        پویش</label>
                                                     <date-picker
                                                         id="start_date"
                                                         name="start_date"
@@ -123,7 +130,8 @@
                                                     ></date-picker>
                                                 </div>
                                                 <div class="col-12 col-md-6 mb-3">
-                                                    <label for="end_date" class="form-label fw-bold mb-2">تاریخ پایان پویش</label>
+                                                    <label for="end_date" class="form-label fw-bold mb-2">تاریخ پایان
+                                                        پویش</label>
                                                     <date-picker
                                                         id="end_date"
                                                         name="end_date"
@@ -154,87 +162,87 @@
                         <div class="card-body">
                             <div class="container">
                                 <div class="row justify-content-center mt-5">
-                                    <div class="col-md-12">
-                                        <form action="{{route('campaign.store')}}" method="post">
+                                    <div class="card-body">
+                                        <form class="form-horizontal" role="form" method="post"
+                                              action="{{route('before_form.store')}}">
                                             @csrf
-                                            <div class="form-row border">
+                                            @include('Admin.layouts.errors')
+                                            <div class="row">
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>placeholder</label>
+                                                    <input type="text" value="{{old('placeholder')}}"
+                                                           class="form-control" name="placeholder" required>
+                                                </div>
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>name</label>
+                                                    <input type="text" value="{{old('name')}}" class="form-control"
+                                                           name="name" required>
+                                                </div>
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>محل نمایش فیلد</label>
+                                                    <select name="data_display_level[]" id="data-display-name"
+                                                            class="form-control" multiple="multiple">
+                                                        @foreach($data_display_levels as $key=>$value)
+                                                            <option value="{{$key}}">{{$value}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>محل ذخیره فیلد</label>
+                                                    <select name="data_save_level" id="data_save_level" class="form-control">
+                                                        @foreach($level_save_data as $key => $value)
+                                                            <option value="{{$key}}">{{$value}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-12 col-md-12 mb-12">
+                                                    <label>help</label>
+                                                    <textarea required name="help">
+                                                        {{old('help')}}
+                                                     </textarea>
+                                                </div>
 
-                                                <div
-                                                    class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">
-                                                    اطلاعات فرم
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>class</label>
+                                                    <input type="text" value="class" class="form-control" name="class"
+                                                           required>
                                                 </div>
-                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
-                                                    <label>نام پویش</label>
-                                                    <input class="form-control" name="name"/>
+
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>الزامی</label>
+                                                    <select class="form-control" name="required">
+                                                        <option value="0">غیر اجباری</option>
+                                                        <option value="1">اجباری</option>
+                                                    </select>
                                                 </div>
-                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
-                                                    <label>موضوع پویش</label>
-                                                    <input class="form-control" name="subject"/>
+
+
+                                                <div class="col-12 col-md-3 mb-3">
+                                                    <label>نوع ورودی</label>
+                                                    <select class="form-control" name="type">
+                                                        @foreach(\App\Models\BeforeForm::TYPE as $key => $type)
+                                                            <option value="{{ $key }}">{{ $type }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
-                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
-                                                    <label>ظرفیت پویش</label>
-                                                    <input class="form-control" name="capacity"/>
+
+                                                <div class='col-12 mb-3 file file--upload'>
+                                                    <label for='file'>
+                                                        <i class="fa fa-cloud-upload"></i>انتخاب فایل
+                                                    </label>
+                                                    <input name="file" type="file" id="file"
+                                                           class="filestyle file-upload file_upload_ajax file-up"
+                                                           data-buttonname="btn-white">
+                                                    <div id="file_src" class="show"></div>
+                                                    <input type="hidden" id="file" class="path" name="urlfile" value="">
                                                 </div>
-                                                <div class="col-12 form-group mb-2">
-                                                    <label>توضیح</label>
-                                                    <textarea name="content"></textarea>
-                                                </div>
-                                                <div class="col-12 col-md-6 mt-2">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <label>تصویر نمایه</label>
-                                                            <br>
-                                                            <label for="profile_image" id="profile_up_label"
-                                                                   class="btn badge-secondary">
-                                                                <i class="fa fa-upload ml-2" aria-hidden="true"></i>
-                                                                انتخاب تصویر
-                                                            </label>
-                                                            <input name="profile_image" type="file" id="profile_image"
-                                                                   class="filestyle file-upload file_upload_ajax file-up"
-                                                                   data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="profile_image" class="path"
-                                                                   name="url_profile_image">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 mt-2">
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <label>تصویر بالا</label>
-                                                            <br>
-                                                            <label for="header_image" id="header_up_label"
-                                                                   class="btn badge-secondary">
-                                                                <i class="fa fa-upload ml-2" aria-hidden="true"></i>
-                                                                انتخاب تصویر
-                                                            </label>
-                                                            <input name="header_image" type="file" id="header_image"
-                                                                   class="filestyle file-upload file_upload_ajax file-up"
-                                                                   data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="header_image" class="path"
-                                                                   name="url_header_image">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 col-md-6 mb-2">
-                                                    <date-picker
-                                                        placeholder="تاریخ شروع پویش"
-                                                        locale="fa,en"
-                                                        format="YYYY-M-D"
-                                                        name="start_date"
-                                                    >
-                                                    </date-picker>
-                                                </div>
-                                                <div class="col-12 col-md-6 mb-2">
-                                                    <date-picker
-                                                        placeholder="تاریخ پایان پویش"
-                                                        locale="fa,en"
-                                                        format="YYYY-M-D"
-                                                        name="end_date"
-                                                    >
-                                                    </date-picker>
-                                                </div>
-                                                <div class="form-group col-md-12 mt-2">
-                                                    <button type="submit" class="btn btn-success">ثبت</button>
+
+                                                <div class="col-12">
+                                                    <input type="hidden" value="{{ $campaign->id }}"
+                                                           name="beforeformable_id">
+                                                    <input type="hidden" value="{{  get_class($campaign) }}"
+                                                           name="beforeformable_type">
+                                                    <input type="submit" class="btn btn-success border-0" value="ثبت">
                                                 </div>
                                             </div>
                                         </form>
@@ -267,8 +275,9 @@
                                                 </div>
                                                 <div id="companies" class="container-fluid">
                                                     <div class="row">
-                                                        <table class="vuetable table table-bordered table-striped table-responsive-md w-100"
-                                                               id="data-table-factors">
+                                                        <table
+                                                            class="vuetable table table-bordered table-striped table-responsive-md w-100"
+                                                            id="data-table-factors">
                                                             <thead>
                                                             <tr>
                                                                 <th>#</th>
@@ -279,27 +288,30 @@
                                                             </tr>
                                                             </thead>
                                                             <tbody>
-                                                                @foreach($campaign->campaign_collaboration as $campaign_collaboration)
-                                                                    <tr>
-                                                                        <td>{{$loop->iteration}}</td>
-                                                                        <td>{{$campaign_collaboration->name}}</td>
-                                                                        <td>{{$campaign_collaboration->url}}</td>
-                                                                        <td>
-                                                                            <a href="{{ asset($campaign_collaboration->logo) }}" target="_blank">
-                                                                                <img src="{{ asset($campaign_collaboration->logo) }}" width="70px" alt="">
-                                                                            </a>
-                                                                        </td>
-                                                                        <td>
-                                                                            <a
-                                                                                class="btn btn-danger rounded-1"
-                                                                                href="{{ route('campaign.delete.company',['campaign_id' => $campaign_collaboration->id]) }}"
-                                                                                target="_blank"
-                                                                            >
-                                                                                حذف
-                                                                            </a>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endforeach
+                                                            @foreach($campaign->campaign_collaboration as $campaign_collaboration)
+                                                                <tr>
+                                                                    <td>{{$loop->iteration}}</td>
+                                                                    <td>{{$campaign_collaboration->name}}</td>
+                                                                    <td>{{$campaign_collaboration->url}}</td>
+                                                                    <td>
+                                                                        <a href="{{ asset($campaign_collaboration->logo) }}"
+                                                                           target="_blank">
+                                                                            <img
+                                                                                src="{{ asset($campaign_collaboration->logo) }}"
+                                                                                width="70px" alt="">
+                                                                        </a>
+                                                                    </td>
+                                                                    <td>
+                                                                        <a
+                                                                            class="btn btn-danger rounded-1"
+                                                                            href="{{ route('campaign.delete.company',['campaign_id' => $campaign_collaboration->id]) }}"
+                                                                            target="_blank"
+                                                                        >
+                                                                            حذف
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -320,7 +332,8 @@
                                                                     <label>تصویر نمایه</label>
                                                                     <label for="profile_image" id="profile_up_label"
                                                                            class="btn badge-secondary">
-                                                                        <i class="fa fa-upload ml-2" aria-hidden="true"></i>
+                                                                        <i class="fa fa-upload ml-2"
+                                                                           aria-hidden="true"></i>
                                                                         انتخاب تصویر
                                                                     </label>
                                                                     <input
@@ -342,7 +355,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-2">
-                                                    <button type="button" id="addCompany" class="btn btn-info">افزودن</button>
+                                                    <button type="button" id="addCompany" class="btn btn-info">افزودن
+                                                    </button>
                                                 </div>
                                                 <div class="form-group col-md-12 mt-2">
                                                     <button type="submit" class="btn btn-success">ثبت</button>
@@ -362,6 +376,16 @@
 @section('js')
     <script src="{{ asset('/assets/dashboard/js/campaign.js') }}"></script>
     <script src="/assets/script/ckeditor/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('help',ck_uploader)
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#data-display-name').select2({
+                placeholder: "انتخاب وضعیت"
+            });
+        })
+    </script>
     <script>
         CKEDITOR.replace('content', ck_uploader);
     </script>

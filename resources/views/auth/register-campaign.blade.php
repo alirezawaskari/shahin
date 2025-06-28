@@ -22,7 +22,7 @@
                             @endforeach
 
                             <form id="user_register_form" class="mt-3" method="POST"
-                                  action="{{ route('campaign.register.insert',['id' => $campaign->id]) }}">
+                                  action="{{ route('campaign.register.insert',['campaign_id' => $campaign->id]) }}">
                                 @csrf
                                 <div class="form-group position-relative box">
                                     <label for="name" class="position-absolute"><i class="far fa-user"></i></label>
