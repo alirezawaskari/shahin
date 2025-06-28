@@ -28,7 +28,7 @@ class RegisterCampaignController extends Controller
         $campaign = Campaign::find($id);
         return view('auth.register-campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories','campaign'));
     }
-    public function campaignRegisterInsert(Request $request,$id)
+    public function campaignRegisterInsert(Request $request,$campaign_id)
     {
         $request['city'] = $request->city_id;
         $request['province'] = $request->province_id;
@@ -36,7 +36,8 @@ class RegisterCampaignController extends Controller
         $user = User::where('phone',$request->phone)->first();
         $id = Helper::getCallcenter($user->province_id,null);
         $callcenter_roles = Role::select('id')->where('card_id' , $request->card_id)->get();
-        if($request->description)
+
+        if($request->description !== null)
             Callcenter::createTask($user,$request->description,$callcenter_roles);
         else{
             $task = Callcenter::create([
@@ -54,10 +55,9 @@ class RegisterCampaignController extends Controller
             if ($request->service_item_id) {
                 $task->services_item()->attach(array($request->service_item_id));
             }
-            $Campaign = Campaign::findOrFail($id);
+            $Campaign = Campaign::findOrFail($campaign_id);
             $description =  "برای کمپین : $Campaign->name";
-            $History = History::create($task , $task->user_id , null , $task->status , $description);
-            dd($History);
+            History::create($task , $task->user_id , null , $task->status , $description);
         }
         return redirect('home')->with([
             'create' => 'success'

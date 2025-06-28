@@ -68,7 +68,7 @@ Route::post('/fastregister', [RegisterController::class,'fastregister']);
 Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
 //Campaign
 Route::get('/campaign/{id:int}', [RegisterCampaignController::class,'campaignRegister'])->name('campaign');
-Route::post('/campaign/register/insert/{id:int}', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
+Route::post('/campaign/register/insert/{campaign_id:int}', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
