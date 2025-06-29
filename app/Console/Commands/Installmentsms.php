@@ -48,7 +48,7 @@ class Installmentsms extends Command
     public function handle()
     {
         $headers = [
-            'apikey' => config('services.sms.apikey'),
+            'apikey' => config('services.iranSms.apikey'),
             'Content-Type' => 'application/x-www-form-urlencoded'
         ];
         $client = new Client([
@@ -341,7 +341,7 @@ class Installmentsms extends Command
             $log->save();
 
             $headers = [
-                'apikey' => config('services.sms.apikey'),
+                'apikey' => config('services.iranSms.apikey'),
                 'Content-Type' => 'application/x-www-form-urlencoded'
             ];
             $client = new Client([
