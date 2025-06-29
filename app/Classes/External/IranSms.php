@@ -19,7 +19,7 @@ class IranSms
     public static function sendSingleSms(string $message, $phone): void
     {
         $headers = [
-            'apikey' => config('services.sms.apikey'),
+            'apikey' => config('services.iranSms.apikey'),
             'Content-Type' => 'application/x-www-form-urlencoded'
         ];
         $client = new Client([
@@ -43,7 +43,7 @@ class IranSms
         $client = new Client();
         $response = $client->request('POST', 'http://api.ghasedaksms.com/v2/credit', [
             'headers' => [
-                'apikey' =>config('services.sms.apikey'),
+                'apikey' =>config('services.iranSms.apikey'),
             ]
         ]);
 

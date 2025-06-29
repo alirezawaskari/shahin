@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\TreasuryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RegisterCampaignController;
 use App\Models\Center;
 use App\Models\Service;
@@ -57,6 +58,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
 
+
 //Auth Routes
 Auth::routes();
 // Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
@@ -66,8 +68,8 @@ Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm']
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
 Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
 //Campaign
-Route::get('/campaign/register', [RegisterCampaignController::class,'campaignRegister'])->name('campaign.register');
-Route::post('/campaign/register/insert', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
+Route::get('/campaign/{id:int}', [RegisterCampaignController::class,'campaignRegister'])->name('campaign');
+Route::post('/campaign/register/insert/{campaign_id:int}', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
 
@@ -195,8 +197,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
 
-    Route::get('/campaign', [CampaignController::class,'campaign'])->name('campaign.index');
-    Route::patch('/settings/update-content-campaign', [CampaignController::class,'updateContentCampaign'])->name('settings.update.content.campaign');
+    Route::resource('/campaign', CampaignController::class);
+    Route::post('/campaign/from', [CampaignController::class,'createForm'])->name('campaign.create.form');
+    Route::post('/campaign/company/{campaign_id}', [CampaignController::class,'createCompany'])->name('campaign.create.company');
+    Route::get('/campaign/company/delete/{campaign_id}', [CampaignController::class,'deleteCompany'])->name('campaign.delete.company');
 
     // درگاه انتخابی
     Route::resource('gatewaysChoose', GatewayChooseController::class);
@@ -829,7 +833,7 @@ Route::get('/calculate', 'InstallmentController@showCalculate');
 Route::post('/pay', 'PaymentController@pay')->name('pay');
 Route::post('/payPrepayment', 'PaymentController@payPrepayment')->name('payPrepayment');
 // Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
-Route::match(['get', 'post'], '/callback', ['PaymentController@callback'])->name('pay.callback');
+Route::match(['get', 'post'], '/callback', [PaymentController::class,'callback'])->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee

@@ -45,11 +45,13 @@ return [
     ],
 
     'sms' => [
-        'name' => 'NeginSms',
+        'name' => 'NeginSms'
+    ],
+
+    'iranSms' => [
         'apikey' => 'cpCIuUbmtBhYFw41+kpYs0mSNw+mkN4aZBELwgUMN+A',
         'linenumber' => '10002622'
     ],
-
     'neginSms' => [
         'portalcode' => '10002239',
         'username' => 'fr50568',

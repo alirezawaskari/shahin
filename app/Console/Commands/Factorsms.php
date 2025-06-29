@@ -43,7 +43,7 @@ class Factorsms extends Command
     public function handle()
     {
         $headers = [
-            'apikey' => config('services.sms.apikey'),
+            'apikey' => config('services.iranSms.apikey'),
             'Content-Type' => 'application/x-www-form-urlencoded'
         ];
         $client = new Client([

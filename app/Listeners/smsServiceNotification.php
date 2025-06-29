@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\smsService;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -26,7 +27,7 @@ class smsServiceNotification
         $body = [
             'param1' => $message,
         ];
-        IranSms::sendSingleSms('customservicefactor',$userMobile,$body);
+        SendSms::sendSingleSms('customservicefactor',$userMobile,$body);
 
 
     }

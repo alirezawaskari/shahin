@@ -407,14 +407,14 @@
                 </ul>
             </li>
             @permission('coupon|campaign')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>کمپین و کد تخفیف</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>پویش و جشنواره</span> </a>
                 <ul>
                     @permission('campaign')
-                        <li><a href="{{ route('campaign.index') }}">اطلاعات کمپین</a></li>
+                        <li><a href="{{ route('campaign.index') }}">اطلاعات پویش</a></li>
                     @endpermission
                     @permission('coupon')
-                        <li><a href="{{ route('coupon.index') }}">فهرست کدتخفیف ها</a></li>
-                        <li><a href="{{ route('coupon.create') }}">کدتخفیف جدید</a></li>
+                        <li><a href="{{ route('coupon.index') }}">فهرست جشنواره</a></li>
+                        <li><a href="{{ route('coupon.create') }}">جشنواره جدید</a></li>
                     @endpermission
                 </ul>
             </li>

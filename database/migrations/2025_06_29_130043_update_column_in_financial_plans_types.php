@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
-            $table->text('content_campaign')->nullable();
+        Schema::table('financial_plans_types', function (Blueprint $table) {
+            $table->double('task')->nullable();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table) {
+        Schema::table('financial_plans_types', function (Blueprint $table) {
             //
         });
     }

@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\fastserviceCallcenter;
 
 class ServiceCallcenterSMSNotification
@@ -38,7 +39,7 @@ class ServiceCallcenterSMSNotification
                     'param2' => $service,
                     'param3' => $callcenter
                 ];
-                IranSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
+                SendSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
             } else {
                 if($type == 'sms')
                 {
@@ -46,7 +47,7 @@ class ServiceCallcenterSMSNotification
                         'param1' => $link,
                         'param2' => $event->task->id
                     ];
-                    IranSms::sendSingleSms('sendstudylinkbysms', $userMobile, $body);
+                    SendSms::sendSingleSms('sendstudylinkbysms', $userMobile, $body);
                 }
                 else
                 {
@@ -55,7 +56,7 @@ class ServiceCallcenterSMSNotification
                         'param2' => $service->slug,
                         'param3' => $callcenter
                     ];
-                    IranSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
+                    SendSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
                 }
             }
 

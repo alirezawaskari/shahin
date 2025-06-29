@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\smsNotAnswer;
 use Carbon\Carbon;
 
@@ -37,7 +38,7 @@ class SendSmsNotAnswer
                 'param3' => $event->unit,
                 'param4' => auth()->user()->phone
             ];
-            IranSms::sendSingleSms('sendsmsnotanswer',$userMobile,$body);
+            SendSms::sendSingleSms('sendsmsnotanswer',$userMobile,$body);
 
         }
     }

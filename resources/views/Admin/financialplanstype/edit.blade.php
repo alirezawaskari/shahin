@@ -117,6 +117,16 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-12 col-md-3 mb-3">
+                        <label>مالیات</label>
+                        <input
+                            value="{{ $financialPlansType?->task }}"
+                            type="text"
+                            class="form-control"
+                            name="task"
+                            required
+                        />
+                    </div>
                     <div class="col-12 col-md-2 mb-4">
                         <div class="checkbox">
                             <label>

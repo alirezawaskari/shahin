@@ -10,6 +10,24 @@ class FinancialPlansType extends Model
      * @var array
      */
     protected $guarded = [];
+    protected $fillable = [
+        "task",
+        "applicant_id",
+        "applicant_id",
+        "title",
+        "price",
+        "prepayment_percent",
+        "discount_percent",
+        "guarantee_type",
+        "payment_type",
+        "number_pay_steps",
+        "status",
+        "is_show",
+        "capacity",
+        "reserved",
+        "start_date",
+        "end_date",
+    ];
     /**
      * @var array
      */
@@ -30,15 +48,17 @@ class FinancialPlansType extends Model
      */
     public function services()
     {
-        return $this->morphedByMany(Service::class, 'financialplanstypeItemable','financial_plans_type_items');
+        return $this->morphedByMany(Service::class, 'financialplanstypeItemable', 'financial_plans_type_items');
     }
+
     /**
      * Get all of the categories that are assigned this financialPlansTypeItems.
      */
     public function categories()
     {
-        return $this->morphedByMany(Category::class, 'financialplanstypeItemable','financial_plans_type_items');
+        return $this->morphedByMany(Category::class, 'financialplanstypeItemable', 'financial_plans_type_items');
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -47,13 +67,14 @@ class FinancialPlansType extends Model
         return $this->hasMany(FinancialPlansTypeItem::class);
     }
 
-     /**
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function applicant()
     {
-        return $this->belongsTo(User::class , 'applicant_id');
+        return $this->belongsTo(User::class, 'applicant_id');
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -82,14 +103,11 @@ class FinancialPlansType extends Model
             $query->where('payment_type', $payment_type);
         }
         if (isset($representation) && trim($representation) != 'all') {
-            if($representation == 'general')
-            {
+            if ($representation == 'general') {
                 $query->where('is_show', true);
-            }
-            else
-            {
+            } else {
                 $query->whereHas('representations', function ($query) use ($representation) {
-                    $query->where('representation_id',$representation);
+                    $query->where('representation_id', $representation);
                 });
             }
         }
@@ -104,6 +122,7 @@ class FinancialPlansType extends Model
 
         return $query;
     }
+
     /**
      * @param mixed $payment_type
      * @return bool
@@ -111,47 +130,44 @@ class FinancialPlansType extends Model
      */
     public static function getPaymentType($payment_type)
     {
-        if($payment_type == 'installment' || $payment_type == 'check')
-        {
+        if ($payment_type == 'installment' || $payment_type == 'check') {
             return 1;
-        }
-        elseif($payment_type == 'cash')
-        {
+        } elseif ($payment_type == 'cash') {
             return 0;
         }
     }
+
     /**
      * @param mixed $item // category or service
      * @return object
      */
     public static function getFinancialPlansTypeByItem($item)
     {
-        return $item->financialPlansTypes()->where('status' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
+        return $item->financialPlansTypes()->where('status', 1)->whereRaw('capacity > reserved')->where('end_date', '>=', now())->get()->unique();
     }
+
     /**
      * @param mixed $item // category or service
      * @return object
      */
-    public static function filterFinancialPlansTypeByPaymentType($financial_plans_types , $payment_type)
+    public static function filterFinancialPlansTypeByPaymentType($financial_plans_types, $payment_type)
     {
-        foreach($financial_plans_types as $key => $financial_plans_type)
-        {
-            if(self::getPaymentType($financial_plans_type->payment_type) != $payment_type)
-            {
+        foreach ($financial_plans_types as $key => $financial_plans_type) {
+            if (self::getPaymentType($financial_plans_type->payment_type) != $payment_type) {
                 $financial_plans_types->forget($key);
             }
         }
         return $financial_plans_types;
     }
+
     /**
      * @param FinancialPlansType $financial_plans_type
      * @param mixed $type
      * @return bool
      */
-    public static function checkFinancialPlansTypeByPaymentType(FinancialPlansType $financial_plans_type , $type)
+    public static function checkFinancialPlansTypeByPaymentType(FinancialPlansType $financial_plans_type, $type)
     {
-        if(self::getPaymentType($financial_plans_type->payment_type) == $type)
-        {
+        if (self::getPaymentType($financial_plans_type->payment_type) == $type) {
             return true;
         }
         return false;

@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\referralCenterNotification;
 use App\Models\User;
 
@@ -41,7 +42,7 @@ class ReferralCenterSMSNotification
                 $body = [
                     'param1' => $name,
                 ];
-                IranSms::sendSingleSms('referralCenterNotification',$userMobile,$body);
+                SendSms::sendSingleSms('referralCenterNotification',$userMobile,$body);
             }
         }
     }

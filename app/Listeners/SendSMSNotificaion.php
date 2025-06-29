@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\userActivation;
 use App\Models\SmsLog;
 use Carbon\Carbon;
@@ -40,7 +41,7 @@ class SendSMSNotificaion
                 'param1' => $event->user->name.' '.$event->user->family,
                 'param2' => $pass
             ];
-            IranSms::sendSingleSms('fastregister',$userMobile,$body);
+            SendSms::sendSingleSms('fastregister',$userMobile,$body);
             SmsLog::create([
                 'phone'=>$userMobile,
                 'type'=>'login'

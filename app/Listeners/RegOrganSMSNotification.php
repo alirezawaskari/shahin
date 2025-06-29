@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\fastregisterorganCallcenter;
 class RegOrganSMSNotification
 {
@@ -35,7 +36,7 @@ class RegOrganSMSNotification
                 'param2' => $pass,
                 'param3' => $userWallet,
             ];
-            IranSms::sendSingleSms('organizationfastregister',$userMobile,$body);
+            SendSms::sendSingleSms('organizationfastregister',$userMobile,$body);
 
         }
     }

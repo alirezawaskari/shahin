@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\registerRequestNotification;
 
 class RegisterRequestSMSNotification
@@ -24,7 +25,7 @@ class RegisterRequestSMSNotification
             $body = [
                 'param1' => $name,
             ];
-            IranSms::sendSingleSms('registerRequestNotification',$user->phone,$body);
+            SendSms::sendSingleSms('registerRequestNotification',$user->phone,$body);
         }
     }
 }

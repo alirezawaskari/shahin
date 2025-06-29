@@ -642,8 +642,6 @@
         </div>
     </div>
 @stop
-
-
 @section('js')
     <script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>

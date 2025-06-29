@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\factorItemStartWorking;
 
 class FactorItemStartWorkingSMSNotificaion
@@ -37,7 +38,7 @@ class FactorItemStartWorkingSMSNotificaion
                 'param2' => $access,
                 'param3' => 'lalecard.ir/factorItem/'.$resnumber,
             ];
-            IranSms::sendSingleSms('factoritemstartworking',$userMobile,$body);
+            SendSms::sendSingleSms('factoritemstartworking',$userMobile,$body);
 
 
         }

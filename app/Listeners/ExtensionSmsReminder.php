@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\ExtensionDate;
 use App\Events\smsNotAnswer;
 
@@ -27,6 +28,6 @@ class ExtensionSmsReminder
      */
     public function handle(ExtensionDate $event)
     {
-            IranSms::sendSingleSms('extensionsmsreminder',$event->phone,array('param1'=>$event->item));
+        SendSms::sendSingleSms('extensionsmsreminder',$event->phone,array('param1'=>$event->item));
     }
 }

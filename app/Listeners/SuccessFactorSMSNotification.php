@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\successFactor;
 
 class SuccessFactorSMSNotification
@@ -32,7 +33,7 @@ class SuccessFactorSMSNotification
             $body = [
                 'param1' => $resnumber,
             ];
-            IranSms::sendSingleSms('factorsuccess',$userMobile,$body);
+            SendSms::sendSingleSms('factorsuccess',$userMobile,$body);
         }
     }
 }

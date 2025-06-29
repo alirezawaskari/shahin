@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Models\Callcenter;
+use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\City;
+use App\Models\History;
 use App\Models\Province;
 use App\Models\Role;
 use App\Models\Service;
@@ -16,17 +18,17 @@ use Illuminate\Http\Request;
 
 class RegisterCampaignController extends Controller
 {
-    public function campaignRegister()
+    public function campaignRegister($id)
     {
         $provinces = Province::get();
         $citys = City::get();
         $categories = Category::filter()->orderBy('created_at', 'desc')->get();
         $services = Service::filter()->whereStatus(true)->where('isShow', true)->orderBy('created_at', 'desc')->get();
         $service_items = ServiceItem::get();
-        $content_campaign = Setting::first()->content_campaign;
-        return view('auth.register-campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories','content_campaign'));
+        $campaign = Campaign::find($id);
+        return view('auth.register-campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories','campaign'));
     }
-    public function campaignRegisterInsert(Request $request)
+    public function campaignRegisterInsert(Request $request,$campaign_id)
     {
         $request['city'] = $request->city_id;
         $request['province'] = $request->province_id;
@@ -34,7 +36,8 @@ class RegisterCampaignController extends Controller
         $user = User::where('phone',$request->phone)->first();
         $id = Helper::getCallcenter($user->province_id,null);
         $callcenter_roles = Role::select('id')->where('card_id' , $request->card_id)->get();
-        if($request->description)
+
+        if($request->description !== null)
             Callcenter::createTask($user,$request->description,$callcenter_roles);
         else{
             $task = Callcenter::create([
@@ -52,6 +55,11 @@ class RegisterCampaignController extends Controller
             if ($request->service_item_id) {
                 $task->services_item()->attach(array($request->service_item_id));
             }
+            $Campaign = Campaign::findOrFail($campaign_id);
+            $Campaign->usage = $Campaign->usage - 1;
+            $Campaign->update();
+            $description =  "برای کمپین : $Campaign->name";
+            History::create($task , $task->user_id , null , $task->status , $description);
         }
         return redirect('home')->with([
             'create' => 'success'

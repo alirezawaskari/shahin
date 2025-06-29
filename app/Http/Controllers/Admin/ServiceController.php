@@ -360,7 +360,7 @@ class ServiceController extends AdminController
     private function updateTextInformation(Request $request, Service $service)
     {
           $service->update(array(
-              'content'=>$request->content,
+              'content'=>$request['content'],
               'txt_box_1'=>$request->txt_box_1,
               'left_content'=>$request->left_content,
           ));

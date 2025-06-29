@@ -363,7 +363,6 @@ $(document).ready(function () {
 
                     $('.history-tbody').append(`
                         <tr>
-
                             <td>
                                 ${i++}
                             </td>

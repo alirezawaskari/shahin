@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\factorItemActivation;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
@@ -439,7 +440,7 @@ class TotalFactorItemController extends Controller
                 $user_phone_number = $factor_item->factor->user->phone;
                 $approval_date = verta($totalFactorItem->approval_date)->format('Y/m/d');
                 $link = 'https://lalecard.ir/factorItem/'.$factor_item->resnumber;
-                IranSms::sendSingleSms('sendUserContractConfirmLink',$user_phone_number,['param1'=>$totalFactorItem->id,'param2'=> $approval_date, 'param3'=>$link]);
+                SendSms::sendSingleSms('sendUserContractConfirmLink',$user_phone_number,['param1'=>$totalFactorItem->id,'param2'=> $approval_date, 'param3'=>$link]);
                 $fator_item_collections->update([
                     'status_factor' => 18
                 ]);
@@ -1177,7 +1178,7 @@ class TotalFactorItemController extends Controller
                 'param1' => $user,
                 'param2' => $factor_item_able,
             ];
-            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
+            SendSms::sendSingleSms('factoritemClosing',$userMobile,$body);
         }
             //event(new factorItemClosing($factor_item->factor->user , $factor_item));
 

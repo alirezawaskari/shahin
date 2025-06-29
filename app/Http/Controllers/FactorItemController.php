@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Helpers\Helper;
 use App\Models\AuthCode;
 use App\Models\ContractForm;
@@ -344,7 +345,7 @@ class FactorItemController extends Controller {
                     'expiration_time' => time(),
                 ]);
             }
-            IranSms::sendSingleSms('sendConfirmContractCode',$user_phone_number,['param1'=>$verification_code ]);
+            SendSms::sendSingleSms('sendConfirmContractCode',$user_phone_number,['param1'=>$verification_code ]);
             return response( [ 'status' => 'success', 'message' => 'کد با موفقیت ارسال گردید.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'لطفا بر روی قسمت تایید میکنم کلیک کنید. ' ] );
