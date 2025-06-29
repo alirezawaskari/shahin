@@ -1,11 +1,9 @@
 <?php
-namespace App\Lib;
-use DB;
-/*require_once 'nusoap.php';
-*/
 
+namespace App\Lib;
+
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
-use nusoap_client;
 
 class saman
 {
@@ -13,7 +11,12 @@ class saman
     {
         $resNum = session('resnumber') ?: uniqid();
         session(['resnumber' => $resNum]);
-
+        $sheba = Setting::first()->shaba_number;
+        $IBANInfo = [
+            "Amount" => $amount,
+            "IBAN" => $sheba,
+            "PurchaseID" => "000000000000000000000000000000000000000"
+        ];
         $payload = [
             'action'      => 'token',
             'TerminalId'  => '14541809',
@@ -21,6 +24,7 @@ class saman
             'ResNum'      => $resNum,
             'RedirectUrl' => route('pay.callback'),
             'CellNumber'  => auth()->user()->phone,
+            'SettlementIBANInfo'  => $IBANInfo,
         ];
         $response = Http::asForm()->post('https://sep.shaparak.ir/onlinepg/onlinepg', $payload);
 

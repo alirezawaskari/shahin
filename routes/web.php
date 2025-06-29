@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\TreasuryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RegisterCampaignController;
 use App\Models\Center;
 use App\Models\Service;
@@ -832,7 +833,7 @@ Route::get('/calculate', 'InstallmentController@showCalculate');
 Route::post('/pay', 'PaymentController@pay')->name('pay');
 Route::post('/payPrepayment', 'PaymentController@payPrepayment')->name('payPrepayment');
 // Route::get('/callback', 'PaymentController@callback')->name('pay.callback');
-Route::match(['get', 'post'], '/callback', ['PaymentController@callback'])->name('pay.callback');
+Route::match(['get', 'post'], '/callback', [PaymentController::class,'callback'])->name('pay.callback');
 Route::post('/wallet-payment', 'WalletController@payment')->name('wallet-payment');
 Route::post('/wallet-payment/checker', 'WalletController@paymentchecker')->name('wallet-payment.checker');
 //employee
