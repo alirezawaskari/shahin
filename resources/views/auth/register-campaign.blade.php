@@ -174,6 +174,7 @@
                                     </div>
                                 </div>
                             </form>
+                            @if(count($campaign->campaign_collaboration) > 0)
                             <div class="col-12  mx-auto">
                                 <h3 class="text-center mb-4">مشارکت‌کنندگان این کمپین</h3>
                                 <div class="row justify-content-center">
@@ -182,6 +183,7 @@
                                             <div class="card shadow-sm h-100 w-100 text-center">
                                                 <div class="card-body">
                                                     <a
+                                                        target="_blank"
                                                         class="text-black-50"
                                                         href="{{$campaign_collaboration->url}}"
                                                     >
@@ -199,7 +201,7 @@
                                     @endforeach
                                 </div>
                             </div>
-
+                            @endif
 
                         </div>
                     </div>

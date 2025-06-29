@@ -88,7 +88,6 @@ class CampaignController extends Controller
         $names = $request->name_company;
         $urls = $request->url_company;
         $logos = $request->logo_company_url;
-
         foreach ($names as $i => $name) {
             CampaignCollaboration::create([
                 'campaign_id'     => $campaign_id,
@@ -106,7 +105,6 @@ class CampaignController extends Controller
     }
     public function createForm(Request $request)
     {
-
         dd($request);
     }
 }
