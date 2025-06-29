@@ -103,6 +103,10 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-12 col-md-3 mb-3">
+                        <label>مالیات</label>
+                        <input type="text" class="form-control" name="task" required>
+                    </div>
                     <div class="col-12 col-md-6 mb-4">
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
                         <div class="checkbox">
