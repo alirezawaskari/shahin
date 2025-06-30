@@ -65,14 +65,22 @@
                     @include('Admin.factoritem.layouts.file.userInformation')
                 @endpermission
             </div>
-            <div class="tab-pane fade {{ $factorItem['status'] == 1 ? 'show active' : ''}}" role="tabpanel" id="step2"
-                aria-labelledby="step2-tab">
+            <div
+                class="tab-pane fade {{ $factorItem['status'] == 1 ? 'show active' : ''}}"
+                role="tabpanel"
+                id="step2"
+                aria-labelledby="step2-tab"
+            >
                 @include('Admin.factoritem.layouts.file.factor')
                 <div class="d-flex justify-content-between">
-                    <a class="btn btn-primary px-4 mb-3 ml-2 text-white previous"> <i class="fas fa-angle-right"></i>
-                        قبلی </a>
-                    <a class="btn btn-primary px-4 mb-3 text-white next {{ $item['total_price']==0 ? 'disabled' : ''
-                }}"> بعدی <i class="fas fa-angle-left"></i> </a>
+                    <a class="btn btn-primary px-4 mb-3 ml-2 text-white previous">
+                        <i class="fas fa-angle-right"></i>قبلی
+                     </a>
+                    <a
+                        class="btn btn-primary px-4 mb-3 text-white next {{ $item['total_price']==0 ? 'disabled' : ''}}">
+                        بعدی
+                        <i class="fas fa-angle-left"></i>
+                    </a>
                 </div>
             </div>
             <div class="tab-pane fade {{ $factorItem['status'] == 2 ? 'show active' : ''}}" role="tabpanel" id="step3"
