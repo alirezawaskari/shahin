@@ -39,6 +39,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RegisterCampaignController;
+use App\Http\Controllers\TestController;
 use App\Models\Center;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
@@ -72,7 +73,6 @@ Route::get('/campaign/{id:int}', [RegisterCampaignController::class,'campaignReg
 Route::post('/campaign/register/insert/{campaign_id:int}', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
 Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
-
 
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
@@ -172,6 +172,7 @@ Route::group([], function () {
         ]);
     });
 });
+Route::get('test/pay',[TestController::class,'test']);
 
 Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 

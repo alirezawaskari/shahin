@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function pay(Request $request)
     {
-        $gateway = 'zarinpal';
+        $gateway = $request->gateway ?: 'zarinpal';
         $factor = Factor::findOrFail($request->input('factor_id'));
         $user = $factor->user;
         if ($request->input('payment') == 'card') {
@@ -36,6 +36,7 @@ class PaymentController extends Controller
             if ($gateway == 'saman') {
                 $amount = $factor->price;
                 $tokenResult = $this->doPayment($amount);
+                dd($tokenResult);
                 if (is_array($tokenResult) && isset($tokenResult['errorCode'])) {
                     return response()->json([
                         'success' => false,
