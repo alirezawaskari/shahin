@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\DiseaseController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Http\Controllers\Admin\FactorController;
+use App\Http\Controllers\Admin\FactorItemController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayChooseController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
@@ -372,7 +373,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/expire', 'FactorItemController@expire');
     Route::post('/factorItem/sendInitialLink/{factorItem}', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
     Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
-    Route::resource('factorItem', 'FactorItemController');
+    Route::resource('factorItem', FactorItemController::class);
     Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
     Route::post('/factoritem/set-center' , 'FactorItemController@setCenter')->name('factorItem.setCenter');
     Route::post('/factoritem/change-factoritemable' , 'FactorItemController@changeFactoritemable')->name('factorItem.changeFactoritemable');

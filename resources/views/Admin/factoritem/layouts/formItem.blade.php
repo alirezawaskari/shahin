@@ -188,19 +188,38 @@
                 @foreach ($center_service_tariffs as $service_tariff)
                     <option value="{{ $service_tariff->id }}">
                         {{ $service_tariff->name }} (
-                        {{ number_format($service_tariff->price) }} ریال -
-                        تعرفه {{ $service_tariff->tariff->title }})
+                        {{ number_format($service_tariff->price) }} ریال - {{ $service_tariff->tariff->title }})
                     </option>
                 @endforeach
             </select>
         </div>
         <div class="row col-md-12">
             <table class="table table-bordered table-striped table-responsive-md">
+                <tr>
+                    <th>#</th>
+                    <th>نمودار</th>
+                    <th>عنوان</th>
+                    <th>مبلغ(ریال)</th>
+                    <th>عملیات</th>
+                </tr>
                 @foreach ($factorItem['service_tariffs'] as $service_tariff)
                     <tr>
-                        <td>{{ $service_tariff->name }}</td>
-                        <td>{{ $service_tariff->pivot->value }}
+                        <td>{{ $loop->iteration }}</td>
+                        <td>
+                            <ul class="circle work-step"
+                                onclick="stepWorkDiagram({{ $service_tariff->pivot->session_number }} , {{ $service_tariff->pivot->id }} , {{ App\Models\Session::where('factor_item_service_tariff_id' , $service_tariff->pivot->id)->where('status' , 1)->count() }})">
+                                @for($i = 1 ; $i <= $service_tariff->pivot->session_number ; $i++)
+                                    <li id="part_{{ $service_tariff->pivot->id.'_'.$i }}">
+                                        <div class="text"></div>
+                                    </li>
+                                @endfor
+                            </ul>
+                            <div class="circle smaller-circle">
+                                <p id="percent_{{ $service_tariff->pivot->id }}">
+                                <p>
+                            </div>
                         </td>
+                        <td>{{ $service_tariff->name }}</td>
                         <td> {{ number_format($service_tariff->pivot->price) }}
                             ریال
                         </td>

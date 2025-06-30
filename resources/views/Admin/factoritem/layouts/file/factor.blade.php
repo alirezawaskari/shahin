@@ -42,11 +42,9 @@
                                         <td>
                                             <select class="form-control" name="service_tariff_id[]">
                                                 @foreach ($center_service_tariffs as $temp)
-                                                    <option value="{{ $temp->id }}" {{ $temp->id == $service_tariff->id ? 'selected' : ''
-                                }}>
+                                                    <option value="{{ $temp->id }}" {{ $temp->id == $service_tariff->id ? 'selected' : ''}}>
                                                         {{ $temp->name }} ( {{ number_format($temp->price) }} ریال -
-                                                        تعرفه {{
-                                $temp->tariff->title }} )
+                                                        تعرفه {{ $temp->tariff->title }} )
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -59,9 +57,10 @@
                                             <select class="form-control" name="user_id[]">
                                                 <option value="">بدون پزشک</option>
                                                 @foreach ($center_agents as $doctor)
-                                                    <option value="{{ $doctor->id }}" {{ $doctor->id ==
-                                $service_tariff->pivot->user_id ?
-                                'selected' : '' }}>
+                                                    <option
+                                                        value="{{ $doctor->id }}"
+                                                        {{ $doctor->id == $service_tariff->pivot->user_id ?'selected' : '' }}
+                                                    >
                                                         {{ $doctor->name }} {{ $doctor->family }}
                                                     </option>
                                                 @endforeach
@@ -90,7 +89,8 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a class="factor_item_service_tariff_delete" data-id="{{ $service_tariff->pivot->id }}">
+                                            <a class="factor_item_service_tariff_delete"
+                                               data-id="{{ $service_tariff->pivot->id }}">
                                                 <i class="fa fa-trash font-size-18" aria-hidden="true"></i>
                                             </a>
                                         </td>
@@ -105,7 +105,10 @@
                             </div>
                             @break
                         @case('factor_building')
-                            <h4 class="mb-3 card-header"><i class="fas fa-list"></i> {{ $form->help }} </h4>
+                            <h4 class="mb-3 card-header">
+                                <i class="fas fa-list"></i>
+                                {{ $form->help }}
+                            </h4>
                             <table class="table table-bordered table-striped table-responsive-md">
                                 <tr>
                                     <th>#</th>
@@ -118,7 +121,7 @@
                                     <th>مبلغ (ریال)</th>
                                     <th>حذف</th>
                                 </tr>
-                                @php($factorItem['service_tariffs']=$factorItem['service_tariffs']->sortBy('pivot.value'))
+                                @php($factorItem['service_tariffs'] = $factorItem['service_tariffs']->sortBy('pivot.value'))
                                 @foreach ($factorItem['service_tariffs'] as $key => $service_tariff)
                                     <tr>
                                         <td>{{ $key+1 }}</td>
@@ -139,11 +142,8 @@
                                         <td>
                                             <select class="form-control" name="service_tariff_id[]">
                                                 @foreach ($center_service_tariffs as $temp)
-                                                    <option value="{{ $temp->id }}" {{ $temp->id == $service_tariff->id ? 'selected' : ''
-                                }}>
-                                                        {{ $temp->name }} ( {{ number_format($temp->price) }} ریال -
-                                                        تعرفه {{
-                                $temp->tariff->title }} )
+                                                    <option value="{{ $temp->id }}" {{ $temp->id == $service_tariff->id ? 'selected' : ''}}>
+                                                        {{ $temp->name }} ( {{ number_format($temp->price) }} ریال - {{$temp->tariff->title }} )
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -152,31 +152,56 @@
                                             <p class="text-nowrap">{{ $service_tariff->pivot->value }}</p>
                                         </td>
 
-                                        <input type="hidden" value="{{ $service_tariff->pivot->id }}" name="id[]"
-                                               class="form-control">
-                                        <td><input type="number" value="{{ $service_tariff->pivot->session_number }}"
-                                                   name="session_number[]" class="form-control" min="1"></td>
-                                        <td><input type="number"
-                                                   value="{{ $service_tariff->pivot->treatment_duration }}"
-                                                   name="treatment_duration[]" class="form-control" min="1"></td>
-                                        <td><input type="text"
-                                                   value="{{ number_format($service_tariff->pivot->discount) }}"
-                                                   name="discount[]" class="form-control"
-                                                   oninput="separatePrices(this)"></td>
+                                        <input
+                                            type="hidden"
+                                            value="{{ $service_tariff->pivot->id }}"
+                                            name="id[]"
+                                           class="form-control"
+                                        />
+                                        <td>
+                                            <input
+                                                type="number"
+                                                value="{{ $service_tariff->pivot->session_number }}"
+                                                name="session_number[]"
+                                                class="form-control"
+                                                min="1"
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                value="{{ $service_tariff->pivot->treatment_duration }}"
+                                                name="treatment_duration[]"
+                                                class="form-control"
+                                                min="1"
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                value="{{ number_format($service_tariff->pivot->discount) }}"
+                                                name="discount[]" class="form-control"
+                                                oninput="separatePrices(this)"
+                                            />
+                                        </td>
                                         <td>
                                             @if ($factorItem['factoritemable']->is_change_factor_price)
-                                                <input type="text"
-                                                       value="{{ number_format($service_tariff->pivot->price - $service_tariff->pivot->discount) }}"
-                                                       name="price[]" class="form-control"
-                                                       oninput="separatePrices(this)">
+                                                <input
+                                                    type="text"
+                                                    value="{{ number_format($service_tariff->pivot->price - $service_tariff->pivot->discount) }}"
+                                                    name="price[]" class="form-control"
+                                                    oninput="separatePrices(this)"
+                                                />
                                             @else
                                                 {{ number_format($service_tariff->pivot->price - $service_tariff->pivot->discount) }}
                                             @endif
                                         </td>
                                         <td>
-                                            <a class="factor_item_service_tariff_delete"
-                                               data-id="{{ $service_tariff->pivot->id }}"><i
-                                                    class="fa fa-trash font-size-18" aria-hidden="true"></i></a>
+                                            <a
+                                                class="factor_item_service_tariff_delete"
+                                                data-id="{{ $service_tariff->pivot->id }}">
+                                                <i class="fa fa-trash font-size-18" aria-hidden="true"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -193,7 +218,6 @@
             @endforeach
         </form>
     </div>
-
     <div class="col-md-12 border border-secondary box mb-5">
         <form action="{{ route('factorItem.createFactor')}}" method="POST" enctype="multipart/form-data">
             @csrf

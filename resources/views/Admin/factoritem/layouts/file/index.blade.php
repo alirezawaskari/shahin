@@ -62,7 +62,7 @@
             <div class="tab-pane fade {{ $factorItem['status'] == 0 ? 'show active' : ''}}" role="tabpanel" id="step1"
                 aria-labelledby="step1-tab">
                 @permission('user-information')
-                @include('Admin.factoritem.layouts.file.userInformation')
+                    @include('Admin.factoritem.layouts.file.userInformation')
                 @endpermission
             </div>
             <div class="tab-pane fade {{ $factorItem['status'] == 1 ? 'show active' : ''}}" role="tabpanel" id="step2"
