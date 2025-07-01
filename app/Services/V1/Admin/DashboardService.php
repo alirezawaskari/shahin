@@ -123,8 +123,6 @@ class DashboardService
         });
     }
 
-
-
     public function getDashboardData(): array
     {
         $data = [
@@ -292,4 +290,7 @@ class DashboardService
         }
         return $query->sum('price');
     }
+
+
+
 }

@@ -110,18 +110,18 @@ class AdminController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $totalMonthFactorCount = 0;
-        $totalMonthFactorPaidCount = 0;
+
         $type = $request->type;
         $representation = auth()->user()->admin_representation;
         $dashboardService = new DashboardService($representation);
         $data = $dashboardService->getDashboardData();
         extract($data);
+        $totalMonthFactorCount = 0;
+        $totalMonthFactorPaidCount = 0;
         if(auth()->user()->hasPermission('view-sales-revenue'))
         {
             $totalMonthFactorCount = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->count();
             $totalMonthFactorPaidCount = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
-
             $totalUser = User::filter()->count();
             $totalDayUser = User::filter()->where('created_at', '>', Carbon::now()->subDay())->count();
             $totalMonthUser = User::filter()->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
