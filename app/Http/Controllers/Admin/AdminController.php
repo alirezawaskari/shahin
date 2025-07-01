@@ -12,11 +12,13 @@ use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
 use App\Models\PurchaseInvoice;
 use App\Models\Representation;
+use App\Models\Request as RequestModal;
 use App\Models\Resume;
 use App\Models\Service;
 use App\Models\TotalFactorItem;
 use App\Models\User;
 use App\Models\WorkSample;
+use App\Services\V1\Admin\DashboardService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -26,6 +28,11 @@ use Intervention\Image\Facades\Image;
 
 class AdminController extends Controller
 {
+    protected DashboardService $dashboardService;
+
+    public  function __construct(DashboardService $dashboardService){
+        $this->dashboardService = $dashboardService;
+    }
     /**
      * @param Request $request
      * @return string
@@ -393,93 +400,29 @@ class AdminController extends Controller
      */
     public function dailyDesktop()
     {
-        $item = [];
-        $item['count_tickets'] = auth()->user()->tickets->where('status' , false)->count();
-        $item['count_factoritem_confirm'] = 0;
-        $item['count_resume'] = Resume::where('status' , 0)->count();
+        $user = auth()->user();
+        $role = $this->dashboardService->getUserRole($user);
+        $representation = $this->dashboardService->getUserRepresentation($user);
+        $centerId = $this->dashboardService->getUserCenterId($user);
+        $item = [
+            'count_tickets' => $this->dashboardService->getUnprocessedTicketCount($user),
+            'count_factoritem_confirm' => 0,
+            'count_resume' => $this->dashboardService->getResumeCount($role, $representation),
+            'count_request' => RequestModal::where('status', 2)->count(),
+            'count_contact' => Contact::where('card_id', $role->card_id)->where('status', false)->count(),
+        ];
 
-        //$item['count_product_storeRoom_expiring'] = count(ProductStoreRoom::productStoreRoomExpiring());
-        $item['count_request'] = \App\Models\Request::where('status' , 2)->count();
-
-        if(auth()->user()->center_id && auth()->user()->isAbleTo('file-detail'))
-        {
-            $item['count_factoritem_confirm'] = FactorItem::where('status_factor', 10)->where('center_id' , auth()->user()->center_id)->count();
+        if ($centerId && $user->isAbleTo('file-detail')) {
+            $item['count_factoritem_confirm'] = $this->dashboardService->getFactorItemConfirmCount($user);
         }
 
-        $representation = auth()->user()->admin_representation;
-        $item['count_contact'] = Contact::where('card_id' , auth()->user()->roles->first()->card_id)->whereStatus(false)->count();
+        $item += $this->dashboardService->getFactorCounts($user, $representation);
 
-        if(auth()->user()->hasPermission('resume-desktop'))
-        {
-            $item['count_resume'] = Resume::where('card_id' , auth()->user()->roles->first()->card_id)->whereNotIn('status' , [3,4])->count();
-        }
+        $expire_dates = $this->dashboardService->getExpireDates();
+        $near_end_date_financial_plans = $this->dashboardService->getNearEndDateFinancialPlans();
 
-        /*------------ statistics card --------------*/
-        if ($representation) {
-            if(auth()->user()->hasPermission('resume-desktop'))
-            {
-            $item['count_resume'] = Resume::where('representation_id' , auth()->user()->admin_representation->id )->where('card_id' , auth()->user()->roles->first()->card_id)->where('status' , '!=' , 4)->count();
-            }
-            $item['count_factor_supplier'] = 0;
-            $item['count_factor_mali'] = 0;
-            $item['count_factor_superadmin'] = 0;
-            $item['count_factor_warehouseKeeper'] = 0;
-            $item['count_factoritem_mali'] = 0;
-            $item['count_factoritem_consulting_contract_affairs'] = 0;
-            $item['count_factoritem_mali_consulting_contract_affairs'] = 0;
-            $item['count_factoritem_mali_legal'] = 0;
-            $item['count_factoritem_mali_mali'] = 0;
-            $item['count_factoritem_mali_superadmin'] = 0;
-            $item['count_factoritem_superadmin'] = 0;
-            $item['count_factor_mali_representation'] = PurchaseInvoice::where('status', 1)->where('representation_id', auth()->user()->admin_representation->id)->count();
-            $item['count_factor_superadmin_representation'] = PurchaseInvoice::where('status', 2)->where('representation_id', auth()->user()->admin_representation->id)->count();
-     /*       $item['count_factoritem_mali_representation'] = TotalFactorItem::where('total_factor_item_status_id', 11)->whereHas('center', function($q){
-                $q->where('representation_id', auth()->user()->admin_representation->id);
-            })->count();
-            $item['count_factoritem_superadmin_representation'] = TotalFactorItem::where('total_factor_item_status_id', 12)->whereHas('center', function($q){
-                $q->where('representation_id', auth()->user()->admin_representation->id);
-            })->count();
-            $item['count_factoritem_filing'] = FactorItem::where('status_factor', 9)->whereHas('center', function($q){
-                $q->where('representation_id', auth()->user()->admin_representation->id);
-            })->count();*/
-            $item['count_factoritem_mali_representation'] = TotalFactorItem::where('total_factor_item_status_id', 11)->count();
-            $item['count_factoritem_superadmin_representation'] = TotalFactorItem::where('total_factor_item_status_id', 12)->count();
-            $item['count_factoritem_filing'] = FactorItem::where('status_factor', 9)->count();
-        } else {
-            $item['count_factor_mali_representation'] = 0;
-            $item['count_factor_superadmin_representation'] = 0;
-            $item['count_factoritem_mali_representation'] = 0;
-            $item['count_factoritem_superadmin_representation'] = 0;
-            $item['count_factor_supplier'] = isset(auth()->user()->supplier) ? PurchaseInvoice::where('supplier_id' , auth()->user()->supplier->id)->where('status' , 0)->count() : 0;
-            $item['count_factor_mali'] = PurchaseInvoice::where('status', 1)->count();
-            $item['count_factor_superadmin'] = PurchaseInvoice::where('status', 2)->count();
-            $item['count_factor_warehouseKeeper'] = PurchaseInvoice::where('status', 6)->count();
-            $item['count_factoritem_mali'] = TotalFactorItem::where('total_factor_item_status_id', 5)->count();
-            $item['count_factoritem_consulting_contract_affairs'] = TotalFactorItem::where('total_factor_item_status_id', 13)->count();
-            $item['count_factoritem_mali_legal'] = TotalFactorItem::where('status_mali', 10)->count();
-            $item['count_factoritem_mali_consulting_contract_affairs'] = TotalFactorItem::where('status_mali', 4)->count();
-            $item['count_factoritem_mali_mali'] = TotalFactorItem::where('status_mali', 7)->orWhere('status_mali', 9)->count();
-            $item['count_factoritem_mali_superadmin'] = TotalFactorItem::where('status_mali', 8)->count();
-            $item['count_factoritem_superadmin'] = TotalFactorItem::where('total_factor_item_status_id', 8)->count();
-            $item['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
-        }
-
-        $expire_dates = null;
-        $near_end_date_financial_plans = null;
-        if (auth()->user()->hasPermission('expire_dates'))
-        {
-            $expire_dates= Cache::remember('expire_dates', Carbon::now()->addHours(12), function() {
-                return ContextController::fetchExpireDates();
-            });
-
-            $near_end_date_financial_plans= Cache::remember('near_end_date_financial_plans',  Carbon::now()->addHours(12), function() {
-                return FinancialPlansType::whereDate('end_date','>=',Carbon::now()->subDays(10))->whereDate('end_date','<',Carbon::now()->addDays(10))->get();
-            });
-        }
-
-        return view('Admin.dailyDesktop' , compact('item','expire_dates','near_end_date_financial_plans'));
+        return view('Admin.dailyDesktop', compact('item', 'expire_dates', 'near_end_date_financial_plans'));
     }
-
     /**
      * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
