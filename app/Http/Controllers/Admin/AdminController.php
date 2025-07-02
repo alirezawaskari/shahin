@@ -16,6 +16,8 @@ use App\Services\V1\Admin\DailyDesktopService;
 use App\Services\V1\Admin\DashboardService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
 
 
@@ -59,8 +61,8 @@ class AdminController extends Controller
     {
         if (isset($request->file)) {
             if (isset($request->image_name) && $request->image_name != '') {
-                if (\File::exists(public_path($request->image_name))) {
-                    \File::delete(public_path($request->image_name));
+                if (File::exists(public_path($request->image_name))) {
+                    File::delete(public_path($request->image_name));
                 }
             }
 
@@ -68,30 +70,31 @@ class AdminController extends Controller
 
             $year = Carbon::now()->year;
             $month = Carbon::now()->month;
-            $user_id=\Auth::user()->id;
+            $user_id= auth()->id();
             $file = $request->file;
             $random=random_int('10000','99999');
             $filepath = "{$path}/{$year}/{$month}/{$user_id}/";
             $filename = "{$random}_" . $file->getClientOriginalName();
             // image max size
-            //$max_file_size = 1 * 1024 * 1024;
             $max_file_size =700 * 1024;
             // Image quality
             $quality = 80;
             $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
             $file_extension = $file->getClientOriginalExtension();
-            if(in_array($file_extension, $allowed_extensions) && $file->getSize() > $max_file_size ) {
-                $image = Image::make($file->getRealPath());
-                $image->resize(null, 1500, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $image->save(public_path($filepath) . $filename, $quality);
+            if(!in_array($file_extension, $allowed_extensions)){
+                return [
+                    'status' => false,
+                    'message' => 'فرمت فایل وارد شده نامعتبر است. لطفاً از فرمت‌های مجاز (jpg، jpeg، png، gif) استفاده کنید.'
+                ];
             }
-            else{
-                $file->move(public_path($filepath), $filename);
+            if($file->getSize() > $max_file_size){
+                return [
+                    'status' => false,
+                    'message' => 'حجم فایل ارسال شده نباید بیشتر ۲ مگابایت باشد.'
+                ];
             }
 
+            $file->move(public_path($filepath), $filename);
             $image_name =  $filepath . $filename;
 
             return ['image_name' => $image_name, 'status' => true];

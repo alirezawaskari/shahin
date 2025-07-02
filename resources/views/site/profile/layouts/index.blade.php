@@ -5,9 +5,7 @@
 <div class="col-12 col-md-9 mt-md-0">
     <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
-
             @if($profile_percent != 100)
-
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 لطفا اطلاعات کاربری خود را از بخش اطلاعات تکمیلی کامل کنید
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -62,12 +60,13 @@
             @csrf
             <div class="tab-pane fade show active" id="list-profile" role="tabpanel"
                 aria-labelledby="list-profile-list">
-                @foreach($errors->all() as $error)
-                <div class="alert alert-danger mb-4" role="alert">
-                    {{ $error }}
+                <div id="error-container">
+                    @foreach($errors->all() as $error)
+                        <div class="alert alert-danger mb-4" role="alert">
+                            {{ $error }}
+                        </div>
+                    @endforeach
                 </div>
-                @endforeach
-
                 <div class="col-12 card profile-box bg-gray p-5 my-4 position-relative">
 
                     <span class="title-profile-box text-white position-absolute px-3 py-2">اطلاعات تکمیلی</span>
