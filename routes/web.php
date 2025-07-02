@@ -337,7 +337,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 // Financial plans types
     Route::post('/financialPlansType/selectByCategory', [CategoryController::class, 'child'])->name('category.get.child');
     Route::post('/financialPlansType/setByPaymentType', [FinancialPlansTypeController::class, 'setFinancialPlansTypeByPaymentType']);
-    Route::get('/financialPlansType/filter', [FinancialPlansTypeController::class, 'filter']);
+    Route::get('/financialPlansType/filter', [FinancialPlansTypeController::class, 'filter'])->name('home.financialPlansType.filter');
     // Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
 
     Route::resource('financialPlansType' , 'FinancialPlansTypeController');
@@ -461,6 +461,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
     Route::get('/service/filter', 'ServiceController@filter');
     Route::get('/service/indexTariffs/{service}', 'ServiceController@getIndexTariffs');
+    Route::get('/service/financialPlansType/{id}', 'ServiceController@getFinancialPlansType');
     Route::resource('service', 'ServiceController');
     Route::resource('serviceItem', 'ServiceItemController');
     //serviceIndexTariff

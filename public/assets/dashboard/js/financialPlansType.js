@@ -2,7 +2,6 @@ $(document).ready(function () {
     fetchData(1);
     var first_load=true;
     var do_filter_command=false;
-
     /*    click on do filter */
     $("body").on('click', '#do_filter', function (event) {
         if ($('#excel').prop('checked') == true) {
@@ -15,7 +14,6 @@ $(document).ready(function () {
             event.preventDefault();
         }
     });
-
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,
@@ -32,7 +30,6 @@ $(document).ready(function () {
             }
         });
     }
-
     function fetchData(page) {
         document.getElementById('loading').style.display = 'block';
         var form = $('#filter_form');
@@ -47,7 +44,6 @@ $(document).ready(function () {
             }
         });
     }
-
     /*  create table   */
     function createTable(data) {
         pagination(data.meta.last_page);

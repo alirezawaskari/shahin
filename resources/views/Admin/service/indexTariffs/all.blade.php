@@ -1,8 +1,6 @@
 @extends('Admin.master')
 @section('title')فهرست تعرفه های شاخص@endsection
-
 @section('content')
-
 <div class="card">
     <div class="card-body">
         <h4>ثبت و ویرایش</h4>

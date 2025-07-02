@@ -191,10 +191,8 @@
                                         <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
                                     </div>
-
                                 </div>
                             </div>
-
                             <div class="col-12 col-md-6">
                                 <div class="card">
                                     @if($user->imgsignature)

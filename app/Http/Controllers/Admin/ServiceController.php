@@ -676,4 +676,9 @@ class ServiceController extends AdminController
         $service_index_tariffs = $service->serviceIndexTariffs;
         return view('Admin.service.indexTariffs.all', compact('delete','service_index_tariffs' , 'service'));
     }
+    public function getFinancialPlansType($id)
+    {
+        $title = 'فهرست طرح های مالی';
+        return view('Admin.service.financialPlansType.index', compact('title','id'));
+    }
 }
