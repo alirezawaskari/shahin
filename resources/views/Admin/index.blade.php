@@ -2,7 +2,6 @@
 @section('title')گزارشات مالی@endsection
 
 @section('content')
-    <script src="../../assets/script/canvasjs.min.js"></script>
     <div class="row page-header">
         @if(auth()->user()->isAbleTo('view-sales-revenue'))
         <div class="col-lg-3 col-md-12">
@@ -100,197 +99,197 @@
         </div>
     </div>
     @permission('view-sales-revenue|view-sales-revenue-detail')
-    <div class="row">
-        <div class="col-lg-4 col-md-12">
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+        <div class="row">
+            <div class="col-lg-4 col-md-12">
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalDayFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalDayFactorPrice) }}</h2>
+                        <p>درآمد روزجاری (ریال-نقدی)</p>
                     </div>
-                    <p>درآمد روزجاری (ریال-نقدی)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-12">
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+            <div class="col-lg-4 col-md-12">
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalDayFactorPriceOrgan) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalDayFactorPriceOrgan) }}</h2>
+                        <p>درآمد روزجاری (ریال-اعتبار)</p>
                     </div>
-                    <p>درآمد روزجاری (ریال-اعتبار)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-12">
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+            <div class="col-lg-4 col-md-12">
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalYesterdayFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalYesterdayFactorPrice) }}</h2>
+                        <p>درآمد روزقبل (ریال)</p>
                     </div>
-                    <p>درآمد روزقبل (ریال)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-12">
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+            <div class="col-lg-4 col-md-12">
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalWeekFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalWeekFactorPrice) }}</h2>
+                        <p>درآمد هفته جاری (ریال)</p>
                     </div>
-                    <p>درآمد هفته جاری (ریال)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+
             </div>
+            <div class="col-lg-4 col-md-12">
 
-        </div>
-        <div class="col-lg-4 col-md-12">
-
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalMonthFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalMonthFactorPrice) }}</h2>
+                        <p>درآمد ماه جاری (ریال)</p>
                     </div>
-                    <p>درآمد ماه جاری (ریال)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+
             </div>
+            <div class="col-lg-4 col-md-12">
 
-        </div>
-        <div class="col-lg-4 col-md-12">
-
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalBeforeMonthFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalBeforeMonthFactorPrice) }}</h2>
+                        <p>درآمد ماه قبل (ریال)</p>
                     </div>
-                    <p>درآمد ماه قبل (ریال)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+
             </div>
+            <div class="col-lg-4 col-md-12">
 
-        </div>
-        <div class="col-lg-4 col-md-12">
-
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalSixMonthFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalSixMonthFactorPrice) }}</h2>
+                        <p>درآمد6 ماه جاری (ریال)</p>
                     </div>
-                    <p>درآمد6 ماه جاری (ریال)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+
             </div>
+            <div class="col-lg-4 col-md-12">
 
-        </div>
-        <div class="col-lg-4 col-md-12">
-
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalYearFactorPrice) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalYearFactorPrice) }}</h2>
+                        <p>درآمد سال جاری (ریال)</p>
                     </div>
-                    <p>درآمد سال جاری (ریال)</p>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
+            <div class="col-lg-4 col-md-12">
 
-        </div>
-        <div class="col-lg-4 col-md-12">
+                <div class="card overflow-hidden">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-server"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalAllFactorPrice) }}</h2>
+                        </div>
+                        <p>درآمد کل (ریال)</p>
+                    </div>
+                    <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
+                </div>
 
-            <div class="card overflow-hidden">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-server"></i>
-                        </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalAllFactorPrice) }}</h2>
-                    </div>
-                    <p>درآمد کل (ریال)</p>
-                </div>
-                <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>
             </div>
+            <div class="col-lg-4 col-sm-12">
+                <div class="card overflow-hidden card-primary">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-primary icon-block-floating m-l-20">
+                                <i class="ti-user"></i>
+                            </div>
+                            <h2 class="m-b-0 text-primary font-weight-100 primary-font">{{ number_format($totalUser ) }}</h2>
+                        </div>
+                        <p>کل کاربران</p>
+                    </div>
+                    <div class="sparkline-demo1" style="margin: 0 -2px -3px -2px"></div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
 
-        </div>
-        <div class="col-lg-4 col-sm-12">
-            <div class="card overflow-hidden card-primary">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-primary icon-block-floating m-l-20">
-                            <i class="ti-user"></i>
+                <div class="card overflow-hidden card-danger">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-danger icon-block-floating m-l-20">
+                                <i class="ti-user"></i>
+                            </div>
+                            <h2 class="m-b-0 text-danger font-weight-800 primary-font">{{ number_format($totalDayUser) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-primary font-weight-100 primary-font">{{ number_format($totalUser ) }}</h2>
+                        <p>کاربر جدید روز جاری</p>
                     </div>
-                    <p>کل کاربران</p>
+                    <div class="sparkline-demo2" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo1" style="margin: 0 -2px -3px -2px"></div>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-12">
-
-            <div class="card overflow-hidden card-danger">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-danger icon-block-floating m-l-20">
-                            <i class="ti-user"></i>
+            <div class="col-lg-4 col-md-12">
+                <div class="card overflow-hidden card-warning">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center m-b-10">
+                            <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
+                                <i class="ti-user"></i>
+                            </div>
+                            <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalMonthUser) }}</h2>
                         </div>
-                        <h2 class="m-b-0 text-danger font-weight-800 primary-font">{{ number_format($totalDayUser) }}</h2>
+                        <p>کاربر جدید ماه جاری</p>
                     </div>
-                    <p>کاربر جدید روز جاری</p>
+                    <div class="sparkline-demo3" style="margin: 0 -2px -3px -2px"></div>
                 </div>
-                <div class="sparkline-demo2" style="margin: 0 -2px -3px -2px"></div>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-12">
-            <div class="card overflow-hidden card-warning">
-                <div class="card-body text-center">
-                    <div class="d-flex align-items-center justify-content-center m-b-10">
-                        <div class="icon-block icon-block-outline-warning icon-block-floating m-l-20">
-                            <i class="ti-user"></i>
-                        </div>
-                        <h2 class="m-b-0 text-warning font-weight-800 primary-font">{{ number_format($totalMonthUser) }}</h2>
-                    </div>
-                    <p>کاربر جدید ماه جاری</p>
+            <div class="col-lg-12 col-md-12">
+                <div class="card" style="padding: 20px;">
+                    <div id="chartContainer" style="height: 300px; width: 100%;direction: initial;"></div>
                 </div>
-                <div class="sparkline-demo3" style="margin: 0 -2px -3px -2px"></div>
             </div>
         </div>
-		<div class="col-lg-12 col-md-12">
-            <div class="card" style="padding: 20px;">
-                <div id="chartContainer" style="height: 300px; width: 100%;direction: initial;"></div>
-            </div>
-        </div>
-    </div>
-    <chart :label_month="{{ json_encode($label_month) }}" :label_week="{{ json_encode($label_week) }}" :factor_month="{{ json_encode($factor_month) }}" :factor_week="{{ json_encode($factor_week) }}" :user_month="{{ json_encode($user_month) }}" :user_week="{{ json_encode($user_week) }}"></chart>
+        <chart :label_month="{{ json_encode($label_month) }}" :label_week="{{ json_encode($label_week) }}" :factor_month="{{ json_encode($factor_month) }}" :factor_week="{{ json_encode($factor_week) }}" :user_month="{{ json_encode($user_month) }}" :user_week="{{ json_encode($user_week) }}"></chart>
     @endpermission
 @stop
 @section('js')
+    <script src="{{asset('assets/script/canvasjs.min.js')}}"></script>
     <script>
         function myFunction() {
                 $.ajax({
