@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\roleCollection;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,11 +11,7 @@ use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         if (auth()->user()->hasPermission('role'))
@@ -25,6 +22,11 @@ class RoleController extends Controller
         return abort(401);
     }
 
+    public function filter()
+    {
+        $roles = Role::filter()->latest();
+        return new roleCollection($roles->paginate(20));
+    }
     /**
      * @param Request $request
      * @return mixed

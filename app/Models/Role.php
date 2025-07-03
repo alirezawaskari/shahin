@@ -32,4 +32,14 @@ class Role extends LaratrustRole
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function scopeFilter($query)
+    {
+        $name = request('name');
+
+        if (isset($name) && $name != 'all') {
+            $query->where('display_name', 'LIKE', '%' . $name . '%');
+        }
+        return $query;
+    }
 }

@@ -92,7 +92,6 @@ class ServiceController extends AdminController
      */
     public function store(Request $request)
     {
-
         $this->validate(request(), [
             'title' => 'required|string',
             'en_title' => 'required',

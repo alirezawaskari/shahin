@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayChooseController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShortLinkController;
@@ -443,6 +444,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //role
     Route::get('/role-create' , 'RoleController@create')->name('role.create');
     Route::get('/role/get-user-by-role' , 'RoleController@getUserByRole')->name('role.getUser');
+    Route::get('role/filter', [RoleController::class,'filter']);
     Route::resource('role', 'RoleController');
     Route::resource('permission', 'PermissionController');
     //ticket
