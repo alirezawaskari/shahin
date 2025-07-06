@@ -822,6 +822,7 @@ Route::get('/partner', 'PartnerController@partner');
 Route::get('/agency', 'AgencyController@index')->name('agency');
 Route::post('/agency', 'AgencyController@store');
 Route::get('/centerRequest/create', 'CenterRequestController@create');
+Route::get('/centerCampaign', 'CenterRequestController@centerCampaign');
 Route::post('/centerRequest/store', 'CenterRequestController@store');
 Route::get('/agencies', 'AgencyController@index')->name('agencies');
 Route::get('/articles', 'ArticleController@articles');

@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function pay(Request $request)
     {
-        $gateway = $request->gateway ?: 'zarinpal';
+        $gateway = $request->gateway ? 'saman' : 'zarinpal';
         $factor = Factor::findOrFail($request->input('factor_id'));
         $user = $factor->user;
         if ($request->input('payment') == 'card') {
@@ -35,8 +35,7 @@ class PaymentController extends Controller
             }
             if ($gateway == 'saman') {
                 $amount = $factor->price;
-                $tokenResult = $this->doPayment($amount);
-                dd($tokenResult);
+                $tokenResult = $this->doPayment($amount , $factor);
                 if (is_array($tokenResult) && isset($tokenResult['errorCode'])) {
                     return response()->json([
                         'success' => false,
@@ -106,11 +105,11 @@ class PaymentController extends Controller
         return $ibanShares;
     }
 
-    private function doPayment(float $amount)
+    private function doPayment(float $amount , Factor $factor)
     {
         $ibanShares = $this->calculateIBANShares($amount);
         $gateway = new Saman();
-        $tokenResult = $gateway->token($amount, $ibanShares);
+        $tokenResult = $gateway->token($factor , $amount, $ibanShares);
 
         return $tokenResult;
     }
@@ -129,18 +128,18 @@ class PaymentController extends Controller
 
     protected function handleZarinpalCallback(Request $request)
     {
-        $Authority = $request->get('Authority');
+        $Authority = $request->get('Authority') ;
         $factor = Factor::where('factorable_type', $Authority)->firstOrFail();
         if ($request->get('Status') == 'OK') {
-            $client = new nusoap_client(config('services.zarinpal.url') . '/pg/services/WebGate/wsdl', 'wsdl');
+            $client = new nusoap_client(config( 'services.zarinpal.url' ).'/pg/services/WebGate/wsdl', 'wsdl');
             $client->soap_defencoding = 'UTF-8';
             //در خط زیر یک درخواست به زرین پال ارسال می کنیم تا از صحت پرداخت کاربر مطمئن شویم
             $result = $client->call('PaymentVerification', [
                 [
                     //این مقادیر را به سایت زرین پال برای دریافت تاییدیه نهایی ارسال می کنیم
-                    'MerchantID' => config('services.zarinpal.id'),
-                    'Authority' => $Authority,
-                    'Amount' => $factor->price / 10,
+                    'MerchantID'     => config( 'services.zarinpal.id' ),
+                    'Authority'      => $Authority,
+                    'Amount'         => $factor->price/10,
                 ],
             ]);
 
@@ -161,41 +160,43 @@ class PaymentController extends Controller
                     'payment' => 'success',
                 ]);
             } else {
-                return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال به سامانه امکانپذیر نمیباشد، نگران نباشید در اسرع وقت این مشکل برطرف میگردد، در صورت عدم اتصال به سایت لطفا با شماره پشتیبانی لاله تماس حاصل نمائید
+return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال به سامانه امکانپذیر نمیباشد، نگران نباشید در اسرع وقت این مشکل برطرف میگردد، در صورت عدم اتصال به سایت لطفا با شماره پشتیبانی لاله تماس حاصل نمائید
 ۰۹۳۶۶۳۴۲۱۴۵
 اداره کل فناوری و‌اطلاعات سجا
 شبکه خدمات درمانی و‌رفاهی لاله';
             }
         }
         return redirect(route('factor', [$factor->resnumber]));
-
     }
 
     protected function handleSamanCallback(Request $request)
     {
         try {
             $token = $request->get('token', $request->get('Token'));
-            $status = $request->get('status', $request->get('Status'));
+            $State = $request->get('State', $request->get('State'));
 
             $factor = Factor::where('factorable_type', $token)->first();
 
-            if ($status !== 'OK') {
+            if ($State !== 'OK') {
                 return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال به سامانه امکانپذیر نمیباشد، نگران نباشید در اسرع وقت این مشکل برطرف میگردد، در صورت عدم اتصال به سایت لطفا با شماره پشتیبانی لاله تماس حاصل نمائید
 ۰۹۳۶۶۳۴۲۱۴۵
 اداره کل فناوری و‌اطلاعات سجا
 شبکه خدمات درمانی و‌رفاهی لاله';
             }
-            $response = \Illuminate\Support\Facades\Http::post('https://sep.shaparak.ir/onlinepg/onlinepg', [
-                'action' => 'verify',
-                'TerminalId' => config('services.saman.id'),
-                'Token' => $token,
+            $response = \Illuminate\Support\Facades\Http::post('https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTranscation', [
+                'TerminalNumber' => '14541809',
+                'RefNum' => '5656',
+                'IgnoreNationalcode' => true,
+                'NationalCode' => '',
             ]);
-            if ($response->ok() && $response->json('status') == 1) {
+            $jsonResponse = $response->body();
+            $data = json_decode($jsonResponse, true);
+            if ($data['Success'] == true) {
                 $factor->update([
                     'status' => true,
                     'type' => 'online',
                     'confirm' => true,
-                    'refnumber' => $response->json('refNum'),
+                    'refnumber' => $data['RefNum'],
                 ]);
                 Factor::savePayment($factor);
                 Factor::invoiceRevenueSharing($factor);

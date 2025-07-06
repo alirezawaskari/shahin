@@ -123,7 +123,7 @@
 
                                         <div class="form-row">
                                             <div class="col-12 col-md-6">
-                                                <select class="form-control my-2" type="int" name="province_id"
+                                                <select class="form-control my-2" type="int" name="province"
                                                     id="province_id" required>
                                                     <option value="">انتخاب استان</option>
                                                     @foreach(\App\Models\Province::all() as $province)
@@ -132,7 +132,7 @@
                                                 </select>
                                             </div>
                                             <div class="col-12 col-md-6">
-                                                <select class="form-control my-2" type="int" name="city_id" id="city_id"
+                                                <select class="form-control my-2" type="int" name="city" id="city_id"
                                                     required>
                                                     <option value="">انتخاب شهر</option>
                                                     @foreach(\App\Models\City::all() as $city)
