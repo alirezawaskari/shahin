@@ -136,6 +136,9 @@ class ServiceItemController extends Controller
             Menu::updateOrCreate(['menuable_id' => $service_item->id ,'menuable_type' => ServiceItem::class,
                 'parent_id'=>$service_item->service_id],['title'=>$menu_title,'depth'=> 3 ]);
         }
+        else{
+            $service_item->menu()->delete();
+        }
 
         if(isset( $request->image_path)) {
             if (\File::exists(public_path($service_item->image))) {
@@ -183,7 +186,7 @@ class ServiceItemController extends Controller
             if (\File::exists(public_path($service_item->image))) {
                 \File::delete(public_path($service_item->image));
             }
-
+            $service_item->menu()->delete();
             $service_item->delete();
             return redirect('/dashboard/service/serviceItem/'.$service_item->service->slug)
                 ->with(['delete' => 'success']);
