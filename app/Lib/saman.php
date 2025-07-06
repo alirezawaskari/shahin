@@ -2,19 +2,20 @@
 
 namespace App\Lib;
 
+use App\Models\Factor;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 
 class saman
 {
-    public function token(int $amount)
+    public function token(Factor $factor , int $amount)
     {
         $resNum = session('resnumber') ?: uniqid();
         session(['resnumber' => $resNum]);
         $sheba = Setting::first()->shaba_number;
         $IBANInfo = [
-            "Amount" => $amount,
             "IBAN" => $sheba,
+            "Amount" => $amount,
             "PurchaseID" => "000000000000000000000000000000000000000"
         ];
         $payload = [
@@ -22,8 +23,8 @@ class saman
             'TerminalId'  => '14541809',
             'Amount'      => $amount,
             'ResNum'      => $resNum,
-            'RedirectUrl' => route('pay.callback'),
-            'CellNumber'  => auth()->user()->phone,
+            'RedirectUrl' => 'https://lalecard.ir/callback',
+            'CellNumber'  => $factor->user->phone,
             'SettlementIBANInfo'  => $IBANInfo,
         ];
         $response = Http::asForm()->post('https://sep.shaparak.ir/onlinepg/onlinepg', $payload);
