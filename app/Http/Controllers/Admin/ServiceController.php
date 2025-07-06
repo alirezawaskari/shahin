@@ -92,7 +92,6 @@ class ServiceController extends AdminController
      */
     public function store(Request $request)
     {
-
         $this->validate(request(), [
             'title' => 'required|string',
             'en_title' => 'required',
@@ -675,5 +674,10 @@ class ServiceController extends AdminController
         $delete = auth()->user()->isAbleTo( 'service_index_tariff_delete' );
         $service_index_tariffs = $service->serviceIndexTariffs;
         return view('Admin.service.indexTariffs.all', compact('delete','service_index_tariffs' , 'service'));
+    }
+    public function getFinancialPlansType($id)
+    {
+        $title = 'فهرست طرح های مالی';
+        return view('Admin.service.financialPlansType.index', compact('title','id'));
     }
 }

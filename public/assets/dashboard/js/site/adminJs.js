@@ -65,7 +65,6 @@ function readURL(input) {
                         },
                         success: function (result) {
                             if (result['status'] === true) {
-
                                 if (index_add_img === 0) {
                                     input_first_photo = '<input id="' + index_add_img + '" class="radio_good"  name="image_name_good[' + index_add_img + '][index]" type="radio" checked value="1"><i class="fa fa-lg fa-flag-o"></i>';
                                 } else {
@@ -182,14 +181,14 @@ $(document).on('change', '.file_upload_ajax', function () {
                 var fd = new FormData();
                 fd.append('file', file);
                 var reader = new FileReader();
-                loading = `<div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center" id="loading`+file_attr_id+`">
+                loading = `<div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center" id="loading` + file_attr_id + `">
                 <div role="status" class="spinner-border text-primary">
                 </div>
                 <br>
                 <span>در حال بارگذاری...</span>
                 </div>`;
                 $('#' + file_attr_id + '_src.show').append(loading);
-                $('#loading' + file_attr_id).css('display' , 'block');
+                $('#loading' + file_attr_id).css('display', 'block');
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
@@ -206,26 +205,35 @@ $(document).on('change', '.file_upload_ajax', function () {
                                 $('#' + file_attr_id + '_src.show div').remove();
                                 $('#' + file_attr_id + '_src.show img').remove();
                                 var file = '';
-                                if (!((fileType == 'application/x-rar-compressed') ||(fileType == 'application/x-zip-compressed') ||(fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')||(fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
+                                if (!((fileType == 'application/x-rar-compressed') || (fileType == 'application/x-zip-compressed') || (fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') || (fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
                                     file = '<img src="' + e.target.result + '" id="' + index_add_photo + '" ' +
                                         'class="card-img-top" height="150px">';
                                 } else {
                                     file = '<a href="' + result['image_name'] + '" id="' + index_add_photo + '" ' +
                                         'class="disInline image_create btn border border-success mr-3" >مشاهده</a>';
                                 }
-                                if(file_attr_name.includes("[]") && !file_attr_name.includes("consent_image"))
-                                {
+                                if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
                                     new_link(file_attr_id);
-                                    $('#' + file_attr_id + '_src'+ ct +'.show').append(file);
+                                    $('#' + file_attr_id + '_src' + ct + '.show').append(file);
                                     $('#' + file_attr_id + ct + '.path').val(result['image_name']);
-                                }
-                                else
-                                {
+                                } else {
                                     $('#' + file_attr_id + '_src.show').append(file);
                                     $('#' + file_attr_id + '.path').val(result['image_name']);
                                 }
+                            } else if (result['status'] === false) {
+                                let errorMessage = result['message'];
+                                $('.alert-danger').remove();
+                                let errorAlert = `
+                                    <div class="alert alert-danger mb-4" role="alert">
+                                        ${errorMessage}
+                                    </div>
+                                `;
+                                $('#error-container').append(errorAlert);
+                                $('html, body').animate({
+                                    scrollTop: $('#error-container').offset().top - 100 // کمی بالاتر از خطا
+                                }, 500);
                             }
-                            $('#loading'+file_attr_id).css('display' , 'none');
+                            $('#loading' + file_attr_id).css('display', 'none');
                         }
                     });
                 };
@@ -393,11 +401,11 @@ $('.showConfirmDelete').click(function (event) {
     event.preventDefault();
 
     Swal.fire({
-            title: "آیا مطمئن هستید؟",
-            showDenyButton: true,
-            confirmButtonText: 'بله',
-            denyButtonText: 'خیر'
-        })
+        title: "آیا مطمئن هستید؟",
+        showDenyButton: true,
+        confirmButtonText: 'بله',
+        denyButtonText: 'خیر'
+    })
         .then(function (result) {
             if (result.isConfirmed) {
                 form.submit();
@@ -534,32 +542,32 @@ $(document).on('click', '.remove_work_sample', function () {
 });
 
 $(document).ready(function () {
- //submit on create new user
-        $("#create-user-form").submit(function (event) {
-            var form = $(this);
-            var formData = form.serialize();
-            $.ajaxSetup({
-                headers: {
-                    "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
-                }
-            });
-            $.ajax({
-                type: "POST",
-                url:  $(this).attr('action'),
-                data: formData,
-            }).done(function (data) {
-                 if (data.status == 'success'){
-                     swal("عملیات موفق! ",data.message, "success");
-                     clearNewUserFormInputsData();
-                 }else if(data.status=='error'){
-                     swal("توجه! ",data.message, "error");
-                     clearNewUserFormInputsData();
-                 }else if(data.status=='validation_error'){
-                     swal("خطا! ", data.messages.join('\n'), "error");
-                 }
-            });
-            event.preventDefault();
+    //submit on create new user
+    $("#create-user-form").submit(function (event) {
+        var form = $(this);
+        var formData = form.serialize();
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $("meta[name='csrf-token']").attr("content")
+            }
         });
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'),
+            data: formData,
+        }).done(function (data) {
+            if (data.status == 'success') {
+                swal("عملیات موفق! ", data.message, "success");
+                clearNewUserFormInputsData();
+            } else if (data.status == 'error') {
+                swal("توجه! ", data.message, "error");
+                clearNewUserFormInputsData();
+            } else if (data.status == 'validation_error') {
+                swal("خطا! ", data.messages.join('\n'), "error");
+            }
+        });
+        event.preventDefault();
+    });
 //------------------------------------------------------------------------------
 //select province for create new user
     $('#new_user_province_id').on('change', function () {
@@ -586,7 +594,8 @@ $(document).ready(function () {
     });
 //-----------------------------------------------------------------------------------------------------
 });
-function clearNewUserFormInputsData(){
+
+function clearNewUserFormInputsData() {
     $('#new_user_name').val('');
     $('#new_user_family').val('');
     $('#new_user_gender').val('');

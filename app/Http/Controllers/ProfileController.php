@@ -103,6 +103,7 @@ class ProfileController extends Controller
      */
        public function update(Request $request)
     {
+
         $this->validate(request(), [
             'name' => 'required|string',
             'family' => 'required|string',
@@ -111,8 +112,9 @@ class ProfileController extends Controller
             'call' => 'numeric',
             'shenasnamecode' => 'numeric',
             'postalcode' => 'numeric',
-			'avatar' => 'mimes:jpg,jpeg,png|max:4096',
+
 			'password' => 'nullable|string|min:6|confirmed',
+            'avatar' => 'mimes:jpg,jpeg,png|max:4096',
         ]);
 
         $inputs = $request->all();
@@ -135,7 +137,7 @@ class ProfileController extends Controller
             Helper::deleteImage($user->imgshenasname);
             $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname,'document');
         }
-        
+
         if($request->urlimgmeli)
         {
             Helper::deleteImage($user->imgmeli);

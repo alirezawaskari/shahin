@@ -14,10 +14,12 @@ use App\Http\Controllers\Admin\DiseaseController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Http\Controllers\Admin\FactorController;
+use App\Http\Controllers\Admin\FactorItemController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayChooseController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShortLinkController;
@@ -39,6 +41,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RegisterCampaignController;
+use App\Http\Controllers\TestController;
 use App\Models\Center;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
@@ -171,6 +174,7 @@ Route::group([], function () {
         ]);
     });
 });
+Route::get('test/pay',[TestController::class,'test']);
 
 Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 
@@ -334,7 +338,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 // Financial plans types
     Route::post('/financialPlansType/selectByCategory', [CategoryController::class, 'child'])->name('category.get.child');
     Route::post('/financialPlansType/setByPaymentType', [FinancialPlansTypeController::class, 'setFinancialPlansTypeByPaymentType']);
-    Route::get('/financialPlansType/filter', [FinancialPlansTypeController::class, 'filter']);
+    Route::get('/financialPlansType/filter', [FinancialPlansTypeController::class, 'filter'])->name('home.financialPlansType.filter');
     // Route::get('/financialPlansType/{service}', 'FinancialPlansTypeController@getByService')->name('service.financialPalnsTypes');
 
     Route::resource('financialPlansType' , 'FinancialPlansTypeController');
@@ -370,7 +374,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/factorItem/expire', 'FactorItemController@expire');
     Route::post('/factorItem/sendInitialLink/{factorItem}', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
     Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
-    Route::resource('factorItem', 'FactorItemController');
+    Route::resource('factorItem', FactorItemController::class);
     Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
     Route::post('/factoritem/set-center' , 'FactorItemController@setCenter')->name('factorItem.setCenter');
     Route::post('/factoritem/change-factoritemable' , 'FactorItemController@changeFactoritemable')->name('factorItem.changeFactoritemable');
@@ -440,6 +444,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //role
     Route::get('/role-create' , 'RoleController@create')->name('role.create');
     Route::get('/role/get-user-by-role' , 'RoleController@getUserByRole')->name('role.getUser');
+    Route::get('role/filter', [RoleController::class,'filter']);
     Route::resource('role', 'RoleController');
     Route::resource('permission', 'PermissionController');
     //ticket
@@ -458,6 +463,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
     Route::get('/service/filter', 'ServiceController@filter');
     Route::get('/service/indexTariffs/{service}', 'ServiceController@getIndexTariffs');
+    Route::get('/service/financialPlansType/{id}', 'ServiceController@getFinancialPlansType');
     Route::resource('service', 'ServiceController');
     Route::resource('serviceItem', 'ServiceItemController');
     //serviceIndexTariff

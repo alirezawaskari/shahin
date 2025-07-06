@@ -30,7 +30,7 @@
                                                         name="item[{{ $form->name }}]"> {{ isset($item['factor_values'][$form->name]) ? $item['factor_values'][$form->name] : $user[$form->name] }}</textarea>
                                 </div>
                                 @break
-                                @case('factor_dentist')
+                                @case('طfactor_dentist')
                                 @foreach($item['factorItems'] as $factoritem)
                                 <div class="col-12 col-md-12 mb-3">
                                     طرح درمان {{ $factoritem->factor->user->name.'
