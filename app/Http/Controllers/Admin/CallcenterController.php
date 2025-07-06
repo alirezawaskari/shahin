@@ -450,13 +450,13 @@ class CallcenterController extends Controller
                 }
             }
             elseif (is_array($services) && count($services)>0){
-                foreach ($services as $service) {
-                    if($service->id === 104){
-                        return redirect()->back()->with( [
-                            'create' => 'success'
-                        ]);
-                    }
-                }
+                // foreach ($services as $service) {
+                //     if($service->id === 104){
+                //         return redirect()->back()->with( [
+                //             'create' => 'success'
+                //         ]);
+                //     }
+                // }
                 self::sendSmsLinkSite($request , $client , $task,$services);
             }
             Helper::vipUser($request->vip, $client->id);
@@ -1273,8 +1273,8 @@ class CallcenterController extends Controller
     private function updateCallcenterFieldIsOnlinePayTypeFactor($callcenter , $payment_type)
     {
         $callcenter->update([
-            'status' => $payment_type == "online" ? $callcenter->status : 3,
-            'user_id' => $payment_type == "online" ? $callcenter->user_id : auth()->user()->id,
+            'status' => ($payment_type == "online" || $payment_type == 'send_card_number' || $payment_type == 'send_shaba_number')? $callcenter->status : 3,
+            'user_id' => ($payment_type == "online" || $payment_type == 'send_card_number' || $payment_type == 'send_shaba_number') ? $callcenter->user_id : auth()->user()->id,
         ]);
     }
     /**
