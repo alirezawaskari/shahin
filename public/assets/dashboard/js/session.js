@@ -145,7 +145,7 @@ $(document).ready(function () {
                     "data": data,
                     "render": function ( data ) {
                         let display='none';
-                        if($('#delete').val()==1){
+                        if($('#delete').val() === 1){
                             display='block';
                         }
                         if(document.getElementById("type").value == 'confirm')

@@ -48,6 +48,7 @@
             </div>
         </form>
     </div>
+    <input type="hidden" value="{{$delete}}" id="delete">
 </div>
 
 <div class="card position-relative">

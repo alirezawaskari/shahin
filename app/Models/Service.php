@@ -352,7 +352,7 @@ class Service extends Model
         $purchase_type = request('purchase_type');
         $pay_type = request('pay_type');
         $query->whereDoesntHave('ghorfeOnlineLists');
-
+        $query->where('deleted_at',null);
         if (auth()->user() && auth()->user()->admin_representation) {
             $representation = auth()->user()->admin_representation->id;
             $query->whereHas('representations', function ($query) use ($representation) {

@@ -104,6 +104,11 @@ $(document).ready(function () {
                 {
                     "data": data,
                     "render": function (data) {
+                        let display='none';
+
+                        if($('#delete').val() == 1){
+                            display='block';
+                        }
                         return `<div data-v-15965e3b="" class="dropdown" id="taskDetailModal">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
@@ -115,6 +120,7 @@ $(document).ready(function () {
                             <a href="/dashboard/service_before_form/${data.slug}"><span class="color-edit dropdown-item pointer">فیلدهای بعد از پرداخت</span></a>
                             <a href="/dashboard/service/indexTariffs/${data.slug}"><span class="color-edit dropdown-item pointer">فهرست تعرفه های شاخص</span></a>
                             <a href="/dashboard/service/financialPlansType/${data.id}"><span class="color-edit dropdown-item pointer">فهرست طرح های مالی</span></a>
+                            <button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button>
                             </div></div>`
                     }
                 }
@@ -170,6 +176,52 @@ $(document).ready(function () {
                 url: url
             }).done(function (data) {
                 $('.dataPagination').html(data);
+            });
+        }
+    });
+
+    $("body").on('click','.service_delete',function () {
+        var id = $(this).data("id");
+        var token = $("meta[name='csrf-token']").attr("content");
+        console.log(id);
+        console.log(token);
+        $('#excel').prop('checked', false);
+        submit();
+        function submit(event) {
+            swal({
+                title: "آیا مطمئن هستید؟",
+                text: "",
+                icon: "warning",
+                buttons: {
+                    confirm: 'بله',
+                    cancel: 'خیر'
+                },
+                dangerMode: true
+            }).then(res => {
+                if (res) {
+                    $.ajax(
+                        {
+                            url: "/dashboard/service/"+id,
+                            type: 'DELETE',
+                            data: {
+                                "_token": token,
+                            },
+                            success: function (data,page){
+                                if (data.status=='success'){
+                                    fetchData(page)
+                                    swal({
+                                        text: "خدمات با موفقیت حذف گردید .",
+                                        icon: "success",
+                                        button: "تایید",
+                                        timer:3000,
+                                        allowOutsideClick: true
+                                    });
+                                }else{
+                                    swal("خطا !", data.message,'error')
+                                }
+                            }
+                        });
+                }
             });
         }
     });
