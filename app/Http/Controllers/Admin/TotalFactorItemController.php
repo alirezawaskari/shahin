@@ -357,6 +357,7 @@ class TotalFactorItemController extends Controller
         }
         if (auth()->user()->hasRole('consulting_contract_affairs')) {
             $total_factor_items = TotalFactorItem::where('status_mali', 4)->filter()->latest();
+
         }
         if (!auth()->user()->admin_representation) {
             $total_factor_items->whereHas('factor', function ($total_factor_items){

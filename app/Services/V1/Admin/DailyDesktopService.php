@@ -73,6 +73,7 @@ class DailyDesktopService
             'count_factor_warehouseKeeper' => 0,
             'count_factoritem_mali' => 0,
             'count_factoritem_consulting_contract_affairs' => 0,
+            'count_factoritem_mali_consulting_contract_affairs' => 0,
             'count_factoritem_mali_legal' => 0,
             'count_factoritem_mali_mali' => 0,
             'count_factoritem_mali_superadmin' => 0,
@@ -89,6 +90,7 @@ class DailyDesktopService
             $counts['count_factoritem_mali_representation'] = TotalFactorItem::where('total_factor_item_status_id', 11)->count();
             $counts['count_factoritem_superadmin_representation'] = TotalFactorItem::where('total_factor_item_status_id', 12)->count();
             $counts['count_factoritem_filing'] = FactorItem::where('status_factor', 9)->count();
+
         } else {
             $counts['count_factor_supplier'] = $user->supplier
                 ? PurchaseInvoice::where('supplier_id', $user->supplier->id)->where('status', 0)->count()
@@ -103,6 +105,7 @@ class DailyDesktopService
             $counts['count_factoritem_mali_superadmin'] = TotalFactorItem::where('status_mali', 8)->count();
             $counts['count_factoritem_superadmin'] = TotalFactorItem::where('total_factor_item_status_id', 8)->count();
             $counts['count_factoritem_filing'] = TotalFactorItem::where('total_factor_item_status_id', 9)->count();
+            $counts['count_factoritem_mali_consulting_contract_affairs'] = TotalFactorItem::where('status_mali', 4)->filter()->count();
         }
         return $counts;
     }

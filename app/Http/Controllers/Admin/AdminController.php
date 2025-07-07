@@ -10,6 +10,7 @@ use App\Models\Contact;
 use App\Models\Representation;
 use App\Models\Request as RequestModal;
 use App\Models\Service;
+use App\Models\TotalFactorItem;
 use App\Models\User;
 use App\Models\WorkSample;
 use App\Services\V1\Admin\DailyDesktopService;
@@ -162,6 +163,7 @@ class AdminController extends Controller
         $role = $this->dailyDesktopService->getUserRole($user);
         $representation = $this->dailyDesktopService->getUserRepresentation($user);
         $centerId = $this->dailyDesktopService->getUserCenterId($user);
+
         $item = [
             'count_tickets' => $this->dailyDesktopService->getUnprocessedTicketCount($user),
             'count_factoritem_confirm' => 0,
@@ -175,7 +177,6 @@ class AdminController extends Controller
         }
 
         $item += $this->dailyDesktopService->getFactorCounts($user, $representation);
-
         $expire_dates = $this->dailyDesktopService->getExpireDates();
         $near_end_date_financial_plans = $this->dailyDesktopService->getNearEndDateFinancialPlans();
 
@@ -190,7 +191,6 @@ class AdminController extends Controller
         $users = User::where('family', 'LIKE', '%' . $request->value . '%')->orWhere('phone', $request->value)->get();
         return response(['operator' => true, 'data' => $users]);
     }
-
     /**
      * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
