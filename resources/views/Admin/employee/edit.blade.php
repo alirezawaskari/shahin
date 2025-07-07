@@ -192,6 +192,10 @@
                             <input value="{{ $employee->shaba_number }}" type="text" name="employee[shaba_number]" class="form-control">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
+                            <label>شماره کارت</label>
+                            <input value="{{ $employee->card_number }}" type="text" name="employee[card_number]" class="form-control">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
                             <label>کیف پول کاربر</label>
                             <input value="{{ number_format($employee->user->wallet) }}" type="text" name="wallet" class="form-control" oninput="separatePrices(this)">
                         </div>

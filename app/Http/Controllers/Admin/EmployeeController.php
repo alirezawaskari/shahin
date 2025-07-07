@@ -189,15 +189,10 @@ class EmployeeController extends AdminController
 
         if ($role_id == 0) {
             if ($user->roles->count() != 0) {
-                $user->detachRole($user->roles[0]->id);
+                $user->removeRole($user->roles[0]->id);
             }
         } else {
-            if ($user->roles->count() != 0) {
-                $user->detachRole($user->roles[0]->id);
-                $user->attachRole($role_id);
-            } else {
-                $user->attachRole($role_id);
-            }
+            $user->syncRoles([$role_id]);
         }
 
         return redirect()->back()->with([
