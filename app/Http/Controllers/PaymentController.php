@@ -174,18 +174,19 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
         try {
             $token = $request->get('token', $request->get('Token'));
             $State = $request->get('State', $request->get('State'));
+            $RefNum = $request->get('RefNum', $request->get('RefNum'));
 
             $factor = Factor::where('factorable_type', $token)->first();
 
             if ($State !== 'OK') {
                 return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال به سامانه امکانپذیر نمیباشد، نگران نباشید در اسرع وقت این مشکل برطرف میگردد، در صورت عدم اتصال به سایت لطفا با شماره پشتیبانی لاله تماس حاصل نمائید
-۰۹۳۶۶۳۴۲۱۴۵
-اداره کل فناوری و‌اطلاعات سجا
-شبکه خدمات درمانی و‌رفاهی لاله';
+                    ۰۹۳۶۶۳۴۲۱۴۵
+                    اداره کل فناوری و‌اطلاعات سجا
+                    شبکه خدمات درمانی و‌رفاهی لاله';
             }
             $response = \Illuminate\Support\Facades\Http::post('https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTranscation', [
                 'TerminalNumber' => '14541809',
-                'RefNum' => '5656',
+                'RefNum' => $RefNum,
                 'IgnoreNationalcode' => true,
                 'NationalCode' => '',
             ]);
