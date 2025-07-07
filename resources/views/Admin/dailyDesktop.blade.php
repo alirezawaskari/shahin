@@ -318,7 +318,7 @@
 
                                     <td><span id="iran-sms-credit"></span>
                                         <i style="display: none;padding-right: 10px" class=" fetch-iran-sms-credit-success fa fa-check-square" ></i>
-                                        <i class="fetch-iran-sms-credit  fa fa-refresh" style="cursor: pointer;padding-right: 10px"></i> </td>
+                                        <i class="fetch-iran-sms-credit fa fa-refresh" style="cursor: pointer;padding-right: 10px"></i> </td>
 
                             </tr>
 
