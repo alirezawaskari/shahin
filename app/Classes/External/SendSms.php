@@ -27,8 +27,7 @@ class SendSms
                     IranSms::sendSingleSms($phone, $message);
                 }
             }
-        }else{
-           return redirect('500');
         }
+        return redirect('500');
     }
 }
