@@ -183,8 +183,6 @@ $(document).ready(function () {
     $("body").on('click','.service_delete',function () {
         var id = $(this).data("id");
         var token = $("meta[name='csrf-token']").attr("content");
-        console.log(id);
-        console.log(token);
         $('#excel').prop('checked', false);
         submit();
         function submit(event) {
