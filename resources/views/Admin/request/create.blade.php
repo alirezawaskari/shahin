@@ -48,7 +48,7 @@
 
 
                     <div class="col-12 col-md-12 mb-4 productsBox" style="display: none;">
-                        <label>محصولات *</label>
+                        <label>کالا ها *</label>
 
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                 data: {store_room_id: store_room_id,type:type},
                 success: function (result) {
                     if(result['status'] == 'true'){
-                        var lbl='<label>محصولات</label>';
+                        var lbl='<label>کالا ها</label>';
                         var a_sel = $('<select class="form-control selectMulti productSelect" name="product_store_room_id[]" multiple="multiple">');
                         $(result['products']).each(function (index, val) {
                             if(val.brand_title != null){

@@ -21,7 +21,7 @@
             <div class="card overflow-hidden {{ $item['count_product_storeRoom_expiring'] > 0 ? 'bg-danger' : '' }}">
                 <div class="card-body text-center">
                     <div class="m-b-10">
-                        <h5 class="alert alert-warning"> تعداد محصول درحال انقضا
+                        <h5 class="alert alert-warning"> تعداد کالا درحال انقضا
                             : {{$item['count_product_storeRoom_expiring']}}</h5>
                         <a href="/dashboard/storeRoom/list-product-expiring" class="btn btn-warning text-white mt-3">مشاهده</a>
                     </div>

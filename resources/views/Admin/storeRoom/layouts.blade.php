@@ -16,7 +16,7 @@
                 @permission('product' | 'product-detail')
                 <a href="{{ route('product.index') }}" class="btn btn-link btn-float has-text text-size-small rtl">
                     <i class="fa fa-edit text-indigo-400" aria-hidden="true"></i>
-                    <span>فهرست محصولات</span>
+                    <span>فهرست کالا ها</span>
                 </a>
                 @endpermission
                 @permission('store-room')

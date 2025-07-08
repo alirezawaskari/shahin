@@ -24,7 +24,7 @@
                 </li>
                 <li class="nav-item"><a id="product-tab" data-toggle="tab" href="#product" role="tab"
                                         aria-controls="product" aria-selected="false"
-                                        class="nav-link show">محصول</a>
+                                        class="nav-link show">کالا</a>
                 </li>
                 <li class="nav-item"><a id="center-tab" data-toggle="tab" href="#center" role="tab"
                                         aria-controls="center" aria-selected="false"
@@ -90,8 +90,8 @@
                         <input name="coupon_id" class="coupon_id" value="{{$coupon_id}}" type="hidden">
                         <input name="type" value="product" type="hidden">
                         <div class="row">
-                            <div class="col-12 col-md-8 mb-3"><label>عنوان محصول </label>
-                                <input title="product_id" placeholder="محصول " class="form-control productName">
+                            <div class="col-12 col-md-8 mb-3"><label>عنوان کالا </label>
+                                <input title="product_id" placeholder="کالا " class="form-control productName">
                             </div>
                             <div class="col-12 col-md-4 mb-3"><label>مرکز</label>
                                 <select class="form-control center_id" name="center_id" title="center_id">

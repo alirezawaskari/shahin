@@ -59,7 +59,7 @@
                         <input type="checkbox" id="customSwitchIsShow" class="custom-control-input" name="is_show"
                                value="1" @if($attribute->is_show == 1) checked @endif>
                         <label for="customSwitchIsShow" class="custom-control-label">قابلیت نمایش در صفحه تکی
-                            محصول</label>
+                            کالا</label>
                     </div>
                 </div>
                 <br/><br/>

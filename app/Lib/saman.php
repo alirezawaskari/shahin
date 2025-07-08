@@ -14,9 +14,11 @@ class saman
         session(['resnumber' => $resNum]);
         $sheba = Setting::first()->shaba_number;
         $IBANInfo = [
-            "IBAN" => $sheba,
-            "Amount" => $amount,
-            "PurchaseID" => "000000000000000000000000000000000000000"
+            [
+                "IBAN" => $sheba,
+                "Amount" => $amount,
+                "PurchaseID" => "000000000000000000000000000000000000000"
+            ]
         ];
         $payload = [
             'action'      => 'token',

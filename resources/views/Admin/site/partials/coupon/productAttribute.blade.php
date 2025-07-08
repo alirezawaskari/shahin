@@ -25,6 +25,6 @@
 
 <br/> <br/>
 <div class="col-12 col-md-12 mb-3">
-    <button type="submit" class="btn btn-success saveCouponItem"> ثبت و افزودن محصول بعدی </button>
+    <button type="submit" class="btn btn-success saveCouponItem"> ثبت و افزودن کالا بعدی </button>
 </div>
 

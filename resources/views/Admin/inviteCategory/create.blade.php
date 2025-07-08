@@ -30,8 +30,8 @@
                                name="invitecategoryable" title="دسته بندی"
                                value="category"><span class="lblRadioBtn font-weight-bold font16">دسته بندی </span>
                         <input class="products_selected" type="radio"
-                               name="invitecategoryable" title="محصولات"
-                               value="product"><span class="lblRadioBtn font-weight-bold font16">محصولات </span>
+                               name="invitecategoryable" title="کالا ها"
+                               value="product"><span class="lblRadioBtn font-weight-bold font16">کالا ها </span>
                     </div>
                     <div class="col-10 col-md-12 mb-5 services_box" style="display: none;">
                         <label>خدمات </label>
@@ -54,11 +54,11 @@
                     <div class="col-10 col-md-12 mb-5 products_box" style="display: none;">
                         <br/>
                         <div class="productSelected mb-5">
-                            <span>لیست محصولات انتخاب شده :</span>
+                            <span>لیست کالا ها انتخاب شده :</span>
                         </div>
 
                         <div class="col-6 col-md-6 mb-5 frmSearch padZ">
-                            <label>لطفا نام محصول را کامل وارد نمایید</label>
+                            <label>لطفا نام کالا را کامل وارد نمایید</label>
                             <input type="text" id="search-box" class="form-control" placeholder="بیش از سه حرف وارد کنید .."
                                    autocomplete="off"/>
                             <div id="suggesstion-box"></div>

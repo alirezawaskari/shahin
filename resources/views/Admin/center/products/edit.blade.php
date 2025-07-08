@@ -4,7 +4,7 @@
 
     <div class="card">
         <div class="card-body">
-            <div class="x_title disInline"><h4>ویرایش محصول</h4></div>
+            <div class="x_title disInline"><h4>ویرایش کالا</h4></div>
 
             <form class="form-horizontal" method="post"  action="{{route('center.products.update',$product->id)}}"
                   enctype="multipart/form-data">
@@ -337,10 +337,10 @@
                                                         <li>تصویر شما باید مربعی باشد یا ابعاد یک در یک داشته باشد.</li>
                                                         <li>فرمت تصاویر بایستی JPG باشد.</li>
                                                         <li>ثبت یک عکس ضروری می باشد و در صورت ثبت یک عکس می توانید
-                                                            محصول را ثبت
+                                                            کالا را ثبت
                                                             کنید.
                                                         </li>
-                                                        <li>پرچم: برای مشخص کردن تصویر اصلی محصول، علامت پرچم را انتخاب
+                                                        <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب
                                                             کنید.
                                                         </li>
                                                         <li>سطل زباله: اگر تصویر را به اشتباه انتخاب کرده‌اید، روی علامت

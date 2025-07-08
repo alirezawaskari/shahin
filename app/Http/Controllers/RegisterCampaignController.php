@@ -58,7 +58,7 @@ class RegisterCampaignController extends Controller
             $Campaign = Campaign::findOrFail($campaign_id);
             $Campaign->usage = $Campaign->usage - 1;
             $Campaign->update();
-            $description =  "برای کمپین : $Campaign->name";
+            $description =  "برای پوییش : $Campaign->name";
             History::create($task , $task->user_id , null , $task->status , $description);
         }
         return redirect('home')->with([

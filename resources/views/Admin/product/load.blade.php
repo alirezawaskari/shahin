@@ -7,7 +7,7 @@
             <td>ردیف</td>
             @if($type_id == 1)
                 <th>عکس</th>@endif
-            <th>کد محصول</th>
+            <th>کد کالا</th>
             <th>عنوان</th>
             @if($type_id == 1)
                 <th>گروه اصلی</th>

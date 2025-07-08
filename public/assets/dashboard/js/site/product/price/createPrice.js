@@ -44,7 +44,7 @@ $('.productPrice').click(function () {
     if ($('.center_id').val()) center_id = $('.center_id').val();
     var product_store_room_id = [];
     if ($('.product_store_room_id').val()) product_store_room_id = $('.product_store_room_id').val();
-    
+
     if (center_id.length || product_store_room_id.length) {
         if (price !== '' && price > 0) {
             if (parseInt(price) <= parseInt(reference_price)) {
@@ -82,10 +82,10 @@ $('.productPrice').click(function () {
                                             location.reload();
                                         }
                                         if (result === '301') {
-                                            toastr.warning('محصول با این ویژگی قبلا ثبت شده است. اگر تمامی موارد مانند ویژگی ثبت شده قبلی باشد ، به موجودی این تنوع اضافه می شود. ');
+                                            toastr.warning('کالا با این ویژگی قبلا ثبت شده است. اگر تمامی موارد مانند ویژگی ثبت شده قبلی باشد ، به موجودی این تنوع اضافه می شود. ');
                                         }
                                         if (result === '200') {
-                                            toastr.success('محصول با این ویژگی قبلا ثبت شده است، موجودی جدید وارد شده به این تنوع اضافه می شود. ');
+                                            toastr.success('کالا با این ویژگی قبلا ثبت شده است، موجودی جدید وارد شده به این تنوع اضافه می شود. ');
                                         }
                                     }
                                 });

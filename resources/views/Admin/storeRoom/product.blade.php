@@ -29,7 +29,7 @@
             @permission('product' | 'product-detail')
             <a {{--href="{{ route('storeRoom.create.product' , [ $storeRoom->id ]) }}"--}} class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-edit text-indigo-400" aria-hidden="true"></i>
-                <span>ایجاد محصول جدید</span>
+                <span>ایجاد کالا جدید</span>
             </a>
             @endpermission
             @permission('store-room')
@@ -46,7 +46,7 @@
         <form method="get" role="form" action="{{ route('storeRoom.product.filter', [ $storeRoom->id ]) }}">
             <div class="row">
                 <div class="col-12 col-md-3 mb-2">
-                    <input type="text" class="form-control" name="name" placeholder="نام محصول" />
+                    <input type="text" class="form-control" name="name" placeholder="نام کالا" />
                 </div>
 
                 <div class="col-12 col-md-3 mb-2">
@@ -91,7 +91,7 @@
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="expiredProducts" name="expired_products">
-                            <label class="custom-control-label" for="expiredProducts">محصولات منقضی شده</label>
+                            <label class="custom-control-label" for="expiredProducts">کالا ها منقضی شده</label>
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="expiringProducts" name="expiring_products">
-                            <label class="custom-control-label" for="expiringProducts">محصولات درحال انقضا</label>
+                            <label class="custom-control-label" for="expiringProducts">کالا ها درحال انقضا</label>
                         </div>
                     </div>
                 </div>
@@ -109,7 +109,7 @@
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="finishingProducts" name="finishing_products">
-                            <label class="custom-control-label" for="finishingProducts">محصولات روبه اتمام</label>
+                            <label class="custom-control-label" for="finishingProducts">کالا ها روبه اتمام</label>
                         </div>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                         <th>اعلام انقضا (روز)</th>
                         <th>نقطه سفارش</th>
                         <th>زمان سفارش (روز)</th>
-						<th>نوع محصول</th>
+						<th>نوع کالا</th>
                         <th>موجودی</th>
 						<th>انبار</th>
 						<th>تاریخ ورود</th>

@@ -28,7 +28,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th> محصول / دسته بندی / خدمات / مرکز</th><th>اقدام</th>
+                    <th> کالا / دسته بندی / خدمات / مرکز</th><th>اقدام</th>
                 </tr>
                 </thead>
                 <tbody>

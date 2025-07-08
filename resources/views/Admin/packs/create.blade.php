@@ -86,7 +86,7 @@
 
 
                     <div class="col-12 col-md-12 mb-3">
-                        <label>انتخاب محصول *</label>
+                        <label>انتخاب کالا *</label>
                         <div class="productsPackBox">
                             <select class="js-example-basic-single form-control productsPack" name="product_id[]" multiple="multiple">
                             </select>

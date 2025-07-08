@@ -4,11 +4,11 @@
 
     <div class="page-header">
         <div>
-            <h3>اعتبارسنجی محصولات</h3>
+            <h3>اعتبارسنجی کالا ها</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"> لیست اعتبارسنجی محصولات</li>
+                    <li class="breadcrumb-item active" aria-current="page"> لیست اعتبارسنجی کالا ها</li>
                 </ol>
             </nav>
         </div>

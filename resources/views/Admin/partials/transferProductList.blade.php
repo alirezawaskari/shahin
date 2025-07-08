@@ -3,7 +3,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-            <h5>لیست محصولات</h5>
+            <h5>لیست کالا ها</h5>
             <div class="clearfix"></div>
         </div>
         <div class="x_content">

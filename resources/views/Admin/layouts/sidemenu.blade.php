@@ -465,11 +465,11 @@
             <li><a href="#"><i class="icon ti-control-record"></i><span>سایت</span> </a>
                 <ul>
                     @permission('product-detail')
-                    <li><a href="#"><i class="icon ti-control-record"></i><span>محصولات</span></a>
+                    <li><a href="#"><i class="icon ti-control-record"></i><span>کالا ها</span></a>
                         <ul>
                             @if(\App\Models\User::checkManager() != null)
                             <li><a href="{{ route('products.show', 1) }}"><i
-                                        class="icon ti-control-record"></i><span>مدیریت محصولات</span></a></li>
+                                        class="icon ti-control-record"></i><span>مدیریت کالا ها</span></a></li>
                             <li><a href="{{ route('editInformation', 1) }}"><i
                                         class="icon ti-control-record"></i><span>مدیریت تنوع و قیمت گذاری</span></a>
                             </li>
@@ -480,16 +480,16 @@
                             <li><a href="{{ route('products.index') }}"><i class="icon ti-control-record"></i><span>مواد
                                         اولیه</span></a></li>
                             <li><a href="{{ route('products.show', 1) }}"><i
-                                        class="icon ti-control-record"></i><span>مدیریت محصولات</span></a></li>
+                                        class="icon ti-control-record"></i><span>مدیریت کالا ها</span></a></li>
                             @endif
 
                         </ul>
                     </li>
-                    <li><a href="{{ route('pack.index') }}"><i class="icon ti-control-record"></i>پک محصولات</a></li>
+                    <li><a href="{{ route('pack.index') }}"><i class="icon ti-control-record"></i>پک کالا ها</a></li>
 
                     @if(\App\Models\User::checkManager() != null)
                     <li><a href="/dashboard/find/product">
-                            <i class="icon ti-control-record"></i>جستجو و درج محصول </a>
+                            <i class="icon ti-control-record"></i>جستجو و درج کالا </a>
                     </li>
                     @endif
                     @endpermission
@@ -568,7 +568,7 @@
 
                     @permission('validation')
                     <li><a href="{{ route('validation.index') }}"><i class="icon ti-control-record"></i> اعتبارسنجی
-                            محصولات </a></li>
+                            کالا ها </a></li>
                     @endpermission
 
                     @permission('comment-detail')
@@ -581,7 +581,7 @@
                             <li><a href="{{ route('coupon.index') }}"> <i class="icon ti-control-record"></i> کد تخفیف
                                     عمومی</a></li>
                             <li><a href="{{ route('coupons.discountVarietyProduct') }}"> <i
-                                        class="icon ti-control-record"></i>کد تخفیف تنوع محصولات توسط مراکز</a></li>
+                                        class="icon ti-control-record"></i>کد تخفیف تنوع کالا ها توسط مراکز</a></li>
                         </ul>
                     </li>
                     @endpermission

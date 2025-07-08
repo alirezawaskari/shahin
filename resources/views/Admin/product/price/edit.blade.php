@@ -35,7 +35,7 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label for="seller_code">کد محصول فروشنده :</label>
+                        <label for="seller_code">کد کالا فروشنده :</label>
                         <input id="seller_code" type="text" class="form-control seller_code" name="seller_code"
                                value="{{$product_attribute->seller_code}}">
                     </div>

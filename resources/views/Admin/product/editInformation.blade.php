@@ -12,7 +12,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
                     <li class="breadcrumb-item active" aria-current="page">
-                        @if($type_id == 1)  مدیریت تنوع و قیمت گذاری | <span>فعال و غیرفعال کردن تنوع های محصول، تغییر قیمت ، موجودی و اعمال تخفیف از این قسمت امکان پذیر است.</span> @endif
+                        @if($type_id == 1)  مدیریت تنوع و قیمت گذاری | <span>فعال و غیرفعال کردن تنوع های کالا، تغییر قیمت ، موجودی و اعمال تخفیف از این قسمت امکان پذیر است.</span> @endif
                     </li>
                 </ol>
             </nav>
@@ -24,7 +24,7 @@
                 <div class="row">
 
                     <div class="col-12 col-md-3 mb-2">
-                        <input class="form-control" name="product_id" placeholder="کد محصول"
+                        <input class="form-control" name="product_id" placeholder="کد کالا"
                                value="@if(isset($queries['product_id'])) @if($queries['product_id']) {{$queries['product_id']}} @endif @endif">
                     </div>
                     <div class="col-12 col-md-3 mb-2">
@@ -38,7 +38,7 @@
                     </div>
 
                     <div class="col-12 col-md-3 mb-2">
-                        <input class="form-control" name="product_name" placeholder=" عنوان فارسی محصول"
+                        <input class="form-control" name="product_name" placeholder=" عنوان فارسی کالا"
                                value="@if(isset($queries['product_name'])) @if($queries['product_name']) {{$queries['product_name']}} @endif @endif">
                     </div>
 

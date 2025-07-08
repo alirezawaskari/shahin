@@ -31,7 +31,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th>دسته بندی / خدمت / محصول</th>
+                    <th>دسته بندی / خدمت / کالا</th>
                     <th>درصد</th>
                     <th>اقدام</th>
                 </tr>

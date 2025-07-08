@@ -39,7 +39,7 @@
                             </td>
                             <td>
                                 <a href="{{ url('dashboard/create-product-storeRoom' , [ $safe_box->id]) }}"
-                                   class="btn btn-primary">محصولات
+                                   class="btn btn-primary">کالا ها
                                 </a>
                             </td>
                         </tr>

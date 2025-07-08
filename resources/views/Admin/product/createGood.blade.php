@@ -3,7 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <div class="x_title"><h4>ثبت محصول</h4></div>
+            <div class="x_title"><h4>ثبت کالا</h4></div>
 
             <form class="form-horizontal" method="post" action="{{route('products.store')}}"
                   enctype="multipart/form-data">
@@ -96,10 +96,10 @@
                                                 </li>
                                                 <li>تصویر شما باید مربعی باشد یا ابعاد یک در یک داشته باشد.</li>
                                                 <li>فرمت تصاویر بایستی JPG باشد.</li>
-                                                <li>ثبت یک عکس ضروری می باشد و در صورت ثبت یک عکس می توانید محصول را ثبت
+                                                <li>ثبت یک عکس ضروری می باشد و در صورت ثبت یک عکس می توانید کالا را ثبت
                                                     کنید.
                                                 </li>
-                                                <li>پرچم: برای مشخص کردن تصویر اصلی محصول، علامت پرچم را انتخاب کنید.
+                                                <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب کنید.
                                                 </li>
                                                 <li>سطل زباله: اگر تصویر را به اشتباه انتخاب کرده‌اید، روی علامت سطل
                                                     زباله کلیک کنید تا تصویر مورد نظر حذف شود
@@ -186,7 +186,7 @@
                                                     @endif
                                                 </div><br/>
                                             </div>
-                                            <button type="submit" class="btn btn-success submitGood floatLeft mrgT20" style="display:none">ثبت و درج محصول بعدی</button>
+                                            <button type="submit" class="btn btn-success submitGood floatLeft mrgT20" style="display:none">ثبت و درج کالا بعدی</button>
 
                                             <br/><br/>
                                             <hr/>

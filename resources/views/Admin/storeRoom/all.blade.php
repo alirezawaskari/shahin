@@ -39,7 +39,7 @@
                                 </a>
                                 <div class="dropdown-menu">
                                     <a href="{{ route('storeRoom.edit' , [$store_room->id]) }}"><button type="button" class="dropdown-item pointer">ویرایش</button></a>
-                                    <a href="{{ url('dashboard/create-product-storeRoom' , [$store_room->id]) }}"><button type="button" class="dropdown-item pointer">محصولات</button></a>
+                                    <a href="{{ url('dashboard/create-product-storeRoom' , [$store_room->id]) }}"><button type="button" class="dropdown-item pointer">کالا ها</button></a>
                                 </div>
                             </div>
                         </td>

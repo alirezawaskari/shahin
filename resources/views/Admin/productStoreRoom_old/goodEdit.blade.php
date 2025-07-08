@@ -3,7 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-body ">
-            <div class="x_title"><h4>  ویرایش محصول<span>   {{$product->name}}</span></h4></div>
+            <div class="x_title"><h4>  ویرایش کالا<span>   {{$product->name}}</span></h4></div>
 
             <br/>
             <form class="form-horizontal mb-3" method="post"
@@ -15,7 +15,7 @@
                         @include('siteAdmin.partials.editProductStoreRoom',['store_rooms_rec'=>$pro_store_rooms,'type'=>$product->type])
                     </div>
 
-                    <br/><br/><h4 class="marginAuto mb-5">ویرایش اطلاعات محصول</h4>
+                    <br/><br/><h4 class="marginAuto mb-5">ویرایش اطلاعات کالا</h4>
 
                     @include('siteAdmin.partials.editGoodForm',['product'=>$product])
                 </div>

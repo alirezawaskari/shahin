@@ -16,7 +16,7 @@
 
                 <div class="row">
                     <div class="col-12 col-md-12 mb-5">
-                        <label>محصولات</label>
+                        <label>کالا ها</label>
                         <select class="form-control selectMulti productSelect" name="" multiple="multiple">
                             @foreach($products as $product)
                                 <option value="{{$product->product_store_room_id}}" {{ in_array(trim($product->product_store_room_id) , $product_store_room_ids) ? 'selected' : '' }}>

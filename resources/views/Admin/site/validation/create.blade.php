@@ -6,7 +6,7 @@
         <div class="card-body">
 
             <div class="x_title">
-                <h4>ثبت اعتبارسنجی محصولات</h4>
+                <h4>ثبت اعتبارسنجی کالا ها</h4>
                 <div class="clearfix"></div>
             </div>
             <form class="form-horizontal" method="post"

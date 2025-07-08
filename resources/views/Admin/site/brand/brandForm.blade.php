@@ -32,7 +32,7 @@
         <label for="description_lbl"> شرح برند : <span class="required">*</span> :</label>
         <textarea id="description_lbl" class="form-control description" title="شرح کالا" rows="3" cols="5"
                   maxlength="100"
-                  placeholder="توضیحات برند باید بین 70 تا 100 کلمه درباره ی تاریخچه و محصولات برند باشد"
+                  placeholder="توضیحات برند باید بین 70 تا 100 کلمه درباره ی تاریخچه و کالا ها برند باشد"
                   name="description">{{old('description')}}</textarea>
         @if($errors->has('description'))
             <span class="help-block sub-error  "> {{$errors->first('description')}} </span>

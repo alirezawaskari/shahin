@@ -39,7 +39,7 @@
                     <th>نوع</th>
                     <th>قابلیت فیلتر</th>
                     <th>قابلیت قیمت گذاری</th>
-                    <th>قابلیت نمایش در صفحه محصول تکی</th>
+                    <th>قابلیت نمایش در صفحه کالا تکی</th>
                     <th>اقدام</th>
                 </tr>
                 </thead>
@@ -53,7 +53,7 @@
                         <td>{!! \App\Helpers\Helper::iconIsItOrNot($item->is_show) !!} </td>
                         <td>
                             <div data-v-15965e3b="" class="dropdown">
-                                <a href="#" data-toggle="dropdown" aria-haspopup="true" 
+                                <a href="#" data-toggle="dropdown" aria-haspopup="true"
                                    aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                     <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                                 </a>

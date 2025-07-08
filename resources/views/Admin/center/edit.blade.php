@@ -47,7 +47,7 @@
                     </select>
 
                     <select class="form-control mb-3" name="item[product_category]" id="product_category">
-                        <option selected disabled>انتخاب دسته بندی محصول مربوطه</option>
+                        <option selected disabled>انتخاب دسته بندی کالا مربوطه</option>
                         @foreach ($product_categories as $product_category)
                         <option value="{{ $product_category->id }}" {{ $center_request->center_category_id ==
                             $product_category->id ? 'selected'

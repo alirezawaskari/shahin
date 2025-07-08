@@ -3,7 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-body ">
-            <div class="x_title"><h4> ویرایش محصول<span>   {{$product->name}}</span></h4></div>
+            <div class="x_title"><h4> ویرایش کالا<span>   {{$product->name}}</span></h4></div>
 
             <br/>
             <form class="form-horizontal mb-3" method="post"
@@ -69,7 +69,7 @@
                 tokenSeparators: [',', ' ']
             })
         });
-   
+
         if (($(".expire_date").length > 0)) {
             $('.expire_date').persianDatepicker({
                 observer: true,

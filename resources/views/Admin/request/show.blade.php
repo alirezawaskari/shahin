@@ -26,7 +26,7 @@
                 <table class="table table-bordered table-striped mt-4">
                     <thead>
                     <tr>
-                        <th>محصول</th>
+                        <th>کالا</th>
                         <th>تعداد</th>
 						<th>موجودی</th>
 						<th> برند</th>

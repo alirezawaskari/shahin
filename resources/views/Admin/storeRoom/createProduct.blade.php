@@ -262,7 +262,7 @@
                                 <div class="ln_solid"></div>
                                 <div class="row form-group">
                                     <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <button class="btn btn-success agent-add" id="submit">ثبت محصول</button>
+                                        <button class="btn btn-success agent-add" id="submit">ثبت کالا</button>
                                     </div>
                                 </div>
                         </div>
@@ -382,7 +382,7 @@
                     </div>
                     <div class="col-12 col-md-2 mb-3">
                         <label>مدت زمان سفارش(روز)</label>
-                        <input type="text" class="form-control" name="order_day" data-toggle="tooltip" title="منظور از مدت زمان سفارش مدت زمانی ایست که طول می کشد تا محصول وارد انبار شود." required>
+                        <input type="text" class="form-control" name="order_day" data-toggle="tooltip" title="منظور از مدت زمان سفارش مدت زمانی ایست که طول می کشد تا کالا وارد انبار شود." required>
                     </div>
                     <div class="col-12 col-md-2 mb-3">
                         <label>تاریخ انقضا</label>

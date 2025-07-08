@@ -2,11 +2,11 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h3>ایجاد کمپین</h3>
+            <h3>ایجاد پوییش</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">کمپین</li>
+                    <li class="breadcrumb-item active" aria-current="page">پوییش</li>
                 </ol>
             </nav>
         </div>
@@ -23,7 +23,7 @@
                                     <div class="form-row border">
                                         <div
                                             class="card-header col-md-12 border  border-right-0 border-left-0  text-center">
-                                            اطلاعات کمپین
+                                            اطلاعات پوییش
                                         </div>
                                         <div class="col-12 col-md-4 form-group mb-2 mt-2">
                                             <label>نام پویش</label>

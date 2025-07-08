@@ -153,7 +153,7 @@ class ProductController extends Controller
      */
     public function handleCreateMaterials($type, $id)
     {
-        $page_title = 'ایجاد محصول مواد اولیه';
+        $page_title = 'ایجاد کالا مواد اولیه';
         $store_room_id = null;
         $purchase_invoice_id = null;
         if ($type == 'store_room') {
@@ -163,7 +163,7 @@ class ProductController extends Controller
         if ($type == 'store_room_internal_use') {
             $store_room_id = $id;
             $internal_use_material = 1;
-            $page_title = 'ایجاد محصول مصرف داخلی';
+            $page_title = 'ایجاد کالا مصرف داخلی';
         }
         if ($type == 'factor') {
             $purchase_invoice_id = $id;
@@ -567,7 +567,7 @@ class ProductController extends Controller
             }
         } else {
             return redirect(route('createGood'))
-                ->with(['failByMessage' => 'ثبت عکس  محصول ضروری می باشد.']);
+                ->with(['failByMessage' => 'ثبت عکس  کالا ضروری می باشد.']);
         }
     }
 
@@ -1034,7 +1034,7 @@ class ProductController extends Controller
 
             if (isset($product)) {
                 if (isset($request->center_id)) {
-                    //حذف از طریق لیست محصولات هر مرکز
+                    //حذف از طریق لیست کالا ها هر مرکز
                     if (isset($product->centers)) {
                         $center_products = $product->centers()->where('center_id', $request->center_id)->get();
                         foreach ($center_products as $center_product) {
@@ -1254,7 +1254,7 @@ class ProductController extends Controller
                 $product->message = null;
             }
             if ($product->status == 8) {
-                $product->message = 'بنا بر صلاح دید تیم بررسی ، محصول حذف شده است';
+                $product->message = 'بنا بر صلاح دید تیم بررسی ، کالا حذف شده است';
             }
             $product->save();
         }

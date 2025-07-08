@@ -24,7 +24,7 @@
             </a>
             <a href="{{ route('product.create') }}" class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-edit text-indigo-400" aria-hidden="true"></i>
-                <span>محصول جدید</span>
+                <span>کالا جدید</span>
             </a>
             <a href="{{ route('storeRoom.create') }}" class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>

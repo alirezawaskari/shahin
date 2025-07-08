@@ -16,7 +16,7 @@ class CampaignController extends Controller
 {
     public function index()
     {
-        $title = "کمپین";
+        $title = "پوییش";
         $campaigns = Campaign::all();
         return view('Admin.campaign.index',compact('campaigns','title'));
     }

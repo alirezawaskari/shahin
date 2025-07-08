@@ -183,7 +183,7 @@ return array(
         'resume' => 'فایل رزومه',
         'agent_id' => 'انتخاب پزشک',
         'cat_type' => 'نوع دسته بندی همکاری',
-        'product_category' => 'دسته بندی محصول مربوطه',
+        'product_category' => 'دسته بندی کالا مربوطه',
         'service_category' => 'دسته بندی خدمت مربوطه',
         'category' => 'فروش کالا',
         'service' => 'ارائه خدمات',

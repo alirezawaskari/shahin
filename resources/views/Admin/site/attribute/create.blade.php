@@ -58,7 +58,7 @@
                             <input type="checkbox" id="customSwitchIsShow" class="custom-control-input" name="is_show"
                                    value="1">
                             <label for="customSwitchIsShow" class="custom-control-label">قابلیت نمایش در صفحه تکی
-                                محصول</label>
+                                کالا</label>
                         </div>
                     </div>
 

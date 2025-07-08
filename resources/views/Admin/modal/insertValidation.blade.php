@@ -5,7 +5,7 @@
         <!-- Modal content-->
         <div id="{{$product_id}}" class="modal-content content1">
             <div class="modal-header">
-                <h4 class="modal-title">درج خطا برای مقادیر محصول</h4>
+                <h4 class="modal-title">درج خطا برای مقادیر کالا</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body modal-lg">

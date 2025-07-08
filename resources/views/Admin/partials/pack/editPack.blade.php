@@ -3,7 +3,7 @@
 </div>
 
 <div class="col-12 col-md-12 mb-5">
-    <label>انتخاب محصول</label>
+    <label>انتخاب کالا</label>
 
     <select class="js-example-basic-single form-control" name="product_id[]" multiple="multiple">
         <option value="">لطفا انتخاب کنید</option>

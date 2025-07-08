@@ -25,7 +25,7 @@
                             @endif
                             @if(count($campaign->campaign_collaboration) > 0)
                                 <div class="col-12  mx-auto">
-                                <h3 class="text-center mb-4">مشارکت‌کنندگان این کمپین</h3>
+                                <h3 class="text-center mb-4">مشارکت‌کنندگان این پوییش</h3>
                                 <div class="row justify-content-center">
                                     @foreach($campaign->campaign_collaboration as $campaign_collaboration)
                                         <div class="col-12 col-md-6 mb-4 d-flex justify-content-center">

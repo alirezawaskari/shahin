@@ -4,7 +4,7 @@
         <div class="card-body">
 
             <div class="x_title">
-                <h4>ویرایش اعتبارسنجی محصولات</h4>
+                <h4>ویرایش اعتبارسنجی کالا ها</h4>
                 <div class="clearfix"></div>
             </div>
 
