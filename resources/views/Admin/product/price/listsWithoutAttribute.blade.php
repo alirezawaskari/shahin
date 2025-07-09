@@ -4,11 +4,11 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h3>لیست تنوع های محصول</h3>
+            <h3>لیست تنوع های کالا</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">لیست ویژگی های محصول
+                    <li class="breadcrumb-item active" aria-current="page">لیست ویژگی های کالا
                     <span>{{\App\Helpers\Helper::product($product_id,'name')}}</span>
                     </li>
                 </ol>
@@ -37,7 +37,7 @@
                         <th>ارسال با</th>
                         <th>فعال / غیر فعال</th>
                         <th>بازه زمانی ارسال(روز)</th>
-                        <th>کد محصول</th>
+                        <th>کد کالا</th>
                         <th>اقدام</th>
                     </tr>
                     </thead>
@@ -71,7 +71,7 @@
 
                             <td>
                                 <div data-v-15965e3b="" class="dropdown">
-                                    <a href="#" data-toggle="dropdown" aria-haspopup="true" 
+                                    <a href="#" data-toggle="dropdown" aria-haspopup="true"
                                        aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                         <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                                     </a>

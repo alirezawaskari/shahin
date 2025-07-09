@@ -54,7 +54,7 @@ class ProductStoreRoomExport implements FromCollection , ShouldAutoSize ,WithHea
     public function headings(): array
     {
 //        return ['نام'];
-        return ['نام', 'قفسه-سطر-ستون', 'واحد اصلی' , 'نوع محصول','موجودی اولیه','موجودی','تاریخ ثبت'];
+        return ['نام', 'قفسه-سطر-ستون', 'واحد اصلی' , 'نوع کالا','موجودی اولیه','موجودی','تاریخ ثبت'];
     }
 
     /**

@@ -12,10 +12,10 @@ use App\Models\Resume;
 use App\Models\User;
 use App\Models\VipUser;
 use Carbon\Carbon;
-use File;
 use GuzzleHttp\Client;
+use Hekmatinasser\Verta\Verta;
+use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
-use Verta;
 
 class Helper {
 
@@ -56,9 +56,7 @@ class Helper {
         $max_file_size =700 * 1024;
         // Image quality
         $quality = 80;
-        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
-        $file_extension = $file->getClientOriginalExtension();
-        if(in_array($file_extension, $allowed_extensions) && $file->getSize() > $max_file_size ) {
+        if($file->getSize() > $max_file_size ) {
             $image = Image::make($file->getRealPath());
             $image->resize(null, 1500, function ($constraint) {
                 $constraint->aspectRatio();
@@ -297,9 +295,9 @@ class Helper {
     public static function moveImage($temp_path, $image_path ) {
         //image_path=>must be format = > 'upload/test/'
         $img_detail = explode( '/', $temp_path );
-        if ( isset( $img_detail[ 3 ] ) )$year = $img_detail[ 3 ];
-        if ( isset( $img_detail[ 4 ] ) )$month = $img_detail[ 4 ];
-        if ( isset( $img_detail[ 6 ] ) )$img_name = $img_detail[ 6 ];
+        if ( isset( $img_detail[ 2 ] ) )$year = $img_detail[ 2 ];
+        if ( isset( $img_detail[ 3 ] ) )$month = $img_detail[ 3 ];
+        if ( isset( $img_detail[ 5 ] ) )$img_name = $img_detail[ 5 ];
 
         if ( isset( $year ) && isset( $month ) ) {
             $path_file = 'upload/'.$year.'/'.$month.'/'.$image_path;

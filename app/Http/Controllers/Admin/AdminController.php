@@ -66,28 +66,15 @@ class AdminController extends Controller
                     File::delete(public_path($request->image_name));
                 }
             }
-
-            $path = '/upload/temp';
-
+            $path = '/upload';
             $year = Carbon::now()->year;
             $month = Carbon::now()->month;
-            $user_id= auth()->id();
             $file = $request->file;
             $random=random_int('10000','99999');
-            $filepath = "{$path}/{$year}/{$month}/{$user_id}/";
+            $filepath = "{$path}/{$year}/{$month}/document/";
             $filename = "{$random}_" . $file->getClientOriginalName();
             // image max size
-            $max_file_size =700 * 1024;
-            // Image quality
-            $quality = 80;
-            $allowed_extensions = ["jpg","jpeg","png","gif","tif","tiff","pdf","doc","docx","xls","xlsx"];
-            $file_extension = $file->getClientOriginalExtension();
-            if(!in_array($file_extension, $allowed_extensions)){
-                return [
-                    'status' => false,
-                    'message' => 'فرمت فایل وارد شده نامعتبر است. لطفاً از فرمت‌های مجاز (jpg، jpeg، png، gif) استفاده کنید.'
-                ];
-            }
+            $max_file_size = 2 * 1024 * 1024;
             if($file->getSize() > $max_file_size){
                 return [
                     'status' => false,

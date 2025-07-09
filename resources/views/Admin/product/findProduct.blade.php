@@ -6,9 +6,9 @@
     <div class="card">
         <div class="card-body">
             <div class="x_title">
-                <h4>جستجو یا درج محصول </h4>
+                <h4>جستجو یا درج کالا </h4>
                 <br/>
-                <span> محصولی که قصد فروش آن را دارید ، جستجو کنید در غیر این صورت از "ایجاد کالای جدید " اقدام به درج کالا خود کنید</span>
+                <span> کالای که قصد فروش آن را دارید ، جستجو کنید در غیر این صورت از "ایجاد کالای جدید " اقدام به درج کالا خود کنید</span>
 
                 <div class="clearfix"></div>
             </div>
@@ -16,14 +16,14 @@
 
                 <div class="col-md-8 col-sm-8 col-xs-12">
                     <div class="frmSearch">
-                        <input type="text" id="search-box" class="form-control" placeholder="نام محصول"
+                        <input type="text" id="search-box" class="form-control" placeholder="نام کالا"
                                autocomplete="off"/>
                         <div id="suggesstion-box"></div>
                     </div>
                 </div>
 
                 <div class="col-md-4 col-sm-4 col-xs-12">
-                    <a href="{{route('createGood')}}" class="btn btn-success floatLeft"> ایجاد محصول جدید </a>
+                    <a href="{{route('createGood')}}" class="btn btn-success floatLeft"> ایجاد کالا جدید </a>
                 </div>
                 <br/><br/>
             </div>

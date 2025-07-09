@@ -413,7 +413,7 @@ class StoreRoomController extends Controller
         $request['internal_use'] = isset($request['internal_use']) ? $request['internal_use'] : 0;
         $product = Product::find($id);
 
-//  محصول یا مواد اولیه باشد و یا کالا با استفاده داخلی
+//  کالا یا مواد اولیه باشد و یا کالا با استفاده داخلی
         if ($product->type == 0 || $product->internal_use == 1) {
 
             if(isset($request->name) && $request->name != null)
@@ -494,7 +494,7 @@ class StoreRoomController extends Controller
                         'storage_num' => $request->storage_num
                     ]);
             }
-            if($product->internal_use  == 1){//  محصول یا مواد اولیه باشد و یا کالا با استفاده داخلی
+            if($product->internal_use  == 1){//  کالا یا مواد اولیه باشد و یا کالا با استفاده داخلی
                 $product->type=1;$product->save();
                 return redirect("/dashboard/storeRoomGood/$request->store_room_id")->with(['update' => 'success']);
             }

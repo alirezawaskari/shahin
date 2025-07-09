@@ -13,6 +13,7 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\WorkSample;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -51,8 +52,8 @@ class ServiceController extends AdminController
 
         $pay_type = [0 => 'نقدی', 1 => 'اقساطی',2 => 'هر دو'];
         $purchase_type = [ 0 => 'آنلاین', 1=>'حضوری',2=>'هر دو'];
-
-        return view('Admin.service.all', compact('pay_type','purchase_type'));
+        $delete = auth()->user()->isAbleTo( 'service-delete' );
+        return view('Admin.service.all', compact('pay_type','purchase_type','delete'));
     }
 
     /**
@@ -200,16 +201,13 @@ class ServiceController extends AdminController
         }
     }
 
-
-    /**
-     * @param Service $service
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
     public function destroy(Service $service)
     {
-        $service->delete();
-        return redirect(route('service.index'))->with([
-            'delete' => 'success'
+        $service->deleted_at = Carbon::now();
+        $service->update();
+        return response()->json([
+            'status'  => 'success',
+            'page'  => 1
         ]);
     }
 

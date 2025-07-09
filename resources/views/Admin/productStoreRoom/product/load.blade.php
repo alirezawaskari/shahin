@@ -78,7 +78,7 @@
                                   action="{{route('productStoreRoom.destroy',['id'=>$item->id])}}">
                                 @method('DELETE')@csrf
                                 <input type="hidden" name="product_store_room_id" value="{{$item->pivot->id}}">
-                                <button type="submit" class="dropdown-item pointer showConfirmDelete">حذف محصول از انبار شما
+                                <button type="submit" class="dropdown-item pointer showConfirmDelete">حذف کالا از انبار شما
                                 </button>
                             </form>
                         @endif

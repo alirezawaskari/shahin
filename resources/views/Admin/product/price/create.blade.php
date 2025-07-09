@@ -7,7 +7,7 @@
             <form id="priceForm" method="">
 
                 <input type="hidden" class="product_id" value="{{$product->id}}" name="product_id">
-                <h4 class="mb-4"> قیمت گذاری محصول </h4>
+                <h4 class="mb-4"> قیمت گذاری کالا </h4>
 
                 <div class="row mb-4">
                     <div class="col-md-2 col-sm-12 col-xs-3">
@@ -117,7 +117,7 @@
                                value="100{{--{{old('stock')}}--}}">
                     </div>
                     <div class="col-md-2">
-                        <label for="seller_code">کد محصول فروشنده :</label>
+                        <label for="seller_code">کد کالا فروشنده :</label>
                         <input id="seller_code" type="text" class="form-control seller_code" name="seller_code"
                                value="{{old('seller_code')}}">
                     </div>

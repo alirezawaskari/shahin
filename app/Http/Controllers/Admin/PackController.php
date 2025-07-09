@@ -201,7 +201,7 @@ class PackController extends Controller
             ],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا محصولات خود را انتخاب کنید',
+                'image.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
                 'pack.category_store_room_id.required' => 'لطفا دسته بندی انبار را انتخاب کنید',
                 'pack.store_room_id.required' => 'لطفا انبار را انتخاب کنید',
                 'pack.storage_store_room_id.required' => 'لطفا محل نگهداری را انتخاب کنید',
@@ -242,7 +242,7 @@ class PackController extends Controller
                 [
                         'title.required' => 'لطفا عنوان را وارد کنید',
                         'image.required' => 'لطفا عکس را وارد کنید',
-                        'product_id.required' => 'لطفا محصولات خود را انتخاب کنید',
+                        'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
                         'pack.price_center.required' => 'لطفا قیمت را وارد کنید',
                         'pack.stock_center.required' => 'لطفا موجودی را وارد کنید',
                     ]
@@ -451,7 +451,7 @@ class PackController extends Controller
                 [
                     'price.required' => 'لطفا قیمت را انتخاب کنید',
                     'stock.required' => 'لطفا  موجودی را انتخاب کنید',
-                    'product_id.required' => 'لطفا محصولات را انتخاب کنید'
+                    'product_id.required' => 'لطفا کالا ها را انتخاب کنید'
                 ]
             );
 
@@ -464,7 +464,7 @@ class PackController extends Controller
                 'stock' => 'required',
             ],
                 [
-                    'product_id.required' => 'لطفا محصول را انتخاب کنید',
+                    'product_id.required' => 'لطفا کالا را انتخاب کنید',
                     'price.required' => 'لطفا قیمت را انتخاب کنید',
                     'stock.required' => 'لطفا موجودی را انتخاب کنید'
                 ]
@@ -500,7 +500,7 @@ class PackController extends Controller
             ],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا محصولات خود را انتخاب کنید',
+                'image.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
                 'category_store_room_id.required' => 'لطفا دسته بندی انبار را انتخاب کنید',
                 'store_room_id.required' => 'لطفا انبار را انتخاب کنید',
                 'storage_store_room_id.required' => 'لطفا محل نگهداری را انتخاب کنید',

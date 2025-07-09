@@ -5,7 +5,7 @@
         <!-- Modal content-->
         <div id="{{$product_id}}" class="modal-content content1">
             <div class="modal-header">
-                <h4 class="modal-title">محصولات مشابه</h4>
+                <h4 class="modal-title">کالا ها مشابه</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body modal-lg">
@@ -13,7 +13,7 @@
                 <div class="row similarProductsList" @if($product->message == null) style="display: block;" @else style="display: none;" @endif>
                     <table class="table table-bordered table-striped">
                         <thead>
-                            <tr><th>شناسه</th><th>محصول</th><th>اقدام</th></tr>
+                            <tr><th>شناسه</th><th>کالا</th><th>اقدام</th></tr>
                         </thead>
                         <tbody>
                             @foreach($similar_products_available as $product)
@@ -21,7 +21,7 @@
                                     <td>{{$product->id}}</td>
                                     <td>{{$product->name}}</td>
                                     <td><a id="{{$product_id}}" data-title="{{$product->id}}"
-                                           class="btn btn-sm btn-success assignSimilarProduct">مشابه به این محصول</a>
+                                           class="btn btn-sm btn-success assignSimilarProduct">مشابه به این کالا</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -29,7 +29,7 @@
                     </table>
                 </div>
                 @else
-                    <p>محصول مشابهی وجود ندارد</p>
+                    <p>کالا مشابهی وجود ندارد</p>
                 @endif
 
                 <div class="row confirmSimilarProducts" @if($product_status == 7) style="display: block;" @else style="display: none;"  @endif>
@@ -37,7 +37,7 @@
                         {!! $message !!}
                     </div>
                     <div class="col-12 col-md-12 mb-2">
-                        <button type="button" class="btn btn-sm btn-warning backSimilarProductsList" >برگشت به لیست محصولات مشابه</button>
+                        <button type="button" class="btn btn-sm btn-warning backSimilarProductsList" >برگشت به لیست کالا ها مشابه</button>
                         <button type="button" class="btn btn-sm btn-info" data-dismiss="modal">تایید</button>
                     </div>
 

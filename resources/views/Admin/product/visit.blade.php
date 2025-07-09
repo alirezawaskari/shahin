@@ -4,9 +4,9 @@
 
     <div class="card">
         <div class="card-body">
-            <div class="x_title disInline"><h4>مشاهده محصول</h4></div>
+            <div class="x_title disInline"><h4>مشاهده کالا</h4></div>
             <a class="btn btn-sm btn-info floatLeft colorWhite" data-toggle="modal"
-               data-target="#similarProducts{{$product->id}}">محصولات
+               data-target="#similarProducts{{$product->id}}">کالا ها
                 مشابه</a>
             @include('Admin.modal.similarProducts',['product_id'=>$product->id,'message'=>$product->msg,'product_status'=>$product->status])
             <form class="form-horizontal" method="post" action="{{route('products.store')}}"
@@ -307,10 +307,10 @@
                                                 </li>
                                                 <li>تصویر شما باید مربعی باشد یا ابعاد یک در یک داشته باشد.</li>
                                                 <li>فرمت تصاویر بایستی JPG باشد.</li>
-                                                <li>ثبت یک عکس ضروری می باشد و در صورت ثبت یک عکس می توانید محصول را ثبت
+                                                <li>ثبت یک عکس ضروری می باشد و در صورت ثبت یک عکس می توانید کالا را ثبت
                                                     کنید.
                                                 </li>
-                                                <li>پرچم: برای مشخص کردن تصویر اصلی محصول، علامت پرچم را انتخاب کنید.
+                                                <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب کنید.
                                                 </li>
                                                 <li>سطل زباله: اگر تصویر را به اشتباه انتخاب کرده‌اید، روی علامت سطل
                                                     زباله کلیک کنید تا تصویر مورد نظر حذف شود
@@ -377,7 +377,7 @@
                                                     <div class="col-md-12 col-sm-12 col-xs-12">
                                                         <button type="submit"
                                                                 class="btn btn-success submitGood floatLeft"
-                                                                style="display: none;">ثبت و درج محصول بعدی
+                                                                style="display: none;">ثبت و درج کالا بعدی
                                                         </button>
                                                     </div>
                                                 </div>
@@ -432,7 +432,7 @@
         </div>
         <div class="col-12 col-md-12 mb-3 hasErrorFields" @if($product_validations_count > 0) style="display: block;"
              @else style="display: none;" @endif>
-            <h4>تعدادی از فیلد های محصول دارای خطا می باشند.</h4>
+            <h4>تعدادی از فیلد های کالا دارای خطا می باشند.</h4>
         </div>
     </div>
 

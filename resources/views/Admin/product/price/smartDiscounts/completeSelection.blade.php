@@ -41,7 +41,7 @@
                                     <option value="product_id">کد کالا</option>
                                     <option value="id">کد تنوع</option>
                                     <option value="seller_code">کد کالا فروشنده</option>
-                                    <option value="product_name">عنوان فارسی محصول</option>
+                                    <option value="product_name">عنوان فارسی کالا</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-4 mb-3 disInline">

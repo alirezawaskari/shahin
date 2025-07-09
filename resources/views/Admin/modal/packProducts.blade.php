@@ -5,13 +5,13 @@
         <!-- Modal content-->
         <div id="{{$product_id}}" class="modal-content content1">
             <div class="modal-header">
-                <h4 class="modal-title">محصولات پک</h4>
+                <h4 class="modal-title">کالا ها پک</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body modal-lg">
                 <div class="row">
                     <table class="table table-bordered table-striped">
-                        <thead><tr><th>محصول</th></tr></thead>
+                        <thead><tr><th>کالا</th></tr></thead>
                         <tbody>
                         @if($products)
                             @foreach($products as $item)

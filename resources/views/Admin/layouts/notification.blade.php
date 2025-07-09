@@ -2,7 +2,7 @@
             @role('warehouse-keeper')
             @if($count_product_storeRoom_expiring > 0)
                 <div class="alert alert-warning text-dark d-flex justify-content-between">
-                    <span> {{$count_product_storeRoom_expiring}} محصول درحال انقضا در انبار موجود می باشد لطفا بررسی نمایید</span>
+                    <span> {{$count_product_storeRoom_expiring}} کالا درحال انقضا در انبار موجود می باشد لطفا بررسی نمایید</span>
                     <a href="/dashboard/storeRoom/list-product-expiring" class="btn btn-warning text-white">مشاهده</a>
                 </div>
             @endif

@@ -62,7 +62,7 @@
                                     @if(isset($item->products))
                                         <a>
                                             <button type="button" class="dropdown-item pointer" data-toggle="modal"
-                                                    data-target="#packProducts{{$item->id}}">محصولات
+                                                    data-target="#packProducts{{$item->id}}">کالا ها
                                             </button>
                                         </a>
                                     @endif

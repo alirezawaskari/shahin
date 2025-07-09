@@ -8,13 +8,13 @@
     <div class="page-header">
         <div>
             @if($type_id == 0) <h3> لیست مواد اولیه </h3> @endif
-            @if($type_id == 1) <h3> مدیریت محصولات </h3> @endif
+            @if($type_id == 1) <h3> مدیریت کالا ها </h3> @endif
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
                     <li class="breadcrumb-item active" aria-current="page">
                         @if($type_id == 0)  مواد اولیه @endif
-                            @if($type_id == 1)  مدیریت محصولات | <span>برای ویرایش و مدیریت محصولات ، گروه ، تصویر محصولات و درج تنوع (گارانتی ، به همراه رنگ یا سایز یا گارانتی) از این قسمت استفاده نمایید.</span> @endif
+                            @if($type_id == 1)  مدیریت کالا ها | <span>برای ویرایش و مدیریت کالا ها ، گروه ، تصویر کالا ها و درج تنوع (گارانتی ، به همراه رنگ یا سایز یا گارانتی) از این قسمت استفاده نمایید.</span> @endif
                     </li>
                 </ol>
             </nav>
@@ -34,18 +34,18 @@
             <form method="get" action="{{$page_link}}">
                 <div class="row">
                     <div class="col-12 col-md-3 mb-2">
-                        <input class="form-control" name="id" placeholder="کد محصول"
+                        <input class="form-control" name="id" placeholder="کد کالا"
                                value="@if(isset($queries['id'])) @if($queries['id']) {{$queries['id']}} @endif @endif">
                     </div>
 
                     <div class="col-12 col-md-3 mb-2">
-                        <input class="form-control" name="name" placeholder=" عنوان فارسی محصول"
+                        <input class="form-control" name="name" placeholder=" عنوان فارسی کالا"
                                value="@if(isset($queries['name'])) @if($queries['name']) {{$queries['name']}} @endif @endif">
                     </div>
 
                     @if($type_id == 1)
                     <div class="col-12 col-md-3 mb-2">
-                        <input class="form-control" name="en_name" placeholder=" عنوان انگلیسی محصول"
+                        <input class="form-control" name="en_name" placeholder=" عنوان انگلیسی کالا"
                                value="@if(isset($queries['en_name'])) @if($queries['en_name']) {{$queries['en_name']}} @endif @endif">
                     </div>
 
@@ -103,7 +103,7 @@
     <div class="card position-relative">
         <div class="card-body">
             @if(isset($center_id) && $center_id != null)<br/>
-            <p>توجه : محصول با قابلیت پیش نویس فقط برای شما قابل نمایش است و توسط مرکز فروشندگان قابل رويت نیست . محصول
+            <p>توجه : کالا با قابلیت پیش نویس فقط برای شما قابل نمایش است و توسط مرکز فروشندگان قابل رويت نیست . کالا
                 پیش نویس خود را انتشار داده و منتظر تایید آن باشید.</p>
             <br/> @endif
 

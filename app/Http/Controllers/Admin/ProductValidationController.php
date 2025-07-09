@@ -68,7 +68,7 @@ class ProductValidationController extends Controller
             else{
                 $product->status = 2 ; $product->save();
             }
-            $product->message = 'برای مشاهده دلایل رد کالا روی "ویرایش محصول" کلیک کنید.';
+            $product->message = 'برای مشاهده دلایل رد کالا روی "ویرایش کالا" کلیک کنید.';
             $product->save();
 
             return response(['status'=>'true']);

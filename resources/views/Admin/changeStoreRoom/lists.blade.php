@@ -33,7 +33,7 @@
                     <div class="col-12 col-md-3 mb-3 disInline">
                         <input class="form-control" name="product_name"
                                value="@if(isset($queries['product_name']) &&
-                           $queries['product_name'] != null) {{$queries['product_name']}} @endif" placeholder="نام محصول">
+                           $queries['product_name'] != null) {{$queries['product_name']}} @endif" placeholder="نام کالا">
                     </div>
                     <div class="col-12 col-md-3 mb-3 disInline">
                         <select title="type" name="type" class="custom-select">

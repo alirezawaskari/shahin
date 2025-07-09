@@ -25,7 +25,7 @@
             </a>
             <a href="{{ route('product.create') }}" class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-edit text-indigo-400" aria-hidden="true"></i>
-                <span>محصول جدید</span>
+                <span>کالا جدید</span>
             </a>
             <a href="{{ route('storeRoom.index') }}" class="btn btn-link btn-float has-text text-size-small rtl">
                 <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>
@@ -42,7 +42,7 @@
                 @include('Admin.layouts.errors')
                 <div class="row">
 
-          
+
 
                     <div class="col-12 col-md-4 mb-3">
                         <label>نام</label>

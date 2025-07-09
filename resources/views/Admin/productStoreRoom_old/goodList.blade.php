@@ -8,7 +8,7 @@
 
     <div class="page-header">
         <div>
-            <h3>لیست محصولات</h3>
+            <h3>لیست کالا ها</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
@@ -120,7 +120,7 @@
                                             @method('DELETE')@csrf
                                             <input type="hidden" name="product_store_room_id" value="{{\App\Models\StoreRoom::findProductStoreRoom($store_room_id,$item->id,'id')}}">
                                             <button type="submit" class="dropdown-item pointer"
-                                                    onclick="return confirm('آیا مطمئن هستید؟ ')">حذف محصول از انبار شما
+                                                    onclick="return confirm('آیا مطمئن هستید؟ ')">حذف کالا از انبار شما
                                             </button>
                                         </form>
                                     @endif

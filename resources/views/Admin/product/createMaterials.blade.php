@@ -13,7 +13,7 @@
                         {{csrf_field()}}
                         <div class="row rawMaterialBox">
                             <div class="col-12 col-md-6 mb-3">
-                                <label>عنوان محصول</label>
+                                <label>عنوان کالا</label>
                                 <select class="js-example-basic-single form-control" name="material[product_id]">
                                     <option value="">لطفا انتخاب کنید</option>
                                     @foreach($material_products as $product)
@@ -35,7 +35,7 @@
                             </div>
 
                             <div class="col-12 col-md-12 mb-3">
-                                <button type="submit" class="btn btn-success">ثبت و درج محصول بعدی</button>
+                                <button type="submit" class="btn btn-success">ثبت و درج کالا بعدی</button>
                             </div>
                         </div>
                     </form>
