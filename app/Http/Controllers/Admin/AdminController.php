@@ -80,7 +80,7 @@ class AdminController extends Controller
             $max_file_size =700 * 1024;
             // Image quality
             $quality = 80;
-            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            $allowed_extensions = ["jpg","jpeg","png","gif","tif","tiff","pdf","doc","docx","xls","xlsx"];
             $file_extension = $file->getClientOriginalExtension();
             if(!in_array($file_extension, $allowed_extensions)){
                 return [
