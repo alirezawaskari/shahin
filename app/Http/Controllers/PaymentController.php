@@ -172,9 +172,10 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
     protected function handleSamanCallback(Request $request)
     {
         try {
+
             $token = $request->get('Token');
             $State = $request->get('State');
-
+			$RefNum = $request->get('RefNum', $request->get('RefNum'));
             $factor = Factor::where('factorable_type', $token)->first();
 
             if ($State !== 'OK') {
@@ -185,14 +186,16 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
             }
             $response = \Illuminate\Support\Facades\Http::post('https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTranscation', [
                 'TerminalNumber' => '14541809',
-                'RefNum' => '5656',
+                'RefNum' => $RefNum,
                 'IgnoreNationalcode' => true,
                 'NationalCode' => '',
             ]);
             $jsonResponse = $response->body();
             $data = json_decode($jsonResponse, true);
+
+
             $transaction_detail = $data['TransactionDetail'];
-            if ($data['Success'] == true) {
+            if ($data['Success'] == true && $transaction_detail['RefNum'] == $RefNum && $factor->price == $transaction_detail['OrginalAmount']) {
                 $factor->update([
                     'status' => true,
                     'type' => 'online',
