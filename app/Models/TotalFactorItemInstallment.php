@@ -53,7 +53,7 @@ class TotalFactorItemInstallment extends Model
         $extra_pay = [];
         $start = Carbon::parse($item->date);
         $end = $item->status == 1 ? Carbon::parse($item->pay_date) : now();
-        $extra_pay['extra_pay_day'] = $start < $end ? $end->diffInDays($start): 0;
+        $extra_pay['extra_pay_day'] = $start < $end ? intval($start->diffInDays($end)): 0;
         $extra_pay['extra_pay_price'] =  $extra_pay['extra_pay_day'] > 3 ? ($extra_pay['extra_pay_day']*$item->price*($total_factor_item->percent_fines/100)): '0';
         $extra_pay['appropriate_format'] = $extra_pay['extra_pay_day'] > 3 ? $extra_pay['extra_pay_day'].'روز - '.number_format($extra_pay['extra_pay_price']): 'ندارد';
 
