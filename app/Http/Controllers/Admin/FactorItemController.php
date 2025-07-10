@@ -411,6 +411,7 @@ class FactorItemController extends Controller {
             'status_factor' => $status_factor,
             'date' => $request->date ? $request->date : $factor_item->date,
         ] );
+
         if (!isset($factor_item->factor_values['assistant'])) {
             self::storeImageConfirm($factor_item , 'assistant');
         }

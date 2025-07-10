@@ -70,7 +70,14 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="col-12 mt-2">
+                        <label>توضیحات</label>
+                        <textarea
+                            class="form-control"
+                            name="description"
+                            id="description"
+                        >{{$singleWebPage->description}}</textarea>
+                    </div>
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">
                     </div>
@@ -82,4 +89,10 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+<script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
+<script>
+    $(document).ready(function () {
+        CKEDITOR.replace( 'description', ck_uploader);
+    })
+</script>
 @endsection

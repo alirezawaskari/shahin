@@ -13,14 +13,14 @@ $(document).ready(function () {
                     .append('<option value="all">انتخاب دریافت کننده</option>')
                 ;
                 $.each(data.data.users, function (i, d) {
-                    $('#users').append('<option value="' + d.id + '">' + d.name + " "+  d.family + '</option>');
+                    $('#users').append('<option value="' + d.id + '">' + d.name + " " + d.family + '</option>');
                 });
             }
         });
     });
     fetchData(1);
-    var first_load=true;
-    var do_filter_command=false;
+    var first_load = true;
+    var do_filter_command = false;
     /*    click on do filter */
     $("body").on('click', '#do_filter', function (event) {
         if ($('#exel').prop('checked') == true) {
@@ -28,10 +28,47 @@ $(document).ready(function () {
         } else {
             $('#pagination-demo').remove();
             $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-            do_filter_command=true;
+            do_filter_command = true;
             fetchData(1)
             event.preventDefault();
         }
+    });
+    var counter = 0;
+    $("body").on('click', '#addReceiver', function () {
+        counter++;
+        var role_select = $('#role_select');
+        var clonedRoleSelect = role_select.clone(true, true);
+        var receiver_select = $('#receiver_select');
+        var clonedReceiverSelect = receiver_select.clone(true, true);
+        var role_id = 'role_select' + counter;
+        var receiver_id = 'receiver_select' + counter;
+
+        clonedRoleSelect.attr('id', role_id);
+        clonedReceiverSelect.attr('id', receiver_id);
+
+        var newSelect = $('<div class="col-12 col-md-6 mb-2"></div>')
+            .append($('<label></label>').text('کاربر مربوطه'))
+            .append($('<select></select>')
+                .attr('id', role_id)
+                .addClass('select2 form-control'));
+        var options = [
+            {value: 'all', text: 'انتخاب کنید'},
+            {value: '1', text: 'گزینه اول'},
+            {value: '2', text: 'گزینه دوم'},
+        ];
+
+        $('#receiver').append(newSelect);
+        $("#"+role_id).select2();
+        $.each(options, function(index, option) {
+            $("#"+role_id).append($('<option></option>')
+                .attr('value', option.value)
+                .text(option.text));
+        });
+
+        var selectBox = clonedRoleSelect.find('select');
+        selectBox.select2();
+        // $("#"+role_id).select2();
+        // $("#"+receiver_id).select2();
     });
 
     function pagination(totalPages) {
@@ -42,23 +79,23 @@ $(document).ready(function () {
             prev: '<',
             onPageClick: function (event, page) {
                 //fetch content and render here
-                if (!first_load && !do_filter_command){
+                if (!first_load && !do_filter_command) {
                     fetchData(page);
                 }
-                first_load=false
-                do_filter_command=false
+                first_load = false
+                do_filter_command = false
             }
         });
     }
 
     function fetchData(page) {
-        $('#loading').css('display' , 'block');
+        $('#loading').css('display', 'block');
         var form = $('#filter_form');
         var formData = form.serialize();
         var basicUrl = $('#url').val();
 
         $.ajax({
-            url: "/dashboard/ticket/" + basicUrl+"?page=" + page,
+            url: "/dashboard/ticket/" + basicUrl + "?page=" + page,
 
             data: formData,
             success: function (data) {
@@ -68,7 +105,7 @@ $(document).ready(function () {
         });
     }
 
-    /*  create table   */
+    /* create table */
     function createTable(data) {
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
@@ -85,21 +122,24 @@ $(document).ready(function () {
             data: data.data,
             columns: [
                 {"data": "sort_by"},
-                {"data":"title"},
-                {"data":"receivers"},
-                {"data":data,
-                "render": function (data){
-                    return data.sender.name+" "+data.sender.family
-                }},
-                {"data":"created_at"},
-                {"data":data,
-                  "render":function (data){
-                    if (data.status){
-                        return 'پاسخ داده شده '
-                    }else{
-                        return  'منتظر پاسخ'
+                {"data": "title"},
+                {"data": "receivers"},
+                {
+                    "data": data,
+                    "render": function (data) {
+                        return data.sender.name + " " + data.sender.family
                     }
-                  }
+                },
+                {"data": "created_at"},
+                {
+                    "data": data,
+                    "render": function (data) {
+                        if (data.status) {
+                            return 'پاسخ داده شده '
+                        } else {
+                            return 'منتظر پاسخ'
+                        }
+                    }
                 },
                 {
                     "data": data,

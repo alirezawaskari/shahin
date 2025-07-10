@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\site\WorkSampleController;
 use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
+use App\Http\Controllers\Admin\TicketControllerTest;
 use App\Http\Controllers\Admin\TotalFactorItemContractSettlementController;
 use App\Http\Controllers\Admin\TotalFactorItemController;
 use App\Http\Controllers\Admin\TotalFactorItemInstallmentController;
@@ -359,7 +360,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     Route::post('/factorItem/transfer' , 'FactorItemController@transfer');
     Route::post('/factorItem/update-information', 'FactorItemController@updateInformation')->name('factorItem.information');
-    Route::post('/factorItem/create-factor', 'FactorItemController@createFactor')->name('factorItem.createFactor');
+    Route::post('/factorItem/create-factor', [FactorItemController::class,'createFactor'])->name('factorItem.createFactor');
     Route::post('/factorItem/update-calculate', 'FactorItemController@updateCalculate')->name('factorItem.calculate');
     Route::post('/factorItem/payment', 'FactorItemController@payment')->name('factorItem.sendPayment');
     Route::post('/factorItem/return-payment', 'FactorItemController@returnPayment')->name('factorItem.returnPayment');
@@ -445,8 +446,14 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/role-create' , 'RoleController@create')->name('role.create');
     Route::get('/role/get-user-by-role' , 'RoleController@getUserByRole')->name('role.getUser');
     Route::get('role/filter', [RoleController::class,'filter']);
+    Route::get('role/get', [RoleController::class,'getRoles']);
     Route::resource('role', 'RoleController');
     Route::resource('permission', 'PermissionController');
+    //TicketTest
+    Route::get('ticket/test/send', [TicketControllerTest::class,'send']);
+    Route::get('ticket/test/received', [TicketControllerTest::class,'received']);
+    Route::resource('ticket/test', TicketControllerTest::class);
+
     //ticket
     Route::get('/ticket/send', 'TicketController@sendTicket')->name('send.tickets');
     Route::post('/ticket/refer', 'TicketController@refer')->name('ticket.refer');

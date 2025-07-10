@@ -8,11 +8,9 @@
                     @switch($form->type)
                         @case('factor_dentist')
                             @include('Admin.factoritem.dentist.list')
-                            @include('Admin.factoritem.dentist.create')
                             @break
                         @case('factor_building')
                             @include('Admin.factoritem.building.list')
-                            @include('Admin.factoritem.building.create')
                             @break
                     @endswitch
                 @endif
@@ -22,6 +20,18 @@
     <div class="col-md-12 border border-secondary box mb-5">
         <form action="{{ route('factorItem.createFactor')}}" method="POST" enctype="multipart/form-data">
             @csrf
+            @foreach($factorItem['forms'] as $form)
+                @if (in_array('panel_factor' , $form->data_display_level))
+                    @switch($form->type)
+                        @case('factor_dentist')
+                            @include('Admin.factoritem.dentist.create')
+                            @break
+                        @case('factor_building')
+                            @include('Admin.factoritem.building.create')
+                            @break
+                    @endswitch
+                @endif
+            @endforeach
             <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}" id="factorItem">
             <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
             <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">

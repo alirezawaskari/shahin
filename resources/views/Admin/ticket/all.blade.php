@@ -43,7 +43,6 @@
 
                 <div class="col-12 col-md-3 mb-2 mb-md-0">
                     <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
-
                 </div>
             </div>
         </form>

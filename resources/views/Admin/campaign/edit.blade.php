@@ -4,7 +4,7 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h3>ایجاد پوییش</h3>
+            <h3>ویرایش پوییش</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
