@@ -8,17 +8,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SingleWebPage extends Model
 {
-    use SoftDeletes , Sluggable;
+    use SoftDeletes, Sluggable;
+
     /**
      * @var array
      */
+    protected $fillable = [
+        'fa_name',
+        'en_name',
+        'agent_id',
+        'slug',
+        'image',
+        'status',
+        'description',
+    ];
     protected $guarded = [];
+
     /**
      * Return the sluggable configuration array for this model.
      *
      * @return array
      */
-    public function sluggable():array
+    public function sluggable(): array
     {
         return [
             'slug' => [
@@ -51,6 +62,7 @@ class SingleWebPage extends Model
     {
         return $this->belongsToMany(Service::class);
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

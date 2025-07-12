@@ -8,21 +8,18 @@
                 @csrf
                 <div class="row">
                     @include('Admin.layouts.errors')
-
                     <div class="col-12 col-md-4 mb-2">
                         <label>عنوان فارسی(این عنوان در سایت درج می شود)</label>
                         <input type="text" value="{{old('fa_name')}}"
                                class="form-control"
                                name="fa_name" required>
                     </div>
-
                     <div class="col-12 col-md-4 mb-2">
                         <label>نشان اینترنتی(url)</label>
                         <input type="text" value="{{old('en_name')}}"
                                class="form-control"
                                name="en_name" required>
                     </div>
-
                     <div class="col-12 col-md-4 mb-3">
                         <label>وضعیت</label>
 
@@ -60,6 +57,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-12 mt-2">
+                        <label>توضیحات قسمت اول سایت</label>
+                        <textarea
+                            class="form-control"
+                            name="description"
+                            id="description"
+                        ></textarea>
+                    </div>
 
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">
@@ -70,3 +75,11 @@
         </div>
     </div>
 @stop
+@section('js')
+    <script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            CKEDITOR.replace( 'description', ck_uploader);
+        })
+    </script>
+@endsection
