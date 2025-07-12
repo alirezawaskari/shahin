@@ -12,12 +12,11 @@ class saman
     {
         $resNum = session('resnumber') ?: uniqid();
         session(['resnumber' => $resNum]);
-        $sheba = Setting::first()->shaba_number;
+        $shaba = Setting::first()->shaba_number;
         $IBANInfo = [
             [
-                "IBAN" => $sheba,
-                "Amount" => $amount,
-                "PurchaseID" => "000000000000000000000000000000000000000"
+            "IBAN" => $shaba,
+            "Amount" => $amount,
             ]
         ];
         $payload = [

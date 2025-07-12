@@ -26,6 +26,7 @@ class CreateEmployeesTable extends Migration
 		$table->bigInteger('guarantee')->default('0');
 		$table->string('pay_type',110)->default('pay_end_work');
 		$table->string('shaba_number')->nullable()->default(NULL);
+        $table->string('card_number')->nullable()->default(NULL);
 		$table->string('work_title',110)->nullable()->default(NULL);
 		$table->integer('blocked_percentage')->default('5');
         $table->timestamp('data_access_date')->default(DB::raw('CURRENT_TIMESTAMP'));

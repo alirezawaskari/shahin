@@ -65,8 +65,8 @@ use Illuminate\Support\Facades\Artisan;
 
 //Auth Routes
 Auth::routes();
- Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
-//Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name('reset_pass');
+Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
+Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name('reset_pass');
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);

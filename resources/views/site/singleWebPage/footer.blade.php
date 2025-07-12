@@ -48,6 +48,17 @@
                         <img src="/assets/site/images/delete/p-img-6.png">
                     </a>
                 </div>
+                <div class="logo mt-3">
+                        <a href="{{asset('assets/site/images/logo/1.jpg')}}" target="_blank">
+                            <img src="{{asset('assets/site/images/logo/1.jpg')}}">
+                        </a>
+                        <a href="{{asset('assets/site/images/logo/2.jpg')}}" target="_blank">
+                            <img src="{{ asset('assets/site/images/logo/2.jpg') }}">
+                        </a>
+                        <a href="{{asset('assets/site/images/logo/3.jpg')}}" target="_blank">
+                            <img src="{{ asset('assets/site/images/logo/3.jpg') }}">
+                        </a>
+                </div>
             </div>
         </div>
     </div>
