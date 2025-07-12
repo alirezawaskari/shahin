@@ -565,12 +565,14 @@ class TotalFactorItemController extends Controller
      */
     public function suspension(Request $request)
     {
+
         $this->validate($request, [
             'type' => "required",
             'date' =>'required_if:type,==,support',
             'description' => 'required',
         ]);
-        if($request->type === 'execution'){
+        if($request->type == 'execution'){
+
             $total_factor_item = TotalFactorItem::find($request->id);
             if (!$total_factor_item->confirm) {
                 $total_factor_item->update([
@@ -591,7 +593,7 @@ class TotalFactorItemController extends Controller
                 'comment' => nl2br($request->description),
             ]);
         }
-        elseif($request->type === 'support'){
+        elseif($request->type == 'supporter'){
             $total_factor_item = TotalFactorItem::find($request->id);
             if (!$total_factor_item->confirm) {
                 $total_factor_item->update([
@@ -601,7 +603,6 @@ class TotalFactorItemController extends Controller
             }
             foreach ($total_factor_item->factorItems as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-
                 $fator_item_collections->update([
                     'status_factor' => 3,
                     'expired_at' => Helper::vertaToMiladi($request->date),

@@ -9,6 +9,8 @@ class TicketUser extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'ticket_user';
+    public $timestamps = false;
     /**
      * @var array
      */

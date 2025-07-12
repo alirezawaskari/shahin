@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
 use App\Http\Controllers\Admin\TicketControllerTest;
+use App\Http\Controllers\Admin\TicketHistoryController;
 use App\Http\Controllers\Admin\TotalFactorItemContractSettlementController;
 use App\Http\Controllers\Admin\TotalFactorItemController;
 use App\Http\Controllers\Admin\TotalFactorItemInstallmentController;
@@ -444,7 +445,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/userCreditDeetailStore/{user}' , 'UserCreditDetailController@store')->name('userCreditDetail.store');
     //role
     Route::get('/role-create' , 'RoleController@create')->name('role.create');
-    Route::get('/role/get-user-by-role' , 'RoleController@getUserByRole')->name('role.getUser');
+    Route::get('/role/get-user-by-role' ,[RoleController::class,'getUserByRole'])->name('role.getUser');
     Route::get('role/filter', [RoleController::class,'filter']);
     Route::get('role/get', [RoleController::class,'getRoles']);
     Route::resource('role', 'RoleController');
@@ -463,7 +464,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/ticket/received/filter', 'TicketController@filterReceived');
     Route::get('/ticket/desktop/filter', 'TicketController@filterDesktop');
     Route::resource('ticket', 'TicketController');
-    Route::resource('ticketAnswer', 'TicketAnswerController');
+    Route::resource('ticket/history', TicketHistoryController::class);
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
     Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');

@@ -35,8 +35,6 @@
                                     <a href="/singleWebPage/{{ $singleWebPage->slug }}/{{ $service->slug }}">
                                         <h2 class="p-3 text-orange font-16 text-center">{{ $service->title }}</h2>
                                     </a>
-
-
                                 </div>
                                 <div class="col-12">
                                     <img src="{{ asset($service->image_app) }}" alt="{{ $service->title }}"

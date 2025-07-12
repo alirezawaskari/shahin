@@ -1,6 +1,10 @@
+
 $(document).ready(function () {
-    $('#role').on('change', function () {
+    $(document).on('change', '[id^="role_select"]', function() {
+        var selectId = $(this).attr('id');
         var id = $(this).val();
+        var selectNumber = parseInt(selectId.match(/\d+/)[0], 10);
+        var selectReceiver = $('#receiver_select'+selectNumber);
         $.ajax({
             url: '/dashboard/role/get-user-by-role',
             type: 'get',
@@ -8,20 +12,21 @@ $(document).ready(function () {
                 "id": id,
             },
             success: function (data) {
-                $('#users')
+                $(selectReceiver)
                     .empty()
                     .append('<option value="all">انتخاب دریافت کننده</option>')
                 ;
                 $.each(data.data.users, function (i, d) {
-                    $('#users').append('<option value="' + d.id + '">' + d.name + " " + d.family + '</option>');
+                    $(selectReceiver).append('<option value="' + d.id + '">' + d.name + " " + d.family + '</option>');
                 });
             }
         });
+
     });
+
     fetchData(1);
     var first_load = true;
     var do_filter_command = false;
-    /*    click on do filter */
     $("body").on('click', '#do_filter', function (event) {
         if ($('#exel').prop('checked') == true) {
             $('#filter_form').submit();
@@ -33,7 +38,7 @@ $(document).ready(function () {
             event.preventDefault();
         }
     });
-    var counter = 0;
+    var counter = 1;
     $("body").on('click', '#addReceiver', function () {
         counter++;
         var role_select = $('#role_select');
@@ -42,33 +47,43 @@ $(document).ready(function () {
         var clonedReceiverSelect = receiver_select.clone(true, true);
         var role_id = 'role_select' + counter;
         var receiver_id = 'receiver_select' + counter;
-
         clonedRoleSelect.attr('id', role_id);
         clonedReceiverSelect.attr('id', receiver_id);
-
-        var newSelect = $('<div class="col-12 col-md-6 mb-2"></div>')
+        var receiverSelect = $('<div class="col-12 col-md-6 mb-2"></div>')
             .append($('<label></label>').text('کاربر مربوطه'))
             .append($('<select></select>')
-                .attr('id', role_id)
+                .attr('required', 'required')
+                .attr('name', 'receivers[]')
+                .attr('id', receiver_id)
                 .addClass('select2 form-control'));
-        var options = [
-            {value: 'all', text: 'انتخاب کنید'},
-            {value: '1', text: 'گزینه اول'},
-            {value: '2', text: 'گزینه دوم'},
-        ];
-
-        $('#receiver').append(newSelect);
-        $("#"+role_id).select2();
-        $.each(options, function(index, option) {
-            $("#"+role_id).append($('<option></option>')
-                .attr('value', option.value)
-                .text(option.text));
+        var roleSelect = $('<div class="col-12 col-md-6 mb-2"></div>')
+            .append($('<label></label>').text('نقش مربوطه'))
+            .append($('<select></select>')
+                .attr('required', 'required')
+                .attr('id', role_id)
+                .addClass('select2 form-control ' + role_id));
+        $.ajax({
+            url: '/dashboard/role/get',
+            type: 'get',
+            success: function (data) {
+                $('#receiver').append(roleSelect);
+                $('#receiver').append(receiverSelect);
+                $("#"+role_id).select2();
+                $("#"+role_id).append($('<option></option>')
+                    .attr('value', 'all')
+                    .text('انتخاب کنید'));
+                $("#"+receiver_id).append($('<option></option>')
+                    .attr('value', 'all')
+                    .text('نقش را انتخاب کنید'));
+                $.each(data.data, function(index, data) {
+                    $("#"+role_id).append($('<option></option>')
+                        .attr('value', data.id)
+                        .text(data.display_name));
+                });
+                var selectBox = clonedRoleSelect.find('select');
+                selectBox.select2();
+            }
         });
-
-        var selectBox = clonedRoleSelect.find('select');
-        selectBox.select2();
-        // $("#"+role_id).select2();
-        // $("#"+receiver_id).select2();
     });
 
     function pagination(totalPages) {

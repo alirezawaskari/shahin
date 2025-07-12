@@ -39,9 +39,9 @@ class Ticket extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function answers()
+    public function histories()
      {
-          return $this->hasMany(TicketAnswer::class)->orderBy('id', 'ASC');
+          return $this->hasMany(TicketHistory::class)->orderBy('id', 'ASC');
      }
 
     /**

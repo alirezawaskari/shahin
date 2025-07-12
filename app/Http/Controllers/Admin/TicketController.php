@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Resources\TicketCollection;
 use App\Models\Ticket;
 use App\Models\TicketAnswer;
+use App\Models\TicketHistory;
+use App\Models\TicketUser;
 use App\Models\User;
 use App\Events\ticketNotification;
 use App\Helpers\Helper;
@@ -126,7 +128,7 @@ class TicketController extends Controller
         $this->validate(request(), [
             'title' => 'required|string',
             'content' => 'required|string',
-            'receiver_id' => 'required',
+            'receivers' => 'required',
         ]);
         $inputs = $request->all();
         $representations = isset($inputs['representation_id']) ? $inputs['representation_id'] : '';
@@ -139,56 +141,10 @@ class TicketController extends Controller
         unset($inputs['card_id']);
         unset($inputs['presentore_id']);
         unset($inputs['urlfile']);
-        unset($inputs['receiver_id']);
+        unset($inputs['receivers']);
         unset($inputs['role']);
-
         $inputs['user_id'] = auth()->user()->id;
         $ticket = Ticket::create($inputs);
-        $ticket->users()->sync($request->receiver_id);
-//        if ($representations) {
-//            foreach($representations as $representation)
-//            {
-//                $role = Role::where('name' , 'superadmin-representation')->first();
-//                $receiver = $role->users->where('admin_representation_id' , $representation)->first();
-//                $ticket->users()->sync($receiver->id);
-//            }
-//        }
-
-//        if ($centers) {
-//            foreach($centers as $center)
-//            {
-//                $role = Role::where('name' , 'store-manager')->first();
-//                $receiver = $role->users->where('center_id' , $center)->first();
-//
-//				if(!$receiver)
-//				{
-//					$role = Role::where('name' , 'center-manager')->first();
-//					$receiver = $role->users->where('center_id' , $center)->first();
-//			    }
-//                $ticket->users()->sync($receiver->id);
-//            }
-//        }
-
-//        if ($presentores) {
-//            foreach($presentores as $presentore)
-//            {
-//                $ticket->users()->sync($presentore);
-//            }
-//        }
-
-//        if ($card && $card != 'all') {
-//            $role = Role::where('card_id' , $card)->first();
-//            $receivers = $role->users->where('level' , 'admin');
-//			if($card == 6)
-//			{
-//				$receivers = User::where('id' , '63')->get();
-//			}
-//            foreach($receivers as $receiver)
-//            {
-//                $ticket->users()->sync($receiver->id);
-//            }
-//        }
-
         $file_ticket = $request->urlfile;
         $temp = [];
         if ($file_ticket) {
@@ -203,21 +159,21 @@ class TicketController extends Controller
             }
 			$ticket->update(['file' => $temp]);
         }
-        if ($request->receiver_id != 'all')
-        {
-            event(new ticketNotification(User::find($request->receiver_id) , $ticket));
+        foreach ($request->receivers as $receiver){
+            TicketUser::create([
+                'ticket_id' => $ticket->id,
+                'receiver_id' => $receiver,
+                'sender_id' => auth()->user()->id,
+            ]);
+            if ($receiver != 'all')
+            {
+                event(new ticketNotification(User::find($receiver) , $ticket));
+            }
         }
-//        foreach($ticket->users as $user)
-//		{
-//		    event(new ticketNotification($user , $ticket));
-//		}
-
         return redirect(route('send.tickets'))->with([
             'create' => 'success'
         ]);
     }
-
-
     /**
      * @param Ticket $ticket
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -239,9 +195,9 @@ class TicketController extends Controller
         $centers = Center::all();
         $role = Role::where('name' , 'presentore')->first();
         $presentores = $role->users->where('level' , 'admin');
-        $answers = $ticket->answers;
+        $histories = $ticket->histories;
 
-        return view('Admin.ticket.edit', compact('ticket', 'cards', 'answers', 'representations', 'centers' , 'presentores'));
+        return view('Admin.ticket.edit', compact('ticket', 'cards', 'histories', 'representations', 'centers' , 'presentores'));
     }
 
     /**
@@ -299,64 +255,24 @@ class TicketController extends Controller
         unset($inputs['center_id']);
         unset($inputs['card_id']);
         unset($inputs['presentore_id']);
-        unset($inputs['receiver_id']);
+        unset($inputs['receivers']);
         unset($inputs['role']);
 
         $inputs['user_id'] = auth()->user()->id;
         $ticket = Ticket::find($request->ticket_id);
-
-        $ticket->users()->sync($request->receiver_id);
-        event(new ticketNotification(User::find($request->receiver_id) , $ticket));
-
-
-        /*if ($representations) {
-            foreach($representations as $representation)
-            {
-                $role = Role::where('name' , 'superadmin-representation')->first();
-                $receiver = $role->users->where('admin_representation_id' , $representation)->first();
-                $ticket->users()->sync($receiver->id);
-
-                event(new ticketNotification($receiver , $ticket));
-            }
-        }*/
-
-       /* if ($centers) {
-            foreach($centers as $center)
-            {
-                $role = Role::where('name' , 'store-manager')->first();
-                $receiver = $role->users->where('center_id' , $center)->first();
-                $ticket->users()->sync($receiver->id);
-                event(new ticketNotification($receiver , $ticket));
-            }
-        }*/
-
-      /*  if ($presentores) {
-            foreach($presentores as $presentore)
-            {
-                $receiver  = User::find($presentore);
-                $ticket->users()->sync($presentore);
-                event(new ticketNotification($receiver , $ticket));
-            }
-        }*/
-
-        /*if ($card && $card != 'all') {
-            $role = Role::where('card_id' , $card)->first();
-            $receivers = $role->users->where('level' , 'admin');
-			if($card == 6)
-			{
-				$receivers = User::where('id' , '63')->get();
-			}
-            foreach($receivers as $receiver)
-            {
-                $ticket->users()->sync($receiver->id);
-                event(new ticketNotification($receiver , $ticket));
-            }
-        }*/
-
+        foreach ($request->receivers as $receiver){
+            TicketUser::create([
+                'ticket_id' => $ticket->id,
+                'receiver_id' => $receiver,
+                'sender_id' => auth()->user()->id,
+            ]);
+            event(new ticketNotification(User::find($receiver) , $ticket));
+        }
         $inputs['ticket_id'] = $ticket->id;
         $inputs['user_id'] = auth()->user()->id;
-        $ticket_answer = TicketAnswer::create($inputs);
-        $ticket = $ticket_answer->ticket;
+        $inputs['type'] = 0;
+        $ticket_history = TicketHistory::create($inputs);
+        $ticket = $ticket_history->ticket;
         $ticket->update(['status' => 0]);
 
         return redirect()->back()->with([
