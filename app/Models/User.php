@@ -13,7 +13,6 @@ use Laratrust\Traits\HasRolesAndPermissions;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laratrust\Contracts\LaratrustUser;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 class User extends Authenticatable implements LaratrustUser
 {
     use HasRolesAndPermissions;
@@ -194,8 +193,6 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->hasMany(FactorItemProduct::class);
     }
-
-
     public function getMorphClass()
     {
         return 'App\Models\User';
@@ -207,7 +204,13 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->belongsToMany(Ticket::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

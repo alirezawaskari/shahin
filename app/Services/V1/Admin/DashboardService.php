@@ -44,6 +44,8 @@ class DashboardService
         else
         {
             $link = config('app.url')."/mobile/link/".auth()->user()->id;
+            $totalMonthFactorCount = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalMonthFactorPaidCount = Factor::filter()->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
             $totalUser = User::filter()->count();
             $totalDayUser = User::filter()->where('created_at', 'like', date("Y-m-d").'%')->count();
             $totalMonthUser = User::filter()->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();

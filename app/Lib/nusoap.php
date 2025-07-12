@@ -2661,7 +2661,7 @@ class soap_transport_http extends nusoap_base
      * @access   public
      * @deprecated
      */
-    function sendHTTPS($data, $timeout = 0, $response_timeout = 30, $cookies)
+    function sendHTTPS($cookies, $data, $timeout = 0, $response_timeout = 30)
     {
         return $this->send($data, $timeout, $response_timeout, $cookies);
     }
@@ -7749,7 +7749,7 @@ class nusoap_client extends nusoap_base
                     //$this->request = $http->outgoing_payload;
                     //$this->response = $http->incoming_payload;
                     //} else
-                    $this->responseData = $http->sendHTTPS($msg, $timeout, $response_timeout, $this->cookies);
+                    $this->responseData = $http->sendHTTPS($this->cookies , $msg, $timeout, $response_timeout);
                 } else {
                     $this->setError('no http/s in endpoint url');
                 }

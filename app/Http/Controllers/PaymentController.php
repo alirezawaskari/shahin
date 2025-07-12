@@ -172,10 +172,10 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
     protected function handleSamanCallback(Request $request)
     {
         try {
-            $token = $request->get('token', $request->get('Token'));
-            $State = $request->get('State', $request->get('State'));
-            $RefNum = $request->get('RefNum', $request->get('RefNum'));
 
+            $token = $request->get('Token');
+            $State = $request->get('State');
+			$RefNum = $request->get('RefNum', $request->get('RefNum'));
             $factor = Factor::where('factorable_type', $token)->first();
 
             if ($State !== 'OK') {
@@ -192,12 +192,15 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
             ]);
             $jsonResponse = $response->body();
             $data = json_decode($jsonResponse, true);
-            if ($data['Success'] == true) {
+
+
+            $transaction_detail = $data['TransactionDetail'];
+            if ($data['Success'] == true && $transaction_detail['RefNum'] == $RefNum && $factor->price == $transaction_detail['OrginalAmount']) {
                 $factor->update([
                     'status' => true,
                     'type' => 'online',
                     'confirm' => true,
-                    'refnumber' => $data['RefNum'],
+                    'refnumber' => $transaction_detail['RefNum'],
                 ]);
                 Factor::savePayment($factor);
                 Factor::invoiceRevenueSharing($factor);

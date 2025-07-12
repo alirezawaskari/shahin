@@ -66,10 +66,10 @@
             <table class="table table-bordered table-striped table-responsive-md">
                 <tr>
                     <th>#</th>
-                    <th>نمودار</th>
+                    <th>وضعیت اجرا</th>
                     <th>عنوان</th>
                     <th>مبلغ(ریال)</th>
-                    <th>عملیات</th>
+                    <th>حذف</th>
                 </tr>
                 @foreach ($factorItem['service_tariffs'] as $service_tariff)
                     <tr>
