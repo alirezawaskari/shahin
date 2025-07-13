@@ -9,6 +9,13 @@ class SmsTemplate extends Model
     /**
      * @var array
      */
+    protected $fillable = [
+        'user_id',
+        'name',
+        'fa_name',
+        'content',
+        'status',
+    ];
     protected $guarded = [];
 
      /**
