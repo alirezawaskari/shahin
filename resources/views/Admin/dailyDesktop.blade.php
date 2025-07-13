@@ -141,7 +141,7 @@
                 <div class="card-body text-center">
                     <div class="m-b-10">
                         <h5 class="alert alert-warning"> تعداد مکاتبات دریافتی جدید جهت بررسی : {{ $item['count_tickets'] }}</h5>
-                        <a href="{{ route('desktop.tickets') }}" class="btn btn-warning text-white mt-3">مشاهده</a>
+                        <a href="{{ route('ticket.index',['type' => 'desktop']) }}" class="btn btn-warning text-white mt-3">مشاهده</a>
                     </div>
                 </div>
                 <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>

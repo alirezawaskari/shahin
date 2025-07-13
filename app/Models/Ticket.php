@@ -25,7 +25,7 @@ class Ticket extends Model
      */
     public function users()
      {
-          return $this->belongsToMany(User::class);
+          return $this->belongsToMany(User::class,'ticket_user','ticket_id','receiver_id');
      }
 
     /**
@@ -33,7 +33,7 @@ class Ticket extends Model
      */
     public function user()
      {
-          return $this->belongsTo(User::class, 'user_id');
+          return $this->belongsTo(User::class,'user_id','id');
      }
 
     /**

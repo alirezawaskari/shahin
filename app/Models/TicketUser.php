@@ -20,9 +20,9 @@ class TicketUser extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function users()
+    public function receiver()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class,'id','receiver_id');
     }
 
     /**

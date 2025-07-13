@@ -1,8 +1,6 @@
 @extends('Admin.master')
 @section('title')اتوماسیون اداری@endsection
-
 @section('content')
-
 <div class="page-header">
     <div>
         <h3>{{ $title }}</h3>
@@ -79,10 +77,7 @@
         </div>
     </div>
 </div>
-
-
 @stop
-
 @section('js')
 <script src="{{asset('assets/dashboard/js/tickets.js')}}"></script>
 @endsection

@@ -207,10 +207,7 @@ class User extends Authenticatable implements LaratrustUser
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class);
-    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

@@ -398,12 +398,38 @@
             @endpermission
             <li><a href="#"><i class="icon ti-control-record"></i> <span>اتوماسیون اداری</span> </a>
                 <ul>
-                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
-                                ارسالی</span> </a></li>
-                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
-                                دریافتی</span> </a></li>
-                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>مکاتبه
-                                جدید</span> </a></li>
+                    @permission('show_all_ticket')
+                        <li>
+                            <a href="{{ route('ticket.index',['type' => 'all'])}}">
+                                <i class="icon ti-control-record"></i>
+                                <span>همه مکاتبات</span>
+                            </a>
+                        </li>
+                    @endpermission
+                    <li>
+                        <a href="{{ route('ticket.index',['type' => 'send'])}}">
+                            <i class="icon ti-control-record"></i>
+                            <span>مکاتبات ارسالی من</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('ticket.index',['type' => 'refer'])}}">
+                            <i class="icon ti-control-record"></i>
+                            <span>مکاتبات ارجاعی من</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('ticket.index',['type' => 'receiver'])}}">
+                            <i class="icon ti-control-record"></i>
+                            <span>مکاتبات دریافتی من</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('ticket.create')}}">
+                            <i class="icon ti-control-record"></i>
+                            <span>مکاتبه جدید</span>
+                        </a>
+                    </li>
                 </ul>
             </li>
             @permission('coupon|campaign')

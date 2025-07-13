@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Resources\TicketCollection;
 use App\Models\Ticket;
-use App\Models\TicketAnswer;
 use App\Models\TicketHistory;
 use App\Models\TicketUser;
 use App\Models\User;
@@ -14,6 +13,7 @@ use App\Models\Representation;
 use App\Models\Center;
 use App\Models\Role;
 use App\Models\Card;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
@@ -21,64 +21,53 @@ use App\Models\Employee;
 
 class TicketController extends Controller
 {
-    /**
-     *
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
-    public function sendTicket()
+    public function index($type)
     {
         $employees = Employee::all();
-        $title = 'فهرست مکاتبات ارسالی';
-        $url = 'send/filter';
-
-        return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
+        switch ($type) {
+            case 'all':
+                $title = 'فهرست مکاتبات';
+                $url = 'all/filter';
+                break;
+            case 'send':
+                $title = 'فهرست مکاتبات ارسالی';
+                $url = 'send/filter';
+                break;
+            case 'received':
+                $title = 'فهرست مکاتبات دریافتی';
+                $url = 'received/filter';
+                break;
+            case 'desktop':
+                $title = 'میزکار مکاتبات دریافتی';
+                $url = 'desktop/filter';
+                break;
+            case 'refer':
+                $title = 'فهرست مکاتبات ارجاعی';
+                $url = 'refer/filter';
+                break;
+            default :
+                abort(404);
+        }
+        return view('Admin.ticket.all', compact('employees', 'title', 'url'));
     }
 
-    /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
-    public function receivedTicket()
-    {
-        $employees = Employee::all();
-        $title = 'فهرست مکاتبات دریافتی';
-        $url = 'received/filter';
-
-        return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
-    }
-
-    /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
-    public function desktop()
-    {
-
-        $employees = Employee::all();
-        $title = 'میزکار مکاتبات دریافتی';
-        $url = 'desktop/filter';
-
-        return view('Admin.ticket.all', compact('employees' , 'title' , 'url'));
-    }
 
     /**
      * @return TicketCollection
      */
-    public function filterSend()
+    public function filterAll()
     {
-        $tickets = Ticket::filter()->where('user_id', auth()->user()->id)->latest();
-
+        $tickets = Ticket::filter()->latest();
         return new TicketCollection($tickets->paginate(20));
     }
 
-    /**
-     * @return TicketCollection
-     */
+    public function filterSend()
+    {
+        $tickets = Ticket::filter()->where('user_id', auth()->user()->id)->latest();
+        return new TicketCollection($tickets->paginate(20));
+    }
+
     public function filterReceived()
     {
         $tickets = Ticket::filter()->latest();
@@ -87,35 +76,39 @@ class TicketController extends Controller
                 $query->where('admin_representation_id', auth()->user()->admin_representation_id);
             });
         }
-        if (!auth()->user()->hasPermission('show_all_received')){
+
+        if (!auth()->user()->hasPermission('show_all_received')) {
             $tickets->whereHas('users', function ($query) {
-                $query->where('user_id', auth()->user()->id);
+                $query->where('receiver_id', auth()->user()->id);
             });
         }
         return new TicketCollection($tickets->paginate(20));
     }
 
-    /**
-     * @return TicketCollection
-     */
     public function filterDesktop()
     {
-        $tickets = auth()->user()->tickets()->filter()->where('status' , false);
+        $tickets = auth()->user()->tickets()->filter()->where('status', false);
+        return new TicketCollection($tickets->latest()->paginate(20));
+    }
+    public function filterRefer()
+    {
+        $tickets = Ticket::filter()->latest();
+        $tickets->whereHas('users', function ($query) {
+            $query->where('sender_id', auth()->user()->id);
+        });
         return new TicketCollection($tickets->latest()->paginate(20));
     }
 
-    /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
+
     public function create()
     {
         $cards = Card::all();
         $representations = Representation::all();
         $centers = Center::all();
-        $role = Role::where('name' , 'presentore')->first();
-        $presentores = $role->users->where('level' , 'admin');
+        $role = Role::where('name', 'presentore')->first();
+        $presentores = $role->users->where('level', 'admin');
 
-        return view('Admin.ticket.create', compact('cards', 'representations', 'centers' , 'presentores'));
+        return view('Admin.ticket.create', compact('cards', 'representations', 'centers', 'presentores'));
     }
 
     /**
@@ -152,28 +145,28 @@ class TicketController extends Controller
             foreach ($files as $file) {
                 if ($file) {
                     if (isset($file_ticket)) {
-                        $url = Helper::moveImage($file,'document');
+                        $url = Helper::moveImage($file, 'document');
                         $temp[] = $url;
                     }
                 }
             }
-			$ticket->update(['file' => $temp]);
+            $ticket->update(['file' => $temp]);
         }
-        foreach ($request->receivers as $receiver){
+        foreach ($request->receivers as $receiver) {
             TicketUser::create([
                 'ticket_id' => $ticket->id,
                 'receiver_id' => $receiver,
                 'sender_id' => auth()->user()->id,
             ]);
-            if ($receiver != 'all')
-            {
-                event(new ticketNotification(User::find($receiver) , $ticket));
+            if ($receiver != 'all') {
+                event(new ticketNotification(User::find($receiver), $ticket));
             }
         }
         return redirect(route('send.tickets'))->with([
             'create' => 'success'
         ]);
     }
+
     /**
      * @param Ticket $ticket
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -193,11 +186,11 @@ class TicketController extends Controller
         $cards = Card::all();
         $representations = Representation::all();
         $centers = Center::all();
-        $role = Role::where('name' , 'presentore')->first();
-        $presentores = $role->users->where('level' , 'admin');
+        $role = Role::where('name', 'presentore')->first();
+        $presentores = $role->users->where('level', 'admin');
         $histories = $ticket->histories;
 
-        return view('Admin.ticket.edit', compact('ticket', 'cards', 'histories', 'representations', 'centers' , 'presentores'));
+        return view('Admin.ticket.edit', compact('ticket', 'cards', 'histories', 'representations', 'centers', 'presentores'));
     }
 
     /**
@@ -224,12 +217,12 @@ class TicketController extends Controller
             foreach ($files as $file) {
                 if ($file) {
                     if (isset($file_ticket)) {
-                        $url = Helper::moveImage($file,'document');
+                        $url = Helper::moveImage($file, 'document');
                         $temp[] = $url;
                     }
                 }
             }
-			$inputs['file'] = $temp;
+            $inputs['file'] = $temp;
         }
 
         $ticket->update($inputs);
@@ -260,13 +253,13 @@ class TicketController extends Controller
 
         $inputs['user_id'] = auth()->user()->id;
         $ticket = Ticket::find($request->ticket_id);
-        foreach ($request->receivers as $receiver){
+        foreach ($request->receivers as $receiver) {
             TicketUser::create([
                 'ticket_id' => $ticket->id,
                 'receiver_id' => $receiver,
                 'sender_id' => auth()->user()->id,
             ]);
-            event(new ticketNotification(User::find($receiver) , $ticket));
+            event(new ticketNotification(User::find($receiver), $ticket));
         }
         $inputs['ticket_id'] = $ticket->id;
         $inputs['user_id'] = auth()->user()->id;
@@ -280,17 +273,19 @@ class TicketController extends Controller
         ]);
     }
 
+
     /**
-     * @param Ticket $contact
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Ticket $ticket
+     * @return RedirectResponse
      */
-    public function destroy(Ticket $contact)
+    public function destroy(Ticket $ticket)
     {
-        $contact->delete();
+        $ticket->delete();
         return redirect()->back()->with([
             'delete' => 'success'
         ]);
     }
+
 
     /**
      * @param $file

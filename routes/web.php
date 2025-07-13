@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\site\WorkSampleController;
 use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
+use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TicketControllerTest;
 use App\Http\Controllers\Admin\TicketHistoryController;
 use App\Http\Controllers\Admin\TotalFactorItemContractSettlementController;
@@ -451,19 +452,24 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('role', 'RoleController');
     Route::resource('permission', 'PermissionController');
     //TicketTest
-    Route::get('ticket/test/send', [TicketControllerTest::class,'send']);
-    Route::get('ticket/test/received', [TicketControllerTest::class,'received']);
-    Route::resource('ticket/test', TicketControllerTest::class);
+
 
     //ticket
-    Route::get('/ticket/send', 'TicketController@sendTicket')->name('send.tickets');
-    Route::post('/ticket/refer', 'TicketController@refer')->name('ticket.refer');
-    Route::get('/ticket/received', 'TicketController@receivedTicket')->name('received.tickets');
-    Route::get('/ticket/desktop', 'TicketController@desktop')->name('desktop.tickets');
-    Route::get('/ticket/send/filter', 'TicketController@filterSend');
-    Route::get('/ticket/received/filter', 'TicketController@filterReceived');
-    Route::get('/ticket/desktop/filter', 'TicketController@filterDesktop');
-    Route::resource('ticket', 'TicketController');
+    Route::post('/ticket/refer', [TicketController::class,'refer'])->name('ticket.refer');
+    Route::get('/ticket/all/filter', [TicketController::class,'filterAll']);
+    Route::get('/ticket/send/filter', [TicketController::class,'filterSend']);
+    Route::get('/ticket/received/filter',[TicketController::class,'filterReceived']);
+    Route::get('/ticket/desktop/filter',[TicketController::class,'filterDesktop']);
+    Route::get('/ticket/refer/filter',[TicketController::class,'filterRefer']);
+
+    Route::get('/ticket/{type}',[TicketController::class,'index'])->name('ticket.index');
+    Route::get('/ticket/create',[TicketController::class,'create'])->name('ticket.create');
+    Route::post('/ticket/store',[TicketController::class,'create'])->name('ticket.store');
+    Route::get('/ticket/{ticket}/edit',[TicketController::class,'create'])->name('ticket.edit');
+    Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
+    Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
+
+//    Route::resource('ticket', TicketController::class)->except('show');
     Route::resource('ticket/history', TicketHistoryController::class);
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
