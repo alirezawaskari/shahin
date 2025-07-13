@@ -25,7 +25,7 @@ class Ticket extends Model
      */
     public function users()
      {
-          return $this->belongsToMany(User::class,'ticket_user','ticket_id','receiver_id');
+          return $this->belongsToMany(User::class,'ticket_user','ticket_id','receive_id');
      }
 
     /**

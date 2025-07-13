@@ -225,9 +225,9 @@
 
                             <div class="col-12 col-md-4 mb-3">
                                 <label>انتقال به همکار</label>
-                                <select class="form-control" name="support_id">
+                                <select class="form-control select2" id="support_id" name="support_id">
                                     <option value="">انتخاب...</option>
-                                    @foreach(\App\Models\User::whereLevel('admin')->where('id' , '!=' ,
+                                    @foreach(\App\Models\User::where('level','admin')->where('id' , '!=' ,
                                     auth()->user()->id)->get() as $item)
                                     <option value="{{ $item->id }}" {{ $item->id == $factor->support_id ? 'selected' :
                                         ''
@@ -391,5 +391,6 @@
 <script>
     $(document).ready( function () {
         $('#datatable-history-blade').DataTable({searching: false});
+        $('#support_id').select2();
     } );
-</script+++++>
+</script>
