@@ -202,7 +202,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class);
+        return $this->belongsToMany(Ticket::class,'ticket_user','receive_id');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

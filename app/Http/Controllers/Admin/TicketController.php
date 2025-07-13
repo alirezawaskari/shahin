@@ -79,7 +79,7 @@ class TicketController extends Controller
 
         if (!auth()->user()->hasPermission('show_all_received')) {
             $tickets->whereHas('users', function ($query) {
-                $query->where('receiver_id', auth()->user()->id);
+                $query->where('receive_id', auth()->user()->id);
             });
         }
         return new TicketCollection($tickets->paginate(20));

@@ -15,12 +15,14 @@ class FactorItemCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
+            'user_permission' => auth()->user()->hasPermission('manual-login-user') ? 1 : 0 ,
             'data' => $this->collection->map(function ($item) {
                 return [
                     'sort_by' => "created_at",
                     'id' => $item->id,
                     'total_factor_item_id' => $item->supervisor && $item->supervisor->total_factor_item_id ? $item->supervisor->total_factor_item_id : '',
                     'name' => $item->factor ? $item->factor->user->name. ' ' . $item->factor->user->family: null,
+                    'customer_id' => $item?->factor?->user->id,
                     'phone' => $item->factor ? $item->factor->user->phone: null,
                     'total_price' => number_format($this->setTotalPrice($item)),
                     'prepayment_price' =>$item->property()->exists()? number_format($item->property->prepayment_price):null,

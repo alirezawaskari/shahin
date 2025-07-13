@@ -354,7 +354,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factorItem/close', 'FactorItemController@close');
     Route::get('/factorItem/desktop', 'FactorItemController@desktop')->name('factorItem.desktop');
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');
-    Route::get('/factorItem/filter' , 'FactorItemController@filter');
+    Route::get('/factorItem/filter' , [FactorItemController::class,'filter']);
     Route::get('/factorItem/referral/{factorItem}' , 'FactorItemController@referral')->name('factorItem.referral');
     Route::post('/factorItem/startWork/{factorItem}' , 'FactorItemController@startWork')->name('factorItem.startWork');
     Route::get('/factorItem/getForm/{factorItem}' , 'FactorItemController@getForm')->name('factorItem.getForm');
@@ -451,7 +451,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('role/get', [RoleController::class,'getRoles']);
     Route::resource('role', 'RoleController');
     Route::resource('permission', 'PermissionController');
-    //TicketTest
 
 
     //ticket
@@ -469,7 +468,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
 
-//    Route::resource('ticket', TicketController::class)->except('show');
     Route::resource('ticket/history', TicketHistoryController::class);
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
