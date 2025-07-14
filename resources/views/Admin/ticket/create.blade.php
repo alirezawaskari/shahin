@@ -20,7 +20,7 @@
                         <div class="row" id="receiver">
                             <div class="col-12 col-md-6 mb-2">
                                 <label>نقش مربوطه</label>
-                                <select class="form-control select2" name="role[]" id="role" required>
+                                <select class="form-control select2" name="role[]" id="role_select1" required>
                                     <option value="all">انتخاب کنید</option>
                                     @foreach(\App\Models\Role::all() as $role)
                                         <option value="{{ $role->id }}">{{ $role->display_name }}</option>
@@ -29,8 +29,8 @@
                             </div>
                             <div class="col-12 col-md-6 mb-2">
                                 <label>کاربر مربوطه</label>
-                                <select class="form-control" name="receiver_id[]" id="users" required>
-                                    <option value="all">انتخاب کنید</option>
+                                <select class="form-control" name="receivers[]" id="receiver_select1" required>
+                                    <option value="all">نقش را انتخاب کنید</option>
                                 </select>
                             </div>
                         </div>

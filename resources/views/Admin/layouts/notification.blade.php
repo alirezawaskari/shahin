@@ -60,7 +60,7 @@
             @if($count_tickets > 0)
             <div class="alert alert-warning text-dark d-flex justify-content-between">
                 <span> {{$count_tickets}} پیام جدید در قسمت اتوماسیون اداری دارید لطفا بررسی نمایید.</span>
-                <a href="{{ route('desktop.tickets') }}" class="btn btn-warning text-white">مشاهده</a>
+                <a href="{{ route('ticket.index',['type' => 'desktop']) }}" class="btn btn-warning text-white">مشاهده</a>
             </div>
             @endif
             @role('superadmin')

@@ -1,8 +1,6 @@
 @extends('Admin.master')
 @section('title')اتوماسیون اداری@endsection
-
 @section('content')
-
 <div class="page-header">
     <div>
         <h3>{{ $title }}</h3>
@@ -31,7 +29,6 @@
                 <div class="col-12 col-md-3 mb-2 mb-md-0">
                     <input type="text" class="form-control" name="title" placeholder="متن مکاتبه" />
                 </div>
-
                 <div class="col-12 col-md-3 mb-2 mb-md-0">
                     <select class="form-control select2" name="user">
                         <option value="all">ارسال کننده</option>
@@ -40,7 +37,6 @@
                         @endforeach
                     </select>
                 </div>
-
                 <div class="col-12 col-md-3 mb-2 mb-md-0">
                     <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
                 </div>
@@ -81,10 +77,7 @@
         </div>
     </div>
 </div>
-
-
 @stop
-
 @section('js')
 <script src="{{asset('assets/dashboard/js/tickets.js')}}"></script>
 @endsection

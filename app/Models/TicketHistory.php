@@ -4,33 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TicketAnswer extends Model
+class TicketHistory extends Model
 {
-    /**
-     * @var array
-     */
-    protected $guarded = [];
-
-    /**
-     * @var string[]
-     */
+    protected $fillable = [
+        'ticket_id',
+        'user_id',
+        'type',
+        'content',
+        'file'
+    ];
     protected $casts = [
-     'file' => 'array',
-   ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+        'file' => 'array',
+    ];
     public function ticket()
-   {
+    {
         return $this->belongsTo(Ticket::class);
-   }
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
-   {
+    {
         return $this->belongsTo(User::class);
-   }
+    }
 }

@@ -3,15 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\roleCollection;
+use App\Http\Resources\RoleCollection;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class RoleController extends Controller
 {
-
     public function index()
     {
         if (auth()->user()->hasPermission('role'))
@@ -40,26 +45,24 @@ class RoleController extends Controller
             'data' => array('users'=>$users),
         ]);
     }
+
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return Factory|View|Application|never|object
      */
     public function create()
     {
         if (auth()->user()->hasPermission('role'))
         {
-        return view('Admin.role.create');
+            return view('Admin.role.create');
         }
         return abort(401);
     }
 
+
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Validation\ValidationException
+     * @param Request $request
+     * @return Application|RedirectResponse|Redirector|object
+     * @throws ValidationException
      */
     public function store(Request $request)
     {
@@ -70,7 +73,6 @@ class RoleController extends Controller
             'permission_id' => 'required',
             'category' => ['nullable',Rule::in(array_keys(Role::CATEGORIES))],
         ]);
-
         $permissions = $request->input('permission_id');
         $rol = new Role();
         $rol->name = $request->input('name');
@@ -78,9 +80,7 @@ class RoleController extends Controller
         $rol->description = $request->input('description');
         $rol->category = $request->input('category');
         $rol->save();
-
         $rol->syncPermissions($permissions);
-
         return redirect(route('role.index'))->with([
             'create' => 'success',
         ]);
@@ -97,11 +97,10 @@ class RoleController extends Controller
         //
     }
 
+
     /**
-     * Show the form for editing the specified resource.
-     *
      * @param Role $role
-     * @return \Illuminate\Http\Response
+     * @return Factory|View|Application|never|object
      */
     public function edit(Role $role)
     {
@@ -111,10 +110,12 @@ class RoleController extends Controller
         }
         return abort(401);
     }
-    public function getRoles(Role $role)
+    public function getRoles()
     {
-        $Role = Role::all();
-
+        if(request()->ajax()){
+            $role = Role::all();
+            return new RoleCollection($role);
+        }
     }
 
     /**

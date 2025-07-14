@@ -559,9 +559,8 @@ $(document).ready(function () {
         if ($.fn.DataTable.isDataTable('#datatable-json')) {
             $('#datatable-json').DataTable().destroy();
         }
-
+        var userPermission = data.user_permission;
         $('#datatable-json tbody').empty();
-
         var table = $('#datatable-json').DataTable({
             paging: false,
             searching: false,
@@ -685,8 +684,16 @@ $(document).ready(function () {
                     "render": function (data) {
                         let output = `<div data-v-15965e3b="" class="dropdown">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
-                            <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
+                            <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
+                        </a>
                             <div class="dropdown-menu">`
+                        if (userPermission === 1) {
+                            output +=
+                                `<a target="_blank"
+                                href="/dashboard/user/login/${data.customer_id}">
+                                <span data-id="${data.customer_id}" class="task-delete dropdown-item pointer">
+                                ورود</span></a>`
+                        }
                         if (data.total_factor_item_id) {
                             output += `<a target="_blank" href="/dashboard/totalFactorItem/${data.total_factor_item_id}/installment">
                                 <span data-id="${data.total_factor_item_id}" class="task-delete dropdown-item pointer">
@@ -697,6 +704,7 @@ $(document).ready(function () {
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer" >
                             امور اداری و مالی پرونده
                             </span></a>
+
                             <a target="_blank" href="/dashboard/factorItem/${data.resnumber}/edit">
                             <span  data-id="${data.id}" class="task-delete dropdown-item pointer">
                             امور اجرایی پرونده

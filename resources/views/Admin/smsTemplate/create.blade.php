@@ -27,6 +27,10 @@
             <div class="row">
                 <div class="col-12 col-md-6 mb-2">
                     <label>نام قالب</label>
+                    <input type="text" class="form-control" name="fa_name" required>
+                </div>
+                <div class="col-12 col-md-6 mb-2">
+                    <label>کلمه کلیدی قالب</label>
                     <input type="text" class="form-control" name="name" required>
                 </div>
                 <div class="col-12 col-md-6 mb-2">

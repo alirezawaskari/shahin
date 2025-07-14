@@ -25,7 +25,7 @@ class Ticket extends Model
      */
     public function users()
      {
-          return $this->belongsToMany(User::class);
+          return $this->belongsToMany(User::class,'ticket_user','ticket_id','receive_id');
      }
 
     /**
@@ -33,15 +33,15 @@ class Ticket extends Model
      */
     public function user()
      {
-          return $this->belongsTo(User::class, 'user_id');
+          return $this->belongsTo(User::class,'user_id','id');
      }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function answers()
+    public function histories()
      {
-          return $this->hasMany(TicketAnswer::class)->orderBy('id', 'ASC');
+          return $this->hasMany(TicketHistory::class)->orderBy('id', 'ASC');
      }
 
     /**

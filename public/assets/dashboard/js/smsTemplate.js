@@ -64,6 +64,7 @@ $(document).ready(function () {
                 data: data.data,
                 columns: [
                     {"data": "sort_by"},
+                    {"data": "fa_name"},
                     {"data": "name"},
                     {"data": "content"},
                     {"data": data,

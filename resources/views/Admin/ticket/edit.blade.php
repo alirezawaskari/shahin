@@ -57,7 +57,7 @@
             <div class="tab-pane fade p-t-20 active show" id="answer" role="tabpanel" aria-labelledby="factor-tab">
                 <div class="card">
                     <div class="card-body">
-                        <form class="form-horizontal" role="form" method="post" action="{{route('ticketAnswer.store')}}" enctype="multipart/form-data">
+                        <form class="form-horizontal" role="form" method="post" action="{{route('history.store')}}" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 @include('Admin.layouts.errors')
@@ -109,22 +109,31 @@
                                     <textarea type="text" class="form-control" name="content"></textarea>
                                 </div>
 
-                                <div class="col-12 col-md-6 mb-2">
-                                    <label>نقش مربوطه</label>
-                                    <select class="form-control select2" name="role" id="role" required>
-                                        <option value="all">انتخاب کنید</option>
-                                        @foreach(\App\Models\Role::all() as $role)
-                                            <option value="{{ $role->id }}" >{{ $role->display_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-6 mb-2">
-                                    <label>کاربر مربوطه</label>
-                                    <select class="form-control" name="receiver_id" id="users" required>
-                                        <option value="all">انتخاب کنید</option>
-                                    </select>
-                                </div>
+                                <div class="col-12">
 
+                                    <div class="row" id="receiver">
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <label>نقش مربوطه</label>
+                                            <select class="form-control select2" name="role[]" id="role_select1" required>
+                                                <option value="all">انتخاب کنید</option>
+                                                @foreach(\App\Models\Role::all() as $role)
+                                                    <option value="{{ $role->id }}">{{ $role->display_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <label>کاربر مربوطه</label>
+                                            <select class="form-control" name="receivers[]" id="receiver_select1" required>
+                                                <option value="all">نقش را انتخاب کنید</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="button" class="btn btn-primary rounded float-right" id="addReceiver">
+                                        افزودن +
+                                    </button>
+                                </div>
 
 {{--                                <div class="col-12 col-md-3 mb-2">--}}
 {{--                                    <label>واحد مربوطه</label>--}}
@@ -181,19 +190,19 @@
         </div>
     </div>
 </div>
-@foreach($answers as $answer)
+@foreach($histories as $history)
 <div class="card">
     <div class="card-body">
         <div class="col-12 mb-3">
-            <label>متن پاسخ</label>
-            <p>{{ $answer->content }}</p>
+            <label>{{$history->type == 0 ? 'متن ارجاع' : 'متن پاسخ'}}</label>
+            <p>{{ $history->content }}</p>
         </div>
 
         <div class="col-12 mb-2">
-            @if($answer->file !='')
+            @if($history->file !='')
             <span>فایل های آپلود شده</span>
             <br>
-            @foreach($answer->file as $item)
+            @foreach($history->file as $item)
             <a href="{{ $item }}" class="btn btn-success py-1 px-2 mr-2 mt-3" target="_blank">مشاهده</a>
             @endforeach
             @endif
@@ -201,8 +210,8 @@
 
         <div class="col-12 col-md-4 mb-3">
             <label>ارسال کننده</label>
-            <p>{{ $answer->user->name.' '.$answer->user->family }}</p>
-            <p>{{ verta($answer->created_at)->format('%d %B ، %Y - H:i:s') }}</p>
+            <p>{{ $history->user->name.' '.$history->user->family }}</p>
+            <p>{{ verta($history->created_at)->format('%d %B ، %Y - H:i:s') }}</p>
         </div>
     </div>
 </div>
@@ -212,30 +221,5 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script>
-    $(document).ready(function () {
-
-        $('#role').on('change', function () {
-            var id = $(this).val();
-            $.ajax({
-                url: '/dashboard/role/get-user-by-role',
-                type: 'get',
-                data: {
-                    "id": id,
-                },
-                success: function (data) {
-                    $('#users')
-                        .empty()
-                        .append('<option value="all">انتخاب دریافت کننده</option>')
-                    ;
-                    $.each(data.data.users, function (i, d) {
-                        $('#users').append('<option value="' + d.id + '">' + d.name + " "+  d.family + '</option>');
-                    });
-                }
-            });
-        });
-
-
-    })
-</script>
+<script src="{{ asset('/assets/dashboard/js/tickets.js?v=1.1') }}"></script>
 @endsection

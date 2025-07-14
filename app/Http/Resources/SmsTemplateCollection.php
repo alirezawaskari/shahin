@@ -18,6 +18,7 @@ class SmsTemplateCollection extends ResourceCollection
                 return [
                     'sort_by' => "created_at",
                     'id' => $item->id,
+                    'fa_name' => $item->fa_name,
                     'name' => $item->name,
                     'content' => $item->content,
                     'status' => $item->status,

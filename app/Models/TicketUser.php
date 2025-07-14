@@ -9,6 +9,8 @@ class TicketUser extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'ticket_user';
+    public $timestamps = false;
     /**
      * @var array
      */
@@ -18,9 +20,9 @@ class TicketUser extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function users()
+    public function receive()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class,'id','receive_id');
     }
 
     /**

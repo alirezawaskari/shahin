@@ -3,19 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
-use App\Models\TicketAnswer;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\Http\Controllers\Controller;
+use App\Models\TicketHistory;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
-class TicketAnswerController extends Controller
+class TicketHistoryController extends Controller
 {
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request)
     {
         $this->validate(request(), [
@@ -23,6 +17,7 @@ class TicketAnswerController extends Controller
         ]);
         $inputs = $request->all();
         $inputs['user_id'] = auth()->user()->id;
+        $inputs['type'] = 1;
         unset($inputs['urlfile']);
         $file_ticket = $request->urlfile;
         $temp = [];
@@ -36,11 +31,11 @@ class TicketAnswerController extends Controller
                     }
                 }
             }
-			$inputs['file'] = $temp;
+            $inputs['file'] = $temp;
         }
 
-        $ticket_answer = TicketAnswer::create($inputs);
-        $ticket = $ticket_answer->ticket;
+        $ticket_history = TicketHistory::create($inputs);
+        $ticket = $ticket_history->ticket;
 
         $ticket->update([
             'status' => $ticket->status ? 0 : 1,
