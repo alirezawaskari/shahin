@@ -115,6 +115,34 @@
 
         </div>
     </div>
+    <div class="card position-relative">
+        <div class="card-body">
+            <div class="container">
+                <div class="row justify-content-center mt-5">
+                    <div class="col-md-8 ">
+                        <form action="{{route('settings.update.sms.setting')}}" method="post">
+                            @csrf
+                            <div class="form-row border">
+                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات سایت</div>
+                                <div class="col-md-12 form-group p-3">
+                                    <label for="fullName">پنل پیامکی</label>
+                                    <select name="sms_panel" class="form-control select2">
+                                        <option {{$setting->sms_panel === "iranSms" ? 'selected' : ''}} value="iranSms">ایران اسمس</option>
+                                        <option {{$setting->sms_panel === "neginSms" ? 'selected' : ''}} value="neginSms">نگین اسمس</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-12 ">
+                                    <button type="submit" class="btn btn-success">ثبت </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 @stop
 @section('js')
     <script src="/assets/script/ckeditor/ckeditor.js"></script>

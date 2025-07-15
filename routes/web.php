@@ -199,6 +199,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+    Route::post('/settings/sms', [SettingController::class,'updateSmsSetting'])->name('settings.update.sms.setting');
 
     Route::resource('/campaign', CampaignControllerAdmin::class);
     Route::post('/campaign/from', [CampaignControllerAdmin::class,'createForm'])->name('campaign.create.form');

@@ -2,6 +2,7 @@
 
 namespace App\Classes\External;
 
+use App\Models\Setting;
 use App\Models\sms;
 use App\Models\SmsTemplate;
 use App\Services\V1\Engin\Sms\SmsServicer;
@@ -20,7 +21,7 @@ class SendSms
         if($SmsTemplate){
             $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
             if($message !== false){
-                $smsService = config('services.iranSms.name','IranSms');
+                $smsService = Setting::first()->sms_panel ?? 'IranSms';
                 if ($smsService === 'NeginSms') {
                     NeginSms::sendSingleSms($phone, $message,null,service_type:'test');
                 } else {
