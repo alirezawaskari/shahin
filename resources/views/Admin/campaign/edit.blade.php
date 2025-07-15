@@ -49,12 +49,12 @@
                                                     class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">
                                                     اطلاعات پوییش
                                                 </div>
-                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
+                                                <div class="col-12 col-md-6 form-group mb-2 mt-2">
                                                     <label>نام پویش</label>
                                                     <input class="form-control" name="name"
                                                            value="{{$campaign->name}}"/>
                                                 </div>
-                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
+                                                <div class="col-12 col-md-6 form-group mb-2 mt-2">
                                                     <label>موضوع پویش</label>
                                                     <input class="form-control" name="subject"
                                                            value="{{$campaign->subject}}"/>
@@ -64,8 +64,24 @@
                                                     <input class="form-control" name="capacity"
                                                            value="{{$campaign->capacity}}"/>
                                                 </div>
+                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
+                                                    <label>نامک پویش</label>
+                                                    <input class="form-control" name="slug"
+                                                    value="{{$campaign->slug}}"/>
+                                                    <span class="form-text text-muted">
+                                                        نامک باید انگلیسی و یکتا باشد
+                                                    </span>
+                                                </div>
+                                                <div class="col-12 col-md-4 form-group mb-2 mt-2">
+                                                    <label>فرم پویش</label>
+                                                    <input class="form-control" name="form"
+                                                           value="{{$campaign->form}}"/>
+                                                    <span class="form-text text-muted">
+                                                        قسمت فرم توسط تیم فناوری اطلاعات تکمیل شود
+                                                    </span>
+                                                </div>
                                                 <div class="col-12 form-group mb-2">
-                                                    <label>توضیح</label>
+                                                    <label>متن صفحه</label>
                                                     <textarea name="content">{{$campaign->content}}</textarea>
                                                 </div>
                                                 <div class="col-12 col-md-6 mt-2">
@@ -152,100 +168,6 @@
                         </div>
                     </div>
                 </div>
-{{--                <div--}}
-{{--                    class="tab-pane fade"--}}
-{{--                    id="form"--}}
-{{--                    role="tabpanel"--}}
-{{--                >--}}
-{{--                    <div class="card position-relative">--}}
-{{--                        <div class="card-body">--}}
-{{--                            <div class="container">--}}
-{{--                                <div class="row justify-content-center mt-5">--}}
-{{--                                    <div class="card-body">--}}
-{{--                                        <form class="form-horizontal" role="form" method="post"--}}
-{{--                                              action="{{route('campaign.create.form')}}">--}}
-{{--                                            @csrf--}}
-{{--                                            @include('Admin.layouts.errors')--}}
-{{--                                            <div class="form-row border p-2">--}}
-{{--                                                <div--}}
-{{--                                                    class="card-header col-md-12 border  border-right-0 border-left-0  text-center">--}}
-{{--                                                    اطلاعات فرم--}}
-{{--                                                </div>--}}
-{{--                                                <div class="row mt-2">--}}
-{{--                                                    <div class="col-12 col-md-4 mb-3">--}}
-{{--                                                        <label>متن پس زمینه ورودی</label>--}}
-{{--                                                        <input type="text" value="{{old('placeholder')}}"--}}
-{{--                                                               class="form-control" name="placeholder" required>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12 col-md-4 mb-3">--}}
-{{--                                                        <label>نام ورودی</label>--}}
-{{--                                                        <input type="text" value="{{old('name')}}" class="form-control"--}}
-{{--                                                               name="name" required>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12 col-md-4 mb-3">--}}
-{{--                                                        <label>محل ذخیره ورودی</label>--}}
-{{--                                                        <select name="data_save_level" id="data_save_level"--}}
-{{--                                                                class="form-control">--}}
-{{--                                                            @foreach($level_save_data as $key => $value)--}}
-{{--                                                                <option value="{{$key}}">{{$value}}</option>--}}
-{{--                                                            @endforeach--}}
-{{--                                                        </select>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12 col-md-12 mb-12">--}}
-{{--                                                        <label>help</label>--}}
-{{--                                                        <textarea required name="help">--}}
-{{--                                                        {{old('help')}}--}}
-{{--                                                     </textarea>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12 col-md-3 mb-3">--}}
-{{--                                                        <label>class</label>--}}
-{{--                                                        <input type="text" value="class" class="form-control"--}}
-{{--                                                               name="class"--}}
-{{--                                                               required>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12 col-md-3 mb-3">--}}
-{{--                                                        <label>الزامی</label>--}}
-{{--                                                        <select class="form-control" name="required">--}}
-{{--                                                            <option value="0">غیر اجباری</option>--}}
-{{--                                                            <option value="1">اجباری</option>--}}
-{{--                                                        </select>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12 col-md-3 mb-3">--}}
-{{--                                                        <label>نوع ورودی</label>--}}
-{{--                                                        <select class="form-control" name="type">--}}
-{{--                                                            @foreach(\App\Models\BeforeForm::TYPE as $key => $type)--}}
-{{--                                                                <option value="{{ $key }}">{{ $type }}</option>--}}
-{{--                                                            @endforeach--}}
-{{--                                                        </select>--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class='col-12 mb-3 file file--upload'>--}}
-{{--                                                        <label for='file'>--}}
-{{--                                                            <i class="fa fa-cloud-upload"></i>انتخاب فایل--}}
-{{--                                                        </label>--}}
-{{--                                                        <input name="file" type="file" id="file"--}}
-{{--                                                               class="filestyle file-upload file_upload_ajax file-up"--}}
-{{--                                                               data-buttonname="btn-white">--}}
-{{--                                                        <div id="file_src" class="show"></div>--}}
-{{--                                                        <input type="hidden" id="file" class="path" name="urlfile"--}}
-{{--                                                               value="">--}}
-{{--                                                    </div>--}}
-{{--                                                    <div class="col-12">--}}
-{{--                                                        <input type="hidden" value="{{ $campaign->id }}"--}}
-{{--                                                               name="beforeformable_id">--}}
-{{--                                                        <input type="hidden" value="{{  get_class($campaign) }}"--}}
-{{--                                                               name="beforeformable_type">--}}
-{{--                                                        <input type="submit" class="btn btn-success border-0"--}}
-{{--                                                               value="ثبت">--}}
-{{--                                                    </div>--}}
-{{--                                                </div>--}}
-{{--                                            </div>--}}
-{{--                                        </form>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
                 <div
                     class="tab-pane fade"
                     id="collaboration"

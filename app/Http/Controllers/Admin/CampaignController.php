@@ -41,6 +41,8 @@ class CampaignController extends Controller
             'content' => $request->content,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
+            'slug' => $request->slug,
+            'form' => $request->form,
             'image' => $image ?? null,
             'image_header' =>  $image_header?? null,
         ]);
@@ -77,6 +79,8 @@ class CampaignController extends Controller
             'capacity' => $request->capacity,
             'usage' => $request->capacity,
             'content' => $request->content,
+            'slug' => $request->slug,
+            'form' => $request->form,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
         ]);

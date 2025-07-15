@@ -18,6 +18,8 @@ class Campaign extends Model
         'content',
         'image',
         'image_header',
+        'slug',
+        'form',
         'start_date',
         'end_date',
     ];
