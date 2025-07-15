@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('campaigns', function (Blueprint $table) {
-            $table->longText('form')->nullable();
+            $table->string('slug')->unique()->nullable()->after('usage');
+            $table->string('form')->nullable()->after('slug');
         });
     }
 

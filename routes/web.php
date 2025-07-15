@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\CallcenterController;
-use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\CampaignController as CampaignControllerAdmin;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryPermissionController;
 use App\Http\Controllers\Admin\CheckController;
@@ -42,13 +42,14 @@ use App\Http\Controllers\Admin\TreasuryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\RegisterCampaignController;
 use App\Http\Controllers\TestController;
 use App\Models\Center;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,10 +62,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-use Illuminate\Support\Facades\Artisan;
-
-
-
 //Auth Routes
 Auth::routes();
 Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
@@ -72,12 +69,11 @@ Route::post('/password/reset', [ResetPasswordController::class ,'reset'])->name(
 Route::get('/register/check-user-is-register',[RegisterController::class,'checkUserIsRegister']);
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
-Route::get('/register/check-exist-user',[RegisterCampaignController::class,'checkExistUser']);
 //Campaign
-Route::get('/campaign/{id:int}', [RegisterCampaignController::class,'campaignRegister'])->name('campaign');
-Route::post('/campaign/register/insert/{campaign_id:int}', [RegisterCampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
-Route::post('type/category', [RegisterCampaignController::class,'getTypeCategory']);
-Route::post('category/service', [RegisterCampaignController::class,'getServiceCategory']);
+Route::get('/campaign/{slug:string}', [CampaignController::class,'campaignRegister'])->name('campaign');
+Route::post('/campaign/register/insert/{campaign_id:int}', [CampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
+Route::post('type/category', [CampaignController::class,'getTypeCategory']);
+Route::post('category/service', [CampaignController::class,'getServiceCategory']);
 
 //Route::post('loginRepresentation' , 'LoginController@representation')->name('login.representation');
 //Route::post('registerRepresentation' , 'RegisterController@representation')->name('register.representation');
@@ -204,10 +200,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
 
-    Route::resource('/campaign', CampaignController::class);
-    Route::post('/campaign/from', [CampaignController::class,'createForm'])->name('campaign.create.form');
-    Route::post('/campaign/company/{campaign_id}', [CampaignController::class,'createCompany'])->name('campaign.create.company');
-    Route::get('/campaign/company/delete/{campaign_id}', [CampaignController::class,'deleteCompany'])->name('campaign.delete.company');
+    Route::resource('/campaign', CampaignControllerAdmin::class);
+    Route::post('/campaign/from', [CampaignControllerAdmin::class,'createForm'])->name('campaign.create.form');
+    Route::post('/campaign/company/{campaign_id}', [CampaignControllerAdmin::class,'createCompany'])->name('campaign.create.company');
+    Route::get('/campaign/company/delete/{campaign_id}', [CampaignControllerAdmin::class,'deleteCompany'])->name('campaign.delete.company');
 
     // درگاه انتخابی
     Route::resource('gatewaysChoose', GatewayChooseController::class);

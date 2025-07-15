@@ -171,7 +171,7 @@
                                 @if((new \App\Services\V1\Campaign\CampaignService())->checkCampaign($campaign))
                                     <a
                                         class="dropdown-item text-orange py-2"
-                                        href="{{ route('campaign',['id' => $campaign->id]) }}"
+                                        href="{{ route('campaign',['slug' => $campaign->slug]) }}"
                                     >
                                         {{$campaign->name}}
                                     </a>

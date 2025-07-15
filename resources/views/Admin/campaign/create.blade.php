@@ -37,8 +37,22 @@
                                             <label>ظرفیت پویش</label>
                                             <input class="form-control" name="capacity"/>
                                         </div>
+                                        <div class="col-12 col-md-4 form-group mb-2 mt-2">
+                                            <label>نامک پویش</label>
+                                            <input class="form-control" name="slug"/>
+                                            <span class="form-text text-muted">
+                                                        نامک باید انگلیسی و یکتا باشد
+                                                    </span>
+                                        </div>
+                                        <div class="col-12 col-md-4 form-group mb-2 mt-2">
+                                            <label>فرم پویش</label>
+                                            <input class="form-control" name="form"/>
+                                            <span class="form-text text-muted">
+                                                        قسمت فرم توسط تیم فناوری اطلاعات تکمیل شود
+                                                    </span>
+                                        </div>
                                         <div class="col-12 form-group mb-2">
-                                            <label>توضیح</label>
+                                            <label>متن صفحه</label>
                                             <textarea name="content"></textarea>
                                         </div>
                                         <div class="col-12 col-md-6 mt-2">

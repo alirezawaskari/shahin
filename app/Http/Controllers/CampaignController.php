@@ -12,21 +12,20 @@ use App\Models\Province;
 use App\Models\Role;
 use App\Models\Service;
 use App\Models\ServiceItem;
-use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class RegisterCampaignController extends Controller
+class CampaignController extends Controller
 {
-    public function campaignRegister($id)
+    public function campaignRegister($slug)
     {
+        $campaign = Campaign::where('slug',$slug)->firstOrFail();
         $provinces = Province::get();
         $citys = City::get();
         $categories = Category::filter()->orderBy('created_at', 'desc')->get();
         $services = Service::filter()->whereStatus(true)->where('isShow', true)->orderBy('created_at', 'desc')->get();
         $service_items = ServiceItem::get();
-        $campaign = Campaign::find($id);
-        return view('auth.register-campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories','campaign'));
+        return view('site.campaign.campaign', compact('service_items', 'provinces', 'citys', 'services', 'categories','campaign'));
     }
     public function campaignRegisterInsert(Request $request,$campaign_id)
     {
@@ -92,28 +91,4 @@ class RegisterCampaignController extends Controller
         }
         abort(404);
     }
-    function checkExistUser(Request $request)
-    {
-        if($request->ajax()){
-            $user = User::where('phone', $request->phone_number)->first();
-            if ($user) {
-                return response([
-                    'exist' => true ,
-                    'data' => [
-                        'name' => $user->name,
-                        'family' => $user->family,
-                        'phone' => $user->phone,
-                        'gender' => $user->sex,
-                        'province_id' => $user->province_id,
-                        'city_id' => $user->city_id,
-                    ]
-                ]);
-            }
-            else
-                return response(['exist' => false]);
-        }
-        else
-            abort(404);
-    }
-
 }
