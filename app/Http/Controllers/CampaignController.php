@@ -35,7 +35,6 @@ class CampaignController extends Controller
         $user = User::where('phone',$request->phone)->first();
         $id = Helper::getCallcenter($user->province_id,null);
         $callcenter_roles = Role::select('id')->where('card_id' , $request->card_id)->get();
-
         if($request->description !== null)
             Callcenter::createTask($user,$request->description,$callcenter_roles);
         else{
