@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Http\Controllers\Admin\FactorController;
 use App\Http\Controllers\Admin\FactorItemController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
-use App\Http\Controllers\Admin\GatewayChooseController;
+use App\Http\Controllers\Admin\GatewayController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
 use App\Http\Controllers\Admin\RoleController;
@@ -207,7 +207,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/campaign/company/delete/{campaign_id}', [CampaignControllerAdmin::class,'deleteCompany'])->name('campaign.delete.company');
 
     // درگاه انتخابی
-    Route::resource('gatewaysChoose', GatewayChooseController::class);
+    Route::resource('gateway', GatewayController::class);
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);

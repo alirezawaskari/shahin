@@ -16,7 +16,7 @@ class PaymentController extends Controller
 {
     public function pay(Request $request)
     {
-        $gateway = $request->gateway ? 'saman' : 'zarinpal';
+        $gateway = $request->gateway;
         $factor = Factor::findOrFail($request->input('factor_id'));
         $user = $factor->user;
         if ($request->input('payment') == 'card') {

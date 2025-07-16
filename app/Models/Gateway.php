@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class GatewayChoose extends Model
+class Gateway extends Model
 {
-    use HasFactory;
     protected $table = 'gateways';
     protected $fillable = [
         'name',
+        'fa_name',
+        'logo',
         'status'
     ];
     protected $appends = ['status_label'];
