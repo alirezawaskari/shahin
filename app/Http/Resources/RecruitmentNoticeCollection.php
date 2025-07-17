@@ -27,10 +27,6 @@ class RecruitmentNoticeCollection extends ResourceCollection
                     'representation' => !is_null($item->representation) ?$item->representation->fa_name:'نمایندگی',
                 ];
             }),
-//            'meta' => [
-////                'sum_price' => number_format($this->collection->sum('amount')),
-////                'total_price' => number_format($this->checks->sum('amount')),
-//            ]
         ];
     }
 

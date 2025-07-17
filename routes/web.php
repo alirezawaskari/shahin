@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
+use App\Http\Controllers\Admin\RecruitmentNoticeController;
+use App\Http\Controllers\Admin\ResumeController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
@@ -735,14 +737,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('WalletTransaction', 'WalletTransactionController');
     Route::get('/wallet-update/{wallet}', 'WalletTransactionController@wallet_update')->name('wallet.update');
     //resume
-    Route::get('/resume/filter' , 'ResumeController@filter');
-    Route::get('/resume/desktop' , 'ResumeController@desktop')->name('resume.desktop');
-    Route::get('/resume/desktop/filter' , 'ResumeController@filterDesktop');
-    Route::post('/resume-delete' , 'ResumeController@delete');
-    Route::get('/recruitment-notice/filter', 'RecruitmentNoticeController@filter');
-    Route::resource('recruitmentNotice', 'RecruitmentNoticeController');
-    Route::post('resume/transfer' , 'ResumeController@transfer');
-    Route::resource('resume', 'ResumeController');
+    Route::get('/resume/filter' , [ResumeController::class,'filter']);
+    Route::get('/resume/desktop' , [ResumeController::class,'desktop'])->name('resume.desktop');
+    Route::get('/resume/desktop/filter' , [ResumeController::class,'filterDesktop']);
+    Route::post('/resume-delete' , [ResumeController::class,'destroy']);
+    Route::get('/recruitment-notice/filter', [RecruitmentNoticeController::class,'filter']);
+    Route::resource('recruitmentNotice', RecruitmentNoticeController::class);
+    Route::post('resume/transfer' , [ResumeController::class,'transfer']);
+    Route::resource('resume', ResumeController::class);
+
     //agency
     Route::get('/agency/filter', 'AgencyController@filter');
     Route::get('/agency-suspend', 'AgencyController@suspend')->name('agency.suspend');

@@ -66,6 +66,7 @@ class ResumeController extends Controller
     public function filter(Request $request)
     {
         $resumes = Resume::filter()->latest();
+
         if(auth()->user()->hasPermission('resume'))
         {
             $resumes = Resume::filter()->where('card_id', auth()->user()->roles->first()->card_id)->latest();
