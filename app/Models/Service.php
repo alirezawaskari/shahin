@@ -21,7 +21,7 @@ class Service extends Model
         'center','multiple','percent',
         'demo','content','txt_box_1','left_content'
         ,'img_box_1','thumb','image','icon','image_app'
-        ,'background_image','gift','wage_percent','session_attributes','tax','rules'];
+        ,'background_image','gift','wage_percent','session_attributes','tax','rules','session'];
 
     /**
      * @var array

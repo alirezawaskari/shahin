@@ -475,7 +475,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/service/filter', 'ServiceController@filter');
     Route::get('/service/indexTariffs/{service}', 'ServiceController@getIndexTariffs');
     Route::get('/service/financialPlansType/{id}', 'ServiceController@getFinancialPlansType');
-    Route::resource('service', 'ServiceController');
+    Route::resource('service', ServiceController::class);
     Route::resource('serviceItem', 'ServiceItemController');
     //serviceIndexTariff
     Route::get('/serviceIndexTariff/filter', 'ServiceIndexTariffController@filter');

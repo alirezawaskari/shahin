@@ -330,7 +330,7 @@ class ServiceController extends AdminController
         if ($validator->fails()) {
             return response(['status'=>'error','messages'=>$validator->messages()->all()]);
         }
-        $service->update(array(
+        $service->update([
             'title'=>$request->title,
             'en_title'=>$request->en_title,
             'description'=>$request->description,
@@ -339,13 +339,14 @@ class ServiceController extends AdminController
             'items'=>$request->items,
             'center'=>$request->center,
             'multiple'=>$request->multiple,
+            'session'=> $request->has('is_session') ? 1 : 0,
             'tax'=>$request->tax,
             'ability_invite_friend'=>$request->ability_invite_friend,
             'wage_percent'=>$request->wage_percent,
             'price'=>$request->price,
             'gift'=>$request->gift,
-        ));
-        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+        ]);
+        return response(['status'=>'success','messages'=>['ثبت تغییرات با موفقیت انجام گرفت !']]);
     }
 
     /**

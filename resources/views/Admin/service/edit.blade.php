@@ -207,6 +207,19 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-2 mt-5">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input
+                                                type="checkbox"
+                                                name="is_session"
+                                                value="1"
+                                                {{ $service->session ? 'checked' : ''}}
+                                            >
+                                            <span class="pr-1">دارای جلسه اجرا</span>
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="col-12 col-md-12 mb-3">
                                     <span class="btn btn-success" id="basic-information-submit">ثبت تغییرات</span>
                                 </div>
