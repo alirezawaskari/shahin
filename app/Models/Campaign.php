@@ -28,4 +28,15 @@ class Campaign extends Model
     {
         return $this->hasMany(CampaignCollaboration::class,'campaign_id','id',);
     }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNotNull('start_date')
+                ->whereNotNull('end_date')
+                ->whereDate('start_date', '<=', now())
+                ->whereDate('end_date', '>=', now())
+                ->where('usage', '>', 0);
+        });
+    }
 }

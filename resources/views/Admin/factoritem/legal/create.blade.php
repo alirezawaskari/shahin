@@ -1,8 +1,8 @@
 <div class="card-header">
     افزودن
 </div>
-<div class="row treatment_plan d-none" id="treatment_plan">
-    <div class="col-12 col-md-8 mb-3">
+<div class="row d-none" id="treatment_plan_legal">
+    <div class="col-12 col-md-5 mb-3">
         <label>تعرفه</label>
         <select class="form-control" name="service_tariff_id[]" id="service_tariff1" ondragend="prices()"
                 onchange="getSessionNumber(this.id , this.value)">
@@ -16,9 +16,19 @@
             @endforeach
         </select>
     </div>
-    <div class="col-12 col-md-4 mb-3 ">
+    <div class="col-12 col-md-3 mb-3 ">
         <label>توضیحات</label>
         <input type="text" name="descriptions[]" class="form-control" placeholder="توضیحات">
+    </div>
+    <div class="col-12 col-md-2 mb-3">
+        <label>تعداد جلسات</label>
+        <input type="number" name="session_number[]" id="session_number1" class="form-control"
+               placeholder="تعداد جلسات درمان" value="1" min="1">
+    </div>
+    <div class="col-12 col-md-2 mb-3">
+        <label>طول درمان (روز)</label>
+        <input type="number" name="treatment_duration[]" id="treatment_duration1" class="form-control"
+               placeholder="طول درمان(روز)" value="1" min="1">
     </div>
 </div>
 <div id="new_treatment_plan">
@@ -26,6 +36,6 @@
     </div>
 </div>
 <div class="col-12 mb-2">
-    <div onclick="treatmentPlan()" class="btn btn-success mb-2">+</div>
+    <div onclick="treatmentPlanLegal()" class="btn btn-success mb-2">+</div>
 </div>
 <hr>

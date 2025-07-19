@@ -70,6 +70,13 @@
         $(document).ready( function () {
             $('#datatable-history-blade').DataTable({searching: false});
         } );
-        if($('#treatment_plan')) treatmentPlan();
+        $(document).ready(function () {
+            if ($('#treatment_plan').length > 0) {
+                treatmentPlan();
+            }
+            if ($('#treatment_plan_legal').length > 0) {
+                treatmentPlanLegal();
+            }
+        });
     </script>
 @endsection

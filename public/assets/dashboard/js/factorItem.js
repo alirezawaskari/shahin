@@ -274,8 +274,12 @@ function selectByTariff(id, value) {
 }
 
 function getSessionNumber(id, value) {
+
+    console.log(id);
     id = id.slice(14);
+    console.log(id);
     if (value != 0) {
+
         $.ajax({
             url: '/dashboard/serviceTariff/getSessionNumber',
             type: 'post',
@@ -283,8 +287,10 @@ function getSessionNumber(id, value) {
             data: {
                 id: value
             },
+
             success: function success(data) {
                 if (data.count == 'available') {
+
                     document.getElementById('session_number' + id).value = data.service_tariff['session_number'];
                     document.getElementById('treatment_duration' + id).value = data.service_tariff['treatment_duration'];
                 }
@@ -310,6 +316,21 @@ function treatmentPlan() {
     selectByTariff("tariff" + ct, document.getElementById("tariff" + ct).value);
 }
 
+function treatmentPlanLegal() {
+    ct++;
+    var div1 = document.createElement('div');
+    div1.classList.add("row");
+    div1.classList.add("treatment_plan_legal");
+    div1.id = ct;
+    var delLink = '<div class="mr-3 btn badge-red"><a class="text-white" href="javascript:delTreatmentPlan(' + ct + ')"><i class="fa fa-trash" aria-hidden="true"></i></a></div>';
+    div1.innerHTML = document.getElementById('treatment_plan_legal').innerHTML + delLink;
+    document.getElementById('new_treatment_plan').appendChild(div1);
+    div1.querySelector('select[name="service_tariff_id[]"]').id = "service_tariff" + ct;
+    div1.querySelector('input[name="session_number[]"]').id = "session_number" + ct;
+    div1.querySelector('input[name="treatment_duration[]"]').id = "treatment_duration" + ct;
+    console.log("tariff" + ct);
+    selectByTariff("tariff" + ct, document.getElementById("tariff" + ct).value);
+}
 function delTreatmentPlan(eleId) {
     d = document;
     var ele = d.getElementById(eleId);

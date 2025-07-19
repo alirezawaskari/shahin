@@ -97,9 +97,9 @@
                 <div class="mt-5">
                 @include('Admin.factoritem.layouts.file.prepaymentLink')
                 @if($factorItem['type'])
-                @include('Admin.factoritem.layouts.file.priceDiffLink')
+                    @include('Admin.factoritem.layouts.file.priceDiffLink')
                 @endif
-                @include('Admin.factoritem.layouts.payments')
+                    @include('Admin.factoritem.layouts.payments')
                 </div>
                 <div class="d-flex justify-content-between">
                     <a class="btn btn-primary px-4 mb-3 ml-2 text-white previous"> <i class="fas fa-angle-right"></i>
@@ -138,5 +138,3 @@
         </div>
     </div>
 </div>
-<script>
-</script>
