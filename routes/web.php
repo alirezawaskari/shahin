@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\site\WorkSampleController;
 use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
+use App\Http\Controllers\Admin\TariffController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TicketControllerTest;
 use App\Http\Controllers\Admin\TicketHistoryController;
@@ -466,6 +467,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/ticket/{ticket}/edit',[TicketController::class,'create'])->name('ticket.edit');
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
+
+    Route::get('tariff/filter', [TariffController::class,'filter']);
+    Route::resource('tariff', TariffController::class);
+
 
     Route::resource('ticket/history', TicketHistoryController::class);
     //service & category

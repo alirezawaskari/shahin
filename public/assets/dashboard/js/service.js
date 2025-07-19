@@ -120,7 +120,7 @@ $(document).ready(function () {
                             <a href="/dashboard/service_before_form/${data.slug}"><span class="color-edit dropdown-item pointer">فیلدهای بعد از پرداخت</span></a>
                             <a href="/dashboard/service/indexTariffs/${data.slug}"><span class="color-edit dropdown-item pointer">فهرست تعرفه های شاخص</span></a>
                             <a href="/dashboard/service/financialPlansType/${data.id}"><span class="color-edit dropdown-item pointer">فهرست طرح های مالی</span></a>
-                            <button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button>
+                            <button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button><button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button>
                             </div></div>`
                     }
                 }
