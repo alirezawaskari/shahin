@@ -21,18 +21,17 @@
     <!-- end::theme color -->
     @yield('css')
 </head>
-<body class="horizontal-side-menu">
+<body class="vertical-side-menu">
 {{--@include('sweet::alert')--}}
 @include('sweetalert::alert')
 <div class="page-loader" id="gif">
     <div class="spinner-border"></div>
     <span>در حال بارگذاری ...</span>
 </div>
-
 @include('Admin.layouts.sidemenu')
 @include('Admin.layouts.navbar')
 @include('Admin.layouts.terms')
-<main class="main-content" id="app">
+<main class="main-content" style="margin-right: 165px;" id="app">
     <div class="container-fluid">
         @yield('content')
     </div>
@@ -57,9 +56,24 @@
     $(document).ready(function(){
       $('[data-toggle="tooltip"]').tooltip();
     });
+    document.getElementById('toggleSidebar').addEventListener('click', function () {
+        const sidebar = document.getElementById('myNav');
+        const icon = document.getElementById('menuIcon');
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent.style.marginRight === '165px') {
+            mainContent.style.marginRight = '';
+        } else {
+            mainContent.style.marginRight = '165px';
+        }
+
+        sidebar.classList.toggle('collapsed');
+        icon.classList.toggle('rotated');
+
+    });
 </script>
 @yield('js')
 @yield('scripts')
+
 <footer class="footer">
     <p>کلیه حقوق این نرم افزار  متعلق به شبکه خدمات رفاهی لاله می باشد.</p>
 </footer>

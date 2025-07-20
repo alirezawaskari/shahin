@@ -6573,7 +6573,6 @@ font-size: 25px;
 outline: none;
 }
 main.main-content {
-margin-right: 165px;
 padding: 30px 20px;
 min-height: 100vh;
 -webkit-transition: margin-right .2s;
@@ -9147,3 +9146,34 @@ background-color: white;
     border: 1px solid #ccc;
     border-top: none;
   }
+.sidebar-custom{
+    transition: all 0.3s ease;
+}
+.sidebar-custom.collapsed {
+    width: 0;
+    overflow: hidden;
+}
+.toggle-btn {
+    position: relative;
+    margin-left: .5rem;
+    left: 2rem;
+    z-index: 1100;
+    transition: right 0.3s ease;
+}
+.menu-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.menu-icon.rotated {
+    transform: rotate(90deg);
+}
+.custom-menu-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+}

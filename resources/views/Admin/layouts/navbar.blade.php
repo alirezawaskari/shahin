@@ -1,5 +1,8 @@
-<nav class="navbar">
+<nav class="navbar" style="z-index: 1200">
     <div class="container-fluid">
+        <button class="toggle-btn custom-menu-btn mr-5" id="toggleSidebar">
+            <i class="icon ti-menu text-white menu-icon" style="font-size: 1.3rem;" id="menuIcon"></i>
+        </button>
         <div class="d-flex align-items-center">
             <img class="d-none d-sm-block" src="{{ asset('assets/dashboard/images/l-d.png') }}" width="60px" height="30px">
         </div>
