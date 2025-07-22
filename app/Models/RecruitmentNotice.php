@@ -39,9 +39,7 @@ class RecruitmentNotice extends Model
         $province = request('province');
         $startDate = request('startDate');
         $endDate = request('endDate');
-        $status = request('status');
         $representation = request('representation');
-
         if (isset($province) && trim($province) != 'all') {
                 if($province == 'all_province')
                 {
@@ -68,8 +66,6 @@ class RecruitmentNotice extends Model
         if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
-
-        $query->where('ghorfe_onlinerecruitment_list_id',null);
         return $query;
     }
 

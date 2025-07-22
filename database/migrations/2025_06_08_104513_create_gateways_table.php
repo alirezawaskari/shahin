@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('gateways', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->boolean('status')->default(1); // 1 = فعال، 0 = غیرفعال
+            $table->string('name')->nullable();
+            $table->string('fa_name')->nullable();
+            $table->boolean('status')->default(1);
+            $table->string('logo',191)->nullable();
             $table->timestamps();
         });
     }

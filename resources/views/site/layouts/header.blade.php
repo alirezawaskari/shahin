@@ -167,7 +167,7 @@
                             پویش ها
                         </a>
                         <div class="dropdown-menu dropdown-menu-right text-right mt-3">
-                            @foreach(\App\Models\Campaign::all() as $campaign)
+                            @foreach(\App\Models\Campaign::available()->get() as $campaign)
                                 @if((new \App\Services\V1\Campaign\CampaignService())->checkCampaign($campaign))
                                     <a
                                         class="dropdown-item text-orange py-2"

@@ -12,6 +12,9 @@
                         @case('factor_building')
                             @include('Admin.factoritem.building.list')
                             @break
+                        @case('factor_legal')
+                            @include('Admin.factoritem.legal.list')
+                            @break
                     @endswitch
                 @endif
             @endforeach
@@ -28,6 +31,9 @@
                             @break
                         @case('factor_building')
                             @include('Admin.factoritem.building.create')
+                            @break
+                        @case('factor_legal')
+                            @include('Admin.factoritem.legal.create')
                             @break
                     @endswitch
                 @endif

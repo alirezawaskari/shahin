@@ -16,9 +16,11 @@ use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Http\Controllers\Admin\FactorController;
 use App\Http\Controllers\Admin\FactorItemController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
-use App\Http\Controllers\Admin\GatewayChooseController;
+use App\Http\Controllers\Admin\GatewayController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
+use App\Http\Controllers\Admin\RecruitmentNoticeController;
+use App\Http\Controllers\Admin\ResumeController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
@@ -32,6 +34,7 @@ use App\Http\Controllers\Admin\site\WorkSampleController;
 use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
+use App\Http\Controllers\Admin\TariffController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\TicketControllerTest;
 use App\Http\Controllers\Admin\TicketHistoryController;
@@ -199,6 +202,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+    Route::post('/settings/sms', [SettingController::class,'updateSmsSetting'])->name('settings.update.sms.setting');
 
     Route::resource('/campaign', CampaignControllerAdmin::class);
     Route::post('/campaign/from', [CampaignControllerAdmin::class,'createForm'])->name('campaign.create.form');
@@ -206,7 +210,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/campaign/company/delete/{campaign_id}', [CampaignControllerAdmin::class,'deleteCompany'])->name('campaign.delete.company');
 
     // درگاه انتخابی
-    Route::resource('gatewaysChoose', GatewayChooseController::class);
+    Route::resource('gateway', GatewayController::class);
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
@@ -464,6 +468,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
 
+    Route::get('tariff/filter', [TariffController::class,'filter']);
+    Route::resource('tariff', TariffController::class);
+
+
     Route::resource('ticket/history', TicketHistoryController::class);
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
@@ -472,7 +480,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/service/filter', 'ServiceController@filter');
     Route::get('/service/indexTariffs/{service}', 'ServiceController@getIndexTariffs');
     Route::get('/service/financialPlansType/{id}', 'ServiceController@getFinancialPlansType');
-    Route::resource('service', 'ServiceController');
+    Route::resource('service', ServiceController::class);
     Route::resource('serviceItem', 'ServiceItemController');
     //serviceIndexTariff
     Route::get('/serviceIndexTariff/filter', 'ServiceIndexTariffController@filter');
@@ -734,14 +742,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('WalletTransaction', 'WalletTransactionController');
     Route::get('/wallet-update/{wallet}', 'WalletTransactionController@wallet_update')->name('wallet.update');
     //resume
-    Route::get('/resume/filter' , 'ResumeController@filter');
-    Route::get('/resume/desktop' , 'ResumeController@desktop')->name('resume.desktop');
-    Route::get('/resume/desktop/filter' , 'ResumeController@filterDesktop');
-    Route::post('/resume-delete' , 'ResumeController@delete');
-    Route::get('/recruitment-notice/filter', 'RecruitmentNoticeController@filter');
-    Route::resource('recruitmentNotice', 'RecruitmentNoticeController');
-    Route::post('resume/transfer' , 'ResumeController@transfer');
-    Route::resource('resume', 'ResumeController');
+    Route::get('/resume/filter' , [ResumeController::class,'filter']);
+    Route::get('/resume/desktop' , [ResumeController::class,'desktop'])->name('resume.desktop');
+    Route::get('/resume/desktop/filter' , [ResumeController::class,'filterDesktop']);
+    Route::post('/resume-delete' , [ResumeController::class,'destroy']);
+    Route::get('/recruitment-notice/filter', [RecruitmentNoticeController::class,'filter']);
+    Route::resource('recruitmentNotice', RecruitmentNoticeController::class);
+    Route::post('resume/transfer' , [ResumeController::class,'transfer']);
+    Route::resource('resume', ResumeController::class);
+
     //agency
     Route::get('/agency/filter', 'AgencyController@filter');
     Route::get('/agency-suspend', 'AgencyController@suspend')->name('agency.suspend');

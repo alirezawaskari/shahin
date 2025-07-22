@@ -14,6 +14,20 @@ class Tariff extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function scopeFilter($query)
+    {
+        $title = request('title');
+        $user = request('user');
+        if(isset($user) && $user != 'all')
+        {
+            $query->where('user_id', $user);
+        }
+        if(isset($title) && $title != '')
+        {
+            $query->where('title', 'LIKE', '%' . $title . '%');
+        }
+        return $query;
+    }
     public function serviceTariffs()
     {
         return $this->hasMany(ServiceTariff::class);
