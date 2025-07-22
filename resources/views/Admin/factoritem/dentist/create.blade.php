@@ -36,7 +36,7 @@
             @endforeach
         </select>
     </div>
-    <div class="col-12 col-md-6 mb-3">
+    <div class="col-12 col-md-5 mb-3">
         <label>تعرفه</label>
         <select class="form-control" name="service_tariff_id[]" id="service_tariff1" ondragend="prices()"
                 onchange="getSessionNumber(this.id , this.value)">
@@ -50,16 +50,23 @@
             @endforeach
         </select>
     </div>
-    <div class="col-12 col-md-3 mb-3">
+    <div class="col-12 col-md-2 mb-3">
         <label>تعداد جلسات</label>
         <input type="number" name="session_number[]" id="session_number1" class="form-control"
                placeholder="تعداد جلسات درمان" value="1" min="1">
     </div>
-    <div class="col-12 col-md-3 mb-3">
+    <div class="col-12 col-md-2 mb-3">
         <label>طول درمان (روز)</label>
         <input type="number" name="treatment_duration[]" id="treatment_duration1" class="form-control"
                placeholder="طول درمان(روز)" value="1" min="1">
     </div>
+    @permission('change-price-tariff')
+    <div class="col-12 col-md-3 mb-3">
+        <label>قیمت</label>
+        <input type="number" name="price[]" id="price1" class="form-control"
+               placeholder="قیمت"  min="1">
+    </div>
+    @endpermission
 </div>
 <div id="new_treatment_plan">
     <div>

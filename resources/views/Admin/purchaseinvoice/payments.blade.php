@@ -143,16 +143,16 @@
             </tr>
             @foreach($purchase_invoice_factors as $purchase_invoice_factor)
             <tr>
-                <td>{{ $purchase_invoice_factor->factor->resnumber }}</td>
-                <td>{{ number_format($purchase_invoice_factor->factor->price) }} ریال</td>
-                <td>{{ $purchase_invoice_factor->factor::TYPE[$purchase_invoice_factor->factor->type] }}</td>
-                <td>{{ verta($purchase_invoice_factor->factor->created_at)->format('%d %B ، %Y - H:i:s') }}</td>
+                <td>{{ $purchase_invoice_factor?->factor?->resnumber }}</td>
+                <td>{{ number_format($purchase_invoice_factor?->factor?->price) }} ریال</td>
+                <td>{{ $purchase_invoice_factor?->factor::TYPE[$purchase_invoice_factor?->factor?->type] }}</td>
+                <td>{{ verta($purchase_invoice_factor?->factor?->created_at)->format('%d %B ، %Y - H:i:s') }}</td>
                 <td>
-                    @if($purchase_invoice_factor->factor->status == 4)
-                    <span class="badge badge-success">{{ $purchase_invoice_factor->factor::status($purchase_invoice_factor->factor->status)
+                    @if($purchase_invoice_factor?->factor?->status == 4)
+                    <span class="badge badge-success">{{ $purchase_invoice_factor?->factor::status($purchase_invoice_factor?->factor?->status)
                         }}</span>
-                    @elseif($purchase_invoice_factor->factor->status == 5)
-                    <span class="badge badge-danger">{{ $purchase_invoice_factor->factor::status($purchase_invoice_factor->factor->status)
+                    @elseif($purchase_invoice_factor?->factor?->status == 5)
+                    <span class="badge badge-danger">{{ $purchase_invoice_factor?->factor::status($purchase_invoice_factor?->factor?->status)
                     }}</span>
                     @endif
                 </td>
@@ -164,16 +164,16 @@
                         </a>
                         <div class="dropdown-menu">
                             <a>
-                                <button data-id="{{ $purchase_invoice_factor->factor->resnumber }}" type="button" class="factor-show dropdown-item pointer"  data-toggle="modal"
+                                <button data-id="{{ $purchase_invoice_factor?->factor?->resnumber }}" type="button" class="factor-show dropdown-item pointer"  data-toggle="modal"
                                         data-target="#factorShowModal">مشاهده قبض</button>
                             </a>
                             @permission('factor-delete')
                                 <form class="delete_form" method="post"
-                                    action="{{ route('factor.destroy', $purchase_invoice_factor->factor->resnumber) }}">
+                                    action="{{ route('factor.destroy', $purchase_invoice_factor?->factor?->resnumber) }}">
                                     @method('DELETE')
                                     @csrf
                                     <input type="button" class="dropdown-item pointer delete_submit"
-                                        id="{{ $purchase_invoice_factor->factor->id }}" value="حذف">
+                                        id="{{ $purchase_invoice_factor?->factor?->id }}" value="حذف">
                                 </form>
                             @endpermission
                         </div>

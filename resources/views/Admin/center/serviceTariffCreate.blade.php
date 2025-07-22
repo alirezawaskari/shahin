@@ -29,7 +29,7 @@
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label>انتخاب تعرفه</label>
-                    <select class="form-control" name="tariff" id="tariff1">
+                    <select class="form-control" name="tariff" id="tariff1" required>
                         @foreach ($tariffs as $tariff)
                             <option value="{{ $tariff->id }}">{{ $tariff->title }}</option>
                         @endforeach

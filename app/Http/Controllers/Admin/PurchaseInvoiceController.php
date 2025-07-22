@@ -132,6 +132,8 @@ class PurchaseInvoiceController extends Controller {
     public function edit(PurchaseInvoice $purchaseInvoice ) {
         $user = auth()->user();
         $reports = $purchaseInvoice->reports;
+
+
         $representations = Representation::whereStatus( true )->get();
         $purchase_invoice_factors = PurchaseInvoiceFactor::where('purchase_invoice_id' , $purchaseInvoice->id)->with('factor')->get();
         $financial_factors = self::getSumPricePaidFactors($purchase_invoice_factors);
@@ -407,7 +409,7 @@ class PurchaseInvoiceController extends Controller {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function savePayment(Request $request, PurchaseInvoice $purchaseInvoice ) {
-       
+
         $user = $purchaseInvoice->supplier->user_id;
 
         $factor = new Factor();

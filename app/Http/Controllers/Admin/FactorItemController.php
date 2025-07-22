@@ -92,7 +92,9 @@ class FactorItemController extends Controller {
      * @param FactorItem $factorItem
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function edit(FactorItem $factorItem ) {
+    public function edit(FactorItem $factorItem)
+    {
+
         $admin_users = User::where('center_id', $factorItem->center_id)->where('center_id', '!=' , null)->whereHas('employee', function ($query) {
             $query->where('show_status', 1);
         })->get();
@@ -372,12 +374,12 @@ class FactorItemController extends Controller {
      * create factorItem products & factorItem service tariffs
      */
     public function createFactor( Request $request ) {
+
         $item = $request->item;
         $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $request->item );
         $user = User::find( $item[ 'user_id' ] );
         $type = isset($request->type) ? $request->type : $factor_item->type;
-        //self::changeType( $factor_item, $type );
         if($factor_item->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factor_item->financialPlansType,$type))
         {
             return redirect()->back()->with( [
@@ -621,7 +623,6 @@ class FactorItemController extends Controller {
         $factor->expired_at = now()->addDay( 3 );
         $factor->created_at = Helper::vertaToMiladi($request->payment_date);
         $factor->save();
-
         //upload bill_image cash factor
         if ( $request->url_bill_image ) {
             $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
@@ -1228,11 +1229,22 @@ class FactorItemController extends Controller {
      */
     private function createSerivceTriffsFactorItem($request , FactorItem $factor_item)
     {
+
         for ($i = 0; $i < ($request->service_tariff_id ? count($request->service_tariff_id) : 0); $i++) {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
             $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
             $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : $value;
-            $price = !is_null( $value ) && is_int($value) ? $service_tariff->price*$value : $service_tariff->price;
+            if(auth()->user()->hasPermission('change-price-tariff'))
+            {
+                $service_tariff_price = $request->price[$i];
+            }else{
+                $service_tariff_price = $service_tariff->price;
+            }
+            if($value != null && is_int($value)){
+                $price = $service_tariff_price * $value;
+            }else{
+                $price = $service_tariff_price;
+            }
             $treatment_duration = isset($request->treatment_duration[ $i+1 ]) ? $request->treatment_duration[ $i+1 ] : null;
 		    $doctor_id = isset($request->doctor_id[ $i+1 ]) ? $request->doctor_id[ $i+1 ] : null;
 			$session_number = isset($request->session_number[ $i+1 ]) ? $request->session_number[ $i+1 ] : null;

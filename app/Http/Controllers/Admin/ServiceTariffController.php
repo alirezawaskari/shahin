@@ -58,6 +58,7 @@ class ServiceTariffController extends Controller {
     public function store( Request $request ) {
         $validate = Validator::make( $request->all(), [
             'name' => 'required',
+            'tariff' => 'required',
             'purchase_price' => 'required',
             'multi_stage' => [ 'required', Rule::in( array( 1, 2 ) ) ], ] );
 
@@ -210,7 +211,10 @@ class ServiceTariffController extends Controller {
                 $id = $request->input( 'id' );
                 if ( ServiceTariff::find( $id ) ) {
                     $service_tariff = ServiceTariff::find( $id );
-                    return response()->json( [ 'count' => 'available', 'service_tariff' => $service_tariff ] );
+                    return response()->json([
+                        'count' => 'available',
+                        'service_tariff' => $service_tariff
+                    ]);
                 }
             }
         }
