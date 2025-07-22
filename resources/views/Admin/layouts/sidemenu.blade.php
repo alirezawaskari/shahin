@@ -444,7 +444,7 @@
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پویش و جشنواره</span> </a>
                 <ul>
                     @permission('campaign')
-                    <li><a href="{{ route('campaign.index') }}">اطلاعات پویش</a></li>
+                        <li><a href="{{ route('campaign.index') }}"> فهرست پویش ها</a></li>
                     @endpermission
                     @permission('coupon')
                     <li><a href="{{ route('coupon.index') }}">فهرست جشنواره</a></li>

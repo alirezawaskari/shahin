@@ -74,7 +74,7 @@ class FactorItemController extends Controller {
         $user = $factorItem->factor->user;
         $type = $factorItem->factor->factorable_type;
         $comments = $factorItem->factor->comments;
-        $totalFactorItem = $factorItem->totalFactorItem ?? '';
+        $totalFactorItem = $factorItem->supervisor->totalFactorItem ?? '';
         $item = [];
         $item[ 'id' ] = $factorItem->id;
         $item[ 'service' ] = $factorItem->factoritemable;
@@ -109,7 +109,7 @@ class FactorItemController extends Controller {
             $item[ 'contract_values' ] = $totalFactorItem->contract_values;
             $item[ 'status_mali' ] = $factorItem->status_mali;
             $item[ 'start_date' ] = verta( $totalFactorItem->approval_date )->format( 'Y/m/d' );
-            $item[ 'status_mali_text' ] = FactorItem::statusMali( $factorItem->totalFactorItem->status_mali );
+            $item[ 'status_mali_text' ] = FactorItem::statusMali( $totalFactorItem->status_mali );
             $item[ 'approval_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
             $item[ 'total_price' ] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum( 'discount' );
             $item[ 'prepayment' ][ 'price' ] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
@@ -118,7 +118,7 @@ class FactorItemController extends Controller {
             $item[ 'wage' ] = ( $item[ 'total_price' ] - $item[ 'prepayment' ][ 'price' ] ) * 0.04 / 12 * $item[ 'installments_num' ];
             $item[ 'loan' ] = $totalFactorItem->totalFactorItemInstallments->sum( 'price' );
             $item[ 'credit' ] = $totalFactorItem->credit;
-            $item[ 'extra_pay' ] = TotalFactorItem::getExtraPay( $factorItem->supervisor->totalFactorItem );
+            $item[ 'extra_pay' ] = TotalFactorItem::getExtraPay( $totalFactorItem );
             $item[ 'date_first_pay' ] = isset( $totalFactorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $totalFactorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
             $item[ 'price_difference' ] = $totalFactorItem->property ? $totalFactorItem->property->price_difference : 0;
             $item[ 'payments' ] = $totalFactorItem->factors;

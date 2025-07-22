@@ -30,7 +30,7 @@
                                                         name="item[{{ $form->name }}]"> {{ isset($item['factor_values'][$form->name]) ? $item['factor_values'][$form->name] : $user[$form->name] }}</textarea>
                                 </div>
                                 @break
-                                @case('طfactor_dentist')
+                                @case('factor_dentist')
                                 @foreach($item['factorItems'] as $factoritem)
                                 <div class="col-12 col-md-12 mb-3">
                                     طرح درمان {{ $factoritem->factor->user->name.'
@@ -405,18 +405,18 @@
                                         @csrf
                                         <div class="row modal-body">
                                             <input type="hidden" name="item[id]"
-                                                value="{{ $factorItem->totalFactorItem->id }}">
+                                                value="{{ $totalFactorItem->id }}">
                                             <div class="col-12 col-md-8 card-body">
                                                 <textarea required class="form-control"
                                                     name="description_request_contract_settlement" id="" cols="30"
                                                     rows="10"
-                                                    placeholder="توضیح خود را بنویسید...">{{ $factorItem->totalFactorItem->totalFactorItemContractSettlement ? $factorItem->totalFactorItem->totalFactorItemContractSettlement->description_request_contract_settlement : '' }}</textarea>
+                                                    placeholder="توضیح خود را بنویسید...">{{ $totalFactorItem->totalFactorItemContractSettlement ? $totalFactorItem->totalFactorItemContractSettlement->description_request_contract_settlement : '' }}</textarea>
                                             </div>
                                             <div class="col-12 col-md-4 card-body">
-                                                @if(isset($factorItem->totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement))
-                                                <a href="{{ asset($factorItem->totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
+                                                @if(isset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement))
+                                                <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
                                                     target="_blank">
-                                                    <img src="{{ $factorItem->totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
+                                                    <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
                                                         class="card-img-top" height="150px">
                                                 </a>
                                                 @else
@@ -439,7 +439,7 @@
                                                 @endif
                                             </div>
                                         </div>
-                                        @if(!in_array($factorItem->totalFactorItem->status_mali , [6,7,8,9]))
+                                        @if(!in_array($totalFactorItem->status_mali , [6,7,8,9]))
                                         <div class="modal-footer">
                                             <button type="submit" class="btn btn-success px-4 mb-3 submit_btn">ثبت
                                                 درخواست</button>

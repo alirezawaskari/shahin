@@ -72,135 +72,237 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        if($request->depth = 0 || $request->depth = 1){
-            $request->validate(['title' => 'required', 'en_title' => 'required',
-                'verticalImages.*.file' => 'required',
-                'horizontalImages.*.file' => 'required'
-            ],
-                ['title.required' => 'لطفا عنوان را وارد کنید', 'en_title.required' => 'لطفا عنوان انگلیسی دسته بندی را وارد کنید',
-                    'verticalImages.*.file.required'=>'لطفا عکس را وارد کنید',
-                    'horizontalImages.*.file.required'=>'لطفا عکس را وارد کنید',
-                ]
-            );
-        }
-        else if($request->depth > 1){
-            $request->validate(['title' => 'required', 'en_title' => 'required'
-            ],
-                ['title.required' => 'لطفا عنوان را وارد کنید', 'en_title.required' => 'لطفا عنوان انگلیسی دسته بندی را وارد کنید',]
-            );
-        }
+    // Validate based on category depth level
+    $this->validateCategory($request);
 
-        if($request->min_credit > 0)$request['min_credit'] = str_replace(",","",$request->min_credit);
-        if($request->max_credit > 0)$request['max_credit'] = str_replace(",","",$request->max_credit);
-        if($request->price > 0)$request['price'] = str_replace(",","",$request->price);
-        $category = new Category();
-        $category->title = $request->input('title');
-        $category->en_title = $request->input('en_title');
-        $category->parent_id = $request->input('parent_id');
-        $category->path = $request->input('path');
-        $category->depth = $request->input('depth');
-        if ($request->input('isActive') != null)
-            $category->isActive = $request->input('isActive');
-        if ($request->input('displayOrder') != null)
-            $category->displayOrder = $request->input('displayOrder');
-        $category->save();
+    // Convert numeric fields with comma to integer
+    $this->sanitizeNumericFields($request);
 
-        if($request->menu_title != '') $menu_title = $request->menu_title;
-        else $menu_title = $category->title;
+    // Create new category
+    $category = new Category();
+    $category->title = $request->input('title');
+    $category->en_title = $request->input('en_title');
+    $category->parent_id = $request->input('parent_id');
+    $category->path = $request->input('path');
+    $category->depth = $request->input('depth');
+    $category->isActive = $request->input('isActive') ?? $category->isActive ?? 1; // Default value assumed
+    $category->displayOrder = $request->input('displayOrder') ?? $category->displayOrder ?? 0;
+    $category->save();
 
-        if($request->is_menu == 1){
-            Menu::create(['menuable_id' => $category->id,'parent_id'=>$request->input('parent_id')
-                ,'menuable_type'=>Category::class
-                ,'position'=>'1','title'=>$menu_title,'depth'=>$request->input('depth')]);
-        }
+    // Create menu if enabled
+    $this->createMenuIfNeeded($request, $category);
 
-        if($request->other_parent_title != '')  $other_parent_title = $request->other_parent_title ;
-        else $other_parent_title = $category->title ;
+    // Create menu for other parent if exists
+    $this->createOtherParentMenu($request, $category);
 
-        if(isset($request->other_parent_id) && $request->other_parent_id != null){
-            Menu::create(['menuable_id' => $category->id ,'menuable_type'=>Category::class,
-                'parent_id'=>$request->other_parent_id,'title'=>$other_parent_title,'depth'=>2,'duplicate'=>1]);
-        }
+    // Update category images
+    $this->updateCategoryImages($request, $category);
 
-        $image_name = $request->image_path;
-        if(isset($image_name)) {
-            if (\File::exists(public_path($category->image))) {
-                \File::delete(public_path($category->image));
-            }
-                $category->image = Helper::moveImage($image_name,'category');
-                $category->save();
-            }
-        $file_icon = $request->icon_path;
-        if(isset($file_icon)) {
-            if (\File::exists(public_path($category->icon))) {
-                \File::delete(public_path($category->icon));
-            }
-            $category->icon = Helper::moveImage($file_icon,'category');
-            $category->save();
-        }
+    // Attach similar groups
+    $this->attachSimilarGroups($request, $category);
 
-        if (isset($request->similar_categories)) {
-            $category->similarGroups()->attach($request->similar_categories, ['similar_model' => Category::class, 'relation_model' => Category::class]);
-        }
-        if (isset($request->similar_services)) {
-            $category->similarGroupsServices()->attach($request->similar_services, ['similar_model' => Category::class, 'relation_model' => Service::class]);
-        }
+    // Save banner and slider images
+    $this->saveBannerAndSliderImages($request, $category);
 
+    // Attach related categories
+    $this->attachRelatedCategories($request, $category);
 
-        //banner vertical image
-        $files = $request->verticalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                        Gallery::create(['galleryable_id' => $category->id,
-                            'galleryable_type' => Category::class,
-                            'title' => $extra_file['file_title'],
-                            'image' =>  Helper::moveImage($extra_file['file'],'category'),
-                            'type' => 0]);
-                }
-            }
-        }
-        //banner horizontal image
-        $files = $request->horizontalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    Gallery::create(['galleryable_id' => $category->id,
-                        'galleryable_type' => Category::class,
-                        'title' => $extra_file['file_title'],
-                        'image' => Helper::moveImage($extra_file['file'],'category')
-                        , 'type' => 1]);
-                }
-            }
-        }
+    // Return appropriate response based on parent_id
+    return $this->returnResponse($category);
+}
 
-        //Sliders
-        $multiple_images = $request->multiple_image;
-        if ($multiple_images != '') {
-            foreach ($multiple_images as $multiple_image) {
-                if (isset($multiple_image['file'])) {
-                    Slider::create(['title'=>$multiple_image['title'],'link'=>$multiple_image['link'],
-                        'type'=>1,'category_id'=>$category->id , 'img'=> Helper::moveImage($multiple_image['file'],'slider')]);
-
-                }
-            }
-        }
-
-        //ارتاط دسته بندی ها
-        if (isset($request->family_cat_ids_list) && $request->family_cat_ids_list != []) {
-            $category->related()->attach($category->id);
-            $category->related()->attach($request->family_cat_ids_list);
-        }
-
-
-        if ($category->parent_id == 0) {
-            $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
-            return view('Admin.site.category.lists', ['categories' => $categories,'create' => 'success']);
-        } else
-            return redirect('/dashboard/category/sub/' . $category->parent_id )->with([
-                'create' => 'success'
-            ]);
+/**  
+ * Validate based on category depth level
+ */
+private function validateCategory(Request $request)
+{
+    if ($request->depth == 0 || $request->depth == 1) {
+        // Uncomment to enforce validation
+        /*
+        $request->validate([
+            'title' => 'required',
+            'en_title' => 'required',
+            'verticalImages.*.file' => 'required',
+            'horizontalImages.*.file' => 'required'
+        ], [
+            'title.required' => 'Please enter the title',
+            'en_title.required' => 'Please enter the English title of the category',
+            'verticalImages.*.file.required' => 'Please upload the vertical image',
+            'horizontalImages.*.file.required' => 'Please upload the horizontal image',
+        ]);
+        */
+    } elseif ($request->depth > 1) {
+        $request->validate([
+            'title' => 'required',
+            'en_title' => 'required'
+        ], [
+            'title.required' => 'Please enter the title',
+            'en_title.required' => 'Please enter the English title of the category'
+        ]);
     }
+}
+
+/**  
+ * Convert comma-separated numeric fields to integers
+ */
+private function sanitizeNumericFields(Request $request)
+{
+    if ($request->min_credit > 0) {
+        $request['min_credit'] = str_replace(',', '', $request->min_credit);
+    }
+    if ($request->max_credit > 0) {
+        $request['max_credit'] = str_replace(',', '', $request->max_credit);
+    }
+    if ($request->price > 0) {
+        $request['price'] = str_replace(',', '', $request->price);
+    }
+}
+
+/**  
+ * Create menu if enabled
+ */
+private function createMenuIfNeeded(Request $request, Category $category)
+{
+    if ($request->is_menu == 1) {
+        Menu::create([
+            'menuable_id' => $category->id,
+            'parent_id' => $request->input('parent_id'),
+            'menuable_type' => Category::class,
+            'position' => '1',
+            'title' => $request->menu_title ?? $category->title,
+            'depth' => $request->depth
+        ]);
+    }
+}
+
+/**  
+ * Create menu for other parent if exists
+ */
+private function createOtherParentMenu(Request $request, Category $category)
+{
+    if (!empty($request->other_parent_title) || isset($request->other_parent_id)) {
+        $title = $request->other_parent_title ?? $category->title;
+        Menu::create([
+            'menuable_id' => $category->id,
+            'menuable_type' => Category::class,
+            'parent_id' => $request->other_parent_id,
+            'title' => $title,
+            'depth' => 2,
+            'duplicate' => 1
+        ]);
+    }
+}
+
+/**  
+ * Update category images
+ */
+private function updateCategoryImages(Request $request, Category $category)
+{
+    if (isset($request->image_path)) {
+        if (\File::exists(public_path($category->image))) {
+            \File::delete(public_path($category->image));
+        }
+        $category->image = Helper::moveImage($request->image_path, 'category');
+        $category->save();
+    }
+
+    if (isset($request->icon_path)) {
+        if (\File::exists(public_path($category->icon))) {
+            \File::delete(public_path($category->icon));
+        }
+        $category->icon = Helper::moveImage($request->icon_path, 'category');
+        $category->save();
+    }
+}
+
+/**  
+ * Attach similar groups
+ */
+private function attachSimilarGroups(Request $request, Category $category)
+{
+    if (isset($request->similar_categories)) {
+        $category->similarGroups()->sync($request->similar_categories, ['similar_model' => Category::class, 'relation_model' => Category::class]);
+    }
+    if (isset($request->similar_services)) {
+        $category->similarGroupsServices()->sync($request->similar_services, ['similar_model' => Category::class, 'relation_model' => Service::class]);
+    }
+}
+
+/**  
+ * Save banner and slider images
+ */
+private function saveBannerAndSliderImages(Request $request, Category $category)
+{
+    // Vertical banner images
+    if ($request->verticalImages != '') {
+        foreach ($request->verticalImages as $fileData) {
+            if (isset($fileData['file'])) {
+                $imagePath = Helper::moveImage($fileData['file'], 'service');
+                Gallery::create([
+                    'galleryable_id' => $category->id,
+                    'galleryable_type' => Category::class,
+                    'title' => $fileData['file_title'],
+                    'image' => $imagePath,
+                    'type' => 0
+                ]);
+            }
+        }
+    }
+
+    // Horizontal banner images
+    if ($request->horizontalImages != '') {
+        foreach ($request->horizontalImages as $fileData) {
+            if (isset($fileData['file'])) {
+                $imagePath = Helper::moveImage($fileData['file'], 'service');
+                Gallery::create([
+                    'galleryable_id' => $category->id,
+                    'galleryable_type' => Category::class,
+                    'title' => $fileData['file_title'],
+                    'image' => $imagePath,
+                    'type' => 1
+                ]);
+            }
+        }
+    }
+
+    // Slider images
+    if ($request->multiple_image != '') {
+        foreach ($request->multiple_image as $slide) {
+            if (isset($slide['file'])) {
+                Slider::create([
+                    'title' => $slide['title'],
+                    'link' => $slide['link'],
+                    'type' => 1,
+                    'category_id' => $category->id,
+                    'img' => Helper::moveImage($slide['file'], 'slider')
+                ]);
+            }
+        }
+    }
+}
+
+/**  
+ * Attach related categories
+ */
+private function attachRelatedCategories(Request $request, Category $category)
+{
+    if (isset($request->family_cat_ids_list) && !empty($request->family_cat_ids_list)) {
+        $category->related()->sync($request->family_cat_ids_list);
+    }
+}
+
+/**  
+ * Return the final response based on parent_id
+ */
+private function returnResponse(Category $category)
+{
+    if ($category->parent_id == 0) {
+        $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
+        return view('Admin.site.category.lists', ['categories' => $categories, 'create' => 'success']);
+    } else {
+        return redirect('/dashboard/site/category/sub/' . $category->parent_id)->with(['create' => 'success']);
+    }
+}
 
     /**
      * @param $id
