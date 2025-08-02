@@ -1,5 +1,8 @@
 $(document).ready(function () {
 
+    $('#transfers_callcenters').select2({
+        placeholder: "انتخاب وضعیت"
+    });
     $('#select_status').select2({
         placeholder: "انتخاب وضعیت"
     });

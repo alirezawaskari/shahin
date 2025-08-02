@@ -16,6 +16,7 @@ class FactorItemCollection extends ResourceCollection
     {
         return [
             'user_permission' => auth()->user()->hasPermission('manual-login-user') ? 1 : 0 ,
+            'delete_permission' => auth()->user()->hasPermission('delete-factor-item') ? 1 : 0 ,
             'data' => $this->collection->map(function ($item) {
                 return [
                     'sort_by' => "created_at",

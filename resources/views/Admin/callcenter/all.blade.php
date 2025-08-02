@@ -351,7 +351,7 @@
                             <div class="row">
                                 <div class="modal_transfer_message_box col-12 col-md-12 mb-12"></div>
                                 <div class="col-12 col-md-6 mb-3"><label>انتخاب همکار</label>
-                                    <select name="callcenter" class="form-control">
+                                    <select name="callcenter" class="form-control" id="transfers_callcenters">
                                         <option value="">انتخاب همکار</option>
                                         @foreach($callcenters as $item)
                                         <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>

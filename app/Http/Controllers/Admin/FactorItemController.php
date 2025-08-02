@@ -87,6 +87,14 @@ class FactorItemController extends Controller {
 
         return view( 'Admin.factoritem.show', compact('item', 'center_agents', 'factorItem', 'user' ) );
     }
+    public function destroy(FactorItem $factorItem ) {
+        if(auth()->user()->hasPermission('delete-factor-item'))
+        {
+            $factorItem->delete();
+            return redirect()->back()->with('success','200');
+        }
+        return redirect()->back()->with('errors','403');
+    }
 
     /**
      * @param FactorItem $factorItem
@@ -123,15 +131,13 @@ class FactorItemController extends Controller {
      * @return FactorItemCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function filter(Request $request ) {
-
         $factor_items = FactorItem::filter()->latest();
         if ( auth()->user()->center_id ) {
             $factor_items = FactorItem::where( 'confirm', true )->filter();
         }
-        if ( $request->exel == 'on' ) {
+        if ( $request->exel == 'on') {
             return ( new FactorItemsExport( $factor_items ) )->download( 'factorItems.xlsx' );
         }
-
         return new FactorItemCollection( $factor_items->paginate( 20 ) );
     }
 
