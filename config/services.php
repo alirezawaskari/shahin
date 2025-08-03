@@ -45,7 +45,7 @@ return [
     ],
 
     'sms' => [
-        'name' => 'iranSms'
+        'name' => 'IranSms' //or NeginSms
     ],
 
     'iranSms' => [
