@@ -479,9 +479,9 @@
             <div class="d-md-block d-none position-fixed col-12" style="left: 0; bottom: 0;display: none">
                 <div class="row mt-2" style="font-size:10px;">
                     <div class="col-1 mr-5 mb-n1">
-                        <a href="/contact">
-                            <img class="rounded-circle" src="/img/payment.jpg" width="50px">
-                            <p class="text-dark mr-1 font-weight-bolder">تماس با ما</p>
+                        <a href="https://wa.me/989120934070" target="_blank">
+	                        <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
+                            <p class="text-dark mr-1 font-weight-bolder">پشتیبانی</p>
                         </a>
                     </div>
                     <div class="col-1 mb-n1">
@@ -505,11 +505,11 @@
                 </div>
 
                 <div class="col-3">
-                    <a href="/contact">
-                        <img class="rounded-circle" src="/img/payment.jpg" width="50px">
-                        <p class="text-dark mr-1 font-weight-bolder"> تماس با ما</p>
-                    </a>
-                </div>
+                        <a href="https://wa.me/989120934070" target="_blank">
+	                         <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
+                            <p class="text-dark mr-1 font-weight-bolder">پشتیبانی</p>
+                        </a>
+                    </div>
                 <div class="col-3">
                     <a href="{{ route('profile.factorItem')}}">
                         <img class="rounded-circle" src="/img/order.png" width="55px">
