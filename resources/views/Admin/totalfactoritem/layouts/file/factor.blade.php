@@ -123,8 +123,11 @@
                                                             <table
                                                                 class="table table-bordered table-striped table-responsive-md">
                                                                 <tr>
-                                                                    @if(!is_null($factor_item->factoritemable->session_attributes) && isset($factor_item->factoritemable->session_attributes['session_titles']))
-                                                                    @foreach($factor_item->factoritemable->session_attributes['session_titles'] as $session_title)
+                                                                    @if(!is_null($factor_item->factoritemable->session_attributes)
+                                                                    &&
+                                                                    isset($factor_item->factoritemable->session_attributes['session_titles']))
+                                                                    @foreach($factor_item->factoritemable->session_attributes['session_titles']
+                                                                    as $session_title)
                                                                     <th>{{$session_title}}</th>
                                                                     @endforeach
                                                                     @else
@@ -143,7 +146,8 @@
                                                                     @endpermission
                                                                     @endif
                                                                 </tr>
-                                                                @foreach($factor_item->sessions->where('factor_item_service_tariff_id' , $service_tariff->pivot->id) as $session)
+                                                                @foreach($factor_item->sessions->where('factor_item_service_tariff_id'
+                                                                , $service_tariff->pivot->id) as $session)
                                                                 <tr>
                                                                     <td>{{ verta($session->date)->format('%d %B ، %Y -
                                                                         H:i:s') }}
@@ -345,7 +349,8 @@
                                                                     <th>اقدام</th>
                                                                     @endpermission
                                                                 </tr>
-                                                                @foreach($factor_item->sessions->where('factor_item_service_tariff_id' , $service_tariff->pivot->id) as $session)
+                                                                @foreach($factor_item->sessions->where('factor_item_service_tariff_id'
+                                                                , $service_tariff->pivot->id) as $session)
                                                                 <tr>
                                                                     <td>{{ verta($session->date)->format('%d %B ، %Y -
                                                                         H:i:s') }}
@@ -586,7 +591,7 @@
                     </div>
                     @endif
                     <form class="form-horizontal" role="form" method="post"
-                        action="{{ !$factoritem['total_price'] ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
+                        action="{{ $factor_item->serviceTariffs()->count() == 0 ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
                         @csrf
                         <input type="hidden" name="id" value="{{ $factoritem['id'] }}">
                         <input type="hidden" name="item[id]" value="{{ $factoritem['id'] }}">
@@ -595,15 +600,10 @@
                         <div class="row">
                             <div class="col-12 col-md-3 mb-2">
                                 <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
-                                @if($factoritem['total_price'])
-                                <p class="form-control">
-                                    {{ number_format($factoritem['total_price'] +
+                                <input class="form-control" value="{{ number_format($factoritem['total_price'] +
                                     (isset($factoritem['price_difference']['total']) ?
-                                    $factoritem['price_difference']['total'] : 0)) }} </p>
-                                @else
-                                <input class="form-control" value="{{ number_format($factoritem['total_price']) }}"
+                                    $factoritem['price_difference']['total'] : 0)) }}"
                                     name="totalPrice" oninput="separatePrices(this)">
-                                @endif
                             </div>
                             @if($item['confirm'])
                             <div class="col-12 col-md-3 mb-2" data-toggle="tooltip" data-placement="bottom"
@@ -643,7 +643,10 @@
                                     value="{{ number_format($factoritem['prepayment']['price']) }}" name="prepayment"
                                     type="text" oninput="separatePrices(this)">
                             </div>
-
+                            <div class="col-12 mb-3">
+                                <p class="alert alert-danger">همکار گرامی توجه داشته باشید ، درصورتی که فاکتوری از قبل
+                                    برای پرونده ثبت شده باشد امکان تغییر جمع کل فاکتور بصورت دستی وجود ندارد.</p>
+                            </div>
                             <div class="col-12 col-md-12 mb-3">
                                 <label> نوع پرداخت</label>
                                 <br>
