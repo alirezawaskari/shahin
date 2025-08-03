@@ -228,6 +228,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
     Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
+    Route::post('/callcenter/multi-delete', [CallcenterController::class, 'multiDelete'])->name('callcenter.delete.multi');
     Route::get('/callcenter/suspension', [CallcenterController::class, 'suspension'])->name('callcenter.suspension');
     Route::get('/callcenter/suspension/filter', [CallcenterController::class, 'filterSuspension']);
     Route::get('/callcenter/paid', [CallcenterController::class, 'paid'])->name('callcenter.paid');

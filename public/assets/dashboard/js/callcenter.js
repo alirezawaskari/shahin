@@ -1,21 +1,66 @@
 $(document).ready(function () {
-
-    $('#transfers_callcenters').select2({
+    $('#transfer_callcenter').select2({
         placeholder: "انتخاب وضعیت"
     });
     $('#select_status').select2({
         placeholder: "انتخاب وضعیت"
     });
-
     $('#user_agents').select2({
         placeholder: "انتخاب بازاریاب"
     });
-
     $('#user_callcenter').select2({
         placeholder: "انتخاب کالسنتر"
     });
-
-
+    function updateCheckboxCount() {
+        let selectedCount = $("input[name='id[]']:checked").length;
+        $("#checkboxCount").text(selectedCount);
+        if (selectedCount > 0) {
+            $("#multi_delete").css('display', 'block');
+        } else {
+            $("#multi_delete").css('display', 'none');
+        }
+    }
+    function getSelectedCheckboxes() {
+        let selectedCheckboxes = [];
+        $("input[name='id[]']:checked").each(function() {
+            selectedCheckboxes.push($(this).val());
+        });
+        return selectedCheckboxes;
+    }
+    function deleteCallcenter() {
+        let callcenters = getSelectedCheckboxes();
+        $.ajax({
+            url: "/dashboard/callcenter/multi-delete",
+            type: "POST",
+            data: {
+                _token: csrfToken,
+                id: callcenters
+            },
+            success: function(data) {
+                swal({
+                    icon: "success",
+                    text: data.message,
+                });
+                $("input[name='id[]']:checked").prop('checked', false);
+                fetchData(1);
+                updateCheckboxCount();
+            },
+            error: function(data) {
+                swal({
+                    icon: "error",
+                    text: data.message,
+                });
+            }
+        });
+    }
+    $(document).on('click', '#multi_delete', function(e) {
+        e.preventDefault();
+        deleteCallcenter();
+    });
+    $(document).on('change', "input[name='id[]']", function() {
+        updateCheckboxCount();
+    });
+    updateCheckboxCount();
     fetchData(1);
     var first_load = true;
     var do_filter_command = false;
