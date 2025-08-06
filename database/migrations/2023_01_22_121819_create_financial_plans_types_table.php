@@ -19,6 +19,7 @@ class CreateFinancialPlansTypesTable extends Migration
             $table->integer('applicant_id')->unsigned();
             $table->foreign('applicant_id')->references('id')->on('users');
             $table->string('title' , 200);
+            $table->text('description')->nullable();
             $table->bigInteger('price')->default(0);
             $table->integer('prepayment_percent')->default(0);
             $table->integer('discount_percent')->nullable()->default(0);
@@ -27,6 +28,7 @@ class CreateFinancialPlansTypesTable extends Migration
             $table->integer('number_pay_steps')->nullable();
             $table->integer('status')->default(0);
             $table->integer('is_show')->default(0);
+            $table->integer('is_show_loan_list')->default(0);
             $table->integer('capacity')->default(1);
             $table->integer('reserved')->default(0);
             $table->timestamp('start_date')->default(DB::raw('CURRENT_TIMESTAMP'));

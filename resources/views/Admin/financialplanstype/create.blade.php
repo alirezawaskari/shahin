@@ -54,21 +54,20 @@
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>ظرفیت طرح (حداکثر تعداد استفاده از طرح)</label>
-                    <input type="number" class="form-control" name="capacity"
-                    min="1" required>
+                    <input type="number" class="form-control" name="capacity" min="1" required>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ آغاز</label>
-                    <date-picker format="YYYY/M/D HH:mm:ss" name="start_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date" value="{{ now() }}">
+                    <date-picker format="YYYY/M/D HH:mm:ss" name="start_date" type="datetime"
+                        display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date" value="{{ now() }}">
                     </date-picker>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ پایان</label>
-                    <date-picker format="YYYY/M/D HH:mm:ss" name="end_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date" value="{{ now() }}">
+                    <date-picker format="YYYY/M/D HH:mm:ss" name="end_date" type="datetime"
+                        display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date" value="{{ now() }}">
                     </date-picker>
                 </div>
                 <div class="col-12 col-md-3 mb-2" id="guarantee_type">
@@ -95,30 +94,45 @@
                     </select>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-3 mb-3">
-                        <label>نمایندگی</label>
-                        <select name="representation_id[]" class="custom-select select2" multiple>
-                            @foreach($representations as $representation)
-                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
-                            @endforeach
-                        </select>
+                <div class="col-12 col-md-3 mb-3">
+                    <label>نمایندگی</label>
+                    <select name="representation_id[]" class="custom-select select2" multiple>
+                        @foreach($representations as $representation)
+                        <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label>مالیات</label>
+                    <input type="text" class="form-control" name="task" required>
+                </div>
+                <div class="col-12 col-md-6 mb-4">
+                    <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="is_show" value="1" @if(old('is_show')==1) checked @endif> نمایش
+                            در سایت نمایندگی کل
+                        </label>
+                        @if($errors->has('is_show'))<span
+                            class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                     </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        <label>مالیات</label>
-                        <input type="text" class="form-control" name="task" required>
+                </div>
+                <div class="col-12 col-md-6 mb-4">
+                    <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="is_show_loan_list" value="1" @if(old('is_show_loan_list')==1)
+                                checked @endif> نمایش در فهرست وام ها
+                        </label>
+                        @if($errors->has('is_show_loan_list'))<span
+                            class="help-block sub-error  ">{{$errors->first('is_show_loan_list')}}</span>@endif
                     </div>
-                    <div class="col-12 col-md-6 mb-4">
-                        <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="is_show" value="1"
-                                       @if(old('is_show') == 1) checked @endif> نمایش در سایت نمایندگی کل
-                            </label>
-                            @if($errors->has('is_show'))<span
-                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
-                        </div>
-                    </div>
-                    @endif
+                </div>
+                @endif
+                <div class="col-12 mb-2">
+                    <label>توضیحات</label>
+                    <textarea name="description"></textarea>
+                </div>
             </div>
             <div class="row">
                 <div class="col-12 col-md-6 mb-4 mt-3 pt-3 border-top">
@@ -146,6 +160,10 @@
 </div>
 @stop
 @section('js')
+<script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/financialPlansType.js') }}"></script>
+<script>
+    CKEDITOR.replace('description', ck_uploader)
+</script>
 @endsection

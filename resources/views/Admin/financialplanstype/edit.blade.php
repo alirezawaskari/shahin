@@ -21,8 +21,7 @@
 <div class="card">
     <div class="card-body">
         <form class="form-horizontal" role="form" method="post"
-            action="{{route('financialPlansType.update' , [$financialPlansType->id])}}"
-            enctype="multipart/form-data">
+            action="{{route('financialPlansType.update' , [$financialPlansType->id])}}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             @include('Admin.layouts.errors')
@@ -59,19 +58,19 @@
                 <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->number_pay_steps ? '' : 'd-none' }}"
                     id="number_pay_steps">
                     <label>تعداد چک ها جهت پرداخت قسط</label>
-                    <input type="number" class="form-control"
-                        value="{{ $financialPlansType->number_pay_steps }}" name="number_pay_steps" min="1" max="20">
+                    <input type="number" class="form-control" value="{{ $financialPlansType->number_pay_steps }}"
+                        name="number_pay_steps" min="1" max="20">
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>ظرفیت طرح (حداکثر تعداد استفاده از طرح)</label>
-                    <input type="number" value="{{ $financialPlansType->capacity }}" class="form-control" name="capacity"
-                        min="1" required>
+                    <input type="number" value="{{ $financialPlansType->capacity }}" class="form-control"
+                        name="capacity" min="1" required>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ آغاز</label>
-                    <date-picker value="{{ $financialPlansType->start_date }}" format="YYYY/M/D HH:mm:ss" name="start_date"
-                        type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date">
+                    <date-picker value="{{ $financialPlansType->start_date }}" format="YYYY/M/D HH:mm:ss"
+                        name="start_date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date">
                     </date-picker>
                 </div>
 
@@ -82,16 +81,19 @@
                     </date-picker>
                 </div>
 
-                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}" id="guarantee_type">
+                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}"
+                    id="guarantee_type">
                     <label>نوع ضمانت</label>
                     <select class="form-control select2" name="guarantee_type[]" multiple>
                         @foreach (App\Models\TotalFactorItem::GuaranteeTYPE as $key => $item)
-                        <option value="{{ $key }}" {{ $financialPlansType->guarantee_type && in_Array($key , $financialPlansType->guarantee_type) ? 'selected'
+                        <option value="{{ $key }}" {{ $financialPlansType->guarantee_type && in_Array($key ,
+                            $financialPlansType->guarantee_type) ? 'selected'
                             : ''}}>{{ $item }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}" id="prepayment_percent">
+                <div class="col-12 col-md-3 mb-2 {{ $financialPlansType->payment_type == 'cash' ? 'd-none' : '' }}"
+                    id="prepayment_percent">
                     <label>درصد پیش پرداخت (%)</label>
                     <input type="number" class="form-control" name="prepayment_percent" min="0" max="100"
                         value="{{ $financialPlansType->prepayment_percent }}">
@@ -109,35 +111,46 @@
                     </select>
                 </div>
                 @if(!auth()->user()->admin_representation_id)
-                    <div class="col-12 col-md-3 mb-3">
-                        <label>نمایندگی</label>
-                        <select name="representation_id[]" class="custom-select select2" multiple>
-                            @foreach($representations as $representation)
-                                <option value="{{$representation->id}}" {{ in_array(trim($representation->id) , $financialPlansType->representations()->pluck('id')->toArray()) ? 'selected' : '' }}>{{$representation->fa_name}}</option>
-                            @endforeach
-                        </select>
+                <div class="col-12 col-md-3 mb-3">
+                    <label>نمایندگی</label>
+                    <select name="representation_id[]" class="custom-select select2" multiple>
+                        @foreach($representations as $representation)
+                        <option value="{{$representation->id}}" {{ in_array(trim($representation->id) ,
+                            $financialPlansType->representations()->pluck('id')->toArray()) ? 'selected' : ''
+                            }}>{{$representation->fa_name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                    <label>مالیات</label>
+                    <input value="{{ $financialPlansType?->task }}" type="text" class="form-control" name="task"
+                        required />
+                </div>
+                <div class="col-12 col-md-2 mb-4">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="is_show" value="1" @if($financialPlansType->is_show == 1)
+                            checked @endif>نمایش در سایت نمایندگی کل
+                        </label>
+                        @if($errors->has('is_show'))<span
+                            class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                     </div>
-                    <div class="col-12 col-md-3 mb-3">
-                        <label>مالیات</label>
-                        <input
-                            value="{{ $financialPlansType?->task }}"
-                            type="text"
-                            class="form-control"
-                            name="task"
-                            required
-                        />
+                </div>
+                <div class="col-12 col-md-2 mb-4">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="is_show_loan_list" value="1" @if($financialPlansType->is_show_loan_list == 1)
+                            checked @endif>نمایش در فهرست وام ها
+                        </label>
+                        @if($errors->has('is_show_loan_list'))<span
+                            class="help-block sub-error  ">{{$errors->first('is_show_loan_list')}}</span>@endif
                     </div>
-                    <div class="col-12 col-md-2 mb-4">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="is_show" value="1"
-                                       @if($financialPlansType->is_show == 1) checked @endif>نمایش در سایت نمایندگی کل
-                            </label>
-                            @if($errors->has('is_show'))<span
-                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
-                        </div>
-                    </div>
-                    @endif
+                </div>
+                @endif
+                <div class="col-12 mb-2">
+                    <label>توضیحات</label>
+                    <textarea name="description">{{$financialPlansType->description}}</textarea>
+                </div>
             </div>
             <div class="row">
                 <div class="col-12 col-md-6 mb-4 mt-3 pt-3 border-top">
@@ -161,6 +174,7 @@
                     </select>
                 </div>
             </div>
+
             <div class="col-12">
                 <input type="submit" class="btn btn-success border-0" value="ثبت">
             </div>
@@ -169,6 +183,10 @@
 </div>
 @stop
 @section('js')
+<script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/financialPlansType.js') }}"></script>
+<script>
+    CKEDITOR.replace('description', ck_uploader)
+</script>
 @endsection
