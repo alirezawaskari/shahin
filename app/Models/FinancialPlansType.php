@@ -27,6 +27,8 @@ class FinancialPlansType extends Model
         "reserved",
         "start_date",
         "end_date",
+        "is_show_loan_list",
+        "description",
     ];
     /**
      * @var array

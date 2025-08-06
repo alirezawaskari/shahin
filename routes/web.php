@@ -865,6 +865,7 @@ Route::post('/employeeRegister', 'EmployeeController@register');
 Route::get('/employeeRegister/check-user-is-register','EmployeeController@checkUserIsRegister');
 
 Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
+Route::get('/loan', action: 'FinancialPlansTypeController@index');
 //Factor
 Route::middleware('auth')->group(function () {
     //Checkout

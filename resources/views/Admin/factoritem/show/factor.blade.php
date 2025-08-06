@@ -458,7 +458,7 @@
                 </div>
                 @endif
                 <form class="form-horizontal" role="form" method="post"
-                    action="{{ !$factorItem['total_price'] ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
+                    action="{{ $factoritem->serviceTariffs()->count() == 0 ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
                     @csrf
                     <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
                     <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">
@@ -466,13 +466,8 @@
                     <div class="row">
                         <div class="col-12 col-md-3 mb-2">
                             <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
-                            @if($factorItem['total_price'])
-                            <p class="form-control">
-                                {{ number_format($factorItem['total_price']) }} </p>
-                            @else
                             <input class="form-control" value="{{ number_format($factorItem['total_price']) }}"
                                 name="totalPrice" oninput="separatePrices(this)">
-                            @endif
                         </div>
                         <div class="col-12 col-md-3 mb-2" data-toggle="tooltip"
                             data-placement="bottom"
@@ -482,9 +477,10 @@
                                 value="{{ number_format($factorItem['discount']) }}" name="discount"
                                 type="text" oninput="separatePrices(this)">
                         </div>
-
-
-                        <div class="col-12 col-md-12 mb-3">
+                        <div class="col-12 mb-3">
+                        <p class="alert alert-danger">همکار گرامی توجه داشته باشید ، درصورتی که فاکتوری از قبل برای پرونده ثبت شده باشد امکان تغییر جمع کل فاکتور بصورت دستی وجود ندارد.</p>
+                        </div>
+                        <div class="col-12 mb-3">
                             <label> نوع پرداخت</label>
                             <br>
                             نقد <input type="radio" name="type" value="0" {{ $factorItem['type']=='0'
