@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TotalFactorItemCollection;
 use App\Http\Resources\TotalFactorItemInstallmentCollection;
 use App\Models\ContractForm;
+use App\Models\ContractView;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
@@ -24,6 +25,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
 
 class TotalFactorItemController extends Controller
@@ -77,7 +79,7 @@ class TotalFactorItemController extends Controller
     public function show(TotalFactorItem $totalFactorItem)
     {
         //show detail file
-        $installments=$this->fetchInstallments($totalFactorItem);
+        $installments = $this->fetchInstallments($totalFactorItem);
         $factor = $totalFactorItem->factor;
         $user = $totalFactorItem->factor->user;
         $comments = Helper::userHistories($user);
@@ -87,7 +89,6 @@ class TotalFactorItemController extends Controller
         $item = self::setItem($totalFactorItem);
         //set totalFactorItem factorItems items
         $items = self::setFactorItemItems($totalFactorItem);
-
         $provinces = Province::all();
         $histories = $totalFactorItem->histories;
         $user_histories = Helper::userHistories($totalFactorItem->factor->user);
@@ -95,10 +96,9 @@ class TotalFactorItemController extends Controller
         $resnumber = TotalFactorItem::setFatorItemCollectionResnumber($totalFactorItem);
         $contract_number = TotalFactorItem::setAgentContractNumber($totalFactorItem);
 
-        $checks=$totalFactorItem->checks;
-        $promissories=$totalFactorItem->promissories;
-
-        return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items','installments','checks','promissories'));
+        $checks = $totalFactorItem->checks;
+        $promissories = $totalFactorItem->promissories;
+        return view('Admin.totalfactoritem.show', compact('resnumber', 'contract_number', 'histories', 'user_histories', 'provinces', 'expire_installments', 'paid_installments', 'factor', 'totalFactorItem', 'user', 'comments', 'item', 'items', 'installments', 'checks', 'promissories'));
     }
     /**
      * @param \App\Models\TotalFactorItem $totalFactorItem
@@ -107,7 +107,7 @@ class TotalFactorItemController extends Controller
     private function setItem(TotalFactorItem $totalFactorItem)
     {
         $item['id'] = $totalFactorItem->id;
-        $item['contract_forms'] = ContractForm::orderBy('position' , 'Asc')->get();
+        $item['contract_forms'] = ContractForm::orderBy('position', 'Asc')->get();
         $item['contract_values'] = $totalFactorItem->contract_values;
         $item['guarantee_type'] = $totalFactorItem->guarantee_type;
         $item['file_number_mali'] = $totalFactorItem->file_number_mali ? $totalFactorItem->file_number_mali : $totalFactorItem->id;
@@ -148,6 +148,7 @@ class TotalFactorItemController extends Controller
         $item['guarantee_types_list'] = TotalFactorItem::getGuaranteeTypeByFinancialPlansType($totalFactorItem);
         return $item;
     }
+
     /**
      * @param \App\Models\TotalFactorItem $totalFactorItem
      * @return array
@@ -201,15 +202,14 @@ class TotalFactorItemController extends Controller
             return $temp;
         });
         //set factorItems centers
-        foreach($items as $supervisor_factor_item)
-        {
-            foreach($supervisor_factor_item['factorItems'] as $factor_item)
-            {
+        foreach ($items as $supervisor_factor_item) {
+            foreach ($supervisor_factor_item['factorItems'] as $factor_item) {
                 $factor_item['centers'] = FactorItem::getSelectableCenters($factor_item);
             }
         }
         return $items;
     }
+
     /**
      * @param TotalFactorItem $totalFactorItem
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
@@ -230,16 +230,16 @@ class TotalFactorItemController extends Controller
             ]);
         }
         $user = $totalFactorItem->factor->user;
-        $installments=$this->fetchInstallments($totalFactorItem);
+        $installments = $this->fetchInstallments($totalFactorItem);
 
 
         $expire_installments = TotalFactorItem::getExpireInstallments($totalFactorItem);
         $comments = Helper::userHistories($user);
 
         $item = [];
-        $item['impunity_penalty_amount']=!is_null($totalFactorItem->impunityPenalty)?$totalFactorItem->impunityPenalty->amount:0;
-        $item['impunity_installment_amount']=!is_null($totalFactorItem->impunityInstallment)?$totalFactorItem->impunityInstallment->amount:0;
-        $item['contract_forms'] = ContractForm::orderBy('position' , 'Asc');
+        $item['impunity_penalty_amount'] = !is_null($totalFactorItem->impunityPenalty) ? $totalFactorItem->impunityPenalty->amount : 0;
+        $item['impunity_installment_amount'] = !is_null($totalFactorItem->impunityInstallment) ? $totalFactorItem->impunityInstallment->amount : 0;
+        $item['contract_forms'] = ContractForm::orderBy('position', 'Asc');
         $item['contract_values'] = $totalFactorItem->contract_values;
         $item['id'] = $totalFactorItem->id;
         $item['type'] = $totalFactorItem->type;
@@ -260,7 +260,7 @@ class TotalFactorItemController extends Controller
         $item['extra_pay_debt'] = number_format(TotalFactorItem::getDebtExtraPay($totalFactorItem));
         $item['loan'] = $totalFactorItem->totalFactorItemInstallments->sum('price');
         $item['credit_amount'] = isset($totalFactorItem->property->price_difference_installment) ? $totalFactorItem->property->price_difference_installment : 0;
-        $item['installments_debt'] = (TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_price_pay'])-($item['credit_amount'] + $item['impunity_installment_amount']);
+        $item['installments_debt'] = (TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_price_pay']) - ($item['credit_amount'] + $item['impunity_installment_amount']);
         $item['start_date'] = verta($totalFactorItem->approval_date)->format('Y/m/d');
         $item['end_date'] = verta($totalFactorItem->totalFactorItemInstallments->sortBy('date')->last()->date)->format('Y/m/d');
         $item['payments'] = $totalFactorItem->factors;
@@ -277,7 +277,7 @@ class TotalFactorItemController extends Controller
             return $temp;
         });
 
-        return view('Admin.totalfactoritem.installment', compact('comments', 'item', 'items' ,'user', 'totalFactorItem', 'expire_installments', 'installments'));
+        return view('Admin.totalfactoritem.installment', compact('comments', 'item', 'items', 'user', 'totalFactorItem', 'expire_installments', 'installments'));
     }
 
     /**
@@ -306,7 +306,7 @@ class TotalFactorItemController extends Controller
         if (auth()->user()->hasRole('filing')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 9)->filter()->latest();
         }
-        if (auth()->user()->hasRole('superadmin')||auth()->user()->hasRole('superadmin-representation')) {
+        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('superadmin-representation')) {
             $total_factor_items = TotalFactorItem::where('total_factor_item_status_id', 8)->filter();
         }
 //        if (auth()->user()->hasRole('admin-site')) {
@@ -349,7 +349,7 @@ class TotalFactorItemController extends Controller
         if (auth()->user()->hasRole('mali')) {
             $total_factor_items = TotalFactorItem::where('status_mali', 7)->orWhere('status_mali', 9)->filter();
         }
-        if (auth()->user()->hasRole('superadmin')||auth()->user()->hasRole('superadmin-representation')) {
+        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('superadmin-representation')) {
             $total_factor_items = TotalFactorItem::where('status_mali', 8)->filter();
         }
         if (auth()->user()->hasRole('legal')) {
@@ -360,7 +360,7 @@ class TotalFactorItemController extends Controller
 
         }
         if (!auth()->user()->admin_representation) {
-            $total_factor_items->whereHas('factor', function ($total_factor_items){
+            $total_factor_items->whereHas('factor', function ($total_factor_items) {
                 $total_factor_items->where('representation_id', auth()->user()->admin_representation_id);
             });
         }
@@ -369,6 +369,7 @@ class TotalFactorItemController extends Controller
         }
         return new TotalFactorItemCollection($total_factor_items->paginate(20));
     }
+
     /**
      * @param TotalFactorItem $totalFactorItem
      * @return \Illuminate\Http\RedirectResponse
@@ -378,7 +379,7 @@ class TotalFactorItemController extends Controller
     {
         $factor_items = $totalFactorItem->factorItems;
 
-        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id) , [0,3,4,14])) {
+        if (auth()->user()->hasPermission('supporter_confirmation') && in_array(trim($totalFactorItem->total_factor_item_status_id), [0, 3, 4, 14])) {
             foreach ($factor_items as $factor_item) {
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
 
@@ -440,8 +441,8 @@ class TotalFactorItemController extends Controller
                 $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
                 $user_phone_number = $factor_item->factor->user->phone;
                 $approval_date = verta($totalFactorItem->approval_date)->format('Y/m/d');
-                $link = 'https://lalecard.ir/factorItem/'.$factor_item->resnumber;
-                SendSms::sendSingleSms('sendUserContractConfirmLink',$user_phone_number,['param1'=>$totalFactorItem->id,'param2'=> $approval_date, 'param3'=>$link]);
+                $link = 'https://lalecard.ir/factorItem/' . $factor_item->resnumber;
+                SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $totalFactorItem->id, 'param2' => $approval_date, 'param3' => $link]);
                 $fator_item_collections->update([
                     'status_factor' => 18
                 ]);
@@ -480,8 +481,7 @@ class TotalFactorItemController extends Controller
             foreach ($factor_items as $factor_item) {
                 $factor_item->update(['credit' => $factor_item->total_price + $factor_item->credit]);
 
-                if($factor_item->center)
-                {
+                if ($factor_item->center) {
                     event(new factorItemActivation($factor_item->factor->user, $factor_item->center->title));
                 }
 
@@ -492,24 +492,48 @@ class TotalFactorItemController extends Controller
                     'confirm' => true,
                 ]);
                 //close older sessions
-                Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
-                    'status'=>7,
-                    'description'=>'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
+                Session::whereIn('status', [3, 5])->where('factor_item_id', $factor_item->id)->update([
+                    'status' => 7,
+                    'description' => 'این ویزیت به دلیل اینکه در حالت مشاوره شد نبود و ویزیت جدیدی برای کاربر ایجاد شد توسط سیستم لغو گردید .'
                 ]);
                 //create session
-                if ($factor_item->factoritemable->session==1){
+                if ($factor_item->factoritemable->session == 1) {
                     Session::createSessionPendingMainInvoice($factor_item->id);
                 }
             }
+            $user = $totalFactorItem->factor->user;
+            $item = self::setItem($totalFactorItem);
+            $resnumber = TotalFactorItem::setFatorItemCollectionResnumber($totalFactorItem);
+            $contract_number = TotalFactorItem::setAgentContractNumber($totalFactorItem);
+            if ($totalFactorItem->factorItems->where('factoritemable_id', 124)->count()) {
+                $contract_view = 'Admin.totalfactoritem.layouts.contractLoanCash';
+            } elseif ($totalFactorItem->factorItems->where('factoritemable_id', 17)->count()) {
+                $contract_view = 'Admin.totalfactoritem.layouts.contractGhorfeOnline';
+            } else {
+                $contract_view = 'Admin.totalfactoritem.layouts.contract';
+            }
+            $content = View::make($contract_view, [
+                'resnumber' => $resnumber,
+                'contract_number' => $contract_number,
+                'totalFactorItem' => $totalFactorItem,
+                'user' => $user,
+                'item' => $item,
+            ])->render();
+            ContractView::create([
+                'contract' => $content,
+                'contract_type' => TotalFactorItem::class,
+                'contract_id' => $totalFactorItem->id
+            ]);
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }
 
-        TotalFactorItem::createOrUpdateInstallments($totalFactorItem->approval_date , $totalFactorItem);
+        TotalFactorItem::createOrUpdateInstallments($totalFactorItem->approval_date, $totalFactorItem);
 
         return redirect()->back()->with([
             'update' => 'success'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -532,17 +556,17 @@ class TotalFactorItemController extends Controller
         $user = User::find($request->user_id);
         if ($request->urlimgmeli) {
             Helper::deleteImage($user->imgmeli);
-            $user->update(['imgmeli' => Helper::moveImage($request->urlimgmeli,'document')]);
+            $user->update(['imgmeli' => Helper::moveImage($request->urlimgmeli, 'document')]);
         }
 
         if ($request->urlimgshenasname) {
             Helper::deleteImage($user->imgshenasname);
-            $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname,'document')]);
+            $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname, 'document')]);
         }
 
         if ($request->urlimgturnover) {
             Helper::deleteImage($user->imgturnover);
-            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover,'document')]);
+            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover, 'document')]);
         }
 
         $input = $request->user;
@@ -558,6 +582,7 @@ class TotalFactorItemController extends Controller
             'send' => true
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -568,10 +593,10 @@ class TotalFactorItemController extends Controller
 
         $this->validate($request, [
             'type' => "required",
-            'date' =>'required_if:type,==,support',
+            'date' => 'required_if:type,==,support',
             'description' => 'required',
         ]);
-        if($request->type == 'execution'){
+        if ($request->type == 'execution') {
 
             $total_factor_item = TotalFactorItem::find($request->id);
             if (!$total_factor_item->confirm) {
@@ -592,8 +617,7 @@ class TotalFactorItemController extends Controller
                 'user_id' => auth()->user()->id,
                 'comment' => nl2br($request->description),
             ]);
-        }
-        elseif($request->type == 'supporter'){
+        } elseif ($request->type == 'supporter') {
             $total_factor_item = TotalFactorItem::find($request->id);
             if (!$total_factor_item->confirm) {
                 $total_factor_item->update([
@@ -616,13 +640,14 @@ class TotalFactorItemController extends Controller
 
 
         if ($request->reason == 1) {
-            event(new smsNotAnswer($total_factor_item->factor->user , auth()->user() , 'پشتیبانی'));
+            event(new smsNotAnswer($total_factor_item->factor->user, auth()->user(), 'پشتیبانی'));
         }
 
         return redirect()->back()->with([
             'successByMessage' => 'پیام پیگیری شما با موفقیت ثبت شد.'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -631,8 +656,7 @@ class TotalFactorItemController extends Controller
     public function requestContractSettlement(Request $request)
     {
         $total_factor_item = TotalFactorItem::find($request->total_factor_item_id);
-        if(!in_array($total_factor_item->status_mali , [7,6,8,9]))
-        {
+        if (!in_array($total_factor_item->status_mali, [7, 6, 8, 9])) {
             $applicant_id = auth()->user()->id;
             $total_factor_item_contract_settlement = $total_factor_item->totalFactorItemContractSettlement()->create([
                 'applicant_id' => $applicant_id,
@@ -640,7 +664,7 @@ class TotalFactorItemController extends Controller
             ]);
             if ($request->urlrequest_contract_settlement) {
                 Helper::deleteImage($total_factor_item_contract_settlement->img_request_contract_settlement);
-                $total_factor_item_contract_settlement->update(['img_request_contract_settlement' => Helper::moveImage($request->urlrequest_contract_settlement,'document')]);
+                $total_factor_item_contract_settlement->update(['img_request_contract_settlement' => Helper::moveImage($request->urlrequest_contract_settlement, 'document')]);
             }
             $total_factor_item->update(['status_mali' => 7]);
 
@@ -652,6 +676,7 @@ class TotalFactorItemController extends Controller
             'failByMessage' => 'درخواست تسویه حساب قبلا ثبت شده است.'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -660,15 +685,14 @@ class TotalFactorItemController extends Controller
     public function contractSettlement(Request $request)
     {
         $total_factor_item = TotalFactorItem::find($request->item['id']);
-        if($total_factor_item->status_mali == 9)
-        {
+        if ($total_factor_item->status_mali == 9) {
             $total_factor_item->totalFactorItemContractSettlement->update([
                 'deliverer_id' => auth()->user()->id,
                 'img_warranty_delivery_receipt' => $request->img_warranty_delivery_receipt,
             ]);
             if ($request->urlimg_warranty_delivery_receipt) {
                 Helper::deleteImage($total_factor_item->totalFactorItemContractSettlement->img_warranty_delivery_receipt);
-                $total_factor_item->totalFactorItemContractSettlement->update(['img_warranty_delivery_receipt' => Helper::moveImage($request->urlimg_warranty_delivery_receipt,'document')]);
+                $total_factor_item->totalFactorItemContractSettlement->update(['img_warranty_delivery_receipt' => Helper::moveImage($request->urlimg_warranty_delivery_receipt, 'document')]);
             }
             $total_factor_item->totalFactorItemInstallments()->where('status', 0)->update(['status' => 2, 'pay_date' => now()]);
 
@@ -684,6 +708,7 @@ class TotalFactorItemController extends Controller
             'failByMessage' => 'این پرونده آماده تسویه حساب نمی باشد.'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -694,8 +719,7 @@ class TotalFactorItemController extends Controller
         $item = $request->item;
         $total_factor_item = TotalFactorItem::find($item['id']);
         //check confirmation totalFactorItem
-        if($total_factor_item->confirm)
-        {
+        if ($total_factor_item->confirm) {
             return redirect()->back()->with([
                 'failByMessage' => 'این پرونده قبلا تایید شده است امکان تغییر وضعیت اجرایی پرونده وجود ندارد.'
             ]);
@@ -715,6 +739,7 @@ class TotalFactorItemController extends Controller
             'update' => 'success'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -732,6 +757,7 @@ class TotalFactorItemController extends Controller
             'update' => 'success'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -762,16 +788,16 @@ class TotalFactorItemController extends Controller
         ]);
 
         //for change approval date
-        if($request->created_at)
-        {
+        if ($request->created_at) {
             $approval_date = Helper::vertaToMiladi($request->created_at);
-            TotalFactorItem::createOrUpdateInstallments($approval_date , $total_factor_item);
+            TotalFactorItem::createOrUpdateInstallments($approval_date, $total_factor_item);
         }
 
         return redirect()->back()->with([
             'update' => 'success'
         ]);
     }
+
     /**
      * @param mixed $item
      * @return void
@@ -781,7 +807,7 @@ class TotalFactorItemController extends Controller
     {
         $total_factor_item = TotalFactorItem::find($item['id']);
         $contract_values = $total_factor_item->contract_values ? $total_factor_item->contract_values : [];
-        foreach (ContractForm::where('value' , $total_factor_item->guarantee_type)->orWhere('value' , 'all')->get() as $contract_form) {
+        foreach (ContractForm::where('value', $total_factor_item->guarantee_type)->orWhere('value', 'all')->get() as $contract_form) {
             if ($contract_form->type == 'other_document_image') {
                 if (isset($item[$contract_form->name])) {
                     $images = isset($contract_values[$contract_form->name]) ? $contract_values[$contract_form->name] : [];
@@ -789,7 +815,7 @@ class TotalFactorItemController extends Controller
                     foreach ($files as $file) {
                         if ($file) {
                             if (isset($images)) {
-                                $url = Helper::moveImage($file,'document');
+                                $url = Helper::moveImage($file, 'document');
                                 $images[] = $url;
                             }
                         }
@@ -804,7 +830,7 @@ class TotalFactorItemController extends Controller
                 if (isset($item[$contract_form->name])) {
                     $img = $item[$contract_form->name];
                     if ($img) {
-                        $url = Helper::moveImage($item['url' . $contract_form->name],'document');
+                        $url = Helper::moveImage($item['url' . $contract_form->name], 'document');
                         if (isset($contract_values[$contract_form->name])) {
                             $contract_values[$contract_form->name] != $url ? Helper::deleteImage($contract_values[$contract_form->name]) : '';
                             $contract_values[$contract_form->name] = $url;
@@ -827,6 +853,7 @@ class TotalFactorItemController extends Controller
             ]);
         }
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -843,7 +870,7 @@ class TotalFactorItemController extends Controller
         $prepayment['num'] = $totalFactorItem->property->prepayment_num;
         $price = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         if ($request->input('payment_type') == 'credit') {
-            $result = User::checkCredit($user, $price, $request->input('password') , $request->input('title'));
+            $result = User::checkCredit($user, $price, $request->input('password'), $request->input('title'));
             if (!$result['success']) {
                 return redirect()->back()->with([
                     'failByMessage' => $result['message']
@@ -876,7 +903,7 @@ class TotalFactorItemController extends Controller
         $factor->save();
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image, 'document')]);
         }
         //send sms for pay factor
         if ($request->input('payment_type') == 'online') {
@@ -888,6 +915,7 @@ class TotalFactorItemController extends Controller
             'successByMessage' => 'با موفقیت انجام شد'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -906,7 +934,7 @@ class TotalFactorItemController extends Controller
             $total_price = $factor_item->total_price ? $factor_item->total_price : $factor_item_able->installments->min('down_interval');
             $total_price = $total_price + $factor_item->discount;
             //calculate
-            FactorItem::calculate( $factor_item, $total_price, $factor_item->type, $user );
+            FactorItem::calculate($factor_item, $total_price, $factor_item->type, $user);
         }
         TotalFactorItem::updateCalculate($total_factor_item);
         $user = User::find($request->input('user_id'));
@@ -932,6 +960,7 @@ class TotalFactorItemController extends Controller
             'send' => true
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -941,13 +970,13 @@ class TotalFactorItemController extends Controller
     {
         $user = User::find($request->input('user_id'));
         $total_factor_item = TotalFactorItem::find($request->id);
-        TotalFactorItem::createOrUpdateInstallments($total_factor_item->approval_date , $total_factor_item);
+        TotalFactorItem::createOrUpdateInstallments($total_factor_item->approval_date, $total_factor_item);
 
         for ($i = 0; $i < ($request->price ? count($request->price) : 0); $i++) {
             $price = (float)str_replace(',', '', Helper::numberConverter($request->price[$i]));
 
             if ($request->payment_type[$i] == 'credit') {
-                $result = User::checkCredit($user, $price, $request->input('password') , 'installment');
+                $result = User::checkCredit($user, $price, $request->input('password'), 'installment');
                 if (!$result['success']) {
                     return redirect()->back()->with([
                         'failByMessage' => $result['message']
@@ -990,7 +1019,7 @@ class TotalFactorItemController extends Controller
             $factor->save();
             //upload bill_image cash factor
             if ($request->url_bill_image) {
-                $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+                $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image, 'document')]);
             }
             //send sms if the type of payment is online for payment factor
             if ($request->payment_type[$i] == 'online') {
@@ -1004,6 +1033,7 @@ class TotalFactorItemController extends Controller
             'update' => 'success'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -1012,12 +1042,12 @@ class TotalFactorItemController extends Controller
     public function saveExtraPay(Request $request)
     {
         $total_factor_item = TotalFactorItem::find($request->id);
-        TotalFactorItem::createOrUpdateInstallments($total_factor_item->approval_date , $total_factor_item);
+        TotalFactorItem::createOrUpdateInstallments($total_factor_item->approval_date, $total_factor_item);
         $user = User::find($request->input('user_id'));
         $price = (float)str_replace(',', '', Helper::numberConverter($request->input('price')));
         //pay factor from user credit
         if ($request->input('payment_type') == 'credit') {
-            $result = User::checkCredit($user, $price, $request->input('password') , 'extra_pay');
+            $result = User::checkCredit($user, $price, $request->input('password'), 'extra_pay');
             if (!$result['success']) {
                 return redirect()->back()->with([
                     'failByMessage' => $result['message']
@@ -1071,7 +1101,7 @@ class TotalFactorItemController extends Controller
         $factor->save();
         //upload bill_image cash factor if the type of payment is cash
         if ($request->url_bill_image) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image, 'document')]);
         }
         //send sms if the type of payment is online for payment factor
         if ($request->payment_type == 'online') {
@@ -1082,6 +1112,7 @@ class TotalFactorItemController extends Controller
             'update' => 'success'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -1149,6 +1180,7 @@ class TotalFactorItemController extends Controller
             'update' => 'success'
         ]);
     }
+
     /**
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -1161,27 +1193,27 @@ class TotalFactorItemController extends Controller
         ]);
 
         $total_factor_item = TotalFactorItem::find($request->id);
-        $check_payment=TotalFactorItem::checkPayment($total_factor_item);
+        $check_payment = TotalFactorItem::checkPayment($total_factor_item);
 
-        if ($check_payment){
-            return redirect()->back()->with( [
+        if ($check_payment) {
+            return redirect()->back()->with([
                 'failByMessage' => ' به دلیل وجود پرداختی برای این پرونده ، امکان مختومه نمودن وجود ندارد .'
-            ] );
+            ]);
         }
 
         $total_factor_item->update(['total_factor_item_status_id' => 15]);
         foreach ($total_factor_item->factorItems as $factor_item) {
             $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
             $factor_item_able = $factor_item->factoritemable->title;
-        $userMobile = $factor_item->factor->user->phone;
-        $user = $factor_item->factor->user->name.' '.$factor_item->factor->user->family;
-        if (isset($userMobile)) {
-            $body = [
-                'param1' => $user,
-                'param2' => $factor_item_able,
-            ];
-            SendSms::sendSingleSms('factoritemClosing',$userMobile,$body);
-        }
+            $userMobile = $factor_item->factor->user->phone;
+            $user = $factor_item->factor->user->name . ' ' . $factor_item->factor->user->family;
+            if (isset($userMobile)) {
+                $body = [
+                    'param1' => $user,
+                    'param2' => $factor_item_able,
+                ];
+                SendSms::sendSingleSms('factoritemClosing', $userMobile, $body);
+            }
             //event(new factorItemClosing($factor_item->factor->user , $factor_item));
 
             $fator_item_collections->update([
@@ -1205,6 +1237,7 @@ class TotalFactorItemController extends Controller
             'update' => 'success'
         ]);
     }
+
     /**
      * @param mixed $item
      * @return string //price
@@ -1215,6 +1248,7 @@ class TotalFactorItemController extends Controller
 
         return $guarantee_price;
     }
+
     /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -1228,8 +1262,8 @@ class TotalFactorItemController extends Controller
         $request['impunity_amount'] = Helper::numberConverter($request->impunity_amount);
 
         $request->validate([
-            'impunity_amount' => ['required','regex:/\d{1,3}(,\d{3})*(\.\d+)?$/'],
-            'impunity_type' => ['required',Rule::in('installment','penalty')],
+            'impunity_amount' => ['required', 'regex:/\d{1,3}(,\d{3})*(\.\d+)?$/'],
+            'impunity_type' => ['required', Rule::in('installment', 'penalty')],
             'description' => ['nullable'],
         ]);
 
@@ -1241,16 +1275,16 @@ class TotalFactorItemController extends Controller
         ]);
         //store new impunity
         $data = array(
-            'amount' =>  str_replace( ',', '', $request->impunity_amount ),
+            'amount' => str_replace(',', '', $request->impunity_amount),
             'type' => $request->impunity_type,
             'description' => $request->description,
             'created_by' => auth()->user()->id,
         );
-        $impunity =$total_factor_item->impunities()->create($data);
+        $impunity = $total_factor_item->impunities()->create($data);
 
         //store comment for factor of total_factor_item
         $factor_comment = "بخشودگی به مبلغ {$request->impunity_amount} ریال با شناسه {$impunity->id} ثبت گردید ";
-        if ( $request->description)
+        if ($request->description)
             $factor_comment .= "| توضیح بخشودگی : {$request->description}";
         $total_factor_item->factor->comments()->create([
             'user_id' => auth()->user()->id,
@@ -1304,10 +1338,10 @@ class TotalFactorItemController extends Controller
      */
     public function checks(TotalFactorItem $totalFactorItem)
     {
-        $checks=$totalFactorItem->checks;
-        $user=$totalFactorItem->factor->user;
-        $factor=$totalFactorItem->factor;
-        return view('Admin.totalfactoritem.checks',compact('checks','user','factor','totalFactorItem'));
+        $checks = $totalFactorItem->checks;
+        $user = $totalFactorItem->factor->user;
+        $factor = $totalFactorItem->factor;
+        return view('Admin.totalfactoritem.checks', compact('checks', 'user', 'factor', 'totalFactorItem'));
     }
 
     /**
@@ -1316,10 +1350,10 @@ class TotalFactorItemController extends Controller
      */
     public function promissories(TotalFactorItem $totalFactorItem)
     {
-        $promissories=$totalFactorItem->promissories;
-        $user=$totalFactorItem->factor->user;
-        $factor=$totalFactorItem->factor;
-        return view('Admin.totalfactoritem.promissories',compact('promissories','user','factor','totalFactorItem'));
+        $promissories = $totalFactorItem->promissories;
+        $user = $totalFactorItem->factor->user;
+        $factor = $totalFactorItem->factor;
+        return view('Admin.totalfactoritem.promissories', compact('promissories', 'user', 'factor', 'totalFactorItem'));
     }
 
 

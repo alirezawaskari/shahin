@@ -1,7 +1,5 @@
 @extends('Admin.master')
-
 @section('content')
-
     <div class="page-header">
         <div>
             <h3>لیست دسته بندی</h3>

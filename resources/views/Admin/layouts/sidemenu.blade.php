@@ -1,5 +1,4 @@
-
-<div class="side-menu sidebar-custom" style="z-index: 1100" id="myNav">
+<div class="side-menu sidebar-custom collapsed" style="z-index: 1100" id="myNav">
     <div class="side-menu-body">
         <ul>
             <li><a class="active" href="#"><i class="icon ti-home"></i> <span>داشبورد</span> </a>

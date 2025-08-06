@@ -1,6 +1,6 @@
-<nav class="navbar" style="z-index: 1200">
+<nav class="navbar mb-5" style="z-index: 1200">
     <div class="container-fluid">
-        <button class="toggle-btn custom-menu-btn mr-5" id="toggleSidebar">
+        <button class="d-none d-lg-block toggle-btn custom-menu-btn mr-5" id="toggleSidebar">
             <i class="icon ti-menu text-white menu-icon" style="font-size: 1.3rem;" id="menuIcon"></i>
         </button>
         <div class="d-flex align-items-center">
@@ -75,7 +75,7 @@
 
             <ul class="navbar-nav">
                 <li class="nav-item d-lg-none d-sm-block">
-                    <a href="#" class="nav-link side-menu-open">
+                    <a href="#" id="toggleSidebarMobile" class="nav-link side-menu-open">
                         <i class="ti-menu"></i>
                     </a>
                 </li>

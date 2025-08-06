@@ -276,5 +276,8 @@
 <script src="{{asset('assets/dashboard/js/factorItem.js?v=1.3')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
+<script>
+    const csrfToken = '{{ csrf_token() }}';
+</script>
 @endsection
 

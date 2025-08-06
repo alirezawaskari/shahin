@@ -12,8 +12,11 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\Slider;
-use File;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -36,34 +39,49 @@ class CategoryController extends Controller
         //
     }
 
+
     /**
-     * Show the form for creating a new category.
-     *
-     * @return \Illuminate\Http\Response
+     * @param $cat_id
+     * @return View|Application|Factory|object
      */
     public function show($cat_id)
     {
-        //دسته بندی مشابه
-        $all_categories = Category::filter()->select('id', 'title')->where('depth',1)->get();
-        //خدمات مشابه
-        $all_services = Service::filter()->select('id', 'title')->get();
-        $parent = Category::find($cat_id);
-        $path = '';
-        if ($parent->depth == 0) { $path = $parent->id; }
-        if ($parent->depth == 1) {
-            $father = Category::find($parent->path);
-            $path = $father->id . '/' . $parent->id;
-        }
-        //for depth = 2
-        if ($parent->depth > 1)  $path = $parent->path . '/' . $parent->id;
-        $path_explode = explode('/',$path);
-        $cateDepthOne = Category::filter()->where('depth', 1)->where('path', $path_explode[0])->get();
+        $all_categories = Category::filter()
+            ->select('id', 'title')
+            ->where('depth', 1)
+            ->get();
 
-        $depth=$parent->depth + 1;
-        $family_cat_ids_list= Category::filter()->select('id','title')->where('parent_id', $cat_id)->get();
+        $all_services = Service::filter()
+            ->select('id', 'title')
+            ->get();
 
-        return view('Admin.site.category.create', compact('parent','path','all_categories'
-                ,'all_services','depth','cateDepthOne','family_cat_ids_list'));
+        $parent = Category::findOrFail($cat_id);
+
+        $path = calculateCategoryPath($parent);
+
+        $path_parts = explode('/', $path);
+        $cateDepthOne = Category::filter()
+            ->where('depth', 1)
+            ->where('path', $path_parts[0])
+            ->get();
+
+        $depth = $parent->depth + 1;
+
+        $family_cat_ids_list = Category::filter()
+            ->select('id', 'title')
+            ->where('parent_id', $cat_id)
+            ->get();
+
+        return view('Admin.site.category.create', compact(
+            'parent',
+            'path',
+            'all_categories',
+            'all_services',
+            'depth',
+            'cateDepthOne',
+            'family_cat_ids_list'
+        ));
+
     }
 
     /**
@@ -74,10 +92,8 @@ class CategoryController extends Controller
     {
     // Validate based on category depth level
     $this->validateCategory($request);
-
     // Convert numeric fields with comma to integer
     $this->sanitizeNumericFields($request);
-
     // Create new category
     $category = new Category();
     $category->title = $request->input('title');
@@ -88,61 +104,48 @@ class CategoryController extends Controller
     $category->isActive = $request->input('isActive') ?? $category->isActive ?? 1; // Default value assumed
     $category->displayOrder = $request->input('displayOrder') ?? $category->displayOrder ?? 0;
     $category->save();
-
     // Create menu if enabled
     $this->createMenuIfNeeded($request, $category);
-
     // Create menu for other parent if exists
     $this->createOtherParentMenu($request, $category);
-
     // Update category images
     $this->updateCategoryImages($request, $category);
-
     // Attach similar groups
     $this->attachSimilarGroups($request, $category);
-
     // Save banner and slider images
     $this->saveBannerAndSliderImages($request, $category);
-
     // Attach related categories
     $this->attachRelatedCategories($request, $category);
-
     // Return appropriate response based on parent_id
     return $this->returnResponse($category);
 }
 
-/**  
+/**
  * Validate based on category depth level
  */
 private function validateCategory(Request $request)
 {
-    if ($request->depth == 0 || $request->depth == 1) {
-        // Uncomment to enforce validation
-        /*
-        $request->validate([
-            'title' => 'required',
-            'en_title' => 'required',
-            'verticalImages.*.file' => 'required',
-            'horizontalImages.*.file' => 'required'
-        ], [
-            'title.required' => 'Please enter the title',
-            'en_title.required' => 'Please enter the English title of the category',
-            'verticalImages.*.file.required' => 'Please upload the vertical image',
-            'horizontalImages.*.file.required' => 'Please upload the horizontal image',
-        ]);
-        */
-    } elseif ($request->depth > 1) {
-        $request->validate([
-            'title' => 'required',
-            'en_title' => 'required'
-        ], [
-            'title.required' => 'Please enter the title',
-            'en_title.required' => 'Please enter the English title of the category'
-        ]);
+    $messages = [
+        'title.required' => 'Please enter the title',
+        'en_title.required' => 'Please enter the English title of the category',
+        'verticalImages.*.file.required' => 'Please upload the vertical image',
+        'horizontalImages.*.file.required' => 'Please upload the horizontal image',
+    ];
+
+    $rules = [
+        'title' => 'required',
+        'en_title' => 'required',
+    ];
+
+    if (in_array($request->depth, [0, 1])) {
+        $rules['verticalImages.*.file'] = 'required';
+        $rules['horizontalImages.*.file'] = 'required';
     }
+
+    $request->validate($rules, $messages);
 }
 
-/**  
+/**
  * Convert comma-separated numeric fields to integers
  */
 private function sanitizeNumericFields(Request $request)
@@ -158,7 +161,7 @@ private function sanitizeNumericFields(Request $request)
     }
 }
 
-/**  
+/**
  * Create menu if enabled
  */
 private function createMenuIfNeeded(Request $request, Category $category)
@@ -175,7 +178,7 @@ private function createMenuIfNeeded(Request $request, Category $category)
     }
 }
 
-/**  
+/**
  * Create menu for other parent if exists
  */
 private function createOtherParentMenu(Request $request, Category $category)
@@ -193,29 +196,29 @@ private function createOtherParentMenu(Request $request, Category $category)
     }
 }
 
-/**  
+/**
  * Update category images
  */
 private function updateCategoryImages(Request $request, Category $category)
 {
     if (isset($request->image_path)) {
-        if (\File::exists(public_path($category->image))) {
-            \File::delete(public_path($category->image));
+        if (File::exists(public_path($category->image))) {
+            File::delete(public_path($category->image));
         }
         $category->image = Helper::moveImage($request->image_path, 'category');
         $category->save();
     }
 
     if (isset($request->icon_path)) {
-        if (\File::exists(public_path($category->icon))) {
-            \File::delete(public_path($category->icon));
+        if (File::exists(public_path($category->icon))) {
+            File::delete(public_path($category->icon));
         }
         $category->icon = Helper::moveImage($request->icon_path, 'category');
         $category->save();
     }
 }
 
-/**  
+/**
  * Attach similar groups
  */
 private function attachSimilarGroups(Request $request, Category $category)
@@ -228,7 +231,7 @@ private function attachSimilarGroups(Request $request, Category $category)
     }
 }
 
-/**  
+/**
  * Save banner and slider images
  */
 private function saveBannerAndSliderImages(Request $request, Category $category)
@@ -281,7 +284,7 @@ private function saveBannerAndSliderImages(Request $request, Category $category)
     }
 }
 
-/**  
+/**
  * Attach related categories
  */
 private function attachRelatedCategories(Request $request, Category $category)
@@ -291,7 +294,7 @@ private function attachRelatedCategories(Request $request, Category $category)
     }
 }
 
-/**  
+/**
  * Return the final response based on parent_id
  */
 private function returnResponse(Category $category)

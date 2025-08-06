@@ -64,7 +64,6 @@ use Illuminate\Support\Facades\Artisan;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 //Auth Routes
 Auth::routes();
 Route::get('/pass1word/reset', [ResetPasswordController::class, 'resetform'])->name('reset_pass_form');
@@ -229,6 +228,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/context/site-rules',[ContextController::class, 'fetchSiteRules'])->name('siteRules.index');
     Route::patch('/context/site-rules',[ContextController::class, 'updateSiteRules'])->name('siteRules.update');
     //callcenter
+    Route::post('/callcenter/multi-delete', [CallcenterController::class, 'multiDelete'])->name('callcenter.delete.multi');
     Route::get('/callcenter/suspension', [CallcenterController::class, 'suspension'])->name('callcenter.suspension');
     Route::get('/callcenter/suspension/filter', [CallcenterController::class, 'filterSuspension']);
     Route::get('/callcenter/paid', [CallcenterController::class, 'paid'])->name('callcenter.paid');

@@ -1,7 +1,6 @@
 @extends('Admin.master')
 @section('title'){{ $title }}@endsection
 @section('content')
-
 <div class="page-header">
     <div>
         <h3>{{ $title }}</h3>
@@ -189,6 +188,12 @@
                 <div class="col-12 col-md-2 mb-2">
                     <button id="do_transfer" type="button" class="btn btn-outline-primary py-2 px-4">انتقال</button>
                 </div>
+                <div class="col-12 col-md-2 mb-2">
+                    <button class="btn btn-danger" id="multi_delete">
+                        حذف
+                        (<span id="checkboxCount"></span>)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -350,8 +355,8 @@
                         <form id="modal-transfer-form">
                             <div class="row">
                                 <div class="modal_transfer_message_box col-12 col-md-12 mb-12"></div>
-                                <div class="col-12 col-md-6 mb-3"><label>انتخاب همکار</label>
-                                    <select name="callcenter" class="form-control">
+                                <div class="col-12 mb-3"><label>انتخاب همکار</label>
+                                    <select name="callcenter" class="form-control" id="transfer_callcenter">
                                         <option value="">انتخاب همکار</option>
                                         @foreach($callcenters as $item)
                                         <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
@@ -616,6 +621,9 @@
 
 @stop
 @section('js')
+<script>
+    var csrfToken = '{{ csrf_token() }}';
+</script>
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
 <script src="{{asset('assets/dashboard/js/callcenter.js?v=1.7')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.2')}}"></script>

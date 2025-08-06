@@ -293,6 +293,7 @@ function getSessionNumber(id, value) {
 
                     document.getElementById('session_number' + id).value = data.service_tariff['session_number'];
                     document.getElementById('treatment_duration' + id).value = data.service_tariff['treatment_duration'];
+                    document.getElementById('price' + id).value = data.service_tariff['price'];
                 }
             }
         });
@@ -312,6 +313,7 @@ function treatmentPlan() {
     div1.children[4].children[1].id = "service_tariff" + ct;
     div1.children[5].children[1].id = "session_number" + ct;
     div1.children[6].children[1].id = "treatment_duration" + ct;
+    div1.children[7].children[1].id = "price" + ct;
     div1.children[4].children[1].classList.add("select2");
     selectByTariff("tariff" + ct, document.getElementById("tariff" + ct).value);
 }
@@ -581,6 +583,7 @@ $(document).ready(function () {
             $('#datatable-json').DataTable().destroy();
         }
         var userPermission = data.user_permission;
+        var deletePermission = data.delete_permission;
         $('#datatable-json tbody').empty();
         var table = $('#datatable-json').DataTable({
             paging: false,
@@ -714,6 +717,17 @@ $(document).ready(function () {
                                 href="/dashboard/user/login/${data.customer_id}">
                                 <span data-id="${data.customer_id}" class="task-delete dropdown-item pointer">
                                 ورود</span></a>`
+                        }
+                        if (deletePermission === 1) {
+                            output += `
+                            <form action="/dashboard/factorItem/${data.resnumber}" method="POST">
+                                <input type="hidden" name="_token" value="${csrfToken}">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="dropdown-item pointer">
+                                    حذف
+                                </button>
+                            </form>
+                            `;
                         }
                         if (data.total_factor_item_id) {
                             output += `<a target="_blank" href="/dashboard/totalFactorItem/${data.total_factor_item_id}/installment">

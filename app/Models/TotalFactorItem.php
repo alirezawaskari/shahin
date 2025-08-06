@@ -261,10 +261,6 @@ class TotalFactorItem extends Model implements AuditableContract
                     $query->where('supporter_id', $supporter);
                 });
             }
-        } else {
-            $query->whereHas('products', function ($query) use ($center) {
-                $query->where('user_id', auth()->user()->id);
-            });
         }
 
         if ( (is_null($subServiceCategory) || $subServiceCategory == 'all' ) && isset($serviceCategory) && $serviceCategory!='all' ){

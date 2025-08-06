@@ -69,6 +69,7 @@ class FilterServiceProvider extends ServiceProvider
         $user = auth()->user();
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
         $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where('level', 'admin')->withCount('tasks')->get();
+
         $services = Service::filter()->where('status' , 1)->get();
         $product_categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
         $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' ,1)->get();

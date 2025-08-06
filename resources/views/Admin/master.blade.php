@@ -31,7 +31,7 @@
 @include('Admin.layouts.sidemenu')
 @include('Admin.layouts.navbar')
 @include('Admin.layouts.terms')
-<main class="main-content" style="margin-right: 165px;" id="app">
+<main class="main-content" id="app">
     <div class="container-fluid">
         @yield('content')
     </div>
@@ -56,6 +56,10 @@
     $(document).ready(function(){
       $('[data-toggle="tooltip"]').tooltip();
     });
+    document.getElementById('toggleSidebarMobile').addEventListener('click', function () {
+        const sidebar = document.getElementById('myNav');
+        sidebar.classList.remove('collapsed');
+    });
     document.getElementById('toggleSidebar').addEventListener('click', function () {
         const sidebar = document.getElementById('myNav');
         const icon = document.getElementById('menuIcon');
@@ -65,10 +69,8 @@
         } else {
             mainContent.style.marginRight = '165px';
         }
-
         sidebar.classList.toggle('collapsed');
         icon.classList.toggle('rotated');
-
     });
 </script>
 @yield('js')

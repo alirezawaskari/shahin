@@ -644,7 +644,28 @@ class CallcenterController extends Controller
         }
 
     }
+    public function multiDelete(Request $request)
+    {
+        if (auth()->user()->isAbleTo('callcenter-delete')) {
+            foreach ($request->id as $id) {
+                $callcenter = Callcenter::find($id);
+                if (isset($callcenter)) {
+                    $callcenter->delete();
+                }
+            }
+            return response([
+                'operator' => true,
+                'status'=>'success',
+                'message'=>'حذف با موفقیت انجام گردید .'
+            ]);
+        }
+        return response([
+            'operator' => true,
+            'status'=>'unauthorized',
+            'message'=>'شما مجاز به انجام این کار نیستید.'
+        ]);
 
+    }
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
