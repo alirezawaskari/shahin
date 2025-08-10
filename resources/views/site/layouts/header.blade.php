@@ -87,9 +87,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="{{ route('site.help') }}">قوانین سایت</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" href="/calculate">محاسبه اقساط</a>
-                    </li>
+                
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdownMenuLink"
                            role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
