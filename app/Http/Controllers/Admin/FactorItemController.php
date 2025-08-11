@@ -532,10 +532,10 @@ class FactorItemController extends Controller {
         }
         $supervisor_factor_item = FactorItem::changeType( $factor_item, $type );
         //change supervisor factoritem discount
-        $discount = $request->input(  'discount' ) ? ( float ) str_replace( ',', '', $request->input( 'discount' ) ) : $supervisor_factor_item->discount;
         $supervisor_factor_item->update( [
-            'discount' => $discount,
+            'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
         ] );
+
         //get total price factor
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
         $other_price = 0;
