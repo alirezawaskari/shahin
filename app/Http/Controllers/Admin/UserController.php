@@ -312,13 +312,15 @@ class UserController extends AdminController
      */
     public function filter(Request $request)
     {
-        $users = User::filter()->latest();
-
+        $users = User::filter();
+        if($request->level !== 'all'){
+            $users->where('level', $request->level);
+        }
         if ($request->exel == 'on') {
             return (new UsersExport($users))->download('users.xlsx');
         }
 
-        return new UserCollection($users->paginate(20));
+        return new UserCollection($users->latest()->paginate(20));
     }
 
     /**

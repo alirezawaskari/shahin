@@ -710,6 +710,7 @@ private function returnResponse(Category $category)
             $hasChild = Category::hasChild($last_category_id);
             if($hasChild == 0){
                 $attributeGroups = AttributeGroup::where('category_id', $last_category_id)->get();
+
                 if(isset($attributeGroups) && count($attributeGroups) > 0){
                     $attributes = [];
                     foreach ($attributeGroups as $item) {

@@ -46,6 +46,7 @@
                                 <option value="all">انتخاب نوع کاربر </option>
                                 <option value="user">کاربر عادی</option>
                                 <option value="admin">مدیر</option>
+                                <option value="ghorfeAdmin">همکار غرفه</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-3 mb-2">
