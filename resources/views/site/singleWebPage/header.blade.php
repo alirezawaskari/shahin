@@ -2,7 +2,7 @@
     <div class="row pt-3">
         <div class="col-5 d-flex align-items-center">
             <a href=""><img class="mr-md-5 d-none d-md-block" src="{{ asset('assets/site/images/footer-logo.png') }}"
-                    width="150px" alt="شبکه خدمات رفاهی لاله"></a>
+                    width="150px" alt="شبکه خدمات رفاهی ، درمانی و اقساطی لاله"></a>
             @auth
             <a href="/cart" class="btn btn-warning position-relative ml-2">
                 <i class="fas fa-shopping-cart font-16 ml-2"></i>

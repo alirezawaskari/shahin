@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-		<meta name="description" content="خدمات رفاهی لاله">
+		<meta name="description" content="شبکه خدمات رفاهی ، درمانی و اقساطی لاله">
         <meta name="keywords" content="دندانپزشکی,خدمات,پوشاک,کارت لاله">
         <meta name="author" content="لاله کارت">
         <meta name="viewport" content="width=device-width, initial-scale=1">

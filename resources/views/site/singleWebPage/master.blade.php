@@ -8,7 +8,7 @@
         content="@yield('description','   لاله کارت سامانه هوشمند یکپارچه اقتصادی با هدف کاهش هزینه های زندگی مردم عزیز کشورمان درحوزه دندانپزشکی اقساطی و ایجاد رقابت بین تولید کنندگان و خدمات دهندگان')">
     {{--
     <meta name="keywords" content="دندانپزشکی اقساط">--}}
-    <meta name="author" content="خدمات درمانی - رفاهی لاله">
+    <meta name="author" content="شبکه خدمات رفاهی ، درمانی و اقساطی لاله">
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta name="google-site-verification" content="2LiK03QLZtoxWosDgNx_gXH9ffVfCJmTiMduAI643K8" />
@@ -28,7 +28,7 @@
     </script>
 
     <link rel="shortcut icon" href="{{ asset('assets/dashboard/images/laleh_icon.png') }}">
-    <title>@yield('title','خدمات درمانی - رفاهی لاله')</title>
+    <title>@yield('title','شبکه خدمات رفاهی ، درمانی و اقساطی لاله')</title>
     <link rel="stylesheet" href="{{asset('assets/site/css/app.css?v=1.6')}}?ver=6">
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/persian-datepicker.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/font-awesome.css')}}">

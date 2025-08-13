@@ -8,7 +8,7 @@
            style="display: none!important;">
             <img src="{{ asset('assets/dashboard/images/l-d.png') }}" width="55px" alt="{{env('APP_NAME')}}"
                  class="img-fluid">
-            <h1 class="text-white h6 mb-0">خدمات درمانی - رفاهی لاله</h1>
+            <h1 class="text-white h6 mb-0">شبکه خدمات رفاهی ، درمانی و اقساطی لاله</h1>
         </a>
         @if(auth()->check())
             <div class="d-md-none d-lg-none ">
@@ -87,7 +87,7 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="{{ route('site.help') }}">قوانین سایت</a>
                     </li>
-                
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdownMenuLink"
                            role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
