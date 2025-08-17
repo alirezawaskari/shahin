@@ -245,6 +245,7 @@
                             </div>
                         </div>
                     </div>
+                    @include('Admin.factoritem.dentist.list')
                     @break
                     @case('factor_building')
                     <div class="col-12 col-md-12 mb-3">
@@ -350,6 +351,7 @@
                             </div>
                         </div>
                     </div>
+                    @include('Admin.factoritem.building.list')
                     @break
                     @case('factor')
                     <div class="row col-md-12">
