@@ -531,8 +531,16 @@ class FactorItemController extends Controller {
             ] );
         }
         $supervisor_factor_item = FactorItem::changeType( $factor_item, $type );
-        $discount = $request->input(  'discount' ) ? ( float ) str_replace( ',', '', $request->input( 'discount' ) ) : $supervisor_factor_item->discount;
-        $total_price = $supervisor_factor_item->total_price + $discount;
+        //change supervisor factoritem discount
+        $supervisor_factor_item->update( [
+            'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
+        ] );
+
+        //get total price factor
+        $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
+        $other_price = 0;
+        $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
+
         $prepayment_price = ( $supervisor_factor_item->type ? ( float ) str_replace( ',', '', $request->input( 'prepayment' ) ) : $total_price );
         $installments_num = $request->input( 'installments_num' ) == 0 ? CalculationHelper::calculateInstallmentsNum($supervisor_factor_item) : $request->input( 'installments_num' );
         $wage = CalculationHelper::calculateWage($supervisor_factor_item , $total_price , $prepayment_price , $installments_num);
@@ -552,7 +560,6 @@ class FactorItemController extends Controller {
         }
         if ( $supervisor_factor_item->type && !$supervisor_factor_item->totalFactorItem->confirm ) {
             $supervisor_factor_item->update( [
-                'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
                 'installments_num' => $installments_num,
                 'installments_price' => $installment_price,
             ] );
@@ -571,9 +578,6 @@ class FactorItemController extends Controller {
             }else{
                 $supervisor_factor_item->property()->create($prepayment);
             }
-            $supervisor_factor_item->update( [
-                'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
-            ] );
         }
 
         $url = URL::previous();

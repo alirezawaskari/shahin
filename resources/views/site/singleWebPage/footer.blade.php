@@ -101,7 +101,7 @@
                         <li class="item">
                             <img src="/assets/site/images/factor-logo.png" alt="">
                             <img src="{{ asset('assets/site/images/footer-logo.png') }}" width="150px"
-                                    alt="شبکه خدمات رفاهی لاله">
+                                    alt="شبکه خدمات رفاهی ، درمانی و اقساطی لاله">
                         </li>
                     </ul>
                 </div>

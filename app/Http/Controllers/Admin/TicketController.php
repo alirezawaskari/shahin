@@ -103,12 +103,7 @@ class TicketController extends Controller
     public function create()
     {
         $cards = Card::all();
-        $representations = Representation::all();
-        $centers = Center::all();
-        $role = Role::where('name', 'presentore')->first();
-        $presentores = $role->users->where('level', 'admin');
-
-        return view('Admin.ticket.create', compact('cards', 'representations', 'centers', 'presentores'));
+        return view('Admin.ticket.create', compact('cards'));
     }
 
     /**

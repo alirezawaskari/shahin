@@ -460,7 +460,7 @@
                 </div>
                 @endif
                 <form class="form-horizontal" role="form" method="post"
-                    action="{{ $factoritem->serviceTariffs()->count() == 0 ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
+                    action="{{ route('factorItem.calculate') }}">
                     @csrf
                     <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
                     <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">
