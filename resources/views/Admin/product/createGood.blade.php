@@ -1,14 +1,15 @@
 @extends('Admin.master')
-
 @section('content')
     <div class="card">
         <div class="card-body">
             <div class="x_title"><h4>ثبت کالا</h4></div>
-
-            <form class="form-horizontal" method="post" action="{{route('products.store')}}"
-                  enctype="multipart/form-data">
-                {{csrf_field()}}
-
+            <form
+                class="form-horizontal"
+                method="post"
+                action="{{route('products.store')}}"
+                enctype="multipart/form-data"
+            >
+                @csrf
                 <section class="signup-step-container">
                     <div class="container">
                         <div class="row d-flex justify-content-center">
@@ -106,14 +107,12 @@
                                                 </li>
                                             </ul>
                                             <br/><br/>
-
                                             <div class="form-group">
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     <label for="file-upload" class="custom-file-upload">
                                                         <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
                                                     </label>
                                                     <input id="file-upload" type="file" onchange="readURL(this);"/>
-
                                                     <div>
                                                         <table class="table table-striped">
                                                             <thead>
@@ -143,7 +142,6 @@
                                             </ul>
                                         </div>
                                         <div class="tab-pane" role="tabpanel" id="step5">
-
                                             <div class="disTable">
                                                 @if(isset($store_room_id) && $store_room_id != null)
                                                     <input class="type_good_selected" type="radio"
@@ -161,11 +159,9 @@
                                                            value="1"><span class="lblRadioBtn font-weight-bold font16">مرکز </span>
                                                 @endif
                                             </div>
-
                                             <div class="goodStockBox" style="display: none;"><br/><br/>
                                                 @include('Admin.partials.productStoreRoom',['arrayName'=>'good','stock'=>false])
                                             </div>
-
                                             <div class="goodCenterBox" style="display: none;">
                                                 <br/>
                                                 <div class="form-group">
@@ -198,24 +194,17 @@
                                             </ul>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-
             </form>
-
         </div>
     </div>
-
-
 @stop
 
 @section('css')
-
     <style>
         input[type="file"] {
             display: none;

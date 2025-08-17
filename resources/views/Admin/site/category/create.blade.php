@@ -5,7 +5,6 @@
 @stop
 
 @section('content')
-
     <div class="card"><br/>
         <h4 class="disTable">ثبت زیر مجموعه در دسته بندی
             @if($parent)  {{$parent->title}} @endif
