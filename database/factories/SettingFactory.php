@@ -4,7 +4,7 @@ use Faker\Generator as Faker;
 
 $factory->define(\App\Models\Setting::class, function (Faker $faker) {
     return [
-        'title' => 'خدمات درمانی - رفاهی لاله ',
+        'title' => 'شبکه خدمات رفاهی ، درمانی و اقساطی لاله ',
         'logo' => '/img/logo.png',
         'fav' => '/img/fav.png',
         'footer_logo' => '/img/logofooter.png',

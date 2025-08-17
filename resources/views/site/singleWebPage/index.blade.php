@@ -16,7 +16,7 @@
         <div class="header position-relative d-md-flex justify-content-md-center flex-md-column align-items-md-center">
             <img src="{{ asset($singleWebPage->image) }}" width="100%" class="h-md-5 h-5">
             <div class="logo bg-white position-absolute d-flex justify-content-end flex-column align-items-center">
-                <img src="{{ asset('assets/site/images/footer-logo.png') }}" alt="شبکه خدمات رفاهی لاله" width="150px">
+                <img src="{{ asset('assets/site/images/footer-logo.png') }}" alt="شبکه خدمات رفاهی ، درمانی و اقساطی لاله" width="150px">
             </div>
             <div class="px-2 px-md-5 mt-md-n6 mt-n6 position-absolute">
                 <h1 class="text-white text-center text-shadow mt-5 mt-md-0">{{ $singleWebPage->fa_name }}</h1>

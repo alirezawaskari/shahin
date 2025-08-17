@@ -12,11 +12,11 @@
         <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
         @if(!is_null($factorItem['centers']) || !is_null($factorItem['forms']))
         <div class="row p-3 position-relative">
-            <div class="col-12 col-md-3 mb-2">
+            {{-- <div class="col-12 col-md-3 mb-2">
                 <label>شماره پرونده</label>
                 <input type="text" name="file_number" class="form-control border-warning mb-2"
                        value="{{ $factorItem['file_number'] }}">
-            </div>
+            </div> --}}
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_user_info' , $form->data_display_level))

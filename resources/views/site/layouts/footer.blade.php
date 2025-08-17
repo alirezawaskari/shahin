@@ -82,7 +82,7 @@
                         <div class="col-md-12 pt-3">
                             <img width="100px" src="{{asset('assets/dashboard/images/laleh_icon.png')}}"
                                 alt="company_logo">
-                            <span>شرکت خدماتی رفاهی لاله</span>
+                            <span>شبکه خدمات رفاهی ، درمانی و اقساطی لاله</span>
                         </div>
 
                     </div>
