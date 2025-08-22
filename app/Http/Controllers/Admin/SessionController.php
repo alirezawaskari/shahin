@@ -162,7 +162,6 @@ class SessionController extends Controller {
     public function update( Session $session, Request $request ) {
         $validator = \Validator::make($request->all(), [
             'agent_id' => 'required',
-            'assistant_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -178,11 +177,11 @@ class SessionController extends Controller {
             //create session by select multi service tariffs
             foreach ( $data[ 'factor_item_service_tariff_id' ] as $item ) {
                 $factor_item_service_tariff = FactorItemServiceTariff::where( 'id', $item )->first();
-                if($factor_item_service_tariff->sessions->where('status' , 2)->count())
-                {
-                    $arr = array( 'errors' => 'جلسه تایید نشده برای این درمان وجود دارد.', 'status' => true );
-                    return Response()->json( $arr );
-                }
+                // if($factor_item_service_tariff->sessions->where('status' , 2)->count())
+                // {
+                //     $arr = array( 'errors' => 'جلسه تایید نشده برای این درمان وجود دارد.', 'status' => true );
+                //     return Response()->json( $arr );
+                // }
                 $price = $factor_item_service_tariff ? ( $factor_item_service_tariff->price - $factor_item_service_tariff->discount ) / $factor_item_service_tariff->session_number : 0;
                 $factor_item = $session->factorItem;
                 $agent = $request->agent_id ? User::find( $request->agent_id ) : '';
@@ -214,6 +213,10 @@ class SessionController extends Controller {
                         'assistant_id' => $data[ 'assistant_id' ],
                     ] );
                 }
+
+                //update credit file
+                self::updateCreditFile($session);
+                
                 $agent ? $session->factorItemServiceTariff->update(['user_id' => $agent->id]) : '';
             }
         } else {
@@ -340,20 +343,20 @@ class SessionController extends Controller {
             }
         }
 
-        $factor_item = $session->factorItem;
+        // $factor_item = $session->factorItem;
 
-        //update credit file
-        if ( $factor_item->type ) {
-            $total_factor_item = $supervisor_factor_item->totalFactorItem;
-            $total_factor_item->update( [ 'credit' => $total_factor_item->credit - $session->price ] );
+        // //update credit file
+        // if ( $factor_item->type ) {
+        //     $total_factor_item = $supervisor_factor_item->totalFactorItem;
+        //     $total_factor_item->update( [ 'credit' => $total_factor_item->credit - $session->price ] );
 
-            $total_factor_item->factorItems()
-            ->where( 'factoritemable_id', $factor_item->factoritemable_id )
-            ->where( 'factoritemable_type', $factor_item->factoritemable_type )
-            ->update( [
-                'credit' => $supervisor_factor_item->credit - $session->price,
-            ] );
-        }
+        //     $total_factor_item->factorItems()
+        //     ->where( 'factoritemable_id', $factor_item->factoritemable_id )
+        //     ->where( 'factoritemable_type', $factor_item->factoritemable_type )
+        //     ->update( [
+        //         'credit' => $supervisor_factor_item->credit - $session->price,
+        //     ] );
+        // }
 
         return redirect()->back()->with( [
             'update' => 'success'
@@ -467,6 +470,26 @@ class SessionController extends Controller {
             //set superadmin center performance
             $purchase_price = $factor_item_service_tariff->serviceTariff->purchase_price/$factor_item_service_tariff->serviceTariff->multi_stage;
             Center::setUserPerformance($factor_item , $factor_item_service_tariff , $price ,$purchase_price , $date);
+        }
+    }
+    /**
+     * Summary of updateCreditFile
+     * @param \App\Models\Session $session
+     * @return void
+     */
+    private function updateCreditFile(Session $session)
+    {
+        $factor_item = $session->factorItem;
+        $supervisor_factor_item = $factor_item->supervisor;
+        if ( $factor_item->type ) {
+            $total_factor_item = $supervisor_factor_item->totalFactorItem;
+            $total_factor_item->update( [ 'credit' => $total_factor_item->credit - $session->price ] );
+            $total_factor_item->factorItems()
+                ->where( 'factoritemable_id', $factor_item->factoritemable_id )
+                ->where( 'factoritemable_type', $factor_item->factoritemable_type )
+                ->update( [
+                    'credit' => $supervisor_factor_item->credit - $session->price,
+            ] );
         }
     }
 }
