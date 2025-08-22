@@ -26,8 +26,10 @@ class DashboardService
     {
         if ($representation) {
             $link = "lalecard.ir/".$representation->slug.'/link/'.auth()->user()->id;
+            $totalMonthFactorCount = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->count();
+            $totalMonthFactorPaidCount = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();
             $totalUser = User::filter()->where('representation_id', $representation->id)->count();
-            $totalDayUser = User::filter()->wfilter()->here('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->count();
+            $totalDayUser = User::filter()->filter()->where('representation_id', $representation->id)->where('created_at', 'like', date("Y-m-d").'%')->count();
             $totalMonthUser = User::filter()->where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->count();
             $totalDayFactor = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>', Carbon::now()->subDay())->where('status', '1')->count();
             $totalMonthFactor = Factor::filter()->where('representation_id', $representation->id)->where('created_at', '>=', Helper::vertaTocarbon(verta()->startMonth()))->where('status', '1')->count();

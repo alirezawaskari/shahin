@@ -538,6 +538,9 @@ class FactorItemController extends Controller {
 
         //get total price factor
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
+        $supervisor_factor_item->update( [
+            'total_price' => $total_price,
+        ] );
         $other_price = 0;
         $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
 
