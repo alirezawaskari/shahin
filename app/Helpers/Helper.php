@@ -261,7 +261,7 @@ class Helper {
     public static function getCallcenter($province , $representation) {
         if($representation)
         {
-            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where('admin_representation_id' , $representation)->where( 'province_id', $province )->with('tasks')->get()->sortBy(function($admin_users)
+            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where('admin_representation_id' , $representation)->with('tasks')->get()->sortBy(function($admin_users)
             {
                 return $admin_users->tasks->count();
             });
