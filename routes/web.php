@@ -180,7 +180,7 @@ Route::get('test/pay',[TestController::class,'test']);
 Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 
 //Admin Routes
-Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
+Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard'], function () {
     //dashboard
 
     Route::get('/run-query', function () {

@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     $("#toBottom").click(function () {
         $('html, body').animate({
             scrollTop: $("#one-section").offset().top
@@ -10,8 +9,11 @@ $(document).ready(function () {
             scrollTop: $("#one-section").offset().top
         }, 1000);
     });
-
-    fetchData(1);
+     $('#pagination-demo').remove();
+    $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
+    do_filter_command=true;
+    fetchData(1)
+    event.preventDefault();
     var first_load=true;
     var do_filter_command=false;
     /* click on do filter */
@@ -22,7 +24,6 @@ $(document).ready(function () {
         fetchData(1)
         event.preventDefault();
     });
-
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,

@@ -21,7 +21,7 @@ class RoleController extends Controller
     {
         if (auth()->user()->hasPermission('role'))
         {
-            $roles = Role::latest()->get();
+            $roles = Role::orderByDesc('id')->paginate(20);
             return view('Admin.role.all', compact('roles'));
         }
         return abort(401);
