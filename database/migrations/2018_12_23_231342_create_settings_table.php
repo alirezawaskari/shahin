@@ -40,8 +40,12 @@ class CreateSettingsTable extends Migration
             $table->text('video')->nullable(true);
             $table->text('agency')->nullable(true);
             $table->text('rules')->nullable(true);
-            $table->text('card_number')->nullable(true);
-
+            $table->text('shaba_number')->nullable(value: true);
+            $table->text('card_number')->nullable(value: true);
+            $table->text('card_holder')->nullable(value: true);
+            $table->text('tax_free_shaba_number')->nullable(value: true);
+            $table->text('tax_free_card_number')->nullable(value: true);
+            $table->text('tax_free_card_holder')->nullable(value: true);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->softDeletes();

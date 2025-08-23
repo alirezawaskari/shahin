@@ -27,7 +27,12 @@ class SettingController extends AdminController
            'address'=>$request->company_address,
            'call'=>$request->company_call_phone,
            'email'=>$request->company_email,
-            'shaba_number'=>$request->company_shaba_number
+           'shaba_number'=>$request->company_shaba_number,
+           'card_number'=>$request->company_card_number,
+           'card_holder'=>$request->company_card_holder,
+           'tax_free_shaba_number'=>$request->company_tax_free_shaba_number,
+           'tax_free_card_number'=>$request->company_tax_free_card_number,
+           'tax_free_card_holder'=>$request->company_tax_free_card_holder,
         ]);
         alert()->success('','عملیات موفق');
         return redirect()->back();
