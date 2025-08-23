@@ -48,10 +48,10 @@ class Getsms extends Command {
 
     private function getSmsFromIranSmsPanel() {
         //get messages sent by users && create record in sms table
-        $linenumber = config( 'services.sms.linenumber' );
+        $linenumber = config( 'services.iranSms.linenumber' );
 
         $headers = [
-            'apikey' => config( 'services.sms.apikey' ),
+            'apikey' => config( 'services.iranSms.apikey' ),
             'Content-Type' => 'application/x-www-form-urlencoded'
         ];
         $client = new Client( [
