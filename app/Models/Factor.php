@@ -52,8 +52,9 @@ class Factor extends Model implements AuditableContract
         'supervisor' => 'دارای سرپرست',
         'in_factor_item' => 'بین پرونده ای',
         'check' => 'چک',
-        'send_card_number' => 'کارت به کارت',
-        'send_shaba_number' => 'واریز به حساب',
+        'send_card_number' => 'کارت به کارت(حساب مالیاتی)',
+        'send_shaba_number' => 'واریز به حساب(حساب مالیاتی)',
+        'send_tax_free_card_number' => 'واریز به حساب(حساب معمولی)'
     ];
 
     /**

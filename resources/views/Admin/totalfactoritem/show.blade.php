@@ -18,11 +18,19 @@
                     <input type="hidden" value="{{ $item['id'] }}" name="id">
                     <input type="hidden" value="{{ $user['id'] }}" name="user_id">
                     <input type="hidden" value="{{ verta($item['approval_date']) }}" name="approval_date">
-                    <div class="col-12">
+                    <div class="col-12 col-md-6">
                         <label>مبلغ (ریال)</label>
                         <input class="form-control px-4 mb-3" name="price" type="text"
                             value="{{ number_format($expire_installments->sum('price')) }}"
                             oninput="separatePrices(this)">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label>انتخاب نوع پرداخت</label>
+                        <select class="form-control px-4 mb-3" name="payment_type" id="payment_type3"
+                            onchange="paymentType(3)">
+                            <option value="send_tax_free_card_number">ارسال شماره کارت</option>
+                            <option value="online">آنلاین</option>
+                        </select>
                     </div>
                     <div class="col-md-12">
                         <button class="btn btn-primary px-4 mb-3 submit_btn">ثبت و ارسال</button>
@@ -56,8 +64,7 @@
                     </p>
                     <p>تصویر شناسنامه <i
                             class="fa {{ isset($factor->user->imgshenasname) ? 'fa-check' : 'fa-close' }}"></i></p>
-                    <p> تصویر ثنا <i
-                            class="fa {{ isset($factor->user->imgturnover) ? 'fa-check' : 'fa-close' }}"></i>
+                    <p> تصویر ثنا <i class="fa {{ isset($factor->user->imgturnover) ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                 </div>
             </div>
@@ -143,8 +150,8 @@
                     aria-controls="basic-document" aria-selected="true">مدارک اولیه و پشتیبانی</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link show" id="consultation-referral-tab" data-toggle="tab" href="#consultationReferral" role="tab"
-                    aria-controls="home" aria-selected="false">ثبت مشاوره و ارجاع</a>
+                <a class="nav-link show" id="consultation-referral-tab" data-toggle="tab" href="#consultationReferral"
+                    role="tab" aria-controls="home" aria-selected="false">ثبت مشاوره و ارجاع</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#contact" role="tab"
@@ -357,21 +364,26 @@
             <div class="tab-pane fade p-t-20" id="basic-document" role="tabpanel" aria-labelledby="basic-document-tab">
                 @include('Admin.totalfactoritem.show.basicDocument')
             </div>
-            <div class="tab-pane fade p-t-20" id="consultationReferral" role="tabpanel" aria-labelledby="consultation-referral-tab">
+            <div class="tab-pane fade p-t-20" id="consultationReferral" role="tabpanel"
+                aria-labelledby="consultation-referral-tab">
                 @foreach ($items as $key => $factor_item)
                 <ul class="nav nav-tabs mt-4 border-bottom-0" id="myTab" role="tablist">
                     @foreach ($factor_item['factorItems'] as $count => $factorItem)
                     <li class="nav-item">
-                        <a class="nav-link show {{ $count == 0 ? 'active' : ''}}" onclick="consultationReferralAppend('consultation_referral_collection_{{$count}}')" id="consultation-referral-{{ $count }}-tab"
-                            data-toggle="tab" href="#consultation_referral_collection_{{ $count }}" role="tab"
-                            aria-controls="consultation_referral_collection_{{ $count }}" aria-selected="false">پرونده {{$factorItem->factor->user->name . ' '.$factorItem->factor->user->family}}</a>
+                        <a class="nav-link show {{ $count == 0 ? 'active' : ''}}"
+                            onclick="consultationReferralAppend('consultation_referral_collection_{{$count}}')"
+                            id="consultation-referral-{{ $count }}-tab" data-toggle="tab"
+                            href="#consultation_referral_collection_{{ $count }}" role="tab"
+                            aria-controls="consultation_referral_collection_{{ $count }}" aria-selected="false">پرونده
+                            {{$factorItem->factor->user->name . ' '.$factorItem->factor->user->family}}</a>
                     </li>
                     @endforeach
                 </ul>
                 <div class="tab-content border p-4" id="myTabContent">
                     @foreach ($factor_item['factorItems'] as $count => $factorItem)
-                    <div class="tab-pane fade p-t-20 {{ $count == 0 ? 'show active' : ''}} " id="consultation_referral_collection_{{ $count }}"
-                        role="tabpanel" aria-labelledby="consultationReferral-{{ $count }}-tab">
+                    <div class="tab-pane fade p-t-20 {{ $count == 0 ? 'show active' : ''}} "
+                        id="consultation_referral_collection_{{ $count }}" role="tabpanel"
+                        aria-labelledby="consultationReferral-{{ $count }}-tab">
                         @include('Admin.totalfactoritem.show.determineCentering')
                     </div>
                     @endforeach
