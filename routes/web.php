@@ -467,11 +467,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/ticket/{ticket}/edit',[TicketController::class,'create'])->name('ticket.edit');
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
-
-    Route::get('tariff/filter', [TariffController::class,'filter']);
-    Route::resource('tariff', TariffController::class);
-
-
     Route::resource('ticket/history', TicketHistoryController::class);
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
@@ -487,6 +482,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/serviceIndexTariff/getPurchasePrice/{id}', 'ServiceIndexTariffController@getPurchasePrice');
     Route::post('/serviceIndexTariff/createOrUpdate', 'ServiceIndexTariffController@createOrUpdate');
     Route::resource('serviceIndexTariff', 'ServiceIndexTariffController');
+    //taiffs
+    Route::get('tariff/filter', [TariffController::class,'filter']);
+    Route::resource('tariff', TariffController::class);
 
     Route::group(['namespace' => 'site', 'prefix' => 'site'], function () {
         Route::resource('/category', 'CategoryController');
