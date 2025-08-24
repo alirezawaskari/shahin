@@ -157,7 +157,7 @@ class TicketController extends Controller
                 event(new ticketNotification(User::find($receiver), $ticket));
             }
         }
-        return redirect(route('send.tickets'))->with([
+        return redirect(route('ticket.index'))->with([
             'create' => 'success'
         ]);
     }
@@ -222,7 +222,7 @@ class TicketController extends Controller
 
         $ticket->update($inputs);
 
-        return redirect(route('send.tickets'))->with([
+        return redirect(route('ticket.index'))->with([
             'contract_update' => 'success'
         ]);
     }

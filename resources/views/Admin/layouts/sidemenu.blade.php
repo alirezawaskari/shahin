@@ -426,7 +426,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('ticket.index',['type' => 'receiver'])}}">
+                        <a href="{{ route('ticket.index',['type' => 'received'])}}">
                             <i class="icon ti-control-record"></i>
                             <span>مکاتبات دریافتی من</span>
                         </a>
