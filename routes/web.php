@@ -461,13 +461,14 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/ticket/desktop/filter',[TicketController::class,'filterDesktop']);
     Route::get('/ticket/refer/filter',[TicketController::class,'filterRefer']);
 
-    Route::get('/ticket/{type}',[TicketController::class,'index'])->name('ticket.index');
     Route::get('/ticket/create',[TicketController::class,'create'])->name('ticket.create');
-    Route::post('/ticket/store',[TicketController::class,'create'])->name('ticket.store');
-    Route::get('/ticket/{ticket}/edit',[TicketController::class,'create'])->name('ticket.edit');
+    Route::post('/ticket/store',[TicketController::class,'store'])->name('ticket.store');
+    Route::get('/ticket/{ticket}/edit',[TicketController::class,'edit'])->name('ticket.edit');
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
     Route::resource('ticket/history', TicketHistoryController::class);
+    Route::get('/ticket/{type}',[TicketController::class,'index'])->name('ticket.index');
+
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
     Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ticket_user', function (Blueprint $table) {
-            $table->renameColumn('receive_id','user_id');
+            $table->renameColumn('receiver_id','user_id');
             $table->integer('sender_id');
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
         });
