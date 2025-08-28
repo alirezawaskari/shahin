@@ -39,7 +39,7 @@ class SendLinkSMSNotification {
                     'param1' => $factor,
                 ];
                 SendSms::sendSingleSms('sendlinkfactor', $userMobile, $body);
-            } elseif ( $event->type == 'card' ) {
+            } elseif ( $event->type == 'send_card_number' ) {
                 $body = [
                     'param1' => number_format( $event->factor->price ),
                     'param2' => $setting->card_number,
