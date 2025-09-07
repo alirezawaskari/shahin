@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
+use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\referralCenterNotification;
 use App\Events\sendlinkFactor;
@@ -36,7 +37,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
 class FactorItemController extends Controller {
     //all factorItems list
     /**
@@ -1092,18 +1092,7 @@ class FactorItemController extends Controller {
             ] );
         }
         $factor_item->update( [ 'status_factor' => 15 ] );
-
-        $factor_item_able = $factor_item->factoritemable->title;
-        $userMobile = $factor_item->factor->user->phone;
-        $user = $factor_item->factor->user->name.' '.$factor_item->factor->user->family;
-        if (isset($userMobile)) {
-            $body = [
-                'param1' => $user,
-                'param2' => $factor_item_able,
-            ];
-            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
-        }
-        //event(new factorItemClosing($factor_item->factor->user , $factor_item));
+        event(new factorItemClosing($factor_item));
 
         if ( $request->comment ) {
             $factor_item->factor->comments()->create( [

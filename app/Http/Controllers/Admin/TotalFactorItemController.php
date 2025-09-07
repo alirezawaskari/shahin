@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\factorItemActivation;
+use App\Events\factorItemClosing;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
@@ -1222,17 +1222,7 @@ class TotalFactorItemController extends Controller
         $total_factor_item->update(['total_factor_item_status_id' => 15]);
         foreach ($total_factor_item->factorItems as $factor_item) {
             $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-            $factor_item_able = $factor_item->factoritemable->title;
-            $userMobile = $factor_item->factor->user->phone;
-            $user = $factor_item->factor->user->name . ' ' . $factor_item->factor->user->family;
-            if (isset($userMobile)) {
-                $body = [
-                    'param1' => $user,
-                    'param2' => $factor_item_able,
-                ];
-                SendSms::sendSingleSms('factoritemClosing', $userMobile, $body);
-            }
-            //event(new factorItemClosing($factor_item->factor->user , $factor_item));
+            event(new factorItemClosing($factor_item));
 
             $fator_item_collections->update([
                 'status_factor' => 15

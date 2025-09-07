@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\referralCenterNotification;
 use App\Models\User;
@@ -30,7 +29,7 @@ class ReferralCenterSMSNotification
     {
         $center = $event->center;
         $center_manager = User::where('level' , 'admin')->where('center_id' , $center->id)->whereHas('roles',function ($query){
-            $query->where('name','center-manager');
+            $query->where('name','superadmin_center');
         })->first();
         if($center_manager)
         {

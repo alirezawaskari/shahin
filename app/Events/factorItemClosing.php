@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Models\FactorItem;
-use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -12,18 +11,14 @@ use Illuminate\Queue\SerializesModels;
 class factorItemClosing
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public $user;
     public $factorItem;
     /**
      * Create a new event instance.
      *
-     * @param User $user
      * @param FactorItem $factorItem
      */
-    public function __construct(User $user , FactorItem $factorItem)
+    public function __construct(FactorItem $factorItem)
     {
-        $this->user = $user;
         $this->factorItem = $factorItem;
     }
     /**

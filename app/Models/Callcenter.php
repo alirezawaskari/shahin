@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Auditable;
@@ -409,5 +410,97 @@ class Callcenter extends Model implements AuditableContract
             'description' => $description
         ]);
         History::create($task , $task->user_id , null , $task->status , $description);
+    }
+    /**
+     * @param mixed $phone
+     * @param Callcenter $item
+     * @return mixed
+     */
+    public static function setService($phone, Callcenter $item)
+    {
+        if ($item->request_type == "other") {
+            //set last user histories
+            $histories = Helper::userHistories($item->register);
+            if($histories)
+            {
+                $last_history = $histories[0];
+                return $last_history['description'];
+            }
+            return $item->description;
+        }
+        if ($item->categories()->exists() || $item->services()->exists() && !$item->factors()->exists()) {
+          $servicesTitle= implode(" - ",  $item->services()->pluck('title')->toArray());
+          $categoriesTitle=implode(" - ",  $item->categories()->pluck('title')->toArray());
+          $servicesItemTitle=implode(" - ",  $item->services_item()->pluck('title')->toArray());
+          return $servicesItemTitle .' - '.$servicesTitle.' - '.$categoriesTitle;
+        }
+
+        $user = User::wherePhone($phone)->first();
+        if ($user) {
+            if ($item->factors->first()) {
+                $temp = [];
+                foreach ($item->factors as $factor) {
+                    foreach ($factor->factorItems as $factor_item) {
+                        if (isset($factor_item->factoritemable)) {
+                            array_push($temp, $factor_item->factoritemable->title . (isset($factor_item->financialPlansType) ? ' - ' .$factor_item->financialPlansType->title : ''). (isset($factor_item->serviceItem) ? ' - ' . $factor_item->serviceItem->title : ''));
+                        } elseif (isset($factor_item->category)) {
+                            array_push($temp, $factor_item->category->title);
+                        }
+                    }
+                }
+                return implode(',', $temp);
+            }
+            if ($item->type != 1 && $user->service) {
+                 return $user->service->title;
+            }
+            else{
+                return 'ندارد';
+            }
+        } else {
+            return 'ندارد';
+        }
+    }
+
+    /**
+     * @param mixed $phone
+     * @param Callcenter $item
+     * @return mixed
+     */
+    public static function setServiceWithoutFinancialPlansType($phone, Callcenter $item)
+    {
+        if ($item->request_type != "other") {
+
+        if ($item->categories()->exists() || $item->services()->exists() && !$item->factors()->exists()) {
+          $servicesTitle= implode(" - ",  $item->services()->pluck('title')->toArray());
+          $categoriesTitle=implode(" - ",  $item->categories()->pluck('title')->toArray());
+          $servicesItemTitle=implode(" - ",  $item->services_item()->pluck('title')->toArray());
+          return $servicesItemTitle .' - '.$servicesTitle.' - '.$categoriesTitle;
+        }
+
+        $user = User::wherePhone($phone)->first();
+        if ($user) {
+            if ($item->factors->first()) {
+                $temp = [];
+                foreach ($item->factors as $factor) {
+                    foreach ($factor->factorItems as $factor_item) {
+                        if (isset($factor_item->factoritemable)) {
+                            array_push($temp, $factor_item->factoritemable->title . (isset($factor_item->serviceItem) ? ' - ' . $factor_item->serviceItem->title : ''));
+                        } elseif (isset($factor_item->category)) {
+                            array_push($temp, $factor_item->category->title);
+                        }
+                    }
+                }
+                return implode(',', $temp);
+            }
+            if ($item->type != 1 && $user->service) {
+                 return $user->service->title;
+            }
+            else{
+                return 'ندارد';
+            }
+        } else {
+            return 'ندارد';
+        }
+        }
     }
 }

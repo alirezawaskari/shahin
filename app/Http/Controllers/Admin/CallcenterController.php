@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
 use App\Events\fastserviceCallcenter;
 use App\Events\registerRequestNotification;
 use App\Events\sendlinkFactor;
@@ -856,7 +856,7 @@ class CallcenterController extends Controller
                 if (isset($request->service_financial_plans_type[$i]) && $request->service_financial_plans_type[$i] != 'all'  ){
                     $service_financial_plans_type=FinancialPlansType::find($request->service_financial_plans_type[$i]);
                     $cash_price = $cash_price + $service_financial_plans_type->price;
-                    $cash_price_tax = $cash_price_tax + ($service_financial_plans_type->price * $service->tax) / 100;
+                    $cash_price_tax = $cash_price_tax + ($service_financial_plans_type->price * $service_financial_plans_type->tax) / 100;
                 }else{
                     $cash_price = $cash_price + $service->price;
                     $cash_price_tax = $cash_price_tax + ($service->price * $service->tax) / 100;
@@ -867,7 +867,7 @@ class CallcenterController extends Controller
                 if (isset($request->service_financial_plans_type[$i]) && $request->service_financial_plans_type[$i] != 'all' ){
                     $service_financial_plans_type=FinancialPlansType::find($request->service_financial_plans_type[$i]);
                     $credit_price = $credit_price +  $service_financial_plans_type->price;
-                    $credit_price_tax = $credit_price_tax + ($service_financial_plans_type->price * $service->tax) / 100;
+                    $credit_price_tax = $credit_price_tax + ($service_financial_plans_type->price * $service_financial_plans_type->tax) / 100;
                 }else{
                     $credit_price = $credit_price + $service->price;
                     $credit_price_tax = $credit_price_tax + ($service->price * $service->tax) / 100;
@@ -894,7 +894,7 @@ class CallcenterController extends Controller
                     if (isset($request->category_financial_plans_type[$i]) && $request->category_financial_plans_type[$i] != 'all'  ){
                         $category_financial_plans_type=FinancialPlansType::find($request->category_financial_plans_type[$i]);
                         $cash_price = $cash_price + $category_financial_plans_type->price;
-                        $cash_price_tax = $cash_price_tax + ($category_financial_plans_type->price * $service->tax) / 100;
+                        $cash_price_tax = $cash_price_tax + ($category_financial_plans_type->price * $category_financial_plans_type->tax) / 100;
                     }else{
                         $cash_price_tax = $cash_price_tax + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100;
                         $cash_price = $cash_price + Category::find($categories[$i])->price;
@@ -906,7 +906,7 @@ class CallcenterController extends Controller
                 if (isset($request->category_financial_plans_type[$i]) && $request->category_financial_plans_type[$i] != 'all' ){
                     $category_financial_plans_type=FinancialPlansType::find($request->category_financial_plans_type[$i]);
                     $credit_price = $credit_price +  $category_financial_plans_type->price;
-                    $credit_price_tax = $credit_price_tax + ($category_financial_plans_type->price * Category::find($categories[$i])->tax) / 100;
+                    $credit_price_tax = $credit_price_tax + ($category_financial_plans_type->price * $category_financial_plans_type->tax) / 100;
                 }else{
                     $credit_price_tax = $credit_price_tax + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100;
                     $credit_price = $credit_price + Category::find($categories[$i])->price;
@@ -1306,24 +1306,22 @@ class CallcenterController extends Controller
     {
         $task = Callcenter::find($request->task);
 
-        if(auth()->user()->isAbleTo('close-task'))
+        if($request->sms_close_task && auth()->user()->isAbleTo('close-task'))
         {
             //create history
             History::create($task , $task->user_id , null , 2 , $request->description);
             if($request->close_task_type == 'this_task')
             {
                 $task->update(['status' => 5]);
+                $body = [
+                    'param1'=> $task->register->name.' '.$task->register->family,
+                    'param2'=> $task->type == 1 ? Callcenter::setServiceWithoutFinancialPlansType($task->sms->sender_number, $task) : Callcenter::setServiceWithoutFinancialPlansType($task->register->phone, $task),
+                ];
+                SendSms::sendSingleSms('closetask',$task->register->phone,$body);
             }
             else
             {
                 $task->register->callcenters()->whereIn('status',[0,1,2,4,6])->update(['status' => 5]);
-            }
-            if ($request->sms_close_task){
-                try {
-                    IranSms::sendSingleSms('closetask',$task->register->phone,['param1'=>auth()->user()->phone,'param2'=>URL::to('/profile')]);
-                }catch (\Exception $e){
-                    Log::error($e->getMessage());
-                }
             }
 
             return response([
