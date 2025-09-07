@@ -11,7 +11,7 @@ class FinancialPlansType extends Model
      */
     protected $guarded = [];
     protected $fillable = [
-        "task",
+        "tax",
         "applicant_id",
         "applicant_id",
         "title",

@@ -265,11 +265,11 @@ class RegisterController extends Controller
                         'type' => $type,
                         'count' => 1,
                         'price' => Service::find('14')->price,
-                        'tax' => Service::find($id)->tax,
-                        'price_tax' => (Service::find('14')->price) * (Service::find('14')->tax) / 100,
+                        'tax' => FinancialPlansType::find($financial_plans_type_id)->tax,
+                        'price_tax' => (Service::find('14')->price) * (FinancialPlansType::find($financial_plans_type_id)->tax) / 100,
                     ]);
                 } else {
-                    $tax = Service::find($id)->tax;
+                    $tax = FinancialPlansType::find($financial_plans_type_id)->tax;
                     session()->put("cart.items.{$type}_{$id}", [
                         'id' => $id,
                         'service_id' => $serviceId,
