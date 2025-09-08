@@ -413,7 +413,7 @@ class Factor extends Model implements AuditableContract
             $query->where('resnumber', $resnumber);
         }
         if (isset($callcenter) && trim($callcenter) != '' && $callcenter != 'all') {
-            if ($callcenter == 'direct') {
+            if ($callcenter == 'site') {
                 $query->where('callcenter_id', null);
             } else {
                 $query->where('callcenter_id', $callcenter);
