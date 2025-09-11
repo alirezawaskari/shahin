@@ -22,24 +22,49 @@
                         <form action="{{route('settings.updateCompanyInfo')}}" method="post">
                             @csrf
                             @method('PATCH')
-                            <div class="form-row border  ">
+                            <div class="form-row border">
+                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات حساب مالیاتی</div>
+                                <div class="col-md-4 form-group">
+                                    <label for="company_shaba_number">شماره شبا (IR0000000000000000)</label>
+                                    <input type="text" name="company_shaba_number" class="form-control"   value="{{$company_info->shaba_number}}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="company_card_number">شماره کارت</label>
+                                    <input type="text" name="company_card_number" class="form-control"   value="{{$company_info->card_number}}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="company_card_holder">نام کامل صاحب حساب</label>
+                                    <input type="text" name="company_card_holder" class="form-control"   value="{{$company_info->card_holder}}">
+                                </div>
+                                <hr>
+                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات حساب معمولی</div>
+                                <div class="col-md-4 form-group">
+                                    <label for="company_tax_free_shaba_number">شماره شبا (IR0000000000000000)</label>
+                                    <input type="text" name="company_tax_free_shaba_number" class="form-control"   value="{{$company_info->tax_free_shaba_number}}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="company_tax_free_card_number">شماره کارت</label>
+                                    <input type="text" name="company_tax_free_card_number" class="form-control"   value="{{$company_info->tax_free_card_number}}">
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label for="company_tax_free_card_holder">نام کامل صاحب حساب</label>
+                                    <input type="text" name="company_tax_free_card_holder" class="form-control"   value="{{$company_info->tax_free_card_holder}}">
+                                </div>
                                 <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات سایت</div>
                                 <div class="col-md-12 form-group">
                                     <label for="fullName">آدرس</label>
-                                    <input type="text" name="company_address" class="form-control  " value="{{$company_info->address}}">
+                                    <input type="text" name="company_address" class="form-control" value="{{$company_info->address}}">
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label for="fullName">تلفن</label>
-                                    <input type="text" name="company_call_phone" class="form-control  "   value="{{$company_info->call}}">
-                                </div>
-                                <div class="col-md-4 form-group">
-                                    <label for="fullName">شماره شبا</label>
-                                    <input type="text" name="company_shaba_number" class="form-control  "   value="{{$company_info->shaba_number}}">
+                                    <input type="text" name="company_call_phone" class="form-control"   value="{{$company_info->call}}">
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label for="fullName">ایمیل</label>
                                     <input type="text" name="company_email" class="form-control  "   value="{{$company_info->email}}">
                                 </div>
+
+                                <hr>
 
                                 <div class="form-group col-md-12 ">
                                     <button type="submit" class="btn btn-success">ثبت </button>

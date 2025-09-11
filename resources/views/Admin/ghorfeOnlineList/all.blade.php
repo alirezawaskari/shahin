@@ -29,6 +29,7 @@
                         <th>شماره تماس</th>
                         <th>تاریخ شروع اجاره نامه</th>
                         <th>تاریخ پایان اجاره نامه</th>
+                        <th>نام دامنه</th>
                         <th>وضعیت</th>
                         <th>اقدام</th>
                     </tr>
@@ -42,6 +43,7 @@
                         <td>{{ $ghorfeOnline->call }}</td>
                         <td>{{ verta($ghorfeOnline->contract_start_date)->format('Y/m/d') }}</td>
                         <td>{{ verta($ghorfeOnline->contract_expiration_date)->format('Y/m/d') }}</td>
+                        <td>{{ $ghorfeOnline->domain_active }}</td>
                         <td>{{ $ghorfeOnline->status ? 'فعال' : 'غیرفعال'}}</td>
                         <td>
                             <div data-v-15965e3b="" class="dropdown dropup">

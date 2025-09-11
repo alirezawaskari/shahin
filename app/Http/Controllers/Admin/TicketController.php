@@ -79,7 +79,7 @@ class TicketController extends Controller
 
         if (!auth()->user()->hasPermission('show_all_received')) {
             $tickets->whereHas('users', function ($query) {
-                $query->where('receive_id', auth()->user()->id);
+                $query->where('receiver_id', auth()->user()->id);
             });
         }
         return new TicketCollection($tickets->paginate(20));
@@ -157,7 +157,7 @@ class TicketController extends Controller
                 event(new ticketNotification(User::find($receiver), $ticket));
             }
         }
-        return redirect(route('send.tickets'))->with([
+        return redirect(route('ticket.index',['type' => 'send']))->with([
             'create' => 'success'
         ]);
     }
@@ -222,7 +222,7 @@ class TicketController extends Controller
 
         $ticket->update($inputs);
 
-        return redirect(route('send.tickets'))->with([
+        return redirect(route('ticket.index'))->with([
             'contract_update' => 'success'
         ]);
     }

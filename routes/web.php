@@ -180,7 +180,7 @@ Route::get('test/pay',[TestController::class,'test']);
 Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 
 //Admin Routes
-Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard'], function () {
+Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
 
     Route::get('/run-query', function () {
@@ -417,6 +417,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard'], function () {
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::get('/employee/resume/{employee}' , 'EmployeeController@editResume')->name('employee.resume.edit');
     Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
+    Route::get('/employee/contract/{employee}' , 'EmployeeController@showContract')->name('employee.contract.show');
+    Route::post('/employee/update/contract/{employee}' , 'EmployeeController@updateContract')->name('employee.update.contract');
+    Route::post('/employee/sendConfirmContractCode', [EmployeeController::class,'sendConfirmContractCode']);
+    Route::post('/employee/verificationConfirmContractCode', 'EmployeeController@verificationConfirmContractCode');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
     Route::get('/dashboard/percentageAllocationEmployee/tree', [PercentageAllocationEmployeeController::class, 'tree']);
@@ -461,18 +465,14 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard'], function () {
     Route::get('/ticket/desktop/filter',[TicketController::class,'filterDesktop']);
     Route::get('/ticket/refer/filter',[TicketController::class,'filterRefer']);
 
-    Route::get('/ticket/{type}',[TicketController::class,'index'])->name('ticket.index');
     Route::get('/ticket/create',[TicketController::class,'create'])->name('ticket.create');
-    Route::post('/ticket/store',[TicketController::class,'create'])->name('ticket.store');
-    Route::get('/ticket/{ticket}/edit',[TicketController::class,'create'])->name('ticket.edit');
+    Route::post('/ticket/store',[TicketController::class,'store'])->name('ticket.store');
+    Route::get('/ticket/{ticket}/edit',[TicketController::class,'edit'])->name('ticket.edit');
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
-
-    Route::get('tariff/filter', [TariffController::class,'filter']);
-    Route::resource('tariff', TariffController::class);
-
-
     Route::resource('ticket/history', TicketHistoryController::class);
+    Route::get('/ticket/{type}',[TicketController::class,'index'])->name('ticket.index');
+
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
     Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');
@@ -487,6 +487,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard'], function () {
     Route::get('/serviceIndexTariff/getPurchasePrice/{id}', 'ServiceIndexTariffController@getPurchasePrice');
     Route::post('/serviceIndexTariff/createOrUpdate', 'ServiceIndexTariffController@createOrUpdate');
     Route::resource('serviceIndexTariff', 'ServiceIndexTariffController');
+    //taiffs
+    Route::get('tariff/filter', [TariffController::class,'filter']);
+    Route::resource('tariff', TariffController::class);
 
     Route::group(['namespace' => 'site', 'prefix' => 'site'], function () {
         Route::resource('/category', 'CategoryController');
@@ -843,11 +846,10 @@ Route::get('/centerCampaign', 'CenterRequestController@centerCampaign');
 Route::post('/centerRequest/store', 'CenterRequestController@store');
 Route::get('/agencies', 'AgencyController@index')->name('agencies');
 Route::get('/articles', 'ArticleController@articles');
+Route::get('/articles/{articleSlug}', 'ArticleController@single');
 Route::get('/agencies/{service}', 'AgencyController@single');
-Route::get('/articles', 'ArticleController@articles');
 Route::get('/gallery', 'GalleryController@index');
 Route::get('/rules', 'RulesController@index');
-Route::get('/articles/{articleSlug}', 'ArticleController@single');
 Route::post('/rate', 'ArticleController@rate');
 Route::get('/faq', 'HomeController@faq');
 Route::get('/calculate', 'InstallmentController@showCalculate');
@@ -886,6 +888,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/factorItem', 'ProfileController@factorItem')->name('profile.factorItem');
     Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
     Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
+    Route::post('/factorItem/verificationConfirmContractCodeEmployee', 'FactorItemController@verificationConfirmContractCodeEmployee');
 
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');

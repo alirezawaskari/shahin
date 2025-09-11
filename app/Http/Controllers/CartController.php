@@ -90,8 +90,8 @@ class CartController extends Controller
                 'type' => $type,
                 'count' => 1,
                 'price' => $type == 'service' ? Service::find($id)->price : FinancialPlansType::find($id)->price,
-                'tax' => Service::find($service_id)->tax,
-                'price_tax' => ($type == 'service' ? Service::find($id)->price : FinancialPlansType::find($id)->price) * (Service::find($service_id)->tax / 100),
+                'tax' => FinancialPlansType::find($id)->tax,
+                'price_tax' => ($type == 'service' ? Service::find($id)->price : FinancialPlansType::find($id)->price) * (FinancialPlansType::find($id)->tax / 100),
             ]);
             if ($type == 'service' && !is_null(Service::find($id)->gift)) {
                 foreach (Service::find($id)->gift as $item) {

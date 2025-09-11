@@ -17,9 +17,17 @@
                 enctype="multipart/form-data">
                 @csrf
                 <div class="row p-4">
-                    <div class="col-12">
+                    <div class="col-12 col-md-6">
                         <label>مبلغ (ریال)</label>
                         <input class="form-control px-4 mb-3" name="price" type="text" oninput="separatePrices(this)">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label>انتخاب نوع پرداخت</label>
+                        <select class="form-control px-4 mb-3" name="payment_type" id="payment_type3"
+                            onchange="paymentType(3)">
+                            <option value="send_tax_free_card_number">ارسال شماره کارت</option>
+                            <option value="online">آنلاین</option>
+                        </select>
                     </div>
                     <div class="col-md-12">
                         <button class="btn btn-primary px-4 mb-3 submit_btn">ثبت و ارسال</button>

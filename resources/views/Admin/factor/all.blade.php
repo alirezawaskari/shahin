@@ -139,6 +139,7 @@
                 <div class="col-12 col-md-3 mb-2">
                     <select name="user" class="custom-select select2">
                         <option value="all">انتخاب فروشنده</option>
+                        <option value="site">سایت</option>
                         @foreach($callcenters as $item)
                         <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
                         @endforeach

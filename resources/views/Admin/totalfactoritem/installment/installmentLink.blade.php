@@ -17,6 +17,7 @@
                     <select class="form-control px-4 mb-3" name="payment_type[]" id="payment_type3"
                         onchange="paymentType(3)">
                         <option value="online">آنلاین</option>
+                        <option value="send_tax_free_card_number">ارسال شماره کارت</option>
                         @permission('record_payment')
                         <option value="card_reader">کارتخوان</option>
                         <option value="card">کارت به کارت</option>

@@ -16,23 +16,24 @@ class IranSms
      * @return void
      * @throws GuzzleException
      */
-    public static function sendSingleSms(string $message, $phone): void
+    public static function sendSingleSms($phone , string $message): void
     {
         $headers = [
             'apikey' => config('services.iranSms.apikey'),
             'Content-Type' => 'application/x-www-form-urlencoded'
         ];
-        $client = new Client([
+        $client = new Client( [
             'headers' => $headers
-        ]);
+        ] );
         $body = [
+            //30005006003675
+            'sender' => config( 'services.iranSms.linenumber' ),
             'receptor' => config('app.test_status')? config('app.test_true_sms_to'):$phone,
-            'type' => 1,
-            'message' => $message,
+            'message' => $message
         ];
-        $client->request('POST', 'http://api.parsasms.com/v2/send/verify', [
+        $client->request( 'POST', 'http://api.parsasms.com/v2/sms/send/bulk2', [
             'form_params' => $body
-        ]);
+        ] );
     }
     /**
      * @return string

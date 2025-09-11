@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\External\IranSms;
+use App\Classes\External\SendSms;
+use App\Events\factorItemClosing;
 use App\Events\factorItemStartWorking;
 use App\Events\referralCenterNotification;
 use App\Events\sendlinkFactor;
@@ -36,7 +37,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
 class FactorItemController extends Controller {
     //all factorItems list
     /**
@@ -538,6 +538,9 @@ class FactorItemController extends Controller {
 
         //get total price factor
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
+        $supervisor_factor_item->update( [
+            'total_price' => $total_price,
+        ] );
         $other_price = 0;
         $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
 
@@ -629,7 +632,7 @@ class FactorItemController extends Controller {
         $factor->payment_code = $request->input( 'payment_code' );
         $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = $supervisor_factor_item->center_id;
-        $factor->status = $request->input( 'payment_type' ) == 'online' ? 0 : 1;
+        $factor->status = $request->input( 'payment_type' ) == 'online' || $request->input( 'payment_type' ) == 'send_tax_free_card_number' ? 0 : 1;
         $factor->expired_at = now()->addDay( 3 );
         $factor->created_at = Helper::vertaToMiladi($request->payment_date);
         $factor->save();
@@ -641,7 +644,11 @@ class FactorItemController extends Controller {
         //send sms for pay factor
         if ( $request->input( 'payment_type' ) == 'online' ) {
             event( new sendlinkFactor( $user, $factor, auth()->user()->family, 'online' ) );
-        } else {
+        }
+        elseif($request->input('payment_type') == 'send_tax_free_card_number')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'tax_free_card'));
+        }else {
             Factor::savePayment( $factor );
         }
 
@@ -1085,18 +1092,7 @@ class FactorItemController extends Controller {
             ] );
         }
         $factor_item->update( [ 'status_factor' => 15 ] );
-
-        $factor_item_able = $factor_item->factoritemable->title;
-        $userMobile = $factor_item->factor->user->phone;
-        $user = $factor_item->factor->user->name.' '.$factor_item->factor->user->family;
-        if (isset($userMobile)) {
-            $body = [
-                'param1' => $user,
-                'param2' => $factor_item_able,
-            ];
-            IranSms::sendSingleSms('factoritemClosing',$userMobile,$body);
-        }
-        //event(new factorItemClosing($factor_item->factor->user , $factor_item));
+        event(new factorItemClosing($factor_item));
 
         if ( $request->comment ) {
             $factor_item->factor->comments()->create( [
@@ -1321,16 +1317,21 @@ class FactorItemController extends Controller {
         $factor->user_id = $user->id;
         $factor->price = $price;
         $factor->level = $prepayment['num'] - $prepayment['count'] + 1;
-        $factor->type = 'online';
+        $factor->type = $request->input('payment_type');
         $factor->factor_item_id = $factorItem->id;
         $factor->callcenter_id = auth()->user()->id;
         $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = $factorItem->center_id;
         $factor->expired_at = now()->addDay(3);
         $factor->save();
-
-        event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
-
+        if($request->input('payment_type') == 'online')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
+        }
+        elseif($request->input('payment_type') == 'send_tax_free_card_number')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'tax_free_card'));
+        }
         return redirect()->back()->with([
             'send' => true
         ]);

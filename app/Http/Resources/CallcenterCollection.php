@@ -31,7 +31,7 @@ class CallcenterCollection extends ResourceCollection
                     'agent' => isset($item->agent) ? $item->agent->family : 'ندارد',
                     'representation' => $item->representation ? $item->representation->fa_name : 'م تهران',
                     'type' => $item->type,
-                    'service' => $item->type == 1 ? $this->setService($item->sms->sender_number, $item) : $this->setService($item->register->phone, $item),
+                    'service' => $item->type == 1 ? Callcenter::setService($item->sms->sender_number, $item) : Callcenter::setService($item->register->phone, $item),
                     'date' => verta($item->created_at)->format('Y/m/d H:i:s'),
                     'date_expire' => verta($item->date_expire)->format('Y/m/d H:i:s'),
                     'status' => $item->status,
@@ -113,55 +113,7 @@ class CallcenterCollection extends ResourceCollection
             ];
         }
     }
-    /**
-     * @param mixed $phone
-     * @param Callcenter $item
-     * @return mixed
-     */
-    private function setService($phone, Callcenter $item)
-    {
-        if ($item->request_type == "other") {
-            //set last user histories
-            $histories = Helper::userHistories($item->register);
-            if($histories)
-            {
-                $last_history = $histories[0];
-                return $last_history['description'];
-            }
-            return $item->description;
-        }
-        if ($item->categories()->exists() || $item->services()->exists() && !$item->factors()->exists()) {
-          $servicesTitle= implode(" - ",  $item->services()->pluck('title')->toArray());
-          $categoriesTitle=implode(" - ",  $item->categories()->pluck('title')->toArray());
-          $servicesItemTitle=implode(" - ",  $item->services_item()->pluck('title')->toArray());
-          return $servicesItemTitle .' - '.$servicesTitle.' - '.$categoriesTitle;
-        }
 
-        $user = User::wherePhone($phone)->first();
-        if ($user) {
-            if ($item->factors->first()) {
-                $temp = [];
-                foreach ($item->factors as $factor) {
-                    foreach ($factor->factorItems as $factor_item) {
-                        if (isset($factor_item->factoritemable)) {
-                            array_push($temp, $factor_item->factoritemable->title . (isset($factor_item->financialPlansType) ? ' - ' .$factor_item->financialPlansType->title : ''). (isset($factor_item->serviceItem) ? ' - ' . $factor_item->serviceItem->title : ''));
-                        } elseif (isset($factor_item->category)) {
-                            array_push($temp, $factor_item->category->title);
-                        }
-                    }
-                }
-                return implode(',', $temp);
-            }
-            if ($item->type != 1 && $user->service) {
-                return $user->service->title;
-            }
-            else{
-                return 'ندارد';
-            }
-        } else {
-            return 'ندارد';
-        }
-    }
     /**
      * @return mixed
      */

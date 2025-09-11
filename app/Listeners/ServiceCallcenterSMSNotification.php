@@ -36,8 +36,8 @@ class ServiceCallcenterSMSNotification
             if (!is_null($event->factor)) {
                 $body = [
                     'param1' => 'services/' . $service . '/' . $event->task->user_id . '/' . $event->task->id . '/' . $event->factor->resnumber,
-                    'param2' => $service,
-                    'param3' => $callcenter
+                    // 'param2' => $service,
+                    // 'param3' => $callcenter
                 ];
                 SendSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
             } else {
@@ -53,8 +53,8 @@ class ServiceCallcenterSMSNotification
                 {
                     $body = [
                         'param1' => $link,
-                        'param2' => $service->slug,
-                        'param3' => $callcenter
+                        // 'param2' => $service->slug,
+                        // 'param3' => $callcenter
                     ];
                     SendSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
                 }

@@ -22,7 +22,7 @@ class TicketUser extends Model
      */
     public function receive()
     {
-        return $this->hasMany(User::class,'id','receive_id');
+        return $this->hasMany(User::class,'id','receiver_id');
     }
 
     /**

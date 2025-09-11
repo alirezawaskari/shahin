@@ -33,22 +33,29 @@ class SendLinkSMSNotification {
 //        $callcenter = $event->callcenter;
 
         if ( isset( $userMobile ) ) {
-
+            $setting = Setting::first();
             if ( $event->type == 'online' ) {
                 $body = [
                     'param1' => $factor,
                 ];
-                IranSms::sendSingleSms('sendlinkfactor',$userMobile,$body);
-
-            } elseif ( $event->type == 'card' ) {
-                $param3 = ' به شماره کارت : '.' 8174 6519 0610 5047 '.' به نام سید مصطفی میر حسینی ' ;
+                SendSms::sendSingleSms('sendlinkfactor', $userMobile, $body);
+            } elseif ( $event->type == 'send_card_number' ) {
                 $body = [
-                    'param1' => 'هزینه',
-                    'param2' => number_format( $event->factor->price ),
-                    'param3' => $param3
+                    'param1' => number_format( $event->factor->price ),
+                    'param2' => $setting->card_number,
+                    'param3' => $setting->shaba_number,
+                    'param4' => $setting->card_holder,
                 ];
-                IranSms::sendSingleSms('sendcardnumber',$userMobile,$body);
-
+                SendSms::sendSingleSms('sendcardnumber', $userMobile, $body);
+            } elseif( $event->type == 'tax_free_card')
+            {
+                $body = [
+                    'param1' => number_format( $event->factor->price ),
+                    'param2' => $setting->tax_free_card_number,
+                    'param3' => $setting->tax_free_shaba_number,
+                    'param4' => $setting->tax_free_card_holder,
+                ];
+                SendSms::sendSingleSms('sendcardnumber', $userMobile, $body);
             }
         }
     }

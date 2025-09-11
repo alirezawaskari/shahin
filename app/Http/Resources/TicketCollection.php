@@ -21,7 +21,7 @@ class TicketCollection extends ResourceCollection
                     'id' => $item->id,
                     'title'=>$item->title,
                     'sender'=>[
-                        'id'=>$item->user->id,
+                        'id'=>  $item->user->id,
                         'name'=>$item->user->name,
                         'family'=>$item->user->family
                     ],

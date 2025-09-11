@@ -269,7 +269,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @include('Admin.factoritem.dentist.list')
                                                 @break
                                             @case('factor_building')
                                                 <div class="col-12 col-md-12 mb-3">
@@ -388,7 +387,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @include('Admin.factoritem.building.list')
                                                 @break
                                             @case('factor')
                                                 <div class="row col-md-12">
@@ -483,7 +481,6 @@
                                                 @endif
                                                 @break
                                             @case('factor_legal')
-                                                @include('Admin.factoritem.legal.list')
                                                 @break
                                         @endswitch
                                     @endif
@@ -506,7 +503,7 @@
                     </div>
                 @endif
                 <form class="form-horizontal" role="form" method="post"
-                      action="{{ route('factorItem.calculate') }}">
+                    action="{{$factorItem['total_price'] == 0 ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
                     @csrf
                     <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
                     <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}">

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\factorItemActivation;
+use App\Events\factorItemClosing;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\FactorItemsExport;
@@ -897,7 +897,7 @@ class TotalFactorItemController extends Controller
         $factor->payment_code = $request->input('payment_code');
         $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = auth()->user()->center_id;
-        $factor->status = $request->input('payment_type') == 'online' ? 0 : 1;
+        $factor->status = $request->input('payment_type') == 'online' || $request->input('payment_type') == 'send_tax_free_card_number' ? 0 : 1;
         $factor->expired_at = now()->addDay(3);
         $factor->created_at = Helper::vertaToMiladi($request->payment_date);
         $factor->save();
@@ -908,7 +908,12 @@ class TotalFactorItemController extends Controller
         //send sms for pay factor
         if ($request->input('payment_type') == 'online') {
             event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
-        } else {
+        }
+        elseif($request->input('payment_type') == 'send_tax_free_card_number')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'tax_free_card'));
+        }
+        else {
             Factor::savePayment($factor);
         }
         return redirect()->back()->with([
@@ -946,16 +951,21 @@ class TotalFactorItemController extends Controller
         $factor->user_id = $request->input('user_id');
         $factor->price = $price;
         $factor->level = $prepayment['num'] - $prepayment['count'] + 1;
-        $factor->type = 'online';
+        $factor->type = $request->input('payment_type');
         $factor->total_factor_item_id = $request->input('id');
         $factor->callcenter_id = auth()->user()->id;
         $factor->representation_id = auth()->user()->admin_representation_id;
         $factor->center_id = $factor_item->center_id;
         $factor->expired_at = now()->addDay(3);
         $factor->save();
-
-        event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
-
+        if($request->input('payment_type') == 'online')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
+        }
+        elseif($request->input('payment_type') == 'send_tax_free_card_number')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'tax_free_card'));
+        }
         return redirect()->back()->with([
             'send' => true
         ]);
@@ -1011,7 +1021,7 @@ class TotalFactorItemController extends Controller
             $factor->callcenter_id = auth()->user()->id;
             $factor->representation_id = auth()->user()->admin_representation_id;
             $factor->center_id = auth()->user()->center_id;
-            $factor->status = $request->payment_type[$i] == 'online' ? 0 : 1;
+            $factor->status = $request->payment_type[$i] == 'online' || $request->payment_type[$i] == 'send_tax_free_card_number' ? 0 : 1;
             $factor->number_card = $request->number_card[$i];
             $factor->payment_code = $request->payment_code[$i];
             $factor->created_at = Helper::vertaToMiladi($request->payment_date[$i]);
@@ -1024,7 +1034,12 @@ class TotalFactorItemController extends Controller
             //send sms if the type of payment is online for payment factor
             if ($request->payment_type[$i] == 'online') {
                 event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
-            } else {
+            }
+            elseif($request->payment_type[$i] == 'send_tax_free_card_number')
+            {
+                event(new sendlinkFactor($user, $factor, auth()->user()->family, 'tax_free_card'));
+            }
+            else {
                 Factor::savePayment($factor);
             }
         }
@@ -1107,7 +1122,10 @@ class TotalFactorItemController extends Controller
         if ($request->payment_type == 'online') {
             event(new sendlinkFactor($user, $factor, auth()->user()->family, 'online'));
         }
-
+        elseif($request->payment_type == 'send_tax_free_card_number')
+        {
+            event(new sendlinkFactor($user, $factor, auth()->user()->family, 'tax_free_card'));
+        }
         return redirect()->back()->with([
             'update' => 'success'
         ]);
@@ -1204,17 +1222,7 @@ class TotalFactorItemController extends Controller
         $total_factor_item->update(['total_factor_item_status_id' => 15]);
         foreach ($total_factor_item->factorItems as $factor_item) {
             $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
-            $factor_item_able = $factor_item->factoritemable->title;
-            $userMobile = $factor_item->factor->user->phone;
-            $user = $factor_item->factor->user->name . ' ' . $factor_item->factor->user->family;
-            if (isset($userMobile)) {
-                $body = [
-                    'param1' => $user,
-                    'param2' => $factor_item_able,
-                ];
-                SendSms::sendSingleSms('factoritemClosing', $userMobile, $body);
-            }
-            //event(new factorItemClosing($factor_item->factor->user , $factor_item));
+            event(new factorItemClosing($factor_item));
 
             $fator_item_collections->update([
                 'status_factor' => 15
