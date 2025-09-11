@@ -253,7 +253,7 @@ public function upload_document( Request $request ) {
     * @return bool
     */
     private function checkIsChangeable( $item ) {
-        $temp = in_array( $item->status_factor, array( 0, 4, 14, 3, 2, 9 ) );
+        $temp = in_array( $item->status_factor, array( 0, 4, 14, 3, 2, 9 , 17 ) );
         //check totalFactorItem confirmation
         if ( $item->totalFactorItem && $item->totalFactorItem->confirm ) {
             $temp = false;

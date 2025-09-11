@@ -196,10 +196,10 @@
                                             @foreach($form->beforeformitems as $beforeformitem)
                                                 {{ $beforeformitem->title }}
                                                 @if(isset($item['factor_values'][$form->name]))
-                                                    <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}" {{
-                                                        in_array($beforeformitem->value , $item['factor_values'][$form->name]) ? 'checked' : '' }}>
+                                                    <input type="{{ $form->type }}" name="items[{{ $key }}][{{$form->name }}][]" value="{{ $beforeformitem->value }}"
+                                                    {{ in_array($beforeformitem->value , $item['factor_values'][$form->name]) ? 'checked disabled' : '' }}>
                                                     @else
-                                                    <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}">
+                                                    <input type="{{ $form->type }}" name="items[{{ $key }}][{{$form->name }}][]" value="{{ $beforeformitem->value }}">
                                                 @endif
                                             @endforeach
                                         </div>
