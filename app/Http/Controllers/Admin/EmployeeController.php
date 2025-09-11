@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\External\SendSms;
 use App\Helpers\Helper;
 use App\Models\Representation;
 use App\Models\Employee;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\EmployeeCollection;
 use App\Http\Resources\WalletTransactionCollection;
+use App\Models\AuthCode;
 use App\Models\Callcenter;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
@@ -147,9 +149,11 @@ class EmployeeController extends AdminController
 
         $role_id = $request->input('role_id') || $user->roles->count() == 0 ? $request->input('role_id') : $user->roles[0]->id;
         $employee->update([
-            'show_status' => $request->show_status
+            'show_status' => $request->show_status,
         ]);
-
+        $employee->update([
+            'status' => $request->status,
+        ]);
         if ($request->urlimgshenasname) {
             Helper::deleteImage($user->imgshenasname);
             $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname, 'document');
@@ -429,5 +433,102 @@ class EmployeeController extends AdminController
 
             ]
         ]);
+    }
+
+    /**
+     * @param \App\Models\Employee $employee
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function showContract(Employee $employee)
+    {
+        if (auth()->user()->employee->id == $employee->id) {
+            $confirmable = false;
+            if(!$employee->confirm && $employee->status == 2)
+            {
+                $confirmable = true;
+            }
+            return view('Admin.employee.contract.index' , compact('employee' , 'confirmable'));
+        }
+
+        return abort(401);
+    }
+    /**
+     * Summary of updateContract
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Employee $employee
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateContract(Request $request , Employee $employee)
+    {
+        if (auth()->user()->isAbleTo('employee_contract_edit')) {
+            $employee->update(['contract' => $request->contract]);
+        if($request->status == 2 && !$employee->confirm)
+        {
+            $employee->update(['status' => 2]);
+            $user_phone_number = $employee->user->phone;
+            $contract_start_date = verta($employee->contract_start_date)->format('Y/m/d');
+            $link = 'https://lalecard.ir/dashboard/employee/contract/' . $employee->id;
+            SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $employee->contract_number, 'param2' => $contract_start_date, 'param3' => $link]);
+        }
+        return redirect()->back()->with([
+            'update' => 'success'
+        ]);
+        }
+        return redirect()->back()->with([
+            'failByMessage' => 'شما مجاز به انجام این کار نیستید'
+        ]); 
+    }
+     /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    public function sendConfirmContractCode(Request $request)
+    {
+        if($request->confirm_contract_check == true)
+        {
+            $user_phone_number = auth()->user()->phone;
+            $verification_code = rand( 123456, 999999 );
+            $auth_code = AuthCode::where('phone' , auth()->user()->phone)->first();
+            if(!is_null($auth_code))
+            {
+                $expirationTime = time() - $auth_code->expiration_time;
+                $remaining_time = ($auth_code->time_code_again * 60) - $expirationTime;
+                if ($remaining_time > 0) {
+                    $date['remaining_time_second'] = $remaining_time;
+                    $message = '  کاربر گرامی لطفا بعد از  ' . $remaining_time . '  ثانیه تلاش کنید.';
+                    return response( [ 'status' => 'error', 'message' => $message ] );
+                }
+                $auth_code->update([
+                    'code' => $verification_code,
+                    'expiration_time' => time(),
+                ]);
+            }
+            else
+            {
+                AuthCode::create([
+                    'phone' => $user_phone_number,
+                    'code' => $verification_code,
+                    'time_code_again' => 2,
+                    'expiration_time' => time(),
+                ]);
+            }
+            SendSms::sendSingleSms('sendConfirmContractCode',$user_phone_number,['param1'=>$verification_code ]);
+            return response( [ 'status' => 'success', 'message' => 'کد با موفقیت ارسال گردید.' ] );
+        }
+        return response( [ 'status' => 'error', 'message' => 'لطفا بر روی قسمت تایید میکنم کلیک کنید. ' ] );
+    }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    public function verificationConfirmContractCode( Request $request )
+    {
+        $has_auth_code = AuthCode::where('phone' , auth()->user()->phone)->where('code' , $request->verification_code)->where('expiration_time' , '>' , time())->exists();
+        if($has_auth_code)
+        {
+            auth()->user()->employee()->update(['confirm' => true,'status' => 1]);
+            return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
+        }
+        return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
     }
 }

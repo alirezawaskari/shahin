@@ -119,6 +119,8 @@
                 <ul>
                     <li><a href="{{ route('employee.resume.edit', [auth()->user()->employee->id]) }}">رزومه کاری</a>
                     </li>
+                    <li><a href="{{ route('employee.contract.show', [auth()->user()->employee->id]) }}">قرارداد همکاری</a>
+                    </li>
                     @permission('user_wallet')
                     <li><a href="{{ route('employee.financial.report', [auth()->user()->employee->id]) }}">عملکرد
                             ماهانه من</a></li>

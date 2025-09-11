@@ -386,5 +386,19 @@ class FactorItemController extends Controller {
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
     }
+    /**
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    public function verificationConfirmContractCodeEmployee( Request $request )
+    {
+        $has_auth_code = AuthCode::where('phone' , auth()->user()->phone)->where('code' , $request->verification_code)->exists();
+        if($has_auth_code)
+        {
+            auth()->user()->employee()->update(['confirm' => true,'status' => 1]);
+            return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
+        }
+        return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
+    }
 }
 

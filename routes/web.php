@@ -417,6 +417,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::get('/employee/resume/{employee}' , 'EmployeeController@editResume')->name('employee.resume.edit');
     Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
+    Route::get('/employee/contract/{employee}' , 'EmployeeController@showContract')->name('employee.contract.show');
+    Route::post('/employee/update/contract/{employee}' , 'EmployeeController@updateContract')->name('employee.update.contract');
+    Route::post('/employee/sendConfirmContractCode', [EmployeeController::class,'sendConfirmContractCode']);
+    Route::post('/employee/verificationConfirmContractCode', 'EmployeeController@verificationConfirmContractCode');
     Route::resource('employee' , 'EmployeeController');
     //percentageAllocationEmployee
     Route::get('/dashboard/percentageAllocationEmployee/tree', [PercentageAllocationEmployeeController::class, 'tree']);
@@ -884,6 +888,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/factorItem', 'ProfileController@factorItem')->name('profile.factorItem');
     Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
     Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
+    Route::post('/factorItem/verificationConfirmContractCodeEmployee', 'FactorItemController@verificationConfirmContractCodeEmployee');
 
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');

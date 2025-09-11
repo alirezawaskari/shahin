@@ -41,6 +41,9 @@
                         <option value="1">
                             فعال
                         </option>
+                        <option value="2">
+                            منتظر تایید قرارداد توسط همکار
+                        </option>
                         <option value="0">
                            غیر فعال
                         </option>

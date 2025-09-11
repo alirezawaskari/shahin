@@ -21,6 +21,20 @@ class Employee extends Model
         'pay_end_session' => 'پرداخت با تکمیل جلسه',
     ];
 
+     /**
+     * @param $status
+     * @return string
+     * get employee status text
+     */
+    public static function status($status)
+    {
+        return [
+            '0' => 'غیرفعال',
+            '1' => 'فعال',
+            '2' => 'منتظر تایید قرارداد توسط همکار',
+            '3' => 'منتظر تایید قرارداد توسط مدیر',
+        ][$status];
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
