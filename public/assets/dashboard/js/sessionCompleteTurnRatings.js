@@ -83,6 +83,7 @@ $(document).ready(function () {
             columns: [
                 { "data": "sort_by" },
                 { "data": "name" },
+                { "data": "phone" },
                 { "data": "discription" },
                 { "data": "date" },
                 { "data": "center" },
