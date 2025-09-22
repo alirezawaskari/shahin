@@ -61,6 +61,10 @@
                                     <th>طول درمان(روز)</th>
                                     <th>تخفیف (ریال)</th>
                                     <th>مبلغ (ریال)</th>
+                                    @permission('view_profit_factorItem')
+                                    <th>مبلغ فروش مرکز (ریال)</th>
+                                    <th>سود شرکت</th>
+                                    @endpermission
                                     <th>تاریخ ثبت</th>
                                     <th>اقدام</th>
                                 </tr>
@@ -100,8 +104,14 @@
                                     </td>
                                     <td>{{ number_format($service_tariff->pivot->price -
                                         $service_tariff->pivot->discount) }}
-                                        ریال
                                     </td>
+                                    @permission('view_profit_factorItem')
+                                    <td>{{ number_format($service_tariff->purchase_price) }}</td>
+                                    <td>
+                                        {{ App\Models\CenterServiceTariff::setCompanyProfit($service_tariff ,
+                                        $service_tariff->pivot->price - $service_tariff->pivot->discount) }}
+                                    </td>
+                                    @endpermission
                                     <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}</td>
                                     <td>
                                         <a data-toggle="modal"
@@ -238,6 +248,34 @@
                                     </td>
                                 </tr>
                                 @endforeach
+                                <tr class="bg-secondary">
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount)
+                                        }}</th>
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                                        }}</th>
+                                    @permission('view_profit_factorItem')
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('purchase_price'))
+                                        }}</th>
+                                    <th>{{
+                                        App\Models\CenterServiceTariff::setAverageCompanyProfit($factor_item->serviceTariffs , $factor_item->serviceTariffs()->sum('factor_item_service_tariff.price') - $factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount )
+                                        }}
+                                        %</th>
+                                    @endpermission
+                                    <th></th>
+                                    <th></th>
+                                </tr>
                             </table>
                             <div class="mb-2">
                                 <div class="badge badge-primary font-size-13 mb-3 p-2">
@@ -260,6 +298,19 @@
                                     ریال
                                 </div>
                             </div>
+                            @permission('view_profit_factorItem')
+                            <div class="mb-2 mr-2">
+                                <div class="badge badge-success font-size-13 mb-3 p-2">
+                                    سود شرکت
+                                    :
+                                    {{
+                                        App\Models\CenterServiceTariff::setAverageCompanyProfit($factor_item->serviceTariffs , $factor_item->serviceTariffs()->sum('factor_item_service_tariff.price') - $factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount )
+                                        }}
+                                    %
+                                </div>
+                            </div>
+                            @endpermission
                         </div>
                         @break
                         @case('factor_building')
@@ -279,6 +330,10 @@
                                     <th>طول دوره اجرا(روز)</th>
                                     <th>تخفیف (ریال)</th>
                                     <th>مبلغ (ریال)</th>
+                                    @permission('view_profit_factorItem')
+                                    <th>مبلغ فروش مرکز (ریال)</th>
+                                    <th>سود شرکت</th>
+                                    @endpermission
                                     <th>تاریخ ثبت</th>
                                     <th>اقدام</th>
                                 </tr>
@@ -312,8 +367,14 @@
                                     </td>
                                     <td>{{ number_format($service_tariff->pivot->price -
                                         $service_tariff->pivot->discount) }}
-                                        ریال
                                     </td>
+                                    @permission('view_profit_factorItem')
+                                    <td>{{ number_format($service_tariff->purchase_price) }}</td>
+                                    <td>
+                                        {{ App\Models\CenterServiceTariff::setCompanyProfit($service_tariff ,
+                                        $service_tariff->pivot->price - $service_tariff->pivot->discount) }}
+                                    </td>
+                                    @endpermission
                                     <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}</td>
                                     <td>
                                         <a data-toggle="modal"
@@ -441,6 +502,33 @@
                                     </td>
                                 </tr>
                                 @endforeach
+                                <tr class="bg-secondary">
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount)
+                                        }}</th>
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                                        }}</th>
+                                    @permission('view_profit_factorItem')
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('purchase_price'))
+                                        }}</th>
+                                    <th>{{
+                                        App\Models\CenterServiceTariff::setAverageCompanyProfit($factor_item->serviceTariffs , $factor_item->serviceTariffs()->sum('factor_item_service_tariff.price') - $factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount )
+                                        }}
+                                        %</th>
+                                    @endpermission
+                                    <th></th>
+                                </tr>
                             </table>
                             <div class="mb-2">
                                 <div class="badge badge-primary font-size-13 mb-3 p-2">
@@ -463,6 +551,19 @@
                                     ریال
                                 </div>
                             </div>
+                            @permission('view_profit_factorItem')
+                            <div class="mb-2 mr-2">
+                                <div class="badge badge-success font-size-13 mb-3 p-2">
+                                    سود شرکت
+                                    :
+                                   {{
+                                        App\Models\CenterServiceTariff::setAverageCompanyProfit($factor_item->serviceTariffs , $factor_item->serviceTariffs()->sum('factor_item_service_tariff.price') - $factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount )
+                                        }}
+                                    %
+                                </div>
+                            </div>
+                            @endpermission
                         </div>
                         @break
                         @case('factor')
@@ -503,29 +604,116 @@
                         </div>
                         <div class="row col-md-12">
                             <table class="table table-bordered table-striped table-responsive-md">
-                                @foreach ($factor_item->serviceTariffs as $service_tariff)
                                 <tr>
-                                    <td>{{ $service_tariff->name }}</td>
-                                    <td>{{ $service_tariff->pivot->value }}
-                                    </td>
-                                    <td> {{ number_format($service_tariff->pivot->price) }}
-                                        ریال
-                                    </td>
+                                    <th>#</th>
+                                    <th>وضعیت اجرا</th>
+                                    <th>عنوان</th>
+                                    <th>تخفیف (ریال)</th>
+                                    <th>مبلغ (ریال)</th>
+                                    @permission('view_profit_factorItem')
+                                    <th>مبلغ فروش مرکز (ریال)</th>
+                                    <th>سود شرکت</th>
+                                    @endpermission
+                                    <th>تاریخ ثبت</th>
+                                    <th>اقدام</th>
+                                </tr>
+                                @php($factor_item->serviceTariffs=$factor_item->serviceTariffs->sortBy('pivot.value'))
+                                @foreach ($factor_item->serviceTariffs as $key => $service_tariff)
+                                <tr>
+                                    <td>{{ $key+1 }}</td>
                                     <td>
-                                        <a href="{{ url('service/factor-delete/' . $service_tariff->pivot->id) }}"><i
-                                                class="fa fa-trash" aria-hidden="true"></i></a>
+                                        <ul class="circle work-step"
+                                            onclick="stepWorkDiagram({{ $service_tariff->pivot->session_number }} , {{ $service_tariff->pivot->id }} , {{ App\Models\Session::where('factor_item_service_tariff_id' , $service_tariff->pivot->id)->where('status' , 1)->count() }})">
+                                            @for($i = 1 ; $i <= $service_tariff->pivot->session_number ; $i++)
+                                                <li id="part_{{ $service_tariff->pivot->id.'_'.$i }}">
+                                                    <div class="text"></div>
+                                                </li>
+                                                @endfor
+                                        </ul>
+                                        <div class="circle smaller-circle">
+                                            <p id="percent_{{ $service_tariff->pivot->id }}">
+                                            <p>
+                                        </div>
+                                    </td>
+                                    <td>{{ $service_tariff->name }}</td>
+                                    <td>{{ number_format($service_tariff->pivot->discount) }}
+                                    </td>
+                                    <td>{{ number_format($service_tariff->pivot->price -
+                                        $service_tariff->pivot->discount) }}
+                                    </td>
+                                    @permission('view_profit_factorItem')
+                                    <td>{{ number_format($service_tariff->purchase_price) }}</td>
+                                    <td>
+                                        {{ App\Models\CenterServiceTariff::setCompanyProfit($service_tariff , $service_tariff->pivot->price - $service_tariff->pivot->discount) }}
+                                    </td>
+                                    @endpermission
+                                    <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}</td>
+                                    <td>
+                                        <a class="factor_item_service_tariff_delete"
+                                            data-id="{{ $service_tariff->pivot->id }}"><i
+                                                class="fa fa-trash font-size-18" aria-hidden="true"></i></a>
                                     </td>
                                 </tr>
                                 @endforeach
+                                <tr class="bg-secondary">
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount)
+                                        }}</th>
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                                        }}</th>
+                                    @permission('view_profit_factorItem')
+                                    <th>{{
+                                        number_format($factor_item->serviceTariffs()->sum('purchase_price'))
+                                        }}</th>
+                                    <th>{{
+                                        App\Models\CenterServiceTariff::setAverageCompanyProfit($factor_item->serviceTariffs , $factor_item->serviceTariffs()->sum('factor_item_service_tariff.price') - $factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount )
+                                        }}
+                                        %</th>
+                                    @endpermission
+                                    <th></th>
+                                    <th></th>
+                                </tr>
                             </table>
-                            <div class="col-12 mb-2">
+                            <div class="mb-2">
                                 <div class="badge badge-primary font-size-13 mb-3 p-2">
                                     جمع فاکتور بدون اعمال تخفیف
                                     :
-                                    {{ number_format($factor_item['total_price']+$factor_item['discount']) }}
+                                    {{
+                                    number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                                    }}
                                     ریال
                                 </div>
                             </div>
+                            <div class="mb-2 mr-2">
+                                <div class="badge badge-danger font-size-13 mb-3 p-2">
+                                    جمع تخفیف
+                                    :
+                                    {{
+                                    number_format($factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                    - $factor_item->discount)
+                                    }}
+                                    ریال
+                                </div>
+                            </div>
+                            @permission('view_profit_factorItem')
+                            <div class="mb-2 mr-2">
+                                <div class="badge badge-success font-size-13 mb-3 p-2">
+                                    سود شرکت
+                                    :
+                                    {{
+                                        App\Models\CenterServiceTariff::setAverageCompanyProfit($factor_item->serviceTariffs , $factor_item->serviceTariffs()->sum('factor_item_service_tariff.price') - $factor_item->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                        - $factor_item->discount )
+                                        }}
+                                    %
+                                </div>
+                            </div>
+                            @endpermission
                         </div>
                         @break
                         @case('other-price')
@@ -602,8 +790,8 @@
                                 <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
                                 <input class="form-control" value="{{ number_format($factoritem['total_price'] +
                                     (isset($factoritem['price_difference']['total']) ?
-                                    $factoritem['price_difference']['total'] : 0)) }}"
-                                    name="totalPrice" oninput="separatePrices(this)">
+                                    $factoritem['price_difference']['total'] : 0)) }}" name="totalPrice"
+                                    oninput="separatePrices(this)">
                             </div>
                             @if($item['confirm'])
                             <div class="col-12 col-md-3 mb-2" data-toggle="tooltip" data-placement="bottom"
