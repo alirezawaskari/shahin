@@ -122,8 +122,8 @@ class EmployeeController extends AdminController
         $inputs = $request->all();
 
         $employee_items = isset($inputs['employee']) ? $inputs['employee'] : [];
-        $employee_items['contract_start_date'] = isset($employee_items['contract_start_date']) ? Helper::vertaToMiladi($employee_items['contract_start_date']) : '';
-        $employee_items['contract_expiration_date'] = isset($employee_items['contract_expiration_date']) ? Helper::vertaToMiladi($employee_items['contract_expiration_date']) : '';
+        isset($employee_items['contract_start_date']) ? ($employee_items['contract_start_date'] = Helper::vertaToMiladi($employee_items['contract_start_date'])) : '';
+        isset($employee_items['contract_expiration_date']) ? ($employee_items['contract_expiration_date'] = Helper::vertaToMiladi($employee_items['contract_expiration_date'])) : '';
         $employee_items['parent_id'] =$request->parent_id == 'null'?null:$request->parent_id;
         if ($request->urlimgaccess) {
             Helper::deleteImage($employee->imgaccess);
@@ -476,7 +476,7 @@ class EmployeeController extends AdminController
         }
         return redirect()->back()->with([
             'failByMessage' => 'شما مجاز به انجام این کار نیستید'
-        ]); 
+        ]);
     }
      /**
      * @param \Illuminate\Http\Request $request
