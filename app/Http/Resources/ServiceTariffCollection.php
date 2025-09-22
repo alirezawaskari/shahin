@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\CenterServiceTariff;
 use App\Models\ServiceTariff;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -36,39 +37,15 @@ class ServiceTariffCollection extends ResourceCollection
                     'price' => number_format($item->purchase_price),
                     'selling_price' => auth()->user()->isAbleTo('service_tariff_selling_price') ? number_format($item->price) : 'ثبت نشده',
                     'tariff' => $item->tariff->title,
-                    'company_profit' => auth()->user()->isAbleTo('service_tariff_selling_price') ? self::setCompanyProfit($item) : 'ثبت نشده',
+                    'company_profit' => auth()->user()->isAbleTo('service_tariff_selling_price') ? CenterServiceTariff::setCompanyProfit($item , $item->price) : 'ثبت نشده',
                     'jalali_created_at' => verta($item->created_at)->format('%Y/%m/%d '),
                 ];
             }),
             'meta' =>  [
-				'average_company_profit' => self::setAverageCompanyProfit($this->service_tariffs->get()),
+				'average_company_profit' => CenterServiceTariff::setAverageCompanyProfit($this->service_tariffs->get() , $this->service_tariffs->get()->sum('price')),
             ]
         ];
     }
 
-    /**
-     * @param mixed $item
-     * @return string
-     */
-    private function setCompanyProfit($item)
-    {
-        $amount_company_profit = $item->price - $item->purchase_price;
-        $percent_company_profit = $item->price ? ($amount_company_profit * 100)/$item->price : 0;
-        return number_format($amount_company_profit).' ریال - '.round($percent_company_profit).'%';
-    }
-    /**
-     * @param mixed $service_tariffs
-     * @return int|float
-     */
-    private function setAverageCompanyProfit($service_tariffs)
-    {
-        $percent_company_profit = 0;
-        foreach($service_tariffs as $item)
-        {
-            $amount_company_profit = $item->price - $item->purchase_price;
-            $percent_company_profit = $item->price ? $percent_company_profit + (($amount_company_profit * 100)/$item->price) : 0;
-        }
-        $average_company_profit = $service_tariffs->count() > 0 ? ($percent_company_profit / $service_tariffs->count()) : 0;
-        return round($average_company_profit);
-    }
+
 }
