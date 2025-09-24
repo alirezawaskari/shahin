@@ -42,7 +42,7 @@ class CenterServiceTariff extends Model
     public static function setCompanyProfit($item , $seller_price)
     {
         $amount_company_profit = $seller_price - $item->purchase_price;
-        $percent_company_profit = $item->purchase_price ? (($seller_price - $item->purchase_price)/$item->purchase_price*100) : '';
+        $percent_company_profit = $item->purchase_price ? ($amount_company_profit/$item->purchase_price*100) : 0;
         return number_format($amount_company_profit).' ریال - '.round($percent_company_profit).'%';
     }
     /**
