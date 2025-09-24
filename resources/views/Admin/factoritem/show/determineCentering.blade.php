@@ -87,7 +87,7 @@
                             <a href="{{ asset($image) }}" class="btn btn-primary" target="_blank">مشاهده</a>
                             @endforeach
                             @else
-                            {{ $factorItem['factor_values'][$form->name] }}
+                            {{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : ''}}
                             @endif
                         </td>
                     </tr>
