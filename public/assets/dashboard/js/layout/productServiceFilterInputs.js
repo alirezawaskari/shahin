@@ -7,7 +7,13 @@ $(document).ready(function () {
         placeholder: "انتخاب نوع تسک "
     });
     $('#product_category').select2({
-        placeholder: "دسته بندی کالا "
+        placeholder: "انتخاب دسته بندی کالا "
+    });
+    $('#service_category').select2({
+        placeholder: "انتخاب دسته بندی خدمت "
+    });
+    $('#sub_service_category').select2({
+        placeholder: "انتخاب خدمت درخواستی "
     });
     $('#province_id').select2();
 
