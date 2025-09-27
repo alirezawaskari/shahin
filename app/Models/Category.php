@@ -391,6 +391,7 @@ class Category extends Model
      */
     public function scopeFilter($query)
     {
+        $query->whereDoesntHave('ghorfeOnlineLists');
         return $query;
     }
 }
