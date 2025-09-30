@@ -393,6 +393,7 @@ class CallcenterController extends Controller
             $services = $request->service ?: [];
             //sum price factor cash or credit
             $categories = $request->product_category ? $request->product_category : [];
+            if (isset($request->send_factor)&&$request->send_factor==1) {
             $result_sum_price_factors = self::getSumPriceFactorItems($request , $services , $categories);
             if ( $payment_type == 'credit' ) {
                 $result = User::checkCredit( $client, $result_sum_price_factors['sum_price_factors'] , $request->input( 'password' ) , 'register');
@@ -409,6 +410,7 @@ class CallcenterController extends Controller
                         'message' => $result[ 'message' ]
                     ] );
                 }
+            }
             }
             //create task.
             $task = self::createTask($request , $client , $payment_type);
