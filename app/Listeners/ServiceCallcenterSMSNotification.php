@@ -67,6 +67,8 @@ class ServiceCallcenterSMSNotification
     {
         if($event->service->id == 104)
             return 'centerCampaign';
+        if($event->service->id == 197)
+            return 'Permanent-employment';
         $link = "";
         $single_web_page = $event->service->singleWebPages->first();
         $link = 'services/' . $event->service->slug . '/' . $event->task->user_id . '/' . $event->task->id;
