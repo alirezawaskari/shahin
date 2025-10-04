@@ -14,7 +14,7 @@
                     @foreach($articles as $article)
                         <article class="col-12 col-sm-6 col-md-4 mb-3 ">
                             <div class="card article shadow">
-                                <a href=""><img src="{{ $article->thumb }}" class="card-img-top" alt=""></a>
+                                <a href=""><img src="{{ $article->old_image }}" class="card-img-top" alt=""></a>
                                 <div class="card-body">
                                     <a href="" class="text-dark"><h5>{{ $article->title }}</h5></a>
                                     <p class="card-text text-black-50">{{ Str::limit($article->demo , 50) }}</p>

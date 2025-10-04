@@ -15,7 +15,7 @@
             <div class="container">
                 <div class="row">
                     <div class="card shadow w-100 bg-white article-box border-0 overflow-hidden">
-                        <img src="{{ $article->thumb }}" class="card-img-top" alt="">
+                        <img src="{{ $article->old_image }}" class="card-img-top" alt="">
                         <div class="card-body">
                             <h4 class="card-title text-orange d-inline-block">{{ $article->title }}</h4>
                             <span class="float-left pt-2 text-black-50">{{ verta($article->created_at)->format('%d %B ، %Y') }}</span>

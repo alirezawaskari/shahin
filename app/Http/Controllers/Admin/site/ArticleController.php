@@ -78,7 +78,7 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $request->validate(['title' => 'required', 'category_article_id' => 'required',
-            'image' => 'required','description'=>'required','summary'=>'required'],
+            'old_image' => 'required','description'=>'required','summary'=>'required'],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
                 'category_article_id.required' => 'لطفا دسته بندی را وارد کنید',
@@ -93,7 +93,7 @@ class ArticleController extends Controller
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
         $article->representations()->sync($representations);
         if(isset($request->image_path)) {
-            $article->image = Helper::moveImage($request->image_path,'article');
+            $article->old_image = Helper::moveImage($request->image_path,'article');
             $article->save();
         }
 
@@ -152,7 +152,7 @@ class ArticleController extends Controller
             if (\File::exists(public_path($article->image))) {
                 \File::delete(public_path($article->image));
             }
-            $article->image = Helper::moveImage($request->image_path,'article');
+            $article->old_image = Helper::moveImage($request->image_path,'article');
             $article->save();
         }
 
