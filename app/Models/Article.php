@@ -21,7 +21,7 @@ class Article extends Model
     /**
      * @var string[]
      */
-    protected $fillable=['user_id','category_article_id','title','slug','image','summary',
+    protected $fillable=['user_id','category_article_id','title','slug','old_image','summary',
         'description','status'];
 
 
