@@ -804,7 +804,7 @@ class CallcenterController extends Controller
                     'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
                 ]);
                 //send a request registeration sms to the user
-                $request->request_type == 'other' ? event(new registerRequestNotification($user)) : '';
+                // $request->request_type == 'other' ? event(new registerRequestNotification($user)) : '';
         }else{
             $callcenter= Callcenter::find($request->other_task_id);
 
