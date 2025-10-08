@@ -1108,7 +1108,7 @@ class TotalFactorItemController extends Controller
         $factor->factor_item_id = isset($factor_item) ? $factor_item : null;
         $factor->callcenter_id = auth()->user()->id;
         $factor->representation_id = auth()->user()->admin_representation_id;
-        $factor->status = $request->payment_type == 'online' ? 0 : 1;
+        $factor->status = $request->payment_type == 'online' || $request->payment_type == 'send_tax_free_card_number' ? 0 : 1;
         $factor->number_card = $request->number_card;
         $factor->payment_code = $request->payment_code;
         $factor->expired_at = now()->addDay(1);
