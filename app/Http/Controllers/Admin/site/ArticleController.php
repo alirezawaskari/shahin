@@ -42,17 +42,7 @@ class ArticleController extends Controller
      */
     public function filter(Request $request)
     {
-        $articles = Article::query();
-        if(auth()->user()->admin_representation_id)
-        {
-            $articles = auth()->user()->admin_representation->articles();
-        }
-        if (isset($request->title) && $request->title != ''){
-            $articles->where('title','like','%'.$request->title.'%');
-        }
-        if (isset($request->startDate) && isset($request->endDate)){
-            $articles->where('created_at','>',$request->startDate)->where("created_at",'<',$request->endDate);
-        }
+        $articles = Article::filter();
         return new ArticleCollection($articles->latest()->paginate(15));
     }
 
@@ -77,10 +67,11 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required', 'category_article_id' => 'required',
+        $request->validate(['title' => 'required','slug_title' => 'required', 'category_article_id' => 'required',
             'old_image' => 'required','description'=>'required','summary'=>'required'],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
+                'slug_title.required' => 'لطفا عنوان  url مرتبط با این مقاله را وارد کنید',
                 'category_article_id.required' => 'لطفا دسته بندی را وارد کنید',
                 'image.required' => 'لطفا عکس را وارد کنید',
                 'description.required' => 'لطفا متن را وارد کنید',
@@ -130,11 +121,12 @@ class ArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate(['title' => 'required', 'category_article_id' => 'required|integer'
+        $request->validate(['title' => 'required', 'slug_title' => 'required', 'category_article_id' => 'required|integer'
             ,'description'=>'required','summary'=>'required'
         ],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
+                'slug_title.required' => 'لطفا عنوان  url مرتبط با این مقاله را وارد کنید',
                 'category_article_id.required' => 'لطفا دسته بندی را وارد کنید',
                 'category_article_id.integer' => 'لطفا دسته بندی را درست وارد کنید',
                 'description.required' => 'لطفا متن را وارد کنید',

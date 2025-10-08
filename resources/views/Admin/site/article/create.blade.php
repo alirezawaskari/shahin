@@ -15,7 +15,12 @@
                         @if($errors->has('title'))<span
                                 class="help-block sub-error  ">{{$errors->first('title')}}</span>@endif
                     </div>
-
+                    <div class="col-12 col-md-4 mb-4">
+                        <label>عنوان مرتبط با url</label>
+                        <input type="text" value="{{ old('slug_title') }}" class="form-control" name="slug_title"  placeholder="لطفا متن url مختص این مقاله را را وارد کنید">
+                        @if($errors->has('slug_title'))<span
+                                class="help-block sub-error  ">{{$errors->first('slug_title')}}</span>@endif
+                    </div>
                     <div class="col-12 col-md-4 mb-4">
                         <label>دسته بندی *</label>
                         <select class="form-control" name="category_article_id">
@@ -55,7 +60,7 @@
                             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                         </label>
                         <input id="image" class="file-upload file_upload_ajax" type="file"
-                               name="image"/>
+                               name="old_image"/>
                         <div id="image_src" class="show"></div>
                         <input type="hidden" id="image" class="path" name="image_path" value="">
                         @if($errors->has('image'))
