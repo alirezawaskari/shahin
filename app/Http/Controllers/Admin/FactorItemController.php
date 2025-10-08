@@ -712,6 +712,7 @@ class FactorItemController extends Controller {
                     'session_number' => $request->session_number[ $i ],
                     'price' => $price,
                     'discount' => $discount,
+                    'description' => $request->description[ $i ],
                 ] );
             } else {
                 $factor_item_service_tariff->update( [
@@ -1254,8 +1255,9 @@ class FactorItemController extends Controller {
             $treatment_duration = isset($request->treatment_duration[ $i+1 ]) ? $request->treatment_duration[ $i+1 ] : null;
 		    $doctor_id = isset($request->doctor_id[ $i+1 ]) ? $request->doctor_id[ $i+1 ] : null;
 			$session_number = isset($request->session_number[ $i+1 ]) ? $request->session_number[ $i+1 ] : null;
+			$description = isset($request->description[ $i+1 ]) ? $request->description[ $i+1 ] : null;
 
-            $factor_item->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $doctor_id, 'session_number' => $session_number, 'treatment_duration' => $treatment_duration] ] );
+            $factor_item->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $doctor_id,  'description' => $description, 'session_number' => $session_number, 'treatment_duration' => $treatment_duration] ] );
         }
     }
     /**

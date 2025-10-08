@@ -4,14 +4,19 @@
         <th>#</th>
         <th>وضعیت اجرا</th>
         <th>نوع خدمت</th>
+        <th>توضیحات</th>
         <th>شماره دندان</th>
         <th>نام پزشک</th>
         <th>تعداد جلسات درمان</th>
         <th>طول درمان(روز)</th>
         <th>تخفیف (ریال)</th>
         <th>مبلغ (ریال)</th>
+        @permission('view_profit_factorItem')
+        <th>مبلغ فروش مرکز (ریال)</th>
+        <th>سود شرکت</th>
+        @endpermission
         <th>تاریخ ثبت</th>
-        <th>حذف</th>
+        <th>اقدام</th>
     </tr>
     @php($factorItem['service_tariffs']=$factorItem['service_tariffs']->sortBy('pivot.value'))
     @foreach ($factorItem['service_tariffs'] as $service_tariff)
@@ -42,6 +47,10 @@
             </select>
             <p class="text-danger">{{ isset($message[$service_tariff->pivot->id]) ? $message[$service_tariff->pivot->id]
                 : ''}}</p>
+        </td>
+        <td>
+            <input type="text" value="{{ $service_tariff->pivot->description }}" name="description[]"
+                class="form-control" maxlength="100">
         </td>
         <td>
             <p class="text-nowrap">{{ $service_tariff->pivot->value }}</p>
@@ -80,16 +89,78 @@
             verta($service_tariff->pivot->created_at)->format('Y/m/d
             H:i:s') }}</td>
         <td>
-            <a class="factor_item_service_tariff_delete" data-id="{{ $service_tariff->pivot->id }}">
-                <i class="fa fa-trash font-size-18" aria-hidden="true"></i>
-            </a>
+            <a class="factor_item_service_tariff_delete" data-id="{{ $service_tariff->pivot->id }}"><i
+                    class="fa fa-trash font-size-18" aria-hidden="true"></i></a>
         </td>
     </tr>
     @endforeach
+    <tr class="bg-secondary">
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>{{
+            number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+            - $factorItem->discount)
+            }}</th>
+        <th>{{
+            number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
+            }}</th>
+        @permission('view_profit_factorItem')
+        <th>{{
+            number_format($factorItem->serviceTariffs()->sum('purchase_price'))
+            }}</th>
+        <th>{{
+            App\Models\CenterServiceTariff::setAverageCompanyProfit($factorItem->serviceTariffs ,
+            $factorItem->serviceTariffs()->sum('factor_item_service_tariff.price') -
+            $factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+            - $factorItem->discount )
+            }}
+            %</th>
+        @endpermission
+        <th></th>
+        <th></th>
+    </tr>
 </table>
 <button class="btn btn-success px-3">ویرایش<i class="fa fa-edit" aria-hidden="true"></i>
 </button>
-<div class="badge badge-primary font-size-13 mb-3 p-2">جمع فاکتور بدون اعمال تخفیف
-    : {{ number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price')) }}
-    ریال
+<div class="mb-2">
+    <div class="badge badge-primary font-size-13 mb-3 p-2">
+        جمع فاکتور بدون اعمال تخفیف
+        :
+        {{
+        number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
+        }}
+        ریال
+    </div>
 </div>
+<div class="mb-2 mr-2">
+    <div class="badge badge-danger font-size-13 mb-3 p-2">
+        جمع تخفیف
+        :
+        {{
+        number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+        - $factorItem->discount)
+        }}
+        ریال
+    </div>
+</div>
+@permission('view_profit_factorItem')
+<div class="mb-2 mr-2">
+    <div class="badge badge-success font-size-13 mb-3 p-2">
+        سود شرکت
+        :
+        {{
+        App\Models\CenterServiceTariff::setAverageCompanyProfit($factorItem->serviceTariffs ,
+        $factorItem->serviceTariffs()->sum('factor_item_service_tariff.price') -
+        $factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+        - $factorItem->discount )
+        }}
+        %
+    </div>
+</div>
+@endpermission

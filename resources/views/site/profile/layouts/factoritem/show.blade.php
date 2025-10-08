@@ -153,22 +153,88 @@
                                     {!! $form->help !!}
                                 </div>
                                 <div class="row col-md-12">
-                                    <table class="table table-bordered table-striped table-responsive-md"
-                                        style="font-family: font;">
-                                        @foreach($item['service_tariffs'] as $service_tariff)
+                                    <table class="table table-bordered table-striped table-responsive-md">
                                         <tr>
+                                            <th>#</th>
+                                            <th>وضعیت اجرا</th>
+                                            <th>عنوان</th>
+                                            <th>تخفیف (ریال)</th>
+                                            <th>مبلغ (ریال)</th>
+                                            @permission('view_profit_factorItem')
+                                            <th>مبلغ فروش مرکز (ریال)</th>
+                                            <th>سود شرکت</th>
+                                            @endpermission
+                                            <th>تاریخ ثبت</th>
+                                            <th>اقدام</th>
+                                        </tr>
+                                        @php($factoritem->serviceTariffs=$factoritem->serviceTariffs->sortBy('pivot.value'))
+                                        @foreach ($factoritem->serviceTariffs as $key => $service_tariff)
+                                        <tr>
+                                            <td>{{ $key+1 }}</td>
+                                            <td>
+                                                <ul class="circle work-step"
+                                                    onclick="stepWorkDiagram({{ $service_tariff->pivot->session_number }} , {{ $service_tariff->pivot->id }} , {{ App\Models\Session::where('factor_item_service_tariff_id' , $service_tariff->pivot->id)->where('status' , 1)->count() }})">
+                                                    @for($i = 1 ; $i <= $service_tariff->pivot->session_number ; $i++)
+                                                        <li id="part_{{ $service_tariff->pivot->id.'_'.$i }}">
+                                                            <div class="text"></div>
+                                                        </li>
+                                                        @endfor
+                                                </ul>
+                                                <div class="circle smaller-circle">
+                                                    <p id="percent_{{ $service_tariff->pivot->id }}">
+                                                    <p>
+                                                </div>
+                                            </td>
                                             <td>{{ $service_tariff->name }}</td>
-                                            <td>{{ $service_tariff->pivot->value }}</td>
-                                            <td> {{ number_format($service_tariff->pivot->price) }}
-                                                ریال
+                                            <td>{{ number_format($service_tariff->pivot->discount) }}
+                                            </td>
+                                            <td>{{ number_format($service_tariff->pivot->price -
+                                                $service_tariff->pivot->discount) }}
+                                            </td>
+                                            @permission('view_profit_factorItem')
+                                            <td>{{ number_format($service_tariff->purchase_price) }}</td>
+                                            <td>
+                                                {{ App\Models\CenterServiceTariff::setCompanyProfit($service_tariff ,
+                                                $service_tariff->pivot->price - $service_tariff->pivot->discount) }}
+                                            </td>
+                                            @endpermission
+                                            <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}
                                             </td>
                                             <td>
-                                                <a
-                                                    href="{{ url('service/factor-delete/'.$service_tariff->pivot->id) }}"><i
-                                                        class="fa fa-trash" aria-hidden="true"></i></a>
+                                                <a class="factor_item_service_tariff_delete"
+                                                    data-id="{{ $service_tariff->pivot->id }}"><i
+                                                        class="fa fa-trash font-size-18" aria-hidden="true"></i></a>
                                             </td>
                                         </tr>
                                         @endforeach
+                                        <tr class="bg-secondary">
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th>{{
+                                                number_format($factoritem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                                - $factoritem->discount)
+                                                }}</th>
+                                            <th>{{
+                                                number_format($factoritem->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                                                }}</th>
+                                            @permission('view_profit_factorItem')
+                                            <th>{{
+                                                number_format($factoritem->serviceTariffs()->sum('purchase_price'))
+                                                }}</th>
+                                            <th>{{
+                                                App\Models\CenterServiceTariff::setAverageCompanyProfit($factoritem->serviceTariffs
+                                                ,
+                                                $factoritem->serviceTariffs()->sum('factor_item_service_tariff.price')
+                                                -
+                                                $factoritem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+                                                - $factoritem->discount )
+                                                }}
+                                                %</th>
+                                            @endpermission
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
                                     </table>
                                 </div>
                                 @case('factor-image')
@@ -404,8 +470,7 @@
                                         action="{{ route('site.factorItem.requestContractSettlement') }}">
                                         @csrf
                                         <div class="row modal-body">
-                                            <input type="hidden" name="item[id]"
-                                                value="{{ $totalFactorItem->id }}">
+                                            <input type="hidden" name="item[id]" value="{{ $totalFactorItem->id }}">
                                             <div class="col-12 col-md-8 card-body">
                                                 <textarea required class="form-control"
                                                     name="description_request_contract_settlement" id="" cols="30"

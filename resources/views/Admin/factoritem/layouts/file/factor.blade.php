@@ -3,54 +3,40 @@
         @php($message = Session::get('message'))
         <form action="{{ route('factorItem.updateServiceTariff')}}" method="POST" enctype="multipart/form-data">
             @csrf
+            @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
-                @if (in_array('panel_factor' , $form->data_display_level))
-                    @switch($form->type)
-                        @case('factor_dentist')
-                            @include('Admin.factoritem.dentist.list')
-                            @break
-                        @case('factor_building')
-                            @include('Admin.factoritem.building.list')
-                            @break
-                        @case('factor_legal')
-                            @include('Admin.factoritem.legal.list')
-                            @break
-                    @endswitch
-                @endif
+            @if (in_array('panel_factor' , $form->data_display_level))
+            @include('Admin.factoritem.layouts.formItem')
+            @endif
             @endforeach
+            @endif
         </form>
     </div>
     <div class="col-md-12 border border-secondary box mb-5">
         <form action="{{ route('factorItem.createFactor')}}" method="POST" enctype="multipart/form-data">
             @csrf
             @foreach($factorItem['forms'] as $form)
-                @if (in_array('panel_factor' , $form->data_display_level))
-                    @switch($form->type)
-                        @case('factor_dentist')
-                            @include('Admin.factoritem.dentist.create')
-                            @break
-                        @case('factor_building')
-                            @include('Admin.factoritem.building.create')
-                            @break
-                        @case('factor_legal')
-                            @include('Admin.factoritem.legal.create')
-                            @break
-                    @endswitch
-                @endif
+            @if (in_array('panel_factor' , $form->data_display_level))
+            @switch($form->type)
+            @case('factor_service')
+            @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.create')
+            @break
+            @case('factor_dentist')
+            @include('Admin.factoritem.serviceFormItem.dentist.create')
+            @break
+            @case('factor_building')
+            @include('Admin.factoritem.serviceFormItem.building.create')
+            @break
+            @case('factor_legal')
+            @include('Admin.factoritem.serviceFormItem.legal.create')
+            @break
+            @endswitch
+            @endif
             @endforeach
             <input type="hidden" name="item[id]" value="{{ $factorItem['id'] }}" id="factorItem">
             <input type="hidden" name="item[user_id]" value="{{ $user['id'] }}">
             <input type="hidden" name="item[center]" value="{{ auth()->user()->center_id }}">
             <div class="row">
-
-                @if(!is_null($factorItem['forms']))
-                    @foreach($factorItem['forms'] as $form)
-                        @if (in_array('panel_factor' , $form->data_display_level))
-                            @include('Admin.factoritem.layouts.formItem')
-                        @endif
-                    @endforeach
-                @endif
-                <br/>
                 <input type="hidden" value="{{ $factorItem['id'] }}" name="id">
                 <div class="col-12 col-md-12 mb-12">
                     <div class="form-group">

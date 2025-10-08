@@ -2,6 +2,21 @@
     افزودن
 </div>
 <div class="row d-none" id="treatment_plan_legal">
+    <div class="col-12 col-md-3 mb-3">
+    </div>
+    <div class="col-12 col-md-3 mb-3">
+    </div>
+    <div class="col-12 col-md-3 mb-3">
+    </div>
+    <div class="col-12 col-md-3 mb-3">
+        <label>بازه زمانی تعرفه</label>
+        <select class="form-control" name="tariff[]" id="tariff1"
+                onchange="selectByTariff(this.id , this.value)">
+            @foreach ($tariffs as $tariff)
+                <option value="{{ $tariff->id }}">{{ $tariff->title }}</option>
+            @endforeach
+        </select>
+    </div>
     <div class="col-12 col-md-5 mb-3">
         <label>تعرفه</label>
         <select class="form-control" name="service_tariff_id[]" id="service_tariff1" ondragend="prices()"
@@ -18,17 +33,17 @@
     </div>
     <div class="col-12 col-md-3 mb-3 ">
         <label>توضیحات</label>
-        <input type="text" name="descriptions[]" class="form-control" placeholder="توضیحات">
+        <input type="text" name="description[]" class="form-control" placeholder="توضیحات" maxlength="100">
     </div>
-    <div class="col-12 col-md-2 mb-3">
-        <label>تعداد جلسات</label>
+    <div class="col-12 col-md-3 mb-3">
+        <label>تعداد مراجعات جهت انجام کار</label>
         <input type="number" name="session_number[]" id="session_number1" class="form-control"
-               placeholder="تعداد جلسات درمان" value="1" min="1">
+               placeholder="تعداد مراجعات" value="1" min="1">
     </div>
-    <div class="col-12 col-md-2 mb-3">
-        <label>طول درمان (روز)</label>
+    <div class="col-12 col-md-3 mb-3">
+        <label> طول دوره اجرا(روز)</label>
         <input type="number" name="treatment_duration[]" id="treatment_duration1" class="form-control"
-               placeholder="طول درمان(روز)" value="1" min="1">
+               placeholder="طول دوره اجرا (روز)" value="1" min="1">
     </div>
 </div>
 <div id="new_treatment_plan">
@@ -36,6 +51,6 @@
     </div>
 </div>
 <div class="col-12 mb-2">
-    <div onclick="treatmentPlanLegal()" class="btn btn-success mb-2">+</div>
+    <div onclick="treatmentPlan()" class="btn btn-success mb-2">+</div>
 </div>
 <hr>
