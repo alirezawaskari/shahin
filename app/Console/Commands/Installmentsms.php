@@ -241,28 +241,38 @@ class Installmentsms extends Command {
             }
         }
         //change of status mali situation after 20 days
-        $warning_installments = TotalFactorItemInstallment::whereDate( 'date', '<=', Carbon::now()->subDays( 20 ) )->where( 'status', '0' )->take( 100 )->get();
-        if ( count( $warning_installments ) > 0 ) {
-            foreach ( $warning_installments as $installment ) {
-                if ( $installment->totalFactorItem->status_mali != '3' && $installment->totalFactorItem->status_mali != '4' && $installment->totalFactorItem->status_mali != '0' ) {
-                    $installment->totalFactorItem->update( [
-                        'status_mali' => 3,
-                        'remember' => 0,
-                    ] );
-                }
-            }
+        $thresholdDate = \Carbon\Carbon::now()->subDays(20);
+        $warning_installments = TotalFactorItemInstallment::whereDate('date', '<=', $thresholdDate)
+            ->where('status', '0') 
+            ->with(['totalFactorItem' => function ($query) {
+            $query->whereNotIn('status_mali', ['3', '4', '0']);
+        }])
+        ->take(100)
+        ->get();
+        foreach ($warning_installments as $installment) {
+        if ($installment->totalFactorItem) {
+            $installment->totalFactorItem->update([
+                'status_mali' => 3,
+                'remember' => 0,
+        ]);
+        }
         }
         //change of status mali situation after 30 days
-        $error_installments = TotalFactorItemInstallment::whereDate( 'date', '<=', Carbon::now()->subDays( 30 ) )->where( 'status', '0' )->take( 500 )->get();
-        if ( count( $error_installments ) > 0 ) {
-            foreach ( $error_installments as $installment ) {
-                if ( $installment->totalFactorItem->status_mali != '4' && $installment->totalFactorItem->status_mali != '0' ) {
-                    $installment->totalFactorItem->update( [
-                        'status_mali' => 4,
-                        'remember' => 0,
-                    ] );
-                }
-            }
+        $thresholdDate = \Carbon\Carbon::now()->subDays(30);
+        $error_installments = TotalFactorItemInstallment::whereDate('date', '<=', $thresholdDate)
+            ->where('status', '0') 
+            ->with(['totalFactorItem' => function ($query) {
+            $query->whereNotIn('status_mali', ['4', '0']);
+        }])
+        ->take(100)
+        ->get();
+        foreach ($error_installments as $installment) {
+        if ($installment->totalFactorItem) {
+            $installment->totalFactorItem->update([
+                'status_mali' => 3,
+                'remember' => 0,
+        ]);
+        }
         }
         //sending installment payment sms with penalty if not already sent with consulting_contract_affairs_reference( 3 ) status_mali
         $second_warning_total_factor_items = TotalFactorItem::where( 'status_mali', '3' )->where( 'remember', '!=', 1 )->take( 100 )->get();
