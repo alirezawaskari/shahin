@@ -42,7 +42,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-6 mb-4">
+                    {{-- <div class="col-12 col-md-6 mb-4">
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
                         <div class="checkbox">
                             <label>
@@ -52,8 +52,20 @@
                             @if($errors->has('status'))<span
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
                         </div>
-                    </div>
+                    </div> --}}
                     @endif
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>وضعیت</label>
+
+                        <select class="form-control" name="status">
+                            <option value="0">
+                                پیش نویس
+                            </option>
+                            <option value="1">
+                                منتشر شده
+                            </option>
+                        </select>
+                    </div>
                     <div class="col-12 col-md-6 mb-4">
                         <label>عکس *</label>
                         <label for="image" class="custom-file-upload">

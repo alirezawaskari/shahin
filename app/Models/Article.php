@@ -100,7 +100,7 @@ class Article extends Model {
         $endDate = request('endDate');
 
         $query->whereDoesntHave( 'articleable' );
-        if ( auth()->user()->admin_representation_id ) {
+        if (auth()->user() && auth()->user()->admin_representation_id ) {
             $articles = auth()->user()->admin_representation->articles();
         }
         if ( isset( $title ) && $$title != '' ) {

@@ -48,19 +48,19 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-2 mb-4">
-                    <label class="col-md-2 col-sm-2 col-xs-12 control-label"> </label>
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="status" value="1" @if($article->status == 1) checked
-                            @endif>نمایش در سایت نمایندگی کل
-                        </label>
-                        @if($errors->has('status'))<span
-                            class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
-                    </div>
-                </div>
                 @endif
+                <div class="col-12 col-md-4 mb-3">
+                    <label>وضعیت</label>
 
+                    <select class="form-control" name="status">
+                        <option value="0" {{ $article->status == 0 ? 'selected' : '' }}>
+                            پیش نویس
+                        </option>
+                        <option value="1" {{ $article->status == 1 ? 'selected' : '' }}>
+                            منتشر شده
+                        </option>
+                    </select>
+                </div>
                 <div class="col-12 col-md-2 mb-3">
                     <label> عکس ذخیره شده :</label>
                     <img src="{{$article->old_image}}" class="border-radius5" width="80px">
