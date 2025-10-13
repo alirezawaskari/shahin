@@ -107,6 +107,8 @@ class TotalFactorItemController extends Controller
     private function setItem(TotalFactorItem $totalFactorItem)
     {
         $item['id'] = $totalFactorItem->id;
+        $item['is_pay_installment_by_check'] = TotalFactorItem::payInstallmentByCheck($totalFactorItem);
+        $item['count_installment_checks'] = TotalFactorItem::getCountInstallmentChecks($totalFactorItem);
         $item['contract_forms'] = ContractForm::orderBy('position', 'Asc')->get();
         $item['contract_values'] = $totalFactorItem->contract_values;
         $item['guarantee_type'] = $totalFactorItem->guarantee_type;
@@ -134,7 +136,7 @@ class TotalFactorItemController extends Controller
         $item['extra_pay_debt'] = number_format(TotalFactorItem::getDebtExtraPay($totalFactorItem));
         $item['loan'] = $totalFactorItem->totalFactorItemInstallments->sum('price');
         $item['total_price'] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum('discount');
-        $item['wage'] = ($item['total_price'] - $item['prepayment']['price']) * 0.04 / 12 * $item['installments_num'];
+        $item['wage'] = TotalFactorItem::getWage($totalFactorItem);
         $item['guarantee_price'] = self::getGuaranteePrice($item);
         $item['installments_debt'] = TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_num_pay'] * $item['installments_price'];
         $item['credit_amount'] = isset($totalFactorItem->property->price_difference_installment) ? $totalFactorItem->property->price_difference_installment : 0;

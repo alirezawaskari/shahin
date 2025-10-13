@@ -16,7 +16,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 
 class FactorItemController extends Controller {
     /**
@@ -105,6 +104,8 @@ class FactorItemController extends Controller {
         $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
         //if factorItem type is installment
         if ( $totalFactorItem ) {
+            $item['is_pay_installment_by_check'] = TotalFactorItem::payInstallmentByCheck($totalFactorItem);
+            $item['count_installment_checks'] = TotalFactorItem::getCountInstallmentChecks($totalFactorItem);
             $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
             $item[ 'contract_values' ] = $totalFactorItem->contract_values;
             $item[ 'status_mali' ] = $factorItem->status_mali;
@@ -115,7 +116,7 @@ class FactorItemController extends Controller {
             $item[ 'prepayment' ][ 'price' ] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
             $item[ 'installments_num' ] = $totalFactorItem->installments_num;
             $item['installments_price'] = $totalFactorItem->totalFactorItemInstallments->first() ? $totalFactorItem->totalFactorItemInstallments->first()->price : 0;
-            $item[ 'wage' ] = ( $item[ 'total_price' ] - $item[ 'prepayment' ][ 'price' ] ) * 0.04 / 12 * $item[ 'installments_num' ];
+            $item['wage'] = TotalFactorItem::getWage($totalFactorItem);
             $item[ 'loan' ] = $totalFactorItem->totalFactorItemInstallments->sum( 'price' );
             $item[ 'credit' ] = $totalFactorItem->credit;
             $item[ 'extra_pay' ] = TotalFactorItem::getExtraPay( $totalFactorItem );
@@ -135,8 +136,9 @@ class FactorItemController extends Controller {
                 $doctors[] = $u;
             }
         }
+        $checks = $totalFactorItem ? $totalFactorItem->checks : null;
         $sessions = $factorItem->sessions;
-        return view( 'site.profile.layouts.factoritem.show', compact( 'agents_contract_file', 'resnumber', 'contract_number', 'totalFactorItem', 'expire_installments', 'paid_installments', 'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item' ) );
+        return view( 'site.profile.layouts.factoritem.show', compact( 'checks' , 'agents_contract_file', 'resnumber', 'contract_number', 'totalFactorItem', 'expire_installments', 'paid_installments', 'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item' ) );
     }
 
     /**

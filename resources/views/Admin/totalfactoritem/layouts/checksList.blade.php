@@ -2,7 +2,7 @@
     <div class="row">
         <div class="card col-md-12 m-5">
             <div class="card-header">
-                <h3>چک های پرونده</h3>
+                <h3>فهرست چک ها</h3>
             </div>
             <div class="card-body">
                 <table class="table table-bordered bg-check-light">
