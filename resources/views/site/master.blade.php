@@ -26,7 +26,33 @@
 
         gtag('config', 'G-5SCCYKP8ZJ');
     </script>
+    <script>
+        // توابع کمکی کوکی
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days*24*60*60*1000));
+    document.cookie = name + "=" + value + ";expires=" + d.toUTCString() + ";path=/";
+  }
 
+  function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length);
+    }
+    return null;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!getCookie('modal_seen_first_visit')) {
+      // نمایش مودال با Bootstrap 4
+      $('#whatsappModal').modal('show');
+      // ست کردن کوکی برای یک سال
+      setCookie('modal_seen_first_visit', '1', 365);
+    }
+  });
+  </script>
     <link rel="shortcut icon" href="{{ asset('assets/dashboard/images/laleh_icon.png') }}">
     <title>@yield('title','شبکه خدمات رفاهی ، درمانی و اقساطی لاله')</title>
     <link rel="stylesheet" href="{{asset('assets/site/css/app.css?v=1.6')}}?ver=6">
@@ -35,6 +61,7 @@
     {!! $setting->extra_logo !!}
 
     @yield('header')
+
     <link rel="manifest" href="/manifest.json">
 
 </head>
@@ -46,7 +73,8 @@
 
     @include('site.layouts.footer')
 
-    <script src="{{asset('assets/site/js/app.js?v:1.4')}}"></script>
+    <script src="{{asset('assets/site/js/app.js?v:1.4')}}">
+    </script>
     <script src="{{asset('assets/dashboard/js/persian-date.min.js')}}"></script>
     <script src="{{asset('assets/dashboard/js/persian-datepicker.min.js')}}"></script>
     <link rel="stylesheet" type="text/css"
@@ -77,82 +105,6 @@
     </div>
 
     <div class="modal fade" id="whatsappModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-start">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                    <h6 class="modal-title" id="phoneModalLable">پشتیبانی</h6>
-                </div>
-                <div class="modal-body">
-                    <h6>کاربران گرامی:</h6>
-                    <p>
-                        درنظر داشته باشید تمامی پرداخت ها برای دریافت خدمات تنها از طریق لینک معتبر سایت و به حساب شرکت
-                        جانبازان آینده ساز می باشد.از پرداخت وجه به حساب دیگر خودداری فرمایید. درصورت مشاهده چنین
-                        درخواست هایی از قسمت ثبت شکایت درخواست کننده را معرفی نمایید.
-                    </p>
-                    <div class="row my-4  p-2" style="font-size:10px;">
-                        @if(isset($callcenter->id))
-                        <div class="col-12 mb-3">
-                            <p class="text mt-2">: درصورت داشتن شکایت</p>
-                            <a href="/contact" class="btn btn-danger w-100 d-flex align-items-center">
-                                <i class="fa fa-user ml-2 font-18" aria-hidden="true"></i>
-                                ثبت شکایت
-                            </a>
-                        </div>
-                        <div class="col-12">
-                            <p class="text mt-2">درصورت وجود ابهام یا سوال صرفا جهت ثبت نام :</p>
-                            <a href="https://wa.me/98{{$callcenter->phone}}"
-                                class="btn btn-success w-100 d-flex align-items-center">
-                                <i class="fab fa-whatsapp ml-2 font-18"></i>
-                                شروع چت و پشتیبانی
-                            </a>
-                        </div>
-                        @else
-                        <div class="col-12 card">
-                            <p class="text mt-2"> درصورت داشتن شکایت :</p>
-                            <a href="/contact">
-                                <img class="rounded-circle mb-2" src="/img/user.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder">ثبت شکایت</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">درصورت وجود ابهام یا سوال صرفا جهت ثبت نام :</p>
-                            <a href="https://wa.me/989391143699">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder">پشتیبانی</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">درصورت نیاز به هماهنگی یا داشتن کار اداری جهت هرگونه تنظیم ملاقات با
-                                مدیران یا دیگر موارد ذکر شده :</p>
-                            <a href="https://wa.me/989058688299">
-                                <p class="text-dark mr-1 font-weight-bolder">امور اداری</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">در صورت سوال راجع به امور مالی و اقساط :</p>
-                            <a href="https://wa.me/989058688299">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder"> امور مالی</p>
-                            </a>
-                        </div>
-                        <div class="col-12 card">
-                            <p class="text mt-2">در صورت نیاز به ارسال مدارک واریز وجه و پیگیری امور مربوط به جرائم :
-                            </p>
-                            <a href="https://wa.me/989058688299">
-                                <img class="rounded-circle mb-2" src="/img/whatsapp.png" width="50px">
-                                <p class="text-dark mr-1 font-weight-bolder"> امور حقوقی</p>
-                            </a>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
-        class="modal fade phone-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-start">
@@ -191,6 +143,6 @@
         </div>
     </div>
     @yield('js')
-</body>
+    </body>
 
 </html>
