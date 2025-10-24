@@ -447,27 +447,20 @@ class FactorItemController extends Controller {
     public function verificationConfirmContractCodeFactor( Request $request ) {
         $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
-            if ( $request->total_factor_item ) {
-                $totalFactorItem = TotalFactorItem::find( $request->total_factor_item );
+            $factorItem = FactorItem::find( $request->factor_item );
+            if ( $factorItem->total_factor_item ) {
+                $totalFactorItem = $factorItem->total_factor_item;
                 $factor_items = $totalFactorItem->factorItems;
                 $totalFactorItem->update( [
                     'total_factor_item_status_id' => 14
                 ] );
-                foreach ( $factor_items as $factor_item ) {
-                    $fator_item_collections = FactorItem::getFatorItemCollection( $factor_item );
-
-                    $fator_item_collections->update( [
-                        'status_factor' => 2,
-                        'complete' => true,
-                    ] );
-                }
-            } else {
-                $factorItem = FactorItem::find( $request->factor_item );
-                $factorItem->update( [
-                    'status_factor' => 2,
-                    'complete' => true,
-                ] );
             }
+            $factorItem->update( [
+                'status_factor' => 2,
+                'complete' => true,
+            ] );
+
+            Session::checkAndEndEntrySession($factorItem);
 
             return response( [ 'status' => 'success', 'message' => 'فاکتور با موفقیت امضا شد.' ] );
         }

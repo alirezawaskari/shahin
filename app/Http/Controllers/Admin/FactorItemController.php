@@ -1438,7 +1438,7 @@ class FactorItemController extends Controller {
     }
     /**
     *@param Request $request
-    *@return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+    *@return \Illuminate\Http\RedirectResponse
      */
     public function setRegisterationInitialConsutation(Request $request)
     {
