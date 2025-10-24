@@ -416,7 +416,7 @@ class TotalFactorItemController extends Controller
             }
         }
 
-        if (auth()->user()->hasRole('mali')) {
+        if (auth()->user()->isAbleTo('mali_confirmation') && $totalFactorItem->total_factor_item_status_id == 5) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'mali', auth()->user()->id);
             $totalFactorItem->update([
@@ -469,7 +469,7 @@ class TotalFactorItemController extends Controller
 
         }
 
-        if (auth()->user()->hasRole('superadmin')) {
+        if (auth()->user()->isAbleTo('superadmin_confirmation') && $totalFactorItem->total_factor_item_status_id == 8) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'superadmin', auth()->user()->id);
             $totalFactorItem->update([

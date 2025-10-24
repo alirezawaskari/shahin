@@ -148,6 +148,16 @@
                 @endif
             </div>
             @break
+            @case('rules')
+            <div class="col-12">
+                <h4>مفاد قرارداد : </h4>
+                {!! $form->help !!}
+                <p>توجه : متقاضی محترم جهت بازدید و بررسی پرونده خدمات دریافتی فوق و هرگونه ارتباط با کادر {{
+                    $factorItem['center'] ? $factorItem['center']->title : '' }} می توانید از طریق پیامک ارسال شده با
+                    نام کاربری و
+                    رمز عبور ارسال شده اقدام نمائید. </p>
+            </div>
+            @break
             @endswitch
             @endif
             @endforeach

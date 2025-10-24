@@ -25,49 +25,40 @@ $('#province_id').on('change', function () {
         success: function (data) {
             $('#city_id')
                 .empty()
-                .append('<option value="all">انتخاب شهر</option>')
-            ;
+                .append('<option value="all">انتخاب شهر</option>');
             $.each(data.cities, function (i, d) {
                 $('#city_id').append('<option value="' + d.id + '">' + d.name + '</option>');
             });
         }
-      });
+    });
 });
 
-function paymentType(title)
-{
-    payment_type = document.getElementById('payment_type'+title).value;
-    if(payment_type == "card_reader" || payment_type == "card")
-    {
-        document.getElementById('number_card'+title).style.display = 'block';
-        document.getElementById('payment_code'+title).style.display = 'block';
-        document.getElementById('number_card_input'+title).required = true;
-        document.getElementById('payment_code_input'+title).required = true;
+function paymentType(title) {
+    payment_type = document.getElementById('payment_type' + title).value;
+    if (payment_type == "card_reader" || payment_type == "card") {
+        document.getElementById('number_card' + title).style.display = 'block';
+        document.getElementById('payment_code' + title).style.display = 'block';
+        document.getElementById('number_card_input' + title).required = true;
+        document.getElementById('payment_code_input' + title).required = true;
+    } else {
+        document.getElementById('number_card' + title).style.display = 'none';
+        document.getElementById('payment_code' + title).style.display = 'none';
+        document.getElementById('number_card_input' + title).required = false;
+        document.getElementById('payment_code_input' + title).required = false;
     }
-    else
-    {
-        document.getElementById('number_card'+title).style.display = 'none';
-        document.getElementById('payment_code'+title).style.display = 'none';
-        document.getElementById('number_card_input'+title).required = false;
-        document.getElementById('payment_code_input'+title).required = false;
-    }
-    if(payment_type == "cash" || payment_type == "card_reader" || payment_type == "card" || payment_type == "check")
-    {
-        document.getElementById('bill_image'+title).style.display = 'block';
-        document.getElementById('bill_image_input'+title).required = true;
-    }
-    else
-    {
-        document.getElementById('bill_image'+title).style.display = 'none';
-        document.getElementById('bill_image_input'+title).required = false;
+    if (payment_type == "cash" || payment_type == "card_reader" || payment_type == "card" || payment_type == "check") {
+        document.getElementById('bill_image' + title).style.display = 'block';
+        document.getElementById('bill_image_input' + title).required = true;
+    } else {
+        document.getElementById('bill_image' + title).style.display = 'none';
+        document.getElementById('bill_image_input' + title).required = false;
 
     }
     if (payment_type == "credit" || payment_type == "wallet") {
         document.getElementById('password' + title).style.display = 'block';
         document.getElementById('send_password' + title).style.display = 'block';
         document.getElementById('password_input' + title).required = true;
-    }
-    else if(document.getElementById('password' + title)) {
+    } else if (document.getElementById('password' + title)) {
         document.getElementById('password' + title).style.display = 'none';
         document.getElementById('send_password' + title).style.display = 'none';
         document.getElementById('password_input' + title).required = false;
@@ -75,33 +66,27 @@ function paymentType(title)
     if (payment_type == "account") {
         document.getElementById('sheba_number' + title).style.display = 'block';
         document.getElementById('sheba_number_input' + title).required = true;
-    }
-    else if(document.getElementById('sheba_number' + title)){
+    } else if (document.getElementById('sheba_number' + title)) {
         document.getElementById('sheba_number' + title).style.display = 'none';
         document.getElementById('sheba_number_input' + title).required = false;
     }
     if (payment_type == "supervisor") {
         document.getElementById('mobile_supervisor' + title).style.display = 'block';
         document.getElementById('mobile_supervisor_input' + title).required = true;
-    }
-    else if(document.getElementById('mobile_supervisor' + title)){
+    } else if (document.getElementById('mobile_supervisor' + title)) {
         document.getElementById('mobile_supervisor' + title).style.display = 'none';
         document.getElementById('mobile_supervisor_input' + title).required = false;
     }
-    if(payment_type == "deduction_price_difference")
-    {
-        $('#factor_item_price_diff'+ title).css('display' , 'block');
-    }
-    else
-    {
-        $('#factor_item_price_diff'+ title).css('display' , 'none');
+    if (payment_type == "deduction_price_difference") {
+        $('#factor_item_price_diff' + title).css('display', 'block');
+    } else {
+        $('#factor_item_price_diff' + title).css('display', 'none');
     }
 }
 
 var ct = 1;
 
-function date()
-{
+function date() {
     $(".date").pDatepicker({
         initialValueType: "gregorian",
         format: "YYYY/MM/DD H:m:s",
@@ -165,18 +150,18 @@ function new_link(file_attr_id) {
     div1.id = ct;
     div1.className = "col-md-3";
     var delLink = '<div class="btn badge-red mt-2"><a class="text-white" href="javascript:delIt(' + ct + ' , ' + file_attr_id + ')"><i class="fa fa-trash" aria-hidden="true"></i></a></div>';
-    div1.innerHTML = document.getElementById(file_attr_id+'_newlinktpl').innerHTML + delLink;
-    document.getElementById(file_attr_id+'_newlink').appendChild(div1);
+    div1.innerHTML = document.getElementById(file_attr_id + '_newlinktpl').innerHTML + delLink;
+    document.getElementById(file_attr_id + '_newlink').appendChild(div1);
     div1.children[0].id = file_attr_id + '_src' + ct;
     div1.children[1].id = file_attr_id + ct;
-   date();
+    date();
 }
 
-function delIt(eleId , file_attr_id) {
-d = document;
-var ele = d.getElementById(eleId);
-var parentEle = d.getElementById(file_attr_id.id+'_newlink');
-parentEle.removeChild(ele);
+function delIt(eleId, file_attr_id) {
+    d = document;
+    var ele = d.getElementById(eleId);
+    var parentEle = d.getElementById(file_attr_id.id + '_newlink');
+    parentEle.removeChild(ele);
 }
 
 $(function () {
@@ -203,7 +188,7 @@ $(".delete_submit").each(function () {
                 dangerMode: true
             }).then(res => {
                 if (res) {
-                    $('input[id="'+ id + '"]').parent(".delete_form").submit();
+                    $('input[id="' + id + '"]').parent(".delete_form").submit();
                 }
             });
         }
@@ -227,35 +212,42 @@ $(".confirm_submit").each(function () {
                 dangerMode: true
             }).then(res => {
                 if (res) {
-                    $('input[id="'+ id + '"]').parent(".confirm_form").submit();
+                    $('input[id="' + id + '"]').parent(".confirm_form").submit();
                 }
             });
         }
     });
 });
 
-function generateDataTableUserHistories(data){
+function generateDataTableUserHistories(data) {
     if ($.fn.DataTable.isDataTable('#datatable-history')) {
         $('#datatable-history').DataTable().destroy();
     }
     $('#datatable-history tbody').empty();
 
-       $('#datatable-history').DataTable({
+    $('#datatable-history').DataTable({
         paging: true,
         searching: false,
         retrieve: true,
         data: data,
 
-        columns: [
-            { "data": "callcenter" },
-            { "data": "user" },
-            { "data": "date" },
-            { "data": "description" },
+        columns: [{
+                "data": "callcenter"
+            },
+            {
+                "data": "user"
+            },
+            {
+                "data": "date"
+            },
+            {
+                "data": "description"
+            },
         ],
     });
 }
 
-$("body").on('click','.send_user_password',function () {
+$("body").on('click', '.send_user_password', function () {
     var token = $('meta[name="csrf-token"]').attr('content');
     var phone = $('.phone').val();
     $.ajax({
@@ -270,7 +262,8 @@ $("body").on('click','.send_user_password',function () {
         }
     });
 })
-function formQuestionConfirm(){
+
+function formQuestionConfirm() {
     return confirm('آیا مطمئن هستید ؟')
 }
 //tab content for call details
@@ -289,4 +282,3 @@ function openTab(evt, cityName) {
 }
 // Get the element with id="defaultOpen" and click on it
 document.getElementById("defaultOpen").click();
-

@@ -243,7 +243,7 @@ class Installmentsms extends Command {
         //change of status mali situation after 20 days
         $thresholdDate = \Carbon\Carbon::now()->subDays(20);
         $warning_installments = TotalFactorItemInstallment::whereDate('date', '<=', $thresholdDate)
-            ->where('status', '0') 
+            ->where('status', '0')
             ->with(['totalFactorItem' => function ($query) {
             $query->whereNotIn('status_mali', ['3', '4', '0']);
         }])
@@ -260,7 +260,7 @@ class Installmentsms extends Command {
         //change of status mali situation after 30 days
         $thresholdDate = \Carbon\Carbon::now()->subDays(30);
         $error_installments = TotalFactorItemInstallment::whereDate('date', '<=', $thresholdDate)
-            ->where('status', '0') 
+            ->where('status', '0')
             ->with(['totalFactorItem' => function ($query) {
             $query->whereNotIn('status_mali', ['4', '0']);
         }])

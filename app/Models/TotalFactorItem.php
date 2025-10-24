@@ -1001,7 +1001,7 @@ class TotalFactorItem extends Model implements AuditableContract
         foreach($factor_items as $factor_item)
         {
             $total_price = FactorItem::getTotalPrice($factor_item , 0 , 0);
-            $prepayment_price = CalculationHelper::calculatePrepayment($factor_item, $total_price, $factor_item->type, $factor_item->user);
+            $prepayment_price = CalculationHelper::calculatePrepayment($factor_item, $total_price, $factor_item->type, $factor_item->factor->user);
             $installments_num = CalculationHelper::calculateInstallmentsNum($factor_item);
             $wage = $wage + CalculationHelper::calculateWage($factor_item , $total_price , $prepayment_price , $installments_num);
         }

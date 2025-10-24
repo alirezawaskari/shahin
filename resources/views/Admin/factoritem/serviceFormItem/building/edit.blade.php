@@ -4,23 +4,22 @@
 </h4>
 <table class="table table-bordered table-striped table-responsive-md">
     <tr>
-        <th>#</th>
-        <th>وضعیت اجرا</th>
-        <th>نوع خدمت</th>
+        <th>ردیف</th>
+        <th>میزان انجام کار</th>
+        <th>عنوان</th>
         <th>توضیحات</th>
         <th>مقدار(بر اساس متراژ - عدد)</th>
         <th>تعداد مراجعات </th>
         <th>طول دوره اجرا(روز)</th>
         <th>تخفیف (ریال)</th>
-        <th>مبلغ (ریال)</th>
+        <th>تعرفه مصرف کننده (ریال)</th>
         @permission('view_profit_factorItem')
-        <th>مبلغ فروش مرکز (ریال)</th>
-        <th>سود شرکت</th>
+        <th>تعرفه خرید سجا (ریال)</th>
+        <th>نرخ اختلاف خرید</th>
         @endpermission
         <th>تاریخ ثبت</th>
-        <th>اقدام</th>
+        <th>جزئیات</th>
     </tr>
-    @php($factorItem['service_tariffs'] = $factorItem['service_tariffs']->sortBy('pivot.value'))
     @foreach ($factorItem['service_tariffs'] as $key => $service_tariff)
     <tr>
         <td>{{ $key+1 }}</td>
@@ -117,8 +116,10 @@
         <th></th>
     </tr>
 </table>
-<button class="btn btn-success px-3">ویرایش<i class="fa fa-edit" aria-hidden="true"></i>
-</button>
+<div class="col-12 mb-2">
+    <button class="btn btn-success px-3">ویرایش<i class="fa fa-edit" aria-hidden="true"></i>
+    </button>
+</div>
 <div class="mb-2">
     <div class="badge badge-primary font-size-13 mb-3 p-2">
         جمع فاکتور بدون اعمال تخفیف
@@ -143,7 +144,7 @@
 @permission('view_profit_factorItem')
 <div class="mb-2 mr-2">
     <div class="badge badge-success font-size-13 mb-3 p-2">
-        سود شرکت
+        نرخ اختلاف خرید
         :
         {{
         App\Models\CenterServiceTariff::setAverageCompanyProfit($factorItem->serviceTariffs ,

@@ -70,7 +70,7 @@ class ServiceTariff extends Model
      */
     public function factor_items()
     {
-        return $this->belongsToMany(FactorItem::class)->withTimestamps()->whereNull('factor_item_service_tariff.deleted_at')->withPivot('value' , 'id' ,'session_number' , 'treatment_duration' , 'user_id' , 'status' , 'price' , 'discount' , 'grouping');
+        return $this->belongsToMany(FactorItem::class)->withTimestamps()->whereNull('factor_item_service_tariff.deleted_at')->withPivot('value' , 'id' ,'description','session_number' , 'treatment_duration' , 'user_id' , 'status' , 'price' , 'discount' , 'grouping');
     }
 
     /**

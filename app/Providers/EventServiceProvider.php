@@ -9,7 +9,7 @@ use App\Events\fastregisterorganCallcenter;
 use App\Events\fastserviceCallcenter;
 use App\Events\sendlinkFactor;
 use App\Events\factorItemActivation;
-use App\Events\factorItemStartWorking;
+use App\Events\notificationRecordingFactor;
 use App\Events\factoritemClosing;
 use App\Events\smsSuccessRegisterPayment;
 use App\Events\ticketNotification;
@@ -22,7 +22,7 @@ use App\Events\userActivation;
 use App\Events\smsNotAnswer;
 use App\Listeners\ExtensionSmsReminder;
 use App\Listeners\FactorItemActivationSMSNotificaion;
-use App\Listeners\FactorItemStartWorkingSMSNotificaion;
+use App\Listeners\NotificationRecordingFactorSMS;
 use App\Listeners\FactorItemClosingSMSNotificaion;
 use App\Listeners\ReferralCenterSMSNotification;
 use App\Listeners\RegisterRequestSMSNotification;
@@ -80,8 +80,8 @@ class EventServiceProvider extends ServiceProvider
         factorItemActivation::class => [
             FactorItemActivationSMSNotificaion::class,
         ],
-        factorItemStartWorking::class => [
-            FactorItemStartWorkingSMSNotificaion::class,
+        notificationRecordingFactor::class => [
+            NotificationRecordingFactorSMS::class,
         ],
         factorItemClosing::class => [
             FactorItemClosingSMSNotificaion::class,

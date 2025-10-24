@@ -11,6 +11,7 @@ use App\Models\Coupon;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\ServiceItem;
+use App\Models\Session;
 use App\Models\TotalFactorItem;
 use App\Models\User;
 use Carbon\Carbon;
@@ -104,8 +105,8 @@ class FactorItemController extends Controller {
         $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
         //if factorItem type is installment
         if ( $totalFactorItem ) {
-            $item['is_pay_installment_by_check'] = TotalFactorItem::payInstallmentByCheck($totalFactorItem);
-            $item['count_installment_checks'] = TotalFactorItem::getCountInstallmentChecks($totalFactorItem);
+            $item[ 'is_pay_installment_by_check' ] = TotalFactorItem::payInstallmentByCheck( $totalFactorItem );
+            $item[ 'count_installment_checks' ] = TotalFactorItem::getCountInstallmentChecks( $totalFactorItem );
             $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
             $item[ 'contract_values' ] = $totalFactorItem->contract_values;
             $item[ 'status_mali' ] = $factorItem->status_mali;
@@ -115,16 +116,16 @@ class FactorItemController extends Controller {
             $item[ 'total_price' ] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum( 'discount' );
             $item[ 'prepayment' ][ 'price' ] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
             $item[ 'installments_num' ] = $totalFactorItem->installments_num;
-            $item['installments_price'] = $totalFactorItem->totalFactorItemInstallments->first() ? $totalFactorItem->totalFactorItemInstallments->first()->price : 0;
-            $item['wage'] = TotalFactorItem::getWage($totalFactorItem);
+            $item[ 'installments_price' ] = $totalFactorItem->totalFactorItemInstallments->first() ? $totalFactorItem->totalFactorItemInstallments->first()->price : 0;
+            $item[ 'wage' ] = TotalFactorItem::getWage( $totalFactorItem );
             $item[ 'loan' ] = $totalFactorItem->totalFactorItemInstallments->sum( 'price' );
             $item[ 'credit' ] = $totalFactorItem->credit;
             $item[ 'extra_pay' ] = TotalFactorItem::getExtraPay( $totalFactorItem );
             $item[ 'date_first_pay' ] = isset( $totalFactorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $totalFactorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
             $item[ 'price_difference' ] = $totalFactorItem->property ? $totalFactorItem->property->price_difference : 0;
             $item[ 'payments' ] = $totalFactorItem->factors;
-            $item['percent_fines'] = $totalFactorItem->percent_fines;
-            $item['end_date'] = isset($totalFactorItem->totalFactorItemInstallments->last()->date) ? verta($totalFactorItem->totalFactorItemInstallments->sortBy('date')->last()->date)->format('Y/m/d') : '';
+            $item[ 'percent_fines' ] = $totalFactorItem->percent_fines;
+            $item[ 'end_date' ] = isset( $totalFactorItem->totalFactorItemInstallments->last()->date ) ? verta( $totalFactorItem->totalFactorItemInstallments->sortBy( 'date' )->last()->date )->format( 'Y/m/d' ) : '';
         }
         $resnumber = $totalFactorItem ? TotalFactorItem::setFatorItemCollectionResnumber( $totalFactorItem ) : '';
         $contract_number = $totalFactorItem ? TotalFactorItem::setAgentContractNumber( $totalFactorItem ) : '';
@@ -138,9 +139,67 @@ class FactorItemController extends Controller {
         }
         $checks = $totalFactorItem ? $totalFactorItem->checks : null;
         $sessions = $factorItem->sessions;
-        return view( 'site.profile.layouts.factoritem.show', compact( 'checks' , 'agents_contract_file', 'resnumber', 'contract_number', 'totalFactorItem', 'expire_installments', 'paid_installments', 'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item' ) );
+        $items = $totalFactorItem ? self::setFactorItemItems($totalFactorItem) : [];
+        return view( 'site.profile.layouts.factoritem.show', compact('items' ,'checks', 'agents_contract_file', 'resnumber', 'contract_number', 'totalFactorItem', 'expire_installments', 'paid_installments', 'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item' ) );
     }
+ /**
+     * @param \App\Models\TotalFactorItem $totalFactorItem
+     * @return array
+     */
+    private function setFactorItemItems(TotalFactorItem $totalFactorItem)
+    {
+        $items = $totalFactorItem->factorItems->map(function ($factor_item) {
+            $temp = [];
+            $temp['id'] = $factor_item->id;
+            $temp['resnumber'] = $factor_item->resnumber;
+            $temp['file_number'] = $factor_item->file_number;
+            $temp['factoritemable'] = $factor_item->factoritemable;
+            $temp['service_item'] = !is_null($factor_item->service_item_id) ? $factor_item->serviceItem : null;
+            $temp['centers'] = FactorItem::getSelectableCenters($factor_item);
+            $temp['forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms : null;
+            $temp['site_forms'] = isset($factor_item->factoritemable->beforeforms) ? $factor_item->factoritemable->beforeforms->where('level', 'site') : null;
+            $temp['complete'] = $factor_item->complete;
+            $temp['values'] = $factor_item->values;
+            $temp['factor_values'] = $factor_item->factor_values;
+            $temp['supervisor_id'] = $factor_item->supervisor_id;
+            $temp['factor_image'] = $factor_item->factor_image;
+            $temp['confirms'] = $factor_item->confirms;
+            $temp['center'] = $factor_item->center;
+            $temp['date'] = $factor_item->date ? $factor_item->date : now();
+            $temp['type'] = $factor_item->type;
+            $temp['discount'] = $factor_item->discount;
+            $temp['installments_num'] = $factor_item->installments_num;
+            $temp['installments_price'] = $factor_item->installments_price;
+            $temp['prepayment']['price'] = isset($factor_item->property->prepayment_price) ? $factor_item->property->prepayment_price : 0;
+            $temp['prepayment']['debt'] = isset($factor_item->property->prepayment_debt) ? $factor_item->property->prepayment_debt : 0;
+            $temp['prepayment']['num'] = isset($factor_item->property->prepayment_num) ? $factor_item->property->prepayment_num : 0;
+            $temp['prepayment']['count'] = isset($factor_item->property->prepayment_count) ? $factor_item->property->prepayment_count : 0;
+            $temp['price_difference']['installment'] = isset($factor_item->property->price_difference_installment) ? $factor_item->property->price_difference_installment : 0;
+            $temp['price_difference']['total'] = isset($factor_item->property->price_difference_total) ? $factor_item->property->price_difference_total : 0;
+            $temp['price_difference']['debt'] = isset($factor_item->property->price_difference_debt) ? $factor_item->property->price_difference_debt : 0;
+            $temp['total_price'] = $factor_item->total_price + $factor_item->discount;
+            $temp['status'] = FactorItem::statusMali($factor_item->status_mali);
+            $temp['products'] = $factor_item->products;
+            $temp['status'] = FactorItem::statusMali($factor_item->status_mali);
+            $temp['status_factor'] = $factor_item->status_factor;
+            $temp['products'] = $factor_item->products;
+            $temp['service_tariffs'] = $factor_item->serviceTariffs;
+            $temp['date_first_pay'] = isset($factor_item->factors->where('title', '!=', 'register')->where('status', true)->first()->created_at) ? verta($factor_item->factors->where('title', '!=', 'register')->first()->created_at)->format('Y/m/d') : '';
+            $temp['confirm'] = $factor_item->totalFactorItem->confirm;
+            $temp['factorItems'] = FactorItem::getFatorItemCollection($factor_item)->get();
+            $temp['confirm'] = $factor_item->totalFactorItem->confirm;
+            $temp['sessions'] = $factor_item->sessions->where('status', '!=', false);
 
+            return $temp;
+        });
+        //set factorItems centers
+        foreach ($items as $supervisor_factor_item) {
+            foreach ($supervisor_factor_item['factorItems'] as $factor_item) {
+                $factor_item['centers'] = FactorItem::getSelectableCenters($factor_item);
+            }
+        }
+        return $items;
+    }
     /**
     * @param Request $request
     * @return \Illuminate\Http\RedirectResponse
@@ -314,74 +373,66 @@ class FactorItemController extends Controller {
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
-     */
-    public function sendConfirmContractCode(Request $request)
-    {
-        if($request->confirm_contract_check == true)
-        {
+    * @param \Illuminate\Http\Request $request
+    * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+    */
+
+    public function sendConfirmContractCode( Request $request ) {
+        if ( $request->confirm_contract_check == true ) {
             $user_phone_number = auth()->user()->phone;
             $verification_code = rand( 123456, 999999 );
-            $auth_code = AuthCode::where('phone' , auth()->user()->phone)->first();
-            if(!is_null($auth_code))
-            {
+            $auth_code = AuthCode::where( 'phone', auth()->user()->phone )->first();
+            if ( !is_null( $auth_code ) ) {
                 $expirationTime = time() - $auth_code->expiration_time;
-                $remaining_time = ($auth_code->time_code_again * 60) - $expirationTime;
-                if ($remaining_time > 0) {
-                    $date['remaining_time_second'] = $remaining_time;
+                $remaining_time = ( $auth_code->time_code_again * 60 ) - $expirationTime;
+                if ( $remaining_time > 0 ) {
+                    $date[ 'remaining_time_second' ] = $remaining_time;
                     $message = '  کاربر گرامی لطفا بعد از  ' . $remaining_time . '  ثانیه تلاش کنید.';
                     return response( [ 'status' => 'error', 'message' => $message ] );
                 }
-                $auth_code->update([
+                $auth_code->update( [
                     'code' => $verification_code,
                     'expiration_time' => time(),
-                ]);
-            }
-            else
-            {
-                AuthCode::create([
+                ] );
+            } else {
+                AuthCode::create( [
                     'phone' => $user_phone_number,
                     'code' => $verification_code,
                     'time_code_again' => 2,
                     'expiration_time' => time(),
-                ]);
+                ] );
             }
-            SendSms::sendSingleSms('sendConfirmContractCode',$user_phone_number,['param1'=>$verification_code ]);
+            SendSms::sendSingleSms( 'sendConfirmContractCode', $user_phone_number, [ 'param1'=>$verification_code ] );
             return response( [ 'status' => 'success', 'message' => 'کد با موفقیت ارسال گردید.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'لطفا بر روی قسمت تایید میکنم کلیک کنید. ' ] );
     }
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
-     */
-    public function verificationConfirmContractCode( Request $request )
-    {
-        $has_auth_code = AuthCode::where('phone' , auth()->user()->phone)->where('code' , $request->verification_code)->exists();
-        if($has_auth_code)
-        {
-            if($request->total_factor_item)
-            {
-                $totalFactorItem = TotalFactorItem::find($request->total_factor_item);
-                $factor_items = $totalFactorItem->factorItems;
-                $totalFactorItem->update([
-                    'total_factor_item_status_id' => 8
-                ]);
-                foreach ($factor_items as $factor_item) {
-                    $fator_item_collections = FactorItem::getFatorItemCollection($factor_item);
+    * @param \Illuminate\Http\Request $request
+    * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+    */
 
-                    $fator_item_collections->update([
+    public function verificationConfirmContractCode( Request $request ) {
+        $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
+        if ( $has_auth_code ) {
+            if ( $request->total_factor_item ) {
+                $totalFactorItem = TotalFactorItem::find( $request->total_factor_item );
+                $factor_items = $totalFactorItem->factorItems;
+                $totalFactorItem->update( [
+                    'total_factor_item_status_id' => 8
+                ] );
+                foreach ( $factor_items as $factor_item ) {
+                    $fator_item_collections = FactorItem::getFatorItemCollection( $factor_item );
+
+                    $fator_item_collections->update( [
                         'status_factor' => 8
-                    ]);
+                    ] );
                 }
-            }
-            else
-            {
-                $factorItem = FactorItem::find($request->factor_item);
-                $factorItem->update([
+            } else {
+                $factorItem = FactorItem::find( $request->factor_item );
+                $factorItem->update( [
                     'status_factor' => 8
-                ]);
+                ] );
             }
 
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
@@ -389,18 +440,73 @@ class FactorItemController extends Controller {
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
     }
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
-     */
-    public function verificationConfirmContractCodeEmployee( Request $request )
-    {
-        $has_auth_code = AuthCode::where('phone' , auth()->user()->phone)->where('code' , $request->verification_code)->exists();
-        if($has_auth_code)
-        {
-            auth()->user()->employee()->update(['confirm' => true,'status' => 1]);
+    * @param \Illuminate\Http\Request $request
+    * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+    */
+
+    public function verificationConfirmContractCodeFactor( Request $request ) {
+        $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
+        if ( $has_auth_code ) {
+            if ( $request->total_factor_item ) {
+                $totalFactorItem = TotalFactorItem::find( $request->total_factor_item );
+                $factor_items = $totalFactorItem->factorItems;
+                $totalFactorItem->update( [
+                    'total_factor_item_status_id' => 14
+                ] );
+                foreach ( $factor_items as $factor_item ) {
+                    $fator_item_collections = FactorItem::getFatorItemCollection( $factor_item );
+
+                    $fator_item_collections->update( [
+                        'status_factor' => 2,
+                        'complete' => true,
+                    ] );
+                }
+            } else {
+                $factorItem = FactorItem::find( $request->factor_item );
+                $factorItem->update( [
+                    'status_factor' => 2,
+                    'complete' => true,
+                ] );
+            }
+
+            return response( [ 'status' => 'success', 'message' => 'فاکتور با موفقیت امضا شد.' ] );
+        }
+        return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
+    }
+    /**
+    * @param \Illuminate\Http\Request $request
+    * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+    */
+
+    public function verificationConfirmContractCodeEmployee( Request $request ) {
+        $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
+        if ( $has_auth_code ) {
+            auth()->user()->employee()->update( [ 'confirm' => true, 'status' => 1 ] );
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
+    }
+    /**
+    * Summary of rejectFactor
+    * @param \Illuminate\Http\Request $request
+    * @param \App\Models\FactorItem $factorItem
+    * @return \Illuminate\Http\RedirectResponse
+    */
+
+    public function rejectFactor(Request $request , FactorItem $factorItem ) {
+        Session::create( [
+            'status' => 3 ,
+            'user_id' => auth()->user()->id,
+            'factor_item_id' => $factorItem->id,
+            'date' => date( 'Y-m-d H:i:s' ),
+            'description_before' => 'دلیل درخواست اصلاح فاکتور : '.$request->description,
+        ] );
+        $factorItem->update( [
+            'status_factor' => 17
+        ] );
+        return redirect()->back()->with([
+            'success' => 'success'
+        ]);
     }
 }
 

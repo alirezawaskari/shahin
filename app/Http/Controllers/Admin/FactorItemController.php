@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\SendSms;
 use App\Events\factorItemClosing;
-use App\Events\factorItemStartWorking;
+use App\Events\notificationRecordingFactor;
 use App\Events\referralCenterNotification;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
@@ -133,7 +133,7 @@ class FactorItemController extends Controller {
     public function filter(Request $request ) {
         $factor_items = FactorItem::filter()->latest();
         if ( auth()->user()->center_id ) {
-            $factor_items = FactorItem::where( 'confirm', true )->filter();
+            $factor_items = FactorItem::filter();
         }
         if ( $request->exel == 'on') {
             return ( new FactorItemsExport( $factor_items ) )->download( 'factorItems.xlsx' );
@@ -208,7 +208,7 @@ class FactorItemController extends Controller {
         $factor_item->update( [
             'center_id' =>  $request->center_id,
             'status_factor' => 17,
-            'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
+            'date' => $request->date ? Helper::vertaToMiladi($request->date) : now(),
         ] );
         //create session
         if ($factor_item->factoritemable->session==1){
@@ -216,8 +216,8 @@ class FactorItemController extends Controller {
                 'status' => 3 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
-                'date' => $request->date ? Helper::vertaToMiladi($request->date) : date('Y-m-d H:i:s'),
-                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : $request->description.'مشاوره آنلاین',
+                'date' => $request->date ? Helper::vertaToMiladi($request->date) : now(),
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : $request->description.'مشاوره آنلاین - ',
            ]);
         }
         //send sms to the user
@@ -244,13 +244,8 @@ class FactorItemController extends Controller {
             alert()->error('لطفا ابتدا تعیین مرکز نمایید .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
-        //send sms factoritem start work
-        if ( !$factor_item->complete && $request->check ) {
-            self::smsStartWork( $factor_item );
-        }
         $factor_item->update( [
             'date' => isset( $request->date ) ? $request->date : $factor_item->date,
-            'complete' => true,
             'supporter_id' => auth()->user()->id,
         ] );
 
@@ -313,16 +308,9 @@ class FactorItemController extends Controller {
         //get calculate financial information
         self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
 
-        //send sms factoritem start work
-        if ( !$factor_item->complete ) {
-            self::smsStartWork( $factor_item );
-        }
-
         Session::checkAndStartEntryVisitSession($factor_item);
 
         $factor_item->update( [
-            'status_factor' => $factor_item->status_factor <= 3 ? 14 : $factor_item->status_factor,
-            'complete' => true,
             'status' => 1,
             'total_price' => $total_price,
             'file_number' => $request->file_number ? $request->file_number : $factor_item->file_number,
@@ -376,33 +364,37 @@ class FactorItemController extends Controller {
     }
     /**
      * @param Request $request
+     * @param \App\Models\FactorItem $factorItem
      * @return \Illuminate\Http\RedirectResponse
      * create factorItem products & factorItem service tariffs
      */
-    public function createFactor( Request $request ) {
-
+    public function createFactor( Request $request , FactorItem $factorItem) {
+        if ( $factorItem->complete ) {
+            return redirect()->back()->with( [
+                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
+            ] );
+        }
         $item = $request->item;
-        $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $request->item );
         $user = User::find( $item[ 'user_id' ] );
-        $type = isset($request->type) ? $request->type : $factor_item->type;
-        if($factor_item->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factor_item->financialPlansType,$type))
+        $type = isset($request->type) ? $request->type : $factorItem->type;
+        if($factorItem->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factorItem->financialPlansType,$type))
         {
             return redirect()->back()->with( [
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
             ] );
         }
-        FactorItem::changeType($factor_item,$type);
-        if ( $factor_item->factoritemable_type == Service::class ) {
-            self::createSerivceTriffsFactorItem($request , $factor_item);
+        FactorItem::changeType($factorItem,$type);
+        if ( $factorItem->factoritemable_type == Service::class ) {
+            self::createSerivceTriffsFactorItem($request , $factorItem);
         }
         else {
-            self::createProductsFactorItem($request , $factor_item);
+            self::createProductsFactorItem($request , $factorItem);
         }
         //get total price factor
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : 0;
         $other_price = isset( $item[ 'otherPrice' ] ) ? $item[ 'otherPrice' ] : 0;
-        $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
+        $total_price = FactorItem::getTotalPrice($factorItem , $total_price , $other_price);
         //get supervisor factoritem
         $factor_item = FactorItem::find( $item[ 'id' ] );
         $supervisor_factor_item = $factor_item->supervisor;
@@ -413,10 +405,8 @@ class FactorItemController extends Controller {
 		{
 		    self::saveFactorImage( $request->item['urlfactor-image'], $factor_item );
 		}
-        $status_factor = self::getStatusFactor($factor_item);
         //update user factoritem
         $factor_item->update( [
-            'status_factor' => $status_factor,
             'date' => $request->date ? $request->date : $factor_item->date,
         ] );
 
@@ -688,10 +678,16 @@ class FactorItemController extends Controller {
     }
     /**
      * @param Request $request
+     * @param \App\Models\FactorItem $factorItem
      * @return \Illuminate\Http\RedirectResponse
      * update factorItem serviceTariffs
      */
-    public function updateServiceTariff( Request $request ) {
+    public function updateServiceTariff( Request $request , FactorItem $factorItem) {
+        if ( $factorItem->complete ) {
+            return redirect()->back()->with( [
+                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
+            ] );
+        }
         $inputs = $request->all();
         $message = [];
         if(isset($inputs[ 'id' ]))
@@ -721,16 +717,14 @@ class FactorItemController extends Controller {
                 $message[$request->id[ $i ]] = "برای این فاکتور قبلا جلسه ثبت شده است.";
             }
         }
-        //get supervisor factoritem
-        $factor_item = $factor_item_service_tariff->factorItem;
-        $user = $factor_item->factor->user;
-        $type = $factor_item->type;
+        $user = $factorItem->factor->user;
+        $type = $factorItem->type;
         //get total price factor
         $total_price = 0;
-        $other_price = isset( $factor_item->factor_value[ 'otherPrice' ] ) ? $factor_item->factor_value[ 'otherPrice' ] : 0;
-        $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
+        $other_price = isset( $factor_item->factor_value[ 'otherPrice' ] ) ? $factorItem->factor_value[ 'otherPrice' ] : 0;
+        $total_price = FactorItem::getTotalPrice($factorItem , $total_price , $other_price);
         //get supervisor factorItem
-        $supervisor_factor_item = $factor_item->supervisor;
+        $supervisor_factor_item = $factorItem->supervisor;
         //get difference price
         if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
             FactorItem::calculateDiffrencePrice( $supervisor_factor_item , $total_price );
@@ -1171,16 +1165,24 @@ class FactorItemController extends Controller {
         ] );
     }
     /**
-     * @param FactorItem $factor_item
-     * @return void
+     * @param FactorItem $factorItem
+     * @return \Illuminate\Http\RedirectResponse
      * send start work sms of the factorItem
      */
-    private function smsStartWork( FactorItem $factor_item ) {
-        $pass = rand( 123456, 999999 );
-        $user = $factor_item->factor->user;
-        event( new factorItemStartWorking( $user, $factor_item, $pass ) );
-        $pass = Hash::make( $pass );
-        $user->update( [ 'password' => $pass ] );
+    public function sendNotificationRecordingFactor( FactorItem $factorItem ) {
+        // check factorItem have serviceTariff or not
+        if (!$factorItem->serviceTariffs()->exists()){
+            return redirect()->back()->with( [
+                'failByMessage' => 'فاکتوری جهت تایید کاربر ثبت نشده است .'
+            ] );
+        }
+        event( new notificationRecordingFactor( $factorItem ) );
+        $factorItem->update( [
+            'status_factor' => 20,
+        ] );
+        return redirect()->back()->with( [
+            'update' => 'success'
+        ] );
     }
     /**
      * @param mixed $url_factor_image
@@ -1231,12 +1233,16 @@ class FactorItemController extends Controller {
     }
     /**
      * @param $request
-     * @param FactorItem $factor_item
+     * @param FactorItem $factorItem
      * @return void
      */
-    private function createSerivceTriffsFactorItem($request , FactorItem $factor_item)
+    private function createSerivceTriffsFactorItem($request , FactorItem $factorItem)
     {
-
+        if ( $factorItem->complete ) {
+            return redirect()->back()->with( [
+                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
+            ] );
+        }
         for ($i = 0; $i < ($request->service_tariff_id ? count($request->service_tariff_id) : 0); $i++) {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
             $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
@@ -1257,7 +1263,7 @@ class FactorItemController extends Controller {
 			$session_number = isset($request->session_number[ $i+1 ]) ? $request->session_number[ $i+1 ] : null;
 			$description = isset($request->description[ $i+1 ]) ? $request->description[ $i+1 ] : null;
 
-            $factor_item->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $doctor_id,  'description' => $description, 'session_number' => $session_number, 'treatment_duration' => $treatment_duration] ] );
+            $factorItem->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $doctor_id,  'description' => $description, 'session_number' => $session_number, 'treatment_duration' => $treatment_duration] ] );
         }
     }
     /**

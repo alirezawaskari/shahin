@@ -20,7 +20,7 @@ class smsServiceNotification
     {
         $userMobile = $event->user->phone;
         $address = $event->address;
-        $date = $event->date;
+        $date = verta($event->date)->format('Y/m/d H:i:s');
 
         $message = $address . '،زمان پیشنهادی شما: ' . $date;
 

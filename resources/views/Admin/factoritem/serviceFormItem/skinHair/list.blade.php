@@ -1,26 +1,27 @@
+@if(isset($factorItem->serviceTariffs))
 <div class="col-12 col-md-12 mb-3">
-    {!! $form->help !!}
+    <i class="fa fa-list"></i>{{ 'فاکتور - ' .
+    $factorItem->factor->user->name . ' ' .
+    $factorItem->factor->user->family }}
 </div>
 <div class="row col-md-12">
     <table class="table table-bordered table-striped table-responsive-md">
         <tr>
-            <th>#</th>
-            <th>وضعیت اجرا</th>
+            <th>ردیف</th>
+            <th>میزان انجام کار</th>
             <th>عنوان</th>
             <th>توضیحات</th>
             <th>مقدار(بر اساس سی سی - واحد)</th>
             <th>تعداد مراجعات </th>
             <th>طول دوره اجرا(روز)</th>
             <th>تخفیف (ریال)</th>
-            <th>مبلغ (ریال)</th>
+            <th>تعرفه مصرف کننده (ریال)</th>
             @permission('view_profit_factorItem')
-            <th>مبلغ فروش مرکز (ریال)</th>
-            <th>سود شرکت</th>
+            <th>تعرفه خرید سجا (ریال)</th>
+            <th>نرخ اختلاف خرید</th>
             @endpermission
             <th>تاریخ ثبت</th>
-            <th>اقدام</th>
         </tr>
-        @php($factorItem->serviceTariffs=$factorItem->serviceTariffs->sortBy('pivot.value'))
         @foreach ($factorItem->serviceTariffs as $key => $service_tariff)
         <tr>
             <td>{{ $key+1 }}</td>
@@ -58,14 +59,9 @@
             </td>
             @endpermission
             <td>{{ verta($service_tariff->pivot->created_at)->format('Y/m/d H:i:s') }}</td>
-            <td>
-                <a class="factor_item_service_tariff_delete" data-id="{{ $service_tariff->pivot->id }}"><i
-                        class="fa fa-trash font-size-18" aria-hidden="true"></i></a>
-            </td>
         </tr>
         @endforeach
         <tr class="bg-secondary">
-            <th></th>
             <th></th>
             <th></th>
             <th></th>
@@ -93,7 +89,6 @@
                 %</th>
             @endpermission
             <th></th>
-            <th></th>
         </tr>
     </table>
     <div class="mb-2">
@@ -120,7 +115,7 @@
     @permission('view_profit_factorItem')
     <div class="mb-2 mr-2">
         <div class="badge badge-success font-size-13 mb-3 p-2">
-            سود شرکت
+            نرخ اختلاف خرید
             :
             {{
             App\Models\CenterServiceTariff::setAverageCompanyProfit($factorItem->serviceTariffs ,
@@ -133,3 +128,4 @@
     </div>
     @endpermission
 </div>
+@endif

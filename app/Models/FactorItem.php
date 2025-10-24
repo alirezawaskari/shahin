@@ -154,7 +154,7 @@ class FactorItem extends Model implements AuditableContract
      */
     public function serviceTariffs()
     {
-        return $this->belongsToMany(ServiceTariff::class)->withTimestamps()->whereNull('factor_item_service_tariff.deleted_at')->withPivot('value', 'id', 'session_number', 'treatment_duration', 'user_id', 'status', 'price', 'discount' , 'grouping');
+        return $this->belongsToMany(ServiceTariff::class)->withTimestamps()->whereNull('factor_item_service_tariff.deleted_at')->withPivot('value', 'id', 'description' , 'session_number', 'treatment_duration', 'user_id', 'status', 'price', 'discount' , 'grouping');
     }
 
     /**
@@ -456,26 +456,26 @@ class FactorItem extends Model implements AuditableContract
     {
         return [
             '0' => 'جدید',
-            '1' => 'تاییدیه پشتیبان',
+            '17' => 'منتظر مشاوره مرکز',
+            '20' => 'منتظر تایید فاکتور توسط کاربر',
             '2' => 'مشاوره شد',
+            '10' => 'آماده اجرا',
+            '6' => 'شروع کار',
+            '7' => 'اتمام کار',
+            '15' => 'پرونده مختومه',
+            '19' => 'تعلیق اجرا',
+            '1' => 'تاییدیه پشتیبان',
             '3' =>  'تعلیق پشتیبان',
             '4' => 'منتظر تکمیل مدارک',
             '5' => 'منتظر تایید مالی',
-            '6' => 'شروع کار',
-            '7' => 'اتمام کار',
             '8' => 'منتظر تایید مدیر',
             '9' => 'منتظر تایید امور تسهیلات',
-            '10' => 'آماده اجرا',
             '11' => 'منتظر تایید مدیر مالی نمایندگی',
             '12' => 'منتظر تایید مدیر نمایندگی',
             '13' => 'منتظر تایید امورقراردادها',
             '14' => 'منتظر تایید پشتیبان',
-            '15' => 'پرونده مختومه',
             '16' => 'ارجاع به کارشناسی',
-            '17' => 'منتظر مشاوره مرکز',
             '18' => 'منتظر تایید قرارداد توسط کاربر',
-            '19' => 'تعلیق اجرا',
-
         ][$status_factor];
     }
     /**

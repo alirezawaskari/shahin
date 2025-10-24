@@ -1,23 +1,22 @@
 <h4 class="mb-3 card-header"><i class="fas fa-list"></i> طرح درمان </h4>
 <table class="table table-bordered table-striped table-responsive-md">
     <tr>
-        <th>#</th>
-        <th>وضعیت اجرا</th>
+        <th>ردیف</th>
+        <th>میزان انجام کار</th>
         <th>عنوان</th>
         <th>توضیحات</th>
         <th>مقدار(بر اساس سی سی - واحد)</th>
         <th>تعداد مراجعات </th>
         <th>طول دوره اجرا(روز)</th>
         <th>تخفیف (ریال)</th>
-        <th>مبلغ (ریال)</th>
+        <th>تعرفه مصرف کننده (ریال)</th>
         @permission('view_profit_factorItem')
-        <th>مبلغ فروش مرکز (ریال)</th>
-        <th>سود شرکت</th>
+        <th>تعرفه خرید سجا (ریال)</th>
+        <th>نرخ اختلاف خرید</th>
         @endpermission
         <th>تاریخ ثبت</th>
-        <th>اقدام</th>
+        <th>جزئیات</th>
     </tr>
-    @php($factorItem->serviceTariffs=$factorItem->serviceTariffs->sortBy('pivot.value'))
     @foreach ($factorItem->serviceTariffs as $key => $service_tariff)
     <tr>
         <td>{{ $loop->iteration }}</td>
@@ -96,7 +95,6 @@
         <th></th>
         <th></th>
         <th></th>
-        <th></th>
         <th>{{
             number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
             - $factorItem->discount)
@@ -120,41 +118,45 @@
         <th></th>
     </tr>
 </table>
-<button class="btn btn-success px-3">ویرایش<i class="fa fa-edit" aria-hidden="true"></i>
-</button>
-<div class="mb-2">
-    <div class="badge badge-primary font-size-13 mb-3 p-2">
-        جمع فاکتور بدون اعمال تخفیف
-        :
-        {{
-        number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
-        }}
-        ریال
-    </div>
+<div class="col-12 mb-2">
+    <button class="btn btn-success px-3">ویرایش<i class="fa fa-edit" aria-hidden="true"></i>
+    </button>
 </div>
-<div class="mb-2 mr-2">
-    <div class="badge badge-danger font-size-13 mb-3 p-2">
-        جمع تخفیف
-        :
-        {{
-        number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
-        - $factorItem->discount)
-        }}
-        ریال
+<div class="row">
+    <div class="mb-2">
+        <div class="badge badge-primary font-size-13 mb-3 p-2">
+            جمع فاکتور بدون اعمال تخفیف
+            :
+            {{
+            number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
+            }}
+            ریال
+        </div>
     </div>
-</div>
-@permission('view_profit_factorItem')
-<div class="mb-2 mr-2">
-    <div class="badge badge-success font-size-13 mb-3 p-2">
-        سود شرکت
-        :
-        {{
-        App\Models\CenterServiceTariff::setAverageCompanyProfit($factorItem->serviceTariffs ,
-        $factorItem->serviceTariffs()->sum('factor_item_service_tariff.price') -
-        $factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
-        - $factorItem->discount )
-        }}
-        %
+    <div class="mb-2 mr-2">
+        <div class="badge badge-danger font-size-13 mb-3 p-2">
+            جمع تخفیف
+            :
+            {{
+            number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+            - $factorItem->discount)
+            }}
+            ریال
+        </div>
     </div>
+    @permission('view_profit_factorItem')
+    <div class="mb-2 mr-2">
+        <div class="badge badge-success font-size-13 mb-3 p-2">
+            نرخ اختلاف خرید
+            :
+            {{
+            App\Models\CenterServiceTariff::setAverageCompanyProfit($factorItem->serviceTariffs ,
+            $factorItem->serviceTariffs()->sum('factor_item_service_tariff.price') -
+            $factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
+            - $factorItem->discount )
+            }}
+            %
+        </div>
+    </div>
+    @endpermission
 </div>
-@endpermission

@@ -1,7 +1,8 @@
 <div class="card border col-12 mt-5 pt-4 col-l main ">
     <div class="card-body">
         @php($message = Session::get('message'))
-        <form action="{{ route('factorItem.updateServiceTariff')}}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('factorItem.updateServiceTariff' , [$factorItem['resnumber']])}}" method="POST"
+            enctype="multipart/form-data">
             @csrf
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
@@ -13,7 +14,8 @@
         </form>
     </div>
     <div class="col-md-12 border border-secondary box mb-5">
-        <form action="{{ route('factorItem.createFactor')}}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('factorItem.createFactor' , [ $factorItem['resnumber']])}}" method="POST"
+            enctype="multipart/form-data">
             @csrf
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_factor' , $form->data_display_level))
@@ -23,6 +25,9 @@
             @break
             @case('factor_dentist')
             @include('Admin.factoritem.serviceFormItem.dentist.create')
+            @break
+            @case('factor_skin_hair')
+            @include('Admin.factoritem.serviceFormItem.skinHair.create')
             @break
             @case('factor_building')
             @include('Admin.factoritem.serviceFormItem.building.create')
@@ -50,4 +55,26 @@
             </div>
         </form>
     </div>
+    @if(!$factorItem['complete'])
+    <form action="{{ route('factorItem.sendNotificationRecordingFactor' , [ $factorItem['resnumber']])}}" method="POST"
+        enctype="multipart/form-data">
+        @csrf
+        <div class="alert alert-danger">
+            <p>
+                ملاحظات :
+            </p>
+            <p>
+                همکار محترم بعد از فشردن کلید ثبت نهایی پیامک حاوی فاکتور برای بیمار ارسال شده و در پرونده نامبرده نمایش
+                داده میشود.
+            </p>
+        </div>
+        <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت نهایی و ارسال فاکتور برای کاربر">
+    </form>
+    @else
+    <div class="alert alert-success">
+        <p>
+            این فاکتور توسط کاربر تایید شده است.
+        </p>
+    </div>
+    @endif
 </div>

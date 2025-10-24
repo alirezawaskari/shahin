@@ -1,39 +1,6 @@
 @switch($form->type)
 @case('multi-select')
-<div class="col-12 col-md-4 mb-2">
-    {!! $form->help !!}
-    <select multiple class="form-control select2 {{ $form->class }}" {{ $form->required == true ?
-        'required'
-        : '' }} name="item[{{ $form->name }}][]">
-        @if($form->name == 'center-agent')
-        <option disabled>انتخاب پزشک</option>
-        @foreach($center_agents as $doctor)
-        @if(isset($factorItem['factor_values'][$form->name]))
-        <option value="{{ $doctor->id }}" {{ in_array( $doctor->id,
-            $factorItem['factor_values'][$form->name])
-            ?
-            'selected' : '' }}>
-            {{ $doctor->name }} {{ $doctor->family }}
-        </option>
-        @else
-        <option value="{{ $doctor->id }}">
-            {{ $doctor->name }} {{ $doctor->family }}
-        </option>
-        @endif
-        @endforeach
-        @else
-        @foreach($form->beforeformitems as $select_item)
-        <option value="{{ $select_item->value }}" class="text-right">{{ $select_item->title }}</option>
-        @endforeach
-        @endif
-    </select>
-</div>
-<div class="col-12 col-md-4 mb-2">
-    <label>تاریخ مراجعه اولیه کاربر</label>
-    <date-picker value="{{ $factorItem['date'] }}" format="YYYY/M/D HH:mm:ss" name="date" type="datetime"
-        display-format="jYYYY/jMM/jDD HH:mm:ss" id="new_date">
-    </date-picker>
-</div>
+
 @break
 @case('textarea')
 <div class="col-12 mb-2">
@@ -48,44 +15,39 @@
 @endrole
 @break
 @case('factor_service')
-@permission('factor_service_show')
-@include('Admin.factoritem.serviceFormItem.defaultServiceFactor.list')
-@endpermission
-@permission('factor_service_edit')
+@can('factor_service_edit')
 @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.edit')
-@endpermission
+@else
+@include('Admin.factoritem.serviceFormItem.defaultServiceFactor.list')
+@endcan
 @break
 @case('factor_dentist')
-@permission('factor_service_show')
-@include('Admin.factoritem.serviceFormItem.dentist.list')
-@endpermission
 @permission('factor_service_edit')
 @include('Admin.factoritem.serviceFormItem.dentist.edit')
+@else
+@include('Admin.factoritem.serviceFormItem.dentist.list')
 @endpermission
 @break
 @case('factor_building')
-@permission('factor_service_show')
-@include('Admin.factoritem.serviceFormItem.building.list')
-@endpermission
-@permission('factor_service_edit')
+@can('factor_service_edit')
 @include('Admin.factoritem.serviceFormItem.building.edit')
-@endpermission
+@else
+@include('Admin.factoritem.serviceFormItem.building.list')
+@endcan
 @break
 @case('factor_legal')
-@permission('factor_service_show')
-@include('Admin.factoritem.serviceFormItem.legal.list')
-@endpermission
-@permission('factor_service_edit')
+@can('factor_service_edit')
 @include('Admin.factoritem.serviceFormItem.legal.edit')
-@endpermission
+@else
+@include('Admin.factoritem.serviceFormItem.legal.list')
+@endcan
 @break
 @case('factor_skin_hair')
-@permission('factor_service_show')
-@include('Admin.factoritem.serviceFormItem.skinHair.list')
-@endpermission
-@permission('factor_service_edit')
+@can('factor_service_edit')
 @include('Admin.factoritem.serviceFormItem.skinHair.edit')
-@endpermission
+@else
+@include('Admin.factoritem.serviceFormItem.skinHair.list')
+@endcan
 @break
 @case('factor')
 <div class="col-12 col-md-12 mb-3">
@@ -299,5 +261,11 @@
     </div>
 </div>
 @endif
+@break
+@case('rules')
+<div class="col-12">
+    <h4>مفاد قرارداد : </h4>
+    {!! $form->help !!}
+</div>
 @break
 @endswitch

@@ -274,10 +274,7 @@ function selectByTariff(id, value) {
 }
 
 function getSessionNumber(id, value) {
-
-    console.log(id);
     id = id.slice(14);
-    console.log(id);
     if (value != 0) {
 
         $.ajax({
@@ -670,6 +667,12 @@ $(document).ready(function () {
                                 break;
                             case 18:
                                 return `<span class="badge badge-purple">منتظر تایید قرارداد توسط کاربر</span>`;
+                                break;
+                            case 19:
+                                return `<span class="badge badge-warning">تعلیق اجرا</span>`;
+                                break;
+                            case 20:
+                                return `<span class="badge badge-danger">منتظر تایید فاکتور توسط کاربر</span>`;
                                 break;
                             default:
                                 return data.status;

@@ -63,7 +63,7 @@
                     </div>
                     @endif
                     <form class="form-horizontal" role="form" method="post"
-                        action="{{ $factor_item['total_price'] == 0 ? route('factorItem.createFactor') : route('factorItem.calculate') }}">
+                        action="{{ $factor_item['total_price'] == 0 ? route('factorItem.createFactor', [ $factorItem['resnumber']]) : route('factorItem.calculate') }}">
                         @csrf
                         <input type="hidden" name="id" value="{{ $factor_item['id'] }}">
                         <input type="hidden" name="item[id]" value="{{ $factor_item['id'] }}">

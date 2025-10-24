@@ -45,6 +45,7 @@ class BeforeForm extends Model
         'factor_building' => 'فاکتور خدمات ساختمانی',
         'factor_legal' => 'فاکتور حقوقی',
         'factor_service' => 'فاکتور خدمات',
+        'factor_skin_hair' => 'فاکتور زیبایی پوست و مو',
         'excel' => 'فایل اکسل',
         'image' => 'تصویر',
     ];

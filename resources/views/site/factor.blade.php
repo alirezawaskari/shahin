@@ -252,8 +252,9 @@
                                 {{-- <div class="alert alert-danger">
                                     <p>کاربر گرامی ؛</p>
                                     <p>
-                                         به دلایل اختلال در سرعت اینترنت قبل از ورود به درگاه بانکی از بسته
-                                        بودن فیلتر شکن خود مطئمن شده و در صورت هرگونه اختلال در پرداخت صورتحساب ها <a href="/contact" class="">تماس با ما</a> حاصل نمائید.
+                                        به دلایل اختلال در سرعت اینترنت قبل از ورود به درگاه بانکی از بسته
+                                        بودن فیلتر شکن خود مطئمن شده و در صورت هرگونه اختلال در پرداخت صورتحساب ها <a
+                                            href="/contact" class="">تماس با ما</a> حاصل نمائید.
                                         مجموعه سجا جهت حفظ امنیت اطلاعات و منابع مالی شما عزیزان خواهشمند است جهت واریز
                                         هرگونه وجه مانند ، هزینه ثبت نام و تشکیل پرونده ، پیش پرداخت و یا اقساط خدمات یا
                                         هزینه تشکیل پرونده مناقصات و مزایدات رسمی از درگاه اینترنتی تعبیه شده در خدمات
@@ -304,7 +305,8 @@
                                 <div
                                     class="col-12 d-flex justify-content-center justify-content-md-end align-items-center my-3">
                                     @if(!is_null($factor->coupon))
-                                    <span class="bold font-14 my-0 py-0 mx-2">کل: {{ number_format($factor->price_without_discount) }}
+                                    <span class="bold font-14 my-0 py-0 mx-2">کل: {{
+                                        number_format($factor->price_without_discount) }}
                                         ریال</span>
                                     <span class="bold font-13 my-0 py-0 mx-2 text-danger">تخفیف: {{
                                         number_format($factor->price_without_discount - $factor->price) }}
@@ -374,11 +376,18 @@
                                                         <div class="btn-group btn-group-toggle mt-3"
                                                             data-toggle="buttons">
                                                             <br>
-                                                            <label
+                                                            {{-- <label
                                                                 class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
                                                                 <input type="radio" name="payment" id="option1"
                                                                     value="online" autocomplete="off" checked>
                                                                 <span class="font-14">پرداخت از طریق کارت شتاب</span>
+                                                            </label> --}}
+                                                            {{-- پرداخت کارت به کارت --}}
+                                                            <label
+                                                                class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
+                                                                <input type="radio" name="payment" value="card"
+                                                                    id="option3" autocomplete="off" checked>
+                                                                <span class="font-14">پرداخت کارت به کارت</span>
                                                             </label>
                                                             @auth
                                                             @if($factor->user->wallet >= $factor->price)
@@ -387,7 +396,8 @@
                                                                 <input type="radio" name="payment" value="wallet"
                                                                     id="option2" autocomplete="off">
                                                                 <span class="font-12">کسر {{
-                                                                    number_format($factor->price) }} ریال از کیف شما</span>
+                                                                    number_format($factor->price) }} ریال از کیف
+                                                                    شما</span>
                                                                 <span class="font-12">موجودی شما: {{
                                                                     number_format($factor->user->wallet) }} ریال</span>
                                                             </label>
@@ -396,18 +406,19 @@
                                                                 class="rounded btn btn-secondary disabled d-flex flex-column align-items-center justify-content-center"
                                                                 disabled>
                                                                 <span class="font-12">کسر {{
-                                                                    number_format($factor->price) }} ریال از کیف شما</span>
+                                                                    number_format($factor->price) }} ریال از کیف
+                                                                    شما</span>
                                                                 <span class="font-12">موجودی شما: {{
                                                                     number_format($factor->user->wallet) }} ریال</span>
                                                             </button>
                                                             @endif
                                                             @endauth
-                                                            {{-- پرداخت کارت به کارت --}}
-                                                            <label
+                                                            {{-- <label
                                                                 class="rounded btn btn-outline-warning text-dark mx-2 d-flex flex-column align-items-center justify-content-center pointer">
-                                                                <input type="radio" name="payment" value="card" id="option3" autocomplete="off">
+                                                                <input type="radio" name="payment" value="card"
+                                                                    id="option3" autocomplete="off">
                                                                 <span class="font-14">پرداخت کارت به کارت</span>
-                                                            </label>
+                                                            </label> --}}
                                                         </div>
                                                         <input id="btn_factor" type="submit"
                                                             value="جهت پرداخت اینجا کلیک کنید"

@@ -362,7 +362,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     Route::post('/factorItem/transfer' , 'FactorItemController@transfer');
     Route::post('/factorItem/update-information', 'FactorItemController@updateInformation')->name('factorItem.information');
-    Route::post('/factorItem/create-factor', [FactorItemController::class,'createFactor'])->name('factorItem.createFactor');
+    Route::post('/factorItem/createFactor/{factorItem}', [FactorItemController::class,'createFactor'])->name('factorItem.createFactor');
+    Route::post('/factorItem/sendNotificationRecordingFactor/{factorItem}', [FactorItemController::class,'sendNotificationRecordingFactor'])->name('factorItem.sendNotificationRecordingFactor');
     Route::post('/factorItem/update-calculate', 'FactorItemController@updateCalculate')->name('factorItem.calculate');
     Route::post('/factorItem/payment', 'FactorItemController@payment')->name('factorItem.sendPayment');
     Route::post('/factorItem/return-payment', 'FactorItemController@returnPayment')->name('factorItem.returnPayment');
@@ -373,7 +374,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/save-image', 'FactorItemController@saveImage');
     Route::get('/factorItem/delete-service-tariff/{id}' , 'FactorItemController@deleteServiceTariff')->name('factorItem.deleteServiceTariff');
     Route::post('/factorItem/update-product' , 'FactorItemController@updateProduct')->name('factorItem.updateProduct');
-    Route::post('/factorItem/update-service-tariff' , 'FactorItemController@updateServiceTariff')->name('factorItem.updateServiceTariff');
+    Route::post('/factorItem/updateServiceTariff/{factorItem}' , [FactorItemController::class , 'updateServiceTariff'])->name('factorItem.updateServiceTariff');
     Route::get('/factorItem/expire', 'FactorItemController@expire');
     Route::post('/factorItem/sendInitialLink/{factorItem}', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
     Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
@@ -873,7 +874,6 @@ Route::middleware('auth')->group(function () {
     //Checkout
     Route::post('/checkout', 'CheckoutController@store')->name('checkout.store');
     Route::post('/upload_document', 'CheckoutController@upload_document')->name('checkout.upload');
-    Route::get('/factorItem/{factorItem}', 'FactorItemController@show');
     Route::post('/factorItem/request-contract-settlement', 'FactorItemController@requestContractSettlement')->name('site.factorItem.requestContractSettlement');
     Route::get('/factor/create', 'FactorController@create')->name('factor.create');
     Route::get('/cart', 'CartController@index')->name('cart');
@@ -888,7 +888,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/factorItem', 'ProfileController@factorItem')->name('profile.factorItem');
     Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
     Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
+    Route::post('/factorItem/verificationConfirmContractCodeFactor', 'FactorItemController@verificationConfirmContractCodeFactor');
     Route::post('/factorItem/verificationConfirmContractCodeEmployee', 'FactorItemController@verificationConfirmContractCodeEmployee');
+    Route::post('/factorItem/rejectFactor/{factorItem}', 'FactorItemController::class@rejectFactor')->name('factorItem.rejectFactor');
 
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');
@@ -899,6 +901,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
+Route::get('/factorItem/{factorItem}', 'FactorItemController@show');
 Route::get('/payment/{payment}', 'FactorItemController@index')->name('payment');
 Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');

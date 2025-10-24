@@ -117,7 +117,7 @@
             <span lang="FA" style="line-height: 150%;">3-1&nbsp; : مبلغ قرارداد : {{
                 number_format($totalFactorItem->total_price - $item['prepayment']['price']) }} ریال
                 با احتساب کارمزد به میزان {{ isset($item['wage']) ? number_format($item['wage']): '...'
-                }}ریال 
+                }} 
                 ریال&nbsp; &nbsp;که جمع اصل
                 و کارمزد آن به مبلغ {{ isset($item['loan']) ? number_format($item['loan']) : '...' }} ریال می باشد.<br>
             </span>
