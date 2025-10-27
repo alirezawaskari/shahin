@@ -65,8 +65,7 @@
                     </div>
                     <div class="col-12 mt-2">
                         @foreach($items as $key => $item)
-                        <div style="{{$item['is_changeable']&&$item['complete'] && $item['service']->isContract && $item['type']?'display:none':''}}"
-                            class="" id="first-data">
+                        <div class="{{ $item['is_changeable'] ? '' : 'd-none' }}" id="first-data">
                             <form action="{{ route('checkout.store')  }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="items[{{ $key }}][id]" value="{{ $item['id'] }}">
@@ -74,24 +73,18 @@
                                 <div class="bg-white shadow rounded mb-4">
                                     <div class="bg-light p-3 font-14 d-flex align-items-center justify-content-between">
                                         <div>
-                                            @if(!$item['complete'])
-                                            <i class="fas fa-pencil-alt font-18 ml-2 text-black-50"></i>
-                                            @endif
                                             @if(!is_null($item['service_item']))
                                             <span>{{ $item['service']->title . '-' . $item['service_item']->title
                                                 }}</span>
                                             @else
                                             <span>{{ $item['service']->title }}</span>
                                             @endif
-                                            @if($item['complete'])
-                                            <span class="text-success">(تکمیل شده)</span>
-                                            @endif
                                         </div>
                                     </div>
                                     <div class="row p-3 position-relative">
                                         @if($item['service']->center && count($item['centers']) > 0)
                                         <div class="col-12 col-md-6 mb-2">
-                                            {{-- <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
+                                            <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
                                             <select name="items[{{ $key }}][center]" id="" class="form-control"
                                                 required>
                                                 <option value="">انتخاب مرکز</option>
@@ -101,24 +94,17 @@
                                                     class="font-12">{{ $center->title. ' / ' . $center->address}}
                                                 </option>
                                                 @endforeach
-                                            </select> --}}
-                                            <label>انتخاب نوع دریافت مشاوره پیشنهادی شما :</label>
-                                            <select name="items[{{ $key }}][typeConsultation]"
-                                                id="select_type_consultation" class="form-control" required>
-                                                <option id="type_consultation_online" value="online"
-                                                    {{isset($item['factor_values']['typeConsultation']) &&
-                                                    $item['factor_values']['typeConsultation']=='online' ?'selected'
-                                                    : '' }}>آنلاین</option>
-                                                <option value="inPerson"
-                                                    {{isset($item['factor_values']['typeConsultation']) &&
-                                                    $item['factor_values']['typeConsultation']=='inPerson' ?'selected'
-                                                    : '' }}>حضوری</option>
                                             </select>
-                                            <div class="mt-3 divDate">
-                                                <label> انتخاب زمان مراجعه پیشنهادی شما : </label>
-                                                <input type="text" class="form-control" id="date"
-                                                    name="items[{{ $key }}][date]">
-                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-4">
+                                            <label for="description">توضیحات</label>
+                                            <textarea id="description" name="description" class="form-control">
+                                            </textarea>
+                                            <p class="text-warning col-12"> <i class="fa fa-exclamation-triangle"
+                                                    aria-hidden="true"></i>
+                                                    کاربر گرامی لطفا توضیحات مرتبط با مسائل مالی و دریافت خدمت را جهت ارائه به مرکز اینجا وارد کنید.
+                                            </p>
+
                                         </div>
                                         <div class="col-12 mb-3">
                                             <label>نوع دریافت خدمت :</label>
@@ -189,18 +175,20 @@
                                             </select>
                                         </div>
                                         @break
-										@case('checkbox')
+                                        @case('checkbox')
                                         <div class="col-12 col-md-12 mb-3">
                                             {!! $form->help !!}
                                             <br>
                                             @foreach($form->beforeformitems as $beforeformitem)
-                                                {{ $beforeformitem->title }}
-                                                @if(isset($item['factor_values'][$form->name]))
-                                                    <input type="{{ $form->type }}" name="items[{{ $key }}][{{$form->name }}][]" value="{{ $beforeformitem->value }}"
-                                                    {{ in_array($beforeformitem->value , $item['factor_values'][$form->name]) ? 'checked disabled' : '' }}>
-                                                    @else
-                                                    <input type="{{ $form->type }}" name="items[{{ $key }}][{{$form->name }}][]" value="{{ $beforeformitem->value }}">
-                                                @endif
+                                            {{ $beforeformitem->title }}
+                                            @if(isset($item['factor_values'][$form->name]))
+                                            <input type="{{ $form->type }}" name="items[{{ $key }}][{{$form->name }}][]"
+                                                value="{{ $beforeformitem->value }}" {{ in_array($beforeformitem->value
+                                            , $item['factor_values'][$form->name]) ? 'checked disabled' : '' }}>
+                                            @else
+                                            <input type="{{ $form->type }}" name="items[{{ $key }}][{{$form->name }}][]"
+                                                value="{{ $beforeformitem->value }}">
+                                            @endif
                                             @endforeach
                                         </div>
                                         @break
@@ -216,8 +204,7 @@
                                         @case('image')
                                         <div class="col-12 mb-2">
                                             <a href="{{ asset($form->file) }}" download>
-                                                <img src="{{ asset($form->file) }}"
-                                                    class="img-fluid" width="300">
+                                                <img src="{{ asset($form->file) }}" class="img-fluid" width="300">
                                             </a>
                                         </div>
                                         <label class="text-center">{{ $form->placeholder }}</label>
@@ -315,9 +302,7 @@
                                             @else
                                             <span>{{ $item['service']->title }}</span>
                                             @endif
-                                            @if($item['complete'])
-                                            <span class="text-success">(تکمیل شده)</span>
-                                            @endif
+
                                         </div>
                                         <i class="fa fa-check font-18 text-success"></i>
                                     </div>
@@ -325,7 +310,7 @@
                                 @endif
                                 <input type="submit" class="btn btn-success px-4" value="ثبت ">
                             </form>
-                            @if($item['complete'] && $item['service']->isContract && $item['type'])
+                            @if($item['service']->isContract && $item['type'])
                             <div class="col-12  ">
                                 <hr>
                                 <span id="next" class="btn btn-outline-primary" style="cursor: pointer">
@@ -334,7 +319,7 @@
                             </div>
                             @endif
                         </div>
-                        @if($item['complete'] && $item['service']->isContract && $item['type'])
+                        @if($item['service']->isContract && $item['type'])
                         <div id="file-content" class="mt-4 mt-md-0">
                             <div class="tab-content" id="nav-tabContent">
                                 <form action="{{ route('checkout.upload') }}" method="POST"
