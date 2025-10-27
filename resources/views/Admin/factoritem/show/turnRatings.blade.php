@@ -37,9 +37,7 @@
                 <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
                 <div class="col-12 mb-2">
                     <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
-                    <date-picker value="{{ $factorItem['date'] }}" format="YYYY/M/D HH:mm:ss"
-                        name="date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="date">
-                    </date-picker>
+                    <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
                 </div>
                 <div class="col-12 mb-3">
                     <div class="custom-control custom-checkbox">
