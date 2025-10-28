@@ -125,7 +125,7 @@ class Center extends Model {
     }
 
     public function serviceTariffs() {
-        return $this->belongsToMany( ServiceTariff::class )->orderBy( 'id', 'desc' );
+        return $this->belongsToMany( ServiceTariff::class );
     }
 
     public function galleries() {

@@ -120,8 +120,9 @@ class FactorItemController extends Controller {
             }
         }
         $user = $factorItem->factor->user;
-        $tariffs = Tariff::where('service_id' , $factorItem->factoritemable_id)->orderBy('id' , 'desc')->get();
-        $center_service_tariffs = $factorItem->center ? $factorItem->center->serviceTariffs : [];
+        $tariffs_id = $factorItem->center ? $factorItem->center->serviceTariffs()->where('service_id' , $factorItem->factoritemable_id)->pluck('tariff_id')->unique() : [];
+        $tariffs = Tariff::whereIn('id' , $tariffs_id)->orderBy('id' , 'desc')->get();
+        $center_service_tariffs = $factorItem->center ? $factorItem->center->serviceTariffs->where('service_id' , $factorItem->factoritemable_id) : [];
         $products = $factorItem->center ? $factorItem->center->products : [];
         return view( 'Admin.factoritem.edit', compact('item' , 'tariffs' , 'assistants', 'center_agents', 'products', 'center_service_tariffs', 'factorItem', 'user' ) );
     }
@@ -1234,7 +1235,7 @@ class FactorItemController extends Controller {
     /**
      * @param $request
      * @param FactorItem $factorItem
-     * @return void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     private function createSerivceTriffsFactorItem($request , FactorItem $factorItem)
     {
@@ -1249,7 +1250,7 @@ class FactorItemController extends Controller {
             $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : $value;
             if(auth()->user()->hasPermission('change-price-tariff'))
             {
-                $service_tariff_price = $request->price[$i];
+                $service_tariff_price = ( float ) str_replace( ',', '', $request->price[$i+1]);
             }else{
                 $service_tariff_price = $service_tariff->price;
             }

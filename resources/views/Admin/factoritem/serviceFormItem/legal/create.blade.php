@@ -45,6 +45,13 @@
         <input type="number" name="treatment_duration[]" id="treatment_duration1" class="form-control"
                placeholder="طول دوره اجرا (روز)" value="1" min="1">
     </div>
+      @permission('change-price-tariff')
+    <div class="col-12 col-md-4 mb-3">
+        <label>قیمت</label>
+        <input type="text" name="price[]" id="price1" class="form-control"
+               placeholder="قیمت" oninput="separatePrices(this)">
+    </div>
+    @endpermission
 </div>
 <div id="new_treatment_plan">
     <div>
