@@ -738,7 +738,7 @@ class FactorItemController extends Controller {
         {
             TotalFactorItem::updateCalculate($supervisor_factor_item->totalFactorItem);
         }
-        Log::channel('db')->info('service tariffs updated.' , ['factor_item_id' => $factor_item->id , 'registerar_id' => auth()->user()->id , 'service_tariffs' => $factor_item->serviceTariffs]);
+        Log::channel('db')->info('service tariffs updated.' , ['factor_item_id' => $factorItem->id , 'registerar_id' => auth()->user()->id , 'service_tariffs' => $factorItem->serviceTariffs]);
         return redirect()->back()->with( [
             'update' => 'success',
             'message' => $message,
