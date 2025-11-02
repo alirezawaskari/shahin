@@ -151,9 +151,7 @@ class EmployeeController extends AdminController
         $employee->update([
             'show_status' => $request->show_status,
         ]);
-        $employee->update([
-            'status' => $request->status,
-        ]);
+        $request->status ? $employee->update(['status' => $request->status]) : '';
         if ($request->urlimgshenasname) {
             Helper::deleteImage($user->imgshenasname);
             $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname, 'document');

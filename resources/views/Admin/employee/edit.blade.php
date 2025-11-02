@@ -132,6 +132,17 @@
                             <input type="password" class="form-control" name="password_confirmation">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
+                            <label>وضعیت همکار</label>
+                            <select class="form-control" name="status">
+                                <option value="0" {{ $employee->status != 1 ? 'selected' : '' }}>
+                                    غیرفعال
+                                </option>
+                                <option value="1" {{ $employee->status == 1 ? 'selected' : '' }}>
+                                    فعال
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
                             <label>وضعیت نمایش</label>
                             <select class="form-control" name="show_status">
                                 <option value="1" {{ $employee->show_status == 1 ? 'selected' : '' }}>
