@@ -57,7 +57,8 @@ class BeforeForm extends Model
     const DATA_DISPLAY_LEVEL = [
         'site' => 'سایت',
         'panel_user_info' => 'اطلاعات مرتبط با کاربر',
-        'panel_factor' => 'فاکتور',
+        'panel_factor' => 'ویرایش فاکتور',
+        'panel_factor_create' => 'ایجاد فاکتور',
         'panel_upload_before_work_doc' => 'مدارک مورد نیاز قبل کار',
         'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار',
         'panel_complation_file_work' => 'اتمام کار',
