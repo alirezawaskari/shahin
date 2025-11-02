@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\referralCenterNotification;
 use OwenIt\Auditing\Auditable;
 use App\Events\smsSuccessRegisterPayment;
 use App\Helpers\CalculationHelper;
@@ -599,6 +600,7 @@ class Factor extends Model implements AuditableContract
                 self::closeSimilars($item);
                 self::factorTaskChenge($item);
                 self::setFactorItemRepresentation($item);
+                self::refferalFactorItemToCenter($item);
                 $supporter_user = self::setSupporter($item);
                 if ( $supporter_user){
                     self::smsRegisterPaymentSuccess($item,$supporter_user);
@@ -701,6 +703,34 @@ class Factor extends Model implements AuditableContract
                 FactorItem::createRepresentation($item , $item->factor->representation_id);
             });
         }
+    }
+    /**
+     * @param \App\Models\Factor $factor
+     * @param mixed $center
+     * @return void
+     */
+    private static function refferalFactorItemToCenter(Factor $factor)
+    {
+        $factor->factorItems()->each(function ($factorItem) {
+            if($factorItem->center_id)
+            {
+                $factorItem->update([
+                'status_factor' => 17,
+                'date' => now(),
+            ]);
+            if (optional($factorItem->factoritemable)->session == 1) {
+                Session::create([
+                    'status' => 3,
+                    'user_id' => $factorItem->factor->callcenter_id,
+                    'factor_item_id' => $factorItem->id,
+                    'date' => now(),
+                    'description_before' => 'درخواست مشاوره - ثبت شده توسط مرکز',
+                ]);
+            }
+            //send sms to the center manager
+            event(new referralCenterNotification($factorItem->center));
+            }
+        });
     }
     /**
      * @param Factor $item

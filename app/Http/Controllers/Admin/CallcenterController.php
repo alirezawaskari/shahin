@@ -1044,7 +1044,7 @@ class CallcenterController extends Controller
                     'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
                     'count' => 1,
                     'price' => $payment_type == "supervisor" ? 0 : $service->price + ($service->price * $service->tax) / 100,
-                    'center_id' => auth()->user()->center_id ? auth()->user()->center_id : null,
+                    'center_id' => auth()->user()->center_id,
                     'type' => $service_pay_type,
                     'purchase_type' => $request->service_purchase_type[$i],
                 ]);
@@ -1065,7 +1065,7 @@ class CallcenterController extends Controller
                     'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
                     'count' => 1,
                     'price' => $payment_type == "supervisor" ? 0 : Service::find($services[$i])->price + (Service::find($services[$i])->price * Service::find($services[$i])->tax) / 100,
-                    'center_id' => auth()->user()->center_id ? auth()->user()->center_id : null,
+                    'center_id' => auth()->user()->center_id,
                     'type' => $service_pay_type,
                     'purchase_type' => $request->service_purchase_type[$i],
                 ]);
@@ -1116,7 +1116,7 @@ class CallcenterController extends Controller
                     'financial_plans_type_id' => isset($category_financial_plans_types[$i]) && $category_financial_plans_types[$i] != 'all' ? $category_financial_plans_types[$i] : null,
                     'count' => 1,
                     'price' => $payment_type == "supervisor" ? 0 : Category::find($categories[$i])->price + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100,
-                    'center_id' => auth()->user()->center_id ? auth()->user()->center_id : null,
+                    'center_id' => auth()->user()->center_id,
                     'type' => $category_pay_type,
                     'purchase_type' => $request->category_purchase_type[$i],
                 ]);
@@ -1134,7 +1134,7 @@ class CallcenterController extends Controller
                     'factoritemable_type' => Category::class,
                     'count' => 1,
                     'price' => $payment_type == "supervisor" ? 0 : Category::find($categories[$i])->price + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100,
-                    'center_id' => auth()->user()->center_id ? auth()->user()->center_id : null,
+                    'center_id' => auth()->user()->center_id,
                     'type' => $category_pay_type,
                     'purchase_type' => $request->category_purchase_type[$i],
                 ]);
