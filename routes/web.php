@@ -890,7 +890,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
     Route::post('/factorItem/verificationConfirmContractCodeFactor', 'FactorItemController@verificationConfirmContractCodeFactor');
     Route::post('/factorItem/verificationConfirmContractCodeEmployee', 'FactorItemController@verificationConfirmContractCodeEmployee');
-    Route::post('/factorItem/rejectFactor/{factorItem}', 'FactorItemController::class@rejectFactor')->name('factorItem.rejectFactor');
+    Route::post('/factorItem/rejectFactor/{factorItem}', 'FactorItemController@rejectFactor')->name('factorItem.rejectFactor');
 
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');

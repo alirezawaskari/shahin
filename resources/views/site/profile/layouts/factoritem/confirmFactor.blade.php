@@ -67,9 +67,9 @@
 <div class="modal fade" id="rejectFactorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content p-3">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">درخواست اصلاح فاکتور</h5>
+                <p class="modal-title" id="exampleModalLabel">درخواست اصلاح فاکتور</p>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -77,9 +77,9 @@
             <form action="{{ route('factorItem.rejectFactor' , [ $factorItem['resnumber']])}}"
                 method="POST" enctype="multipart/form-data">
                 @csrf
-                <textarea name="description" class="form-control" placeholder="دلیل درخواست اصلاح فاکتور"></textarea>
+                <textarea name="description" class="form-control mt-2 mb-2" placeholder="دلیل درخواست اصلاح فاکتور"></textarea>
                 <p class="alert alert-danger">کاربر گرامی : لطفا دلیل درخواست اصلاح فاکتور را بصورت دقیق ذکر نمایید.</p>
-                <input type="submit" class="btn btn-success px-4 mb-3" value="ثبت درخواست">
+                <input type="submit" class="btn btn-success px-4 mb-3 w-100" value="ثبت درخواست">
             </form>
         </div>
     </div>

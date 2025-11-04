@@ -105,6 +105,9 @@
         </div>
     </div>
 </div>
+@if(session()->get('success')=='success')
+    <span id="contact_success"></span>
+@endif
 @stop
 @section('js')
 <script>
@@ -132,35 +135,6 @@
         }
     });
     });
-    //verification confim contract
-    $("body").on('keyup','#verification_code',function () {
-    var token = $('meta[name="csrf-token"]').attr('content');
-    var verification_code = $('#verification_code').val();
-    var total_factor_item = $('#total_factor_item').val();
-
-    if(verification_code.length == 6)
-    {
-        $('#loading').css('display', 'block');
-        $.ajax({
-        url: "/factorItem/verificationConfirmContractCode",
-        type: 'post',
-        data: {
-            "_token": token,
-            "verification_code": verification_code,
-            "total_factor_item": total_factor_item,
-        },
-        success: function (response) {
-            swal(response['message'], "", response['status']);
-            if(response['status'] == 'success')
-            {
-                location.reload();
-            }
-            $('#loading').css('display', 'none');
-        }
-    });
-    }
-    });
-
     //verification confim factor
     $("body").on('keyup','#verification_factor_confirm_code',function () {
     var token = $('meta[name="csrf-token"]').attr('content');
