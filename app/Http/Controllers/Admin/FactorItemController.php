@@ -218,7 +218,7 @@ class FactorItemController extends Controller {
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factor_item->id,
                 'date' => $request->date ? Helper::vertaToMiladi($request->date) : now(),
-                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.'- مشاوره حضوری' : $request->description.'مشاوره آنلاین - ',
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.' - مشاوره حضوری ' : $request->description.' مشاوره آنلاین - ',
            ]);
         }
         //send sms to the user
