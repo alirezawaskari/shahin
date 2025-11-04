@@ -263,8 +263,7 @@
 @endif
 @break
 @case('rules')
-<div class="col-12">
-    <h4>مفاد قرارداد : </h4>
+<div class="col-12 bg-white">
     {!! $form->help !!}
 </div>
 @break

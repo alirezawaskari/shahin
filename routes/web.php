@@ -902,6 +902,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');
+Route::get('/factorItem/factor/{factorItem}', 'FactorItemController@showFactor');
 Route::get('/payment/{payment}', 'FactorItemController@index')->name('payment');
 Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');

@@ -56,6 +56,7 @@ class BeforeForm extends Model
      */
     const DATA_DISPLAY_LEVEL = [
         'site' => 'سایت',
+        'show_factor_site' => 'نمایش فاکتور در سایت',
         'panel_user_info' => 'اطلاعات مرتبط با کاربر',
         'panel_factor' => 'ویرایش فاکتور',
         'panel_factor_create' => 'ایجاد فاکتور',

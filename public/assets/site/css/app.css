@@ -21044,3 +21044,49 @@ a.lightbox-close:after {
     min-height: 200px;
     height: auto;
 }
+  table {
+        font-family: 'font';
+        background-color: white;
+    }
+
+.circle {
+    position: relative;
+    padding: 0;
+    margin: 1em auto;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    list-style: none;
+    overflow: hidden;
+    border: 2px solid #dee2e6;
+}
+
+.circle li {
+    overflow: hidden;
+    position: absolute;
+    top: -20%;
+    right: -20%;
+    width: 70%;
+    height: 70%;
+    transform-origin: 0% 100%;
+    border: 1px solid white;
+}
+
+.circle li .text {
+    background: #ff7481;
+    position: absolute;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+}
+
+.smaller-circle {
+    width: 45px;
+    height: 45px;
+    margin-top: -71px;
+    margin-right: 13;
+    background-color: white;
+    text-align: center;
+    padding-top: 7px;
+}
+

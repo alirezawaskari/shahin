@@ -74,7 +74,7 @@ class NotificationRecordingFactorSMS {
                 'param2' => $resnumber,
                 'param3' => verta(Carbon::now())->format('Y/m/d H:i:s'),
                 'param4' => $factorItem->center->title,
-                'param5' => 'lalecard.ir/factorItem/'.$resnumber,
+                'param5' => 'lalecard.ir/factorItem/factor/'.$resnumber,
             ];
             SendSms::sendSingleSms( 'notificationrecordingfactorforconfirmation', $userMobile, $body );
         }

@@ -1,7 +1,4 @@
 <div class="col-12 card mb-3 pt-3">
-    <div class="card-header bg-info text-white">
-        <h6 class="mb-0">فرم امضا الکترونیکی فاکتور :</h6>
-    </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-12 alert alert-success">

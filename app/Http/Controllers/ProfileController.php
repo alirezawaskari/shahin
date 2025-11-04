@@ -84,7 +84,7 @@ class ProfileController extends Controller
         $user = auth()->user();
         $factor_items = FactorItem::whereHas('factor', function($q){
             $q->where('user_id', auth()->user()->id)->where('status' , 1);
-        })->get();
+        })->latest()->get();
         return view('site.profile.layouts.factoritem.index', compact('user' , 'factor_items'));
     }
 

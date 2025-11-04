@@ -64,10 +64,13 @@ class FactorItemController extends Controller {
 
     /**
     * @param FactorItem $factorItem
-    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+    * @return \Illuminate\Http\RedirectResponse|\Illuminate\Contracts\View\View
     */
-
     public function show( FactorItem $factorItem ) {
+        if($factorItem->status_factor == 20)
+        {
+            return redirect('/factorItem/factor/'.$factorItem->resnumber);
+        }
         $expire_installments = $factorItem->factorItemInstallments->where( 'status', 0 )->where( 'date', '<', Carbon::now() );
         $paid_installments = $factorItem->factorItemInstallments->where( 'status', 1 );
         $factor = $factorItem->factor;
@@ -142,7 +145,69 @@ class FactorItemController extends Controller {
         $items = $totalFactorItem ? self::setFactorItemItems($totalFactorItem) : [];
         return view( 'site.profile.layouts.factoritem.show', compact('items' ,'checks', 'agents_contract_file', 'resnumber', 'contract_number', 'totalFactorItem', 'expire_installments', 'paid_installments', 'sessions', 'doctors', 'factor', 'factorItem', 'user', 'type', 'comments', 'item' ) );
     }
- /**
+    /**
+    * @param FactorItem $factorItem
+    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+    */
+    public function showFactor( FactorItem $factorItem ) {
+        $totalFactorItem = $factorItem->supervisor->totalFactorItem ?? '';
+        $user = $factorItem->factor->user;
+        $item = [];
+        $item[ 'id' ] = $factorItem->id;
+        $item[ 'service' ] = $factorItem->factoritemable;
+        $item[ 'service_item' ] = !is_null( $factorItem->service_item_id ) ? $factorItem->serviceItem : null;
+        $item[ 'centers' ] = $factorItem->factoritemable->centers == true ? $factorItem->factoritemable->centers : null;
+        $item[ 'forms' ] = count( $factorItem->factoritemable->beforeforms ) != 0 ? $factorItem->factoritemable->beforeforms : null;
+        $item[ 'complete' ] = $factorItem->complete;
+        $item[ 'values' ] = $factorItem->values;
+        $item[ 'factor_values' ] = $factorItem->factor_values;
+        $item[ 'supervisor_id' ] = $factorItem->supervisor_id;
+        $item[ 'factor_image' ] = $factorItem->factor_image;
+        $item[ 'status_factor' ] = $factorItem->status_factor;
+        $item[ 'status_user' ] = FactorItem::statusFactor( $factorItem->status_factor );
+        $item[ 'confirms' ] = $factorItem->confirms;
+        $item[ 'center' ] = $factorItem->center;
+        $item[ 'date' ] = $factorItem->date;
+        $item[ 'type' ] = $factorItem->type;
+        $item[ 'file_number' ] = $factorItem->file_number;
+        $item[ 'discount' ] = $factorItem->discount;
+        $item[ 'complete' ] = $factorItem->status_factor == 6 || $factorItem->status_factor == 10 ? true : false;
+        $item[ 'factorItems' ] = FactorItem::getFatorItemCollection( $factorItem )->get();
+        $item[ 'service_tariffs' ] = $factorItem->serviceTariffs;
+        $item[ 'confirm' ] = $totalFactorItem->confirm??false;
+        $item[ 'total_price' ] = $factorItem->supervisor->total_price + $factorItem->supervisor->discount;
+        $item[ 'prepayment' ][ 'price' ] = $factorItem->supervisor->property ? $factorItem->supervisor->property->prepayment_price : 0;
+        $item[ 'payments' ] = $factorItem->factors;
+        $item[ 'date_first_pay' ] = isset( $factorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $factorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
+        $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
+        //if factorItem type is installment
+        if ( $totalFactorItem ) {
+            $item[ 'is_pay_installment_by_check' ] = TotalFactorItem::payInstallmentByCheck( $totalFactorItem );
+            $item[ 'count_installment_checks' ] = TotalFactorItem::getCountInstallmentChecks( $totalFactorItem );
+            $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
+            $item[ 'contract_values' ] = $totalFactorItem->contract_values;
+            $item[ 'status_mali' ] = $factorItem->status_mali;
+            $item[ 'start_date' ] = verta( $totalFactorItem->approval_date )->format( 'Y/m/d' );
+            $item[ 'status_mali_text' ] = FactorItem::statusMali( $totalFactorItem->status_mali );
+            $item[ 'approval_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
+            $item[ 'total_price' ] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum( 'discount' );
+            $item[ 'prepayment' ][ 'price' ] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
+            $item[ 'installments_num' ] = $totalFactorItem->installments_num;
+            $item[ 'installments_price' ] = $totalFactorItem->totalFactorItemInstallments->first() ? $totalFactorItem->totalFactorItemInstallments->first()->price : 0;
+            $item[ 'wage' ] = TotalFactorItem::getWage( $totalFactorItem );
+            $item[ 'loan' ] = $totalFactorItem->totalFactorItemInstallments->sum( 'price' );
+            $item[ 'credit' ] = $totalFactorItem->credit;
+            $item[ 'extra_pay' ] = TotalFactorItem::getExtraPay( $totalFactorItem );
+            $item[ 'date_first_pay' ] = isset( $totalFactorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $totalFactorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
+            $item[ 'price_difference' ] = $totalFactorItem->property ? $totalFactorItem->property->price_difference : 0;
+            $item[ 'payments' ] = $totalFactorItem->factors;
+            $item[ 'percent_fines' ] = $totalFactorItem->percent_fines;
+            $item[ 'end_date' ] = isset( $totalFactorItem->totalFactorItemInstallments->last()->date ) ? verta( $totalFactorItem->totalFactorItemInstallments->sortBy( 'date' )->last()->date )->format( 'Y/m/d' ) : '';
+        }
+
+        return view( 'site.profile.layouts.factoritem.factor', compact('factorItem','user','totalFactorItem', 'item' ) );
+    }
+    /**
      * @param \App\Models\TotalFactorItem $totalFactorItem
      * @return array
      */
@@ -464,6 +529,7 @@ class FactorItemController extends Controller {
 
             return response( [ 'status' => 'success', 'message' => 'فاکتور با موفقیت امضا شد.' ] );
         }
+
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
     }
     /**

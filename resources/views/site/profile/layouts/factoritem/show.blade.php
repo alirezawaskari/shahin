@@ -30,24 +30,6 @@
                                 @endforeach
                                 @endif
                             </div>
-                            @if($item['status_factor'] == 20)
-                            <div class="alert alert-danger">
-                                <p>کاربر گرامی توجه داشته باشید : </p>
-                                <p>* در صورتی که به مورد یا مواردی از فاکتور صادره اعتراض داشته یا نیاز به
-                                    تغییر آن موارد دارید از کلید درخواست اصلاح برای آن مورد استفاده نمائید.</p>
-                                <p>* در صورت رد و اعتراض به کل فاکتور صادره صرفا یکبار میتوانید از دکمه درخواست اصلاح
-                                    تمام
-                                    فاکتور استفاده نمائید
-                                    خاطر نشان میدارد شماره و نشانی مرکز صادر کننده فاکتور در پیامک برای شما ارسال شده از
-                                    طریق ارتباط با مرکز یاد شده درخواست اصلاح فاکتور را هماهنگ نمائید پس از یکبار
-                                    اصلاحیه یا انقضای مدت زمان اعتبار فاکتور و عدم تائید از سوی شما در زمان مقرر هزینه
-                                    نام نویسی یا مشاوره / معاینه / پرداخت شده صفر میگردد و نیاز به ثبت درخواست و واریز
-                                    هزینه مجدد و اجرای کامل روند نوبت دهی یا مشاوره حضوری یا آنلاین دارد.</p>
-                            </div>
-                            <span class="btn btn-danger py-1 px-2 text-white mt-4" data-toggle="modal"
-                                data-target="#rejectFactorModal">درخواست اصلاح فاکتور</span>
-                            @include('site.profile.layouts.factoritem.confirmFactor')
-                            @endif
                             @else
                             <div class="bg-light p-3 font-14 d-flex align-items-center justify-content-between">
                                 <div>
@@ -191,24 +173,6 @@
                                 @endforeach
                                 @endif
                             </div>
-                            @if($item['status_factor'] == 20)
-                            <div class="alert alert-danger">
-                                <p>کاربر گرامی توجه داشته باشید : </p>
-                                <p>* در صورتی که به مورد یا مواردی از فاکتور صادره اعتراض داشته یا نیاز به
-                                    تغییر آن موارد دارید از کلید درخواست اصلاح برای آن مورد استفاده نمائید.</p>
-                                <p>* در صورت رد و اعتراض به کل فاکتور صادره صرفا یکبار میتوانید از دکمه درخواست اصلاح
-                                    تمام
-                                    فاکتور استفاده نمائید
-                                    خاطر نشان میدارد شماره و نشانی مرکز صادر کننده فاکتور در پیامک برای شما ارسال شده از
-                                    طریق ارتباط با مرکز یاد شده درخواست اصلاح فاکتور را هماهنگ نمائید پس از یکبار
-                                    اصلاحیه یا انقضای مدت زمان اعتبار فاکتور و عدم تائید از سوی شما در زمان مقرر هزینه
-                                    نام نویسی یا مشاوره / معاینه / پرداخت شده صفر میگردد و نیاز به ثبت درخواست و واریز
-                                    هزینه مجدد و اجرای کامل روند نوبت دهی یا مشاوره حضوری یا آنلاین دارد.</p>
-                            </div>
-                            <span class="btn btn-danger py-1 px-2 text-white mt-4" data-toggle="modal"
-                                data-target="#rejectFactorModal">درخواست اصلاح فاکتور</span>
-                            @include('site.profile.layouts.factoritem.confirmFactor')
-                            @endif
                             @else
                             <div class="bg-light p-3 font-14 d-flex align-items-center justify-content-between">
                                 <div>
@@ -611,4 +575,5 @@
     });
 </script>
 <script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+<script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
 @endsection
