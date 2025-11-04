@@ -18,8 +18,58 @@
             enctype="multipart/form-data">
             @csrf
             @foreach($factorItem['forms'] as $form)
-            @if (in_array('panel_factor' , $form->data_display_level))
+            @if (in_array('panel_factor_create' , $form->data_display_level))
             @switch($form->type)
+            @case('total-price')
+            <div class="col-12 mb-2">
+                {!! $form->help !!}
+                <input class="col-md-4 form-control" type="text" value="{{ number_format($factorItem['total_price'])}}"
+                    name="totalPrice" oninput="separatePrices(this)">
+                <p class="text-warning">همکار گرامی لطفا فقط جمع کل فاکتور را بصورت عددی وارد کنید.</p>
+            </div>
+            @break
+
+            @case('factor-image')
+            <div class="col-12 row">
+                <div class="col-md-4">
+                    <div id="addnew" class="file file--upload mb-5">
+                        <label for="{{ $form->name }}">
+                            <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن {!! $form->help !!}
+                        </label>
+                        <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
+                            class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
+                            accept=".jpg,.jpeg,.png">
+                    </div>
+                </div>
+                <div id="{{ $form->name }}_newlink" class="col-12 row">
+                    <div>
+                    </div>
+                </div>
+                <div id="{{ $form->name }}_newlinktpl">
+                    <div id="{{ $form->name }}_src" class="show"></div>
+                    <input type="hidden" id="{{ $form->name }}_path" class="path"
+                        name="item[{{ 'url'.$form->name }}][]">
+                </div>
+            </div>
+            <div class="col-12 row">
+                @if(isset($factorItem['factor_image']))
+                @foreach($factorItem['factor_image'] as $image)
+                <div class="card col-md-3">
+                    <a href="{{ asset($image) }}" target="_blank">
+                        <embed src="{{ $image }}" class="card-img-top" height="150px">
+                    </a>
+                </div>
+                @endforeach
+                @endif
+            </div>
+            @break
+            @case('textarea')
+            <div class="col-12 col-md-12 mb-2">
+                {!! $form->help !!}
+                <textarea class="form-control {{ $form->class }}" {{
+                    $form->required == true ? 'required' : '' }} name="item[{{ $form->name }}]"> {{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}</textarea>
+            </div>
+            @break
             @case('factor_service')
             @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.create')
             @break
