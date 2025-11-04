@@ -75,7 +75,7 @@
                             <option value="15">پرونده مختومه</option>
                             <option value="11">منتظرتایید مالی نمایندگی</option>
                             <option value="18">منتظر تایید قرارداد توسط کاربر</option>
-
+                            <option value="20">منتظر تایید فاکتور توسط کاربر</option>
                         </select>
                     </div>
                     <div class="col-12 col-md-3 mb-2">
