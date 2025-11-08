@@ -15,7 +15,12 @@
                         @if($errors->has('title'))<span
                                 class="help-block sub-error  ">{{$errors->first('title')}}</span>@endif
                     </div>
-
+                    <div class="col-12 col-md-4 mb-4">
+                        <label>عنوان مرتبط با url</label>
+                        <input type="text" value="{{ old('slug_title') }}" class="form-control" name="slug_title"  placeholder="لطفا متن url مختص این مقاله را را وارد کنید">
+                        @if($errors->has('slug_title'))<span
+                                class="help-block sub-error  ">{{$errors->first('slug_title')}}</span>@endif
+                    </div>
                     <div class="col-12 col-md-4 mb-4">
                         <label>دسته بندی *</label>
                         <select class="form-control" name="category_article_id">
@@ -37,7 +42,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-6 mb-4">
+                    {{-- <div class="col-12 col-md-6 mb-4">
                         <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
                         <div class="checkbox">
                             <label>
@@ -47,15 +52,27 @@
                             @if($errors->has('status'))<span
                                     class="help-block sub-error  ">{{$errors->first('status')}}</span>@endif
                         </div>
-                    </div>
+                    </div> --}}
                     @endif
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>وضعیت</label>
+
+                        <select class="form-control" name="status">
+                            <option value="0">
+                                پیش نویس
+                            </option>
+                            <option value="1">
+                                منتشر شده
+                            </option>
+                        </select>
+                    </div>
                     <div class="col-12 col-md-6 mb-4">
                         <label>عکس *</label>
                         <label for="image" class="custom-file-upload">
                             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                         </label>
                         <input id="image" class="file-upload file_upload_ajax" type="file"
-                               name="image"/>
+                               name="old_image"/>
                         <div id="image_src" class="show"></div>
                         <input type="hidden" id="image" class="path" name="image_path" value="">
                         @if($errors->has('image'))

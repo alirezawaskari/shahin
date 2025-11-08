@@ -12,7 +12,7 @@
                     <input type="text" class="form-control" name="phone" placeholder="شماره موبایل" />
                 </div>
 
-                <div class="col-12 col-md-3 mb-2">
+                {{-- <div class="col-12 col-md-3 mb-2">
                     <select class="form-control select2" name="status">
                         <option value="all">انتخاب وضعیت جلسه</option>
                         <option value="3">
@@ -22,7 +22,7 @@
                             در انتظار مشاوره اصلی
                         </option>
                     </select>
-                </div>
+                </div> --}}
                 <div class="col-12 col-md-3 mb-2">
                     <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="start_date">
                     </date-picker>
@@ -75,6 +75,7 @@
                 <tr>
                     <th>#</th>
                     <th>نام و نام خانوادگی</th>
+                    <th>شماره موبایل</th>
                     <th>توضیحات قبل مشاوره</th>
                     <th>تاریخ و ساعت</th>
                     <th>مرکز</th>

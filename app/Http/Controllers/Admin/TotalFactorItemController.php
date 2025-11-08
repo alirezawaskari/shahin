@@ -107,6 +107,8 @@ class TotalFactorItemController extends Controller
     private function setItem(TotalFactorItem $totalFactorItem)
     {
         $item['id'] = $totalFactorItem->id;
+        $item['is_pay_installment_by_check'] = TotalFactorItem::payInstallmentByCheck($totalFactorItem);
+        $item['count_installment_checks'] = TotalFactorItem::getCountInstallmentChecks($totalFactorItem);
         $item['contract_forms'] = ContractForm::orderBy('position', 'Asc')->get();
         $item['contract_values'] = $totalFactorItem->contract_values;
         $item['guarantee_type'] = $totalFactorItem->guarantee_type;
@@ -134,7 +136,7 @@ class TotalFactorItemController extends Controller
         $item['extra_pay_debt'] = number_format(TotalFactorItem::getDebtExtraPay($totalFactorItem));
         $item['loan'] = $totalFactorItem->totalFactorItemInstallments->sum('price');
         $item['total_price'] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum('discount');
-        $item['wage'] = ($item['total_price'] - $item['prepayment']['price']) * 0.04 / 12 * $item['installments_num'];
+        $item['wage'] = TotalFactorItem::getWage($totalFactorItem);
         $item['guarantee_price'] = self::getGuaranteePrice($item);
         $item['installments_debt'] = TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_num_pay'] * $item['installments_price'];
         $item['credit_amount'] = isset($totalFactorItem->property->price_difference_installment) ? $totalFactorItem->property->price_difference_installment : 0;
@@ -414,7 +416,7 @@ class TotalFactorItemController extends Controller
             }
         }
 
-        if (auth()->user()->hasRole('mali')) {
+        if (auth()->user()->isAbleTo('mali_confirmation') && $totalFactorItem->total_factor_item_status_id == 5) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'mali', auth()->user()->id);
             $totalFactorItem->update([
@@ -467,7 +469,7 @@ class TotalFactorItemController extends Controller
 
         }
 
-        if (auth()->user()->hasRole('superadmin')) {
+        if (auth()->user()->isAbleTo('superadmin_confirmation') && $totalFactorItem->total_factor_item_status_id == 8) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'superadmin', auth()->user()->id);
             $totalFactorItem->update([
@@ -1108,7 +1110,7 @@ class TotalFactorItemController extends Controller
         $factor->factor_item_id = isset($factor_item) ? $factor_item : null;
         $factor->callcenter_id = auth()->user()->id;
         $factor->representation_id = auth()->user()->admin_representation_id;
-        $factor->status = $request->payment_type == 'online' ? 0 : 1;
+        $factor->status = $request->payment_type == 'online' || $request->payment_type == 'send_tax_free_card_number' ? 0 : 1;
         $factor->number_card = $request->number_card;
         $factor->payment_code = $request->payment_code;
         $factor->expired_at = now()->addDay(1);

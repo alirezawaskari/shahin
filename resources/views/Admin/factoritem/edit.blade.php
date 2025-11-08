@@ -11,12 +11,7 @@
                        id="factor-tab" data-toggle="tab" href="#factor" role="tab" aria-controls="factor"
                        aria-selected="false">پرونده کاربر</a>
                 </li>
-                @if($factorItem->factoritemable->session)
-                    <li class="nav-item">
-                        <a class="nav-link show {{ $factorItem->center && $factorItem['status_factor'] == 6 ? 'active' : ''}}" id="contact-tab"
-                           data-toggle="tab" href="#session" role="tab" aria-controls="session" aria-selected="false">نوبت دهی</a>
-                    </li>
-                @endif
+                
                 @if(!auth()->user()->center_id && !isset($factorItem->center))
                 <li class="nav-item">
                     <a class="nav-link show {{ !$factorItem->center ? 'active' : ''}}" id="contact-tab"
@@ -38,10 +33,7 @@
                          id="factor" role="tabpanel" aria-labelledby="factor-tab">
                         @include('Admin.factoritem.layouts.file.index')
                     </div>
-                    <div class="tab-pane fade p-t-20 {{ $factorItem->center && $factorItem->factoritemable->session && ($factorItem['status_factor'] == 6) ? 'active show' : ''}}"
-                         id="session" role="tabpanel" aria-labelledby="contact-tab">
-                        @include('Admin.factoritem.layouts.session')
-                    </div>
+
                     <div class="tab-pane fade p-t-20 {{ !$factorItem->center ? 'active show' : ''}}" id="printForm" role="tabpanel" aria-labelledby="printForm-tab">
                         @include('Admin.factoritem.layouts.print')
                      </div>

@@ -17,6 +17,7 @@ class CreateFactorItemServiceTariffTable extends Migration
 		$table->integer('factor_item_id')->unsigned();
         $table->foreign('factor_item_id')->references('id')->on('factor_items')->onDelete('cascade');
 		$table->text('value')->nullable()->default(NULL);
+        $table->text('description')->nullable()->default(NULL);
 		$table->string('grouping',110)->nullable()->default(NULL);
 		$table->bigInteger('discount')->nullable()->default(NULL);
 		$table->integer('user_id')->nullable()->default(NULL);

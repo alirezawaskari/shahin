@@ -33,6 +33,16 @@
                 </a>
                 <h5 class="text-center">پرداخت مبلغ</h5>
             </li>
+            @if($factorItem->factoritemable->session)
+            <li class="nav-item flex-fill {{ $factorItem['status'] == 0 || !$factorItem['confirm'] ? 'ul-li-disabled' : ''}}" role="presentation">
+                <a class="nav-link beauty-nav-link {{ $factorItem->center && $factorItem->factoritemable->session && ($factorItem['status_factor'] == 6) ? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                    href="#step8" id="step8-tab" data-bs-toggle="tab" role="tab" aria-controls="step8"
+                    aria-selected="false" title="ثبت رویدادهای جلسات">
+                    <i class="fas fa-credit-card"></i>
+                </a>
+                <h5 class="text-center">ثبت رویدادهای جلسات</h5>
+            </li>
+            @endif
             <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
                 <a class="nav-link beauty-nav-link {{ $factorItem['status'] == 4 ? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
                     href="#step5" id="step5-tab" data-bs-toggle="tab" role="tab" aria-controls="step5"
@@ -62,22 +72,17 @@
             <div class="tab-pane fade {{ $factorItem['status'] == 0 ? 'show active' : ''}}" role="tabpanel" id="step1"
                 aria-labelledby="step1-tab">
                 @permission('user-information')
-                    @include('Admin.factoritem.layouts.file.userInformation')
+                @include('Admin.factoritem.layouts.file.userInformation')
                 @endpermission
             </div>
-            <div
-                class="tab-pane fade {{ $factorItem['status'] == 1 ? 'show active' : ''}}"
-                role="tabpanel"
-                id="step2"
-                aria-labelledby="step2-tab"
-            >
+            <div class="tab-pane fade {{ $factorItem['status'] == 1 ? 'show active' : ''}}" role="tabpanel" id="step2"
+                aria-labelledby="step2-tab">
                 @include('Admin.factoritem.layouts.file.factor')
                 <div class="d-flex justify-content-between">
                     <a class="btn btn-primary px-4 mb-3 ml-2 text-white previous">
                         <i class="fas fa-angle-right"></i>قبلی
-                     </a>
-                    <a
-                        class="btn btn-primary px-4 mb-3 text-white next {{ $item['total_price']==0 ? 'disabled' : ''}}">
+                    </a>
+                    <a class="btn btn-primary px-4 mb-3 text-white next {{ $item['total_price']==0 ? 'disabled' : ''}}">
                         بعدی
                         <i class="fas fa-angle-left"></i>
                     </a>
@@ -95,18 +100,29 @@
             <div class="tab-pane fade {{ $factorItem['status'] == 3 ? 'show active' : ''}}" role="tabpanel" id="step4"
                 aria-labelledby="step4-tab">
                 <div class="mt-5">
-                @include('Admin.factoritem.layouts.file.prepaymentLink')
-                @if($factorItem['type'])
+                    @include('Admin.factoritem.layouts.file.prepaymentLink')
+                    @if($factorItem['type'])
                     @include('Admin.factoritem.layouts.file.priceDiffLink')
-                @endif
+                    @endif
                     @include('Admin.factoritem.layouts.payments')
                 </div>
                 <div class="d-flex justify-content-between">
                     <a class="btn btn-primary px-4 mb-3 ml-2 text-white previous"> <i class="fas fa-angle-right"></i>
                         قبلی </a>
                     <a class="btn btn-primary px-4 mb-3 text-white next {{$factorItem['prepayment']['debt']==$item['prepayment']['price'] && $item['prepayment']['price'] !=0
-                    ? 'disabled' : '' }}"
-                        > بعدی <i class="fas fa-angle-left"></i> </a>
+                    ? 'disabled' : '' }}"> بعدی <i class="fas fa-angle-left"></i> </a>
+                </div>
+            </div>
+            <div class="tab-pane fade {{ $factorItem->center && $factorItem->factoritemable->session && ($factorItem['status_factor'] == 6) ? 'active show' : ''}}"
+                role="tabpanel" id="step8" aria-labelledby="step8-tab">
+                <div class="mt-5">
+                    @include('Admin.factoritem.layouts.session')
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a class="btn btn-primary px-4 mb-3 ml-2 text-white previous"> <i class="fas fa-angle-right"></i>
+                        قبلی </a>
+                    <a class="btn btn-primary px-4 mb-3 text-white next {{$factorItem['prepayment']['debt']==$item['prepayment']['price'] && $item['prepayment']['price'] !=0
+                    ? 'disabled' : '' }}"> بعدی <i class="fas fa-angle-left"></i> </a>
                 </div>
             </div>
             <div class="tab-pane fade {{ $factorItem['status'] == 4 ? 'show active' : ''}}" role="tabpanel" id="step5"

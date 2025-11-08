@@ -25,7 +25,7 @@
                     </div>
                     <div class="col-12 col-md-3 mb-2" >
                         <select class="form-control" name="tariff_id">
-                            <option value="" >تعرفه را انتخاب کنید </option>
+                            <option value="" >دوره تعرفه را انتخاب کنید </option>
                             @foreach($tariffs as $item)
                                 <option value="{{$item->id}}">{{$item->title}}</option>
                             @endforeach
@@ -55,10 +55,10 @@
                 <tr>
                     <th>#</th>
                     <th>عنوان تعرفه</th>
-                    <th>قیمت فروش مرکز(ریال)</th>
+                    <th>قیمت فروش مرکز به سجا(ریال)</th>
                     @if($access_selling_price)
                     <th>قیمت مصرف کننده (ریال)</th>
-                    <th>سود شرکت</th>
+                    <th>نرخ اختلاف خرید</th>
                     @endif
                     <th>آخرین ویرایش</th>
                     <th>تاریخ ثبت</th>

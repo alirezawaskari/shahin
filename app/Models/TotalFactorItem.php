@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\CalculationHelper;
 use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -974,4 +975,37 @@ class TotalFactorItem extends Model implements AuditableContract
         };
         return $price;
     }
+    /**
+    * @param \App\Models\TotalFactorItem $totalFactorItem
+    * @return bool
+    */
+    public static function payInstallmentByCheck( TotalFactorItem $totalFactorItem ) {
+        return $totalFactorItem->checks()->where( 'title', 'installment' )->exists();
+    }
+    /**
+    * @param \App\Models\TotalFactorItem $totalFactorItem
+    * @return bool
+    */
+    public static function getCountInstallmentChecks( TotalFactorItem $totalFactorItem ) {
+        return $totalFactorItem->checks()->where( 'title', 'installment' )->count();
+    }
+    /**
+     * Summary of getWage
+     * @param \App\Models\TotalFactorItem $totalFactorItem
+     * @return int
+     */
+    public static function getWage(TotalFactorItem $totalFactorItem)
+    {
+        $factor_items = $totalFactorItem->factorItems;
+        $wage = 0;
+        foreach($factor_items as $factor_item)
+        {
+            $total_price = FactorItem::getTotalPrice($factor_item , 0 , 0);
+            $prepayment_price = CalculationHelper::calculatePrepayment($factor_item, $total_price, $factor_item->type, $factor_item->factor->user);
+            $installments_num = CalculationHelper::calculateInstallmentsNum($factor_item);
+            $wage = $wage + CalculationHelper::calculateWage($factor_item , $total_price , $prepayment_price , $installments_num);
+        }
+        return $wage;
+    }
+    
 }

@@ -154,7 +154,7 @@ $(document).ready(function () {
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
 
         if ($('#access_selling_price').val()) {
-            $("#page_text").append('( میانگین سود شرکت : ' + data.meta.average_company_profit + '%)');
+            $("#page_text").append('( میانگین نرخ اختلاف خرید : ' + data.meta.average_company_profit + '%)');
         }
 
         if ($.fn.DataTable.isDataTable('#datatable-json')) {

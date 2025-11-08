@@ -39,7 +39,7 @@ class CalculationHelper {
     * @return int
     */
     public static function calculateTax( $wage ) {
-        return $wage * 0.09;
+        return $wage * 0;
     }
     /**
     * @param $total_price

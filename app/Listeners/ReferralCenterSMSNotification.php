@@ -28,20 +28,21 @@ class ReferralCenterSMSNotification
     public function handle(referralCenterNotification $event)
     {
         $center = $event->center;
-        $center_manager = User::where('level' , 'admin')->where('center_id' , $center->id)->whereHas('roles',function ($query){
-            $query->where('name','superadmin_center');
-        })->first();
-        if($center_manager)
+        $center_managers = User::where('level' , 'admin')->where('center_id' , $center->id)->whereHas('roles',function ($query){
+            $query->whereIn('name',['superadmin_center' , 'center-manager']);
+        })->get();
+        if($center_managers)
         {
-            $userMobile = $center_manager->phone;
-
-            if (isset($userMobile)) {
+            foreach($center_managers as $center_manager)
+            {
+                $userMobile = $center_manager->phone;
+                if (isset($userMobile)) {
                 $name = $center_manager->name .' '. $center_manager->family;
-
                 $body = [
                     'param1' => $name,
                 ];
                 SendSms::sendSingleSms('referralCenterNotification',$userMobile,$body);
+                }
             }
         }
     }

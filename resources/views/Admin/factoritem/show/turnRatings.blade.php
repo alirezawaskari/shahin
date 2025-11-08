@@ -1,24 +1,11 @@
 @if (!is_null($factorItem['centers']))
 <div class="col-12 card border shadow-lg">
-    <div class="card-header">تعیین نوبت مشاوره : </div>
     <div class="card-body">
         <form action="{{ route('factorItem.setCenter') }}" method="POST">
             @csrf
-            <div class="col-12 col-md-4 mb-3">
-                <label>انتخاب نوع دریافت مشاوره :</label>
-                <select name="item[typeConsultation]" id="select_type_consultation" class="selectTypeConsultation form-control" required>
-                    <option id="type_consultation_online" value="online" class="type_consultation_online"
-                        {{isset($factorItem['factor_values']['typeConsultation']) &&
-                        $factorItem['factor_values']['typeConsultation']=='online' ?'selected' : '' }}>آنلاین
-                    </option>
-                    <option value="inPerson" {{isset($factorItem['factor_values']['typeConsultation']) &&
-                        $factorItem['factor_values']['typeConsultation']=='inPerson' ?'selected' : '' }}>حضوری
-                    </option>
-                </select>
-            </div>
-            <hr>
+
             @if(!auth()->user()->center_id)
-            <div class="col-12 col-md-4 mb-2">
+            <div class="col-12 mb-2">
                 <label for="factorItem[center]">ارجاع به مرکز:</label>
                 <select name="center_id" class="form-control" required>
                     <option value="null">بدون مرکز</option>
@@ -30,11 +17,25 @@
                     @endforeach
                 </select>
             </div>
-            @endif
+            @else
+            <div class="col-12 mb-3">
+                <label>انتخاب نوع دریافت مشاوره :</label>
+                <select name="item[typeConsultation]" id="select_type_consultation" class="selectTypeConsultation form-control" required>
+                    <option value="inPerson" {{isset($factorItem['factor_values']['typeConsultation']) &&
+                        $factorItem['factor_values']['typeConsultation']=='inPerson' ?'selected' : '' }}>حضوری
+                    </option>
+                    <option id="type_consultation_online" value="online" class="type_consultation_online"
+                        {{isset($factorItem['factor_values']['typeConsultation']) &&
+                        $factorItem['factor_values']['typeConsultation']=='online' ?'selected' : '' }}>آنلاین
+                    </option>
+                </select>
+            </div>
+            <hr>
+            <input type="hidden" name="center_id" value="{{auth()->user()->center_id}}">
             <div class="divDate">
-                <div class="col-12 col-md-4 mb-2">
-                    <input type="hidden" name="type" value="supporter">
-                    <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
+                <input type="hidden" name="type" value="supporter">
+                <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
+                <div class="col-12 mb-2">
                     <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
                     <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
                 </div>
@@ -46,6 +47,8 @@
                     </div>
                 </div>
             </div>
+            @endif
+
             <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
             <div class="col-12 mb-4">
                 <label for="description">توضیحات</label>

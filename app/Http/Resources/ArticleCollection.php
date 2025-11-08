@@ -19,7 +19,7 @@ class ArticleCollection extends ResourceCollection
                     'id' => $item->id,
                     'title' => $item->title,
                     'status' => $item->status,
-                    'image' => $item->image,
+                    'image' => $item->old_image,
                     'user' => $item->user ? $item->user->name.' '.$item->user->family : 'ثبت نشده',
                     'category_article' => $item->category_article,
                     'created_at' => verta($item->created_at)->format('Y/m/d H:i:s'),

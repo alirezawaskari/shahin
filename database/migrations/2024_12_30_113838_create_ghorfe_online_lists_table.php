@@ -20,13 +20,9 @@ return new class extends Migration
             $table->string('en_title');
             $table->string('slug');
             $table->string('type_work');//service || product || all
+            $table->string('type_sales')->default('all');//online || person || all
             $table->string('call');
             $table->text('address');
-            $table->float('lat')->default('35.84');
-            $table->float('lon')->default('51.8788');
-            $table->text('logo');
-            $table->text('footer_logo');
-            $table->text('fav');
             $table->text('map_iframe_link');
             $table->text('google_map_link');
             $table->text('waze_map_link');
@@ -46,18 +42,55 @@ return new class extends Migration
             $table->string('email')->nullable(true);
             $table->text('description')->nullable(true);
             $table->text('keywords')->nullable(true);
-            $table->text('large_vertical_image');
-            $table->text('large_horizontal_image');
-            $table->text('left_small_horizontal_image');
-            $table->text('right_small_horizontal_image');
-            $table->text('addvertisment_slider');
-            $table->text('tax_certificate_image');
-            $table->text('mohr')->nullable(true);
             $table->integer('status');
             $table->string('domain_active')->length(100);
-
+            $table->decimal('lat', 10, 7);
+            $table->decimal('lon', 10, 7);
+            $table->string('card_number')->nullable(true);
+            $table->string('shaba_number')->nullable(true);
+            $table->string('onwer_name')->nullable(true);
+            $table->foreignUuid('fav_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('logo_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('footer_logo_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('large_vertical_image_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('large_horizontal_image_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('left_small_horizontal_image_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('right_small_horizontal_image_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('addvertisment_slider_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('tax_certificate_image_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignUuid('mohr_id')->nullable()
+                ->constrained('media_libraries')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->softDeletes();
-
+            
             $table->timestamps();
         });
 

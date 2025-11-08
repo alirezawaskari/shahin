@@ -27,7 +27,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
+        $categories = Category::where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
         return view('Admin.site.category.lists', compact('categories'));
     }
 

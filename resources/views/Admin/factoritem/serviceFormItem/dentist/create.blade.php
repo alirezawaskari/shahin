@@ -2,11 +2,11 @@
     افزودن
 </div>
 <div class="row treatment_plan d-none" id="treatment_plan">
-    <div class="col-12 col-md-3 mb-3">
+    <div class="col-12 col-md-4 mb-3">
         <label>شماره دندان</label>
         <input type="text" name="dentist_number[]" class="form-control" placeholder="شماره دندان">
     </div>
-    <div class="col-12 col-md-3 mb-3">
+    <div class="col-12 col-md-4 mb-3">
         <label>موقعیت دندان</label>
         <select class="form-control" name="dentist_position[]">
             <option value="بالا چپ">بالا چپ</option>
@@ -16,7 +16,7 @@
             <option value="کل درمان">کل درمان</option>
         </select>
     </div>
-    <div class="col-12 col-md-3 mb-2">
+    <div class="col-12 col-md-4 mb-2">
         <label>پزشک</label>
         <select class="form-control" name="doctor_id[]">
             <option value="">بدون پزشک</option>
@@ -27,7 +27,7 @@
             @endforeach
         </select>
     </div>
-    <div class="col-12 col-md-3 mb-3">
+    <div class="col-12 col-md-4 mb-3">
         <label>بازه زمانی تعرفه</label>
         <select class="form-control" name="tariff[]" id="tariff1"
                 onchange="selectByTariff(this.id , this.value)">
@@ -36,7 +36,7 @@
             @endforeach
         </select>
     </div>
-    <div class="col-12 col-md-5 mb-3">
+    <div class="col-12 col-md-8 mb-3">
         <label>تعرفه</label>
         <select class="form-control" name="service_tariff_id[]" id="service_tariff1" ondragend="prices()"
                 onchange="getSessionNumber(this.id , this.value)">
@@ -50,21 +50,25 @@
             @endforeach
         </select>
     </div>
-    <div class="col-12 col-md-2 mb-3">
+    <div class="col-12 col-md-4 mb-3 ">
+        <label>توضیحات</label>
+        <input type="text" name="description[]" class="form-control" placeholder="توضیحات" maxlength="100">
+    </div>
+    <div class="col-12 col-md-4 mb-3">
         <label>تعداد جلسات</label>
         <input type="number" name="session_number[]" id="session_number1" class="form-control"
                placeholder="تعداد جلسات درمان" value="1" min="1">
     </div>
-    <div class="col-12 col-md-2 mb-3">
+    <div class="col-12 col-md-4 mb-3">
         <label>طول درمان (روز)</label>
         <input type="number" name="treatment_duration[]" id="treatment_duration1" class="form-control"
                placeholder="طول درمان(روز)" value="1" min="1">
     </div>
-    @permission('change-price-tariff')
-    <div class="col-12 col-md-3 mb-3">
+      @permission('change-price-tariff')
+    <div class="col-12 col-md-4 mb-3">
         <label>قیمت</label>
-        <input type="number" name="price[]" id="price1" class="form-control"
-               placeholder="قیمت"  min="1">
+        <input type="text" name="price[]" id="price1" class="form-control"
+               placeholder="قیمت" oninput="separatePrices(this)">
     </div>
     @endpermission
 </div>

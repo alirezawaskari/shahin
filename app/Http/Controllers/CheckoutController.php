@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\referralCenterNotification;
 use App\Helpers\Helper;
 use App\Models\ContractForm;
 use App\Models\Disease;
 use App\Models\Factor;
 use App\Models\FactorItem;
+use App\Models\Session;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -18,16 +20,17 @@ class CheckoutController extends Controller {
     * @param Factor $factor
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
+
     public function index( Factor $factor ) {
         $user = auth()->user();
-        $diseases=Disease::all();
+        $diseases = Disease::all();
         $items = $factor->factorItems->map( function ( $item ) {
             $temp = [];
 
             $temp[ 'id' ] = $item->id;
             $temp[ 'service' ] = $item->factoritemable;
             $temp[ 'service_item' ] = !is_null( $item->service_item_id ) ? $item->serviceItem : null;
-            $temp[ 'centers' ] = FactorItem::getSelectableCenters($item);
+            $temp[ 'centers' ] = FactorItem::getSelectableCenters( $item );
             $temp[ 'forms' ] = count( $item->factoritemable->beforeforms ) != 0 ? $item->factoritemable->beforeforms : null;
             $temp[ 'complete' ] = $item->complete;
             $temp[ 'type' ] = $item->type;
@@ -49,7 +52,7 @@ class CheckoutController extends Controller {
     );
     $check = $factor->factorItems()->where( 'complete', false )->exists();
 
-    return view( 'site.checkout', compact( 'factor', 'items', 'check', 'user' ,'diseases') );
+    return view( 'site.checkout', compact( 'factor', 'items', 'check', 'user', 'diseases' ) );
 }
 
 /**
@@ -72,9 +75,9 @@ public function store( Request $request ) {
     foreach ( $request->items as $item ) {
         $factor_item = FactorItem::find( $item[ 'id' ] );
         if ( !self::checkIsChangeable( $factor_item ) ) {
-            return redirect()->back()->with([
+            return redirect()->back()->with( [
                 'failByMessage' => 'امکان بارگذاری مدارک برای پرونده شما وجود ندارد.'
-            ]);
+            ] );
         }
         if ( $factor_item->factor->user_id != auth()->user()->id && $factor_item->factor->user_id != $factor_item->supervisor_id ) {
             abort( 403 );
@@ -88,27 +91,21 @@ public function store( Request $request ) {
             ] );
         }
 
-        if (isset($item[ 'center' ]) && $factor_item->factoritemable->center ) {
-            $factor_item->update( [
-                'center_id' =>  $item[ 'center' ],
-                'type' => $item[ 'type' ] ,
-            ] );
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-            //Send SMS center
-            //event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+        if ( isset( $item[ 'center' ] ) && $factor_item->factoritemable->center ) {
+            $request['description'] = ' - درخواست مشاوره - انتخاب مرکز توسط کاربر '.$request->description;
+            $request['center_id'] = $item[ 'center' ];
+            FactorItem::referralCenter($factor_item , $request);     
         }
 
         $this->formData( $item );
 
         $factor_item->update( [
-            'status_factor' => isset( $item[ 'type' ] ) && $item[ 'type' ] ? 4 : 14,
-            'complete' => true,
-            'date' => isset($item[ 'date' ]) ? Helper::vertaToMiladi($item[ 'date' ]) : '',
+            'date' => isset( $item[ 'date' ] ) ? Helper::vertaToMiladi( $item[ 'date' ] ) : '',
         ] );
     }
-    return redirect()->back()->with([
+    return redirect()->back()->with( [
         'successByMessage' => 'مدارک با موفقیت بارگذاری شد.'
-    ]);
+    ] );
 }
 
 /**
@@ -144,28 +141,28 @@ public function upload_document( Request $request ) {
         }
 
         $user = User::find( $request->user_id );
-        if ($request->urlimgmeli) {
-            Helper::deleteImage($user->imgmeli);
-            $user->update(['imgmeli' => Helper::moveImage($request->urlimgmeli,'document')]);
+        if ( $request->urlimgmeli ) {
+            Helper::deleteImage( $user->imgmeli );
+            $user->update( [ 'imgmeli' => Helper::moveImage( $request->urlimgmeli, 'document' ) ] );
         }
 
-        if ($request->urlimgshenasname) {
-            Helper::deleteImage($user->imgshenasname);
-            $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname,'document')]);
+        if ( $request->urlimgshenasname ) {
+            Helper::deleteImage( $user->imgshenasname );
+            $user->update( [ 'imgshenasname' => Helper::moveImage( $request->urlimgshenasname, 'document' ) ] );
         }
 
-        if ($request->urlimgturnover) {
-            Helper::deleteImage($user->imgturnover);
-            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover,'document')]);
+        if ( $request->urlimgturnover ) {
+            Helper::deleteImage( $user->imgturnover );
+            $user->update( [ 'imgturnover' => Helper::moveImage( $request->urlimgturnover, 'document' ) ] );
         }
 
         $this->formData( $request->item );
 
         $factor_item->update( [ 'status_factor' => 14 ] );
 
-        return redirect()->back()->with([
+        return redirect()->back()->with( [
             'successByMessage' => 'مدارک با موفقیت بارگذاری شد.'
-        ]);
+        ] );
     }
 
     /**
@@ -252,8 +249,9 @@ public function upload_document( Request $request ) {
     * @param mixed $item //factorItem
     * @return bool
     */
+
     private function checkIsChangeable( $item ) {
-        $temp = in_array( $item->status_factor, array( 0, 4, 14, 3, 2, 9 , 17 ) );
+        $temp = in_array( $item->status_factor, array( 0, 4, 14, 3, 2, 9, 17 ) );
         //check totalFactorItem confirmation
         if ( $item->totalFactorItem && $item->totalFactorItem->confirm ) {
             $temp = false;

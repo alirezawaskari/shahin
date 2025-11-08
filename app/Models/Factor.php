@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\referralCenterNotification;
 use OwenIt\Auditing\Auditable;
 use App\Events\smsSuccessRegisterPayment;
 use App\Helpers\CalculationHelper;
@@ -571,7 +572,7 @@ class Factor extends Model implements AuditableContract
 
     /**
      * @param Factor $item
-     * @return void
+     * @return \Illuminate\Http\Response|void
      * save payment after paid the factor.
      * deduction from the factorItem's debt
      */
@@ -599,6 +600,7 @@ class Factor extends Model implements AuditableContract
                 self::closeSimilars($item);
                 self::factorTaskChenge($item);
                 self::setFactorItemRepresentation($item);
+                self::refferalFactorItemToCenter($item);
                 $supporter_user = self::setSupporter($item);
                 if ( $supporter_user){
                     self::smsRegisterPaymentSuccess($item,$supporter_user);
@@ -701,6 +703,20 @@ class Factor extends Model implements AuditableContract
                 FactorItem::createRepresentation($item , $item->factor->representation_id);
             });
         }
+    }
+    /**
+     * @param \App\Models\Factor $factor
+     * @param mixed $center
+     * @return void
+     */
+    private static function refferalFactorItemToCenter(Factor $factor)
+    {
+        $factor->factorItems()->each(function ($factorItem) {
+            $request['center_id'] = $factorItem->center_id;
+            $request['check'] = true;
+            $request['description'] = 'درخواست مشاوره - ثبت شده توسط مرکز';
+            FactorItem::referralCenter($factorItem , $request);
+        });
     }
     /**
      * @param Factor $item

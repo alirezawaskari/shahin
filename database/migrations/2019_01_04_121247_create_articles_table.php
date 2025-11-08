@@ -18,8 +18,11 @@ class CreateArticlesTable extends Migration
 		$table->integer('category_article_id')->default('1');
         $table->foreign('category_article_id')->references('id')->on('category_articles')->onDelete('cascade');
 		$table->string('title');
+        $table->string('slug_title');
 		$table->string('slug');
-		$table->text('image');
+		$table->text('old_image');
+        $table->text('image_url');
+		$table->text('thumb_url');
 		$table->text('tag')->nullable()->default(NULL);
 		$table->text('description')->nullable()->default(NULL);
 		$table->string('summary',220);

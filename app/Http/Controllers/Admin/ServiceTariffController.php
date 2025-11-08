@@ -124,7 +124,7 @@ class ServiceTariffController extends Controller {
 
         public function filter( Request $request ) {
             $center = Center::find( $request->center_id );
-            $last_tariff_id = $center->serviceTariffs()->where( 'service_id', $request->service_id )->latest()->first()->tariff_id;
+            $last_tariff_id = $center->serviceTariffs()->count()>0 ? $center->serviceTariffs()->where( 'service_id', $request->service_id )->latest()->first()->tariff_id : '';
             $request['last_tariff_id'] = $last_tariff_id;
             $service_tariffs = $center->serviceTariffs()->where( 'service_id', $request->service_id )->filter( $request )->latest();
             $total_service_tariffs = $center->serviceTariffs()->where( 'service_id', $request->service_id )->filter( $request )->latest();
@@ -193,8 +193,9 @@ class ServiceTariffController extends Controller {
                 $id = $request->input( 'id' );
                 $factor_item = FactorItem::find( $request->factor_item_id );
                 if ( ServiceTariff::where( 'tariff_id', $id )->get()->count() > 0 ) {
-                    $service_tariffs = $factor_item->center ? $factor_item->center->serviceTariffs()->where( 'tariff_id', $id )->get() : [];
-                    $service_tariffs =  new ServiceTariffCollection($service_tariffs , $service_tariffs );
+                    $service_tariffs = $factor_item->center->serviceTariffs()->where( 'tariff_id', $id )->where('service_id' , $factor_item->factoritemable_id)->get();
+                    $total_service_tariffs = $factor_item->center->serviceTariffs()->where( 'tariff_id', $id )->where('service_id' , $factor_item->factoritemable_id)->filter();
+                    $service_tariffs =  new ServiceTariffCollection($total_service_tariffs , $service_tariffs );
 
                     return response()->json( [ 'count' => 'available', 'service_tariffs' => $service_tariffs ] );
                 }
@@ -211,6 +212,7 @@ class ServiceTariffController extends Controller {
                 $id = $request->input( 'id' );
                 if ( ServiceTariff::find( $id ) ) {
                     $service_tariff = ServiceTariff::find( $id );
+                    $service_tariff->price = number_format($service_tariff->price);
                     return response()->json([
                         'count' => 'available',
                         'service_tariff' => $service_tariff

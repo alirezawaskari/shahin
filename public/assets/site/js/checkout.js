@@ -1,4 +1,5 @@
 $(document).ready(function () {
+        $('#file-content').hide();
 
     $(function () {
         $("#installment").click(async function () {

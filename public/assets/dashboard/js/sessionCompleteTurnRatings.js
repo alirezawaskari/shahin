@@ -83,6 +83,7 @@ $(document).ready(function () {
             columns: [
                 { "data": "sort_by" },
                 { "data": "name" },
+                { "data": "phone" },
                 { "data": "discription" },
                 { "data": "date" },
                 { "data": "center" },
@@ -124,8 +125,8 @@ $(document).ready(function () {
                             return `<div data-v-15965e3b="" class="dropdown">
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                                 <div class="dropdown-menu">
-                                ${(data.status == 'در انتظار فاکتور اصلی')? `<a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">امور اجرایی پرونده</button></a>`:''}
-                                ${(data.status == 'در انتظار مشاوره اولیه')? `<button data-id="${data.factor_item}" type="button" class="registrationInitialConsultationModal dropdown-item pointer" data-toggle="modal" data-target="#registrationInitialConsultationModal">ثبت مشاوره اولیه</button>`:''}
+                                <button data-id="${data.factor_item}" type="button" class="registrationInitialConsultationModal dropdown-item pointer" data-toggle="modal" data-target="#registrationInitialConsultationModal">تعیین نوبت مشاوره</button>
+                                <a href="../../dashboard/factorItem/${data.factor_item}/edit"><button type="button" class="dropdown-item pointer">ثبت مشاوره</button></a>
                                 <button data-id="${data.id}" type="button" class="dropdown-item pointer visit-reject" data-toggle="modal" data-target="#visitRejectModal">لغو مشاوره</button>
                                 <button style="display: ${display}"  data-id="${data.id}" class="session_delete dropdown-item pointer">حذف</button>
                                 </div>

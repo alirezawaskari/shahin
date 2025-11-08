@@ -231,7 +231,7 @@
                                                 <div class="form-group col-md-4">
                                                     <label>انتخاب استان</label>
                                                     <select class="form-control my-2 exporter_province_id" type="int"
-                                                            name="exporter_province" id="exporter_province_id"
+                                                            name="exporter_province_id" id="exporter_province_id"
                                                             required>
                                                         <option value="">انتخاب استان</option>
                                                         @foreach(\App\Models\Province::all() as $province)
@@ -243,7 +243,7 @@
                                                 <div class="form-group col-md-4">
                                                     <label>انتخاب شهر</label>
                                                     <select class="form-control my-2 exporter_city_id" type="int"
-                                                            name="exporter_city" id="exporter_city_id" required>
+                                                            name="exporter_city_id" id="exporter_city_id" required>
                                                         <option value="">انتخاب شهر</option>
                                                         @foreach(\App\Models\City::all() as $city)
                                                             <option value="{{ $city->id }}">{{ $city->name }}</option>
@@ -312,7 +312,7 @@
                                                 <div class="form-group col-md-4">
                                                     <label>انتخاب استان</label>
                                                     <select class="form-control my-2 guaranty_province_id" type="int"
-                                                            name="guaranty_province" id="guaranty_province_id"
+                                                            name="guaranty_province_id" id="guaranty_province_id"
                                                             required>
                                                         <option value="">انتخاب استان</option>
                                                         @foreach(\App\Models\Province::all() as $province)
@@ -324,7 +324,7 @@
                                                 <div class="form-group col-md-4">
                                                     <label>انتخاب شهر</label>
                                                     <select class="form-control my-2 guaranty_city_id" type="int"
-                                                            name="guaranty_city" id="guaranty_city_id" required>
+                                                            name="guaranty_city_id" id="guaranty_city_id" required>
                                                         <option value="">انتخاب شهر</option>
                                                         @foreach(\App\Models\City::all() as $city)
                                                             <option value="{{ $city->id }}">{{ $city->name }}</option>
@@ -392,8 +392,8 @@
                                                 </div>
                                                 <div class="form-group col-md-4">
                                                     <label>انتخاب استان</label>
-                                                    <select class="form-control my-2  pay_to_province_id" type="int"
-                                                            name="pay_to_province" id="province_id"
+                                                    <select class="form-control my-2 pay_to_province_id" type="int"
+                                                            name="pay_to_province_id" id="pay_to_province_id"
                                                             required>
                                                         <option value="">انتخاب استان</option>
                                                         @foreach(\App\Models\Province::all() as $province)
@@ -406,7 +406,7 @@
                                                 <div class="form-group col-md-4">
                                                     <label>انتخاب شهر</label>
                                                     <select class="form-control my-2 pay_to_city_id" type="int"
-                                                            name="pay_to_city" id="city_id" required>
+                                                            name="pay_to_city_id" id="pay_to_city_id" required>
                                                         <option value="">انتخاب شهر</option>
                                                         @foreach(\App\Models\City::all() as $city)
                                                             <option value="{{ $city->id }}">{{ $city->name }}</option>

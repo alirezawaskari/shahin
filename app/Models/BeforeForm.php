@@ -45,6 +45,7 @@ class BeforeForm extends Model
         'factor_building' => 'فاکتور خدمات ساختمانی',
         'factor_legal' => 'فاکتور حقوقی',
         'factor_service' => 'فاکتور خدمات',
+        'factor_skin_hair' => 'فاکتور زیبایی پوست و مو',
         'excel' => 'فایل اکسل',
         'image' => 'تصویر',
     ];
@@ -55,8 +56,10 @@ class BeforeForm extends Model
      */
     const DATA_DISPLAY_LEVEL = [
         'site' => 'سایت',
+        'show_factor_site' => 'نمایش فاکتور در سایت',
         'panel_user_info' => 'اطلاعات مرتبط با کاربر',
-        'panel_factor' => 'فاکتور',
+        'panel_factor' => 'ویرایش فاکتور',
+        'panel_factor_create' => 'ایجاد فاکتور',
         'panel_upload_before_work_doc' => 'مدارک مورد نیاز قبل کار',
         'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار',
         'panel_complation_file_work' => 'اتمام کار',

@@ -30,8 +30,8 @@
                     ماده 2) مستاجر :
                 </span>
                 {{ $user::getGenderTitle($user->sex) }} {{ $user->name.' '.$user->family }} فرزند {{ $user->father }}
-                متولد {{ $user->birthdate ?? '1359/08/26' }} به شماره شناسنامه {{ $user->shenasnamecode ?? '8581' }}
-                صادره از {{ $user->birth_city ?? 'تهران' }} و کد ملی {{ $user->melicode ?? '......' }}
+                متولد {{ $user->birthdate ?? '1372/03/21' }} به شماره شناسنامه {{ $user->shenasnamecode ?? '8581' }}
+                صادره از {{ $user->birth_city ?? 'اصفهان' }} و کد ملی {{ $user->melicode ?? '......' }}
                 به نشانی {{ $user->address ?? '......' }}. تلفن {{ $user->phone ?? '......' }}
                 <br>
             </span>
@@ -68,24 +68,37 @@
                 <span lang="FA" style="line-height: 150%;font-weight: 700;">
                     ماده 5 ) مبلغ اجاره و نحوه پرداخت آن :
                 </span>
-                مبلغ اجاره کلاً یک میلیارد و هشتصد و هشتاد میلیون ریال معادل صد و هشتاد و هشت میلیون تومان ، شامل هزینه
+                مبلغ اجاره کلاً {{ number_format($totalFactorItem->total_price) }} ریال ، شامل هزینه
                 های راه ‌اندازی ، تنظیم
                 اولیه ، و اجاره یک‌ ساله ، به انضمام «مالیات بر ارزش ‌افزوده»، مصوب ۱۷/۲/۱۳۸۷ کمیسیون اقتصادی مجلس شورای
                 اسلامی می‌باشد که توسط مستاجر ، هم‌ زمان با عقد قرارداد پرداخت می‌ گردد .
                 <br>
             </span>
+            @if($item['is_pay_installment_by_check'])
             <span lang="FA" style="line-height: 150%;">
                 <span lang="FA" style="line-height: 150%;font-weight: 700;">
                     تبصره 1 :
                 </span>
-                مستاجر مبلغ 920,000,000 ریال معادل نود و دو میلیون تومان از مبلغ اجاره را نقداً پرداخت نموده و الباقی را
-                به
-                موجب شش فقره چک به شماره های 1513040065963067 مورخ 1404/07/03 و 8681040065963069 مورخ 1404/08/18 و
-                1278040065963070 مورخ 1404/09/03 و 6824040065963071 مورخ 1404/10/18 و 3810040065963072 مورخ 1404/11/03 و
-                1585040065963073 مورخ 1404/12/18 هر کدام به مبلغ صدوشصت میلیون ريال معادل شانزده میلیون تومان ، ( جمعا
-                960،000،000 ریال ) پرداخت و تادیه نمود.
+                مستاجر مبلغ {{ number_format($item['prepayment']['price']) }} ریال از مبلغ اجاره را نقداً پرداخت نموده و
+                الباقی را
+                به موجب {{ isset($item['installments_num']) ? $item['installments_num'] : '...' }} فقره چک با جزئیات
+                جدول زیر پرداخت و تایید نموده است.
                 <br>
             </span>
+            <span>
+                @include('Admin.totalfactoritem.layouts.contract.checksList')
+            </span>
+            @else
+            <span lang="FA" style="line-height: 150%;">
+                <span lang="FA" style="line-height: 150%;font-weight: 700;">
+                    تبصره 1 :
+                </span>
+                مستاجر مبلغ {{ number_format($item['prepayment']['price']) }} ریال از مبلغ اجاره را نقداً پرداخت نموده و
+                الباقی را در {{ isset($item['installments_num']) ? $item['installments_num'] : '...' }} قسط بصورت ماهانه پرداخت مینماید.
+                <br>
+            </span>
+            @endif
+
             <span lang="FA" style="line-height: 150%;font-weight: 700;">
                 ماده 6 ) تعهدات موجر :
                 <br>

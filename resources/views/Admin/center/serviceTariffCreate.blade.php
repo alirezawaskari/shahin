@@ -28,7 +28,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>انتخاب تعرفه</label>
+                    <label>انتخاب دوره تعرفه</label>
                     <select class="form-control" name="tariff" id="tariff1" required>
                         @foreach ($tariffs as $tariff)
                             <option value="{{ $tariff->id }}">{{ $tariff->title }}</option>
@@ -36,7 +36,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش مرکز (ریال)</label>
+                    <label>قیمت فروش مرکز به سجا (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         oninput="separatePrices(this)">
                 </div>
