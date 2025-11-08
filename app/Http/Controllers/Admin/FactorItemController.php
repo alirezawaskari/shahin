@@ -199,38 +199,7 @@ class FactorItemController extends Controller {
                 'successByMessage' => 'مرکز تعیین شده با موفقیت حذف گردید.'
             ] );
         }
-        //close older sessions
-        Session::whereIn('status',[3,5])->where('factor_item_id',$factor_item->id)->update([
-            'status'=>7,
-            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
-        ]);
-
-        //update center_id
-        $factor_item->update( [
-            'center_id' =>  $request->center_id,
-            'status_factor' => 17,
-            'date' => $request->date ? Helper::vertaToMiladi($request->date) : now(),
-        ] );
-        //create session
-        if ($factor_item->factoritemable->session==1){
-            Session::create( [
-                'status' => 3 ,
-                'user_id' => auth()->user()->id,
-                'factor_item_id' => $factor_item->id,
-                'date' => $request->date ? Helper::vertaToMiladi($request->date) : now(),
-                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request->description.' - مشاوره حضوری ' : $request->description.' مشاوره آنلاین - ',
-           ]);
-        }
-        //send sms to the user
-        if ( $request->check && isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ) {
-            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
-        }
-        if($factor_item->center->representation)
-        {
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-        }
-        //send sms to the center manager
-        event(new referralCenterNotification($factor_item->center));
+        FactorItem::referralCenter($factor_item , $request);
         return redirect()->back()->with( [
             'successByMessage' => 'پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.'
         ] );

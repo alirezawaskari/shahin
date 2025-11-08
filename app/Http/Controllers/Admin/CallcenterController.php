@@ -376,7 +376,8 @@ class CallcenterController extends Controller
         $phone = Helper::numberConverter($request->phone);
         $client = User::where('phone', $phone)->first();
         //create new user
-        if (!$client) {
+        if (!
+        $client) {
             $client = self::createUser($request);
         }else{
             $conduct=null;
@@ -442,9 +443,8 @@ class CallcenterController extends Controller
                     self::updateCallcenterFieldIsOnlinePayTypeFactor($task, $payment_type);
                     self::updateCallcenterFieldIsZeroPriceFactor($task, $result_sum_price_factors);
                 }
-
                 //send sms for online factors
-                if ($payment_type == 'online' || $payment_type == 'send_card_number' || $payment_type == 'send_shaba_number') {
+                if ($result_sum_price_factors['sum_price_factors'] != 0 && ($payment_type == 'online' || $payment_type == 'send_card_number' || $payment_type == 'send_shaba_number')) {
                     self::sendSmsFactor($task, $result_sum_price_factors, $cash_factor, $credit_factor,$services,$categories,$payment_type);
                 } else {
                     $cash_factor ? Factor::savePayment($cash_factor) : '';

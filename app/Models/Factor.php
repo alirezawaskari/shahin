@@ -572,7 +572,7 @@ class Factor extends Model implements AuditableContract
 
     /**
      * @param Factor $item
-     * @return void
+     * @return \Illuminate\Http\Response|void
      * save payment after paid the factor.
      * deduction from the factorItem's debt
      */
@@ -712,24 +712,10 @@ class Factor extends Model implements AuditableContract
     private static function refferalFactorItemToCenter(Factor $factor)
     {
         $factor->factorItems()->each(function ($factorItem) {
-            if($factorItem->center_id)
-            {
-                $factorItem->update([
-                'status_factor' => 17,
-                'date' => now(),
-            ]);
-            if (optional($factorItem->factoritemable)->session == 1) {
-                Session::create([
-                    'status' => 3,
-                    'user_id' => $factorItem->factor->callcenter_id,
-                    'factor_item_id' => $factorItem->id,
-                    'date' => now(),
-                    'description_before' => 'درخواست مشاوره - ثبت شده توسط مرکز',
-                ]);
-            }
-            //send sms to the center manager
-            event(new referralCenterNotification($factorItem->center));
-            }
+            $request['center_id'] = $factorItem->center_id;
+            $request['check'] = true;
+            $request['description'] = 'درخواست مشاوره - ثبت شده توسط مرکز';
+            FactorItem::referralCenter($factorItem , $request);
         });
     }
     /**

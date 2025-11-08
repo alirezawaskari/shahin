@@ -92,36 +92,14 @@ public function store( Request $request ) {
         }
 
         if ( isset( $item[ 'center' ] ) && $factor_item->factoritemable->center ) {
-            $factor_item->update( [
-                'center_id' =>  $item[ 'center' ],
-                'type' => $item[ 'type' ] ,
-                'status_factor' => 17,
-            ] );
-            Session::whereIn( 'status', [ 3, 5 ] )->where( 'factor_item_id', $factor_item->id )->update( [
-                'status'=>7,
-                'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
-            ] );
-            //create session
-            if ( $factor_item->factoritemable->session == 1 ) {
-                Session::create( [
-                    'status' => 3 ,
-                    'user_id' => $factor_item->factor->user_id,
-                    'factor_item_id' => $factor_item->id,
-                    'date' => now(),
-                    'description_before' => ' - انتخاب مرکز توسط کاربر'.$request->description,
-                ] );
-            }
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-            //send sms to the center manager
-            event( new referralCenterNotification( $factor_item->center ) );
-            //Send SMS center
-            //event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+            $request['description'] = ' - درخواست مشاوره - انتخاب مرکز توسط کاربر '.$request->description;
+            $request['center_id'] = $item[ 'center' ];
+            FactorItem::referralCenter($factor_item , $request);     
         }
 
         $this->formData( $item );
 
         $factor_item->update( [
-            'status_factor' => isset( $item[ 'type' ] ) && $item[ 'type' ] ? 4 : 14,
             'date' => isset( $item[ 'date' ] ) ? Helper::vertaToMiladi( $item[ 'date' ] ) : '',
         ] );
     }

@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Models;
+
+use App\Events\referralCenterNotification;
+use App\Events\smsService;
 use App\Helpers\CalculationHelper;
 use App\Helpers\Helper;
 use Carbon\Carbon;
@@ -1057,6 +1060,49 @@ class FactorItem extends Model implements AuditableContract
         {
             $item->representation()->updateOrCreate(['representation_id' => $representation], ['agent_id' => auth()->user()->id]);
         }
+    }
+    /**
+     * Summary of referralCenter
+     * @param \App\Models\FactorItem $factorItem
+     * @param mixed $request
+     * @return void
+     */
+    public static function referralCenter(FactorItem $factorItem , $request)
+    {
+        $item = isset($request->item) ? $request->item : [];
+        $date = isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now();
+        //close older sessions
+        Session::whereIn('status',[3,5])->where('factor_item_id',$factorItem->id)->update([
+            'status'=>7,
+            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
+        ]);
+
+        //update center_id
+        $factorItem->update( [
+            'center_id' =>  $request['center_id'],
+            'status_factor' => 17,
+            'date' => $date,
+        ] );
+        //create session
+        if ($factorItem->factoritemable->session==1){
+            Session::create( [
+                'status' => 3 ,
+                'user_id' => auth()->user()->id,
+                'factor_item_id' => $factorItem->id,
+                'date' => $date,
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request['description'].' - مشاوره حضوری ' : $request['description'] ,
+           ]);
+        }
+        //send sms to the user
+        if ( isset($request['check']) && $request['check'] ) {
+            event( new smsService( $factorItem->factor->user, $factorItem->center->title . ':' . $factorItem->center->address, $factorItem->date ) );
+        }
+        if($factorItem->center->representation)
+        {
+            $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
+        }
+        //send sms to the center manager
+        event(new referralCenterNotification($factorItem->center));
     }
 }
 
