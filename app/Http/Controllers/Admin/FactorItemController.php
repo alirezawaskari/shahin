@@ -1172,7 +1172,7 @@ class FactorItemController extends Controller {
      */
     public function sendNotificationRecordingFactor( FactorItem $factorItem ) {
         // check factorItem have serviceTariff or not
-        if (!$factorItem->serviceTariffs()->exists()){
+        if (!$factorItem->serviceTariffs()->exists() && $factorItem->total_price == 0){
             return redirect()->back()->with( [
                 'failByMessage' => 'فاکتوری جهت تایید کاربر ثبت نشده است .'
             ] );
