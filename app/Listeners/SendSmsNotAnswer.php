@@ -35,7 +35,7 @@ class SendSmsNotAnswer
             $body = [
                 'param1' => verta(Carbon::now())->format('Y/m/d H:i:s'),
                 'param2' => $event->unit,
-                'param3' => auth()->user()->phone,
+                'param3' => auth()->user()->employee->business_phone,
                 'param4' => $callcenter,
             ];
             SendSms::sendSingleSms('sendsmsnotanswer',$userMobile,$body);

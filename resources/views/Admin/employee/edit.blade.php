@@ -82,6 +82,11 @@
                                 disabled="disabled">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
+                            <label>شماره تماس کاری</label>
+                            <input name="employee[business_phone]" value="{{ $employee->business_phone }}" type="text" class="form-control">
+                        </div>
+
+                        <div class="col-12 col-md-4 mb-3">
                             <label>کد ملی</label>
                             <input value="{{ $employee->user->melicode }}" type="text" name="melicode"
                                 class="form-control">
@@ -110,8 +115,8 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>شماره ثابت</label>
-                            <input value="{{ $employee->user->call }}" type="text" name="address" class="form-control">
+                            <label>شماره تماس اضطراری</label>
+                            <input value="{{ $employee->user->call }}" type="text" name="call" class="form-control">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <label>آدرس</label>
