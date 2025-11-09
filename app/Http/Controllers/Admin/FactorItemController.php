@@ -275,8 +275,8 @@ class FactorItemController extends Controller {
         }
         self::formData( $item );
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
-        //get calculate financial information
-        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
 
         Session::checkAndStartEntryVisitSession($factor_item);
 
@@ -368,8 +368,8 @@ class FactorItemController extends Controller {
         //get supervisor factoritem
         $factor_item = FactorItem::find( $item[ 'id' ] );
         $supervisor_factor_item = $factor_item->supervisor;
-        //get calculate financial information
-        self::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user);
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user);
         //save factor image
         if(isset($request->item['urlfactor-image']))
 		{
@@ -490,7 +490,8 @@ class FactorItemController extends Controller {
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
             ] );
         }
-        $supervisor_factor_item = FactorItem::changeType( $factor_item, $type );
+        FactorItem::changeType( $factor_item, $type );
+        $supervisor_factor_item = $factor_item->supervisor;
         //change supervisor factoritem discount
         $supervisor_factor_item->update( [
             'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
@@ -687,7 +688,6 @@ class FactorItemController extends Controller {
                 $message[$request->id[ $i ]] = "برای این فاکتور قبلا جلسه ثبت شده است.";
             }
         }
-        $user = $factorItem->factor->user;
         $type = $factorItem->type;
         //get total price factor
         $total_price = 0;
@@ -700,8 +700,8 @@ class FactorItemController extends Controller {
             FactorItem::calculateDiffrencePrice( $supervisor_factor_item , $total_price );
         }
         else{
-            //calculate
-            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
+            //calculate financial information
+            FactorItem::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $supervisor_factor_item->factor->user);
         }
         if($supervisor_factor_item->totalFactorItem)
         {
@@ -1285,8 +1285,8 @@ class FactorItemController extends Controller {
         $prepayment = [];
         $total_price = $factorItem->total_price ? $factorItem->total_price : $price;
         $total_price = $total_price + $factorItem->discount;
-        //calculate
-        FactorItem::calculate( $factorItem, $total_price, $factorItem->type, $user );
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($factorItem->supervisor , $total_price, $factorItem->type, $factorItem->factor->user);
         $prepayment['num'] = $factorItem->property->prepayment_num;
         $prepayment['count'] = $factorItem->property->prepayment_count;
 
@@ -1336,11 +1336,6 @@ class FactorItemController extends Controller {
      */
     public function changeFinancialPlansType(Request $request , FactorItem $factorItem)
     {
-        $factor_items_collection = FactorItem::getFatorItemCollection( $factorItem->supervisor );
-        $factor_items_collection->update(['financial_plans_type_id' => $request->financial_plans_type]);
-        $factorItem = FactorItem::find($factorItem->id);
-        //calculate registeration debt if factorItem type is credit
-        $factorItem->supervisor->type ? self::calculateRegisterationDebt($factorItem->supervisor) : '';
         //check if the financialPlansType selected matches the factorItem payment type
         if($factorItem->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factorItem->financialPlansType,$request->type))
         {
@@ -1348,7 +1343,20 @@ class FactorItemController extends Controller {
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
             ] );
         }
-        $supervisor_factor_item = FactorItem::changeType($factorItem,$request->type);
+        FactorItem::changeType($factorItem,$request->type);
+        $supervisor_factor_item = $factorItem->supervisor;
+        if($supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm)
+        {
+            return redirect()->back()->with( [
+                'failByMessage' => 'این پرونده تایید شده است و امکان تغییر طرح برای پرونده تایید شده وجود ندارد.'
+            ] );
+        }
+        $factor_items_collection = FactorItem::getFatorItemCollection( $factorItem->supervisor );
+        $factor_items_collection->update(['financial_plans_type_id' => $request->financial_plans_type]);
+        $factorItem = FactorItem::find($factorItem->id);
+        //calculate registeration debt if factorItem type is credit
+        $factorItem->supervisor->type ? self::calculateRegisterationDebt($factorItem->supervisor) : '';
+        
         $user = $supervisor_factor_item->factor->user;
         FactorItem::calculate($supervisor_factor_item, $supervisor_factor_item->total_price, $supervisor_factor_item->type, $user);
         $supervisor_factor_item->type ? TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem ) : '';
@@ -1385,7 +1393,11 @@ class FactorItemController extends Controller {
                 'description' => 'اضافه پرداخت هزینه ثبت نام با تغییر طرح پرونده',
             ]);
         }
-        $total_factor_item->property->update(['registeration_debt' => $diffrence_registeration_price]);
+        else
+        {
+            $factor_item->property->update(['registeration_debt' => $diffrence_registeration_price]);
+            $total_factor_item->property->update(['registeration_debt' => $total_factor_item->property->registeration_debt + $diffrence_registeration_price]);
+        }
     }
     /**
      *@param \App\Models\FactorItem $factorItem
@@ -1416,8 +1428,8 @@ class FactorItemController extends Controller {
         $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $item );
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
-        //get calculate financial information
-        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
         Session::changeVisitStatusByFactorItem($factor_item,6);
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
@@ -1467,27 +1479,5 @@ class FactorItemController extends Controller {
             'update' => 'success'
         ] );
 
-    }
-    /**
-     * @param mixed $supervisor_factor_item
-     * @param mixed $total_price
-     * @param mixed $type
-     * @param mixed $user
-     * @return void
-     */
-    private function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
-    {
-        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
-            //get difference price
-            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
-        } else {
-            //get calculate financial information for cash factorItems
-            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
-        }
-        if ($supervisor_factor_item->type)
-        {
-            //get calculate financial information for installment factorItems
-            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
-        }
     }
 }

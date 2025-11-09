@@ -940,8 +940,8 @@ class TotalFactorItemController extends Controller
             $factor_item_able = $factor_item->factoritemable;
             $total_price = $factor_item->total_price ? $factor_item->total_price : $factor_item_able->installments->min('down_interval');
             $total_price = $total_price + $factor_item->discount;
-            //calculate
-            FactorItem::calculate($factor_item, $total_price, $factor_item->type, $user);
+            //calculate financial information
+            FactorItem::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
         }
         TotalFactorItem::updateCalculate($total_factor_item);
         $user = User::find($request->input('user_id'));

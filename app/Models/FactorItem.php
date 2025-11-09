@@ -798,6 +798,28 @@ class FactorItem extends Model implements AuditableContract
 		return $total_price;
     }
     /**
+     * @param mixed $supervisor_factor_item
+     * @param mixed $total_price
+     * @param mixed $type
+     * @param mixed $user
+     * @return void
+     */
+    public function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
+    {
+        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
+            //get difference price
+            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
+        } else {
+            //get calculate financial information for cash factorItems
+            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
+        }
+        if ($supervisor_factor_item->type)
+        {
+            //get calculate financial information for installment factorItems
+            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
+        }
+    }
+    /**
      * @param FactorItem $supervisor_factor_item
      * @param mixed $total_price
      * @return void
@@ -885,12 +907,13 @@ class FactorItem extends Model implements AuditableContract
      * change type of factorItem
      * @param FactorItem $factor_item
      * @param mixed $type
-     * @return mixed
      */
     public static function changeType(FactorItem $factor_item, $type ) {
         $factor_items = FactorItem::getFatorItemCollection( $factor_item );
-
         $supervisor_factor_item = $factor_item->supervisor;
+        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
+            return false;
+        } 
         if($type != $factor_item->type)
         {
             //convert cash to credit
@@ -944,23 +967,15 @@ class FactorItem extends Model implements AuditableContract
             $total_price = $factor_item->serviceTariffs()->exists() ? 0 : $factor_item->total_price;
             $other_price = isset( $factor_item->factor_value[ 'otherPrice' ] ) ? $factor_item->factor_value[ 'otherPrice' ] : 0;
             $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
-            //get supervisor factorItem
-            $supervisor_factor_item = $factor_item->supervisor;
-
-            //get difference price
-            if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
-                FactorItem::calculateDiffrencePrice( $supervisor_factor_item->totalFactorItem , $total_price );
-            }
-            else{
-                //calculate
-                FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $factor_item->factor->user );
-            }
+            //calculate
+            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $supervisor_factor_item->factor->user );
+            
             if($supervisor_factor_item->totalFactorItem)
             {
                 TotalFactorItem::updateCalculate($total_factor_item);
             }
         }
-        return $supervisor_factor_item;
+        return true;
     }
 
     /**
