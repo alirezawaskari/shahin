@@ -18,10 +18,6 @@ class FactorItemServiceTariffController extends Controller {
         $factor_item_service_tariff = $factorItemServiceTariff;
         $factor_item = $factor_item_service_tariff->factorItem;
         $type = $factor_item->type;
-        if ( $factor_item->complete ) {
-            $arr = array( 'errors' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید' );
-            return Response()->json( $arr );
-        }
         if ( $factor_item_service_tariff->sessions->isEmpty() ) {
             $factor_item_service_tariff->delete();
 
@@ -39,7 +35,9 @@ class FactorItemServiceTariffController extends Controller {
             if ( $supervisor_factor_item->totalFactorItem ) {
                 TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
             }
-
+            $factor_item->update( [
+                'complete' => false
+            ] );
             Log::channel( 'db' )->info( 'service tariffs deleted.', [ 'factor_item_id' => $factor_item->id, 'registerar_id' => auth()->user()->id, 'service_tariffs' => $factor_item->serviceTariffs ] );
 
             $arr = array( 'msg' => 'باموفقیت حذف شد' );

@@ -339,11 +339,6 @@ class FactorItemController extends Controller {
      * create factorItem products & factorItem service tariffs
      */
     public function createFactor( Request $request , FactorItem $factorItem) {
-        if ( $factorItem->complete ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
-            ] );
-        }
         $item = $request->item;
         self::formData( $request->item );
         $user = User::find( $item[ 'user_id' ] );
@@ -654,11 +649,6 @@ class FactorItemController extends Controller {
      * update factorItem serviceTariffs
      */
     public function updateServiceTariff( Request $request , FactorItem $factorItem) {
-        if ( $factorItem->complete ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
-            ] );
-        }
         $inputs = $request->all();
         $message = [];
         if(isset($inputs[ 'id' ]))
@@ -707,6 +697,9 @@ class FactorItemController extends Controller {
         {
             TotalFactorItem::updateCalculate($supervisor_factor_item->totalFactorItem);
         }
+        $factorItem->update( [
+            'complete' => false
+        ] );
         Log::channel('db')->info('service tariffs updated.' , ['factor_item_id' => $factorItem->id , 'registerar_id' => auth()->user()->id , 'service_tariffs' => $factorItem->serviceTariffs]);
         return redirect()->back()->with( [
             'update' => 'success',
@@ -1208,11 +1201,6 @@ class FactorItemController extends Controller {
      */
     private function createSerivceTriffsFactorItem($request , FactorItem $factorItem)
     {
-        if ( $factorItem->complete ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
-            ] );
-        }
         for ($i = 0; $i < ($request->service_tariff_id ? count($request->service_tariff_id) : 0); $i++) {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
             $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
@@ -1232,7 +1220,6 @@ class FactorItemController extends Controller {
 		    $doctor_id = isset($request->doctor_id[ $i+1 ]) ? $request->doctor_id[ $i+1 ] : null;
 			$session_number = isset($request->session_number[ $i+1 ]) ? $request->session_number[ $i+1 ] : null;
 			$description = isset($request->description[ $i+1 ]) ? $request->description[ $i+1 ] : null;
-
             $factorItem->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $doctor_id,  'description' => $description, 'session_number' => $session_number, 'treatment_duration' => $treatment_duration] ] );
         }
     }
