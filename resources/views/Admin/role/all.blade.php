@@ -19,12 +19,13 @@
 </div>
 <div class="card position-relative">
     <div class="card-body">
-        <form  id="filter_form" method="get" role="form">
+        <form id="filter_form" action="/dashboard/role/filter" method="get">
+            @csrf
             <div class="row">
                 <div class="col-12 col-md-3 mb-2 disInline">
-                    <input class="form-control" name="name" placeholder="نام نقش">
+                    <input class="form-control" name="display_name" placeholder="عنوان نقش">
                 </div>
-                <div class="col-12 col-md-2 mb-2 disInline">
+                <div class="col-12 col-md-3 mb-2">
                     <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
                 </div>
             </div>
@@ -47,7 +48,7 @@
             </tbody>
         </table>
         <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center"
-             id="loading">
+            id="loading">
             <div role="status" class="spinner-border text-primary">
             </div>
             <br>
@@ -64,6 +65,6 @@
 
 @section('js')
 <script src="/assets/dashboard/js/pagination.js"></script>
-<script src="/assets/dashboard/js/role.js"></script>
+<script src="/assets/dashboard/js/role.js?v=1.1"></script>
 <script src="/assets/dashboard/js/layouts.js"></script>
 @endsection
