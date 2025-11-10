@@ -804,7 +804,7 @@ class FactorItem extends Model implements AuditableContract
      * @param mixed $user
      * @return void
      */
-    public function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
+    public static function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
     {
         if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
             //get difference price
