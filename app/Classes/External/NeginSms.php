@@ -16,10 +16,10 @@ class NeginSms
      * @param $service_type
      * @return mixed
      */
-    public static function sendSingleSms(string $message, $phone,?string $portal_code = null, $service_type)
+    public static function sendSingleSms(string $message, $phone, $service_type)
     {
         $client = new nusoap_client('https://dev.homais.com/services/sms/index.asmx?wsdl', array('encoding'=>'UTF-8'));
-        $parameters['PortalCode'] = $portal_code ?? '982100044351545' ; //portal code
+        $parameters['PortalCode'] = config('services.neginSms.portalcode'); //portal code
         $parameters['UserName'] = config('services.neginSms.username');//username
         $parameters['PassWord'] = config('services.neginSms.password'); //password
         $parameters['Mobile'] = $phone; //phone number

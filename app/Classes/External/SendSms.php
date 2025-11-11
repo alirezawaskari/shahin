@@ -23,7 +23,7 @@ class SendSms
             if($message !== false){
                 $smsService = Setting::first()->sms_panel ?? 'IranSms';
                 if ($smsService === 'NeginSms') {
-                    NeginSms::sendSingleSms($phone, $message,null,service_type:'test');
+                    NeginSms::sendSingleSms($phone, $message,service_type:'test');
                 } else {
                     IranSms::sendSingleSms($phone, $message);
                 }
