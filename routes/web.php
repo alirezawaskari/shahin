@@ -72,6 +72,7 @@ Route::get('/register/check-user-is-register',[RegisterController::class,'checkU
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
 //Campaign
+Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 Route::get('/campaign/{slug:string}', [CampaignController::class,'campaignRegister'])->name('campaign');
 Route::post('/campaign/register/insert/{campaign_id:int}', [CampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 Route::post('type/category', [CampaignController::class,'getTypeCategory']);
@@ -907,6 +908,7 @@ Route::get('/payment/{payment}', 'FactorItemController@index')->name('payment');
 Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
+Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
