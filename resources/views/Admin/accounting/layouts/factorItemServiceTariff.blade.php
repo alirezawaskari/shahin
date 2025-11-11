@@ -73,9 +73,6 @@
                             @case( 'check')
                             چک
                             @break
-                            @case( 'certificate')
-                            گواهی کسراز حقوق
-                            @break
                             @case( 'promissorynote')
                            سفته
                             @break
