@@ -711,11 +711,15 @@ class Factor extends Model implements AuditableContract
      */
     private static function refferalFactorItemToCenter(Factor $factor)
     {
+        
         $factor->factorItems()->each(function ($factorItem) {
+            if($factorItem->center_id)
+            {
             $request['center_id'] = $factorItem->center_id;
             $request['check'] = true;
             $request['description'] = 'درخواست مشاوره - ثبت شده توسط مرکز';
             FactorItem::referralCenter($factorItem , $request);
+            }
         });
     }
     /**
