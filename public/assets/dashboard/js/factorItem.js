@@ -672,7 +672,7 @@ $(document).ready(function () {
                                 return `<span class="badge badge-warning">تعلیق اجرا</span>`;
                                 break;
                             case 20:
-                                return `<span class="badge badge-danger">منتظر تایید فاکتور توسط کاربر</span>`;
+                                return `<span class="badge badge-yellow">منتظر تایید فاکتور توسط کاربر</span>`;
                                 break;
                             default:
                                 return data.status;
