@@ -444,9 +444,11 @@ class FactorItemController extends Controller {
 
     public function sendConfirmContractCode( Request $request ) {
         if ( $request->confirm_contract_check == true ) {
-            $user_phone_number = auth()->user()->phone;
+            $factorItem = FactorItem::find( $request->factor_item );
+            $phone = $factorItem->factor->user->phone;
+            $user_phone_number = $phone;
             $verification_code = rand( 123456, 999999 );
-            $auth_code = AuthCode::where( 'phone', auth()->user()->phone )->first();
+            $auth_code = AuthCode::where( 'phone', $phone )->first();
             if ( !is_null( $auth_code ) ) {
                 $expirationTime = time() - $auth_code->expiration_time;
                 $remaining_time = ( $auth_code->time_code_again * 60 ) - $expirationTime;
@@ -478,7 +480,9 @@ class FactorItemController extends Controller {
     */
 
     public function verificationConfirmContractCode( Request $request ) {
-        $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
+        $factorItem = FactorItem::find( $request->factor_item );
+        $phone = $factorItem->factor->user->phone;
+        $has_auth_code = AuthCode::where( 'phone', $phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
             if ( $request->total_factor_item ) {
                 $totalFactorItem = TotalFactorItem::find( $request->total_factor_item );
@@ -510,7 +514,9 @@ class FactorItemController extends Controller {
     */
 
     public function verificationConfirmContractCodeFactor( Request $request ) {
-        $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
+        $factorItem = FactorItem::find( $request->factor_item );
+        $phone = $factorItem->factor->user->phone;
+        $has_auth_code = AuthCode::where( 'phone', $phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
             $factorItem = FactorItem::find( $request->factor_item );
             if ( $factorItem->total_factor_item ) {
