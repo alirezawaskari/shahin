@@ -26,7 +26,7 @@ class FactorItemClosingSMSNotificaion {
     */
 
     public function handle( factorItemClosing $event ) {
-        $userMobile = $event->factorItem->user->phone;
+        $userMobile = $event->factorItem->factor->user->phone;
         $supporter = $event->factorItem->supporter ? ( $event->factorItem->supporter->name.' '. $event->factorItem->supporter->family ) : 'مریم حسینی';
 
         if ( isset( $userMobile ) ) {
