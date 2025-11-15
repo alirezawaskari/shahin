@@ -2,7 +2,6 @@
 
 namespace App\Listeners;
 
-use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\factorItemActivation;
 
