@@ -114,4 +114,16 @@ class CalculationHelper {
         $extra_work_price = $sessions_sum_price - $prepayment_paid;
         return $extra_work_price > 0 ? $extra_work_price : 0;
     }
+    /**
+     * Summary of getServiceTariffSellingPrice
+     * @param mixed $consumer_price
+     * @param mixed $purchase_price
+     */
+    public static function getServiceTariffSellingPrice( $consumer_price, $purchase_price ) {
+        $selling_price = $purchase_price + ( $consumer_price * 0.2 );
+        if ( $selling_price < $consumer_price ) {
+            return $selling_price;
+        }
+        return $consumer_price;
+    }
 }

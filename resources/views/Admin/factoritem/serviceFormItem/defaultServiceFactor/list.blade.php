@@ -15,6 +15,8 @@
             <th>طول دوره اجرا(روز)</th>
             <th>تخفیف (ریال)</th>
             <th>تعرفه مصرف کننده (ریال)</th>
+            <th>تعرفه عرضه به اعضاء لاله (ریال)</th>
+            <th>اختلاف خرید اولیه (ریال)</th>
             @permission('view_profit_factorItem')
             <th>تعرفه خرید سجا (ریال)</th>
             <th>نرخ اختلاف خرید</th>
@@ -46,9 +48,12 @@
             </td>
             <td>{{ number_format($service_tariff->pivot->discount) }}
             </td>
+            <td>{{ number_format($service_tariff->consumer_price) }}</td>
             <td>{{ number_format($service_tariff->pivot->price -
                 $service_tariff->pivot->discount) }}
             </td>
+            <td>{{ number_format($service_tariff->consumer_price-$service_tariff->pivot->price -
+                $service_tariff->pivot->discount) }}</td>
             @permission('view_profit_factorItem')
             <td>{{ number_format($service_tariff->purchase_price) }}</td>
             <td>
@@ -72,7 +77,13 @@
                 - $factorItem->discount)
                 }}</th>
             <th>{{
+                number_format($factorItem->serviceTariffs()->sum('consumer_price'))
+                }}</th>
+            <th>{{
                 number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
+                }}</th>
+            <th>{{
+                number_format($factorItem->serviceTariffs()->sum('consumer_price')-$factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
                 }}</th>
             @permission('view_profit_factorItem')
             <th>{{

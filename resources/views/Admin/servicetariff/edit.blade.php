@@ -23,7 +23,7 @@
                     <input class="form-control" value="{{$serviceTariff->name}}" readonly>
                 </div>
                 <div class="col-12 col-md-6 mb-3">
-                    <label>تعرفه</label>
+                    <label>دوره تعرفه</label>
                     <input class="form-control" value="{{$serviceTariff->tariff->title}}" readonly>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
