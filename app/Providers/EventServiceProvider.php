@@ -10,7 +10,7 @@ use App\Events\fastserviceCallcenter;
 use App\Events\sendlinkFactor;
 use App\Events\factorItemActivation;
 use App\Events\notificationRecordingFactor;
-use App\Events\factoritemClosing;
+use App\Events\factorItemClosing;
 use App\Events\smsSuccessRegisterPayment;
 use App\Events\ticketNotification;
 use App\Events\referralCenterNotification;
