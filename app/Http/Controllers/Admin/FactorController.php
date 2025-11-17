@@ -272,17 +272,17 @@ class FactorController extends Controller
     }
 
     /**
-     * delete factor
+     * @param Factor $factor
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function destroy(Factor $factor , Request $request)
     {
         if(auth()->user()->hasPermission('factor-delete'))
         {
-            $factor->delete();
             $factor->factorItems()->delete();
             Factor::returnPaymentBydeleteFactor($factor);
+            $factor->delete();
             if ($request->ajax()) {
                 return response([
                     'status' => 'success',

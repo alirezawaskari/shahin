@@ -87,14 +87,42 @@ class FactorItemController extends Controller {
 
         return view( 'Admin.factoritem.show', compact('item', 'center_agents', 'factorItem', 'user' ) );
     }
-    public function destroy(FactorItem $factorItem ) {
-        if(auth()->user()->hasPermission('delete-factor-item'))
-        {
-            $factorItem->delete();
-            return redirect()->back()->with('success','200');
-        }
-        return redirect()->back()->with('errors','403');
+    /**
+     * Summary of destroy
+     * @param FactorItem $factorItem
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     */
+    public function destroy(FactorItem $factorItem, Request $request)
+    {
+    if (!auth()->user()->hasPermission('delete-factor-item')) {
+        return $this->unauthorizedResponse($request);
     }
+
+    $check_payment = $factorItem->totalFactorItem
+        ? TotalFactorItem::checkPayment($factorItem->totalFactorItem)
+        : FactorItem::checkPayment($factorItem);
+
+    if ($check_payment) {
+        return redirect()->back()->with([
+            'failByMessage' => ' به دلیل وجود پرداختی برای این پرونده ، امکان حذف وجود ندارد .'
+        ]);
+    }
+
+    Factor::returnPaymentBydeleteFactor($factorItem->factor);
+    $factorItem->factor()->delete();
+    $factorItem->totalFactorItem()->delete();
+    $factorItem->delete();
+
+    if ($request->ajax()) {
+        return response([
+            'status' => 'success',
+            'message'=>'عملیات موفق'
+        ]);
+    }
+
+    return redirect()->back()->with(['delete' => 'success']);
+}
 
     /**
      * @param FactorItem $factorItem
@@ -1343,7 +1371,7 @@ class FactorItemController extends Controller {
         $factorItem = FactorItem::find($factorItem->id);
         //calculate registeration debt if factorItem type is credit
         $factorItem->supervisor->type ? self::calculateRegisterationDebt($factorItem->supervisor) : '';
-        
+
         $user = $supervisor_factor_item->factor->user;
         FactorItem::calculate($supervisor_factor_item, $supervisor_factor_item->total_price, $supervisor_factor_item->type, $user);
         $supervisor_factor_item->type ? TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem ) : '';
