@@ -790,7 +790,8 @@ class FactorItem extends Model implements AuditableContract
             $total_discount_price = $item->serviceTariffs()->sum('factor_item_service_tariff.discount');
             $sum_service_tariff_total_price = $sum_service_tariff_total_price + $other_price + $total_price_service_tariffs - $total_discount_price;
         }
-        $sum_service_tariff_total_price != 0 ? $total_price = $sum_service_tariff_total_price : '';
+        $total_price == 0 ? $total_price = $sum_service_tariff_total_price : '';
+        // $sum_service_tariff_total_price != 0 ? $total_price = $sum_service_tariff_total_price : '';
         //apply financialPlansType discount percent if exist
         $financial_plans_type_discount_price = $factor_item->financialPlansType ? ($factor_item->financialPlansType->discount_percent/100) * $total_price : 0;
 		$total_price = $total_price + ($factor_item->supervisor ? $factor_item->supervisor->discount : 0) - $financial_plans_type_discount_price;
@@ -913,7 +914,7 @@ class FactorItem extends Model implements AuditableContract
         $supervisor_factor_item = $factor_item->supervisor;
         if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
             return false;
-        } 
+        }
         if($type != $factor_item->type)
         {
             //convert cash to credit
@@ -969,7 +970,7 @@ class FactorItem extends Model implements AuditableContract
             $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
             //calculate
             FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $supervisor_factor_item->factor->user );
-            
+
             if($supervisor_factor_item->totalFactorItem)
             {
                 TotalFactorItem::updateCalculate($total_factor_item);
