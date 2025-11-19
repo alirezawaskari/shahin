@@ -561,7 +561,7 @@ class FactorItemController extends Controller {
     public function rejectFactor(Request $request , FactorItem $factorItem ) {
         Session::create( [
             'status' => 3 ,
-            'user_id' => auth()->user()->id,
+            'user_id' => $factorItem->factor->user->id,
             'factor_item_id' => $factorItem->id,
             'date' => date( 'Y-m-d H:i:s' ),
             'description_before' => 'دلیل درخواست اصلاح فاکتور : '.$request->description,
