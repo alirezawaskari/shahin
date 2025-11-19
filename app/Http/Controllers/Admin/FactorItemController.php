@@ -216,11 +216,11 @@ class FactorItemController extends Controller {
                 'failByMessage' => 'جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .'
             ] );
         }
-        // unselected center
+        // unset center
         if($request->center_id == null)
         {
             $factor_item->update( [
-                'center_id' =>  $request->center_id ,
+                'center_id' => null ,
                 'status_factor' => 14,
             ] );
             return redirect()->back()->with( [

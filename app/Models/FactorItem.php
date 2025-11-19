@@ -1110,15 +1110,27 @@ class FactorItem extends Model implements AuditableContract
            ]);
         }
         //send sms to the user
-        if ( isset($request['check']) && $request['check'] ) {
-            event( new smsService( $factorItem->factor->user, $factorItem->center->title . ':' . $factorItem->center->address, $factorItem->date ) );
-        }
+        event( new smsService( $factorItem ) );
         if($factorItem->center->representation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
         }
         //send sms to the center manager
         event(new referralCenterNotification($factorItem->center));
+    }
+    /**
+     * Summary of getFactorItemAble
+     * @param FactorItem $factorItem
+     * @param mixed $temp
+     */
+    public function getFactorItemAble(FactorItem $factorItem , $temp)
+    {
+        if ( $factorItem->factoritemable_type == Service::class ) {
+            array_push($temp, $factorItem->factoritemable->title . (isset($factor_item->serviceItem) ? ' - ' . $factorItem->serviceItem->title : ''));
+        } else {
+            array_push($temp, $factorItem->factoritemable->title);
+        }
+        return $temp;
     }
 }
 

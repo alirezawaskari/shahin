@@ -356,21 +356,6 @@ class FactorController extends Controller
 
     /**
      * @param Request $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|void
-     */
-    public function sms(Request $request)
-    {
-        if ($request->ajax()) {
-            $factor = Factor::find($request->id);
-
-            event(new smsService($factor->user, $factor->service, $factor));
-
-            return response(['operator' => true]);
-        }
-    }
-
-    /**
-     * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      * @throws \Illuminate\Validation\ValidationException
      */

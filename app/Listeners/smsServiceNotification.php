@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\smsService;
+use App\Models\FactorItem;
 use GuzzleHttp\Exception\GuzzleException;
 
 class smsServiceNotification
@@ -18,17 +19,16 @@ class smsServiceNotification
      */
     public function handle(smsService $event)
     {
-        $userMobile = $event->user->phone;
-        $address = $event->address;
-        $date = verta($event->date)->format('Y/m/d H:i:s');
-
-        $message = $address . '،زمان پیشنهادی شما: ' . $date;
-
+        $factorItem = $event->factorItem;
+        $userMobile = $factorItem->factor->user->phone;
+        $center_title = $factorItem->center->title;
+        $center_call = $factorItem->center->call;
+        $service = FactorItem::getFactorItemAble($factorItem , []);
         $body = [
-            'param1' => $message,
+            'param1' => $service,
+            'param2' => $center_title,
+            'param3' => $center_call,
         ];
         SendSms::sendSingleSms('customservicefactor',$userMobile,$body);
-
-
     }
 }
