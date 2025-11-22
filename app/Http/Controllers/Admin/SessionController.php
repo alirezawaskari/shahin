@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\smsService;
 use App\Events\smsServiceSession;
 use App\Exports\SessionExport;
 use App\Helpers\Helper;
@@ -367,7 +368,9 @@ class SessionController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function rejectSession( Request $request) {
-        Session::find( $request->session_id )->update( [ 'status' => 7 , 'description' => $request->description ] );
+        $session = Session::find( $request->session_id );
+        $session->update( [ 'status' => 7 , 'description' => $request->description ] );
+        event( new smsService( $session->factorItem , 'rejectSession') );
         return redirect()->back();
     }
     /**

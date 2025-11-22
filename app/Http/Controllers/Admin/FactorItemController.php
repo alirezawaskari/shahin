@@ -233,37 +233,36 @@ class FactorItemController extends Controller {
         ] );
     }
     /**
+     * @param FactorItem $factorItem
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function turnRatings(Request $request ) {
-        $factor_item = FactorItem::find( $request->id );
-        if (is_null($factor_item->center_id)){
+    public function turnRatings(FactorItem $factorItem , Request $request ) {
+        if (is_null($factorItem->center_id)){
             alert()->error('لطفا ابتدا تعیین مرکز نمایید .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
-        $factor_item->update( [
-            'date' => isset( $request->date ) ? $request->date : $factor_item->date,
-            'supporter_id' => auth()->user()->id,
+        $factorItem->update( [
+            'date' => isset( $request->date ) ? $request->date : $factorItem->date,
         ] );
 
-        Session::whereIn('status',[3,4,5,6])->where('factor_item_id',$factor_item->id)->update([
+        Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
-            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
+            'description'=>'بستن این جلسه به دلیل تعیین نوبت مشاوره'
          ]);
-         if ($factor_item->factoritemable->session==1){
+         if ($factorItem->factoritemable->session==1){
              Session::create( [
                  'status' => 3,
                  'user_id' => auth()->user()->id,
-                 'factor_item_id' => $factor_item->id,
-                 'date' => Helper::vertaToMiladi($request->date),
+                 'factor_item_id' => $factorItem->id,
+                 'date' => isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now(),
                  'description_before' => $request->description,
              ]);
          }
 
         if ( $request->check ) {
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
+            $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
+            event( new smsService( $factorItem , 'turnRatings') );
         }
 
         return redirect()->back()->with( [
@@ -507,12 +506,17 @@ class FactorItemController extends Controller {
         $factor_item = FactorItem::find( $request->input( 'id' ) );
         $supervisor_factor_item = $factor_item->supervisor;
         $type = isset( $request->type ) ? $request->type : $supervisor_factor_item->type;
-        if($factor_item->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factor_item->financialPlansType,$type))
+        //check if the financialPlansType selected matches the factorItem payment type
+        $financial_plans_type = FinancialPlansType::find($request->financial_plans_type);
+        if($request->financial_plans_type && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($financial_plans_type,$request->type))
         {
             return redirect()->back()->with( [
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
             ] );
         }
+        //update financialPlansType
+        $factor_items_collection = FactorItem::getFatorItemCollection( $factor_item->supervisor );
+        $factor_items_collection->update(['financial_plans_type_id' => $request->financial_plans_type]);
         FactorItem::changeType( $factor_item, $type );
         $supervisor_factor_item = $factor_item->supervisor;
         //change supervisor factoritem discount
@@ -1232,7 +1236,7 @@ class FactorItemController extends Controller {
         for ($i = 0; $i < ($request->service_tariff_id ? count($request->service_tariff_id) : 0); $i++) {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
             $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
-            $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : $value;
+            $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : (int)$value;
             if(auth()->user()->hasPermission('change-price-tariff'))
             {
                 $service_tariff_price = ( float ) str_replace( ',', '', $request->price[$i+1]);
@@ -1352,7 +1356,8 @@ class FactorItemController extends Controller {
     public function changeFinancialPlansType(Request $request , FactorItem $factorItem)
     {
         //check if the financialPlansType selected matches the factorItem payment type
-        if($factorItem->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factorItem->financialPlansType,$request->type))
+        $financial_plans_type = FinancialPlansType::find($request->financial_plans_type);
+        if($request->financial_plans_type && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($financial_plans_type,$request->type))
         {
             return redirect()->back()->with( [
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'

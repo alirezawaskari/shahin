@@ -14,14 +14,17 @@ class smsService
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $factorItem;
+    public $type;
 
     /**
      * Summary of __construct
      * @param FactorItem $factorItem
+     * @param string $type
      */
-    public function __construct(FactorItem $factorItem)
+    public function __construct(FactorItem $factorItem , $type)
     {
         $this->factorItem = $factorItem;
+        $this->type = $type;
     }
 
     /**

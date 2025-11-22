@@ -621,7 +621,7 @@
                             </div>
                         </div>
                         {{-- @if (in_array(trim($factor_item['status_factor']) , [0,4,14,16]) )
-                        @include('Admin.factoritem.show.turnRatings')
+                        @include('Admin.factoritem.show.setCenter')
                         @endif --}}
                         @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14]) )
                         <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span

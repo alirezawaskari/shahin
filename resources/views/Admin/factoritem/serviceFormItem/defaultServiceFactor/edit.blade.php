@@ -1,4 +1,4 @@
-<h4 class="mb-3 card-header"><i class="fas fa-list"></i> طرح درمان </h4>
+<h4 class="mb-3 card-header"><i class="fas fa-list"></i> فاکتور </h4>
 <table class="table table-bordered table-striped table-responsive-md">
     <tr>
         <th>ردیف</th>

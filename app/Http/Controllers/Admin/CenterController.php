@@ -137,6 +137,7 @@ class CenterController extends AdminController
             'status' => $request->status,
             'description' => $request->description,
             'address' => $request->address,
+            'phone' => Helper::numberConverter($request->phone),
             'contract_number' => $request->contract_number,
             'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
             'is_show' => isset($request->is_show) ? $request->is_show : 0,
@@ -434,6 +435,7 @@ class CenterController extends AdminController
             'title' => $request->title,
             'description' => $request->description,
             'address' => $request->address,
+            'phone' => Helper::numberConverter($request->phone),
             'contract_number' => $request->contract_number,
             'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
         ]);

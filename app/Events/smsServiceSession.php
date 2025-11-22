@@ -13,19 +13,17 @@ class smsServiceSession
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $factor_item;
+    public $factorItem;
     public $date;
 
     /**
-     * Create a new event instance.
-     *
-     * @param User $user
-     * @param $address
-     * @param $date
+     * Summary of __construct
+     * @param FactorItem $factorItem
+     * @param mixed $date
      */
-    public function __construct(FactorItem $factor_item , $date)
+    public function __construct(FactorItem $factorItem , $date)
     {
-        $this->factor_item = $factor_item;
+        $this->factorItem = $factorItem;
         $this->date = $date;
     }
 

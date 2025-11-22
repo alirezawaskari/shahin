@@ -1086,31 +1086,29 @@ class FactorItem extends Model implements AuditableContract
     public static function referralCenter(FactorItem $factorItem , $request)
     {
         $item = isset($request->item) ? $request->item : [];
-        $date = isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now();
         //close older sessions
-        Session::whereIn('status',[3,5])->where('factor_item_id',$factorItem->id)->update([
+        Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
-            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
+            'description'=>'لغو این جلسه به دلیل ارجاع به مرکز جدید'
         ]);
 
         //update center_id
         $factorItem->update( [
             'center_id' =>  $request['center_id'],
             'status_factor' => 17,
-            'date' => $date,
+            'date' => now(),
         ] );
         //create session
         if ($factorItem->factoritemable->session==1){
             Session::create( [
-                'status' => 3 ,
+                'status' => 8 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factorItem->id,
-                'date' => $date,
                 'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request['description'].' - مشاوره حضوری ' : $request['description'] ,
            ]);
         }
         //send sms to the user
-        event( new smsService( $factorItem ) );
+        event( new smsService( $factorItem , 'setCenter') );
         if($factorItem->center->representation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );

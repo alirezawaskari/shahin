@@ -10,7 +10,7 @@
     </div>
 </div>
 <div id="referralCenter" class="tabcontent mb-4">
-    @include('Admin.factoritem.show.turnRatings')
+    @include('Admin.factoritem.show.setCenter')
 </div>
 
 <div id="registrationInitialConsultation" class="tabcontent mb-4">

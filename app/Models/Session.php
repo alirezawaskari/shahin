@@ -248,6 +248,7 @@ class Session extends Model implements AuditableContract
             '0' => 'در انتظار انجام کار',
             '1' => 'انجام شده',
             '2' => 'منتظر تایید',
+            '8' => 'در انتظار تعیین نوبت',
             '3' => 'در انتظار ثبت مشاوره',
             '4' => 'ویزیت تایید شده',//Currently not developed
             '5' => 'آماده اجرا',

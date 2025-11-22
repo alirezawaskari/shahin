@@ -43,7 +43,7 @@
                 @endif
                 <div class="mt-3">
                     @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14,16]) )
-                    @include('Admin.factoritem.show.turnRatings')
+                    @include('Admin.factoritem.show.setCenter')
                     @endif
                 </div>
             </div>

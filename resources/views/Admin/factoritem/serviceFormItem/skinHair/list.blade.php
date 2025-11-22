@@ -1,6 +1,6 @@
 @if(isset($factorItem->serviceTariffs))
 <div class="col-12 col-md-12 mb-3">
-    <i class="fa fa-list"></i>{{ 'فاکتور - ' .
+    <i class="fa fa-list"></i>{{ 'طرح درمان - ' .
     $factorItem->factor->user->name . ' ' .
     $factorItem->factor->user->family }}
 </div>
