@@ -96,7 +96,6 @@ public function store( Request $request ) {
             $request['center_id'] = $item[ 'center' ];
             FactorItem::referralCenter($factor_item , $request);     
         }
-
         $this->formData( $item );
 
         $factor_item->update( [
@@ -174,7 +173,7 @@ public function upload_document( Request $request ) {
         $factor_item = FactorItem::find( $item[ 'id' ] );
         $contract_values = $factor_item->totalFactorItem && $factor_item->totalFactorItem->contract_values ? $factor_item->totalFactorItem->contract_values : [];
         $values = $factor_item->factor_values ? $factor_item->factor_values : [];
-        foreach ( $factor_item->factoritemable->beforeforms->where( 'level', 'site' ) as $key => $form ) {
+        foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
             if ( $form->type == 'file' ) {
                 if ( isset( $item[ $form->name ] ) && !is_null( $item[ $form->name ] ) ) {
                     $img = $item[ $form->name ];
