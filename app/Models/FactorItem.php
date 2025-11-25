@@ -679,7 +679,7 @@ class FactorItem extends Model implements AuditableContract
         if($item->type && $item->totalFactorItem->confirm)
         {
             $temp = round($sessions_sum_price + $price) <= round($item->credit) ? true : false;
-            $temp = TotalFactorItem::getExpireInstallments($item->totalFactorItem)->isEmpty() ? true : false;
+            //$temp = TotalFactorItem::getExpireInstallments($item->totalFactorItem)->isEmpty() ? true : false;
         }
         else
         {
