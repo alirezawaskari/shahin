@@ -175,15 +175,20 @@ class Callcenter extends Model implements AuditableContract
         }
 
         if (isset($sex) && $sex != 'all') {
-            $query->whereHas('register', function ($query) use ($sex) {
+            $query->whereH
+            as('register', function ($query) use ($sex) {
                 $query->where('sex', $sex);
             });
         }
 
         if (isset($description) && trim($description) != '') {
             $query->where('description', 'LIKE', '%'.$description.'%');
-            $query->whereHas('histories', function ($query) use ($description) {
-                $query->where('description', 'LIKE', '%'.$description.'%');
+            $query->whereHas('register', function ($query) use ($description) {
+                $query->whereHas('callcenters', function ($query) use ($description) {
+                    $query->whereHas('histories', function ($query) use ($description) {
+                        $query->where('description', 'LIKE', '%'.$description.'%');
+                    });
+                });
             });
         }
 
@@ -483,11 +488,7 @@ class Callcenter extends Model implements AuditableContract
                 $temp = [];
                 foreach ($item->factors as $factor) {
                     foreach ($factor->factorItems as $factor_item) {
-                        if (isset($factor_item->factoritemable)) {
-                            array_push($temp, $factor_item->factoritemable->title . (isset($factor_item->serviceItem) ? ' - ' . $factor_item->serviceItem->title : ''));
-                        } elseif (isset($factor_item->category)) {
-                            array_push($temp, $factor_item->category->title);
-                        }
+                        FactorItem::getFactorItemAble($factor_item , $temp);
                     }
                 }
                 return implode(',', $temp);
