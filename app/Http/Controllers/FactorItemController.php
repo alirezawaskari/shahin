@@ -480,12 +480,11 @@ class FactorItemController extends Controller {
     */
 
     public function verificationConfirmContractCode( Request $request ) {
-        $factorItem = FactorItem::find( $request->factor_item );
-        $phone = $factorItem->factor->user->phone;
+        $totalFactorItem = TotalFactorItem::find( $request->total_factor_item );
+        $phone = $totalFactorItem->factor->user->phone;
         $has_auth_code = AuthCode::where( 'phone', $phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
             if ( $request->total_factor_item ) {
-                $totalFactorItem = TotalFactorItem::find( $request->total_factor_item );
                 $factor_items = $totalFactorItem->factorItems;
                 $totalFactorItem->update( [
                     'total_factor_item_status_id' => 8
