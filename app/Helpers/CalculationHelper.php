@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\FactorItem;
 use App\Models\Installment;
 
 class CalculationHelper {
@@ -126,8 +127,30 @@ class CalculationHelper {
         }
         return $consumer_price;
     }
-    // public static function calculatingUserProfitCashPurchases($service_tariff)
-    // {
-    //     number_format($service_tariff->consumer_price-$service_tariff->pivot->price - $service_tariff->pivot->discount);
-    // }
+    /**
+     * Summary of calculatingUserProfitCashPurchases
+     * @param mixed $service_tariff
+     * @return string
+     */
+    public static function calculatingUserProfitCashPurchases($service_tariff)
+    {
+        $amount_company_profit = $service_tariff->consumer_price - $service_tariff->pivot->price - $service_tariff->pivot->discount;
+        $percent_company_profit = $service_tariff->consumer_price ? ($amount_company_profit * 100)/$service_tariff->consumer_price : 0;
+        return number_format($amount_company_profit).' ریال - '.round($percent_company_profit).'%';
+    }
+    /**
+     * Summary of calculatingAverageUserProfitCashPurchases
+     * @param FactorItem $factorItem
+     * @return string
+     */
+    public static function calculatingAverageUserProfitCashPurchases(FactorItem $factorItem)
+    {
+        $sum_consumer_price = $factorItem->serviceTariffs()->sum(column: 'consumer_price');
+        $sum_seller_price = $factorItem->serviceTariffs()->sum('factor_item_service_tariff.price');
+        $sum_discount_price = $factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount');
+        $amount_company_profit = $sum_consumer_price - $sum_seller_price - $sum_discount_price;
+        $average_company_profit = $sum_consumer_price ? ($amount_company_profit * 100)/$sum_consumer_price : 0;
+
+        return round($average_company_profit).' % ';
+    }
 }
