@@ -41,7 +41,7 @@ class CenterServiceTariff extends Model
      */
     public static function setCompanyProfit($item , $seller_price)
     {
-        $amount_company_profit = $seller_price - $item->purchase_price;
+        $amount_company_profit = $item->consumer_price - $seller_price;
         $percent_company_profit = $seller_price ? ($amount_company_profit * 100)/$seller_price : 0;
         // $percent_company_profit = $item->purchase_price ? ($amount_company_profit/$item->purchase_price*100) : 0;
         return number_format($amount_company_profit).' ریال - '.round($percent_company_profit).'%';
@@ -52,8 +52,8 @@ class CenterServiceTariff extends Model
      */
     public static function setAverageCompanyProfit($service_tariffs , $sum_seller_price)
     {
-        $sum_purchase_price = $service_tariffs->sum('purchase_price');
-        $amount_company_profit = $sum_seller_price - $sum_purchase_price;
+        $sum_consumer_price = $service_tariffs->sum('consumer_price');
+        $amount_company_profit = $sum_consumer_price - $sum_seller_price;
         $average_company_profit = $sum_seller_price ? ($amount_company_profit * 100)/$sum_seller_price : 0;
 
         // $average_company_profit = $sum_purchase_price ? ($amount_company_profit/$sum_purchase_price*100) : 0;

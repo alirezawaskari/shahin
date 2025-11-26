@@ -126,4 +126,8 @@ class CalculationHelper {
         }
         return $consumer_price;
     }
+    // public static function calculatingUserProfitCashPurchases($service_tariff)
+    // {
+    //     number_format($service_tariff->consumer_price-$service_tariff->pivot->price - $service_tariff->pivot->discount);
+    // }
 }
