@@ -175,8 +175,7 @@ class Callcenter extends Model implements AuditableContract
         }
 
         if (isset($sex) && $sex != 'all') {
-            $query->whereH
-            as('register', function ($query) use ($sex) {
+            $query->whereHas('register', function ($query) use ($sex) {
                 $query->where('sex', $sex);
             });
         }
