@@ -95,7 +95,7 @@ class SessionController extends Controller {
      */
     public function filterDesktopCompleteTurnRatings(Request $request) {
 
-        $sessions = Session::filter()->whereIn( 'status', [3,5] )->whereDate('date', '<=' ,Carbon::today())->orderBy( 'date', 'desc' );
+        $sessions = Session::filter()->whereIn( 'status', [3,5,8] )->whereDate('date', '<=' ,Carbon::today())->orderBy( 'date', 'desc' );
         if ($request->start_date || $request->end_date){
             $sessions ->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
         }

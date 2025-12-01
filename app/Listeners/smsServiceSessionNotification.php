@@ -19,7 +19,7 @@ class smsServiceSessionNotification
     public function handle(smsServiceSession $event)
     {
         $userMobile = $event->factorItem->factor->user->phone;
-        $factorItem = $event->factorItem->factor->user->phone;
+        $factorItem = $event->factorItem;
         $service = $event->factorItem->factoritemable->title;
         $center_title = $factorItem->center->title;
         $center_call = $factorItem->center->phone;

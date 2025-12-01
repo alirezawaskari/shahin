@@ -1085,7 +1085,6 @@ class FactorItem extends Model implements AuditableContract
      */
     public static function referralCenter(FactorItem $factorItem , $request)
     {
-        $item = isset($request->item) ? $request->item : [];
         //close older sessions
         Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
@@ -1104,7 +1103,7 @@ class FactorItem extends Model implements AuditableContract
                 'status' => 8 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factorItem->id,
-                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request['description'].' - مشاوره حضوری ' : $request['description'] ,
+                'description_before' => $request['description'] ,
            ]);
         }
         //send sms to the user
@@ -1121,7 +1120,7 @@ class FactorItem extends Model implements AuditableContract
      * @param FactorItem $factorItem
      * @param mixed $temp
      */
-    public function getFactorItemAble(FactorItem $factorItem , $temp)
+    public static function getFactorItemAble(FactorItem $factorItem , $temp)
     {
         if ( $factorItem->factoritemable_type == Service::class ) {
             array_push($temp, $factorItem->factoritemable->title . (isset($factor_item->serviceItem) ? ' - ' . $factorItem->serviceItem->title : ''));

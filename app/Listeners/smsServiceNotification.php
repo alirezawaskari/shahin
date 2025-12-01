@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\smsService;
+use App\Helpers\Helper;
 use App\Models\FactorItem;
 use App\Models\Service;
 use GuzzleHttp\Exception\GuzzleException;
@@ -47,7 +48,7 @@ class smsServiceNotification {
         $center_call = $factorItem->center->phone;
         $factoritemable = FactorItem::getFactorItemAble( $factorItem, [] );
         $body = [
-            'param1' => $factoritemable,
+            'param1' => implode(',', $factoritemable),
             'param2' => $center_title,
             'param3' => $center_call,
         ];
@@ -60,17 +61,14 @@ class smsServiceNotification {
      * @return void
      */
     private function sendTurnRatingsNotification( FactorItem $factorItem, $userMobile ) {
-        $center_title = $factorItem->center->title;
-        $center_call = $factorItem->center->phone;
-        $center_address = $factorItem->center->address;
-        $factoritemable = ($factorItem->factoritemable_type == Service::class ? 'خدمات ' : 'کالا ') . $factorItem->factoritemable->category->title;
-        $body = [
-            'param1' => $factoritemable,
-            'param2' => $center_title,
-            'param3' => $center_call,
-            'param4' => $center_address,
-        ];
-        SendSms::sendSingleSms( 'centerTurnRaiting', $userMobile, $body );
+        if(isset($factorItem['factor_values']['typeConsultation']) && $factorItem['factor_values']['typeConsultation'] == 'online')
+        {
+            self::sendTurnRatingsNotificationOnline($factorItem, $userMobile);
+        }
+        else
+        {
+            self::sendTurnRatingsNotificationInPerson($factorItem, $userMobile);
+        }
     }
     /**
      * Summary of sendSetCenterNotification
@@ -84,5 +82,41 @@ class smsServiceNotification {
             'param1' => $center_title,
         ];
         SendSms::sendSingleSms( 'rejectSessionNotification', $userMobile, $body );
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @param mixed $userMobile
+     * @return void
+     */
+    private function sendTurnRatingsNotificationInPerson( FactorItem $factorItem, $userMobile )
+    {
+        $center_title = $factorItem->center->title;
+        $center_call = $factorItem->center->phone;
+        $center_address = $factorItem->center->address;
+        $factoritemable = ($factorItem->factoritemable_type == Service::class ? 'خدمات ' : 'کالا ') . $factorItem->factoritemable->category->title;
+        $date = Helper::vertaToMiladi(Helper::numberConverter($factorItem->date));
+        $body = [
+            'param1' => $factoritemable,
+            'param2' => $center_title,
+            'param3' => $date,
+            'param4' => $center_address,
+            'param5' => $center_call,
+        ];
+        SendSms::sendSingleSms( 'centerTurnRaitingInPerson', $userMobile, $body );
+    }
+    /**
+     * @param \App\Models\FactorItem $factorItem
+     * @param mixed $userMobile
+     * @return void
+     */
+    private function sendTurnRatingsNotificationOnline( FactorItem $factorItem, $userMobile )
+    {
+        $center_title = $factorItem->center->title;
+        $date = Helper::vertaToMiladi(Helper::numberConverter($factorItem->date));
+        $body = [
+            'param1' => $center_title,
+            'param2' => $date,
+        ];
+        SendSms::sendSingleSms( 'centerTurnRaitingOnline', $userMobile, $body );
     }
 }
