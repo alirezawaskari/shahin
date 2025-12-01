@@ -73,7 +73,7 @@ class Session extends Model implements AuditableContract
      */
     public static function checkAndEndEntrySession($factor_item)
     {
-        Session::whereIn('status',[3,4,5])->where('factor_item_id',$factor_item->id)->update([
+        Session::whereIn('status',[3,5,8])->where('factor_item_id',$factor_item->id)->update([
             'status' => 6,
         ]);
 

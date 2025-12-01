@@ -197,9 +197,6 @@ class FactorItemController extends Controller {
     public function setCenter(Request $request)
     {
         $factor_item = FactorItem::find( $request->id );
-        $item = $request->item;
-        $item['id'] = $request->id;
-        self::formData( $item );
         $validate = Validator::make($request->all(), [
             'id' => 'required|exists:factor_items,id',
             'center_id' => 'required',
@@ -249,22 +246,27 @@ class FactorItemController extends Controller {
         Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
             'description'=>'بستن این جلسه به دلیل تعیین نوبت مشاوره'
-         ]);
-         if ($factorItem->factoritemable->session==1){
+        ]);
+        $item = isset($request->item) ? $request->item : [];
+        $typeConsultation = isset($item['typeConsultation']) ? $item['typeConsultation'] : '';
+        $values = $factorItem->factor_values ? $factorItem->factor_values : [];
+        $factor_values = Arr::add($values, 'typeConsultation', $typeConsultation);
+        $factorItem->update([
+            'factor_values' => $factor_values,
+        ]);
+
+        if ($factorItem->factoritemable->session==1){
              Session::create( [
-                 'status' => 3,
-                 'user_id' => auth()->user()->id,
-                 'factor_item_id' => $factorItem->id,
-                 'date' => isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now(),
-                 'description_before' => $request->description,
+                'status' => 3,
+                'user_id' => auth()->user()->id,
+                'factor_item_id' => $factorItem->id,
+                'date' => isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now(),
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request['description'].' - مشاوره حضوری ' : $request['description'].' - مشاوره آنلاین ' ,
              ]);
-         }
-
-        if ( $request->check ) {
-            $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
-            event( new smsService( $factorItem , 'turnRatings') );
         }
-
+        $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
+        event( new smsService( $factorItem , 'turnRatings') );
+        
         return redirect()->back()->with( [
             'update' => 'success'
         ] );
