@@ -1,5 +1,3 @@
-@include('Admin.factoritem.show.turnRatings')
-
 <div class="card border border-info rounded box">
     <div class="card-header">
         <h4>افزودن زمان مراجعه بعدی</h4>

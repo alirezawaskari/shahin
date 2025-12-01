@@ -5,7 +5,8 @@
             @csrf
             <div class="col-12 mb-3">
                 <label>انتخاب نوع دریافت مشاوره :</label>
-                <select name="item[typeConsultation]" id="select_type_consultation" class="selectTypeConsultation form-control" required>
+                <select name="item[typeConsultation]" id="select_type_consultation"
+                    class="selectTypeConsultation form-control" required>
                     <option value="inPerson" {{isset($factorItem['factor_values']['typeConsultation']) &&
                         $factorItem['factor_values']['typeConsultation']=='inPerson' ?'selected' : '' }}>حضوری
                     </option>
@@ -16,19 +17,15 @@
                 </select>
             </div>
             <hr>
-            <div class="divDate">
-                <input type="hidden" name="type" value="supporter">
-                <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
-                <div class="col-12 mb-2">
-                    <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
-                    <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
-                </div>
-                <div class="col-12 mb-3">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="turnRatingsCheck" checked="" name="check">
-                        <label class="custom-control-label" for="turnRatingsCheck">زمان مراجعه برای کاربر
-                            پیامک شود.</label>
-                    </div>
+            <div class="col-12 mb-2">
+                <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
+                <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
+            </div>
+            <div class="col-12 mb-3">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="turnRatingsCheck" checked="" name="check">
+                    <label class="custom-control-label" for="turnRatingsCheck">زمان مراجعه برای کاربر
+                        پیامک شود.</label>
                 </div>
             </div>
             <div class="col-12 mb-4">
