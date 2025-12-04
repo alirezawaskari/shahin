@@ -566,7 +566,7 @@ class FactorItemController extends Controller {
             'description_before' => 'دلیل درخواست اصلاح فاکتور : '.$request->description,
         ] );
         $factorItem->update( [
-            'status_factor' => 17
+            'status_factor' => 21
         ] );
         return redirect()->back()->with([
             'success' => 'success'

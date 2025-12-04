@@ -22,18 +22,26 @@
                     role="tabpanel" aria-labelledby="factoritem-{{ $key }}-tab">
                     @if (!is_null($factor_item['centers']) || !is_null($factor_item['forms']))
                     @foreach ($factor_item['factorItems'] as $factorItem)
-                    <div class="card-header row col-12 col-md-12 mb-3">
-                        <div class="col-md-7">
+                    <div class="row col-12 col-md-12 mb-3">
                             <h5>{{ $factorItem['factoritemable']->title . ($factorItem['center'] ? ' (
                                 '.$factorItem['center']->title.' ) ' : '').' - '. $factor_item['financial_plans_type']
                                 }}</h5>
+                    </div>
+                    <div class="card-header row col-12 mb-4">
+                        <div class="col-12 col-md-3">
+                        @if(!$factorItem['total_price'] || $factorItem['status_factor'] == 14 || $factorItem['status_factor'] == 4)
+                        <a class="btn border border-secondary box-shadow-info"
+                                data-toggle="modal" data-target="#changeFactoritemableModal"><i
+                            class="fa fa-edit"></i> تغییر خدمت | دسته بندی</a>
+                            @include('Admin.factoritem.layouts.file.changeFactorItemAble')
+                        @endif
                         </div>
-                        <div class="col-md-2">
-                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
+                        <div class="col-12 col-md-3">
+                            <a class="btn border border-secondary box-shadow-info" data-toggle="modal"
                                 data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
                         </div>
-                        <div class="col-md-3">
-                            <a class="btn border border-secondary mr-3 box-shadow-info"
+                        <div class="col-12 col-md-3">
+                            <a class="btn border border-secondary box-shadow-info"
                                 href="../../dashboard/factorItem/{{ $factorItem['resnumber'] }}/edit"><i
                                     class="fa fa-edit"></i> امور اجرایی پرونده</a>
                         </div>

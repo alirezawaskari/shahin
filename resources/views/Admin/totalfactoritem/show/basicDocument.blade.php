@@ -637,10 +637,6 @@
                                 @if ($factorItem->complete)
                                 <span class="text-warning mr-2">(تکمیل شده)</span>
                                 @endif
-                                @if(!$factorItem->total_price || in_array(trim($factorItem->status_factor) , [0,4,14]) )
-                                <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
-                                    خدمت | دسته بندی</button>
-                                @endif
                             </div>
                         </div>
                     </div>
