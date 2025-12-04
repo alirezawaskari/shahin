@@ -13,8 +13,6 @@
         <th>طول دوره اجرا(روز)</th>
         <th>تخفیف (ریال)</th>
         <th>تعرفه مصرف کننده (ریال)</th>
-        <th>قیمت نقدی اعضاء لاله (ریال)</th>
-        <th>اختلاف خرید اولیه (ریال)</th>
         @permission('view_profit_factorItem')
         <th>تعرفه خرید سجا (ریال)</th>
         <th>نرخ اختلاف خرید</th>
@@ -69,24 +67,15 @@
             <input type="text" value="{{ number_format($service_tariff->pivot->discount) }}" name="discount[]"
                 class="form-control" oninput="separatePrices(this)" />
         </td>
-        <td>{{ number_format($service_tariff->consumer_price) }}</td>
         <td>
             @if ($factorItem['factoritemable']->is_change_factor_price)
             <input type="text"
                 value="{{ number_format($service_tariff->pivot->price - $service_tariff->pivot->discount) }}"
-                name="price[]" class="form-control" oninput="separatePrices(this)">
+                name="price[]" class="form-control" oninput="separatePrices(this)" />
             @else
             {{ number_format($service_tariff->pivot->price - $service_tariff->pivot->discount) }}
             @endif
         </td>
-        <td>{{ App\Helpers\CalculationHelper::calculatingUserProfitCashPurchases($service_tariff) }}</td>
-        @permission('view_profit_factorItem')
-        <td>{{ number_format($service_tariff->purchase_price) }}</td>
-        <td>
-            {{ App\Models\CenterServiceTariff::setCompanyProfit($service_tariff , $service_tariff->pivot->price -
-            $service_tariff->pivot->discount) }}
-        </td>
-        @endpermission
         <td>
             <a class="factor_item_service_tariff_delete" data-id="{{ $service_tariff->pivot->id }}">
                 <i class="fa fa-trash font-size-18" aria-hidden="true"></i>
@@ -110,13 +99,7 @@
             - $factorItem->discount)
             }}</th>
         <th>{{
-            number_format($factorItem->serviceTariffs()->sum('consumer_price'))
-            }}</th>
-        <th>{{
             number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
-            }}</th>
-        <th>{{
-                  App\Helpers\CalculationHelper::calculatingAverageUserProfitCashPurchases($factorItem)
             }}</th>
         @permission('view_profit_factorItem')
         <th>{{

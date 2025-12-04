@@ -16,8 +16,6 @@
             <th>طول دوره اجرا(روز)</th>
             <th>تخفیف (ریال)</th>
             <th>تعرفه مصرف کننده (ریال)</th>
-            <th>قیمت نقدی اعضاء لاله (ریال)</th>
-            <th>تخفیف نقدی (ریال)</th>
             @permission('view_profit_factorItem')
             <th>تعرفه خرید سجا (ریال)</th>
             <th>نرخ اختلاف خرید</th>
@@ -52,11 +50,9 @@
             </td>
             <td>{{ number_format($service_tariff->pivot->discount) }}
             </td>
-            <td>{{ number_format($service_tariff->consumer_price) }}</td>
             <td>{{ number_format($service_tariff->pivot->price -
                 $service_tariff->pivot->discount) }}
             </td>
-            <td>{{ App\Helpers\CalculationHelper::calculatingUserProfitCashPurchases($service_tariff) }}</td>
             @permission('view_profit_factorItem')
             <td>{{ number_format($service_tariff->purchase_price) }}</td>
             <td>
@@ -80,13 +76,7 @@
                 - $factorItem->discount)
                 }}</th>
             <th>{{
-                number_format($factorItem->serviceTariffs()->sum('consumer_price'))
-                }}</th>
-            <th>{{
                 number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
-                }}</th>
-            <th>{{
-                      App\Helpers\CalculationHelper::calculatingAverageUserProfitCashPurchases($factorItem)
                 }}</th>
             @permission('view_profit_factorItem')
             <th>{{

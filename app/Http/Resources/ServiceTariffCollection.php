@@ -34,16 +34,15 @@ class ServiceTariffCollection extends ResourceCollection
                     'id' => $item->id,
                     'name' => $item->name,
                     'slug' => $item->slug,
-                    'purchase_price' => number_format($item->purchase_price),
+                    'price' => number_format($item->purchase_price),
                     'selling_price' => auth()->user()->isAbleTo('service_tariff_selling_price') ? number_format($item->price) : 'ثبت نشده',
-                    'consumer_price' => auth()->user()->isAbleTo('service_tariff_selling_price') ? number_format($item->consumer_price) : 'ثبت نشده',
                     'tariff' => $item->tariff->title,
-                    'company_profit' => auth()->user()->isAbleTo('service_tariff_selling_price') ? CenterServiceTariff::setCompanyProfit($item , $item->consumer_price) : 'ثبت نشده',
+                    'company_profit' => auth()->user()->isAbleTo('service_tariff_selling_price') ? CenterServiceTariff::setCompanyProfit($item , $item->price) : 'ثبت نشده',
                     'jalali_created_at' => verta($item->created_at)->format('%Y/%m/%d '),
                 ];
             }),
             'meta' =>  [
-				'average_company_profit' => CenterServiceTariff::setAverageCompanyProfit($this->service_tariffs->get() , $this->service_tariffs->get()->sum('consumer_price')),
+				'average_company_profit' => CenterServiceTariff::setAverageCompanyProfit($this->service_tariffs->get() , $this->service_tariffs->get()->sum('price')),
             ]
         ];
     }

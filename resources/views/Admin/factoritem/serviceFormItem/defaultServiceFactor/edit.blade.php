@@ -1,4 +1,4 @@
-<h4 class="mb-3 card-header"><i class="fas fa-list"></i> فاکتور </h4>
+<h4 class="mb-3 card-header"><i class="fas fa-list"></i> طرح درمان </h4>
 <table class="table table-bordered table-striped table-responsive-md">
     <tr>
         <th>ردیف</th>
@@ -9,8 +9,6 @@
         <th>طول دوره اجرا(روز)</th>
         <th>تخفیف (ریال)</th>
         <th>تعرفه مصرف کننده (ریال)</th>
-        <th>قیمت نقدی اعضاء لاله (ریال)</th>
-        <th>تخفیف نقدی (ریال)</th>
         @permission('view_profit_factorItem')
         <th>تعرفه خرید سجا (ریال)</th>
         <th>نرخ اختلاف خرید</th>
@@ -63,7 +61,6 @@
             <input type="text" value="{{ number_format($service_tariff->pivot->discount) }}" name="discount[]"
                 class="form-control" oninput="separatePrices(this)">
         </td>
-        <td>{{ number_format($service_tariff->consumer_price) }}</td>
         <td>
             @if ($factorItem['factoritemable']->is_change_factor_price)
             <input type="text"
@@ -73,7 +70,6 @@
             {{ number_format($service_tariff->pivot->price - $service_tariff->pivot->discount) }}
             @endif
         </td>
-        <td>{{ App\Helpers\CalculationHelper::calculatingUserProfitCashPurchases($service_tariff) }}</td>
         @permission('view_profit_factorItem')
         <td>{{ number_format($service_tariff->purchase_price) }}</td>
         <td>
@@ -103,13 +99,7 @@
             - $factorItem->discount)
             }}</th>
         <th>{{
-            number_format($factorItem->serviceTariffs()->sum('consumer_price'))
-            }}</th>
-        <th>{{
             number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.price'))
-            }}</th>
-        <th>{{
-                  App\Helpers\CalculationHelper::calculatingAverageUserProfitCashPurchases($factorItem)
             }}</th>
         @permission('view_profit_factorItem')
         <th>{{
