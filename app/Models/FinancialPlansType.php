@@ -138,7 +138,18 @@ class FinancialPlansType extends Model
             return 0;
         }
     }
-
+    /**
+     * Summary of getFinancialPlansTypeByItemAndPaymentType
+     * @param mixed $item
+     * @param mixed $payment_type
+     * @return object
+     */
+    public static function getFinancialPlansTypeByItemAndPaymentType($item , $payment_type)
+    {
+        $financial_plans_types_by_item = self::getFinancialPlansTypeByItem($item);
+        $financial_plans_types_by_payment_itype = self::filterFinancialPlansTypeByPaymentType($financial_plans_types_by_item , $payment_type);
+        return $financial_plans_types_by_payment_itype;
+    }
     /**
      * @param mixed $item // category or service
      * @return object

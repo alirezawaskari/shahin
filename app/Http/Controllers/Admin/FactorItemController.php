@@ -1014,7 +1014,7 @@ class FactorItemController extends Controller {
         $factor_item[ 'address' ] = $factor_item->factor->address;
         $factor_item[ 'user_histories'] = Helper::userHistories( $factor_item->factor->user );
         $factor_item[ 'financial_plans_type' ] = FactorItem::getFnancialPlansType($factor_item);
-        $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItem($factor_item->factoritemable);
+        $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
         //fill prepayment array
         $factor_item['prepayment'] = self::getPrepayment($supervisor_factor_item);
         //fill price_difference array

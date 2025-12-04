@@ -199,7 +199,7 @@ class TotalFactorItemController extends Controller
             $temp['confirm'] = $factor_item->totalFactorItem->confirm;
             $temp['sessions'] = $factor_item->sessions->where('status', '!=', false);
             $temp['financial_plans_type'] = FactorItem::getFnancialPlansType($factor_item);
-            $temp['financial_plans_types_list'] = FinancialPlansType::getFinancialPlansTypeByItem($factor_item->factoritemable);
+            $temp['financial_plans_types_list'] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
 
             return $temp;
         });
