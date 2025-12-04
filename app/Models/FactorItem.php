@@ -461,6 +461,7 @@ class FactorItem extends Model implements AuditableContract
             '0' => 'جدید',
             '17' => 'منتظر مشاوره مرکز',
             '20' => 'منتظر تایید فاکتور توسط کاربر',
+            '21' => 'درانتظار اصلاح فاکتور به درخواست کاربر',
             '2' => 'مشاوره شد',
             '10' => 'آماده اجرا',
             '6' => 'شروع کار',
@@ -679,7 +680,7 @@ class FactorItem extends Model implements AuditableContract
         if($item->type && $item->totalFactorItem->confirm)
         {
             $temp = round($sessions_sum_price + $price) <= round($item->credit) ? true : false;
-            $temp = TotalFactorItem::getExpireInstallments($item->totalFactorItem)->isEmpty() ? true : false;
+            //$temp = TotalFactorItem::getExpireInstallments($item->totalFactorItem)->isEmpty() ? true : false;
         }
         else
         {
@@ -790,12 +791,35 @@ class FactorItem extends Model implements AuditableContract
             $total_discount_price = $item->serviceTariffs()->sum('factor_item_service_tariff.discount');
             $sum_service_tariff_total_price = $sum_service_tariff_total_price + $other_price + $total_price_service_tariffs - $total_discount_price;
         }
-        $sum_service_tariff_total_price != 0 ? $total_price = $sum_service_tariff_total_price : '';
+        $total_price == 0 ? $total_price = $sum_service_tariff_total_price : '';
+        // $sum_service_tariff_total_price != 0 ? $total_price = $sum_service_tariff_total_price : '';
         //apply financialPlansType discount percent if exist
         $financial_plans_type_discount_price = $factor_item->financialPlansType ? ($factor_item->financialPlansType->discount_percent/100) * $total_price : 0;
 		$total_price = $total_price + ($factor_item->supervisor ? $factor_item->supervisor->discount : 0) - $financial_plans_type_discount_price;
 
 		return $total_price;
+    }
+    /**
+     * @param mixed $supervisor_factor_item
+     * @param mixed $total_price
+     * @param mixed $type
+     * @param mixed $user
+     * @return void
+     */
+    public static function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
+    {
+        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
+            //get difference price
+            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
+        } else {
+            //get calculate financial information for cash factorItems
+            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
+        }
+        if ($supervisor_factor_item->type)
+        {
+            //get calculate financial information for installment factorItems
+            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
+        }
     }
     /**
      * @param FactorItem $supervisor_factor_item
@@ -885,12 +909,13 @@ class FactorItem extends Model implements AuditableContract
      * change type of factorItem
      * @param FactorItem $factor_item
      * @param mixed $type
-     * @return mixed
      */
     public static function changeType(FactorItem $factor_item, $type ) {
         $factor_items = FactorItem::getFatorItemCollection( $factor_item );
-
         $supervisor_factor_item = $factor_item->supervisor;
+        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
+            return false;
+        }
         if($type != $factor_item->type)
         {
             //convert cash to credit
@@ -944,23 +969,15 @@ class FactorItem extends Model implements AuditableContract
             $total_price = $factor_item->serviceTariffs()->exists() ? 0 : $factor_item->total_price;
             $other_price = isset( $factor_item->factor_value[ 'otherPrice' ] ) ? $factor_item->factor_value[ 'otherPrice' ] : 0;
             $total_price = FactorItem::getTotalPrice($factor_item , $total_price , $other_price);
-            //get supervisor factorItem
-            $supervisor_factor_item = $factor_item->supervisor;
+            //calculate
+            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $supervisor_factor_item->factor->user );
 
-            //get difference price
-            if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
-                FactorItem::calculateDiffrencePrice( $supervisor_factor_item->totalFactorItem , $total_price );
-            }
-            else{
-                //calculate
-                FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $factor_item->factor->user );
-            }
             if($supervisor_factor_item->totalFactorItem)
             {
                 TotalFactorItem::updateCalculate($total_factor_item);
             }
         }
-        return $supervisor_factor_item;
+        return true;
     }
 
     /**
@@ -1069,40 +1086,49 @@ class FactorItem extends Model implements AuditableContract
      */
     public static function referralCenter(FactorItem $factorItem , $request)
     {
-        $item = isset($request->item) ? $request->item : [];
-        $date = isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now();
         //close older sessions
-        Session::whereIn('status',[3,5])->where('factor_item_id',$factorItem->id)->update([
+        Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
-            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
+            'description'=>'لغو این جلسه به دلیل ارجاع به مرکز جدید'
         ]);
 
         //update center_id
         $factorItem->update( [
             'center_id' =>  $request['center_id'],
             'status_factor' => 17,
-            'date' => $date,
+            'date' => now(),
         ] );
         //create session
         if ($factorItem->factoritemable->session==1){
             Session::create( [
-                'status' => 3 ,
+                'status' => 8 ,
                 'user_id' => auth()->user()->id,
                 'factor_item_id' => $factorItem->id,
-                'date' => $date,
-                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request['description'].' - مشاوره حضوری ' : $request['description'] ,
+                'description_before' => $request['description'] ,
            ]);
         }
         //send sms to the user
-        if ( isset($request['check']) && $request['check'] ) {
-            event( new smsService( $factorItem->factor->user, $factorItem->center->title . ':' . $factorItem->center->address, $factorItem->date ) );
-        }
+        event( new smsService( $factorItem , 'setCenter') );
         if($factorItem->center->representation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
         }
         //send sms to the center manager
         event(new referralCenterNotification($factorItem->center));
+    }
+    /**
+     * Summary of getFactorItemAble
+     * @param FactorItem $factorItem
+     * @param mixed $temp
+     */
+    public static function getFactorItemAble(FactorItem $factorItem , $temp)
+    {
+        if ( $factorItem->factoritemable_type == Service::class ) {
+            array_push($temp, $factorItem->factoritemable->title . (isset($factor_item->serviceItem) ? ' - ' . $factorItem->serviceItem->title : ''));
+        } else {
+            array_push($temp, $factorItem->factoritemable->title);
+        }
+        return $temp;
     }
 }
 

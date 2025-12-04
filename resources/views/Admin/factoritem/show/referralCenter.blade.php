@@ -18,18 +18,6 @@
                     </select>
                     <input type="hidden" name="id" value="{{ $factorItem['id'] }}">
                 </div>
-                <div class="col-12 col-md-6 mb-3">
-                    <label>انتخاب نوع دریافت مشاوره :</label>
-                    <select name="item[typeConsultation]" id="select_type_consultation" class="form-control" required>
-                        <option id="type_consultation_online" value="online"
-                            {{isset($factorItem['factor_values']['typeConsultation']) &&
-                            $factorItem['factor_values']['typeConsultation']=='online' ?'selected' : '' }}>آنلاین
-                        </option>
-                        <option value="inPerson" {{isset($factorItem['factor_values']['typeConsultation']) &&
-                            $factorItem['factor_values']['typeConsultation']=='inPerson' ?'selected' : '' }}>حضوری
-                        </option>
-                    </select>
-                </div>
                 <div class="col-12 mb-3">
                     <label for="description">توضیحات</label>
                     <textarea id="description" name="description" class="form-control">

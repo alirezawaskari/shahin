@@ -182,8 +182,12 @@ class Callcenter extends Model implements AuditableContract
 
         if (isset($description) && trim($description) != '') {
             $query->where('description', 'LIKE', '%'.$description.'%');
-            $query->whereHas('histories', function ($query) use ($description) {
-                $query->where('description', 'LIKE', '%'.$description.'%');
+            $query->whereHas('register', function ($query) use ($description) {
+                $query->whereHas('callcenters', function ($query) use ($description) {
+                    $query->whereHas('histories', function ($query) use ($description) {
+                        $query->where('description', 'LIKE', '%'.$description.'%');
+                    });
+                });
             });
         }
 
@@ -212,8 +216,6 @@ class Callcenter extends Model implements AuditableContract
                 $query->whereHas('factor_items', function ($query) use ($service) {
                     $query->where('service_id', '=', $service);
                 });
-            })->orWhereHas('register' , function ($query) use ($service) {
-                $query->where('service_id', '=', $service);
             });
             });
         }
@@ -234,8 +236,6 @@ class Callcenter extends Model implements AuditableContract
                 $query->whereHas('factorItems', function ($query) use ($subServiceCategory) {
                     $query->where('factoritemable_type', '=', Service::class)->where('factoritemable_id',$subServiceCategory);
                 });
-            })->orWhereHas('register' , function ($query) use ($subServiceCategory) {
-                $query->where('service_id', '=', $subServiceCategory);
             })->orWhereHas('services',function ($query)use($subServiceCategory){
                 $query->where('callcenterable_id',$subServiceCategory);
             });
@@ -251,8 +251,6 @@ class Callcenter extends Model implements AuditableContract
                 });
             })->orWhereHas('services',function ($query)use($serviceCategory){
                 $query->whereIn('callcenterable_id',$serviceCategory->services->pluck('id')->toArray());
-            })->orWhereHas('register' , function ($query) use ($serviceCategory) {
-                $query->whereIn('service_id', $serviceCategory->services->pluck('id')->toArray());
             });
         });
         }
@@ -264,8 +262,6 @@ class Callcenter extends Model implements AuditableContract
                 $query->whereHas('factorItems', function ($query)  {
                     $query->where('factoritemable_id', auth()->user()->center->services->pluck('id')->toArray());
                     });
-                })->orWhereHas('register' , function ($query) {
-                    $query->whereIn('service_id', auth()->user()->center->services->pluck('id')->toArray());
                 })->orWhereHas('callcenter',function ($query){
                     $query->whereHas('employee',function ($query){
                        $query->where('parent_id',auth()->user()->employee->id);
@@ -483,11 +479,7 @@ class Callcenter extends Model implements AuditableContract
                 $temp = [];
                 foreach ($item->factors as $factor) {
                     foreach ($factor->factorItems as $factor_item) {
-                        if (isset($factor_item->factoritemable)) {
-                            array_push($temp, $factor_item->factoritemable->title . (isset($factor_item->serviceItem) ? ' - ' . $factor_item->serviceItem->title : ''));
-                        } elseif (isset($factor_item->category)) {
-                            array_push($temp, $factor_item->category->title);
-                        }
+                        FactorItem::getFactorItemAble($factor_item , $temp);
                     }
                 }
                 return implode(',', $temp);

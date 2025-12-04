@@ -193,8 +193,7 @@ class FinancialPlansTypeController extends Controller
             $factor_item = FactorItem::find($request->input('factor_item_id'));
             $payment_type = $request->input('payment_type');
             if ($factor_item->factoritemable->financialPlansTypes->count() > 0) {
-                $financial_plans_types = FinancialPlansType::getFinancialPlansTypeByItem($factor_item->factoritemable);
-                $financial_plans_types = FinancialPlansType::filterFinancialPlansTypeByPaymentType($financial_plans_types , $payment_type);
+                $financial_plans_types = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $payment_type);
                 $financial_plans_types = $financial_plans_types->map(function ($item) {
                     $temp = [];
                     $temp['id'] = $item->id;

@@ -9,21 +9,21 @@ $(document).ready(function () {
             scrollTop: $("#one-section").offset().top
         }, 1000);
     });
-     $('#pagination-demo').remove();
+    $('#pagination-demo').remove();
     $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-    do_filter_command=true;
+    do_filter_command = true;
     fetchData(1)
     event.preventDefault();
-    var first_load=true;
-    var do_filter_command=false;
-    /* click on do filter */
+    var first_load = true;
+    var do_filter_command = false;
+    /*    click on do filter */
     $("body").on('click', '#do_filter', function (event) {
         $('#pagination-demo').remove();
         $('#pagination-box').html("<ul id='pagination-demo' class='pagination'></ul>");
-        do_filter_command=true;
         fetchData(1)
         event.preventDefault();
     });
+
     function pagination(totalPages) {
         $('#pagination-demo').twbsPagination({
             totalPages: totalPages,
@@ -32,17 +32,17 @@ $(document).ready(function () {
             prev: '<',
             onPageClick: function (event, page) {
                 //fetch content and render here
-                if (!first_load && !do_filter_command){
+                if (!first_load && !do_filter_command) {
                     fetchData(page);
                 }
-                first_load=false
-                do_filter_command=false
+                first_load = false
+                do_filter_command = false
             }
         });
     }
 
     function fetchData(page) {
-        $('#loading').css('display' , 'block');
+        $('#loading').css('display', 'block');
         var form = $('#filter_form');
         var formData = form.serialize();
         $.ajax({
@@ -68,11 +68,18 @@ $(document).ready(function () {
             searching: false,
             retrieve: true,
             data: data.data,
-            columns: [
-                {"data": "sort_by"},
-                {"data":"name"},
-                {"data":"display_name"},
-                {"data":"created_at"},
+            columns: [{
+                    "data": "sort_by"
+                },
+                {
+                    "data": "display_name"
+                },
+                {
+                    "data": "name"
+                },
+                {
+                    "data": "created_at"
+                },
                 {
                     "data": data,
                     "render": function (data) {
@@ -88,7 +95,10 @@ $(document).ready(function () {
         });
         //add column count
         table.on('order.dt search.dt', function () {
-            table.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
+            table.column(0, {
+                search: 'applied',
+                order: 'applied'
+            }).nodes().each(function (cell, i) {
                 cell.innerHTML = data.meta.from + i;
             });
         }).draw();

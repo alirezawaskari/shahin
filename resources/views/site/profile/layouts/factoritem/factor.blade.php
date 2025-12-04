@@ -123,12 +123,16 @@
     $("body").on('click','.send_confirm_contract_code',function () {
     var token = $('meta[name="csrf-token"]').attr('content');
     var confirm_contract_check = $('#confirm-contract-check').prop('checked');
+    var total_factor_item = $('#total_factor_item').val();
+    var factor_item = $('#factor_item').val();
     $.ajax({
         url: "/factorItem/sendConfirmContractCode",
         type: 'post',
         data: {
             "_token": token,
             "confirm_contract_check": confirm_contract_check,
+            "total_factor_item": total_factor_item,
+            "factor_item": factor_item,
         },
         success: function (response) {
             swal(response['message'], "", response['status'])

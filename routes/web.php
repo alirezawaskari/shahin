@@ -72,6 +72,7 @@ Route::get('/register/check-user-is-register',[RegisterController::class,'checkU
 Route::get('/login_by_mobile',[RegisterController::class,'showRegistrationForm'])->name('login_by_mobile');
 Route::post('/fastregister', [RegisterController::class,'fastregister']);
 //Campaign
+Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 Route::get('/campaign/{slug:string}', [CampaignController::class,'campaignRegister'])->name('campaign');
 Route::post('/campaign/register/insert/{campaign_id:int}', [CampaignController::class,'campaignRegisterInsert'])->name('campaign.register.insert');
 Route::post('type/category', [CampaignController::class,'getTypeCategory']);
@@ -379,7 +380,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/factorItem/sendInitialLink/{factorItem}', 'FactorItemController@sendInitialLink')->name('factorItem.sendInitialLink');
     Route::post('/factorItem/change-statusFactor', 'FactorItemController@changeStatusFactor')->name('factorItem.changeStatus');
     Route::resource('factorItem', FactorItemController::class);
-    Route::post('/factoritem/turn-ratings' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
+    Route::post('/factoritem/turn-ratings/{factorItem}' , 'FactorItemController@turnRatings')->name('factorItem.turnRatings');
     Route::post('/factoritem/set-center' , 'FactorItemController@setCenter')->name('factorItem.setCenter');
     Route::post('/factoritem/change-factoritemable' , 'FactorItemController@changeFactoritemable')->name('factorItem.changeFactoritemable');
     Route::post('/factoritem/suspension', 'FactorItemController@suspension')->name('factorItem.suspension');
@@ -886,12 +887,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/wallet', 'ProfileController@wallet')->name('profile.wallet');
     Route::get('/profile/factor', 'ProfileController@factor')->name('profile.factor');
     Route::get('/profile/factorItem', 'ProfileController@factorItem')->name('profile.factorItem');
-    Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
-    Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
-    Route::post('/factorItem/verificationConfirmContractCodeFactor', 'FactorItemController@verificationConfirmContractCodeFactor');
-    Route::post('/factorItem/verificationConfirmContractCodeEmployee', 'FactorItemController@verificationConfirmContractCodeEmployee');
-    Route::post('/factorItem/rejectFactor/{factorItem}', 'FactorItemController@rejectFactor')->name('factorItem.rejectFactor');
-
     Route::get('/profile/laleCard', 'ProfileController@laleCard')->name('profile.laleCard');
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');
     Route::get('/profile/notifications/read', 'ProfileController@notifications_read')->name('profile.notifications.read');
@@ -903,10 +898,16 @@ Route::middleware('auth')->group(function () {
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');
 Route::get('/factorItem/factor/{factorItem}', 'FactorItemController@showFactor');
+Route::post('/factorItem/sendConfirmContractCode', 'FactorItemController@sendConfirmContractCode');
+Route::post('/factorItem/verificationConfirmContractCode', 'FactorItemController@verificationConfirmContractCode');
+Route::post('/factorItem/verificationConfirmContractCodeFactor', 'FactorItemController@verificationConfirmContractCodeFactor');
+Route::post('/factorItem/verificationConfirmContractCodeEmployee', 'FactorItemController@verificationConfirmContractCodeEmployee');
+Route::post('/factorItem/rejectFactor/{factorItem}', 'FactorItemController@rejectFactor')->name('factorItem.rejectFactor');
 Route::get('/payment/{payment}', 'FactorItemController@index')->name('payment');
 Route::get('/pf/{factor}', 'PaymentController@fastpay')->name('pay.fast');
 Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepayment');
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
+Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');

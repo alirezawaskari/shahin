@@ -16,11 +16,8 @@
                         <div class="col-12 mb-5">
                             <select name="financial_plans_type" class="form-control" id="financial_plans_type">
                                 @foreach ($factorItem['financial_plans_types_list'] as $financial_plans_type)
-                                @if ($financial_plans_type::getPaymentType($financial_plans_type->payment_type) ==
-                                $factorItem['type'])
                                 <option value="{{ $financial_plans_type->id }}">{{ $financial_plans_type->title.' -
                                     '.number_format($financial_plans_type->price).' ریال '}}</option>
-                                @endif
                                 @endforeach
                             </select>
                         </div>

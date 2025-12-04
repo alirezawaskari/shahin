@@ -43,7 +43,7 @@
                 @endif
                 <div class="mt-3">
                     @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14,16]) )
-                    @include('Admin.factoritem.show.turnRatings')
+                    @include('Admin.factoritem.show.setCenter')
                     @endif
                 </div>
             </div>
@@ -66,10 +66,6 @@
     @endif
     @if ($factorItem['complete'])
     <span class="text-warning mr-2">(تکمیل شده)</span>
-    @endif
-    @if(!$factorItem['total_price'] || $factorItem['status_factor'] == 14 || $factorItem['status_factor'] == 4)
-    <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
-        خدمت | دسته بندی</button>
     @endif
 </div>
 <hr>

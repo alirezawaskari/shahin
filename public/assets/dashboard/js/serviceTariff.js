@@ -179,7 +179,10 @@ $(document).ready(function () {
                         "data": "name"
                     },
                     {
-                        "data": "price"
+                        "data": "purchase_price"
+                    },
+                    {
+                        "data": "consumer_price"
                     },
                     {
                         "data": "selling_price"

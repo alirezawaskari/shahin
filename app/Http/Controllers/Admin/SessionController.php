@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\smsService;
 use App\Events\smsServiceSession;
 use App\Exports\SessionExport;
 use App\Helpers\Helper;
@@ -94,7 +95,7 @@ class SessionController extends Controller {
      */
     public function filterDesktopCompleteTurnRatings(Request $request) {
 
-        $sessions = Session::filter()->whereIn( 'status', [3,5] )->whereDate('date', '<=' ,Carbon::tomorrow())->orderBy( 'date', 'desc' );
+        $sessions = Session::filter()->whereIn( 'status', [3,5,8] )->whereDate('date', '<=' ,Carbon::today())->orderBy( 'date', 'desc' );
         if ($request->start_date || $request->end_date){
             $sessions ->whereDate('date', '>=' ,Carbon::today())->whereDate('date', '<=' ,Carbon::tomorrow());
         }
@@ -216,7 +217,7 @@ class SessionController extends Controller {
 
                 //update credit file
                 self::updateCreditFile($session);
-                
+
                 $agent ? $session->factorItemServiceTariff->update(['user_id' => $agent->id]) : '';
             }
         } else {
@@ -367,7 +368,9 @@ class SessionController extends Controller {
      * @return \Illuminate\Http\RedirectResponse
      */
     public function rejectSession( Request $request) {
-        Session::find( $request->session_id )->update( [ 'status' => 7 , 'description' => $request->description ] );
+        $session = Session::find( $request->session_id );
+        $session->update( [ 'status' => 7 , 'description' => $request->description ] );
+        event( new smsService( $session->factorItem , 'rejectSession') );
         return redirect()->back();
     }
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\FactorItem;
 use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -12,22 +13,18 @@ class smsService
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $user;
-    public $address;
-    public $date;
+    public $factorItem;
+    public $type;
 
     /**
-     * Create a new event instance.
-     *
-     * @param User $user
-     * @param $address
-     * @param $date
+     * Summary of __construct
+     * @param FactorItem $factorItem
+     * @param string $type
      */
-    public function __construct(User $user, $address , $date)
+    public function __construct(FactorItem $factorItem , $type)
     {
-        $this->user = $user;
-        $this->address = $address;
-        $this->date = $date;
+        $this->factorItem = $factorItem;
+        $this->type = $type;
     }
 
     /**

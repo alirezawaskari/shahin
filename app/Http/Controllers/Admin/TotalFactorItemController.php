@@ -199,7 +199,7 @@ class TotalFactorItemController extends Controller
             $temp['confirm'] = $factor_item->totalFactorItem->confirm;
             $temp['sessions'] = $factor_item->sessions->where('status', '!=', false);
             $temp['financial_plans_type'] = FactorItem::getFnancialPlansType($factor_item);
-            $temp['financial_plans_types_list'] = FinancialPlansType::getFinancialPlansTypeByItem($factor_item->factoritemable);
+            $temp['financial_plans_types_list'] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
 
             return $temp;
         });
@@ -432,7 +432,7 @@ class TotalFactorItemController extends Controller
             }
         }
 
-        if (auth()->user()->hasRole('consulting_contract_affairs')) {
+        if (auth()->user()->isAbleTo('consulting_contract_affairs_confirmation') && $totalFactorItem->total_factor_item_status_id == 13) {
             $values = $totalFactorItem->factor_values ? $totalFactorItem->factor_values : [];
             $factor_values = Arr::add($values, 'consulting_contract_affairs', auth()->user()->id);
             $totalFactorItem->update([
@@ -449,7 +449,6 @@ class TotalFactorItemController extends Controller
                     'status_factor' => 18
                 ]);
             }
-
         }
 
         if (auth()->user()->hasRole('superadmin_representation')) {
@@ -723,7 +722,7 @@ class TotalFactorItemController extends Controller
         //check confirmation totalFactorItem
         if ($total_factor_item->confirm) {
             return redirect()->back()->with([
-                'failByMessage' => 'این پرونده قبلا تایید شده است امکان تغییر وضعیت اجرایی پرونده وجود ندارد.'
+                'failByMessage' => 'این پرونده قبلا تایید شده است امکان تغییر وضعیت اداری پرونده وجود ندارد.'
             ]);
         }
         $factor_items = $total_factor_item->factorItems;
@@ -736,6 +735,17 @@ class TotalFactorItemController extends Controller
             $fator_item_collections->update([
                 'status_factor' => $request->status_factor
             ]);
+
+            if($request->status_factor == 18)
+            {
+                $user_phone_number = $factor_item->factor->user->phone;
+                $approval_date = verta($total_factor_item->approval_date)->format('Y/m/d');
+                $link = 'https://lalecard.ir/factorItem/' . $factor_item->resnumber;
+                SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $total_factor_item->id, 'param2' => $approval_date, 'param3' => $link]);
+                $fator_item_collections->update([
+                    'status_factor' => 18
+                ]);
+            }
         }
         return redirect()->back()->with([
             'update' => 'success'
@@ -940,8 +950,8 @@ class TotalFactorItemController extends Controller
             $factor_item_able = $factor_item->factoritemable;
             $total_price = $factor_item->total_price ? $factor_item->total_price : $factor_item_able->installments->min('down_interval');
             $total_price = $total_price + $factor_item->discount;
-            //calculate
-            FactorItem::calculate($factor_item, $total_price, $factor_item->type, $user);
+            //calculate financial information
+            FactorItem::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
         }
         TotalFactorItem::updateCalculate($total_factor_item);
         $user = User::find($request->input('user_id'));

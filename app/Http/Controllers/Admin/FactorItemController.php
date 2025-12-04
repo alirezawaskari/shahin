@@ -87,14 +87,42 @@ class FactorItemController extends Controller {
 
         return view( 'Admin.factoritem.show', compact('item', 'center_agents', 'factorItem', 'user' ) );
     }
-    public function destroy(FactorItem $factorItem ) {
-        if(auth()->user()->hasPermission('delete-factor-item'))
-        {
-            $factorItem->delete();
-            return redirect()->back()->with('success','200');
-        }
-        return redirect()->back()->with('errors','403');
+    /**
+     * Summary of destroy
+     * @param FactorItem $factorItem
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     */
+    public function destroy(FactorItem $factorItem, Request $request)
+    {
+    if (!auth()->user()->hasPermission('delete-factor-item')) {
+        return $this->unauthorizedResponse($request);
     }
+
+    $check_payment = $factorItem->totalFactorItem
+        ? TotalFactorItem::checkPayment($factorItem->totalFactorItem)
+        : FactorItem::checkPayment($factorItem);
+
+    if ($check_payment) {
+        return redirect()->back()->with([
+            'failByMessage' => ' به دلیل وجود پرداختی برای این پرونده ، امکان حذف وجود ندارد .'
+        ]);
+    }
+
+    Factor::returnPaymentBydeleteFactor($factorItem->factor);
+    $factorItem->factor()->delete();
+    $factorItem->totalFactorItem()->delete();
+    $factorItem->delete();
+
+    if ($request->ajax()) {
+        return response([
+            'status' => 'success',
+            'message'=>'عملیات موفق'
+        ]);
+    }
+
+    return redirect()->back()->with(['delete' => 'success']);
+}
 
     /**
      * @param FactorItem $factorItem
@@ -169,9 +197,6 @@ class FactorItemController extends Controller {
     public function setCenter(Request $request)
     {
         $factor_item = FactorItem::find( $request->id );
-        $item = $request->item;
-        $item['id'] = $request->id;
-        self::formData( $item );
         $validate = Validator::make($request->all(), [
             'id' => 'required|exists:factor_items,id',
             'center_id' => 'required',
@@ -188,11 +213,11 @@ class FactorItemController extends Controller {
                 'failByMessage' => 'جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .'
             ] );
         }
-        // unselected center
+        // unset center
         if($request->center_id == null)
         {
             $factor_item->update( [
-                'center_id' =>  $request->center_id ,
+                'center_id' => null ,
                 'status_factor' => 14,
             ] );
             return redirect()->back()->with( [
@@ -205,39 +230,43 @@ class FactorItemController extends Controller {
         ] );
     }
     /**
+     * @param FactorItem $factorItem
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function turnRatings(Request $request ) {
-        $factor_item = FactorItem::find( $request->id );
-        if (is_null($factor_item->center_id)){
+    public function turnRatings(FactorItem $factorItem , Request $request ) {
+        if (is_null($factorItem->center_id)){
             alert()->error('لطفا ابتدا تعیین مرکز نمایید .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
-        $factor_item->update( [
-            'date' => isset( $request->date ) ? $request->date : $factor_item->date,
-            'supporter_id' => auth()->user()->id,
+        $factorItem->update( [
+            'date' => isset( $request->date ) ? $request->date : $factorItem->date,
         ] );
 
-        Session::whereIn('status',[3,4,5,6])->where('factor_item_id',$factor_item->id)->update([
+        Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
-            'description'=>'لغو این نوبت مشاوره به دلیل تعیین نوبت مشاوره جدید'
-         ]);
-         if ($factor_item->factoritemable->session==1){
+            'description'=>'بستن این جلسه به دلیل تعیین نوبت مشاوره'
+        ]);
+        $item = isset($request->item) ? $request->item : [];
+        $typeConsultation = isset($item['typeConsultation']) ? $item['typeConsultation'] : '';
+        $values = $factorItem->factor_values ? $factorItem->factor_values : [];
+        $factor_values = Arr::add($values, 'typeConsultation', $typeConsultation);
+        $factorItem->update([
+            'factor_values' => $factor_values,
+        ]);
+
+        if ($factorItem->factoritemable->session==1){
              Session::create( [
-                 'status' => 3,
-                 'user_id' => auth()->user()->id,
-                 'factor_item_id' => $factor_item->id,
-                 'date' => Helper::vertaToMiladi($request->date),
-                 'description_before' => $request->description,
+                'status' => 3,
+                'user_id' => auth()->user()->id,
+                'factor_item_id' => $factorItem->id,
+                'date' => isset($request['date']) ?  Helper::vertaToMiladi($request['date']) : now(),
+                'description_before' => isset($item['typeConsultation']) && $item['typeConsultation'] == 'inPerson' ? $request['description'].' - مشاوره حضوری ' : $request['description'].' - مشاوره آنلاین ' ,
              ]);
-         }
-
-        if ( $request->check ) {
-            $factor_item->factor->update( [ 'representation_id' => $factor_item->center->representation_id ] );
-            event( new smsService( $factor_item->factor->user, $factor_item->center->title . ':' . $factor_item->center->address, $factor_item->date ) );
         }
-
+        $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
+        event( new smsService( $factorItem , 'turnRatings') );
+        
         return redirect()->back()->with( [
             'update' => 'success'
         ] );
@@ -275,8 +304,8 @@ class FactorItemController extends Controller {
         }
         self::formData( $item );
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
-        //get calculate financial information
-        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
 
         Session::checkAndStartEntryVisitSession($factor_item);
 
@@ -339,11 +368,6 @@ class FactorItemController extends Controller {
      * create factorItem products & factorItem service tariffs
      */
     public function createFactor( Request $request , FactorItem $factorItem) {
-        if ( $factorItem->complete ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
-            ] );
-        }
         $item = $request->item;
         self::formData( $request->item );
         $user = User::find( $item[ 'user_id' ] );
@@ -368,8 +392,8 @@ class FactorItemController extends Controller {
         //get supervisor factoritem
         $factor_item = FactorItem::find( $item[ 'id' ] );
         $supervisor_factor_item = $factor_item->supervisor;
-        //get calculate financial information
-        self::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user);
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user);
         //save factor image
         if(isset($request->item['urlfactor-image']))
 		{
@@ -484,13 +508,19 @@ class FactorItemController extends Controller {
         $factor_item = FactorItem::find( $request->input( 'id' ) );
         $supervisor_factor_item = $factor_item->supervisor;
         $type = isset( $request->type ) ? $request->type : $supervisor_factor_item->type;
-        if($factor_item->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factor_item->financialPlansType,$type))
+        //check if the financialPlansType selected matches the factorItem payment type
+        $financial_plans_type = FinancialPlansType::find($request->financial_plans_type);
+        if($request->financial_plans_type && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($financial_plans_type,$request->type))
         {
             return redirect()->back()->with( [
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
             ] );
         }
-        $supervisor_factor_item = FactorItem::changeType( $factor_item, $type );
+        //update financialPlansType
+        $factor_items_collection = FactorItem::getFatorItemCollection( $factor_item->supervisor );
+        $factor_items_collection->update(['financial_plans_type_id' => $request->financial_plans_type]);
+        FactorItem::changeType( $factor_item, $type );
+        $supervisor_factor_item = $factor_item->supervisor;
         //change supervisor factoritem discount
         $supervisor_factor_item->update( [
             'discount' => ( float ) str_replace( ',', '', $request->input( 'discount' ) ),
@@ -653,11 +683,6 @@ class FactorItemController extends Controller {
      * update factorItem serviceTariffs
      */
     public function updateServiceTariff( Request $request , FactorItem $factorItem) {
-        if ( $factorItem->complete ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
-            ] );
-        }
         $inputs = $request->all();
         $message = [];
         if(isset($inputs[ 'id' ]))
@@ -687,7 +712,6 @@ class FactorItemController extends Controller {
                 $message[$request->id[ $i ]] = "برای این فاکتور قبلا جلسه ثبت شده است.";
             }
         }
-        $user = $factorItem->factor->user;
         $type = $factorItem->type;
         //get total price factor
         $total_price = 0;
@@ -700,13 +724,16 @@ class FactorItemController extends Controller {
             FactorItem::calculateDiffrencePrice( $supervisor_factor_item , $total_price );
         }
         else{
-            //calculate
-            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
+            //calculate financial information
+            FactorItem::calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $supervisor_factor_item->factor->user);
         }
         if($supervisor_factor_item->totalFactorItem)
         {
             TotalFactorItem::updateCalculate($supervisor_factor_item->totalFactorItem);
         }
+        $factorItem->update( [
+            'complete' => false
+        ] );
         Log::channel('db')->info('service tariffs updated.' , ['factor_item_id' => $factorItem->id , 'registerar_id' => auth()->user()->id , 'service_tariffs' => $factorItem->serviceTariffs]);
         return redirect()->back()->with( [
             'update' => 'success',
@@ -987,7 +1014,7 @@ class FactorItemController extends Controller {
         $factor_item[ 'address' ] = $factor_item->factor->address;
         $factor_item[ 'user_histories'] = Helper::userHistories( $factor_item->factor->user );
         $factor_item[ 'financial_plans_type' ] = FactorItem::getFnancialPlansType($factor_item);
-        $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItem($factor_item->factoritemable);
+        $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
         //fill prepayment array
         $factor_item['prepayment'] = self::getPrepayment($supervisor_factor_item);
         //fill price_difference array
@@ -1208,15 +1235,10 @@ class FactorItemController extends Controller {
      */
     private function createSerivceTriffsFactorItem($request , FactorItem $factorItem)
     {
-        if ( $factorItem->complete ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان تغییر فاکتور  برای پرونده تایید شده وجود ندارد. لطفا روی دکمه نیاز به تغییر فاکتور کلیک نمایید'
-            ] );
-        }
         for ($i = 0; $i < ($request->service_tariff_id ? count($request->service_tariff_id) : 0); $i++) {
             $service_tariff = ServiceTariff::find( $request->service_tariff_id[ $i ] );
             $value = isset($request->value[ $i+1 ]) ? $request->value[ $i+1 ] : null;
-            $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : $value;
+            $value = isset( $request->dentist_position[ $i+1 ] ) ? $request->dentist_position[ $i+1 ] . ' - ' . $request->dentist_number[ $i+1 ] : (int)$value;
             if(auth()->user()->hasPermission('change-price-tariff'))
             {
                 $service_tariff_price = ( float ) str_replace( ',', '', $request->price[$i+1]);
@@ -1232,7 +1254,6 @@ class FactorItemController extends Controller {
 		    $doctor_id = isset($request->doctor_id[ $i+1 ]) ? $request->doctor_id[ $i+1 ] : null;
 			$session_number = isset($request->session_number[ $i+1 ]) ? $request->session_number[ $i+1 ] : null;
 			$description = isset($request->description[ $i+1 ]) ? $request->description[ $i+1 ] : null;
-
             $factorItem->serviceTariffs()->attach( [ $request->service_tariff_id[ $i ] => [ 'price' => $price, 'value' => $value, 'user_id' => $doctor_id,  'description' => $description, 'session_number' => $session_number, 'treatment_duration' => $treatment_duration] ] );
         }
     }
@@ -1285,8 +1306,8 @@ class FactorItemController extends Controller {
         $prepayment = [];
         $total_price = $factorItem->total_price ? $factorItem->total_price : $price;
         $total_price = $total_price + $factorItem->discount;
-        //calculate
-        FactorItem::calculate( $factorItem, $total_price, $factorItem->type, $user );
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($factorItem->supervisor , $total_price, $factorItem->type, $factorItem->factor->user);
         $prepayment['num'] = $factorItem->property->prepayment_num;
         $prepayment['count'] = $factorItem->property->prepayment_count;
 
@@ -1336,19 +1357,28 @@ class FactorItemController extends Controller {
      */
     public function changeFinancialPlansType(Request $request , FactorItem $factorItem)
     {
-        $factor_items_collection = FactorItem::getFatorItemCollection( $factorItem->supervisor );
-        $factor_items_collection->update(['financial_plans_type_id' => $request->financial_plans_type]);
-        $factorItem = FactorItem::find($factorItem->id);
-        //calculate registeration debt if factorItem type is credit
-        $factorItem->supervisor->type ? self::calculateRegisterationDebt($factorItem->supervisor) : '';
         //check if the financialPlansType selected matches the factorItem payment type
-        if($factorItem->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factorItem->financialPlansType,$request->type))
+        $financial_plans_type = FinancialPlansType::find($request->financial_plans_type);
+        if($request->financial_plans_type && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($financial_plans_type,$request->type))
         {
             return redirect()->back()->with( [
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
             ] );
         }
-        $supervisor_factor_item = FactorItem::changeType($factorItem,$request->type);
+        FactorItem::changeType($factorItem,$request->type);
+        $supervisor_factor_item = $factorItem->supervisor;
+        if($supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm)
+        {
+            return redirect()->back()->with( [
+                'failByMessage' => 'این پرونده تایید شده است و امکان تغییر طرح برای پرونده تایید شده وجود ندارد.'
+            ] );
+        }
+        $factor_items_collection = FactorItem::getFatorItemCollection( $factorItem->supervisor );
+        $factor_items_collection->update(['financial_plans_type_id' => $request->financial_plans_type]);
+        $factorItem = FactorItem::find($factorItem->id);
+        //calculate registeration debt if factorItem type is credit
+        $factorItem->supervisor->type ? self::calculateRegisterationDebt($factorItem->supervisor) : '';
+
         $user = $supervisor_factor_item->factor->user;
         FactorItem::calculate($supervisor_factor_item, $supervisor_factor_item->total_price, $supervisor_factor_item->type, $user);
         $supervisor_factor_item->type ? TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem ) : '';
@@ -1385,7 +1415,11 @@ class FactorItemController extends Controller {
                 'description' => 'اضافه پرداخت هزینه ثبت نام با تغییر طرح پرونده',
             ]);
         }
-        $total_factor_item->property->update(['registeration_debt' => $diffrence_registeration_price]);
+        else
+        {
+            $factor_item->property->update(['registeration_debt' => $diffrence_registeration_price]);
+            $total_factor_item->property->update(['registeration_debt' => $total_factor_item->property->registeration_debt + $diffrence_registeration_price]);
+        }
     }
     /**
      *@param \App\Models\FactorItem $factorItem
@@ -1416,8 +1450,8 @@ class FactorItemController extends Controller {
         $factor_item = FactorItem::find( $item[ 'id' ] );
         self::formData( $item );
         $total_price = $request->totalPrice ? ( float ) str_replace( ',', '', $request->totalPrice ) : $factor_item->total_price;
-        //get calculate financial information
-        self::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
+        //calculate financial information
+        FactorItem::calculateFinancialInformation($factor_item->supervisor , $total_price, $factor_item->type, $factor_item->factor->user);
         Session::changeVisitStatusByFactorItem($factor_item,6);
 
         if($factor_item->totalFactoItem && $factor_item->totalFactoItem->confirm)
@@ -1467,27 +1501,5 @@ class FactorItemController extends Controller {
             'update' => 'success'
         ] );
 
-    }
-    /**
-     * @param mixed $supervisor_factor_item
-     * @param mixed $total_price
-     * @param mixed $type
-     * @param mixed $user
-     * @return void
-     */
-    private function calculateFinancialInformation($supervisor_factor_item , $total_price, $type, $user)
-    {
-        if ( $supervisor_factor_item->totalFactorItem && $supervisor_factor_item->totalFactorItem->confirm ) {
-            //get difference price
-            FactorItem::calculateDiffrencePrice($supervisor_factor_item , $total_price);
-        } else {
-            //get calculate financial information for cash factorItems
-            FactorItem::calculate( $supervisor_factor_item, $total_price, $type, $user );
-        }
-        if ($supervisor_factor_item->type)
-        {
-            //get calculate financial information for installment factorItems
-            TotalFactorItem::updateCalculate( $supervisor_factor_item->totalFactorItem );
-        }
     }
 }

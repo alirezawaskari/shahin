@@ -11,7 +11,7 @@ class Center extends Model {
 
     protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
     'pay_type', 'purchase_type', 'status', 'is_show', 'lat', 'lon', 'has_subset', 'type', 'fullName',
-    'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' ];
+    'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone' ];
 
     const TYPE = [ 'seller' => 'فروشنده', 'producer' => 'تولید کننده', 'supplier' => 'تامین کننده', 'خدمات دهنده'=>'service_provider' ];
     /**

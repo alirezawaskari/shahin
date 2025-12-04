@@ -11,20 +11,29 @@
                 <div class="row p-3 position-relative">
                     @if (!is_null($factorItem['forms']))
                     @foreach ($factorItem['factorItems'] as $factoritem)
-                    <div class="card-header row col-12 col-md-12 mb-3">
-                        <div class="col-md-8">
-                            <h5>{{ $factoritem['factoritemable']->title . ($factoritem['center'] ? ' (
-                                '.$factoritem['center']->title.' ) ' : '') }}</h5>
+                    <div class="row col-12 col-md-12 mb-3">
+                        <h5>{{ $factoritem['factoritemable']->title . ($factoritem['center'] ? ' (
+                            '.$factoritem['center']->title.' ) ' : '') }}</h5>
+                    </div>
+                    <div class="card-header row col-12 mb-4">
+                        <div class="col-12 col-md-3">
+                        @if(!$factorItem['total_price'] || $factorItem['status_factor'] == 14 || $factorItem['status_factor'] == 4)
+                        <a class="btn border border-secondary box-shadow-info"
+                                data-toggle="modal" data-target="#changeFactoritemableModal"><i
+                            class="fa fa-edit"></i> تغییر خدمت | دسته بندی</a>
+                            @include('Admin.factoritem.layouts.file.changeFactorItemAble')
+                        @endif
                         </div>
-                        <div class="col-md-2">
-                            <a class="btn border border-secondary mr-3 box-shadow-info" data-toggle="modal"
+                        <div class="col-12 col-md-3">
+                            <a class="btn border border-secondary box-shadow-info" data-toggle="modal"
                                 data-target="#changeFinancialPlansTypeModal"><i class="fa fa-edit"></i> تغییر طرح</a>
                         </div>
-                        <div class="col-md-2">
-                            <a class="btn border border-secondary mr-3 box-shadow-info"
+                        <div class="col-12 col-md-3">
+                            <a class="btn border border-secondary box-shadow-info"
                                 href="../../dashboard/factorItem/{{ $factoritem['resnumber'] }}/edit"><i
                                     class="fa fa-edit"></i> امور اجرایی پرونده</a>
                         </div>
+
                     </div>
                     @foreach ($factorItem['forms'] as $form)
                     @if (in_array('panel_show_file' , $form->data_display_level))

@@ -35,6 +35,7 @@ class CenterServiceTariff extends Model
         return $this->belongsTo(ServiceTariff::class);
     }
 
+   
      /**
      * @param mixed $item
      * @return string

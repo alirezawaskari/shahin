@@ -35,10 +35,10 @@ class Role extends LaratrustRole
 
     public function scopeFilter($query)
     {
-        $name = request('name');
+        $display_name = request('display_name');
 
-        if (isset($name) && $name != 'all') {
-            $query->where('display_name', 'LIKE', '%' . $name . '%');
+        if (isset($display_name) && $display_name != 'all') {
+            $query->where('display_name', 'LIKE', '%' . $display_name . '%');
         }
         return $query;
     }

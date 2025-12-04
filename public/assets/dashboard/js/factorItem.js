@@ -672,7 +672,7 @@ $(document).ready(function () {
                                 return `<span class="badge badge-warning">تعلیق اجرا</span>`;
                                 break;
                             case 20:
-                                return `<span class="badge badge-danger">منتظر تایید فاکتور توسط کاربر</span>`;
+                                return `<span class="badge badge-yellow">منتظر تایید فاکتور توسط کاربر</span>`;
                                 break;
                             default:
                                 return data.status;
@@ -709,13 +709,7 @@ $(document).ready(function () {
                         }
                         if (deletePermission === 1) {
                             output += `
-                            <form action="/dashboard/factorItem/${data.resnumber}" method="POST">
-                                <input type="hidden" name="_token" value="${csrfToken}">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="dropdown-item pointer">
-                                    حذف
-                                </button>
-                            </form>
+                            <span data-id="${data.resnumber}" class="factor-item-delete dropdown-item pointer">حذف</span>
                             `;
                         }
                         if (data.total_factor_item_id) {
@@ -750,8 +744,47 @@ $(document).ready(function () {
             });
         }).draw();
     }
-
-
+     // delete factorItem
+    $('body').on('click', '.factor-item-delete', function () {
+        var resnumber = $(this).data("id");
+        var token = $('meta[name="csrf-token"]').attr('content');
+        swal({
+            title: `آیا مطمئن هستید؟`,
+            icon: "warning",
+            buttons: {
+                confirm: 'بله',
+                cancel: 'خیر'
+            },
+            dangerMode: true
+        }).then(res => {
+            if (res) {
+                $.ajax({
+                    url: "/dashboard/factorItem/" + resnumber,
+                    type: 'DELETE',
+                    data: {
+                        "_token": token,
+                    },
+                    success: function (response, page) {
+                        if (response.status == 'success') {
+                            fetchData(1);
+                            swal({
+                                title: response.message,
+                                icon: "success",
+                                button: "باشه",
+                            });
+                        } else {
+                            swal({
+                                title: "خطا",
+                                text: "خطایی رخ داده است . ",
+                                icon: "warning",
+                                dangerMode: true,
+                            })
+                        }
+                    }
+                });
+            }
+        });
+    });
 });
 
 function marginPlus(thisItem) {
@@ -801,8 +834,7 @@ $("body").on('click', '.guarantor_checked', function () {
     guarantorChecked();
 });
 
-function guarantorChecked()
-{
+function guarantorChecked() {
     if ($('.guarantor_checked').prop('checked') == true) {
         $('.guarantor_info').css('display', 'block');
     } else {

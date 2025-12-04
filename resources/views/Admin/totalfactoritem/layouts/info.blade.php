@@ -1,8 +1,8 @@
 <div class="row page-header">
-    <div class="row col-12 col-md-6">
+    <div class="row col-12 col-md-8">
         <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">تعلیق پرونده</span>
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
-        @if (in_array(trim($item['status']) , [0,3,4,14]) )
+        @if (in_array(trim($item['status']) , [0,3,4,14,18]) )
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
@@ -24,6 +24,14 @@
             <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
             <input type="hidden" name="status_factor" value="8">
             <button class="btn btn-success mr-2">ارجاع به مدیرعامل</button>
+        </form>
+        @endif
+        @if (in_array(trim($item['status']) , [13,9,5]) )
+        <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+            <input type="hidden" name="status_factor" value="18">
+            <button class="btn btn-secondary mr-2">ارجاع به کاربر جهت تایید قرارداد</button>
         </form>
         @endif
     </div>

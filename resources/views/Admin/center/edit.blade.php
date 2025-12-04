@@ -114,9 +114,9 @@
                     </div>
 
                     <div class="col-12 col-md-4 mb-3">
-                        <label>شماره موبایل</label>
-                        <input type="number" name="item[phone]" placeholder="شماره موبایل" class="form-control"
-                            value="{{ $center_request->phone }}">
+                        <label>شماره تماس مرکز</label>
+                        <input type="number" name="phone" placeholder="شماره تماس مرکز" class="form-control"
+                            value="{{ $center->phone }}">
                     </div>
 
                     <div class="col-12 col-md-4 mb-3">

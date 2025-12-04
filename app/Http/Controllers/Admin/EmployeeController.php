@@ -258,10 +258,10 @@ class EmployeeController extends AdminController
     {
         $data_access_date = $user->employee->data_access_date ? $user->employee->data_access_date : now();
         //all walletTransactions user
-        $wallet_transactions = WalletTransaction::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()->addDays(1)))->where('user_id', $user->id)->filter()->latest();
+        $wallet_transactions = WalletTransaction::where('created_at', '>=', $data_access_date)->where('created_at', '<=', Helper::vertaTocarbon(verta()->startDay()))->where('user_id', $user->id)->filter()->latest();
         //filter walletTransactions user by created_at value
         if (isset($request->key) && $request->key != 'all') {
-            $wallet_transactions = WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($request->key)->startMonth()->addDays(1)), Helper::vertaTocarbon(verta($request->key)->endMonth()->addDays(1))])->where('user_id', $user->id)->filter()->latest();
+            $wallet_transactions = WalletTransaction::whereBetween('created_at', [Helper::vertaTocarbon(verta($request->key)->startMonth()), Helper::vertaTocarbon(verta($request->key)->endMonth()->addDays(1))])->where('user_id', $user->id)->filter()->latest();
         }
 
         return new WalletTransactionCollection($wallet_transactions, $wallet_transactions->paginate(20));

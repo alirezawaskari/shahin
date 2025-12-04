@@ -12,24 +12,28 @@ class smsServiceSessionNotification
     /**
      * Handle the event.
      *
-     * @param smsService $event
+     * @param smsServiceSession $event
      * @return void
      * @throws GuzzleException
      */
     public function handle(smsServiceSession $event)
     {
-        $userMobile = $event->factor_item->factor->user->phone;
-//        $resnumber = $event->factor_item->resnumber;
-        $service = $event->factor_item->factoritemable->title;
+        $userMobile = $event->factorItem->factor->user->phone;
+        $factorItem = $event->factorItem;
+        $service = $event->factorItem->factoritemable->title;
+        $center_title = $factorItem->center->title;
+        $center_call = $factorItem->center->phone;
+        $center_address = $factorItem->center->address;
         $date = $event->date;
-
-
         $body = [
             'param1' => $service,
-            'param2' => $date,
+            'param2' => $center_title,
+            'param3' => $date,
+            'param4' => $center_address,
+            'param5' => $center_call,
         ];
 
-        SendSms::sendSingleSms('dateservicesession',$userMobile,$body);
+        SendSms::sendSingleSms('timeWorkExecutionNotification',$userMobile,$body);
 
     }
 }

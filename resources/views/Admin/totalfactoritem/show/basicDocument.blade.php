@@ -621,7 +621,7 @@
                             </div>
                         </div>
                         {{-- @if (in_array(trim($factor_item['status_factor']) , [0,4,14,16]) )
-                        @include('Admin.factoritem.show.turnRatings')
+                        @include('Admin.factoritem.show.setCenter')
                         @endif --}}
                         @if (in_array(trim($factorItem['status_factor']) , [0,3,4,14]) )
                         <a href="{{route('factorItem.referral' , [ $factorItem['resnumber']])}}"><span
@@ -636,10 +636,6 @@
                                 @endif
                                 @if ($factorItem->complete)
                                 <span class="text-warning mr-2">(تکمیل شده)</span>
-                                @endif
-                                @if(!$factorItem->total_price || in_array(trim($factorItem->status_factor) , [0,4,14]) )
-                                <button class="btn btn-danger" data-toggle="modal" data-target="#changeFactoritemableModal">تغییر
-                                    خدمت | دسته بندی</button>
                                 @endif
                             </div>
                         </div>

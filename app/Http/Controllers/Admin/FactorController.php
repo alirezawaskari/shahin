@@ -272,17 +272,17 @@ class FactorController extends Controller
     }
 
     /**
-     * delete factor
+     * @param Factor $factor
      * @param Request $request
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function destroy(Factor $factor , Request $request)
     {
         if(auth()->user()->hasPermission('factor-delete'))
         {
-            $factor->delete();
             $factor->factorItems()->delete();
             Factor::returnPaymentBydeleteFactor($factor);
+            $factor->delete();
             if ($request->ajax()) {
                 return response([
                     'status' => 'success',
@@ -351,21 +351,6 @@ class FactorController extends Controller
             if ($type == 1) {
                 Factor::where('id', $id)->update(array('confirm' => '1'));
             }
-        }
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response|void
-     */
-    public function sms(Request $request)
-    {
-        if ($request->ajax()) {
-            $factor = Factor::find($request->id);
-
-            event(new smsService($factor->user, $factor->service, $factor));
-
-            return response(['operator' => true]);
         }
     }
 
