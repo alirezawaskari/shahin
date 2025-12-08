@@ -116,7 +116,8 @@ class EmployeeController extends AdminController
             'name' => 'string',
             'family' => 'string',
             'password' => 'nullable|string|min:6|confirmed',
-            'show_status' => [Rule::in([0, 1])]
+            'show_status' => [Rule::in([0, 1])],
+            'status' => [Rule::in([0, 1])]
         ]);
 
         $inputs = $request->all();
@@ -151,7 +152,15 @@ class EmployeeController extends AdminController
         $employee->update([
             'show_status' => $request->show_status,
         ]);
-        $request->status ? $employee->update(['status' => $request->status]) : '';
+        isset($request->status) ? $employee->update(['status' => $request->status]) : '';
+        if($employee->status == 0)
+        {
+            $user->update(['level' => 'user']);
+        }
+        else
+        {
+            $user->update(['level' => 'admin']);
+        }
         if ($request->urlimgshenasname) {
             Helper::deleteImage($user->imgshenasname);
             $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname, 'document');
