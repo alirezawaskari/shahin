@@ -104,7 +104,7 @@
         </div>
 
     </div>
-    {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+     <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
         class="modal fade phone-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -116,24 +116,25 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12 text-center">
-                                <img width="100%" src="{{asset('assets/dashboard/images/laleh_icon.png')}}">
+                                <img width="100%" src="https://dl.grapik.ir/shop/wp-content/uploads/2024/03/%D8%AF%D8%A7%D9%86%D9%84%D9%88%D8%AF-%D9%88%DA%A9%D8%AA%D9%88%D8%B1-%D8%B1%D9%88%D8%B2-%D9%85%D8%A7%D8%AF%D8%B1.webp">
                             </div>
                         </div>
                     </div>
                     <h6 class="text-center">
                         <strong>
-                            به پاس سالها حمایت و پشتیبانی شما آغاز جشنواره بزرگ لاله فقط تا <span class="alert-danger">۲۰ شهریور ۱۴۰۴</span>
-ثبت نام وامهای خرید خدمات اقساطی لاله بدون سود ، بدون ضامن و حتی بدون چک و پیش پرداخت
-شروع اقساط یک ماه پس از قرارداد الکترونیکی
-هم اکنون خدمات خود را انتخاب و از طریق تکمیل فرایند ثبت نام اقدام نمایید
+                            کاشکی می‌شد بهت بگم؛ چقدر صدات‌و دوست دارم
+                            چقدر مث بچگی‌هام؛ لالایی‌هات‌و دوست دارم
+                            میلاد با سعادت حضرت فاطمه زهرا(س) و بزرگداشت روز مادر به همه شما اعضاء خانواده عزیز و بزرگ لاله تبریک و تهنیت باد
+                            به مناسبت روز مادر جشنواره ویژه عقد قرارداد سامانه مطب و مغازه دیجیتال
+                            اینجا مراجعه کنید👇
                         </strong>
                         <br>
                     </h6>
                 </div>
                 <div class="row col-12">
                     <div class="col-12 mb-3">
-                        <a href="/services" class="w-100 btn btn-info">
-                            برای انتخاب خدمت روی لینک زیر کلیک کنید
+                        <a href="/services/Permanent-employment" class="w-100 btn btn-info">
+                            ثبت نام سامانه مطب و مغازه دیجیتال
                         </a>
                     </div>
                 </div>
@@ -142,5 +143,5 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
     @endsection
