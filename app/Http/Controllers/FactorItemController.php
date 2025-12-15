@@ -445,7 +445,7 @@ class FactorItemController extends Controller {
     public function sendConfirmContractCode( Request $request ) {
         if ( $request->confirm_contract_check == true ) {
             $factorItem = FactorItem::find( $request->factor_item );
-            $phone = $factorItem->factor->user->phone;
+            $phone = auth()->user() ? auth()->user()->phone : $factorItem->factor->user->phone;
             $user_phone_number = $phone;
             $verification_code = rand( 123456, 999999 );
             $auth_code = AuthCode::where( 'phone', $phone )->first();
