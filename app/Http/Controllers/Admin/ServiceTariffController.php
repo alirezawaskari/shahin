@@ -70,7 +70,7 @@ class ServiceTariffController extends Controller {
             $service_index_tariff = ServiceIndexTariff::find( $request->name );
             $inputs = $request->all();
             $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
-            $consumer_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : 0;
+            $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : 0;
             $center = Center::find( $request->center );
             if ( $service_index_tariff ) {
                 $count_selected_service_tariff = $center->serviceTariffs->where( 'service_index_tariff_id', $service_index_tariff->id )->where('tariff_id', $request->tariff)->count();
@@ -87,8 +87,8 @@ class ServiceTariffController extends Controller {
                     'treatment_duration' => $request->treatment_duration,
                     'tariff_id' => $request->tariff,
                     'purchase_price' => $purchase_price,
-                    'price' => CalculationHelper::getServiceTariffSellingPrice($consumer_price , $purchase_price),
-                    'consumer_price' => $consumer_price,
+                    'cash_price' => CalculationHelper::getServiceTariffSellingPrice($selling_price , $purchase_price),
+                    'price' => $selling_price,
                     'service_id' => $service_index_tariff->service_id,
                     'service_index_tariff_id' => $service_index_tariff->id,
                     'multi_stage' => $request->multi_stage,
@@ -150,14 +150,14 @@ class ServiceTariffController extends Controller {
                 ] );
             }
             $purchase_price = ( float ) str_replace( ',', '', $request->purchase_price );
-            $consumer_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : $serviceTariff->consumer_price;
+            $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : $serviceTariff->consumer_price;
             $inputs = $request->all();
             $serviceTariff->update( [
                 'session_number' => $request->session_number,
                 'treatment_duration' => $request->treatment_duration,
                 'purchase_price' => $purchase_price,
-                'consumer_price' => $consumer_price,
-                'price' => CalculationHelper::getServiceTariffSellingPrice($consumer_price , $purchase_price),
+                'price' => $selling_price,
+                'cash_price' => CalculationHelper::getServiceTariffSellingPrice($selling_price , $purchase_price),
                 'multi_stage' => $request->multi_stage,
             ] );
             //allocation of center employees shares
