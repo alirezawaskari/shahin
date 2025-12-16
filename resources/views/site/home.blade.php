@@ -104,7 +104,7 @@
         </div>
 
     </div>
-     <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+     {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
         class="modal fade phone-modal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -143,5 +143,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     @endsection
