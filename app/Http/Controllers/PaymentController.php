@@ -7,6 +7,7 @@ use App\Lib\zarinpal;
 use App\Lib\saman;
 use App\Models\Employee;
 use App\Models\Factor;
+use App\Models\PercentageAllocationEmployee;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -71,43 +72,44 @@ class PaymentController extends Controller
         }
     }
 
-    private function calculateIBANShares(float $totalAmount): array
+    private function calculateIBANShares(Factor $factor , float $totalAmount): array
     {
-        $employees = Employee::where('percent', '>', 0)
-            ->whereNotNull('shaba_number')
-            ->get();
-        $ibanShares = [];
+        $percentage_allocation_employees = PercentageAllocationEmployee::setPercentageAllocationEmployee($factor , 'instantPayment');
+        $IBANInfo = [];
         $totalShared = 0;
 
-        foreach ($employees as $emp) {
-            $shareAmount = intval($totalAmount * $emp->percent / 100);
-
-            if ($shareAmount > 0) {
-                $ibanShares[] = [
-                    'IBAN' => $emp->shaba_number,
-                    'Amount' => $shareAmount,
-                    'PurchaseID' => str_pad($emp->id, 30, '0', STR_PAD_LEFT),
-                ];
-                $totalShared += $shareAmount;
+        foreach ($percentage_allocation_employees as $percentage_allocation_employee) {
+            if(isset($percentage_allocation_employee->employee))
+            {
+                $employee = $percentage_allocation_employee->employee;
+                $shareAmount = $factor->price * ( $percentage_allocation_employee->percent / 100 ); ;
+                if ($shareAmount > 0) {
+                $IBANInfo = [
+                    [
+                   "IBAN" => $employee->shaba_number,
+                   "Amount" => $shareAmount,
+                       ]
+                    ];
+                    $totalShared += $shareAmount;
+                }
             }
         }
-        $mainIBN = Setting::firstorfail()->shaba_number;
+        $mainIBN = Setting::first()->shaba_number;
         $remainingAmount = $totalAmount - $totalShared;
         if ($remainingAmount > 0) {
-            if ($mainIBN && $mainIBN->value) {
-                $ibanShares[] = [
-                    'IBAN' => $mainIBN->value,
+            if ($mainIBN) {
+                $IBANInfo = [
+                    'IBAN' => $mainIBN,
                     'Amount' => $remainingAmount,
-                    'PurchaseID' => str_pad($mainIBN->id, 30, '0', STR_PAD_LEFT),
                 ];
             }
         }
-        return $ibanShares;
+        return $IBANInfo;
     }
 
     private function doPayment(float $amount , Factor $factor)
     {
-        $ibanShares = $this->calculateIBANShares($amount);
+        $ibanShares = $this->calculateIBANShares($factor , $amount);
         $gateway = new Saman();
         $tokenResult = $gateway->token($factor , $amount, $ibanShares);
 

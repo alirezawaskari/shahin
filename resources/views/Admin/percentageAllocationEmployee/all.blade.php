@@ -13,9 +13,10 @@
                 </ol>
             </nav>
         </div>
+        <div class="btn-group" role="group">
+            <a href="{{ route('percentageAllocationEmployee.create') }}" class="btn btn-primary">افزودن سهامدار</a>
+        </div>
     </div>
-</div>
-
 <div class="card">
     <div class="card-body">
         <form role="form" id="filter_form" action="/dashboard/percentageAllocationEmployee/filter" method="get">
@@ -42,14 +43,12 @@
                         <input type="checkbox" class="custom-control-input" name="excel" id="excel">
                         <label class="custom-control-label" for="excel">خروجی اکسل</label>
                     </div>
-                    <div class="col-md-2">
-                        <input type="text" name="endDate" class="form-control" placeholder="تاریخ پایان"
-                               value="{{ request('endDate') }}">
-                    </div>
-                    <button type="submit" class="btn btn-success">جستجو</button>
                 </div>
+                <div class="col-12 col-md-3 mb-2">
+                    <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
+                </div>
+            </div>
             </form>
-            <a href="{{ route('percentageAllocationEmployee.create') }}" class="btn btn-primary">افزودن سهامدار</a>
         </div>
     </div>
     <div class="nk-content">

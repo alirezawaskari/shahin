@@ -72,7 +72,7 @@
     </div>
     <div class="card position-relative">
         <div class="col-12 row">
-            <div class="col-12 col-md-6 mb-2 mt-2">
+            <div class="col-12 col-md-4 mb-2 mt-2">
                 <label>نقش مربوطه</label>
                 <select class="form-control select2" name="role" id="role" required>
                     <option value="all">انتخاب کنید</option>
@@ -81,10 +81,17 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 col-md-6 mb-2 mt-2">
+            <div class="col-12 col-md-4 mb-2 mt-2">
                 <label>همکار مربوطه</label>
                 <select class="form-control select2" name="employee" id="users" required>
                     <option value="all">انتخاب کنید</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4 mb-2 mt-2">
+                <label>نوع تسهیم</label>
+                <select class="form-control select2" name="payment_type" required>
+                    <option value="instantPayment">واریز به حساب )آنی(</option>
+                    <option value="depositWallet">واریز به کیف پول</option>
                 </select>
             </div>
             <div class="col-12 col-md-6 mb-3 mt-2">

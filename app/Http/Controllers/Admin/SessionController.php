@@ -330,7 +330,7 @@ class SessionController extends Controller {
             {
                 $factor_item_service_tariff->update( [ 'status' => 1 ] );
                 //set emplloyee performance from percentageAllocation employee
-                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date , $factor_item_service_tariff);
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date , $factor_item_service_tariff , 'depositWallet');
                 //set emplloyee performance from allocation employee share centers
                 AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price , $agent , $session->date);
             }

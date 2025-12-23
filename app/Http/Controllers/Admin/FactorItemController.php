@@ -266,7 +266,7 @@ class FactorItemController extends Controller {
         }
         $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
         event( new smsService( $factorItem , 'turnRatings') );
-        
+
         return redirect()->back()->with( [
             'update' => 'success'
         ] );
@@ -910,7 +910,7 @@ class FactorItemController extends Controller {
                 ] );
             }
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $total_price , now() , null);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $total_price , now() , null , 'depositWallet');
         }
     }
     /**
