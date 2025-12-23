@@ -104,7 +104,7 @@
         </script>
     </div>
 
-    <div class="modal fade" id="whatsappModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    {{-- <div class="modal fade" id="whatsappModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-start">
@@ -141,7 +141,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
     @yield('js')
     </body>
 
