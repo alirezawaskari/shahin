@@ -94,7 +94,10 @@ public function store( Request $request ) {
         if ( isset( $item[ 'center' ] ) && $factor_item->factoritemable->center ) {
             $request['description'] = ' - درخواست مشاوره - انتخاب مرکز توسط کاربر '.$request->description;
             $request['center_id'] = $item[ 'center' ];
-            FactorItem::referralCenter($factor_item , $request);     
+            if($factor_item->center_id != $request['center_id'])
+            {
+                FactorItem::referralCenter($factor_item , $request);
+            }
         }
         $this->formData( $item );
 

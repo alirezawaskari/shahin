@@ -679,13 +679,13 @@ class FactorItem extends Model implements AuditableContract
         $sessions_sum_price = self::getSessionsSumPrice($item , 1);
         if($item->type && $item->totalFactorItem->confirm)
         {
-            $temp = round($sessions_sum_price + $price) <= round($item->credit) ? true : false;
+            $temp = round($price) <= round($item->credit) ? true : false;
             //$temp = TotalFactorItem::getExpireInstallments($item->totalFactorItem)->isEmpty() ? true : false;
         }
         else
         {
             //reduce the register price in cash files
-            $temp = round($sessions_sum_price + $price) <= round($prepayment_paid) ? true : false;
+            $temp = round( $price) <= round($prepayment_paid) ? true : false;
         }
         return $temp;
     }

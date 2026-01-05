@@ -372,7 +372,7 @@ class FactorItemController extends Controller {
         self::formData( $request->item );
         $user = User::find( $item[ 'user_id' ] );
         $type = isset($request->type) ? $request->type : $factorItem->type;
-        if($factorItem->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factorItem->financialPlansType,$type))
+        if(isset($request->type) && $factorItem->financialPlansType && !FinancialPlansType::checkFinancialPlansTypeByPaymentType($factorItem->financialPlansType,$type))
         {
             return redirect()->back()->with( [
                 'failByMessage' => 'طرح پرونده انتخاب شده با نوع پرداخت پرونده مطابقت ندارد لطفا طرح پرونده مربوط به همان نوع پرداخت را انتخاب کنید.'
@@ -462,11 +462,11 @@ class FactorItemController extends Controller {
                   'failByMessage' => 'امکان اعمال اتمام کار وجود ندارد [ به دلیل کار تعیین شده ی انجام نشده ].'
               ] );
           }
-        if ( !$is_credit ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'امکان اعمال اتمام کار وجود ندارد [ به دلیل بدهی پرداخت نشده ].'
-            ] );
-        }
+        // if ( !$is_credit ) {
+        //     return redirect()->back()->with( [
+        //         'failByMessage' => 'امکان اعمال اتمام کار وجود ندارد [ به دلیل بدهی پرداخت نشده ].'
+        //     ] );
+        // }
         self::formData( $request->item );
 
         $factor_item->update( [ 'status_factor' => $request->status_factor ] );
