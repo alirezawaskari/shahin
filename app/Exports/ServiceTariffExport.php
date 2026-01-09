@@ -36,13 +36,13 @@ class ServiceTariffExport implements FromCollection , ShouldAutoSize ,WithHeadin
         $factorItems2 = $this->serviceTariffs->map(function ($item,$i) {
             $temp = [];
             $temp['number'] = ++$i;
-            $temp['name'] = $item->name;
+            $temp['name'] = $item->name ? $item->name : $item->title;
             $temp['purchase_price'] = $item->purchase_price;
             if(auth()->user()->isAbleTo('service_tariff_selling_price'))
             {
                 $temp['selling_price'] = $item->price;
             }
-            $temp['tariff'] = $item->tariff->title;
+            $temp['tariff'] = $item->tariff ? $item->tariff->title : 'ثبت نشده';
 			$temp['created_at'] = verta($item->created_at)->format('%Y/%m/%d ');
             return $temp;
         });
