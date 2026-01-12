@@ -523,6 +523,7 @@
     var token = $('meta[name="csrf-token"]').attr('content');
     var verification_code = $('#verification_code').val();
     var total_factor_item = $('#total_factor_item').val();
+    var factor_item = $('#factor_item').val();
 
     if(verification_code.length == 6)
     {
@@ -534,6 +535,7 @@
             "_token": token,
             "verification_code": verification_code,
             "total_factor_item": total_factor_item,
+            "factor_item": factor_item,
         },
         success: function (response) {
             swal(response['message'], "", response['status']);
