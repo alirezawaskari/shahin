@@ -278,7 +278,7 @@
                             </div>
                         </div>
                     </div>
-                    @if ($factorItem->factoritemable_id == 17)
+                    @if ($factorItem->factoritemable_id == 17 || $factorItem->factoritemable_id == 198)
                     <div class="panel">
                         <div class="panel-heading">
                             <h5 class="panel-title">

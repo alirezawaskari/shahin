@@ -437,7 +437,7 @@
                         <div class="card-body">
                             @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
                             @include('Admin.totalfactoritem.layouts.contractLoanCash')
-                            @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
+                            @elseif ($totalFactorItem->factorItems->whereIn('factoritemable_id' , [17,198])->count())
                             @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
                             @else
                             @include('Admin.totalfactoritem.layouts.contract')
@@ -456,7 +456,7 @@
                     </div>
                 </div>
                 @endif
-                @elseif ($factorItem->where('factoritemable_id' , 17)->count())
+                @elseif ($factorItem->whereIn('factoritemable_id' , [17,198])->count())
                 @if ($item['status_factor'] == 18 || $item['confirm'] )
                 <div class="card">
                     <div class="card-header">
@@ -466,7 +466,7 @@
                     </div>
                     <div id="collapseContract" class="collapse" data-parent="#accordion">
                         <div class="card-body">
-                            @if ($factorItem->where('factoritemable_id' , 17)->count())
+                            @if ($factorItem->whereIn('factoritemable_id' , [17,198])->count())
                             @include('Admin.factoritem.layouts.contractGhorfeOnline')
                             @endif
                             <hr>
