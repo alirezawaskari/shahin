@@ -21,6 +21,7 @@
             <table class="vuetable table table-bordered table-striped table-responsive-md" id="table-id">
                 <thead>
                     <tr>
+                        <th>آدرس سایت</th>
                         <th>عنوان  عاملیت</th>
                         <th>نام نماینده</th>
                         <th>موبایل</th>
@@ -32,6 +33,7 @@
                 <tbody>
                     @foreach($representations as $key => $representation)
                     <tr class="active" id="item_{{$representation->id}}" style="cursor: move;">
+                        <td><a href="{{ URL::to('/').'/'.$representation->slug }}" target="_blank">{{ URL::to('/').'/'.$representation->slug }}</a></td>
                         <td>{{ $representation->fa_name }}</td>
                         <td>{{ $representation->agency_name }}</td>
                         <td>{{ $representation->call }}</td>
