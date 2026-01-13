@@ -104,44 +104,5 @@
         </div>
 
     </div>
-     {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
-        class="modal fade phone-modal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-start">
-                    <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                    <h6 class="modal-title" id="phoneModalLable">همراهان همیشگی لاله :</h6>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-12 text-center">
-                                <img width="100%" src="https://dl.grapik.ir/shop/wp-content/uploads/2024/03/%D8%AF%D8%A7%D9%86%D9%84%D9%88%D8%AF-%D9%88%DA%A9%D8%AA%D9%88%D8%B1-%D8%B1%D9%88%D8%B2-%D9%85%D8%A7%D8%AF%D8%B1.webp">
-                            </div>
-                        </div>
-                    </div>
-                    <h6 class="text-center">
-                        <strong>
-                            کاشکی می‌شد بهت بگم؛ چقدر صدات‌و دوست دارم
-                            چقدر مث بچگی‌هام؛ لالایی‌هات‌و دوست دارم
-                            میلاد با سعادت حضرت فاطمه زهرا(س) و بزرگداشت روز مادر به همه شما اعضاء خانواده عزیز و بزرگ لاله تبریک و تهنیت باد
-                            به مناسبت روز مادر جشنواره ویژه عقد قرارداد سامانه مطب و مغازه دیجیتال
-                            اینجا مراجعه کنید👇
-                        </strong>
-                        <br>
-                    </h6>
-                </div>
-                <div class="row col-12">
-                    <div class="col-12 mb-3">
-                        <a href="/services/Permanent-employment" class="w-100 btn btn-info">
-                            ثبت نام سامانه مطب و مغازه دیجیتال
-                        </a>
-                    </div>
-                </div>
-                <div class="mb-1 p-1" style="margin-right: auto">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-    @endsection
+</div>
+@endsection
