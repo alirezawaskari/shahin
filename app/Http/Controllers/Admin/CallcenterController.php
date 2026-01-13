@@ -1301,8 +1301,9 @@ class CallcenterController extends Controller
         ]);
     }
     /**
+     * Summary of closeTask
      * @param Request $request
-     * @return response
+     * @return \Illuminate\Http\Response
      */
     public function closeTask(Request $request)
     {
