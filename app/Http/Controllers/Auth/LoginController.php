@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\V1\Auth\AuthService;
 
 class LoginController extends Controller {
     /*
@@ -58,20 +59,14 @@ class LoginController extends Controller {
 
     protected function authenticated( Request $request, $user ) {
         $level = auth()->user()->level;
-        if ( $level == 'admin' ) {
+        if ( $level == 'admin' || $level == 'ghorfeAdmin') {
             if ( auth()->user()->employee->status == 2 && !auth()->user()->employee->confirm ) {
                 return redirect( '/dashboard/employee/contract/'.auth()->user()->employee->id );
             }
             return redirect( 'dashboard/dailyDesktop' );
         }
-        if ( $level == 'organ' ) {
-            return redirect( 'profile' );
-        }
         if ( $level == 'blockUser' ) {
             $this->guard()->logout();
-        }
-        if ( $request->has( 'representation' ) ) {
-            return redirect()->back();
         }
     }
 
