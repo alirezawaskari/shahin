@@ -546,7 +546,7 @@ class FactorItemController extends Controller {
     public function verificationConfirmContractCodeEmployee( Request $request ) {
         $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
-            auth()->user()->employee()->update( [ 'confirm' => true, 'status' => 1 ] );
+            auth()->user()->employee()->update( [ 'contract_status' => 1, 'status' => 1 ] );
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );

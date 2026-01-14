@@ -31,8 +31,21 @@ class Employee extends Model
         return [
             '0' => 'غیرفعال',
             '1' => 'فعال',
+        ][$status];
+    }
+    /**
+     * Summary of contractStatus
+     * @param mixed $status
+     * @return string
+     */
+    public static function contractStatus($status)
+    {
+        return [
+            '0' => 'تنظیم نشده',
+            '3' => 'پیش نویس',
+            '1' => 'تایید شده',
             '2' => 'منتظر تایید قرارداد توسط همکار',
-            '3' => 'منتظر تایید قرارداد توسط مدیر',
+            '4' => 'منتظر تایید قرارداد توسط مدیر',
         ][$status];
     }
     /**

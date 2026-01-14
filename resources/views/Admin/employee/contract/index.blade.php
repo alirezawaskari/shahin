@@ -28,7 +28,9 @@
 
 <div class="card">
     <div class="card-body p-1 p-md-4">
+        @if (in_array($employee->contract_status , [1,2]))
         @include('Admin.employee.contract.content')
+        @endif
     </div>
 </div>
 @stop

@@ -450,7 +450,7 @@ class EmployeeController extends AdminController
     {
         if (auth()->user()->employee->id == $employee->id) {
             $confirmable = false;
-            if(!$employee->confirm && $employee->status == 2)
+            if($employee->contract_status != 1 && $employee->status == 2)
             {
                 $confirmable = true;
             }
@@ -469,7 +469,7 @@ class EmployeeController extends AdminController
     {
         if (auth()->user()->isAbleTo('employee_contract_edit')) {
             $employee->update(['contract' => $request->contract]);
-        if($request->status == 2 && !$employee->confirm)
+        if($request->status == 2 && !$employee->contract_status != 1)
         {
             $employee->update(['status' => 2]);
             $user_phone_number = $employee->user->phone;
@@ -533,7 +533,7 @@ class EmployeeController extends AdminController
         $has_auth_code = AuthCode::where('phone' , auth()->user()->phone)->where('code' , $request->verification_code)->where('expiration_time' , '>' , time())->exists();
         if($has_auth_code)
         {
-            auth()->user()->employee()->update(['confirm' => true,'status' => 1]);
+            auth()->user()->employee()->update(['contract_status' => 1,'status' => 1]);
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
