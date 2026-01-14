@@ -57,7 +57,7 @@ class CategoryController extends Controller
 
         $parent = Category::findOrFail($cat_id);
 
-        $path = calculateCategoryPath($parent);
+        $path = ($parent->path === null) ? 1 : $parent->path .'/'. $parent->id;
 
         $path_parts = explode('/', $path);
         $cateDepthOne = Category::filter()
@@ -128,8 +128,8 @@ private function validateCategory(Request $request)
     $messages = [
         'title.required' => 'Please enter the title',
         'en_title.required' => 'Please enter the English title of the category',
-        'verticalImages.*.file.required' => 'Please upload the vertical image',
-        'horizontalImages.*.file.required' => 'Please upload the horizontal image',
+        // 'verticalImages.*.file.required' => 'Please upload the vertical image',
+        // 'horizontalImages.*.file.required' => 'Please upload the horizontal image',
     ];
 
     $rules = [
@@ -137,10 +137,10 @@ private function validateCategory(Request $request)
         'en_title' => 'required',
     ];
 
-    if (in_array($request->depth, [0, 1])) {
-        $rules['verticalImages.*.file'] = 'required';
-        $rules['horizontalImages.*.file'] = 'required';
-    }
+    // if (in_array($request->depth, [0, 1])) {
+    //     $rules['verticalImages.*.file'] = 'required';
+    //     $rules['horizontalImages.*.file'] = 'required';
+    // }
 
     $request->validate($rules, $messages);
 }
