@@ -1036,6 +1036,7 @@ class FactorItemController extends Controller {
         $item[ 'payments' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->factors : $supervisor_factor_item->factors;
         $item[ 'has_payment' ] = $supervisor_factor_item->purchase_type ? $supervisor_factor_item->factors()->where( 'status', 1 )->exists() : $supervisor_factor_item->factor()->where( 'status', 1 )->exists();
         $item['start_date'] = verta($supervisor_factor_item->approval_date)->format('Y/m/d');
+        $item['contract_histories'] = $factor_item->histories->where('reason_id' , 1);
 
         //fill prepayment array
         $item['prepayment'] = self::getPrepayment($supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem:$supervisor_factor_item);

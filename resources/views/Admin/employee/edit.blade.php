@@ -523,7 +523,10 @@
                             @permission('employee_contract_edit')
                             <div class="col-12 col-md-4 mb-3 mt-3">
                                 <select class="form-control" name="contract_status">
-                                    <option value="0" {{ $employee->contract_status != 1 ? 'selected' : '' }}>
+                                    <option value="0" {{ $employee->contract_status == 0 ? 'selected' : '' }}>
+                                        وضعیت قرارداد - تنظیم نشده
+                                    </option>
+                                    <option value="3" {{ $employee->contract_status == 3 ? 'selected' : '' }}>
                                         وضعیت قرارداد - پیش نویس
                                     </option>
                                     <option value="2" {{ $employee->contract_status == 2 ? 'selected' : '' }}>

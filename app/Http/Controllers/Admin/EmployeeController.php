@@ -16,12 +16,13 @@ use App\Http\Resources\EmployeeCollection;
 use App\Http\Resources\WalletTransactionCollection;
 use App\Models\AuthCode;
 use App\Models\Callcenter;
+use App\Models\History;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 class EmployeeController extends AdminController
 {
     /**
@@ -100,7 +101,8 @@ class EmployeeController extends AdminController
             $recruitment_notices = session()->get('representation')->recruitmentNotices()->get();
         }
         $employee->resume_detail = json_decode($employee->resume_detail , true);
-        return view('Admin.employee.edit', compact('employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
+        $item['contract_histories'] = $employee->histories->where('reason_id' , 3);
+        return view('Admin.employee.edit', compact('item','employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
     }
 
     /**
@@ -454,7 +456,8 @@ class EmployeeController extends AdminController
             {
                 $confirmable = true;
             }
-            return view('Admin.employee.contract.index' , compact('employee' , 'confirmable'));
+            $item['contract_histories'] = $employee->histories->where('reason_id' , 3);
+            return view('Admin.employee.contract.index' , compact('item','employee' , 'confirmable'));
         }
 
         return abort(401);
@@ -469,14 +472,21 @@ class EmployeeController extends AdminController
     {
         if (auth()->user()->isAbleTo('employee_contract_edit')) {
             $employee->update(['contract' => $request->contract]);
-        if($request->status == 2 && !$employee->contract_status != 1)
-        {
-            $employee->update(['status' => 2]);
             $user_phone_number = $employee->user->phone;
+        if($request->contract_status == 2 && !$employee->contract_status != 1)
+        {
+            $employee->update(['contract_status' => 2]);
             $contract_start_date = verta($employee->contract_start_date)->format('Y/m/d');
             $link = 'https://lalecard.ir/dashboard/employee/contract/' . $employee->id;
             SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $employee->contract_number, 'param2' => $contract_start_date, 'param3' => $link]);
+            $description = 'قرارداد جهت تایید همکار ارسال شد.';
         }
+        elseif($request->contract_status == 3 && !$employee->contract_status != 1){
+            SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $employee->contract_number, 'param2' => $contract_start_date, 'param3' => $link]);
+            $description = 'قرارداد جهت مطالعه همکار در حالت پیش نویس قرارداده شد.';
+        }
+        History::contractHistoryCreate($employee , null, Auth::id() , 3 , 1 , $description);
+
         return redirect()->back()->with([
             'update' => 'success'
         ]);

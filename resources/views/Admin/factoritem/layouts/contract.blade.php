@@ -68,23 +68,6 @@
             <span lang="FA" style="line-height: 150%;">عبارت است از معرفی
                 خدمات گیرنده برای دریافت خدمات {{ $factorItem->service->title }} از مراکز طرف قرارداد با شرکت که با
             </span>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-3 text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     <div class="border-contract page-break p-6 mt-4">
         <p></p>
@@ -143,23 +126,6 @@
             <span lang="FA" style="line-height: 150%;">تبصره 1 : در
                 صورتی که به واسطه نبود اینترنت ، نداشتن اعتبار تلفن ، یا قطع غیر مترقبه یا
             </span>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-2 text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     <div class="border-contract page-break p-6 mt-4">
         <p></p>
@@ -220,23 +186,6 @@
             </span>
             <span lang="FA" style="line-height: 150%;">3-8 : فاکتور منظور
             </span>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     <div class="border-contract page-break p-6 mt-4">
         <p></p>
@@ -354,23 +303,6 @@
                 نماید.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
             </span>
             @endif
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     <div class="border-contract page-break p-6 mt-4">
         <p></p>
@@ -422,23 +354,6 @@
                 با علم و آگاهی کامل از این قرارداد، کلیه خیارات خصوصاً خیار غبن فاحش و افحش را از
                 خود سلب و ساقط نمود.<br>
             </span>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
         </p>
     </div>
     <div class="border-contract page-break p-6 mt-4">
@@ -468,26 +383,6 @@
                 صرفاً استناد به همه ی موارد ذکر شده نافذ می باشد.
             </span>
         </p>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-5 text-center">
-            <thead>
-                <tr>
-                    <th scope="col">مدیرعامل شرکت</th>
-                    <th scope="col">مدیر امور مالی شرکت</th>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
+        @include('Admin.totalfactoritem.layouts.contract.histories')
     </div>
 </div>

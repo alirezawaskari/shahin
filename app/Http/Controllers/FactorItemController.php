@@ -10,6 +10,7 @@ use App\Models\ContractForm;
 use App\Models\Coupon;
 use App\Models\Factor;
 use App\Models\FactorItem;
+use App\Models\History;
 use App\Models\ServiceItem;
 use App\Models\Session;
 use App\Models\TotalFactorItem;
@@ -106,8 +107,10 @@ class FactorItemController extends Controller {
         $item[ 'payments' ] = $factorItem->factors;
         $item[ 'date_first_pay' ] = isset( $factorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $factorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
         $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
+        $item['contract_histories'] = $factorItem->histories->where('reason_id' , 1);
         //if factorItem type is installment
         if ( $totalFactorItem ) {
+            $item['contract_histories'] = $totalFactorItem->histories->where('reason_id' , 1);
             $item[ 'is_pay_installment_by_check' ] = TotalFactorItem::payInstallmentByCheck( $totalFactorItem );
             $item[ 'count_installment_checks' ] = TotalFactorItem::getCountInstallmentChecks( $totalFactorItem );
             $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
@@ -445,6 +448,7 @@ class FactorItemController extends Controller {
     public function sendConfirmContractCode( Request $request ) {
         if ( $request->confirm_contract_check == true ) {
             $factorItem = FactorItem::find( $request->factor_item );
+            $contract_item = $factorItem->totalFactorItem ? $factorItem->totalFactorItem : $factorItem;
             $phone = auth()->user() ? auth()->user()->phone : $factorItem->factor->user->phone;
             $user_phone_number = $phone;
             $verification_code = rand( 123456, 999999 );
@@ -470,6 +474,8 @@ class FactorItemController extends Controller {
                 ] );
             }
             SendSms::sendSingleSms( 'sendConfirmContractCode', $user_phone_number, [ 'param1'=>$verification_code ] );
+            $description = 'کد '.$verification_code.'به شماره تماس '.$user_phone_number.'ارسال شده است.';
+            History::contractHistoryCreate($contract_item , null, $factorItem->factor->user_id , 1 , 1 , $description);
             return response( [ 'status' => 'success', 'message' => 'کد با موفقیت ارسال گردید.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'لطفا بر روی قسمت تایید میکنم کلیک کنید. ' ] );
@@ -485,6 +491,7 @@ class FactorItemController extends Controller {
         $phone = $request->total_factor_item ? $totalFactorItem->factor->user->phone : $factorItem->factor->user->phone;
         $has_auth_code = AuthCode::where( 'phone', $phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
+            $contract_item = $factorItem->totalFactorItem ? $factorItem->totalFactorItem : $factorItem;
             if ( $request->total_factor_item ) {
                 $factor_items = $totalFactorItem->factorItems;
                 $totalFactorItem->update( [
@@ -503,7 +510,8 @@ class FactorItemController extends Controller {
                     'status_factor' => 8
                 ] );
             }
-
+            $description = 'کد '.$request->verification_code.'توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
+            History::contractHistoryCreate($contract_item , null, $factorItem->factor->user_id , 1 , 1 , $description);
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
@@ -532,6 +540,8 @@ class FactorItemController extends Controller {
             ] );
 
             Session::checkAndEndEntrySession($factorItem);
+            $description = 'کد '.$request->verification_code.'توسط کاربر وارد شده و فاکتور بصورت الکترونیکی امضا شد.';
+            History::contractHistoryCreate($factorItem , null, $factorItem->factor->user_id , 2 , 1 , $description);
 
             return response( [ 'status' => 'success', 'message' => 'فاکتور با موفقیت امضا شد.' ] );
         }
@@ -546,7 +556,10 @@ class FactorItemController extends Controller {
     public function verificationConfirmContractCodeEmployee( Request $request ) {
         $has_auth_code = AuthCode::where( 'phone', auth()->user()->phone )->where( 'code', $request->verification_code )->exists();
         if ( $has_auth_code ) {
-            auth()->user()->employee()->update( [ 'contract_status' => 1, 'status' => 1 ] );
+            $employee = auth()->user()->employee;
+            $employee->update( [ 'contract_status' => 1, 'status' => 1 ] );
+            $description = 'کد '.$request->verification_code.'توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
+            History::contractHistoryCreate($employee , null, $employee->user_id , 3 , 1 , $description);
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );
@@ -573,5 +586,7 @@ class FactorItemController extends Controller {
             'success' => 'success'
         ]);
     }
+
+
 }
 

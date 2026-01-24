@@ -99,5 +99,6 @@
             </div>
         </div>
         @endif
+        @include('Admin.totalfactoritem.layouts.contract.histories')
     </div>
 </div>

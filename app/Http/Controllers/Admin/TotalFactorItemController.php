@@ -17,6 +17,7 @@ use App\Models\ContractView;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
+use App\Models\History;
 use App\Models\Impunity;
 use App\Models\Province;
 use App\Models\Session;
@@ -27,6 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\View;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class TotalFactorItemController extends Controller
 {
@@ -148,6 +150,8 @@ class TotalFactorItemController extends Controller
         $item['has_payment'] = $totalFactorItem->factors()->where('status', 1)->exists();
         $item['date_first_pay'] = isset($totalFactorItem->factors->where('title', '!=', 'register')->where('status', true)->first()->created_at) ? verta($totalFactorItem->factors->where('title', '!=', 'register')->first()->created_at)->format('Y/m/d') : '';
         $item['guarantee_types_list'] = TotalFactorItem::getGuaranteeTypeByFinancialPlansType($totalFactorItem);
+        $item['contract_histories'] = $totalFactorItem->histories->where('reason_id' , 1);
+
         return $item;
     }
 
@@ -525,6 +529,9 @@ class TotalFactorItemController extends Controller
                 'contract_type' => TotalFactorItem::class,
                 'contract_id' => $totalFactorItem->id
             ]);
+            $description = 'قرارداد توسط مدیرعامل تایید شده است.';
+            History::contractHistoryCreate($totalFactorItem , null, Auth::id() , 1 , 1 , $description);
+
             $totalFactorItem->update(['credit' => $totalFactorItem->total_price + $totalFactorItem->credit, 'confirm' => true]);
         }
 

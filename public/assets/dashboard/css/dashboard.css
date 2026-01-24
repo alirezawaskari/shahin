@@ -25475,6 +25475,7 @@ input:disabled {
 
 .border-contract {
     border: 2px solid #000000 !important;
+    margin-bottom: 15px;
 }
 
 .table-contract td, .table-contract th {

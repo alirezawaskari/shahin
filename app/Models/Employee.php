@@ -56,6 +56,13 @@ class Employee extends Model
         return $this->belongsTo(User::class , 'user_id');
     }
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function histories()
+    {
+        return $this->morphMany(History::class , 'historiable');
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function parents()
