@@ -452,7 +452,7 @@ class EmployeeController extends AdminController
     {
         if (auth()->user()->employee->id == $employee->id) {
             $confirmable = false;
-            if($employee->contract_status != 1 && $employee->status == 2)
+            if($employee->contract_status != 1 && $employee->contract_status == 2)
             {
                 $confirmable = true;
             }
@@ -482,7 +482,7 @@ class EmployeeController extends AdminController
             $description = 'قرارداد جهت تایید همکار ارسال شد.';
         }
         elseif($request->contract_status == 3 && !$employee->contract_status != 1){
-            SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $employee->contract_number, 'param2' => $contract_start_date, 'param3' => $link]);
+            $employee->update(['contract_status' => 3]);
             $description = 'قرارداد جهت مطالعه همکار در حالت پیش نویس قرارداده شد.';
         }
         History::contractHistoryCreate($employee , null, Auth::id() , 3 , 1 , $description);

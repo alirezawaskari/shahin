@@ -544,14 +544,10 @@
                             @include('Admin.employee.contract.content')
                             @endpermission
                             @endif
+                            @include('Admin.totalfactoritem.layouts.contract.histories')
                         </div>
                     </div>
                 </form>
-                <a href="#" class="btn btn-link btn-float has-text text-size-small rtl" data-toggle="modal"
-                    data-target="#requestModal">
-                    <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>
-                    <span>بعدی</span>
-                </a>
                 @endpermission
             </div>
         </div>

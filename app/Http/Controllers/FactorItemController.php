@@ -448,11 +448,21 @@ class FactorItemController extends Controller {
     public function sendConfirmContractCode( Request $request ) {
         if ( $request->confirm_contract_check == true ) {
             $factorItem = FactorItem::find( $request->factor_item );
-            $contract_item = $factorItem->totalFactorItem ? $factorItem->totalFactorItem : $factorItem;
-            $phone = auth()->user() ? auth()->user()->phone : $factorItem->factor->user->phone;
-            $user_phone_number = $phone;
+            if($factorItem)
+            {
+                $contract_item = $factorItem->totalFactorItem ? $factorItem->totalFactorItem : $factorItem;
+                $user = $factorItem->factor->user;
+                $reason = 1;
+            }
+            else
+            {
+                $contract_item = auth()->user()->employee;
+                $user = auth()->user();
+                $reason = 3;
+            }
+            $user_phone_number = $user->phone;
             $verification_code = rand( 123456, 999999 );
-            $auth_code = AuthCode::where( 'phone', $phone )->first();
+            $auth_code = AuthCode::where( 'phone', $user->phone )->first();
             if ( !is_null( $auth_code ) ) {
                 $expirationTime = time() - $auth_code->expiration_time;
                 $remaining_time = ( $auth_code->time_code_again * 60 ) - $expirationTime;
@@ -475,7 +485,7 @@ class FactorItemController extends Controller {
             }
             SendSms::sendSingleSms( 'sendConfirmContractCode', $user_phone_number, [ 'param1'=>$verification_code ] );
             $description = 'کد '.$verification_code.'به شماره تماس '.$user_phone_number.'ارسال شده است.';
-            History::contractHistoryCreate($contract_item , null, $factorItem->factor->user_id , 1 , 1 , $description);
+            History::contractHistoryCreate($contract_item , null, $user->id , $reason , 1 , $description);
             return response( [ 'status' => 'success', 'message' => 'کد با موفقیت ارسال گردید.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'لطفا بر روی قسمت تایید میکنم کلیک کنید. ' ] );
@@ -510,7 +520,7 @@ class FactorItemController extends Controller {
                     'status_factor' => 8
                 ] );
             }
-            $description = 'کد '.$request->verification_code.'توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
+            $description = 'کد '.$request->verification_code.'  توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
             History::contractHistoryCreate($contract_item , null, $factorItem->factor->user_id , 1 , 1 , $description);
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
@@ -540,7 +550,7 @@ class FactorItemController extends Controller {
             ] );
 
             Session::checkAndEndEntrySession($factorItem);
-            $description = 'کد '.$request->verification_code.'توسط کاربر وارد شده و فاکتور بصورت الکترونیکی امضا شد.';
+            $description = 'کد '.$request->verification_code.' توسط کاربر وارد شده و فاکتور بصورت الکترونیکی امضا شد.';
             History::contractHistoryCreate($factorItem , null, $factorItem->factor->user_id , 2 , 1 , $description);
 
             return response( [ 'status' => 'success', 'message' => 'فاکتور با موفقیت امضا شد.' ] );
@@ -558,7 +568,7 @@ class FactorItemController extends Controller {
         if ( $has_auth_code ) {
             $employee = auth()->user()->employee;
             $employee->update( [ 'contract_status' => 1, 'status' => 1 ] );
-            $description = 'کد '.$request->verification_code.'توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
+            $description = 'کد '.$request->verification_code.' توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
             History::contractHistoryCreate($employee , null, $employee->user_id , 3 , 1 , $description);
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
