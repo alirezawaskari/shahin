@@ -316,7 +316,9 @@
                         </div>
                         <div id="contract" class="panel-collapse collapse">
                             <div class="panel-body">
-                                @if($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
+                                @if ($totalFactorItem->confirm && $totalFactorItem->contractView)
+                                     {!! $totalFactorItem->contractView->contract !!}
+                                @elseif($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
                                 @include('Admin.totalfactoritem.layouts.contractLoanCash')
                                 @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
                                 @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
