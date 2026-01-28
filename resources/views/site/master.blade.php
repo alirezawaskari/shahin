@@ -52,7 +52,7 @@
       setCookie('modal_seen_first_visit', '1', 365);
     }
   });
-  </script>
+    </script>
     <link rel="shortcut icon" href="{{ asset('assets/dashboard/images/laleh_icon.png') }}">
     <title>@yield('title','شبکه خدمات رفاهی ، درمانی و اقساطی لاله')</title>
     <link rel="stylesheet" href="{{asset('assets/site/css/app.css?v=1.6')}}?ver=6">
@@ -143,6 +143,6 @@
         </div>
     </div> --}}
     @yield('js')
-    </body>
+</body>
 
 </html>
