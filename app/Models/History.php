@@ -77,7 +77,27 @@ class History extends Model
             'reason_id' => $reason,
             'description' => $description,
         ]);
-    
+
         $task->update(['description' => $description]);
+    }
+    /**
+     * Summary of contractHistoryCreate
+     * @param mixed $item
+     * @param mixed $callcenter
+     * @param mixed $user
+     * @param mixed $reason
+     * @param mixed $status
+     * @param mixed $description
+     * @return void
+     */
+    public static function contractHistoryCreate($item , $callcenter , $user ,$reason , $status , $description)
+    {
+        $item->histories()->create([
+            'user_id' => $user,
+            'callcenter_id' => $callcenter,
+            'status' => $status,
+            'reason_id' => $reason,
+            'description' => $description,
+        ]);
     }
 }

@@ -7,7 +7,7 @@
                 </h5>
             </div>
             <div class="col-6 col-md-2">
-                @if ($employee->confirm)
+                @if ($employee->contract_status == 1)
                 <h5 class="btn btn-success float-left">قرارداد تایید شده</h5>
                 @endif
             </div>

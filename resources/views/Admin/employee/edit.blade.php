@@ -9,7 +9,7 @@
                 <h5 class="card-title">اطلاعات همکار</h5>
             </div>
             <div class="col-12 col-md-2">
-                @if ($employee->confirm)
+                @if ($employee->contract_status == 1)
                 <h5 class="btn btn-success float-left">قرارداد تایید شده</h5>
                 @endif
             </div>
@@ -309,7 +309,7 @@
                             <input value="{{ $employee->contract_number }}" type="text" name="employee[contract_number]"
                                 class="form-control">
                         </div>
-                        @permission('user-edit')
+                        @permission('employee-mali-edit')
                         <div class="col-12 mb-3">
                             <button type="submit" class="btn btn-success">ثبت</button>
                         </div>
@@ -517,16 +517,19 @@
                     @method('POST')
                     <div class="row">
                         <div class="col-12 mb-3">
-                            @if ($employee->confirm)
+                            @if ($employee->contract_status == 1)
                             @include('Admin.employee.contract.content')
                             @else
                             @permission('employee_contract_edit')
                             <div class="col-12 col-md-4 mb-3 mt-3">
-                                <select class="form-control" name="status">
-                                    <option value="0" {{ $employee->status != 1 ? 'selected' : '' }}>
+                                <select class="form-control" name="contract_status">
+                                    <option value="0" {{ $employee->contract_status == 0 ? 'selected' : '' }}>
+                                        وضعیت قرارداد - تنظیم نشده
+                                    </option>
+                                    <option value="3" {{ $employee->contract_status == 3 ? 'selected' : '' }}>
                                         وضعیت قرارداد - پیش نویس
                                     </option>
-                                    <option value="2" {{ $employee->status == 2 ? 'selected' : '' }}>
+                                    <option value="2" {{ $employee->contract_status == 2 ? 'selected' : '' }}>
                                         وضعیت قرارداد - آماده امضا توسط همکار
                                     </option>
                                 </select>
@@ -541,14 +544,10 @@
                             @include('Admin.employee.contract.content')
                             @endpermission
                             @endif
+                            @include('Admin.totalfactoritem.layouts.contract.histories')
                         </div>
                     </div>
                 </form>
-                <a href="#" class="btn btn-link btn-float has-text text-size-small rtl" data-toggle="modal"
-                    data-target="#requestModal">
-                    <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>
-                    <span>بعدی</span>
-                </a>
                 @endpermission
             </div>
         </div>

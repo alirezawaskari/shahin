@@ -71,7 +71,9 @@
                 <h5> مبلغ دریافت شده : {{ number_format($item['amount_received']) }} ریال</h5>
                 <h5> {{$item['credit_amount'] >= 0 ? 'مبلغ بستانکاری : '.number_format($item['credit_amount']).'ریال (بدون کسر مالیات)' :
                     'مبلغ اضافه دریافت بدون کسر مالیات : '.number_format($item['credit_amount']*(-1)).'ریال'}}</h5>
+                @if($employee->tax)
                 <h5> مبلغ مالیات : {{ number_format($item['total_tax']) }} ریال</h5>
+                @endif
                 <h5> مبلغ قابل دریافت : {{ $item['amount_payable'] >= 0 ? number_format($item['amount_payable']) : 0 }}
                     ریال</h5>
             </div>
@@ -100,7 +102,9 @@
                 <th>ماه</th>
                 <th>تعداد پرونده انجام شده</th>
                 <th>مبلغ عملکرد(ریال)</th>
+                @if($employee->tax)
                 <th>مبلغ مالیات(ریال)</th>
+                @endif
                 <th>مبلغ دریافت شده(ریال)</th>
                 <th>باقی مانده | اضافه دریافت (ریال)</th>
                 <th>اقدام</th>
@@ -111,7 +115,9 @@
                 <td>{{ $item['month'] }}</td>
                 <td>{{ $item['item_count'] }}</td>
                 <td>{{ number_format($item['center_income']) }}</td>
-                <td>{{ number_format($item['center_income'] * 0.1) }}</td>
+                @if($employee->tax)
+                <td>{{ number_format($item['user_tax']) }}</td>
+                @endif
                 <td>{{ number_format($item['amount_received']) }}</td>
                 <td>{{ number_format($item['center_income'] - $item['amount_received'] - $item['user_tax']) }}</td>
                 <td>

@@ -177,6 +177,8 @@ class SessionController extends Controller {
         {
             //create session by select multi service tariffs
             foreach ( $data[ 'factor_item_service_tariff_id' ] as $item ) {
+                $factor_item = $session->factorItem;
+
                 $factor_item_service_tariff = FactorItemServiceTariff::where( 'id', $item )->first();
                 // if($factor_item_service_tariff->sessions->where('status' , 2)->count())
                 // {
@@ -184,7 +186,11 @@ class SessionController extends Controller {
                 //     return Response()->json( $arr );
                 // }
                 $price = $factor_item_service_tariff ? ( $factor_item_service_tariff->price - $factor_item_service_tariff->discount ) / $factor_item_service_tariff->session_number : 0;
-                $factor_item = $session->factorItem;
+                $is_credit = FactorItem::checkCredit( $factor_item->supervisor, $price );
+                if ( !$is_credit ) {
+                    $arr = array( 'errors' => 'مبلغ پرداختی کاربر کمتر از حد مجاز می باشد' , 'status' => true);
+                    return Response()->json( $arr );
+                }
                 $agent = $request->agent_id ? User::find( $request->agent_id ) : '';
                 if ( $session->factor_item_service_tariff_id ) {
                     //create new session if seted service tariff for created session
@@ -311,14 +317,6 @@ class SessionController extends Controller {
         }
 
         $factor_item = $session->factorItem;
-        $supervisor_factor_item = $factor_item->supervisor;
-        $is_credit = FactorItem::checkCredit( $supervisor_factor_item, $session->price );
-        if ( !$is_credit ) {
-			return redirect()->back()->with( [
-                'failByMessage' => 'مبلغ پرداختی کاربر کمتر از حد مجاز می باشد'
-            ] );
-        }
-
         $agent = $session->agent_id ? User::find( $session->agent_id ) : '';
         $factor_item_service_tariff = $session->factor_item_service_tariff_id ? $session->factorItemServiceTariff : '';
         $session->update( [ 'status' => 1 , 'confirmer_id' => auth()->user()->id] );
@@ -330,7 +328,7 @@ class SessionController extends Controller {
             {
                 $factor_item_service_tariff->update( [ 'status' => 1 ] );
                 //set emplloyee performance from percentageAllocation employee
-                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date , $factor_item_service_tariff);
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'all_total_price' , $price , $session->date , $factor_item_service_tariff , 'depositWallet');
                 //set emplloyee performance from allocation employee share centers
                 AllocationEmployeeShareCenter::setUserPerformance($factor_item , $factor_item_service_tariff , $price , $agent , $session->date);
             }

@@ -93,6 +93,13 @@ class TotalFactorItem extends Model implements AuditableContract
         return $this->morphOne(FactorItemAttributes::class, 'factor_item_attributable');
     }
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function contractView()
+    {
+        return $this->morphOne(ContractView::class, 'contract');
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function histories()
@@ -1007,5 +1014,5 @@ class TotalFactorItem extends Model implements AuditableContract
         }
         return $wage;
     }
-    
+
 }

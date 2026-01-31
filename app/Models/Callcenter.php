@@ -181,14 +181,16 @@ class Callcenter extends Model implements AuditableContract
         }
 
         if (isset($description) && trim($description) != '') {
-            $query->where('description', 'LIKE', '%'.$description.'%');
-            $query->whereHas('register', function ($query) use ($description) {
+            $query->where('description', 'LIKE', '%'.$description.'%')
+            ->orWhereHas('register', function ($query) use ($description) {
                 $query->whereHas('callcenters', function ($query) use ($description) {
                     $query->whereHas('histories', function ($query) use ($description) {
                         $query->where('description', 'LIKE', '%'.$description.'%');
                     });
                 });
-            });
+            })->orWhereHas('sms', function ($query) use ($description) {
+                    $query->where('body', 'LIKE', '%'.$description.'%');
+                });
         }
 
         if (isset($serviceItems) && is_array($serviceItems) ) {
@@ -316,7 +318,8 @@ class Callcenter extends Model implements AuditableContract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Summary of histories
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<History, Callcenter>
      */
     public function histories()
     {

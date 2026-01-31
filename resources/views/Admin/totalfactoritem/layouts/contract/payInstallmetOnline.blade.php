@@ -54,22 +54,6 @@
             <o:p></o:p>
         </span>
     </p>
-    <table class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-        <thead>
-            <tr>
-                <th scope="col">خدمات گیرنده</th>
-                <th scope="col">ضامن اول</th>
-                <th scope="col">ضامن دوم</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="height: 140px;"></td>
-                <td style="height: 140px;"></td>
-                <td style="height: 140px;"></td>
-            </tr>
-        </tbody>
-    </table>
 </div>
 <div class="border-contract page-break p-6" style="text-align: justify;">
     <p style="line-height:50px;font-size:18px;font-weight: 500;">
@@ -94,20 +78,4 @@
             مجوز آغاز خدمات دهی به خدمات گیرنده را ابلاغ می نماید . </span>
         <span lang="FA" style="line-height: 150%;">&nbsp;<br></span>
     </p>
-    <table class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-        <thead>
-            <tr>
-                <th scope="col">خدمات گیرنده</th>
-                <th scope="col">ضامن اول</th>
-                <th scope="col">ضامن دوم</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="height: 160px;"></td>
-                <td style="height: 160px;"></td>
-                <td style="height: 160px;"></td>
-            </tr>
-        </tbody>
-    </table>
 </div>

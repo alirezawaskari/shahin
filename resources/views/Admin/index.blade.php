@@ -8,9 +8,9 @@
             <div class="seller-box card overflow-hidden">
                 <div class="card-body text-center">
                     <div class="m-b-10">
-                        <p> تعهد فروش شما : 130</p>
+                        <p> تعهد فروش شما : 200</p>
                         <p> تعداد فروش انجام شده : {{ $totalMonthFactorPaidCount }}</p>
-                        <p> درصد موفقیت از فروش : {{ round(($totalMonthFactorPaidCount/130)*100).' %' }}</p>
+                        <p> درصد موفقیت از فروش : {{ round(($totalMonthFactorPaidCount/200)*100).' %' }}</p>
                     </div>
                 </div>
                 <div class="sparkline-demo4" style="margin: 0 -2px -3px -2px"></div>

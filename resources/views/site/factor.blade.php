@@ -376,19 +376,19 @@
                                                         <div class="btn-group btn-group-toggle mt-3"
                                                             data-toggle="buttons">
                                                             <br>
-                                                            {{-- <label
+                                                            <label
                                                                 class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
                                                                 <input type="radio" name="payment" id="option1"
                                                                     value="online" autocomplete="off" checked>
                                                                 <span class="font-14">پرداخت از طریق کارت شتاب</span>
-                                                            </label> --}}
+                                                            </label>
                                                             {{-- پرداخت کارت به کارت --}}
-                                                            <label
+                                                            {{-- <label
                                                                 class="rounded btn btn-outline-warning text-dark active mx-2 d-flex align-items-center justify-content-center pointer">
                                                                 <input type="radio" name="payment" value="card"
                                                                     id="option3" autocomplete="off" checked>
                                                                 <span class="font-14">پرداخت کارت به کارت</span>
-                                                            </label>
+                                                            </label> --}}
                                                             @auth
                                                             @if($factor->user->wallet >= $factor->price)
                                                             <label

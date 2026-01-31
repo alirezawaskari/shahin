@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('users');
             $table->string('type');
+            $table->string('payment_type');//instantPayment||depositWallet
             $table->string('factor_sender')->default('all');//all || employee_factors
             $table->string('limit_type')->nullable();//null || count || price
             $table->integer('min_limit_type')->nullable();

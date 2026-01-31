@@ -48,8 +48,9 @@ class ServiceIndexTariffController extends Controller
     }
 
     /**
+     * Summary of filter
      * @param Request $request
-     * @return ServiceTariffCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return ServiceIndexTariffCollection|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function filter(Request $request ) {
         $service = Service::find($request->service_id);

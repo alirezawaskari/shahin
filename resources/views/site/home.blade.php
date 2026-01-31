@@ -104,43 +104,5 @@
         </div>
 
     </div>
-    {{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
-        class="modal fade phone-modal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header d-flex justify-content-start">
-                    <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                    <h6 class="modal-title" id="phoneModalLable">همراهان همیشگی لاله :</h6>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-12 text-center">
-                                <img width="100%" src="{{asset('assets/dashboard/images/laleh_icon.png')}}">
-                            </div>
-                        </div>
-                    </div>
-                    <h6 class="text-center">
-                        <strong>
-                            به پاس سالها حمایت و پشتیبانی شما آغاز جشنواره بزرگ لاله فقط تا <span class="alert-danger">۲۰ شهریور ۱۴۰۴</span>
-ثبت نام وامهای خرید خدمات اقساطی لاله بدون سود ، بدون ضامن و حتی بدون چک و پیش پرداخت
-شروع اقساط یک ماه پس از قرارداد الکترونیکی
-هم اکنون خدمات خود را انتخاب و از طریق تکمیل فرایند ثبت نام اقدام نمایید
-                        </strong>
-                        <br>
-                    </h6>
-                </div>
-                <div class="row col-12">
-                    <div class="col-12 mb-3">
-                        <a href="/services" class="w-100 btn btn-info">
-                            برای انتخاب خدمت روی لینک زیر کلیک کنید
-                        </a>
-                    </div>
-                </div>
-                <div class="mb-1 p-1" style="margin-right: auto">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-    @endsection
+</div>
+@endsection

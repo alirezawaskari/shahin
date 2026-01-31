@@ -596,7 +596,7 @@ class Factor extends Model implements AuditableContract
         switch ($item->title) {
             case 'register':
                 self::createAttributes($item);
-                self::setPercentageAllocationEmployee($item);
+                PercentageAllocationEmployee::setPercentageAllocationEmployee($item , 'depositWallet');
                 self::closeSimilars($item);
                 self::factorTaskChenge($item);
                 self::setFactorItemRepresentation($item);
@@ -667,18 +667,7 @@ class Factor extends Model implements AuditableContract
             }
         }
     }
-     /**
-     * @param Factor $item
-     * @return void
-     * set emplloyee performance from percentageAllocation employee
-     */
-    private static function setPercentageAllocationEmployee(Factor $item)
-    {
-        $item->factorItems->map(function ($factor_item) {
-            //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $factor_item->factor->price , now() , null);
-        });
-    }
+
     /**
      * @param Factor $item
      * @return void
@@ -711,7 +700,7 @@ class Factor extends Model implements AuditableContract
      */
     private static function refferalFactorItemToCenter(Factor $factor)
     {
-        
+
         $factor->factorItems()->each(function ($factorItem) {
             if($factorItem->center_id)
             {
@@ -829,7 +818,7 @@ class Factor extends Model implements AuditableContract
                 $wage = $wage + (CalculationHelper::calculateWage($factor_item , $total_price , $factor_item->property->prepayment_price , $factor_item->installments_num)/$factor_item->installments_num);
             }
             //set emplloyee performance from percentageAllocation employee
-            PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage , now() , null);
+            PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage , now() , null , 'depositWallet');
 
             $debt_price = $debt_price + $item->price - $installment->price;
             $installment = TotalFactorItemInstallment::where('total_factor_item_id', $total_factor_item->id)->where('status', 0)->orderBy('id', 'ASC')->first();
@@ -840,7 +829,7 @@ class Factor extends Model implements AuditableContract
                     'pay_date' => $item->created_at,
                 ]);
                 //set emplloyee performance from percentageAllocation employee
-                PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage , now() , null);
+                PercentageAllocationEmployee::setUserPerformance($factor_item , 'company_profit' , $wage , now() , null , 'depositWallet');
 
                 foreach ($factor_items as $factor_item) {
                     $factor_item->factorItemInstallments()->where('level', $installment->level)->update(['status' => true]);

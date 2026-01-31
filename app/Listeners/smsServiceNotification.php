@@ -46,11 +46,13 @@ class smsServiceNotification {
     private function sendSetCenterNotification( FactorItem $factorItem, $userMobile ) {
         $center_title = $factorItem->center->title;
         $center_call = $factorItem->center->phone;
+        $center_address = $factorItem->center->address;
         $factoritemable = FactorItem::getFactorItemAble( $factorItem, [] );
         $body = [
             'param1' => implode(',', $factoritemable),
             'param2' => $center_title,
             'param3' => $center_call,
+            'param4' => $center_address,
         ];
         SendSms::sendSingleSms( 'setCenterUserNotification', $userMobile, $body );
     }

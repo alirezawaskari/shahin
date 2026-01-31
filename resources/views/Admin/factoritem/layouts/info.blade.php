@@ -1,8 +1,16 @@
 <div class="row page-header">
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-8">
         <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
             پیگیری</span>
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
+        @if (in_array(trim($factorItem['status_factor']) , [14,17]) )
+        <form action="{{ route('factorItem.changeStatus') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="item[id]" value="{{ $item['id'] }}">
+            <input type="hidden" name="status_factor" value="18">
+            <button class="btn btn-secondary mr-2">ارجاع به کاربر جهت تایید قرارداد</button>
+        </form>
+        @endif
     </div>
     <div class="heading-elements">
         <div class="heading-btn-group ltr mb-3">
@@ -42,7 +50,8 @@
                                 <h5> نام : {{ $user['name'].' '.$user['family'] }}</h5>
                                 <h5> شماره تماس : {{ $user['phone'] }}</h5>
                                 <h5> استان : {{ $user->province ? $user->province->name : 'ثبت نشده' }}</h5>
-                                <h5> نمایندگی : {{ $factorItem->representation ? $factorItem->representation->representation->fa_name : 'م تهران' }}</h5>
+                                <h5> نمایندگی : {{ $factorItem->representation ?
+                                    $factorItem->representation->representation->fa_name : 'م تهران' }}</h5>
                                 @if($factorItem['supervisor_id'])
                                 <h5> سرپرست : {{ $factorItem->supervisor->factor->user->name.'
                                     '.$factorItem->supervisor->factor->user->family}}</h5>
@@ -51,9 +60,11 @@
                             <div class="col-12 col-md-5">
                                 <h5> نوع خدمت | دسته بندی : {{ $factorItem['factoritemable']->title }}</h5>
                                 <h5> وضعیت اجرایی پرونده : {{ $factorItem['status_factor_text'] }}</h5>
-                                <h5> شماره پرونده اجرایی  : {{ $factorItem['file_number'] }}</h5>
-                                <h5> مرکز : {{ $factorItem['center'] ? $factorItem['center']->title : 'بدون مرکز' }}</h5>
-                                <h5> نوع پرداخت : {{ $factorItem::TYPE[$factorItem->type] }} - نوع دریافت خدمت | کالا : {{
+                                <h5> شماره پرونده اجرایی : {{ $factorItem['file_number'] }}</h5>
+                                <h5> مرکز : {{ $factorItem['center'] ? $factorItem['center']->title : 'بدون مرکز' }}
+                                </h5>
+                                <h5> نوع پرداخت : {{ $factorItem::TYPE[$factorItem->type] }} - نوع دریافت خدمت | کالا :
+                                    {{
                                     $factorItem::PurchaseTYPE[$factorItem->purchase_type] }}</h5>
                             </div>
                         </div>
@@ -73,11 +84,12 @@
 </div>
 @if ($factorItem['type'])
 <h5 class="card-title"><i data-toggle="modal" data-target="#helpModal" class="fa fa-question-circle"
-    style="font-size:38px;"></i>وضعیت مالی پرونده ( اقساطی {{ ($item['confirm'] ? '-
-تایید شده' : '- منتظر تایید') }} - <a class="text-primary">{{ $factorItem['financial_plans_type'] }}</a>)</h5>
+        style="font-size:38px;"></i>وضعیت مالی پرونده ( اقساطی {{ ($item['confirm'] ? '-
+    تایید شده' : '- منتظر تایید') }} - <a class="text-primary">{{ $factorItem['financial_plans_type'] }}</a>)</h5>
 @else
 <h5 class="card-title"><i data-toggle="modal" data-target="#helpModal" class="fa fa-question-circle"
-    style="font-size:38px;"></i>وضعیت مالی پرونده (نقدی  - <a class="text-primary">{{ $factorItem['financial_plans_type'] }}</a>)</h5>
+        style="font-size:38px;"></i>وضعیت مالی پرونده (نقدی - <a class="text-primary">{{
+        $factorItem['financial_plans_type'] }}</a>)</h5>
 @endif
 
 @if($factorItem['type'])
@@ -150,7 +162,8 @@
                                     <div class="modal-body">
                                         <input type="hidden" name="type" value="supporter">
                                         <input type="hidden" name="status_factor" value="3">
-                                        <input type="hidden" name="id" value="{{ $factorItem->type ? $item['id'] : $factorItem->id }}">
+                                        <input type="hidden" name="id"
+                                            value="{{ $factorItem->type ? $item['id'] : $factorItem->id }}">
                                         <div class="row">
                                             <div class="col-12 col-md-6 mb-2">
                                                 <label>تاریخ یادآوری</label>

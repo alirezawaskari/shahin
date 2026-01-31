@@ -175,7 +175,7 @@ class CenterController extends AdminController
         $employees = $center->users->where('level' , 'admin');
         $service_index_tariffs = $service->serviceIndexTariffs;
 
-        return view('Admin.center.serviceTariffCreate' , compact(['service_index_tariffs','employees' ,'center' , 'tariffs']));
+        return view('Admin.center.serviceTariffCreate' , compact(['service_index_tariffs','employees' ,'center' , 'tariffs','service']));
     }
     /**
      * @param \App\Models\Center $center

@@ -23,7 +23,7 @@
                                 @foreach($factor_items as $factor_item)
                                     <tr>
                                                 <td class="text-center">
-                                                        {{ $factor_item->factoritemable->title }}
+                                                        {{ $factor_item->factoritemable ? $factor_item->factoritemable->title : 'ثبت نشده'}}
                                                         <br>
                                                 </td>
                                                 <td class="text-center">

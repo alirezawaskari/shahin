@@ -298,20 +298,6 @@
                 <br>
             </span>
         </p>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">مهر و امضا مستاجر</th>
-                    <th scope="col">مهر و امضا موجر (شرکت جانبازان آینده ساز - خدمات رفاهی لاله)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 140px;"></td>
-                    <td style="height: 140px;"></td>
-                </tr>
-            </tbody>
-        </table>
+        @include('Admin.totalfactoritem.layouts.contract.histories')
     </div>
 </div>

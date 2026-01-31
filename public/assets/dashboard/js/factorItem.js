@@ -674,6 +674,9 @@ $(document).ready(function () {
                             case 20:
                                 return `<span class="badge badge-yellow">منتظر تایید فاکتور توسط کاربر</span>`;
                                 break;
+                            case 21:
+                                return `<span class="badge badge-danger">درانتظار اصلاح فاکتور به درخواست کاربر</span>`;
+                                break;
                             default:
                                 return data.status;
                         }

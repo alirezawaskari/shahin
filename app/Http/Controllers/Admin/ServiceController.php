@@ -72,12 +72,8 @@ class ServiceController extends AdminController
      */
     public function create()
     {
-        $service_categories=[];
-        $category_service=Category::filter()->where('slug','service')->first();
-        if(isset($category_service) && $category_service != ''){
-            $service_categories = Category::filter()->where('parent_id',$category_service->id)->select('id','title','parent_id')
+        $service_categories = Category::filter()->where('parent_id',2)->select('id','title','parent_id')
                 ->orderBy('id', 'DESC')->get();
-        }
         $all_categories = Category::filter()->select('id','title')->get();
         $all_services = Service::filter()->select('id','title')->get();
         return view('Admin.service.create',['all_categories'=>$all_categories,

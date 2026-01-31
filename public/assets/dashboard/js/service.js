@@ -114,13 +114,13 @@ $(document).ready(function () {
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                             <a href="/dashboard/service/${data.slug}/edit"><span class="color-edit dropdown-item pointer">ویرایش</span></a>
-                            <a href="/dashboard/service/serviceItem/create/${data.slug}">
+                            <a href="/dashboard/service/serviceItem/${data.slug}">
                             <span class="color-edit dropdown-item pointer">فهرست آیتم ها</span></a>
                             <a href="/dashboard/installment/service/${data.id}"><span class="color-edit dropdown-item pointer">اقساط</span></a>
                             <a href="/dashboard/service_before_form/${data.slug}"><span class="color-edit dropdown-item pointer">فیلدهای بعد از پرداخت</span></a>
                             <a href="/dashboard/service/indexTariffs/${data.slug}"><span class="color-edit dropdown-item pointer">فهرست تعرفه های شاخص</span></a>
                             <a href="/dashboard/service/financialPlansType/${data.id}"><span class="color-edit dropdown-item pointer">فهرست طرح های مالی</span></a>
-                            <button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button><button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button>
+                            <button style="display: ${display}"  data-id="${data.slug}" class="service_delete dropdown-item pointer">حذف</button>
                             </div></div>`
                     }
                 }

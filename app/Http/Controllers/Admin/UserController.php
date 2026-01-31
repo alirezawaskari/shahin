@@ -189,12 +189,12 @@ class UserController extends AdminController
         } else {
             $user->syncRoles([$role_id]);
         }
-        if($user->level == 'admin')
+        if($user->level == 'admin' || $user->level == 'ghorfeAdmin')
         {
             $employee = Employee::firstOrCreate(['user_id' => $user->id]);
             $employee->update(['status'=> 1, 'contract_start_date' => ($employee->contract_start_date ? $employee->contract_start_date : now())]);
         }
-        if ($request->level != 'admin' && $user->employee()->exists() &&  $user->employee->status != 0 ){
+        if (($request->level != 'admin' || $user->level != 'ghorfeAdmin') && $user->employee()->exists() &&  $user->employee->status != 0 ){
             Employee::where('user_id' , $user->id)->update([
                'status'=>0
              ]);

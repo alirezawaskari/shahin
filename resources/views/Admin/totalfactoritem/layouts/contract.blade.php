@@ -65,23 +65,6 @@
                 با مشخصات مندرج فوق میباشد.</span>
             @endif
         </p>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     <div class="border-contract page-break p-6" style="text-align: justify;">
         <p style="line-height:50px;font-size:18px;font-weight: 500;">
@@ -117,7 +100,7 @@
             <span lang="FA" style="line-height: 150%;">3-1&nbsp; : مبلغ قرارداد : {{
                 number_format($totalFactorItem->total_price - $item['prepayment']['price']) }} ریال
                 با احتساب کارمزد به میزان {{ isset($item['wage']) ? number_format($item['wage']): '...'
-                }} 
+                }}
                 ریال&nbsp; &nbsp;که جمع اصل
                 و کارمزد آن به مبلغ {{ isset($item['loan']) ? number_format($item['loan']) : '...' }} ریال می باشد.<br>
             </span>
@@ -127,23 +110,6 @@
                 ضمیمه خواهد شد .<br>
             </span>
         </p>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md mb-2 text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     @if($item['is_pay_installment_by_check'])
     @include('Admin.totalfactoritem.layouts.contract.payInstallmetCheck')
@@ -259,23 +225,6 @@
                 دیگری نمی باشد.<br>
             </span>
         </p>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     <div class="border-contract page-break p-6" style="text-align: justify;">
         <p style="line-height:50px;font-size:18px;font-weight: 500;">
@@ -317,28 +266,6 @@
                 صرفاً استناد به همه ی موارد ذکر شده نافذ می باشد.
             </span>
         </p>
-        <table
-            class="table table-contract table-bordered border-contract table-striped table-responsive-md text-center">
-            <thead>
-                <tr>
-                    <th scope="col">خدمات گیرنده</th>
-                    <th scope="col">ضامن اول</th>
-                    <th scope="col">ضامن دوم</th>
-                    <th scope="col">مدیر امور مالی شرکت</th>
-                    <th scope="col">مدیر امور قراردادها</th>
-                    <th scope="col">مدیرعامل شرکت</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                    <td style="height: 160px;"></td>
-                </tr>
-            </tbody>
-        </table>
+        @include('Admin.totalfactoritem.layouts.contract.histories')
     </div>
 </div>

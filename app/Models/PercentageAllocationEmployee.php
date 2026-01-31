@@ -29,6 +29,13 @@ class PercentageAllocationEmployee extends Model {
         'employee_factors' => 'مرتبط با همکار',
     ];
     /**
+    *payment type of PercentageAllocationEmployee
+    */
+    const PaymentType = [
+        'instantPayment' => 'واریز به حساب )آنی(',
+        'depositWallet' => 'واریز به کیف پول',
+    ];
+    /**
     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
     */
 
@@ -72,19 +79,22 @@ class PercentageAllocationEmployee extends Model {
         return $query;
     }
     /**
-    * @param \App\Models\FactorItem $factor_item
-    * @param mixed $type
-    * @return void
-    */
-    public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date , $factor_item_service_tariff) {
+     * @param FactorItem $factor_item
+     * @param mixed $type
+     * @param mixed $price
+     * @param mixed $date
+     * @param mixed $factor_item_service_tariff
+     * @param mixed $payment_type
+     */
+    public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date , $factor_item_service_tariff , $payment_type) {
         $description = self::TYPE[$type];
         $percentage_allocation_employees = [];
         if ( $type == 'register_price' ) {
-            $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
+            $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'payment_type', $payment_type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
         elseif($factor_item->center)
         {
-            $percentage_allocation_employees = $factor_item->center->percentageAllocationEmployees->where( 'type', $type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
+            $percentage_allocation_employees = $factor_item->center->percentageAllocationEmployees->where( 'type', $type )->where( 'payment_type', $payment_type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
         foreach ( $percentage_allocation_employees as $item ) {
             $is_applicable = true;
@@ -101,7 +111,21 @@ class PercentageAllocationEmployee extends Model {
                 UserPerformance::setSessionsDone($user_performance , $user_performance_sessions_done);
             }
         }
-
+        return $percentage_allocation_employees;
+    }
+     /**
+     * @param Factor $item
+     * @param $payment_type
+     * set emplloyee performance from percentageAllocation employee
+     */
+    public static function setPercentageAllocationEmployee(Factor $item , $payment_type)
+    {
+        $percentage_allocation_employees = $item->factorItems->map(function ($factor_item , $payment_type) {
+            //set emplloyee performance from percentageAllocation employee
+            $price = $factor_item->financialPlansType->price;
+            return PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $price , now() , null , $payment_type);
+        });
+        return $percentage_allocation_employees;
     }
     /**
      * @param mixed $item

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Helpers\Helper;
+use App\Services\V1\Auth\AuthService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -137,14 +138,15 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function isAdmin()
     {
-        return $this->level == 'admin' ? true : false;
-    }
-    /**
-     * @return bool
-     */
-    public function notIsGhorfeOnlineUser()
-    {
-        return ($this->ghorfeOnlineLists()->exists() ? false : true);
+        if($this->level == 'admin')
+        {
+            return true;
+        }
+        elseif($this->level == 'ghorfeAdmin')
+        {
+            return (new AuthService)->checkUserGhorfe();
+        }
+        return false;
     }
     /**
      * @return bool
@@ -507,7 +509,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function getIsAdminAttribute()
     {
-        return $this->level == 'admin' ? true : false;
+        return ($this->level == 'admin' || $this->level == 'ghorfeAdmin') ? true : false;
     }
 
     /**

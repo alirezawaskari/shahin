@@ -179,7 +179,7 @@
     {!! $form->help !!}
     <input type="text" class="form-control {{ $form->class }}" {{ $form->required == true ? 'required' : ''
     }}
-    placeholder="{{ $form->placeholder }}" value="{{ $user[$form->name] }}"
+    placeholder="{{ $form->placeholder }}" value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}"
     name="item[{{ $form->name }}]">
 </div>
 @break

@@ -21,9 +21,9 @@ class TicketCollection extends ResourceCollection
                     'id' => $item->id,
                     'title'=>$item->title,
                     'sender'=>[
-                        'id'=>  $item->user->id,
-                        'name'=>$item->user->name,
-                        'family'=>$item->user->family
+                        'id'=> $item->user ? $item->user->id : 'ثبت نشده',
+                        'name'=> $item->user ? $item->user->name : 'ثبت نشده',
+                        'family'=>$item->user ? $item->user->family : 'ثبت نشده'
                     ],
                     'status'=>$item->status,
                     'receivers'=>Ticket::setReceiver($item),
