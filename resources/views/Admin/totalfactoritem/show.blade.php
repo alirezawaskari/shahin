@@ -320,7 +320,7 @@
                                      {!! $totalFactorItem->contractView->contract !!}
                                 @elseif($totalFactorItem->factorItems->where('factoritemable_id' , 124)->count())
                                 @include('Admin.totalfactoritem.layouts.contractLoanCash')
-                                @elseif ($totalFactorItem->factorItems->where('factoritemable_id' , 17)->count())
+                                @elseif ($totalFactorItem->factorItems->whereIn('factoritemable_id' , [17,198])->count())
                                 @include('Admin.totalfactoritem.layouts.contractGhorfeOnline')
                                 @else
                                 @include('Admin.totalfactoritem.layouts.contract')
