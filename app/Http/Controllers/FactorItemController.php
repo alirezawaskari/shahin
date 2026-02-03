@@ -7,6 +7,7 @@ use App\Classes\External\SendSms;
 use App\Helpers\Helper;
 use App\Models\AuthCode;
 use App\Models\ContractForm;
+use App\Models\ContractView;
 use App\Models\Coupon;
 use App\Models\Factor;
 use App\Models\FactorItem;
@@ -514,14 +515,17 @@ class FactorItemController extends Controller {
                         'status_factor' => 8
                     ] );
                 }
+                TotalFactorItem::saveContractView($totalFactorItem);
             } else {
                 $factorItem = FactorItem::find( $request->factor_item );
                 $factorItem->update( [
                     'status_factor' => 8
                 ] );
+                FactorItem::saveContractView($factorItem);
             }
             $description = 'کد '.$request->verification_code.'  توسط کاربر وارد شده و قرارداد بصورت الکترونیکی امضا شد.';
             History::contractHistoryCreate($contract_item , null, $factorItem->factor->user_id , 1 , 1 , $description);
+
             return response( [ 'status' => 'success', 'message' => 'قرارداد با موفقیت امضا شد.' ] );
         }
         return response( [ 'status' => 'error', 'message' => 'کد وارد شده با کد ارسالی مطابقت ندارد.' ] );

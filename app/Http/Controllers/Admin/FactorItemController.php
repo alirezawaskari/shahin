@@ -72,7 +72,7 @@ class FactorItemController extends Controller {
         }
         //show detail file
         $user = $factorItem->factor->user;
-        $result = self::setItem( $factorItem );
+        $result = FactorItem::setItem( $factorItem );
         $factorItem = $result['factorItem'];
         $item = $result['item'];
         $admin_users = User::where('center_id', $factorItem->center_id)->where('center_id', '!=' , null)->whereHas('employee', function ($query) {
@@ -136,7 +136,7 @@ class FactorItemController extends Controller {
         })->get();
         $center_agents = [];
         $assistants = [];
-        $result = self::setItem( $factorItem );
+        $result = FactorItem::setItem( $factorItem );
         $factorItem = $result['factorItem'];
         $item = $result['item'];
         foreach ( $admin_users as $u ) {
@@ -973,79 +973,6 @@ class FactorItemController extends Controller {
         ] );
     }
     /**
-     * @param FactorItem $factor_item
-     * @return array
-     * set factorItem items for use in show && edit
-     */
-    private function setItem( FactorItem $factor_item ) {
-        $supervisor_factor_item = $factor_item->supervisor;
-        $factor_item[ 'id' ] = $factor_item->id;
-        $factor_item[ 'factor' ] = $factor_item->factor;
-        $factor_item[ 'factoritemable' ] = $factor_item->factoritemable;
-        $factor_item[ 'service_item' ] = !is_null( $factor_item->service_item_id ) ? $factor_item->service_item : null;
-        $factor_item[ 'centers' ] = FactorItem::getSelectableCenters($factor_item);
-        $factor_item[ 'forms' ] = isset( $factor_item->factoritemable->beforeforms ) ? $factor_item->factoritemable->beforeforms : null;
-        $factor_item[ 'site_forms' ] = isset( $factor_item->factoritemable->beforeforms ) ? $factor_item->factoritemable->beforeforms->where( 'level', 'site' ) : null;
-        $factor_item[ 'complete' ] = $factor_item->complete;
-        $factor_item[ 'discount' ] = $supervisor_factor_item->discount ;
-        $factor_item[ 'total_price' ] = $supervisor_factor_item->total_price + $supervisor_factor_item[ 'discount' ];
-        $factor_item[ 'installments_num' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->installments_num : '';
-        $factor_item[ 'installments_price' ] = number_format($supervisor_factor_item->installments_price);
-        $factor_item[ 'values' ] = $factor_item->values;
-        $factor_item[ 'factor_values' ] = $factor_item->factor_values;
-        $factor_item[ 'supervisor_id' ] = $factor_item->supervisor_id;
-        $factor_item[ 'factor_image' ] = $factor_item->factor_image;
-        $factor_item[ 'status_factor' ] = $factor_item->status_factor;
-        $factor_item[ 'status_factor_text' ] = FactorItem::statusFactor( $factor_item->status_factor );
-        $factor_item[ 'confirms' ] = $factor_item->confirms;
-        $factor_item[ 'center' ] = $factor_item->center;
-        $factor_item[ 'date' ] = $factor_item->date ? $factor_item->date : now();
-        $factor_item[ 'type' ] = $factor_item->type;
-        $factor_item[ 'file_number' ] = $factor_item->file_number ? $factor_item->file_number : 'ندارد';
-        $factor_item[ 'approval_date' ] = verta( $supervisor_factor_item->approval_date )->format( 'Y/m/d' );
-        $factor_item[ 'status_mali' ] = FactorItem::statusMali( $supervisor_factor_item->status_mali );
-        $factor_item[ 'status' ] = $factor_item->status;
-        $factor_item[ 'products' ] = $factor_item->products;
-        $factor_item[ 'service_tariffs' ] = $factor_item->serviceTariffs;
-        $factor_item[ 'date_first_pay' ] = isset( $factor_item->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $factor_item->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
-        $factor_item[ 'factorItems' ] = FactorItem::getFatorItemCollection( $factor_item )->get();
-        $factor_item[ 'sessions' ] = $factor_item->sessions;
-        $factor_item[ 'histories' ] = $factor_item->histories;
-        $factor_item[ 'address' ] = $factor_item->factor->address;
-        $factor_item[ 'user_histories'] = Helper::userHistories( $factor_item->factor->user );
-        $factor_item[ 'financial_plans_type' ] = FactorItem::getFnancialPlansType($factor_item);
-        $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
-        //fill prepayment array
-        $factor_item['prepayment'] = self::getPrepayment($supervisor_factor_item);
-        //fill price_difference array
-        $factor_item['price_difference'] = self::getPriceDifference($supervisor_factor_item);
-        //information factorItem mali
-        $item = [];
-        $item[ 'id' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->id : $factor_item->id;
-        $item[ 'total_factor_item' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem : [];
-        $item[ 'total_debt' ] = $supervisor_factor_item->type ? TotalFactorItem::calculateTotalDebt($supervisor_factor_item->totalFactorItem) : FactorItem::calculateTotalDebt($supervisor_factor_item);
-        $item[ 'confirm' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->confirm : false;
-        $item[ 'credit' ] = $supervisor_factor_item->type ? TotalFactorItem::calculateCredit($supervisor_factor_item->totalFactorItem) : FactorItem::calculateCredit($supervisor_factor_item);
-        $item[ 'discount' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->factorItems->sum('discount') : $supervisor_factor_item->discount ;
-        $item[ 'total_price' ] = ($supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->total_price : $supervisor_factor_item->total_price) + $item[ 'discount' ];
-        $item[ 'installments_num' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->installments_num : '';
-        $item[ 'guarantee_type' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->guarantee_type : '';
-        $item[ 'guarantee_types_list' ] = $supervisor_factor_item->type ? TotalFactorItem::getGuaranteeTypeByFinancialPlansType($supervisor_factor_item->totalFactorItem) : [];
-        $item[ 'percent_fines' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->percent_fines : '';
-        $item[ 'payment' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->factor : $supervisor_factor_item->factor;
-        $item[ 'payments' ] = $supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem->factors : $supervisor_factor_item->factors;
-        $item[ 'has_payment' ] = $supervisor_factor_item->purchase_type ? $supervisor_factor_item->factors()->where( 'status', 1 )->exists() : $supervisor_factor_item->factor()->where( 'status', 1 )->exists();
-        $item['start_date'] = verta($supervisor_factor_item->approval_date)->format('Y/m/d');
-        $item['contract_histories'] = $factor_item->histories->where('reason_id' , 1);
-
-        //fill prepayment array
-        $item['prepayment'] = self::getPrepayment($supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem:$supervisor_factor_item);
-        //fill price_difference array
-        $item['price_difference'] = self::getPriceDifference($supervisor_factor_item->type ? $supervisor_factor_item->totalFactorItem:$supervisor_factor_item);
-
-        return ['factorItem' => $factor_item , 'item' => $item];
-    }
-    /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      * change factorItem factoritemable
@@ -1430,7 +1357,7 @@ class FactorItemController extends Controller {
     public function getForm(FactorItem $factorItem , Request $request)
     {
         $user = $factorItem->factor->user;
-        $result = self::setItem( $factorItem );
+        $result = FactorItem::setItem( $factorItem );
         $factorItem = $result['factorItem'];
         if($request->ajax()){
             $view=view('Admin.factoritem.show.registerationInitialConsutation', compact('factorItem', 'user'))->render();
