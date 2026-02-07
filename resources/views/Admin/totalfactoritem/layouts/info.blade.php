@@ -1,6 +1,7 @@
 <div class="row page-header">
     <div class="row col-12 col-md-8">
-        <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">تعلیق پرونده</span>
+        <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">تعلیق
+            پرونده</span>
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>
         @if (in_array(trim($item['status']) , [0,3,4,14,18]) )
         <form action="/dashboard/totalFactorItem/change-status" method="POST" enctype="multipart/form-data">
@@ -60,31 +61,41 @@
 <div class="card">
     <div class="card-body">
         <div class="row">
-            <div class="col-12 col-md-5">
-                <h5> نام : {{ $user['name'] . ' ' . $user['family'] }}</h5>
-                <h5> شماره تماس : {{ $user['phone'] }}</h5>
-                <h5> استان : {{ $user->province ? $user->province->name : 'ثبت نشده' }}</h5>
-                <h5> نوع خدمت | دسته بندی : {{ $item['factoritemable'] }}</h5>
-                <h5> تاریخ تشکیل پرونده: {{ verta($item['approval_date'])->format('Y/m/d') }} </h5>
+            <div class="col-12 col-md-10">
+                <h5 class="card-title">اطلاعات کاربر</h5>
+                <div class="row">
+                    <div class="col-12 col-md-5">
+                        <h5> نام : {{ $user['name'] . ' ' . $user['family'] }}</h5>
+                        <h5> شماره تماس : {{ $user['phone'] }}</h5>
+                        <h5> استان : {{ $user->province ? $user->province->name : 'ثبت نشده' }}</h5>
+                        <h5> نوع خدمت | دسته بندی : {{ $item['factoritemable'] }}</h5>
+                    </div>
+                    <div class="col-12 col-md-5">
+                        <h5> نوع پرداخت : اقساط</h5>
+                        <h5> شماره پرونده مالی : {{ $item['file_number_mali'] ? $item['file_number_mali'] : 'ندارد' }}
+                        </h5>
+                        <h5> وضعیت مالی پرونده : {{ $item['status_mali'] }}</h5>
+                        <h5> وضعیت اداری پرونده : {{ $item['status_text'] }}</h5>
+                        <h5> تاریخ تشکیل پرونده: {{ verta($item['approval_date'])->format('Y/m/d') }} </h5>
+                    </div>
+                </div>
             </div>
-            <div class="col-12 col-md-5">
-                <h5> نوع پرداخت : اقساط</h5>
-                <h5> شماره پرونده مالی : {{ $item['file_number_mali'] ? $item['file_number_mali'] : 'ندارد' }}</h5>
-                <h5> وضعیت مالی پرونده : {{ $item['status_mali'] }}</h5>
-                <h5> وضعیت اداری پرونده : {{ $item['status_text'] }}</h5>
+            <div class="col-12 col-md-2">
+                <div class="row">
+                    <div class="col-12 float-left">
+                        <img src="{{ $user['avatar'] }}" width="100%">
+                        <h5 class="mt-3 btn btn-success-default box-shadow-info">اعتبار قابل مصرف :
+                            {{number_format($item['credit'])}} ریال</h5>
+                        @include('Admin.user.vipAlert')
+                    </div>
+                </div>
             </div>
-
-            <div class="col-12 col-md-2 float-left" style="position: relative">
-                <img src="{{ $user['avatar'] }}" width="75%">
-                @include('Admin.user.vipAlert')
-            </div>
-
         </div>
     </div>
 </div>
 <h5 class="card-title"><i data-toggle="modal" data-target="#helpModal" class="fa fa-question-circle"
-    style="font-size:38px;"></i>وضعیت مالی پرونده ( اقساطی {{ ($item['confirm'] ? '-
-تایید شده' : '- منتظر تایید') }})</h5>
+        style="font-size:38px;"></i>وضعیت مالی پرونده ( اقساطی {{ ($item['confirm'] ? '-
+    تایید شده' : '- منتظر تایید') }})</h5>
 @include('Admin.totalfactoritem.layouts.financialInfo')
 
 <div id="requestContractSettlementModal" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel"
@@ -151,9 +162,11 @@
             <div class="modal-body">
                 <ul id="myTab" role="tablist" class="nav nav-tabs">
                     <li class="nav-item"><a id="remember-tab" data-toggle="tab" href="#remember" role="tab"
-                            aria-controls="remember" aria-selected="false" class="nav-link show active">یادآوری پیگیری</a></li>
-                    <li class="nav-item"><a id="SuspensionOfExecution-tab" data-toggle="tab" href="#SuspensionOfExecution" role="tab"
-                                            aria-controls="SuspensionOfExecution" aria-selected="false" class="nav-link">تعلیق اجرا</a></li>
+                            aria-controls="remember" aria-selected="false" class="nav-link show active">یادآوری
+                            پیگیری</a></li>
+                    <li class="nav-item"><a id="SuspensionOfExecution-tab" data-toggle="tab"
+                            href="#SuspensionOfExecution" role="tab" aria-controls="SuspensionOfExecution"
+                            aria-selected="false" class="nav-link">تعلیق اجرا</a></li>
                     <li class="nav-item"><a id="detail-tab" data-toggle="tab" href="#detail" role="tab"
                             aria-controls="detail" aria-selected="false" class="nav-link show">جزئیات</a>
                     </li>
@@ -199,17 +212,13 @@
                             </div>
                         </div>
                     </div>
-                    <div id="SuspensionOfExecution" role="SuspensionOfExecution" aria-labelledby="SuspensionOfExecution-tab"
-                        class="tab-pane fade p-t-20">
+                    <div id="SuspensionOfExecution" role="SuspensionOfExecution"
+                        aria-labelledby="SuspensionOfExecution-tab" class="tab-pane fade p-t-20">
                         <div class="row">
                             <div class="col-12"></div>
                             <div class="col-12">
-                                <form
-                                    class="form-horizontal"
-                                    role="form"
-                                    method="post"
-                                    action="{{ route('totalFactorItem.suspension') }}"
-                                >
+                                <form class="form-horizontal" role="form" method="post"
+                                    action="{{ route('totalFactorItem.suspension') }}">
                                     @csrf
                                     <div class="modal-body">
                                         <input type="hidden" name="type" value="execution">
@@ -223,7 +232,8 @@
                                             <div class="col-12">
                                                 <p class="text-danger text-sm"><strong>ملاحظات : </strong>
                                                     <br>
-                                                    همکار گرامی توجه داشته باشید. درصورت تعلیق اجرا پرونده اقساط واموراداری و اجرایی پرونده به حالت تعلیق درمیاد
+                                                    همکار گرامی توجه داشته باشید. درصورت تعلیق اجرا پرونده اقساط
+                                                    واموراداری و اجرایی پرونده به حالت تعلیق درمیاد
                                                 </p>
                                             </div>
                                         </div>

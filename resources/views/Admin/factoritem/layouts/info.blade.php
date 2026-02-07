@@ -73,6 +73,7 @@
                         <div class="row">
                             <div class="col-12 float-left">
                                 <img src="{{ $user['avatar'] }}" width="100%">
+                                <h5 class="mt-3 btn btn-success-default box-shadow-info">اعتبار قابل مصرف : {{number_format($item['credit'])}} ریال</h5>
                                 @include('Admin.user.vipAlert')
                             </div>
                         </div>
