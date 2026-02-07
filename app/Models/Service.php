@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Service extends Model
+use OwenIt\Auditing\Auditable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+class Service extends Model implements AuditableContract
 {
+    use Auditable;
     use Sluggable,SoftDeletes;
 
     /**
@@ -351,7 +354,8 @@ class Service extends Model
         $title = request('title');
         $purchase_type = request('purchase_type');
         $pay_type = request('pay_type');
-        $query->whereDoesntHave('ghorfeOnlineLists');
+        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
+
         $query->where('deleted_at',null);
         if (auth()->user() && auth()->user()->admin_representation) {
             $representation = auth()->user()->admin_representation->id;
