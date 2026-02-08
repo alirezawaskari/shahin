@@ -25957,3 +25957,12 @@ input:disabled {
     box-shadow: none;
     cursor: pointer;
 }
+.credit
+{
+    color: #ffbd5a;
+    font-size: x-large;
+    font-family: inherit;
+    border-bottom: 1px solid;
+    padding: 15px;
+    text-align: center;
+}

@@ -62,7 +62,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12 col-md-10">
-                <h5 class="card-title">اطلاعات کاربر</h5>
+                <h5 class="mb-3 credit">اعتبار قابل مصرف : <span style="font-weight: 800;">{{number_format($item['credit'])}}</span> ریال</h5>
                 <div class="row">
                     <div class="col-12 col-md-5">
                         <h5> نام : {{ $user['name'] . ' ' . $user['family'] }}</h5>
@@ -84,8 +84,6 @@
                 <div class="row">
                     <div class="col-12 float-left">
                         <img src="{{ $user['avatar'] }}" width="100%">
-                        <h5 class="mt-3 btn btn-success-default box-shadow-info">اعتبار قابل مصرف :
-                            {{number_format($item['credit'])}} ریال</h5>
                         @include('Admin.user.vipAlert')
                     </div>
                 </div>
