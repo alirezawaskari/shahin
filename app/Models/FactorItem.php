@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\referralCenterNotification;
 use App\Events\smsService;
 use App\Helpers\CalculationHelper;
+use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -277,7 +278,7 @@ class FactorItem extends Model implements AuditableContract
         $has_payment = request('has_payment');
 
         $query->whereHas('factor', function ($query) {
-            $query->whereDoesntHave('ghorfeOnlineLists');
+            $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
         });
 
         $query->whereHas('factor', function ($query) {

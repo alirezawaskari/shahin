@@ -63,7 +63,7 @@
                         <div class="col-12 col-md-3 mb-2">
                             <label>دامنه فعال</label>
                             <input type="text" value="{{$ghorfeOnlineList->domain_active}}" class="form-control" name="domain_active">
-                            <label>مانند نمونه: 'https://www.lalecard.ir'</label>
+                            <label>مانند نمونه: 'lalecard.ir'</label>
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <label>وضعیت</label>

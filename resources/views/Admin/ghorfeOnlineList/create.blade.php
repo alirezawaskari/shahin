@@ -56,6 +56,7 @@
                 <div class="col-12 col-md-3 mb-2">
                     <label>دامنه فعال</label>
                     <input type="text" value="{{old('domain_active')}}" class="form-control" name="domain_active">
+                    <label>مانند نمونه: 'lalecard.ir'</label>
                 </div>
                 <div class="col-12 col-md-3 mb-3">
                     <label>وضعیت</label>
@@ -94,7 +95,7 @@
                             <input type="hidden" id="logo" class="path" name="urllogo">
                         </div>
                     </div>
-                </div> 
+                </div>
 
                 <div class="col-12">
                     <input type="submit" class="btn btn-success border-0" value="ثبت">

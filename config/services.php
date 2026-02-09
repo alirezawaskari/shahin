@@ -78,6 +78,6 @@ return [
     ],
 
     'ghorfeOnline' => [
-        'slug' => env('GHORFE_SLUG'),
+        'domain_active' => request()->host(),
     ]
 ];

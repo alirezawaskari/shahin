@@ -6,6 +6,7 @@ use App\Events\referralCenterNotification;
 use OwenIt\Auditing\Auditable;
 use App\Events\smsSuccessRegisterPayment;
 use App\Helpers\CalculationHelper;
+use App\Helpers\FilterHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -327,7 +328,7 @@ class Factor extends Model implements AuditableContract
         $province = request('province');
         $city = json_decode(request('city'));
 
-        $query->whereDoesntHave('ghorfeOnlineLists');
+        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
 
         $query->where('price', '!=', 0);
         if (auth()->user()->hasPermission('factor-detail')) {

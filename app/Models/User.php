@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
 use App\Services\V1\Auth\AuthService;
 use Carbon\Carbon;
@@ -412,14 +413,8 @@ class User extends Authenticatable implements LaratrustUser
         $sex = request('sex');
         $representation = request('representation');
         $organization = request('organization');
-        if(request('has_ghorfe_online'))
-        {
-            $query->whereHas('ghorfeOnlineLists');
-        }
-        else
-        {
-            $query->whereDoesntHave('ghorfeOnlineLists');
-        }
+
+        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
 
          if (auth()->user() && auth()->user()->hasPermission('user-detail')) {
             if (auth()->user()->admin_representation) {
