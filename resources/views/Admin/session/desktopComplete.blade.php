@@ -21,7 +21,7 @@
     </li>
     <li class="nav-item">
         <a class="nav-link show" id="executive-tab" data-toggle="tab" href="#executive" role="tab"
-            aria-controls="factor" aria-selected="false">درمان</a>
+            aria-controls="factor" aria-selected="false">اجرا</a>
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
