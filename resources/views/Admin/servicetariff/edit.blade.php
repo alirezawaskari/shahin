@@ -20,7 +20,7 @@
             <div class="row">
                 <div class="col-12 col-md-6 mb-3">
                     <label>عنوان</label>
-                    <input class="form-control" value="{{$serviceTariff->name}}" readonly>
+                    <input class="form-control" value="{{$serviceTariff->name}}" name="name">
                 </div>
                 <div class="col-12 col-md-6 mb-3">
                     <label>دوره تعرفه</label>

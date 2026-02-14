@@ -192,6 +192,7 @@ class ServiceTariffController extends Controller {
         $selling_price = $request->selling_price ? ( float ) str_replace( ',', '', $request->selling_price ) : $serviceTariff->consumer_price;
         $inputs = $request->all();
         $serviceTariff->update( [
+            'name' => $request->name,
             'session_number' => $request->session_number,
             'treatment_duration' => $request->treatment_duration,
             'purchase_price' => $purchase_price,
