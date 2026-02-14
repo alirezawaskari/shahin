@@ -90,7 +90,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->softDeletes();
-            
+
             $table->timestamps();
         });
 
@@ -162,6 +162,16 @@ return new class extends Migration
             $table->foreign('ghorfe_online_list_id')->references('id')->on('ghorfe_online_lists')->onDelete('cascade');
 
             $table->primary(['financial_plans_type_id' , 'ghorfe_online_list_id']);
+        });
+
+        Schema::create('category_permission_ghorfe_online_list', function (Blueprint $table) {
+            $table->integer('category_permission_id')->unsigned();
+            $table->foreign('category_permission_id')->references('id')->on('category_permissions')->onDelete('cascade');
+
+            $table->integer('ghorfe_online_list_id')->unsigned();
+            $table->foreign('ghorfe_online_list_id')->references('id')->on('ghorfe_online_lists')->onDelete('cascade');
+
+            $table->primary(['category_permission_id' , 'ghorfe_online_list_id']);
         });
     }
 
