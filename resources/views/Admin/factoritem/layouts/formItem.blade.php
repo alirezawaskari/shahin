@@ -16,7 +16,11 @@
 @break
 @case('factor_service')
 @permission('factor_service_edit')
+@if (isset($center_service_tariffs))
 @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.edit')
+@else
+@include('Admin.factoritem.serviceFormItem.defaultServiceFactor.list')
+@endif
 @else
 @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.list')
 @endpermission

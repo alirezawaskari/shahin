@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedInteger('theme_id')->nullable();
+            $table->foreign('theme_id')->references('id')->on('themes')->onDelete('set null');
             $table->string('title');
             $table->string('en_title');
             $table->string('slug');

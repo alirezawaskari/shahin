@@ -34,6 +34,16 @@ class User extends Authenticatable implements LaratrustUser
     ];
 
     /**
+     *types of level for super admin type
+     */
+    const LEVEL = [
+        'user' => 'کاربر فعال',
+        'blockUser' => 'کاربر غیرفعال(لیست سیاه)',
+        'admin' => 'همکار لاله',
+        'ghorfeAdmin' => 'همکار غرفه',
+        'superAdmin' => 'همکار کل',
+    ];
+    /**
      * @var string[]
      */
     protected $fillable = [
@@ -139,7 +149,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function isAdmin()
     {
-        if($this->level == 'admin')
+        if($this->level == 'admin' || $this->level == 'superAdmin')
         {
             return true;
         }

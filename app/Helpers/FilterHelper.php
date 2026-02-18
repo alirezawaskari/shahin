@@ -69,6 +69,10 @@ class FilterHelper {
         {
             return self::filterWithDosentHaveGhorfeOnline($query , $relation_type , $morph_variable);
         }
+        elseif(auth()->user()->level == 'superAdmin')
+        {
+            return $query;
+        }
         return null;
     }
 }
