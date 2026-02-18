@@ -159,7 +159,7 @@ class ResumeController extends Controller
         $resume = Resume::create($inputs);
 
         if ($request->urlresume) {
-            $resume->update(['resume' => ($request->urlresume,'document')]);
+            $resume->update(['resume' => ($request->urlresume)]);
         }
         if(auth()->user()->admin_representation_id)
         {
