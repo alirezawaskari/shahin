@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\Cache;
 class SettingController extends AdminController
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of index
+     * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
-        $setting = Setting::first();
+        $setting = Setting::filter()->first();
         return view('Admin.setting.edit' , compact('setting'));
     }
 
@@ -23,7 +22,7 @@ class SettingController extends AdminController
     public function updateCompanyInfo(Request $request)
     {
         Cache::forget('setting');
-        Setting::first()->update([
+        Setting::filter()->first()->update([
            'address'=>$request->company_address,
            'call'=>$request->company_call_phone,
            'email'=>$request->company_email,
@@ -48,12 +47,10 @@ class SettingController extends AdminController
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\Setting $setting
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Validation\ValidationException
+     * Summary of update
+     * @param Request $request
+     * @param Setting $setting
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Setting $setting)
     {
@@ -63,38 +60,6 @@ class SettingController extends AdminController
         ]);
 
         $inputs = $request->all();
-        $logo = $request->file('logo');
-        $img_box_1 = $request->file('img_box_1');
-        $img_box_2 = $request->file('img_box_2');
-        $fav = $request->file('fav');
-        $footer_logo = $request->file('footer_logo');
-
-        if ($img_box_1){
-            $url = $this->upload($img_box_1);
-            $setting->update(['img_box_1' => $url]);
-        }
-        if ($img_box_2){
-            $url = $this->upload($img_box_2);
-            $setting->update(['img_box_2' => $url]);
-        }
-        if ($logo){
-            $logourl = $this->upload($logo);
-            $setting->update(['logo' => $logourl]);
-        }
-        if ($fav){
-            $favurl = $this->upload($fav);
-            $setting->update(['fav' => $favurl]);
-        }
-        if ($footer_logo){
-            $footerlogourl = $this->upload($footer_logo);
-            $setting->update(['footer_logo' => $footerlogourl]);
-        }
-
-        unset($inputs['logo']);
-        unset($inputs['fav']);
-        unset($inputs['footer_logo']);
-        unset($inputs['img_box_1']);
-        unset($inputs['img_box_2']);
         $setting->update($inputs);
 
         //cache
