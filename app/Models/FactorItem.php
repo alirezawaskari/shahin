@@ -1182,6 +1182,7 @@ class FactorItem extends Model implements AuditableContract
         $factor_item[ 'user_histories'] = Helper::userHistories( $factor_item->factor->user );
         $factor_item[ 'financial_plans_type' ] = FactorItem::getFnancialPlansType($factor_item);
         $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
+        $factor_item['factor_histories'] = $factor_item->histories->where('reason_id' , 2);
         //fill prepayment array
         $factor_item['prepayment'] = self::getPrepayment($supervisor_factor_item);
         //fill price_difference array

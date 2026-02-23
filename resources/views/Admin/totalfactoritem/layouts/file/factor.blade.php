@@ -143,6 +143,7 @@
                     </form>
                 </div>
                 @php $factorItem = $factor_item @endphp
+                @include('Admin.factoritem.layouts.file.factorHistories')
                 @include('Admin.factoritem.layouts.file.changeFinancialPlansType')
                 @endforeach
             </div>
