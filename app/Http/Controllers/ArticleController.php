@@ -21,6 +21,7 @@ class ArticleController extends Controller
         if(session()->has('representation'))
         {
             $articles = session()->get('representation')->articles()->latest()->paginate(10);
+            return view('site.representation.articles.index' , compact('articles'));
         }
         else{
             $articles = Article::filter()->whereStatus(1)->latest()->paginate(10);
@@ -37,6 +38,10 @@ class ArticleController extends Controller
         OpenGraph::setDescription(substr($article->summary,200));
         OpenGraph::setTitle('article');
         OpenGraph::addProperty('type', 'articles');
+        if(session()->has('representation'))
+        {
+            return view('site.representation.articles.single' , compact('article'));
+        }
         return view('site.articles.single' , compact('article'));
     }
 

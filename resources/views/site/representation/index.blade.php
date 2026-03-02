@@ -1,6 +1,6 @@
 @extends('site.representation.master')
 @section('title')
-    {{ $representation->fa_title }}
+    {{ $representation->fa_name }}
 @endsection
 @section('header')
     <style>

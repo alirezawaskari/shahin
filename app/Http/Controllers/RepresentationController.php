@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Callcenter;
-use App\Models\City;
 use App\Models\Factor;
-use App\Models\Province;
 use App\Models\Representation;
 use App\Models\Service;
 use App\Models\User;

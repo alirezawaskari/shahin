@@ -14,6 +14,13 @@ class AboutController extends Controller
      */
     public function index()
     {
+        if(session()->has('representation'))
+        {
+            $about = Cache::remember('about', Carbon::now()->addMinute(60), function () {
+            return About::first();
+            });
+            return view('site.representation.about' , compact('about'));
+        }
         $about = Cache::remember('about', Carbon::now()->addMinute(60), function () {
             return About::first();
         });
