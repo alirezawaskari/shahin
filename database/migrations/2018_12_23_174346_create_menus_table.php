@@ -13,6 +13,7 @@ class CreateMenusTable extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
+            $table->string('icon');
             $table->string('link')->nullable();
             $table->integer('sort')->nullable();
             $table->integer('parent_id')->nullable();
