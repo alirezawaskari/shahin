@@ -3,35 +3,66 @@
 namespace App\Classes\External;
 
 use App\Models\Setting;
-use App\Models\sms;
 use App\Models\SmsTemplate;
 use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
+use GuzzleHttp\Client;
 
 class SendSms
 {
     /**
      * @throws GuzzleException
      */
-    public static function sendSingleSms(string $template, $phone, array $params)
-    {
+     public static function sendSingleSms(string $template, $phone, array $params)
+     {
         $SmsTemplate = SmsTemplate::where('name',$template)->first();
-        if($SmsTemplate){
+         if($SmsTemplate){
             $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
-            if($message !== false){
+             if($message !== false){
                 $smsService = Setting::first()->sms_panel ?? 'IranSms';
-                if ($smsService === 'NeginSms') {
+               if ($smsService === 'NeginSms') {
                     NeginSms::sendSingleSms($phone, $message,service_type:'test');
                 } else {
-                    IranSms::sendSingleSms($phone, $message);
-                }
-            }else{
-                return redirect('500');
+                     IranSms::sendSingleSms($phone, $message);
+               }
+             }else{
+                 return redirect('500');
             }
         }else{
            return redirect('500');
+       }
+    }
+    /**
+     * Summary of sendSingleSmsOtp
+     * @param string $template
+     * @param mixed $phone
+     * @param array $params
+     * @return void
+     */
+    public static function sendSingleSmsOtp(string $template, $phone, array $params)
+    {
+        $headers = ['apikey' => config('services.iranSms.apikey'), 'Content-Type' => 'application/x-www-form-urlencoded'];
+        $client = new Client(['headers' => $headers]);
+        if(isset($params['param1']) && !isset($params['param2']))
+        {
+        $body = ['receptor' => $phone, 'type' => 1, 'template' => $template, 'param1' => $params['param1']];
         }
+        if(isset($params['param2']) && !isset($params['param3']))
+        {
+        $body = ['receptor' => $phone, 'type' => 1, 'template' => $template, 'param1' => $params['param1'], 'param2' => $params['param2']];
+        }
+        if(isset($params['param3']) && !isset($params['param4']))
+        {
+        $body = ['receptor' => $phone, 'type' => 1, 'template' => $template, 'param1' => $params['param1'], 'param2' =>$params['param2'] , 'param3' => $params['param3']];
+        }
+        if(isset($params['param4']) && !isset($params['param5']))
+        {
+        $body = ['receptor' => $phone, 'type' => 1, 'template' => $template, 'param1' => $params['param1'], 'param2' => $params['param2'] , 'param3' => $params['param3'] , 'param4' => $params['param4']];
+        }
+        if(isset($params['param5']))
+        {
+        $body = ['receptor' => $phone, 'type' => 1, 'template' => $template, 'param1' => $params['param1'], 'param2' => $params['param2'] , 'param3' => $params['param3'] , 'param4' => $params['param4'] , 'param5' => $params['param5']];
+        }
+        $res = $client->request('POST', 'http://api.parsasms.com/v2/send/verify', ['form_params' => $body]);
     }
 }
