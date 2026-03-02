@@ -489,10 +489,10 @@
                     <span>قوانین سایت</span>
                 </a></li>
             @endpermission
-            @role('superadmin')
+            @permission('access_short_link')
             <li><a href="{{ route('short-link.index') }}"><i class="fa fa-link "></i> <span class="mr-2">لینک های
                         کوتاه</span> </a></li>
-            @endrole
+            @endpermission
             @role('superadmin')
             <li><a href="{{ route('employee.terms.index') }}"><i class="fa fa-file "></i> <span class="mr-2">قوانین
                         پرسنل</span> </a></li>
