@@ -42,12 +42,7 @@
                                          name="endDate"></date-picker>
                         </div>
                         <div class="col-12 col-md-3 mb-2">
-                            <select name="level" id="level" class="custom-select" >
-                                <option value="all">انتخاب نوع کاربر </option>
-                                <option value="user">کاربر عادی</option>
-                                <option value="admin">مدیر</option>
-                                <option value="ghorfeAdmin">همکار غرفه</option>
-                            </select>
+                            @include('admin.user.layouts.levelSelect')
                         </div>
                         <div class="col-12 col-md-3 mb-2">
                             <select name="sex" class="custom-select" >

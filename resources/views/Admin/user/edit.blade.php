@@ -131,23 +131,7 @@
                 @permission('user_change_level')
                 <div class="col-12 col-md-4 mb-3">
                     <label>نوع کاربر</label>
-                    <select class="form-control" name="level">
-                        <option value="user" {{ $user->level == 'user' ? 'selected' : '' }}>
-                             کاربر فعال
-                        </option>
-                        <option value="blockUser" {{ $user->level == 'blockUser' ? 'selected' : '' }}>
-                            کاربر غیرفعال(لیست سیاه)
-                       </option>
-                        <option value="admin" {{ $user->level == 'admin' ? 'selected' : '' }}>
-                            همکار
-                        </option>
-                        <option value="siteAdmin" {{ $user->level == 'siteAdmin' ? 'selected' : '' }}>
-                            مدیرسایت
-                        </option>
-                        <option value="ghorfeAdmin" {{ $user->level == 'ghorfeAdmin' ? 'selected' : '' }}>
-                             همکار غرفه
-                        </option>
-                    </select>
+                    @include('admin.user.layouts.levelSelect')
                 </div>
                 @endpermission
                 <div class="col-12 col-md-4 mb-3">

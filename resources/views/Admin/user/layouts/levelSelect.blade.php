@@ -5,8 +5,6 @@
     <option value="blockUser" {{ (isset($user) && $user->level == 'blockUser') ? 'selected' : '' }}>
         کاربر غیرفعال(لیست سیاه)
     </option>
-{{ in_array(trim($product->id) , $pack->products()->pluck('products.id')->toArray()) ? 'selected' : '' }}>
-
     @if(in_array(auth()->user()->level , ['admin' , 'superAdmin']) )
     <option value="admin" {{ (isset($user) && $user->level == 'admin') ? 'selected' : '' }}>
         همکار
@@ -15,7 +13,9 @@
     <option value="ghorfeAdmin" {{ (isset($user) && $user->level == 'ghorfeAdmin') ? 'selected' : '' }}>
         همکار غرفه
     </option>
-    <option value="siteAdmin" {{ (isset($user) && $user->level == 'siteAdmin') ? 'selected' : '' }}>
+    @if(auth()->user()->level == 'superAdmin')
+    <option value="superAdmin" {{ (isset($user) && $user->level == 'superAdmin') ? 'selected' : '' }}>
         مدیرسایت
     </option>
+    @endif 
 </select>
