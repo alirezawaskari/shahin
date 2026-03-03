@@ -100,21 +100,16 @@
                                             <label for="description">توضیحات</label>
                                             <textarea id="description" name="description" class="form-control">
                                             </textarea>
-                                            <p class="text-warning col-12"> <i class="fa fa-exclamation-triangle"
-                                                    aria-hidden="true"></i>
-                                                    کاربر گرامی لطفا توضیحات مرتبط با مسائل مالی و دریافت خدمت را جهت ارائه به مرکز اینجا وارد کنید.
-                                            </p>
-
                                         </div>
-                                        <div class="col-12 mb-3">
+                                        {{-- <div class="col-12 mb-3">
                                             <label>نوع دریافت خدمت :</label>
                                             <br>
                                             نقد <input type="radio" name="items[{{ $key }}][type]" value="0" {{
                                                 !$item['type']?'checked':'' }} id="cash">
                                             اقساط<input type="radio" name="items[{{ $key }}][type]" value="1" {{
                                                 $item['type']?'checked':'' }} id="installment">
-                                        </div>
-                                        <div class="col-12 mb-3" id="guarantee_type">
+                                        </div> --}}
+                                        {{-- <div class="col-12 mb-3" id="guarantee_type">
                                             <label>
                                                 نوع ضمانت
                                                 (فقط مختص پرونده اقساطی)
@@ -125,7 +120,7 @@
                                             سفته <input type="radio" {{$item['guarantee_type']=='promissorynote'
                                                 ?'checked':''}} name="items[{{ $key }}][guarantee_type]"
                                                 value="promissorynote">
-                                        </div>
+                                        </div> --}}
                                         @endif
                                         @if(!is_null($item['forms']))
                                         @foreach($item['forms'] as $form)
