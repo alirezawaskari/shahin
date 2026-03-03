@@ -119,7 +119,8 @@
 @section('css')
 @stop
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+    <script src="{{ asset('/assets/dashboard/js/clipboard.min.js?v=1.0') }}"></script>
     <script src="{{ asset('/assets/dashboard/js/shortLink.js?v=1.0') }}"></script>
+
 @stop
 
