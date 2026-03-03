@@ -48,6 +48,7 @@ class BeforeForm extends Model
         'factor_skin_hair' => 'فاکتور زیبایی پوست و مو',
         'excel' => 'فایل اکسل',
         'image' => 'تصویر',
+        'calendar' => 'تقویم',
     ];
 
 

@@ -183,7 +183,8 @@
     {!! $form->help !!}
     <input type="text" class="form-control {{ $form->class }}" {{ $form->required == true ? 'required' : ''
     }}
-    placeholder="{{ $form->placeholder }}" value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}"
+    placeholder="{{ $form->placeholder }}" value="{{ isset($factorItem['factor_values'][$form->name]) ?
+    $factorItem['factor_values'][$form->name] : $user[$form->name] }}"
     name="item[{{ $form->name }}]">
 </div>
 @break
@@ -207,6 +208,14 @@
     <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}">
     @endif
     @endforeach
+</div> 
+@break
+@case('calendar')
+<div class="col-12 col-md-4 mb-3">
+    {!! $form->help !!}
+    <date-picker value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}" format="YYYY/M/D" name="item[{{ $form->name }}]" type="date"
+        display-format="YYYY/MM/DD">
+    </date-picker>
 </div>
 @break
 @case('radio')
