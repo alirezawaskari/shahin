@@ -609,6 +609,15 @@ class Factor extends Model implements AuditableContract
                 break;
             case 'factor':
                 //cash purchase
+                if($item->factorItems()->exists())
+                {
+                self::createAttributes($item);
+                PercentageAllocationEmployee::setPercentageAllocationEmployee($item , 'depositWallet');
+                self::closeSimilars($item);
+                self::factorTaskChenge($item);
+                self::setFactorItemRepresentation($item);
+                self::refferalFactorItemToCenter($item);
+                }
                 self::setPayPriceFactor($item);
                 break;
             case 'prepayment':
