@@ -24,7 +24,7 @@
                             <div class="row p-3 position-relative">
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
-                                @if (in_array('site' , $form->data_display_level))
+                                @if (in_array('show_factor_site' , $form->data_display_level))
                                 @include('Admin.factoritem.layouts.formItem')
                                 @endif
                                 @endforeach
@@ -167,7 +167,7 @@
                             <div class="row p-3 position-relative">
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
-                                @if (in_array('site' , $form->data_display_level))
+                                @if (in_array('show_factor_site' , $form->data_display_level))
                                 @include('Admin.factoritem.layouts.formItem')
                                 @endif
                                 @endforeach

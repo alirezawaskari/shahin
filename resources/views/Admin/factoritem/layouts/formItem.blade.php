@@ -135,7 +135,6 @@
 @case('multi_file')
 <div class="col-12">
     {!! $form->help !!}
-    <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
 </div>
 <div class="col-12 row">
     <div class="col-md-4">
@@ -208,7 +207,7 @@
     <input type="{{ $form->type }}" name="item[{{ $form->name }}][]" value="{{ $beforeformitem->value }}">
     @endif
     @endforeach
-</div> 
+</div>
 @break
 @case('calendar')
 <div class="col-12 col-md-4 mb-3">

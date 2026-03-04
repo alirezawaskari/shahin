@@ -27,7 +27,7 @@
                             <span class="font-18 bold text-green">پرداخت با موفقیت انجام شد</span>
                         </div>
                         @endif
-                        <div>
+                        {{-- <div>
                             <span class="text-success font-16 mb-2 mb-md-0">وضعیت: پرداخت شده</span>
                             <span class="text-dark font-12 mx-2">زمان ثبت:
                                 {{ verta($factor->created_at)->format('%d %B ، %Y H:i') }}
@@ -44,10 +44,10 @@
                             </span>
                             @endif
                         </div>
-                        <span class="text-dark font-16 mb-2 mb-md-0">شناسه پرداخت: {{ $factor->resnumber }}</span>
+                        <span class="text-dark font-16 mb-2 mb-md-0">شناسه پرداخت: {{ $factor->resnumber }}</span> --}}
                     </div>
                     <div class="col-12 mt-2">
-                        @if($check)
+                        {{-- @if($check)
                         <div class="alert alert-warning">
                             لطفا جهت کامل شدن سفارش، در صورت وجود فرم آن را با دقت پر نمایید و آن را ذخیره
                             نمایید. در غیر اینصورت بر روی ذخیره کلیک کنید.(توجه کنید موارد ثبت شده غیر قابل
@@ -61,7 +61,7 @@
                         <div class="alert alert-primary">
                             هزینه پرداختی شما بابت تشکیل پرونده در صورت اجرای مشاوره صرف گردیده و از اعتبار شما کسر می
                             گردد. لذا درصوت نیاز به راهنمایی قبل از مراجعه با پشتیبان خود تماس حاصل نمائید.
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col-12 mt-2">
                         @foreach($items as $key => $item)
@@ -95,11 +95,6 @@
                                                 </option>
                                                 @endforeach
                                             </select>
-                                        </div>
-                                        <div class="col-12 mb-4">
-                                            <label for="description">توضیحات</label>
-                                            <textarea id="description" name="description" class="form-control">
-                                            </textarea>
                                         </div>
                                         {{-- <div class="col-12 mb-3">
                                             <label>نوع دریافت خدمت :</label>
@@ -245,7 +240,6 @@
                                         @case('multi_file')
                                         <div class="col-12">
                                             {!! $form->help !!}
-                                            <p>تذکر : آپلود تمامی تصاویر درصورت وجود الزامی است.</p>
                                         </div>
                                         <div class="col-12">
                                             <div id="addnew" class='file file--upload'>
