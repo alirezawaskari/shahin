@@ -27,7 +27,8 @@ class ServiceCallcenterSMSNotification
      */
     public function handle(fastserviceCallcenter $event)
     {
-        $userMobile = $event->user;
+        $user = $event->user;
+        $userMobile = $user->phone;
         $service = $event->service;
         $callcenter = $event->callcenter->family;
         $type = $event->type;
@@ -55,9 +56,11 @@ class ServiceCallcenterSMSNotification
                 else
                 {
                     $body = [
-                        'param1' => $organ_name,
-                        'param2' => $link,
-                        'param3' => $organ_call
+                        'param1' => $user->name.' '.$user->family,
+                        'param2' => $organ_name,
+                        'param3' => $callcenter,
+                        'param4' => $link,
+                        'param5' => $organ_call
                     ];
                     SendSms::sendSingleSms('callcenterfastservice', $userMobile, $body);
                 }
