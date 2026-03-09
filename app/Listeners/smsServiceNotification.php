@@ -96,7 +96,7 @@ class smsServiceNotification {
         $center_call = $factorItem->center->phone;
         $center_address = $factorItem->center->address;
         $factoritemable = ($factorItem->factoritemable_type == Service::class ? 'خدمات ' : 'کالا ') . $factorItem->factoritemable->category->title;
-        $date = Helper::vertaToMiladi(Helper::numberConverter($factorItem->date));
+        $date = verta($factorItem->date)->format('Y/m/d H:i:s');
         $body = [
             'param1' => $factoritemable,
             'param2' => $center_title,
@@ -114,7 +114,7 @@ class smsServiceNotification {
     private function sendTurnRatingsNotificationOnline( FactorItem $factorItem, $userMobile )
     {
         $center_title = $factorItem->center->title;
-        $date = Helper::vertaToMiladi(Helper::numberConverter($factorItem->date));
+        $date = verta($factorItem->date)->format('Y/m/d H:i:s');
         $body = [
             'param1' => $center_title,
             'param2' => $date,

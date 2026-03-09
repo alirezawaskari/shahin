@@ -240,7 +240,7 @@ class FactorItemController extends Controller {
             return redirect()->back();
         }
         $factorItem->update( [
-            'date' => isset( $request->date ) ? $request->date : $factorItem->date,
+            'date' => isset( $request->date ) ? Helper::vertaToMiladi($request['date']) : $factorItem->date,
         ] );
 
         Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
@@ -401,7 +401,7 @@ class FactorItemController extends Controller {
 		}
         //update user factoritem
         $factor_item->update( [
-            'date' => $request->date ? $request->date : $factor_item->date,
+            'date' => $request->date ? Helper::vertaToMiladi($request['date']) : $factor_item->date,
         ] );
 
         if (!isset($factor_item->factor_values['assistant'])) {
