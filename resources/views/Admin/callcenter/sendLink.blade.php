@@ -170,13 +170,19 @@
                                     </div>
                                     <div class="col-12 mb-3 mt-2 service">
                                         <select class="form-control" name="service[]" id="service_id1"
-                                            onchange="getFinancialPlansTypeByItem(this.id , this.value , 'service')">
+                                            onchange="getRequiredDataByItem(this.id , this.value , 'service')">
                                             <option selected disabled>انتخاب خدمات</option>
                                             @foreach ($services as $service)
                                             <option value="{{ $service['id'] }}">{{
                                                 $service['label'] }}
                                             </option>
                                             @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mb-3 mt-2 service_item">
+                                        <select class="form-control" name="service_item[]"
+                                            id="service_item_id1">
+                                            <option selected disabled>انتخاب نوع خدمت</option>
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3 mt-2 financial_plans_type">

@@ -207,7 +207,7 @@ class ServiceItemController extends Controller
                $service_items = $service_items->map(function ($item) {
                     $temp = [];
                     $temp['id'] = $item->id;
-                    $temp['label'] = $item->title . ' - ' . number_format($item->price) . ' ریال';
+                    $temp['label'] = $item->title;
                     return $temp;
                 });
                 return response()->json(['count' => 'available', 'service_items' => $service_items]);
