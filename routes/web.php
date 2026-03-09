@@ -819,6 +819,7 @@ Route::get('/', 'HomeController@index')->name('index');
 Route::get('/help', 'HelpController@index')->name('site.help');
 Route::get('/calculate', 'FactorItemInstallmentController@index')->name('site.help');
 Route::post('dashboard/financialPlansType/setByItem', 'Admin\FinancialPlansTypeController@setFinancialPlansTypeByItem');
+Route::post('dashboard/serviceItem/setByItem', 'Admin\ServiceItemController@selectByService');
 Route::get('/link/{callcenter}', 'HomeController@index');
 Route::get('/message1403', 'HomeController@message');
 Route::get('/mobile', 'HomeController@mobile')->name('mobile');
