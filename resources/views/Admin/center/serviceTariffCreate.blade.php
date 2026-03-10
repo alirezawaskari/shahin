@@ -13,6 +13,11 @@
             </ol>
         </nav>
     </div>
+    <div>
+        @permission('create_service')
+        <a class="btn btn-primary" href="{{route('tariff.create')}}">ایجاد دوره تعرفه</a>
+        @endpermission
+    </div>
 </div>
 <form id="form_data">
 

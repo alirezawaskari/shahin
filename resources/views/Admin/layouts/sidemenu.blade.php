@@ -266,8 +266,13 @@
             </li>
             @endpermission
             @permission('service')
-            <li><a href="{{ route('service.index') }}"><i class="icon ti-control-record"></i> <span>خدمات</span>
-                </a>
+            <li><a href="#"><i class="icon ti-control-record"></i><span>خدمات</span> </a>
+                <ul>
+                    <li><a href="{{ route('service.index') }}"><i class="icon ti-control-record"></i> <span>خدمات</span>
+                </a></li>
+                    <li><a href="{{ route('tariff.index') }}"><i class="icon ti-control-record"></i> <span>دوره تعرفه</span>
+                </a></li>
+                </ul>
             </li>
             @endpermission
             @permission('center|center-request|center-request-detail')
