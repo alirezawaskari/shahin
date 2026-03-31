@@ -56,18 +56,18 @@ class BeforeForm extends Model
      *
      */
     const DATA_DISPLAY_LEVEL = [
-        'site' => 'نمایش در بخش بارگذاری مدارک پرونده درسایت',
-        'show_factor_site' => 'نمایش در بخش مشاهده پرونده در سایت',
-        'panel_user_info' => 'اطلاعات مرتبط با کاربر',
-        'panel_factor' => 'ویرایش فاکتور',
-        'panel_factor_create' => 'ایجاد فاکتور',
-        'panel_upload_before_work_doc' => 'مدارک مورد نیاز قبل کار',
-        'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار',
-        'panel_complation_file_work' => 'اتمام کار',
-        'panel_print_form' => 'پرینت فرم ثبت نام',
-        'panel_show_file' => 'امور اداری و مالی پرونده',
-        'panel_basic_document' => 'مدارک اولیه پرونده',
-        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز'
+        'site' => 'بارگذاری مدارک پرونده - سایت',
+        'show_factor_site' => 'مشاهده پرونده - سایت',
+        'panel_user_info' => ' اطلاعات مرتبط با کاربر - امور اجرایی',
+        'panel_factor' => 'ویرایش فاکتور - امور اجرایی',
+        'panel_factor_create' => 'ایجاد فاکتور - امور اجرایی',
+        'panel_upload_before_work_doc' => 'مدارک مورد نیاز قبل کار - امور اجرایی',
+        'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار - امور اجرایی',
+        'panel_complation_file_work' => 'اتمام کار - امور اجرایی',
+        'panel_print_form' => 'پرینت فرم ثبت نام - امور اجرایی',
+        'panel_show_file' => 'فاکتور - امور اداری و مالی',
+        'panel_basic_document' => 'مدارک اولیه و پشتیبانی - امور اداری و مالی',
+        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز - امور اداری و مالی'
     ];
     /**
      *
