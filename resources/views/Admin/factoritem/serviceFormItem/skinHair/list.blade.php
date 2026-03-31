@@ -52,7 +52,7 @@
                 $service_tariff->pivot->discount) }}
             </td>
             @permission('view_profit_factorItem')
-            <td>{{ number_format($service_tariff->purchase_price) }}</td>
+            <td>{{ number_format($service_tariff->purchase_price*$service_tariff->pivot->value) }}</td>
             <td>
                 {{ App\Models\CenterServiceTariff::setCompanyProfit($service_tariff , $service_tariff->pivot->price -
                 $service_tariff->pivot->discount) }}
