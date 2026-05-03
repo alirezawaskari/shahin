@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Cookie;
 class HomeController extends Controller
 {
     /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of index
+     * @param User $callcenter
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function index(User $callcenter)
     {

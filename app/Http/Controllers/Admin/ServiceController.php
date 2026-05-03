@@ -8,11 +8,11 @@ use App\Http\Resources\ServiceItemCollection;
 use App\Models\AskedQuestion;
 use App\Models\BeforeForm;
 use App\Models\Category;
-use App\Models\File;
 use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\WorkSample;
+use App\Services\V1\Auth\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -66,9 +66,8 @@ class ServiceController extends AdminController
         return new ServiceCollection($services->paginate(20));
     }
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of create
+     * @return \Illuminate\Contracts\View\View
      */
     public function create()
     {
@@ -81,11 +80,9 @@ class ServiceController extends AdminController
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Validation\ValidationException
+     * Summary of store
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -111,9 +108,8 @@ class ServiceController extends AdminController
         if($request->min_credit > 0 )$request['min_credit'] = str_replace(",","",$request->min_credit);
         $request['ability_invite_friend'] = isset($request['ability_invite_friend']) ? 1 : 0;
 
-
-        $service = Service::create($request->all());
-
+        $ghorfe_online = (new AuthService)->getGhorfe();
+        $service = ($ghorfe_online ? $ghorfe_online->services()->create($request->all()) : Service::create($request->all()));
         if($request->menu_title != '') $menu_title = $request->menu_title;
         else $menu_title = $service->title;
 

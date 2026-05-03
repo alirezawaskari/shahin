@@ -6,6 +6,7 @@ use App\Models\Callcenter;
 use App\Models\Factor;
 use App\Models\Representation;
 use App\Models\Service;
+use App\Models\ServiceItem;
 use App\Models\User;
 
 class RepresentationController extends Controller
@@ -22,7 +23,8 @@ class RepresentationController extends Controller
             $sliders = $representation->sliders()->whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
             $sliders_mobile = $representation->sliders()->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
             $representation->load('services');
-            $services = $representation->services;
+            $services = $representation->services()->filter()->whereStatus(1)->where('isShow' , true)->get();
+
             return view('site.representation.index', compact('representation' , 'callcenter','sliders', 'services','sliders_mobile'));
         }
        return abort(404);
@@ -92,6 +94,70 @@ class RepresentationController extends Controller
                 }
             }
 
+            return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor', 'representation' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
+        }
+
+        return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor' , 'representation' , 'callcenter','service', 'financial_plans_types' ,'task'));
+       }
+
+    /**
+     * @param Representation $representation
+     * @param ServiceItem $serviceItem
+     * @param User $callcenter
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
+    public function serviceItemSingle(Representation $representation , ServiceItem $serviceItem, User $callcenter , Callcenter $task, Factor $factor=null )
+    {
+        session()->put('representation', $representation);
+        $service = $serviceItem->service;
+        if(!$representation->status)
+        {
+            return redirect('/');
+        }
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
+        $questions=$serviceItem->askedQuestions;
+
+        //$callcenter=$task->callcenter;
+		$images = $serviceItem->galleries;
+	    $is_service = true;
+		$check = false;
+        if (!$serviceItem->isShow && !$serviceItem->status)
+        {
+            return redirect('/');
+        }
+
+		$user = auth()->user();
+		if(isset($factor['id']))
+		{
+			$user = $factor->user;
+		}
+        if ($user) {
+            $required = null;
+            $founded = [];
+            $requireServices = [];
+            if (!is_null($service->required) && count($service->required) > 0) {
+                foreach ($service->required as $item) {
+                    $user_factor = $user->factors()->where('service_id', $item)->whereStatus(true)->first();
+                    if ($user_factor) {
+                        array_push($founded, $user_factor->id);
+                    }
+                }
+                $requireServices = Service::find($service->required);
+                $required = false;
+                if (!is_null($founded) && count($founded) == count($service->required)) {
+                    $required = true;
+                }
+            }
+            $check = $user->factors()->whereStatus(true)->whereHas('factorItems', function ($query) use ($service) {
+                $query->where('factoritemable_id', $service->id);
+            })->exists();
+
+            if ($check) {
+                if ($service->multiple) {
+                    $check = false;
+                }
+            }
+            $service = $serviceItem;
             return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor', 'representation' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
 

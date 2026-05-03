@@ -31,7 +31,6 @@
             <thead>
                 <tr>
                     <th>عنوان</th>
-                    <th>قیمت</th>
                     <th>خدمت</th>
                     <th>وضعیت</th>
                     <th>نمایش در سایت</th>
@@ -44,10 +43,6 @@
                     <td>
                         {{ $item->title }}
                     </td>
-                    <td>
-                        {{ number_format($item->price) }} ریال
-                    </td>
-
                     <td>
                         {{ $item->service->title }}
                     </td>
@@ -64,11 +59,11 @@
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                             </a>
                             <div class="dropdown-menu">
-                                <a href="{{ route('serviceItem.edit' , [$item->id]) }}"
+                                <a href="{{ route('serviceItem.edit' , [$item->slug]) }}"
                                     class="dropdown-item pointer">ویرایش
                                 </a>
                                 <form class="delete_form" method="post"
-                                    action="{{ route('serviceItem.destroy',[$item->id]) }}">
+                                    action="{{ route('serviceItem.destroy',[$item->slug]) }}">
                                     @method('DELETE')
                                     @csrf
 

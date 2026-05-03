@@ -477,12 +477,14 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
-    Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');
-    Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
     Route::get('/service/filter', 'ServiceController@filter');
     Route::get('/service/indexTariffs/{service}', 'ServiceController@getIndexTariffs');
     Route::get('/service/financialPlansType/{id}', 'ServiceController@getFinancialPlansType');
     Route::resource('service', ServiceController::class);
+    //serviceItem
+    Route::get('/service/serviceItem/create/{service}', 'ServiceItemController@createByService')->name('service.serviceItem.create');
+    Route::post('/service/serviceItem/store/{service}', 'ServiceItemController@storeByService')->name('service.serviceItem.store');
+    Route::get('/service/serviceItem/{service}', 'ServiceItemController@serviceItemList')->name('service.serviceItem.all');
     Route::resource('serviceItem', 'ServiceItemController');
     //serviceIndexTariff
     Route::get('/serviceIndexTariff/filter', 'ServiceIndexTariffController@filter');
@@ -915,13 +917,13 @@ Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
 Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');
 Route::get('/singleWebPage/checkout/{singleWebPage}/{factor}', 'SingleWebPageController@checkout');
 //organization & representation
-Route::get('/{organization}/services/{service}', 'OrganizationController@single');
+Route::get('/{representation}/serviceItem/{serviceItem}', 'RepresentationController@serviceItemSingle');
+Route::get('/{representation}/serviceItem/{serviceItem}/{callcenter}', 'RepresentationController@serviceItemSingle');Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
 Route::get('/{representation}', 'RepresentationController@index');
 Route::get('/{representation}/link/{callcenter}', 'RepresentationController@index');
 Route::get('/{representation}/{service}', 'RepresentationController@single');
 Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController@single');
-
 //Front Ajax
 Route::post('/city/select', 'HomeController@cityselect');
 
