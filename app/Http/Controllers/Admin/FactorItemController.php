@@ -111,6 +111,7 @@ class FactorItemController extends Controller {
 
     Factor::returnPaymentBydeleteFactor($factorItem->factor);
     $factorItem->factor()->delete();
+    $factorItem->sessions()->delete();
     $factorItem->totalFactorItem()->delete();
     $factorItem->delete();
 

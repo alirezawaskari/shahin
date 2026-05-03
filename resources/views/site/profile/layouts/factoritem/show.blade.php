@@ -74,6 +74,7 @@
                                         : '' }}>
                                 </div>
                             </div>
+                            @include('Admin.factoritem.layouts.file.factorHistories')
                         </div>
                     </div>
                 </div>
@@ -98,9 +99,9 @@
                                             style="font-family: font;">
                                             <tr>
                                                 <th>تاریخ و ساعت</th>
-                                                <th>شماره دندان</th>
+                                                <th>موضوع</th>
                                                 <th>توضیحات</th>
-                                                <th>پزشک</th>
+                                                <th>مجری</th>
                                                 <th>دستیار</th>
                                                 <th>مبلغ (ریال)</th>
                                             </tr>
@@ -217,6 +218,7 @@
                                         : '' }}>
                                 </div>
                             </div>
+                            @include('Admin.factoritem.layouts.file.factorHistories')
                         </div>
                     </div>
                 </div>
@@ -241,9 +243,9 @@
                                             style="font-family: font;">
                                             <tr>
                                                 <th>تاریخ و ساعت</th>
-                                                <th>شماره دندان</th>
+                                                <th>موضوع</th>
                                                 <th>توضیحات</th>
-                                                <th>پزشک</th>
+                                                <th>مجری</th>
                                                 <th>دستیار</th>
                                                 <th>مبلغ (ریال)</th>
                                             </tr>

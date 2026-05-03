@@ -109,6 +109,7 @@ class FactorItemController extends Controller {
         $item[ 'date_first_pay' ] = isset( $factorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $factorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
         $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
         $item['contract_histories'] = $factorItem->histories->where('reason_id' , 1);
+        $factorItem['factor_histories'] = $factorItem->histories->where('reason_id' , 2);
         //if factorItem type is installment
         if ( $totalFactorItem ) {
             $item['contract_histories'] = $totalFactorItem->histories->where('reason_id' , 1);
@@ -258,6 +259,7 @@ class FactorItemController extends Controller {
             $temp['factorItems'] = FactorItem::getFatorItemCollection($factor_item)->get();
             $temp['confirm'] = $factor_item->totalFactorItem->confirm;
             $temp['sessions'] = $factor_item->sessions->where('status', '!=', false);
+            $temp['factor_histories'] = $factor_item->histories->where('reason_id' , 2);
 
             return $temp;
         });
