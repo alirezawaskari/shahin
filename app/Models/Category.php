@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -391,7 +392,7 @@ class Category extends Model
      */
     public function scopeFilter($query)
     {
-        $query->whereDoesntHave('ghorfeOnlineLists');
+        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
         return $query;
     }
 }

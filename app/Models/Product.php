@@ -153,7 +153,14 @@ class  Product extends Model
     {
         return $this->hasMany(ProductAttribute::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnline()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class, 'ghorfe_online_list_product')
+            ->withPivot('id','user_id','purchase_type','pay_type','price','stock')->withTimestamps();
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -477,7 +484,7 @@ class  Product extends Model
                     if (!is_dir($path)) {
                         File::makeDirectory($path, 0777, true, true);
                         File::move(public_path($image_name['name']), public_path($path . '/' . $img_name));
-                    } else { 
+                    } else {
                         File::move(public_path($image_name['name']), public_path($path . '/' . $img_name));
                     }
 
