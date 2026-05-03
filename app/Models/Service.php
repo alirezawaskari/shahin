@@ -184,6 +184,15 @@ class Service extends Model implements AuditableContract
     {
         return $this->hasMany(ServiceItem::class);
     }
+    /**
+     * Summary of activeServiceItems
+     * @param Service $item
+     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
+     */
+    public function activeServiceItems(Service $item)
+    {
+        return $item->service_items()->where('status' , true)->where('isShow' , true)->get();
+    }
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
