@@ -452,13 +452,6 @@ class CallcenterController extends Controller
                 }
             }
             elseif (is_array($services) && count($services)>0){
-                // foreach ($services as $service) {
-                //     if($service->id === 104){
-                //         return redirect()->back()->with( [
-                //             'create' => 'success'
-                //         ]);
-                //     }
-                // }
                 self::sendSmsLinkSite($request , $client , $task,$services);
             }
             Helper::vipUser($request->vip, $client->id);
@@ -1041,6 +1034,7 @@ class CallcenterController extends Controller
                 $factor_item = $cash_factor->factorItems()->create([
                     'factoritemable_id' => $services[$i],
                     'factoritemable_type' => Service::class,
+                    'service_item_id' => $request->service_item[$i],
                     'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
                     'count' => 1,
                     'price' => $payment_type == "supervisor" ? 0 : $service->price + ($service->price * $service->tax) / 100,
@@ -1061,6 +1055,7 @@ class CallcenterController extends Controller
                 $factor_item = $credit_factor->factorItems()->create([
                     'factoritemable_id' => $services[$i],
                     'factoritemable_type' => Service::class,
+                    'service_item_id' => $request->service_item[$i],
                     'total_factor_item_id' => $total_factor_item->id,
                     'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
                     'count' => 1,
