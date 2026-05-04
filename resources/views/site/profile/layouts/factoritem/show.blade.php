@@ -152,6 +152,28 @@
                     </div>
                 </div>
                 @endif
+                <div class="card">
+                    <div class="card-header">
+                        <a class="collapsed card-link" data-toggle="collapse" href="#recommendations">
+                            توصیه ها و دستورات
+                        </a>
+                    </div>
+                    <div id="recommendations" class="collapse" data-parent="#accordion">
+                        <div class="card-body">
+                            <div class="card-body">
+                                <div class="tab-content" id="myTabContent">
+                                    @if(!is_null($item['forms']))
+                                    @foreach($item['forms'] as $form)
+                                    @if (in_array('show_recommendations_site' , $form->data_display_level))
+                                    @include('Admin.factoritem.layouts.formItem')
+                                    @endif
+                                    @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @endforeach
                 @endif
                 @endforeach
@@ -219,6 +241,28 @@
                                 </div>
                             </div>
                             @include('Admin.factoritem.layouts.file.factorHistories')
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse" href="#recommendations">
+                                توصیه ها و دستورات
+                            </a>
+                        </div>
+                        <div id="recommendations" class="collapse" data-parent="#accordion">
+                            <div class="card-body">
+                                <div class="card-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        @if(!is_null($item['forms']))
+                                        @foreach($item['forms'] as $form)
+                                        @if (in_array('show_recommendations_site' , $form->data_display_level))
+                                        @include('Admin.factoritem.layouts.formItem')
+                                        @endif
+                                        @endforeach
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

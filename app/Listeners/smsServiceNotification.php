@@ -2,10 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\smsService;
-use App\Helpers\Helper;
 use App\Models\FactorItem;
 use App\Models\Service;
 use GuzzleHttp\Exception\GuzzleException;
@@ -31,6 +29,8 @@ class smsServiceNotification {
             case 'turnRatings':
             self::sendTurnRatingsNotification( $factorItem, $userMobile );
             break;
+            case 'setRecordChanges':
+            self::sendSetRecordChangesNotification( $factorItem, $userMobile );
             case 'rejectSession':
             self::sendRejectSessionNotification( $factorItem, $userMobile );
             break;
@@ -84,6 +84,20 @@ class smsServiceNotification {
             'param1' => $center_title,
         ];
         SendSms::sendSingleSms( 'rejectSessionNotification', $userMobile, $body );
+    }
+    /**
+     * Summary of sendSetRecordChangesNotification
+     * @param FactorItem $factorItem
+     * @param mixed $userMobile
+     * @return void
+     */
+    private function sendSetRecordChangesNotification( FactorItem $factorItem, $userMobile ) {
+        $factoritemable = FactorItem::getFactorItemAble( $factorItem, [] );
+        $body = [
+            'param1' => implode(',', $factoritemable),
+            'param2' => 'https://lalecard.ir/factorItem/'.$factorItem->resnumber.'#recommendations',
+        ];
+        SendSms::sendSingleSms( 'setRecordChangesNotification', $userMobile, $body );
     }
     /**
      * @param \App\Models\FactorItem $factorItem
