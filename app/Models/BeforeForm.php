@@ -57,7 +57,7 @@ class BeforeForm extends Model
      */
     const DATA_DISPLAY_LEVEL = [
         'site' => 'بارگذاری مدارک پرونده - سایت',
-        'show_factor_site' => 'مشاهده پرونده - سایت',
+        'show_factor_site' => 'مشاهده پرونده- فاکتور - سایت',
         'panel_user_info' => ' اطلاعات مرتبط با کاربر - امور اجرایی',
         'panel_factor' => 'ویرایش فاکتور - امور اجرایی',
         'panel_factor_create' => 'ایجاد فاکتور - امور اجرایی',
@@ -67,7 +67,8 @@ class BeforeForm extends Model
         'panel_print_form' => 'پرینت فرم ثبت نام - امور اجرایی',
         'panel_show_file' => 'فاکتور - امور اداری و مالی',
         'panel_basic_document' => 'مدارک اولیه و پشتیبانی - امور اداری و مالی',
-        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز - امور اداری و مالی'
+        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز - امور اداری و مالی',
+        'show_recommendations_site' => 'مشاهده پرونده - توصیه ها و دستورات - سایت ',
     ];
     /**
      *
