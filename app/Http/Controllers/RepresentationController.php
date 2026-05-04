@@ -23,7 +23,7 @@ class RepresentationController extends Controller
             $sliders = $representation->sliders()->whereStatus(true)->where('type' , 0)->orderBy('id', 'desc')->get();
             $sliders_mobile = $representation->sliders()->whereStatus(true)->where('type' , 4)->orderBy('id', 'desc')->get();
             $representation->load('services');
-            $services = $representation->services()->filter()->whereStatus(1)->where('isShow' , true)->get();
+            $services = $representation->services()->filter()->whereStatus(1)->get();
 
             return view('site.representation.index', compact('representation' , 'callcenter','sliders', 'services','sliders_mobile'));
         }
@@ -110,6 +110,7 @@ class RepresentationController extends Controller
     {
         session()->put('representation', $representation);
         $service = $serviceItem->service;
+
         if(!$representation->status)
         {
             return redirect('/');
