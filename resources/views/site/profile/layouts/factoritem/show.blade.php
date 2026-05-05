@@ -184,7 +184,7 @@
                             فاکتور
                         </a>
                     </div>
-                    <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div id="collapseOne" class="collapse" data-parent="#accordion">
                         <div class="col-12">
                             @if(!is_null($item['centers']) || !is_null($item['forms']))
                             <div class="row p-3 position-relative">
