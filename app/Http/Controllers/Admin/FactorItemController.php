@@ -444,6 +444,7 @@ class FactorItemController extends Controller {
         if (!isset($factor_item->factor_values['center-manager'])) {
             self::storeImageConfirm($factor_item , 'center-manager');
         }
+        event( new smsService( $factor_item , 'setRecordChanges') );
 
         return redirect()->back()->with( [
             'update' => 'success'
