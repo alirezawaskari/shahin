@@ -31,6 +31,7 @@ class smsServiceNotification {
             break;
             case 'setRecordChanges':
             self::sendSetRecordChangesNotification( $factorItem, $userMobile );
+            break;
             case 'rejectSession':
             self::sendRejectSessionNotification( $factorItem, $userMobile );
             break;

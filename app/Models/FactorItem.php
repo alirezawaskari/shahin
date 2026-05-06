@@ -1106,15 +1106,14 @@ class FactorItem extends Model implements AuditableContract
             'status_factor' => 17,
             'date' => now(),
         ] );
-        //create session
-        if ($factorItem->factoritemable->session==1){
-            Session::create( [
-                'status' => 8 ,
-                'user_id' => auth()->user()->id,
-                'factor_item_id' => $factorItem->id,
-                'description_before' => $request['description'] ,
-           ]);
-        }
+        //create session 
+        Session::create( [
+            'status' => 8 ,
+            'user_id' => auth()->user()->id,
+            'factor_item_id' => $factorItem->id,
+            'description_before' => $request['description'] ,
+        ]);
+
         //send sms to the user
         event( new smsService( $factorItem , 'setCenter') );
         if($factorItem->center->representation)

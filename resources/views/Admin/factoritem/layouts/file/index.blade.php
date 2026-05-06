@@ -15,8 +15,9 @@
                     aria-selected="false">
                     <i class="fas fa-list"></i>
                 </a>
-                <h5 class="text-center">فاکتور</h5>
+                <h5 class="text-center">پیش فاکتور و قرارداد الکترونیکی</h5>
             </li>
+            @if($factorItem['type'])
             <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
                 <a class="nav-link beauty-nav-link {{ $factorItem['status'] == 2 && $factorItem['status_factor'] != 6 ? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
                     href="#step3" id="step3-tab" data-bs-toggle="tab" role="tab" aria-controls="step3"
@@ -25,13 +26,14 @@
                 </a>
                 <h5 class="text-center">محاسبه مبالغ</h5>
             </li>
+            @endif
             <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
                 <a class="nav-link beauty-nav-link {{ $factorItem['status'] == 3 && $factorItem['status_factor'] != 6? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
                     href="#step4" id="step4-tab" data-bs-toggle="tab" role="tab" aria-controls="step4"
                     aria-selected="false" title="پرداخت مبلغ">
                     <i class="fas fa-credit-card"></i>
                 </a>
-                <h5 class="text-center">پرداخت مبلغ</h5>
+                <h5 class="text-center">ارسال فاکتور و پرداخت</h5>
             </li>
             @if($factorItem->factoritemable->session)
             <li class="nav-item flex-fill {{ $factorItem['status'] == 0 || !$factorItem['confirm'] ? 'ul-li-disabled' : ''}}" role="presentation">
@@ -49,16 +51,16 @@
                     aria-selected="false" title="بارگذاری تصاویر">
                     <i class="fas fa-upload"></i>
                 </a>
-                <h5 class="text-center">بارگذاری تصاویر قبل کار</h5>
+                <h5 class="text-center">بارگذاری دستورات و توصیه های نهایی</h5>
             </li>
-            <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
+            {{-- <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
                 <a class="nav-link beauty-nav-link {{ $factorItem['status'] == 6 ? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
                     href="#step7" id="step7-tab" data-bs-toggle="tab" role="tab" aria-controls="step7"
                     aria-selected="false" title="بارگذاری تصاویر">
                     <i class="fas fa-upload"></i>
                 </a>
                 <h5 class="text-center">بارگذاری تصاویر بعد کار</h5>
-            </li>
+            </li> --}}
             <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
                 <a class="nav-link beauty-nav-link {{ $factorItem['status'] == 5 && $factorItem['status_factor'] != 6 ? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
                     href="#step6" id="step6-tab" data-bs-toggle="tab" role="tab" aria-controls="step6"
@@ -88,6 +90,7 @@
                     </a>
                 </div>
             </div>
+            @if($factorItem['type'])
             <div class="tab-pane fade {{ $factorItem['status'] == 2 && $factorItem['status_factor'] != 6 ? 'show active' : ''}}" role="tabpanel" id="step3"
                 aria-labelledby="step3-tab">
                 @include('Admin.factoritem.layouts.file.calculate')
@@ -97,6 +100,7 @@
                     <a class="btn btn-primary px-4 mb-3 text-white next"> بعدی <i class="fas fa-angle-left"></i> </a>
                 </div>
             </div>
+            @endif
             <div class="tab-pane fade {{ $factorItem['status'] == 3 && $factorItem['status_factor'] != 6 ? 'show active' : ''}}" role="tabpanel" id="step4"
                 aria-labelledby="step4-tab">
                 <div class="mt-5">

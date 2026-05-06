@@ -158,7 +158,7 @@
                             توصیه ها و دستورات
                         </a>
                     </div>
-                    <div id="recommendations" class="collapse" data-parent="#accordion">
+                    <div id="recommendations" class="collapse show" data-parent="#accordion">
                         <div class="card-body">
                             <div class="card-body">
                                 <div class="tab-content" id="myTabContent">
