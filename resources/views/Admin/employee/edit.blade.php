@@ -103,18 +103,6 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>نمایندگی</label>
-                            <select class="form-control" name="admin_representation_id">
-                                <option value="">
-                                    بدون نمایندگی (دفتر تهران)
-                                </option>
-                                @foreach($representations as $representation)
-                                <option value="{{ $representation->id }}" {{ $employee->user->admin_representation_id ==
-                                    $representation->id ? 'selected' : '' }}>{{ $representation->fa_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4 mb-3">
                             <label>شماره تماس اضطراری</label>
                             <input value="{{ $employee->user->call }}" type="text" name="call" class="form-control">
                         </div>
