@@ -146,6 +146,23 @@
                                         @endforeach
                                     </div>
                                     @break
+                                    @case('radio')
+                                    <div class="col-12 col-md-12 mb-3">
+                                        {!! $form->help !!}
+                                        <br>
+                                        @foreach($form->beforeformitems as $beforeformitem)
+                                        {{ $beforeformitem->title }}
+                                        @if(isset($item['factor_values'][$form->name]))
+                                        <input type="{{ $form->type }}" name="item[{{ $form->name }}]"
+                                            value="{{ $beforeformitem->value }}" {{ $beforeformitem->value ==
+                                        $factorItem['factor_values'][$form->name] ? 'checked' : '' }} required>
+                                        @else
+                                        <input type="{{ $form->type }}" name="item[{{ $form->name }}]"
+                                            value="{{ $beforeformitem->value }}" required>
+                                        @endif
+                                        @endforeach
+                                    </div>
+                                    @break
                                     @case('excel')
                                     <div class="col-12 mb-2">
                                         <a href="{{ asset($form->file) }}" download>
@@ -277,7 +294,8 @@
                     <div class="text-center alert alert-success">
                         با تشکر، سفارش شما تکمیل شد و در دست بررسی قرار دارد.
                         <br>
-                        <a href="/factorItem/{{ $item['resnumber'] }}"><button type="button" class="btn btn-success mt-2">برای مشاهده پرونده اینجا کلیک کنید</button></a>
+                        <a href="/factorItem/{{ $item['resnumber'] }}"><button type="button"
+                                class="btn btn-success mt-2">برای مشاهده پرونده اینجا کلیک کنید</button></a>
                     </div>
                     @endif
                     @if($item['service']->isContract && $item['type'])
