@@ -7,7 +7,6 @@ use App\Models\Attribute;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\CategoryArticle;
-use App\Models\GhorfeOnlineList;
 use App\Models\Product;
 use App\Models\Resume;
 use App\Models\User;
@@ -471,25 +470,4 @@ class Helper {
         }
         return $text;
     }
-    public static function filterWithDosentHaveGhorfeOnline($query)
-    {
-        $query->whereDoesntHave('ghorfeOnlineLists');
-    }
-    public static function filterWithHaveGhorfeOnline($query)
-    {
-        $ghorfe_online_list = Helper::getGhorfe();
-        $query->whereHas('ghorfeOnlineLists',function ($query) use ($ghorfe_online_list){
-            $query->Where('ghorfe_online_list_id', $ghorfe_online_list->id);
-        });
-    }
-    /**
-     * Summary of getGhorfe
-     * @return GhorfeOnlineList|null
-     */
-    public static function getGhorfe() : GhorfeOnlineList| null
-    {
-        $GhorfeOnlineList = GhorfeOnlineList::where('slug' , config('services.ghorfeOnline.slug'))->first();
-        return $GhorfeOnlineList ?? null;
-    }
-
 }

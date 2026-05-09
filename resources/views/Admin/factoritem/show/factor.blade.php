@@ -93,6 +93,7 @@
                         : '' }}>
                     @endpermission
                 </form>
+                @include('Admin.factoritem.layouts.file.factorHistories')
             </div>
         </div>
     </div>

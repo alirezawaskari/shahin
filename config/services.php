@@ -76,8 +76,4 @@ return [
         'id' => env('ZARIN_ID'),
         'url' => 'https://www.zarinpal.com',//if test => convert www to the sandbox
     ],
-
-    'ghorfeOnline' => [
-        'slug' => env('GHORFE_SLUG'),
-    ]
 ];

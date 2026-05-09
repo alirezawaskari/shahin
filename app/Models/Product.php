@@ -153,7 +153,14 @@ class  Product extends Model
     {
         return $this->hasMany(ProductAttribute::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnline()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class, 'ghorfe_online_list_product')
+            ->withPivot('id','user_id','purchase_type','pay_type','price','stock')->withTimestamps();
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -632,48 +639,6 @@ class  Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
-
-//    public function scopeFilter($query)
-//    {
-//        $columns = ['id','name', 'root_category_id','status','brand_id'];
-//        $id = request('id');
-//        $name = request('name');
-//        $root_category_id = request('root_category_id');
-//        $status = request('status');
-//        $brand_id = request('brand_id');
-//
-//        if (isset($name) && trim($name) != '') {
-//            $query->where('name', 'LIKE', '%' . $name . '%');
-//        }
-//
-//        if (isset($phone) && trim($phone) != '') {
-//            $query->where('phone', $phone);
-//        }
-//
-//        if (isset($job_title) && trim($job_title) != 'all') {
-//            $query->where('recruitment_notice_id', $job_title);
-//        }
-//
-//        if (isset($status) && trim($status) != '' && $status != 'all') {
-//            $query->whereStatus($status);
-//        }
-//
-//        if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
-//            $query->whereBetween('created_at', [$startDate, $endDate]);
-//        }
-//
-//        if (auth()->user()->hasRole('legal')) {
-//            $query->where('recruitment_notice_id', '25');
-//        }
-//
-//        if (auth()->user()->hasRole('superadmin-callcenter')) {
-//            $query->where('recruitment_notice_id', '27')->orWhere('recruitment_notice_id', '14');
-//        }
-//
-//        return $query;
-//    }
-
-
     //use in edit product
     /**
      * @param $date

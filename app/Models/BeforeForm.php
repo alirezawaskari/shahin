@@ -35,19 +35,20 @@ class BeforeForm extends Model
         'file' => 'فایل',
         'checkbox' => 'انتخابی',
         'radio' => 'تک انتخابی',
-        'factor_dentist' => 'طرح درمان',
-        'factor' => 'فاکتور',
+        'factor_dentist' => 'فاکتور خدمات دندانپزشکی',
+        'factor' => 'فاکتور عمومی کالا',
         'multi_file' => 'چند فایلی',
         'confirm' => 'تائیدیه',
         'rules' => 'مفاد قرارداد',
         'total-price' => 'جمع کل فاکتور',
         'factor-image' => 'تصویر فاکتور',
         'factor_building' => 'فاکتور خدمات ساختمانی',
-        'factor_legal' => 'فاکتور حقوقی',
-        'factor_service' => 'فاکتور خدمات',
+        'factor_legal' => 'فاکتور خدمات حقوقی',
+        'factor_service' => 'فاکتور عمومی خدمات',
         'factor_skin_hair' => 'فاکتور زیبایی پوست و مو',
         'excel' => 'فایل اکسل',
         'image' => 'تصویر',
+        'calendar' => 'تقویم',
     ];
 
 
@@ -55,18 +56,19 @@ class BeforeForm extends Model
      *
      */
     const DATA_DISPLAY_LEVEL = [
-        'site' => 'سایت',
-        'show_factor_site' => 'نمایش فاکتور در سایت',
-        'panel_user_info' => 'اطلاعات مرتبط با کاربر',
-        'panel_factor' => 'ویرایش فاکتور',
-        'panel_factor_create' => 'ایجاد فاکتور',
-        'panel_upload_before_work_doc' => 'مدارک مورد نیاز قبل کار',
-        'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار',
-        'panel_complation_file_work' => 'اتمام کار',
-        'panel_print_form' => 'پرینت فرم ثبت نام',
-        'panel_show_file' => 'امور اداری و مالی پرونده',
-        'panel_basic_document' => 'مدارک اولیه پرونده',
-        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز'
+        'site' => 'بارگذاری مدارک پرونده - سایت',
+        'show_factor_site' => 'مشاهده پرونده- فاکتور - سایت',
+        'panel_user_info' => ' اطلاعات مرتبط با کاربر - امور اجرایی',
+        'panel_factor' => 'ویرایش فاکتور - امور اجرایی',
+        'panel_factor_create' => 'ایجاد فاکتور - امور اجرایی',
+        'panel_upload_before_work_doc' => 'مدارک مورد نیاز قبل کار - امور اجرایی',
+        'panel_upload_after_work_doc' => 'مدارک مورد نیاز بعد کار - امور اجرایی',
+        'panel_complation_file_work' => 'اتمام کار - امور اجرایی',
+        'panel_print_form' => 'پرینت فرم ثبت نام - امور اجرایی',
+        'panel_show_file' => 'فاکتور - امور اداری و مالی',
+        'panel_basic_document' => 'مدارک اولیه و پشتیبانی - امور اداری و مالی',
+        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز - امور اداری و مالی',
+        'show_recommendations_site' => 'مشاهده پرونده - توصیه ها و دستورات - سایت ',
     ];
     /**
      *

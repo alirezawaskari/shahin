@@ -59,6 +59,7 @@ class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
             }
             $temp['sms'] = sms::find($item->sms_id)->sender_number ?? '';
             $temp['reg'] = User::find($item->reg_id)->phone ?? '';
+            $temp['user'] = User::find($item->reg_id) ? User::find($item->reg_id)->name.' '.User::find($item->reg_id)->family : '';
             $temp['callcneter'] = User::find($item->user_id)->family ?? 'سایت';
             $temp['service'] = $item->type == 1 ? $this->setService($item->sms->sender_number , $item) : $this->setService($item->register->phone , $item);
             $temp['price'] = $item->type == 1 ? $this->setPrice($item->sms->sender_number , $item) : $this->setPrice($item->register->phone , $item);
@@ -170,7 +171,7 @@ class CallcenterExport implements FromCollection, ShouldAutoSize, WithHeadings
      */
     public function headings(): array
     {
-        return ['نوع' , 'شماره پیامک شده' , 'شماره کاربر ثبت نامی' ,'کالسنتر' ,'نوع خدمت','مبلغ' ,'وضعیت','توضیحات','تاریخ یادآوری','زمان یادآوری','تاریخ ثبت'];
+        return ['نوع' , 'شماره پیامک شده' , 'شماره کاربر ثبت نامی' , 'نام کاربر ثبت نامی' ,'کالسنتر' ,'نوع خدمت','مبلغ' ,'وضعیت','توضیحات','تاریخ یادآوری','زمان یادآوری','تاریخ ثبت'];
     }
 
     /**

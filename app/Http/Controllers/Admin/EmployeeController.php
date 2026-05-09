@@ -471,21 +471,23 @@ class EmployeeController extends AdminController
     public function updateContract(Request $request , Employee $employee)
     {
         if (auth()->user()->isAbleTo('employee_contract_edit')) {
+
             $employee->update(['contract' => $request->contract]);
             $user_phone_number = $employee->user->phone;
-        if($request->contract_status == 2 && !$employee->contract_status != 1)
+        if($request->contract_status == 2 && $employee->contract_status != 1)
         {
             $employee->update(['contract_status' => 2]);
             $contract_start_date = verta($employee->contract_start_date)->format('Y/m/d');
             $link = 'https://lalecard.ir/dashboard/employee/contract/' . $employee->id;
             SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $employee->contract_number, 'param2' => $contract_start_date, 'param3' => $link]);
             $description = 'قرارداد جهت تایید همکار ارسال شد.';
+            History::contractHistoryCreate($employee , null, Auth::id() , 3 , 1 , $description);
         }
-        elseif($request->contract_status == 3 && !$employee->contract_status != 1){
+        elseif($request->contract_status == 3 && $employee->contract_status != 1){
             $employee->update(['contract_status' => 3]);
             $description = 'قرارداد جهت مطالعه همکار در حالت پیش نویس قرارداده شد.';
+            History::contractHistoryCreate($employee , null, Auth::id() , 3 , 1 , $description);
         }
-        History::contractHistoryCreate($employee , null, Auth::id() , 3 , 1 , $description);
 
         return redirect()->back()->with([
             'update' => 'success'

@@ -174,6 +174,7 @@ $(document).on('change', '.file_upload_ajax', function () {
             "application/vnd.ms-excel",
             "application/x-rar-compressed",
             "application/x-zip-compressed",
+            
         ];
         var size = file.size;
         if ($.inArray(fileType, validImageTypes) > 0) {

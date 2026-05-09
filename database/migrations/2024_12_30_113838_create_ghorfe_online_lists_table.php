@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedInteger('theme_id')->nullable();
+            $table->foreign('theme_id')->references('id')->on('themes')->onDelete('set null');
             $table->string('title');
             $table->string('en_title');
             $table->string('slug');
@@ -90,7 +92,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->softDeletes();
-            
+
             $table->timestamps();
         });
 
@@ -122,6 +124,16 @@ return new class extends Migration
             $table->foreign('ghorfe_online_list_id')->references('id')->on('ghorfe_online_lists')->onDelete('cascade');
 
             $table->primary(['product_id' , 'ghorfe_online_list_id']);
+        });
+
+        Schema::create('ghorfe_online_list_newsletter_subscription', function (Blueprint $table) {
+            $table->integer('newsletter_subscription_id')->unsigned();
+            $table->foreign('newsletter_subscription_id')->references('id')->on('newsletter_subscriptions')->onDelete('cascade');
+
+            $table->integer('ghorfe_online_list_id')->unsigned();
+            $table->foreign('ghorfe_online_list_id')->references('id')->on('ghorfe_online_lists')->onDelete('cascade');
+
+            $table->primary(['newsletter_subscription_id' , 'ghorfe_online_list_id']);
         });
 
         Schema::create('factor_ghorfe_online_list', function (Blueprint $table) {
@@ -162,6 +174,16 @@ return new class extends Migration
             $table->foreign('ghorfe_online_list_id')->references('id')->on('ghorfe_online_lists')->onDelete('cascade');
 
             $table->primary(['financial_plans_type_id' , 'ghorfe_online_list_id']);
+        });
+
+        Schema::create('category_permission_ghorfe_online_list', function (Blueprint $table) {
+            $table->integer('category_permission_id')->unsigned();
+            $table->foreign('category_permission_id')->references('id')->on('category_permissions')->onDelete('cascade');
+
+            $table->integer('ghorfe_online_list_id')->unsigned();
+            $table->foreign('ghorfe_online_list_id')->references('id')->on('ghorfe_online_lists')->onDelete('cascade');
+
+            $table->primary(['category_permission_id' , 'ghorfe_online_list_id']);
         });
     }
 

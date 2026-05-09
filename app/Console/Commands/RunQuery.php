@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Classes\External\SendSms;
+use App\Helpers\CalculationHelper;
 use App\Models\BeforeForm;
 use App\Models\BeforeFormItem;
 use App\Models\FactorItem;
@@ -42,6 +43,25 @@ class RunQuery extends Command {
     */
 
     public function handle() {
+        $service_tariffs = ServiceTariff::where( 'service_id', 211 )->get();
+        foreach ($service_tariffs as $item) {
+            $inputs[ 'selling_price' ] = $inputs[ 'selling_price' ] ? ( float ) str_replace( ',', '', $inputs[ 'selling_price' ] ) : 0;
+        $inputs[ 'purchase_price' ] = ( float ) str_replace( ',', '', $inputs[ 'purchase_price' ] );
+
+            $service_tariff = ServiceTariff::create( [
+            'name' => $item->name,
+            'purchase_price' => $item->purchase_price,
+            'cash_price' => CalculationHelper::getServiceTariffSellingPrice( $item->selling_price, $item->purchase_price ),
+            'price' => $item->price,
+            'session_number' => $item->session_number,
+            'treatment_duration' => $item->treatment_duration,
+            'multi_stage' => $item->multi_stage,
+            'tariff_id' => 25,
+            'service_id' => 1,
+        ] );
+        $service_tariff->centers()->attach( 236 );
+
+        }
         dd( 'success' );
         $before_forms = BeforeForm::where( 'beforeformable_id', 10 )->get();
         foreach ( $before_forms as $item ) {
@@ -61,7 +81,7 @@ class RunQuery extends Command {
                 'data_save_level' => $item->data_save_level,
                 'data_display_level' => $item->data_display_level,
             ] );
-            foreach ($before_form_items as $before_form_item) {
+            foreach ( $before_form_items as $before_form_item ) {
                 BeforeFormItem::create( [
                     'title' => $before_form_item->title,
                     'value' => $before_form_item->value,

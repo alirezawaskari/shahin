@@ -106,12 +106,6 @@
                         </div>
 
                         <div class="col-12 col-md-2 mb-4">
-                            <label>درصد پیش پرداخت</label>
-                            <input type="number" value="{{old('percent')}}" class="form-control" name="percent"
-                                   placeholder="لطفا درصد پیش پرداخت را وارد کنید" required>
-                        </div>
-
-                        <div class="col-12 col-md-2 mb-4">
                             <label>درصد سود سالیانه</label>
                             <input type="number" value="{{old('wage_percent')}}" class="form-control"
                                    placeholder="لطفا درصد سود سالیانه را وارد کنید"
@@ -123,9 +117,7 @@
                             <input type="text" value="{{old('price')}}" class="form-control"
                                    placeholder="لطفا قیمت را وارد کنید" name="price" required oninput="separatePrices(this)">
                         </div>
-                        <div class="col-12 col-md-12 text-center">  <br/><hr/><br/>
-                            <h3 class="mb-4 alert alert-dark">اطلاعات برای سایت .com</h3>
-                        </div>
+
                         <div class="col-12 col-md-3 mb-5">
                             <label>دسته بندی *</label>
                             <select class="form-control" name="category_id" title="">
@@ -140,17 +132,17 @@
                         </div>
 
                         <div class="col-12 col-md-3 mb-5">
-                            <label>کمترین اعتبار *</label>
+                            <label>حداقل مبلغ وام *</label>
                             <input type="text" name="min_credit" id="currency-field" value="{{old('min_credit')}}"
-                                   class="form-control" data-type="currency" placeholder="لطفا کمترین اعتبار را وارد کنید">
+                                   class="form-control" data-type="currency" placeholder="لطفا حداقل مبلغ وام را وارد کنید">
                             @if($errors->has('min_credit'))
                                 <span class="help-block sub-error"> {{$errors->first('min_credit')}} </span>
                             @endif
                         </div>
                         <div class="col-12 col-md-3 mb-5">
-                            <label>بیشترین اعتبار *</label>
+                            <label>حداکقر مبلغ وام *</label>
                             <input type="text" name="max_credit" id="currency-field" value="{{old('max_credit')}}"
-                                   class="form-control" data-type="currency" placeholder="لطفا بیشترین اعتبار را وارد کنید">
+                                   class="form-control" data-type="currency" placeholder="لطفا حداکثر مبلغ وام را وارد کنید">
                             @if($errors->has('max_credit'))
                                 <span class="help-block sub-error"> {{$errors->first('max_credit')}} </span>
                             @endif
@@ -212,29 +204,7 @@
                             <input id="menu_title_lbl" type="text" class="form-control" name="menu_title"
                                    placeholder="لطفا عنوان منو را وارد کنید">
 
-                            {{--                        <div class="checkbox">--}}
-                            {{--                            <label>--}}
-                            {{--                                <input type="checkbox" name="is_menu" value="1">نمایش در منو--}}
-                            {{--                            </label>--}}
-                            {{--                            @if($errors->has('is_menu'))<span--}}
-                            {{--                                    class="help-block sub-error">{{$errors->first('is_menu')}}</span>@endif--}}
-                            {{--                        </div>--}}
-
                         </div>
-
-
-                        {{--                    <div class="col-md-12 col-sm-12 col-xs-12 mb-5">--}}
-                        {{--                        <label>نمونه کارها </label>--}}
-                        {{--                        @include('Admin.partials.multipleImages',['has_link'=>0])--}}
-                        {{--                    </div>--}}
-
-
-                        {{--                    <div class="col-md-12 col-sm-12 col-xs-12 mb-5">--}}
-                        {{--                        @include('Admin.partials.service.askedQuestion')--}}
-                        {{--                    </div>--}}
-
-                        {{--                    @include('Admin.partials.createBannerHomePage')--}}
-
                         <div class="col-12">
                             <input type="submit" class="btn btn-success border-0" value="ثبت">
                         </div>

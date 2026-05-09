@@ -9,8 +9,8 @@
             @if ($factorItem['type'] == 1 && $item['confirm'])
             <div class="col-12 col-md-3 mb-3">
                 <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
-                <p class="form-control">
-                    {{ number_format($factorItem['total_price'] + $factorItem['price_difference']['total']) }} </p>
+                <p class="form-control border-success">
+                                    {{ number_format($factorItem['total_price']) }} </p>
             </div>
             <div class="col-12 col-md-3 mb-3" data-toggle="tooltip" data-placement="bottom"
                 title="مبلغ کل اعتباری که کاربر از مجموعه دریافت  کرده است.">
@@ -21,8 +21,10 @@
             @else
             <div class="col-12 col-md-3 mb-3">
                 <label>جمع فاکتور با اعمال تخفیف(ریال)</label>
-                <p class="form-control">
-                    {{ number_format($factorItem['total_price']) }} </p>
+                <input class="form-control" value="{{ number_format($factorItem['total_price'] +
+                                    (isset($factorItem['price_difference']['total']) ?
+                                    $factorItem['price_difference']['total'] : 0)) }}" name="totalPrice"
+                                    oninput="separatePrices(this)">
             </div>
             @endif
             <div class="col-12 col-md-3 mb-3" data-toggle="tooltip" data-placement="bottom"

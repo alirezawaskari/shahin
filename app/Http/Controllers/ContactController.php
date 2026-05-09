@@ -21,6 +21,10 @@ class ContactController extends Controller
     {
         $contact = Contactsetting::first();
         $cards = Card::where('is_show' , true)->get();
+        if(session()->has('representation'))
+        {
+            return view('site.representation.contact', compact('contact', 'cards'));
+        }
         return view('site.contact', compact('contact', 'cards'));
     }
 

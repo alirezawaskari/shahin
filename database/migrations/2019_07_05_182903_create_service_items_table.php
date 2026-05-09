@@ -20,11 +20,16 @@ class CreateServiceItemsTable extends Migration
             $table->foreign('service_id')->references('id')->on('services');
             $table->string('slug' , 110)->nullable();
             $table->string('title' , 255)->nullable();
-            $table->unsignedBigInteger('price');
             $table->integer('status');
             $table->integer('isShow')->default(false);
             $table->text('image')->nullable()->default(NULL);
+            $table->text('icon');
+            $table->text('thumb');
+            $table->text('image_app')->nullable()->default(NULL);
+            $table->text('img_box_1')->nullable()->default(NULL);
             $table->text('content')->nullable();
+            $table->text('txt_box_1')->nullable()->default(NULL);
+            $table->text('left_content')->nullable();
 
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));

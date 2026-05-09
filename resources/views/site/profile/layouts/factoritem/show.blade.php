@@ -24,7 +24,7 @@
                             <div class="row p-3 position-relative">
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
-                                @if (in_array('site' , $form->data_display_level))
+                                @if (in_array('show_factor_site' , $form->data_display_level))
                                 @include('Admin.factoritem.layouts.formItem')
                                 @endif
                                 @endforeach
@@ -74,6 +74,7 @@
                                         : '' }}>
                                 </div>
                             </div>
+                            @include('Admin.factoritem.layouts.file.factorHistories')
                         </div>
                     </div>
                 </div>
@@ -98,9 +99,9 @@
                                             style="font-family: font;">
                                             <tr>
                                                 <th>تاریخ و ساعت</th>
-                                                <th>شماره دندان</th>
+                                                <th>موضوع</th>
                                                 <th>توضیحات</th>
-                                                <th>پزشک</th>
+                                                <th>مجری</th>
                                                 <th>دستیار</th>
                                                 <th>مبلغ (ریال)</th>
                                             </tr>
@@ -151,6 +152,28 @@
                     </div>
                 </div>
                 @endif
+                <div class="card">
+                    <div class="card-header">
+                        <a class="collapsed card-link" data-toggle="collapse" href="#recommendations">
+                            توصیه ها و دستورات
+                        </a>
+                    </div>
+                    <div id="recommendations" class="collapse show" data-parent="#accordion">
+                        <div class="card-body">
+                            <div class="card-body">
+                                <div class="tab-content" id="myTabContent">
+                                    @if(!is_null($item['forms']))
+                                    @foreach($item['forms'] as $form)
+                                    @if (in_array('show_recommendations_site' , $form->data_display_level))
+                                    @include('Admin.factoritem.layouts.formItem')
+                                    @endif
+                                    @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @endforeach
                 @endif
                 @endforeach
@@ -161,13 +184,13 @@
                             فاکتور
                         </a>
                     </div>
-                    <div id="collapseOne" class="collapse show" data-parent="#accordion">
+                    <div id="collapseOne" class="collapse" data-parent="#accordion">
                         <div class="col-12">
                             @if(!is_null($item['centers']) || !is_null($item['forms']))
                             <div class="row p-3 position-relative">
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
-                                @if (in_array('site' , $form->data_display_level))
+                                @if (in_array('show_factor_site' , $form->data_display_level))
                                 @include('Admin.factoritem.layouts.formItem')
                                 @endif
                                 @endforeach
@@ -217,6 +240,29 @@
                                         : '' }}>
                                 </div>
                             </div>
+                            @include('Admin.factoritem.layouts.file.factorHistories')
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="collapsed card-link" data-toggle="collapse" href="#recommendations">
+                                توصیه ها و دستورات
+                            </a>
+                        </div>
+                        <div id="recommendations" class="collapse" data-parent="#accordion">
+                            <div class="card-body">
+                                <div class="card-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        @if(!is_null($item['forms']))
+                                        @foreach($item['forms'] as $form)
+                                        @if (in_array('show_recommendations_site' , $form->data_display_level))
+                                        @include('Admin.factoritem.layouts.formItem')
+                                        @endif
+                                        @endforeach
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -241,9 +287,9 @@
                                             style="font-family: font;">
                                             <tr>
                                                 <th>تاریخ و ساعت</th>
-                                                <th>شماره دندان</th>
+                                                <th>موضوع</th>
                                                 <th>توضیحات</th>
-                                                <th>پزشک</th>
+                                                <th>مجری</th>
                                                 <th>دستیار</th>
                                                 <th>مبلغ (ریال)</th>
                                             </tr>

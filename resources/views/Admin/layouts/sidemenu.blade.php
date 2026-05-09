@@ -266,8 +266,13 @@
             </li>
             @endpermission
             @permission('service')
-            <li><a href="{{ route('service.index') }}"><i class="icon ti-control-record"></i> <span>خدمات</span>
-                </a>
+            <li><a href="#"><i class="icon ti-control-record"></i><span>خدمات</span> </a>
+                <ul>
+                    <li><a href="{{ route('service.index') }}"><i class="icon ti-control-record"></i> <span>خدمات</span>
+                </a></li>
+                    <li><a href="{{ route('tariff.index') }}"><i class="icon ti-control-record"></i> <span>دوره تعرفه</span>
+                </a></li>
+                </ul>
             </li>
             @endpermission
             @permission('center|center-request|center-request-detail')
@@ -489,10 +494,10 @@
                     <span>قوانین سایت</span>
                 </a></li>
             @endpermission
-            @role('superadmin')
+            @permission('access_short_link')
             <li><a href="{{ route('short-link.index') }}"><i class="fa fa-link "></i> <span class="mr-2">لینک های
                         کوتاه</span> </a></li>
-            @endrole
+            @endpermission
             @role('superadmin')
             <li><a href="{{ route('employee.terms.index') }}"><i class="fa fa-file "></i> <span class="mr-2">قوانین
                         پرسنل</span> </a></li>

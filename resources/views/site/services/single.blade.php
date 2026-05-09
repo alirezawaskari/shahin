@@ -4,37 +4,39 @@
 
 @section('content')
 
-{{-- <div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
+{{-- @if($service->id != 198)
+<div id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModal" aria-hidden="true"
     class="modal fade phone-modal">
      <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-start">
                 <i class="fas fa-mobile-alt font-18 text-orange ml-2"></i>
-                <h6 class="modal-title" id="phoneModalLable">کاربران گرامی لاله :</h6>
+                <h6 class="modal-title" id="phoneModalLable">پزشکان عزیز  :</h6>
             </div>
             <div class="modal-body">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12 text-center">
-                            <img width="100%" src="https://eastweb.ir/wp-content/uploads/yalda-offer-ewb.jpg" alt="">
+                            <img width="100%" src="https://lalecard.ir/upload/2026/1/service/723_IMG_20260125_183049_318.jpg" alt="">
                         </div>
                     </div>
                 </div>
-                <h5 style="text-align: center;">
+                <h5 class="mt-2" style="text-align: center;">
                     <strong>
-                        خدمات دندانپزشکی با<span style="color:#c0392b"> ۳۵٪ تخفیف</span> ویژه شما
-                        لاله ای های عزیز تنها تا آخر دی ماه
+                        آخرین مهلت ثبت نام نقد یا اقساط <span style="color:#c0392b">سامانه مطب دیجیتال</span> با نرخ سال گذشته
                     </strong>
                 </h5>
             </div>
             <div class="row col-12">
                 <div class="mb-1 p-1" style="margin-right: auto">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
+                    <a href="https://lalecard.ir/services/Digital-Clinic#check_mobile_box"><button type="button" class="btn btn-success">ثبت نام</button></a>
                 </div>
             </div>
         </div>
     </div>
-</div> --}}
+</div>
+@endif --}}
 <div class="service">
     <div class="register-section py-4" id="one-section">
         <div class="container-fluid">

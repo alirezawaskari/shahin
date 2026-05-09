@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -105,7 +106,7 @@ class Callcenter extends Model implements AuditableContract
         $serviceItems = request('service_items');
         $has_factor = request('has_factor');
 
-        $query->whereDoesntHave('ghorfeOnlineLists');
+        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
 
         if (isset($status) && !is_null($status) && is_array($status)) {
             $query->whereIn('status',$status);

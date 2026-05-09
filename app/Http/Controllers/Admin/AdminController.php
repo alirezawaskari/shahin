@@ -74,11 +74,11 @@ class AdminController extends Controller
             $filepath = "{$path}/{$year}/{$month}/document/";
             $filename = "{$random}_" . $file->getClientOriginalName();
             // image max size
-            $max_file_size = 2 * 1024 * 1024;
+            $max_file_size = 6 * 1024 * 1024;
             if($file->getSize() > $max_file_size){
                 return [
                     'status' => false,
-                    'message' => 'حجم فایل ارسال شده نباید بیشتر ۲ مگابایت باشد.'
+                    'message' => 'حجم فایل ارسال شده نباید بیشتر 6 مگابایت باشد.'
                 ];
             }
 

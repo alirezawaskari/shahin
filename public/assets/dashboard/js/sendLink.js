@@ -12,17 +12,18 @@ function newServiceLink() {
 
     div1.html($('#newservicetpl').html());
     $('#newservice').append(div1);
-    div1.children().eq(4).prop('id', 'delete' + ct).html(delLink);
+    div1.children().eq(5).prop('id', 'delete' + ct).html(delLink);
 
     div1.children('.service_category').children('#service_category_id1').prop('id', 'service_category_id' + ct).off('change').on('change', function () {
         selectByCategory(this.id, this.value);
     });
 
     div1.children('.service').children('#service_id1').prop('id', 'service_id' + ct).off('change').on('change', function () {
-        getFinancialPlansTypeByItem(this.id, this.value, 'service');
+        getRequiredDataByItem(this.id, this.value, 'service');
     });
 
     div1.children('.financial_plans_type').children('#financial_plans_type_id1').prop('id', 'financial_plans_type_id' + ct);
+    div1.children('.service_item').children('#service_item_id1').prop('id', 'service_item_id' + ct);
     div1.children('.service_purchase_type').children('#service_purchase_type1').prop('id', 'service_purchase_type' + ct);
 
     getDataRequired(ct);
@@ -41,7 +42,7 @@ function newCategoryLink() {
     div1.children('.product_category').children('#product_category_id1').prop('id', 'product_category_id' + ct);
 
     div1.children('.financial_plans_type').children('#financial_plans_type_id1').prop('id', 'financial_plans_type_id' + ct).off('change').on('change', function () {
-        getFinancialPlansTypeByItem(this.id, this.value, 'category');
+        getRequiredDataByItem(this.id, this.value, 'category');
     });
 
     div1.children('.category_purchase_type').children('#category_purchase_type1').prop('id', 'category_purchase_type' + ct);
@@ -64,7 +65,11 @@ function delCategoryLink(eleId) {
     var parentEle = d.getElementById('newcategory');
     parentEle.removeChild(ele);
 }
-
+function getRequiredDataByItem(id, value, type)
+{
+    getFinancialPlansTypeByItem(id, value, type);
+    getServiceItemByItem(id, value, type)
+}
 function getFinancialPlansTypeByItem(id, value, type) {
     if (type == 'category') {
         id = id.slice(19);
@@ -94,7 +99,42 @@ function getFinancialPlansTypeByItem(id, value, type) {
                     $('#financial_plans_type_id' + id).find('option').remove();
                     for (var i = 0; i < data.financial_plans_types.length; i++) {
                         $(`#financial_plans_type_id${id}`).append(`<option value="${data.financial_plans_types[i].id}">${data.financial_plans_types[i].label}</option>`);
+                    }
+                }
+            }
+        });
+    }
+}
+function getServiceItemByItem(id, value, type) {
+    if (type == 'category') {
+        id = id.slice(19);
+    } else if (type == 'service') {
+        id = id.slice(10);
+    }
 
+    if (value == 0) {
+        $('#service_item_id' + id).find('option').remove();
+    }
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    if (value != 0) {
+        $.ajax({
+            url: '/dashboard/serviceItem/setByItem',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                id: value,
+                type: type,
+            },
+            success: function success(data) {
+                if (data.count == 'available') {
+                    $('#service_item_id' + id).find('option').remove();
+                    $('#service_item_id' + id).append('<option selected disabled>انتخاب نوع خدمت</option>');
+                    for (var i = 0; i < data.service_items.length; i++) {
+                        $('#service_item_id' + id).append('<option value="' + data.service_items[i]['id'] + '">' + data.service_items[i]['label'] + '</option>');
                     }
                 }
             }

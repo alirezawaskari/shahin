@@ -45,6 +45,7 @@ class CheckoutController extends Controller {
             $temp[ 'installments_num' ] = $item->installments_num;
             $temp[ 'products' ] = $item->products;
             $temp[ 'center_id' ] = $item->center_id;
+            $temp[ 'resnumber' ] = $item->resnumber;
             $temp[ 'is_changeable' ] = self::checkIsChangeable( $item );
 
             return $temp;

@@ -2,10 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\smsService;
-use App\Helpers\Helper;
 use App\Models\FactorItem;
 use App\Models\Service;
 use GuzzleHttp\Exception\GuzzleException;
@@ -30,6 +28,9 @@ class smsServiceNotification {
             break;
             case 'turnRatings':
             self::sendTurnRatingsNotification( $factorItem, $userMobile );
+            break;
+            case 'setRecordChanges':
+            self::sendSetRecordChangesNotification( $factorItem, $userMobile );
             break;
             case 'rejectSession':
             self::sendRejectSessionNotification( $factorItem, $userMobile );
@@ -86,6 +87,20 @@ class smsServiceNotification {
         SendSms::sendSingleSms( 'rejectSessionNotification', $userMobile, $body );
     }
     /**
+     * Summary of sendSetRecordChangesNotification
+     * @param FactorItem $factorItem
+     * @param mixed $userMobile
+     * @return void
+     */
+    private function sendSetRecordChangesNotification( FactorItem $factorItem, $userMobile ) {
+        $factoritemable = FactorItem::getFactorItemAble( $factorItem, [] );
+        $body = [
+            'param1' => implode(',', $factoritemable),
+            'param2' => 'https://lalecard.ir/factorItem/'.$factorItem->resnumber.'#recommendations',
+        ];
+        SendSms::sendSingleSms( 'setRecordChangesNotification', $userMobile, $body );
+    }
+    /**
      * @param \App\Models\FactorItem $factorItem
      * @param mixed $userMobile
      * @return void
@@ -96,7 +111,7 @@ class smsServiceNotification {
         $center_call = $factorItem->center->phone;
         $center_address = $factorItem->center->address;
         $factoritemable = ($factorItem->factoritemable_type == Service::class ? 'خدمات ' : 'کالا ') . $factorItem->factoritemable->category->title;
-        $date = Helper::vertaToMiladi(Helper::numberConverter($factorItem->date));
+        $date = verta($factorItem->date)->format('Y/m/d H:i:s');
         $body = [
             'param1' => $factoritemable,
             'param2' => $center_title,
@@ -114,7 +129,7 @@ class smsServiceNotification {
     private function sendTurnRatingsNotificationOnline( FactorItem $factorItem, $userMobile )
     {
         $center_title = $factorItem->center->title;
-        $date = Helper::vertaToMiladi(Helper::numberConverter($factorItem->date));
+        $date = verta($factorItem->date)->format('Y/m/d H:i:s');
         $body = [
             'param1' => $center_title,
             'param2' => $date,

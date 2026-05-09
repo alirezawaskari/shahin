@@ -13,6 +13,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\V1\Auth\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -70,8 +71,10 @@ class AppServiceProvider extends ServiceProvider
                 return $role_categories_with_terms;
             });
 
+
             $view->with([
                 'role_categories_with_terms' => $role_categories_with_terms,
+                'is_user_ghorfe' => (new AuthService)->checkUserGhorfe(),
             ]);
         });
 

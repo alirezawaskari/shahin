@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Illuminate\Support\Facades\View;
 class TotalFactorItem extends Model implements AuditableContract
 {
     use Auditable;
@@ -775,6 +776,58 @@ class TotalFactorItem extends Model implements AuditableContract
         return $financial_balance_items;
     }
     /**
+     * @param \App\Models\TotalFactorItem $totalFactorItem
+     * @return array
+     */
+    public function setItem(TotalFactorItem $totalFactorItem)
+    {
+        $item['id'] = $totalFactorItem->id;
+        $item['is_pay_installment_by_check'] = TotalFactorItem::payInstallmentByCheck($totalFactorItem);
+        $item['count_installment_checks'] = TotalFactorItem::getCountInstallmentChecks($totalFactorItem);
+        $item['contract_forms'] = ContractForm::orderBy('position', 'Asc')->get();
+        $item['contract_values'] = $totalFactorItem->contract_values;
+        $item['guarantee_type'] = $totalFactorItem->guarantee_type;
+        $item['file_number_mali'] = $totalFactorItem->file_number_mali ? $totalFactorItem->file_number_mali : $totalFactorItem->id;
+        $item['approval_date'] = $totalFactorItem->approval_date ? $totalFactorItem->approval_date : now();
+        $item['credit'] = TotalFactorItem::calculateCredit($totalFactorItem);
+        $item['total_debt'] = TotalFactorItem::calculateTotalDebt($totalFactorItem);
+        $item['discount'] = $totalFactorItem->factorItems->sum('discount');
+        $item['prepayment']['price'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
+        $item['prepayment']['debt'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_debt : 0;
+        $item['prepayment']['count'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_count : 0;
+        $item['prepayment']['num'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_num : 0;
+        $item['percent_fines'] = $totalFactorItem->percent_fines;
+        $item['status_text'] = TotalFactorItem::statusFactor($totalFactorItem->total_factor_item_status_id);
+        $item['status'] = $totalFactorItem->total_factor_item_status_id;
+        $item['status_mali'] = TotalFactorItem::statusMali($totalFactorItem->status_mali);
+        $item['factoritemable'] = TotalFactorItem::setFactorItemable($totalFactorItem);
+        $item['price_difference']['installment'] = isset($totalFactorItem->property->price_difference_installment) ? $totalFactorItem->property->price_difference_installment : 0;
+        $item['price_difference']['total'] = isset($totalFactorItem->property->price_difference_total) ? $totalFactorItem->property->price_difference_total : 0;
+        $item['price_difference']['debt'] = isset($totalFactorItem->property->price_difference_debt) ? $totalFactorItem->property->price_difference_debt : 0;
+        $item['installments_price'] = $totalFactorItem->totalFactorItemInstallments->first() ? $totalFactorItem->totalFactorItemInstallments->first()->price : 0;
+        $item['installments_num'] = $totalFactorItem->installments_num;
+        $item['installments_num_pay'] = $totalFactorItem->totalFactorItemInstallments->where('status', 1)->count();
+        $item['extra_pay'] = TotalFactorItem::getExtraPay($totalFactorItem);
+        $item['extra_pay_debt'] = number_format(TotalFactorItem::getDebtExtraPay($totalFactorItem));
+        $item['loan'] = $totalFactorItem->totalFactorItemInstallments->sum('price');
+        $item['total_price'] = $totalFactorItem->total_price + $totalFactorItem->factorItems->sum('discount');
+        $item['wage'] = TotalFactorItem::getWage($totalFactorItem);
+        $item['guarantee_price'] = self::getGuaranteePrice($item);
+        $item['installments_debt'] = TotalFactorItem::getDebtExtraPay($totalFactorItem) + $item['loan'] - $item['installments_num_pay'] * $item['installments_price'];
+        $item['credit_amount'] = isset($totalFactorItem->property->price_difference_installment) ? $totalFactorItem->property->price_difference_installment : 0;
+        $item['start_date'] = verta($totalFactorItem->approval_date)->format('Y/m/d');
+        $item['end_date'] = isset($totalFactorItem->totalFactorItemInstallments->last()->date) ? verta($totalFactorItem->totalFactorItemInstallments->sortBy('date')->last()->date)->format('Y/m/d') : '';
+        $item['payments'] = $totalFactorItem->factors;
+        $item['payment'] = $totalFactorItem->factor;
+        $item['confirm'] = $totalFactorItem->confirm;
+        $item['has_payment'] = $totalFactorItem->factors()->where('status', 1)->exists();
+        $item['date_first_pay'] = isset($totalFactorItem->factors->where('title', '!=', 'register')->where('status', true)->first()->created_at) ? verta($totalFactorItem->factors->where('title', '!=', 'register')->first()->created_at)->format('Y/m/d') : '';
+        $item['guarantee_types_list'] = TotalFactorItem::getGuaranteeTypeByFinancialPlansType($totalFactorItem);
+        $item['contract_histories'] = $totalFactorItem->histories->where('reason_id' , 1);
+
+        return $item;
+    }
+    /**
      * @param TotalFactorItem $item
      * @param mixed $price
      * @return array
@@ -1013,6 +1066,33 @@ class TotalFactorItem extends Model implements AuditableContract
             $wage = $wage + CalculationHelper::calculateWage($factor_item , $total_price , $prepayment_price , $installments_num);
         }
         return $wage;
+    }
+    /**
+     * Summary of saveContractView
+     * @return void
+     */
+    public static function saveContractView(TotalFactorItem $totalFactorItem)
+    {
+        $user = $totalFactorItem->factor->user;
+        $item = self::setItem( $totalFactorItem );
+        $resnumber = TotalFactorItem::setFatorItemCollectionResnumber( $totalFactorItem );
+        $contract_number = TotalFactorItem::setAgentContractNumber( $totalFactorItem );
+
+        if ( $totalFactorItem->factorItems->where( 'factoritemable_id', 124 )->count() ) {
+            $contract_view = 'Admin.totalfactoritem.layouts.contractLoanCash';
+        } elseif ( $totalFactorItem->factorItems->where( 'factoritemable_id', 17 )->count() ) {
+            $contract_view = 'Admin.totalfactoritem.layouts.contractGhorfeOnline';
+        } else {
+            $contract_view = 'Admin.totalfactoritem.layouts.contract';
+        }
+        $content = View::make( $contract_view, [
+            'resnumber' => $resnumber,
+            'contract_number' => $contract_number,
+            'totalFactorItem' => $totalFactorItem,
+            'user' => $user,
+            'item' => $item,
+        ] )->render();
+        ContractView::store($totalFactorItem , $content);
     }
 
 }

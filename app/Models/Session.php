@@ -13,6 +13,7 @@ class Session extends Model implements AuditableContract
     use SoftDeletes;
     use Auditable;
 
+    protected $table = 'execution_sessions';
     /**
      * @var string[]
      */

@@ -5,11 +5,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreateSessionsTable extends Migration
+class CreateExecutionSessionsTable extends Migration
 {
     public function up()
     {
-        Schema::create('sessions', function (Blueprint $table) {
+        Schema::create('execution_sessions', function (Blueprint $table) {
 
 		$table->integer('id');
 		$table->integer('factor_item_service_tariff_id')->nullable()->default(NULL);
@@ -40,6 +40,6 @@ class CreateSessionsTable extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('execution_sessions');
     }
 }
