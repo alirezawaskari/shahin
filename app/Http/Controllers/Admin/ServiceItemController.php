@@ -44,7 +44,7 @@ class ServiceItemController extends Controller
         if($request->menu_title != '') $menu_title = $request->menu_title;
         else $menu_title = $service_item->title;
 
-        if($request->is_menu == 1){
+        if($request->is_menu){
             Menu::updateOrCreate(['menuable_id' => $service_item->id],[
                 'menuable_type' => ServiceItem::class,'parent_id'=>$service_item->service_id,
                 'title'=>$menu_title,'depth'=> 3 ]);
