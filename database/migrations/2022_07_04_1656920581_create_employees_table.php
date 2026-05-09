@@ -19,7 +19,7 @@ class CreateEmployeesTable extends Migration
 		$table->integer('center_id')->nullable()->default(NULL);
         $table->foreign('center_id')->references('id')->on('centers')->onDelete('cascade');
 		$table->integer('status')->default('1');
-        $table->string('business_phone')->default('02191095745');
+        $table->string('business_phone');
 		$table->integer('show_status')->default('1');
         $table->integer('sales_commitment')->nullable()->default(NULL);
 		$table->integer('tax')->default('10');
