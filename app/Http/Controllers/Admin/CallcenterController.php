@@ -951,7 +951,7 @@ class CallcenterController extends Controller
             'payment_code' => $request->payment_code,
             'center_id' => auth()->user()->center_id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
-            'expired_at' => now()->addDay(3),
+            'expired_at' => now()->addMinute(20),
         ]);
         //upload bill_image cash factor
         if ($request->url_bill_image) {
@@ -996,7 +996,7 @@ class CallcenterController extends Controller
             'payment_code' => $request->payment_code,
             'center_id' => auth()->user()->center_id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
-            'expired_at' => now()->addDay(3),
+            'expired_at' => now()->addMinute(20),
         ]);
         //upload bill_image cash factor
         if ($request->url_bill_image) {
