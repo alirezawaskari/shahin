@@ -123,9 +123,9 @@ class FactorItemCollection extends ResourceCollection
         {
             return TotalFactorItem::setFactorItemable($item->totalFactorItem);
         }
-
+        $factor_item_able = isset($item->factoritemable) ? $item->factoritemable->title : 'ثبت نشده';
         $temp = [];
-        array_push($temp , isset($item->center) ? $item->factoritemable->title.' - '.$item->center->title : $item->factoritemable->title.' - تعیین نشده');
+        array_push($temp , isset($item->center) ? $factor_item_able.' - '.$item->center->title : $factor_item_able.' - تعیین نشده');
 
         return implode(',' , $temp);
     }
