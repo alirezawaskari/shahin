@@ -193,6 +193,7 @@ class UserController extends AdminController
         {
             $employee = Employee::firstOrCreate(['user_id' => $user->id]);
             $employee->update(['status'=> 1, 'contract_start_date' => ($employee->contract_start_date ? $employee->contract_start_date : now())]);
+            !auth()->user()->admin_representation_id ? $user->update(['admin_representation_id' , auth()->user()->admin_representation_id]) : '';
         }
         if (($request->level != 'admin' || $user->level != 'ghorfeAdmin') && $user->employee()->exists() &&  $user->employee->status != 0 ){
             Employee::where('user_id' , $user->id)->update([
