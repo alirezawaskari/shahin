@@ -14,9 +14,10 @@
                         <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
                         <br>
                         <br>
-                        فروش کالا <input id="category-type" type="radio" name="cat_type" value="category" onclick="catType(this.value)"
-                            checked>
-                        ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service" onclick="catType(this.value)">
+                        فروش کالا <input id="category-type" type="radio" name="cat_type" value="category"
+                            onclick="catType(this.value)" checked>
+                        ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service"
+                            onclick="catType(this.value)">
                     </div>
                     <div class="col-12 mb-5">
                         <select class="form-control mb-3" name="item[service_category]" id="service_category">
@@ -26,8 +27,9 @@
                             </option>
                             @endforeach
                         </select>
-                        <select  class="form-control mb-3 services-select"  multiple="multiple" name="service[]" id="service">
-{{--                            <option selected disabled>انتخاب خدمت مربوطه</option>--}}
+                        <select class="form-control mb-3 services-select" multiple="multiple" name="service[]"
+                            id="service">
+                            {{-- <option selected disabled>انتخاب خدمت مربوطه</option>--}}
                             @foreach ($services as $service)
                             <option value="{{ $service->id }}">{{ $service->title }}
                             </option>
@@ -75,7 +77,8 @@
                     <div class="form-row">
                         <div class="col-12 col-md-4 mb-3">
                             <label>موضوع</label>
-                            <input name="item[subject]" class="form-control" placeholder="موضوع درخواست خود را وارد نمایید">
+                            <input name="item[subject]" class="form-control"
+                                placeholder="موضوع درخواست خود را وارد نمایید">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <label>نام و نام خانوادگی</label>
@@ -132,10 +135,19 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>نمایندگی</label>
+                            <label>نمایندگی ایجاد کننده</label>
+                            <select name="creator_representation_id" class="form-control">
+                                <option value="">م تهران</option>
+                                @foreach($representations as $representation)
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>نمایندگی های ذینفع</label>
                             <select name="representation_id[]" class="custom-select select2" multiple>
                                 @foreach($representations as $representation)
-                                    <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
+                                <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -143,11 +155,11 @@
                             <label class="col-md-2 col-sm-2 col-xs-12 control-label"></label>
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" name="is_show" value="1"
-                                           @if(old('is_show') == 1) checked @endif>نمایش در سایت نمایندگی کل
+                                    <input type="checkbox" name="is_show" value="1" @if(old('is_show')==1) checked
+                                        @endif>نمایش در سایت نمایندگی کل
                                 </label>
                                 @if($errors->has('is_show'))<span
-                                        class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
+                                    class="help-block sub-error  ">{{$errors->first('is_show')}}</span>@endif
                             </div>
                         </div>
                         @endif
