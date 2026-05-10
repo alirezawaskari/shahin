@@ -181,7 +181,7 @@ return array(
 		'stock' => 'موجودی',
         'card_id' => 'واحد مربوطه',
         'resume' => 'فایل رزومه',
-        'agent_id' => 'انتخاب پزشک',
+        'agent_id' => 'انتخاب مجری',
         'cat_type' => 'نوع دسته بندی همکاری',
         'product_category' => 'دسته بندی کالا مربوطه',
         'service_category' => 'دسته بندی خدمت مربوطه',
