@@ -15,8 +15,8 @@ class CreateCentersTable extends Migration
         $table->morphs('centerable', 'centerable_index');//Service Models || Category Models
 		$table->integer('user_id')->nullable()->default(NULL);
         $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-		$table->integer('representation_id')->unsigned()->nullable()->default(NULL);
-        $table->foreign('representation_id')->references('id')->on('representations')->onDelete('cascade');
+		$table->integer('creator_representation_id ')->unsigned()->nullable()->default(NULL);
+        $table->foreign('creator_representation_id ')->references('id')->on('representations')->onDelete('cascade');
 		$table->integer('center_request_id')->nullable()->default(NULL);
         $table->foreign('center_request_id')->references('id')->on('center_requests')->onDelete('cascade');
         $table->string('title')->nullable()->default(NULL);
