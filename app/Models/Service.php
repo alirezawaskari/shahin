@@ -365,7 +365,6 @@ class Service extends Model implements AuditableContract
         $pay_type = request('pay_type');
         $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
 
-        $query->where('deleted_at',null);
         if (auth()->user() && auth()->user()->admin_representation) {
             $representation = auth()->user()->admin_representation->id;
             $query->whereHas('representations', function ($query) use ($representation) {
