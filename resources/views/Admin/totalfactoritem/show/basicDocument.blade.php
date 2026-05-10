@@ -159,8 +159,8 @@
                                             value="{{ $user->work_address }}" name="user[work_address]">
                                     </div>
                                     <div class="col-12 col-md-3 mb-2">
-                                        <label>تلفن محل سکونت</label>
-                                        <input type="text" class="form-control" placeholder="تلفن محل سکونت"
+                                        <label>تلفن ثابت</label>
+                                        <input type="text" class="form-control" placeholder="تلفن ثابت"
                                             value="{{ $user->home_phone }}" name="user[home_phone]">
                                     </div>
                                     <div class="col-12 col-md-3 mb-2">
