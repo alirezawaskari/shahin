@@ -72,7 +72,7 @@ class TicketController extends Controller
     {
         $tickets = Ticket::filter()->latest();
         if (auth()->user()->admin_representation) {
-            $tickets->whereHas('user', function ($query) {
+            $tickets->whereHas('users', function ($query) {
                 $query->where('admin_representation_id', auth()->user()->admin_representation_id);
             });
         }

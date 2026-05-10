@@ -1056,10 +1056,10 @@ class FactorItem extends Model implements AuditableContract
             $query->where('centerable_id', $item->factoritemable_id)->where('centerable_type', $item->factoritemable_type);
         });
 
-        if(isset($item->representation))
+        if(auth()->user() && auth()->user()->admin_representation_id)
         {
             $selectable_centers = $selectable_centers->whereHas('representations', function ($query) use ($item) {
-                $query->where('representation_id', $item->representation->representation_id);
+                $query->where('id', $item->representation_id);
             });
         }
         return $selectable_centers->get();
@@ -1106,7 +1106,7 @@ class FactorItem extends Model implements AuditableContract
             'status_factor' => 17,
             'date' => now(),
         ] );
-        //create session 
+        //create session
         Session::create( [
             'status' => 8 ,
             'user_id' => auth()->user()->id,
@@ -1116,9 +1116,9 @@ class FactorItem extends Model implements AuditableContract
 
         //send sms to the user
         event( new smsService( $factorItem , 'setCenter') );
-        if($factorItem->center->representation)
+        if($factorItem->center->creatorRpresentation)
         {
-            $factorItem->factor->update( [ 'representation_id' => $factorItem->center->representation_id ] );
+            $factorItem->factor->update( [ 'representation_id' => $factorItem->center->creator_representation_id ] );
         }
         //send sms to the center manager
         event(new referralCenterNotification($factorItem->center));

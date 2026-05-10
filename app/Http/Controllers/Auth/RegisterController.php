@@ -273,6 +273,7 @@ class RegisterController extends Controller
                     session()->put("cart.items.{$type}_{$id}", [
                         'id' => $id,
                         'service_id' => $serviceId,
+                        'service_item_id' => $request->input('service_item_id'),
                         'financial_plans_type_id' => $financial_plans_type_id,
                         'type' => $type,
                         'count' => 1,
@@ -286,6 +287,7 @@ class RegisterController extends Controller
                         session()->put("cart.items.service_{$item}", [
                             'id' => $item,
                             'service_id' => $serviceId,
+                            'service_item_id' => $request->input('service_item_id'),
                             'financial_plans_type_id' => $financial_plans_type_id,
                             'type' => 'service',
                             'count' => 1,
