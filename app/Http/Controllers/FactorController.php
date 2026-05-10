@@ -55,6 +55,7 @@ class FactorController extends Controller {
                     $factor_item = $factor->factorItems()->create( [
                         'supervisor_id' => $factor->user_id,
                         'factoritemable_id' => $item[ 'service_id' ],
+                        'service_item_id' => $item[ 'service_item_id' ],
                         'factoritemable_type' => Service::class,
                         'financial_plans_type_id' => $item[ 'financial_plans_type_id' ],
                         'count' => 1,

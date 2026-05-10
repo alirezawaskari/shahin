@@ -50,6 +50,7 @@
                             </div>
                             <button class="btn btn-success font-12 py-1 add-to-cart" data-href="{{URL::to('/')}}"
                                 data-service_id="{{ $service->id }}" data-id="{{ $item->id }}"
+                                data-service_item_id="{{ $service->service_item_id }}"
                                 data-financial_plans_type_id="{{ $item->id }}"
                                 data-representation="{{ $representation }}"
                                 data-task_id="{{isset($task) && !is_null($task)?$task->id:''}}"

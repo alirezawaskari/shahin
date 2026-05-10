@@ -37,6 +37,7 @@ class CartController extends Controller
     {
         $id = $request->id;
         $service_id = $request->service_id;
+        $service_item_id = $request->service_item_id;
         $financial_plans_type_id = $request->financial_plans_type_id;
         $type = $request->type;
         $representation = $request->representation;
@@ -86,6 +87,7 @@ class CartController extends Controller
             session()->put("cart.items.{$type}_{$id}", [
                 'id' => $id,
                 'service_id' => $service_id,
+                'service_item_id' => $service_item_id,
                 'financial_plans_type_id' => $financial_plans_type_id,
                 'type' => $type,
                 'count' => 1,
@@ -98,6 +100,7 @@ class CartController extends Controller
                     session()->put("cart.items.service_{$item}", [
                         'id' => $item,
                         'service_id' => $service_id,
+                        'service_item_id' => $service_item_id,
                         'financial_plans_type_id' => $financial_plans_type_id,
                         'type' => 'service',
                         'count' => 1,
