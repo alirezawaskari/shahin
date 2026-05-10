@@ -77,7 +77,7 @@ class Factorsms extends Command {
             }
         }
         //change factor status && task status to the expired after the factor expiration
-        $expire_factors = Factor::where( DB::raw( "(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))" ), '<=', now() )->where( 'status', '0' )->take( 100 )->get();
+        $expire_factors = Factor::where( DB::raw( "(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))" ), now()->addMinutes(10) )->where( 'status', '0' )->take( 100 )->get();
         foreach ( $expire_factors as $factor ) {
             $factor->update( [
                 'remember' => 3,
