@@ -137,22 +137,22 @@
                                         {{ $item->factoritemable->factor_title.'-'.$item->financialPlansType->title}}
                                     </th>
                                     <th class="pay-invoice">
-                                        {{ number_format($item->financialPlansType->price) }} ریال
+                                        {{ number_format($item->price) }} ریال
                                     </th>
                                     @else
                                     <th>
                                         {{ $item->factoritemable->title.'-'. $item->factoritemable->factor_title}}
                                     </th>
                                     <th class="pay-invoice">
-                                        {{ number_format($item->factoritemable->price) .' ریال' }}
-                                        {{ $item->factoritemable->price == 0 ? '(هدیه)' : '' }}
+                                        {{ number_format($item->price) .' ریال' }}
+                                        {{ $item->price == 0 ? '(هدیه)' : '' }}
                                     </th>
                                     @endif
                                 </tr>
                                 <tr>
                                     <th>
                                         {{-- {{ number_format($item->factoritemable->tax) }}--}}
-                                        {{number_format(100*($factor->tax/$item->financialPlansType->price))}}
+                                        {{number_format($factor->tax)}}
                                         درصد مالیات بر ارزش
                                         افزوده
 

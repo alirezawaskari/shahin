@@ -706,8 +706,9 @@ class User extends Authenticatable implements LaratrustUser
     }
 
     /**
+     * Summary of createUser
      * @param mixed $request
-     * @return void
+     * @return \Illuminate\Http\Response
      */
     public static function createUser($request)
     {
@@ -758,7 +759,8 @@ class User extends Authenticatable implements LaratrustUser
             'active' => true,
             'level' => 'user',
             'province_id' => $province_id,
-            'city_id' => $city_id
+            'city_id' => $city_id,
+            'representation_id' => auth()->user()->admin_representation_id,
         ]);
     }
     /**

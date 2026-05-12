@@ -107,7 +107,7 @@
                                 <label>عنوان منو</label>
 
                                 <input id="menu_title_lbl" type="text" class="form-control mb-2" name="menu_title"
-                                    value="{{$service->menu()->exists()?$service->menu->title:''}}"
+                                    value="{{isset($service->menu->title) ? $service->menu->title:''}}"
                                     placeholder="لطفا عنوان منو را وارد کنید">
 
                                 <div class="checkbox">

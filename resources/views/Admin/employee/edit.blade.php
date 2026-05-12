@@ -103,18 +103,6 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>نمایندگی</label>
-                            <select class="form-control" name="admin_representation_id">
-                                <option value="">
-                                    بدون نمایندگی (دفتر تهران)
-                                </option>
-                                @foreach($representations as $representation)
-                                <option value="{{ $representation->id }}" {{ $employee->user->admin_representation_id ==
-                                    $representation->id ? 'selected' : '' }}>{{ $representation->fa_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-4 mb-3">
                             <label>شماره تماس اضطراری</label>
                             <input value="{{ $employee->user->call }}" type="text" name="call" class="form-control">
                         </div>
@@ -192,13 +180,13 @@
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <label>انتخاب مرکز</label>
-                            <select class="form-control" name="center_id">
-                                <option value="" {{ $employee->user->center_id == null ? 'selected' : ''}}>
+                            <select class="form-control" name="employee[center_id]">
+                                <option value="" {{ $employee->center_id == null ? 'selected' : ''}}>
                                     بدون مرکز
                                 </option>
                                 @foreach($centers as $center)
                                 <option value="{{ $center->id }}" {{ $employee->user->center_id != null &&
-                                    $employee->user->center_id == $center->id ? 'selected' : '' }}>{{ $center->title }}
+                                    $employee->center_id == $center->id ? 'selected' : '' }}>{{ $center->title }}
                                 </option>
                                 @endforeach
                             </select>
