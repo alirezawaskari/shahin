@@ -46,6 +46,7 @@ class GhorfeOnlineList extends Model
         ];
     }
 
+
     /**
      * @return string
      */
@@ -65,6 +66,11 @@ class GhorfeOnlineList extends Model
     public function path()
     {
         return "/$this->slug";
+    }
+
+    public function ghorfeCategories()
+    {
+        return $this->belongsToMany(CategoryPermission::class);
     }
 
     /**

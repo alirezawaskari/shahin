@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\UsersExport;
+use App\Models\CategoryPermission;
 use App\Models\GhorfeOnlineList;
 use App\Models\Service;
 use App\Models\Province;
@@ -32,8 +33,10 @@ class GhorfeOnlineListController extends AdminController {
 
     public function create() {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
+            $categories = CategoryPermission::all();
+
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' ) );
+            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' , 'categories' ) );
         }
 
         return abort( 401 );
@@ -45,47 +48,63 @@ class GhorfeOnlineListController extends AdminController {
     * @throws \Illuminate\Validation\ValidationException
     */
 
-    public function store( Request $request ) {
-        if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
-            $this->validate( request(), [
-                'title' => 'required|string',
-                'en_title' => 'required|string',
-                'user_id' => 'required',
-                'type_work' => 'required',
-                'call' => 'required',
-                'contract_start_date' => 'required',
-                'contract_expiration_date' => 'required',
-                'address' => 'required|string',
-                'domain_active' => 'required'
-            ] );
-            $inputs = $request->all();
-
-            if ( $request->urllogo ) {
-                $inputs[ 'logo' ] = Helper::moveImage( $request->urllogo, 'document' );
-            }
-
-            unset( $inputs[ 'sms_code' ] );
-            unset( $inputs[ 'urllogo' ] );
-            $inputs[ 'contract_start_date' ] = isset( $inputs[ 'contract_start_date' ] ) ? Helper::vertaToMiladi( $inputs[ 'contract_start_date' ] ) : '';
-            $inputs[ 'contract_expiration_date' ] = isset( $inputs[ 'contract_expiration_date' ] ) ? Helper::vertaToMiladi( $inputs[ 'contract_expiration_date' ] ) : '';
-
-            $ghorfeOnlineList = GhorfeOnlineList::create( $inputs );
-            $ghorfeOnlineList->about()->create();
-            $codes = [];
-            $array = explode( ',', $request->input( 'sms_code' ) );
-            foreach ( $array as $item ) {
-                array_push( $codes, Helper::numberConverter( $item ) );
-            }
-            $ghorfeOnlineList->update( [
-                'sms_code' => $codes,
-            ] );
-
-            return redirect( route( 'ghorfeOnlineList.index' ) )->with( [
-                'create' => 'success'
-            ] );
+    public function store(Request $request)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_create')) {
+            return abort(401);
         }
 
-        return abort( 401 );
+        $this->validate($request, [
+            'title' => 'required|string',
+            'en_title' => 'required|string',
+            'user_id' => 'required',
+            'type_work' => 'required',
+            'call' => 'required',
+            'contract_start_date' => 'required',
+            'contract_expiration_date' => 'required',
+            'address' => 'required|string',
+            'domain_active' => 'required',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+        ]);
+
+        $inputs = $request->only([
+            'title',
+            'en_title',
+            'user_id',
+            'type_work',
+            'call',
+            'address',
+            'domain_active',
+            'status'
+        ]);
+
+        if ($request->urllogo) {
+            $inputs['logo'] = Helper::moveImage($request->urllogo, 'document');
+        }
+
+        $inputs['contract_start_date'] = Helper::vertaToMiladi($request->contract_start_date);
+        $inputs['contract_expiration_date'] = Helper::vertaToMiladi($request->contract_expiration_date);
+
+        $ghorfeOnlineList = GhorfeOnlineList::create($inputs);
+
+        $ghorfeOnlineList->about()->create();
+
+        // دسته‌بندی‌ها
+        $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+
+        // sms code
+        $codes = collect(explode(',', $request->sms_code))
+            ->map(fn($item) => Helper::numberConverter(trim($item)))
+            ->toArray();
+
+        $ghorfeOnlineList->update([
+            'sms_code' => $codes,
+        ]);
+
+        return redirect(route('ghorfeOnlineList.index'))->with([
+            'create' => 'success'
+        ]);
     }
 
     /**
