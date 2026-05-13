@@ -54,6 +54,10 @@ class GhorfeOnlineList extends Model
         return 'slug';
     }
 
+    public function theme()
+    {
+        return $this->belongsTo(Theme::class);
+    }
 
     /**
      * @return string
@@ -104,6 +108,11 @@ class GhorfeOnlineList extends Model
     public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function menus()
+    {
+        return $this->hasMany(\App\Menu::class, 'ghorfe_online_list_id', 'id');
     }
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

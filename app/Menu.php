@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\GhorfeOnlineList;
 use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model
@@ -16,5 +17,9 @@ class Menu extends Model
     public function getParent()
     {
         return $this->hasMany(Menu::class, 'id', 'parent_id');
+    }
+    public function ghorfeOnlineList()
+    {
+        return $this->hasMany(GhorfeOnlineList::class, 'ghorfe_online_list_id', 'id');
     }
 }

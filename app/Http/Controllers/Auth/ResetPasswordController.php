@@ -57,7 +57,7 @@ class ResetPasswordController extends Controller
 
         $user = User::where('phone' , $phone)->first();
         if ($user){
-            $pass = rand(123456 , 999999);
+            $pass = rand(12345, 99999);
             $update = $user->update([
                 'password' => Hash::make($pass)
             ]);
