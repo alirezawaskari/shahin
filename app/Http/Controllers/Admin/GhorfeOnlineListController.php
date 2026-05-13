@@ -6,6 +6,7 @@ use App\Exports\UsersExport;
 use App\Models\GhorfeOnlineList;
 use App\Models\Service;
 use App\Models\Province;
+use App\Models\Theme;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
@@ -209,6 +210,79 @@ class GhorfeOnlineListController extends AdminController {
             ] );
         }
         return abort( 401 );
+    }
+
+    public function menuUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        $this->validate($request, [
+            'titles.*' => 'required',
+            'links.*' => 'required',
+        ]);
+
+        $ids = $request->ids ?? [];
+
+        foreach ($request->titles as $index => $title) {
+
+            $data = [
+                'title' => $title,
+                'link' => $request->links[$index],
+                'ghorfe_online_list_id' => $ghorfeOnlineList->id,
+            ];
+
+            if (!empty($ids[$index])) {
+                Menu::where('id', $ids[$index])
+                    ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
+                    ->update($data);
+            } else {
+                Menu::create($data);
+            }
+        }
+
+        $existingIds = $ghorfeOnlineList->menus->pluck('id')->toArray();
+        $submittedIds = array_filter($request->ids);
+
+        $deletedIds = array_diff($existingIds, $submittedIds);
+
+        Menu::whereIn('id', $deletedIds)
+            ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
+            ->delete();
+    }
+    public function themeUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
+            return abort(401);
+        }
+
+        $request->validate([
+            'name'            => ['required', 'string', 'max:255'],
+            'color_primary'   => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'color_secondary' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+        ]);
+
+        $theme = $ghorfeOnlineList->theme;
+
+        if (!$theme || $theme->type === 'default') {
+            $newTheme = Theme::create([
+                'name'            => $request->name,
+                'color_primary'   => $request->color_primary,
+                'color_secondary' => $request->color_secondary,
+                'type'            => 'custom',
+            ]);
+
+            $ghorfeOnlineList->update([
+                'theme_id' => $newTheme->id
+            ]);
+
+            return redirect()->back()->with(['create' => 'success']);
+        }
+
+        $theme->update([
+            'name'            => $request->name,
+            'color_primary'   => $request->color_primary,
+            'color_secondary' => $request->color_secondary,
+        ]);
+
+        return redirect()->back()->with(['update' => 'success']);
     }
 
     /**

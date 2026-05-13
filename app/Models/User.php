@@ -345,7 +345,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function ghorfeOnlineLists()
     {
-        return $this->belongsToMany(GhorfeOnlineList::class);
+        return $this->hasMany(GhorfeOnlineList::class);
     }
 
     /**

@@ -21,6 +21,16 @@
                 <a class="nav-link show" id="image-content-tab" data-toggle="tab" href="#image_content" role="tab"
                     aria-controls="image_content" aria-selected="false">محتوای تصویری مغازه</a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link show" id="menu-content-tab" data-toggle="tab" href="#menu_content" role="tab"
+                   aria-controls="menu-content" aria-selected="false">انتخاب منو</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link show" id="theme-content-tab" data-toggle="tab" href="#theme_content" role="tab"
+                   aria-controls="theme_content" aria-selected="false">انتخاب تم </a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade p-t-20 active show" id="official_info" role="tabpanel"
@@ -412,6 +422,114 @@
                 </form>
                 @endpermission
             </div>
+            <div class="tab-pane fade p-t-20" id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
+                @permission('ghorfe_online_list_site_content')
+                <form class="form-horizontal" role="form" method="post"
+                      action="{{route('ghorfeOnlineList.menuUpdate', [$ghorfeOnlineList->slug])}}"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <div class="row" id="menu-wrapper" >
+                        @include('Admin.layouts.errors')
+
+                        @foreach($ghorfeOnlineList->menus as $index => $menu)
+                            <div class="menu-item border p-2 mb-3">
+
+                                {{-- ✅ تشخیص برای update --}}
+                                <input type="hidden" name="ids[]" value="{{ $menu->id }}">
+
+                                <div class="col-12">
+                                    <label>عنوان</label>
+                                    <input type="text"
+                                           name="titles[]"
+                                           value="{{ $menu->title }}"
+                                           class="form-control"
+                                           required>
+                                </div>
+
+                                <div class="col-12">
+                                    <label>لینک</label>
+                                    <input type="text"
+                                           name="links[]"
+                                           value="{{ $menu->link }}"
+                                           class="form-control"
+                                           required>
+                                </div>
+
+                            </div>
+                        @endforeach
+
+                    </div>
+
+                    @if($ghorfeOnlineList->menus->count() < 5)
+                        <button type="button" id="add-menu" class="btn btn-primary mb-3">
+                            افزودن منو
+                        </button>
+                    @endif
+
+                    <div class="col-12">
+                        <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                    </div>
+                </form>
+                @endpermission
+            </div>
+            <div class="tab-pane fade p-t-20" id="theme_content" role="tabpanel" aria-labelledby="text-content-tab">
+                @permission('ghorfe_online_list_site_content')
+                <form class="form-horizontal" role="form" method="post"
+                      action="{{ route('ghorfeOnlineList.themeUpdate', [$ghorfeOnlineList]) }}"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        @include('Admin.layouts.errors')
+
+                        {{-- 1. Form fields now render using an inline default if theme doesn't exist yet --}}
+                        <div class="col-12 col-md-4 mt-2 d-block">
+                            <label>انتخاب نام برای تم </label>
+                            <input type="text" class="form-control mt-1" name="name"
+                                   value="{{ old('name', $ghorfeOnlineList->theme->name ?? 'تم سفارشی جدید') }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-4 mb-3">
+                            <label class="d-block">رنگ اصلی</label>
+                            {{-- 2. Fixed variable pointing to the theme relationship --}}
+                            <input type="color"
+                                   id="primaryPicker"
+                                   name="color_primary"
+                                   class="form-control-color w-100"
+                                   value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
+                                   oninput="document.getElementById('primaryText').value = this.value">
+
+                            <input type="text"
+                                   id="primaryText"
+                                   class="form-control mt-2 text-center font-mono"
+                                   value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
+                                   readonly>
+                        </div>
+
+                        <div class="col-12 col-md-4 mb-3">
+                            <label class="d-block">رنگ فرعی</label>
+                            {{-- 3. Live syncing added via inline native JS 'oninput' --}}
+                            <input type="color"
+                                   id="secondaryPicker"
+                                   name="color_secondary"
+                                   class="form-control-color w-100"
+                                   value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
+                                   oninput="document.getElementById('secondaryText').value = this.value">
+
+                            <input type="text"
+                                   id="secondaryText"
+                                   class="form-control mt-2 text-center font-mono"
+                                   value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
+                                   readonly>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                        </div>
+
+                    </div>
+                </form>
+                @endpermission
+            </div>
         </div>
 
     </div>
@@ -419,4 +537,91 @@
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const btn = document.getElementById('add-menu');
+    const wrapper = document.getElementById('menu-wrapper');
+
+    if (!btn || !wrapper) return;
+
+    btn.addEventListener('click', function () {
+
+    let items = document.querySelectorAll('.menu-item');
+
+    // ❗ حداکثر 5 تا
+    if (items.length >= 5) {
+    alert('حداکثر 5 منو می‌توانید اضافه کنید');
+    return;
+}
+
+    // ❗ چک کردن کامل بودن آیتم قبلی
+    let last = items[items.length - 1];
+
+    if (last) {
+    let inputs = last.querySelectorAll('input[required]');
+
+    for (let input of inputs) {
+    if (!input.value.trim()) {
+    alert('لطفا ابتدا اطلاعات منوی قبلی را کامل کنید');
+    input.focus();
+    return;
+}
+}
+}
+
+    // ✅ ساخت آیتم جدید
+    let div = document.createElement('div');
+    div.className = 'menu-item border p-2 mb-3';
+
+        div.innerHTML = `
+    <input type="hidden" name="ids[]" value="">
+
+    <div class="col-12">
+        <label>عنوان</label>
+        <input type="text" name="titles[]" class="form-control" required>
+    </div>
+
+    <div class="col-12">
+        <label>لینک</label>
+        <input type="text" name="links[]" class="form-control" required>
+    </div>
+`;
+
+    wrapper.appendChild(div);
+
+    // ❗ اگر رسید به 5 → دکمه مخفی
+    if (document.querySelectorAll('.menu-item').length >= 5) {
+    btn.style.display = 'none';
+}
+
+});
+
+});
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const primaryPicker   = document.getElementById('primaryPicker');
+        const secondaryPicker = document.getElementById('secondaryPicker');
+
+        const primaryText     = document.getElementById('primaryText');
+        const secondaryText   = document.getElementById('secondaryText');
+
+        const preview         = document.getElementById('colorPreview');
+
+        function updateUI() {
+            primaryText.value = primaryPicker.value;
+            secondaryText.value = secondaryPicker.value;
+
+            preview.style.background =
+                `linear-gradient(to right, ${primaryPicker.value}, ${secondaryPicker.value})`;
+        }
+
+        updateUI();
+
+        primaryPicker.addEventListener('input', updateUI);
+        secondaryPicker.addEventListener('input', updateUI);
+
+    });
+</script>
+
 @endsection
