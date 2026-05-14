@@ -90,8 +90,10 @@ class GhorfeOnlineListController extends AdminController {
 
         $ghorfeOnlineList->about()->create();
 
-        // دسته‌بندی‌ها
-        $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+        if (auth()->user()->hasPermission('ghorfe_online_list_categories')) {
+
+            $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+        }
 
         // sms code
         $codes = collect(explode(',', $request->sms_code))
@@ -307,7 +309,7 @@ class GhorfeOnlineListController extends AdminController {
 
     public function categoriesGhorfe(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
-        if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_categories')) {
             return abort(401);
         }
 

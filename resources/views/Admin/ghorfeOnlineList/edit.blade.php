@@ -21,7 +21,6 @@
                 <a class="nav-link show" id="image-content-tab" data-toggle="tab" href="#image_content" role="tab"
                     aria-controls="image_content" aria-selected="false">محتوای تصویری مغازه</a>
             </li>
-
             <li class="nav-item">
                 <a class="nav-link show" id="menu-content-tab" data-toggle="tab" href="#menu_content" role="tab"
                    aria-controls="menu-content" aria-selected="false">انتخاب منو</a>
@@ -31,11 +30,14 @@
                 <a class="nav-link show" id="theme-content-tab" data-toggle="tab" href="#theme_content" role="tab"
                    aria-controls="theme_content" aria-selected="false">انتخاب تم </a>
             </li>
+            @permission('ghorfe_online_list_categories')
 
             <li class="nav-item">
                 <a class="nav-link show" id="category-content-tab" data-toggle="tab" href="#category_content" role="tab"
                    aria-controls="category_content" aria-selected="false">انتخاب دسته ها  </a>
             </li>
+            @endpermission
+
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade p-t-20 active show" id="official_info" role="tabpanel"
@@ -536,7 +538,7 @@
                 @endpermission
             </div>
             <div class="tab-pane fade p-t-20" id="category_content" role="tabpanel" aria-labelledby="text-content-tab">
-                @permission('ghorfe_online_list_site_content')
+                @permission('ghorfe_online_list_categories')
                 <form class="form-horizontal" role="form" method="post"
                       action="{{ route('ghorfeOnlineList.categoriesGhorfe', [$ghorfeOnlineList]) }}"
                       enctype="multipart/form-data">
