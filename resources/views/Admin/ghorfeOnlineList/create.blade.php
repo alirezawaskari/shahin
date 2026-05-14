@@ -83,7 +83,8 @@
                     <label>دسته‌بندی‌ها</label>
                     <select name="categories[]" class="form-control select2" multiple required>
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}">
+                            <option value="{{ $category->id }}"
+                                {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                         @endforeach

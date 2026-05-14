@@ -31,6 +31,11 @@
                 <a class="nav-link show" id="theme-content-tab" data-toggle="tab" href="#theme_content" role="tab"
                    aria-controls="theme_content" aria-selected="false">انتخاب تم </a>
             </li>
+
+            <li class="nav-item">
+                <a class="nav-link show" id="category-content-tab" data-toggle="tab" href="#category_content" role="tab"
+                   aria-controls="category_content" aria-selected="false">انتخاب دسته ها  </a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade p-t-20 active show" id="official_info" role="tabpanel"
@@ -481,7 +486,7 @@
                     <div class="row">
                         @include('Admin.layouts.errors')
 
-                        {{-- 1. Form fields now render using an inline default if theme doesn't exist yet --}}
+                        {{-- 1. Form fields now rend er using an inline default if theme doesn't exist yet --}}
                         <div class="col-12 col-md-4 mt-2 d-block">
                             <label>انتخاب نام برای تم </label>
                             <input type="text" class="form-control mt-1" name="name"
@@ -522,6 +527,37 @@
                                    readonly>
                         </div>
 
+                        <div class="col-12 mt-3">
+                            <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                        </div>
+
+                    </div>
+                </form>
+                @endpermission
+            </div>
+            <div class="tab-pane fade p-t-20" id="category_content" role="tabpanel" aria-labelledby="text-content-tab">
+                @permission('ghorfe_online_list_site_content')
+                <form class="form-horizontal" role="form" method="post"
+                      action="{{ route('ghorfeOnlineList.categoriesGhorfe', [$ghorfeOnlineList]) }}"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        @include('Admin.layouts.errors')
+
+                        <div class="col-12  mt-2">
+                            <label>دسته‌بندی‌ها</label>
+                            <select name="categories[]" class="form-control select2" multiple>
+                                @php
+                                    $selectedCategories = $ghorfeOnlineList->ghorfeCategories->pluck('id')->toArray();
+                                @endphp
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="col-12 mt-3">
                             <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                         </div>
