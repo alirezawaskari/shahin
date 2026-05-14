@@ -115,7 +115,8 @@ class GhorfeOnlineListController extends AdminController {
     public function edit( GhorfeOnlineList $ghorfeOnlineList ) {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList', 'employees' ) );
+            $categories = CategoryPermission::all();
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','categories', 'employees' ) );
         }
         return abort( 401 );
     }
@@ -302,6 +303,27 @@ class GhorfeOnlineListController extends AdminController {
         ]);
 
         return redirect()->back()->with(['update' => 'success']);
+    }
+
+    public function categoriesGhorfe(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
+            return abort(401);
+        }
+
+        // Validate
+        $request->validate([
+            'categories' => 'required|array',
+            'categories.*' => 'exists:category_permissions,id',
+        ]);
+
+        // Sync categories
+        $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+
+        return redirect()->back()->with([
+            'update' => 'success'
+        ]);
+
     }
 
     /**
