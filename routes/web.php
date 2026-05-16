@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\FactorController;
 use App\Http\Controllers\Admin\FactorItemController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayController;
+use App\Http\Controllers\Admin\GhorfeOnlineListController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
 use App\Http\Controllers\Admin\RecruitmentNoticeController;
@@ -878,6 +879,7 @@ Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
 Route::get('/loan', action: 'FinancialPlansTypeController@index');
 //Factor
 Route::middleware('auth')->group(function () {
+
     //Checkout
     Route::post('/checkout', 'CheckoutController@store')->name('checkout.store');
     Route::post('/upload_document', 'CheckoutController@upload_document')->name('checkout.upload');
@@ -897,6 +899,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');
     Route::get('/profile/notifications/read', 'ProfileController@notifications_read')->name('profile.notifications.read');
     Route::post('/profile', 'ProfileController@update')->name('profile.update');
+    Route::get('/ghorfeCatego/{ghorfeId}', [GhorfeOnlineListController::class,'getGhofeCategories'])->name('ghorfeCatego');
+    Route::get('/ghorfeCategoyDetail/{categoryId}', [GhorfeOnlineListController::class,'ghofeCategoryDetail'])->name('ghorfeCategoryDetail');
     Route::post('/useravatar', 'ProfileController@useravatar')->name('useravatar');
     Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily');
 });

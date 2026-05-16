@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\UsersExport;
 use App\Models\CategoryPermission;
 use App\Models\GhorfeOnlineList;
+use App\Models\Permission;
 use App\Models\Service;
 use App\Models\Province;
 use App\Models\Theme;
@@ -18,6 +19,18 @@ class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
+
+    public function getGhofeCategories($id)
+    {
+        $ghorfeOnlineList = GhorfeOnlineList::with('ghorfeCategories')->where('id', $id)->first();
+        return view( 'ghorfeAdmin.ghorfe.index', compact( 'ghorfeOnlineList' ) );
+    }
+
+    public function ghofeCategoryDetail($id)
+    {
+        $categoryPermission = Permission::with('category')->where('cat_id', $id)->get();
+        return view( 'ghorfeAdmin.ghorfe.categories', compact( 'categoryPermission' ) );
+    }
 
     public function index() {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list' ) ) {

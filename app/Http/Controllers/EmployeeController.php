@@ -119,5 +119,5 @@ class EmployeeController extends Controller
 
         return response( [ 'data'=>[ 'userIsRegistered'=>$isExists, 'phone'=>$request->phone , 'message'=> $message] ] );
     }
-    
+
 }

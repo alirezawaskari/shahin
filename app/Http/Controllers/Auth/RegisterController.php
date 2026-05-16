@@ -330,8 +330,7 @@ class RegisterController extends Controller
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
      */
 
-    public
-    function checkUserIsRegister(Request $request)
+    public function checkUserIsRegister(Request $request)
     {
         session(['login_request_link' => url()->previous()]);
         $userIsExist = false;

@@ -2,7 +2,6 @@
 
 namespace App\Services\V1\Admin;
 
-
 use App\Http\Controllers\Admin\ContextController;
 use App\Models\FactorItem;
 use App\Models\TotalFactorItem;
@@ -14,9 +13,6 @@ use App\Models\Representation;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use App\Models\FinancialPlansType;
-use App\Models\Factor;
-use App\Helpers\Helper;
-use Carbon\Carbon;
 
 class DailyDesktopService
 {
@@ -30,12 +26,10 @@ class DailyDesktopService
     {
         return $user->roles->first();
     }
-
     public function getUserRepresentation(User $user)
     {
         return $user->admin_representation;
     }
-
     public function getUserCenterId(User $user): ?int
     {
         return $user->center_id;
@@ -115,7 +109,6 @@ class DailyDesktopService
             return ContextController::fetchExpireDates();
         });
     }
-
     public function getNearEndDateFinancialPlans(): ?Collection
     {
         return Cache::remember('near_end_date_financial_plans', now()->addHours(12), function () {

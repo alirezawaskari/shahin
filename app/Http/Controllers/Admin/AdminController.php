@@ -31,6 +31,7 @@ class AdminController extends Controller
     {
         $this->dashboardService = $dashboardService;
         $this->dailyDesktopService = $dailyDesktopService;
+
     }
     /**
      * @param Request $request
@@ -296,7 +297,4 @@ class AdminController extends Controller
         }
         return view('logs', ['errorLines' => $logs]);
     }
-
-
-
 }
