@@ -29,6 +29,7 @@ class AuthService
     public static function getGhorfe() : GhorfeOnlineList| null
     {
         $ghorfe_domain_active = request()->host();
+
         $GhorfeOnlineList = GhorfeOnlineList::where('domain_active' , $ghorfe_domain_active)->first();
         return $GhorfeOnlineList ?? null;
     }

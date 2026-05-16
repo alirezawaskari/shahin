@@ -56,7 +56,6 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-
         view()->composer(['Admin.master'], function ($view) {
             $role_categories_with_terms = Cache::remember('role_categories_with_terms', 60 * 24, function () {
                 $role_categories = Role::CATEGORIES;
@@ -78,7 +77,11 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-
+        view()->composer(['ghorfeAdmin.master'], function ($view) {
+            $view->with([
+                'is_user_ghorfe' => (new AuthService)->checkUserGhorfe(),
+            ]);
+        });
 
         view()->composer(['Admin.center.create' , 'Admin.center.edit' ,'Admin.centerRequest.all' , 'Admin.centerRequest.create' , 'Admin.centerRequest.edit'], function ($view) {
 
