@@ -167,7 +167,6 @@ class AdminController extends Controller
         $item += $this->dailyDesktopService->getFactorCounts($user, $representation);
         $expire_dates = $this->dailyDesktopService->getExpireDates();
         $near_end_date_financial_plans = $this->dailyDesktopService->getNearEndDateFinancialPlans();
-
         return view('Admin.dailyDesktop', compact('item', 'expire_dates', 'near_end_date_financial_plans'));
     }
     /**

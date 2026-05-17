@@ -184,7 +184,6 @@ Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
-
     Route::get('/run-query', function () {
         Artisan::call('command:query');
         return redirect()->back()->with([

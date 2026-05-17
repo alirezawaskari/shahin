@@ -60,17 +60,10 @@ class LoginController extends Controller {
     protected function authenticated( Request $request, $user ) {
         $level = auth()->user()->level;
         if ( $level == 'admin' || $level == 'ghorfeAdmin') {
-            if ( auth()->user()->employee && auth()->user()->employee->status != null && auth()->user()->employee->status == 2 && !auth()->user()->employee->confirm ) {
+            if ( auth()->user()->employee->status == 2 && !auth()->user()->employee->confirm ) {
                 return redirect( '/dashboard/employee/contract/'.auth()->user()->employee->id );
             }
-            if ($level == 'admin')
-            {
-                return redirect( 'dashboard/dailyDesktop' );
-            }else
-            {
-                return redirect( 'useravatar' );
-            }
-
+            return redirect( 'dashboard/dailyDesktop' );
         }
         if ( $level == 'blockUser' ) {
             $this->guard()->logout();

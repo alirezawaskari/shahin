@@ -30,8 +30,11 @@
 </div>
 @if ($is_user_ghorfe)
 @include('Admin.layouts.sidemenuGhorfe')
+
 @else
-@include('Admin.layouts.sidemenu')
+{{--@include('Admin.layouts.sidemenu')--}}
+@include('Admin.layouts.sidemenuGhorfe')
+
 @endif
 @include('Admin.layouts.navbar')
 @include('Admin.layouts.terms')
