@@ -186,12 +186,12 @@ class CallcenterController extends Controller
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
         $admin_users = User::filter()->where('level', 'admin')->withCount('tasks')->get();
 
-        $services = Service::filter()->where('status' , 1)->get();
+        $services = Service::filter()->where('status' , true)->where('status' , 1)->get();
         $categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
         $permission = false;
 
         if (auth()->user()->center_id) {
-            $services = Service::filter()->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
+            $services = Service::filter()->where('status' , true)->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
             $categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }
         if($user->isAbleTo('record_payment'))
