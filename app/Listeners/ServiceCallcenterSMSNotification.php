@@ -80,7 +80,7 @@ class ServiceCallcenterSMSNotification
 		$organ_name = "شبکه خدمات رفاهی لاله";
 		$organ_call = "02191095745";
         if($event->service->id == 104)
-            $link = 'centerCampaign';
+            $link = 'centerRequest/create';
         if($event->service->id == 197)
             $link = 'Permanent-employment';
         $single_web_page = $event->service->singleWebPages->first();
