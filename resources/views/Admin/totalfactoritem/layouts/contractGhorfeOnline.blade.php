@@ -30,7 +30,7 @@
                     ماده 2) مستاجر :
                 </span>
                 {{ $user::getGenderTitle($user->sex) }} {{ $user->name.' '.$user->family }} فرزند {{ $user->father }}
-                متولد {{ $user->birthdate ?? '1372/03/21' }} به شماره شناسنامه {{ $user->shenasnamecode ?? '8581' }}
+                متولد {{ $user->birth_year.'/'.$user->birth_month.'/'.$user->birth_day ?? '......' }} به شماره شناسنامه {{ $user->shenasnamecode ?? '8581' }}
                 و کد ملی {{ $user->melicode ?? '......' }}
                 به نشانی {{ $user->address ?? '......' }}. تلفن ثابت {{ $user->home_phone ?? '......' }} و شماره تلفن همراه {{
                 $user->phone ?? '......' }}
@@ -79,10 +79,9 @@
                     تبصره 1 :
                 </span>
                 مستاجر مبلغ {{ number_format($item['prepayment']['price']) }} ریال از مبلغ اجاره را نقداً پرداخت نموده و
-                الباقی مبلغ {{$item['total_debt']['debt'] > 0 ?
-                number_format($item['total_debt']['debt']) : 0 }} را در {{ isset($item['installments_num']) ?
+                الباقی مبلغ {{ isset($item['loan']) ? number_format($item['loan']) : '...' }} را در {{ isset($item['installments_num']) ?
                 $item['installments_num'] :
-                '...' }} به شرح زیر پرداخت مینماید.
+                '...' }} قسط به شرح زیر پرداخت مینماید.
                 <br>
             </span>
             <span>
