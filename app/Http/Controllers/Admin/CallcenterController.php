@@ -811,10 +811,12 @@ class CallcenterController extends Controller
     }
 
     /**
-     * @param $request
-     * @param $task
+     * Summary of syncTaskItems
+     * @param mixed $request
+     * @param Callcenter $task
+     * @return void
      */
-    private function syncTaskItems($request , $task)
+    private function syncTaskItems($request , Callcenter $task)
     {
 
         if (is_array($request->product_category) && count($request->product_category)>0)
