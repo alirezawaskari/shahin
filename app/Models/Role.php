@@ -25,13 +25,12 @@ class Role extends LaratrustRole
         return $this->belongsTo(Card::class);
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
+
     public function users()
     {
         return $this->belongsToMany(User::class);
     }
+
 
     public function scopeFilter($query)
     {
