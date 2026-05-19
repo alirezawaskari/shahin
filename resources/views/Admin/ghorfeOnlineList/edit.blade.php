@@ -31,7 +31,6 @@
                    aria-controls="theme_content" aria-selected="false">انتخاب تم </a>
             </li>
             @permission('ghorfe_online_list_categories')
-
             <li class="nav-item">
                 <a class="nav-link show" id="category-content-tab" data-toggle="tab" href="#category_content" role="tab"
                    aria-controls="category_content" aria-selected="false">انتخاب دسته ها  </a>

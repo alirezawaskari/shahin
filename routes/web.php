@@ -330,7 +330,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItem/payment', [TotalFactorItemController::class, 'payment'])->name('totalFactorItem.sendPayment');
     Route::post('/totalFactorItem/save-installments-paid', [TotalFactorItemController::class, 'saveInstallmentsPaid'])->name('totalFactorItem.saveInstallment');
     Route::post('/totalFactorItem/return-payment', [TotalFactorItemController::class, 'returnPayment'])->name('totalFactorItem.returnPayment');
-    Route::get('/totalFactorItem/calculate', [TotalFactorItemInstallmentController::class, 'showCalculate']);
+    Route::get('/totalFactorItem/calculate', [TotalFactorItemInstallmentController::class, 'showCalculate'])->name('totalFactorItem.calculate');
     Route::post('/totalFactorItem/calculate', [TotalFactorItemController::class, 'updateCalculate'])->name('totalFactorItem.calculate');
     Route::post('/totalFactorItem/close', [TotalFactorItemController::class, 'close']);
     Route::resource('totalFactorItem', TotalFactorItemController::class);

@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Center;
 use App\Models\CenterCategory;
 use App\Models\Context;
+use App\Models\Permission;
 use App\Models\Representation;
 use App\Models\Role;
 use App\Models\Service;
@@ -36,7 +37,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Request $request)
     {
-
         view()->composer(['Admin.layouts.sitemenu' , 'Admin.callcenter.edit' , 'Admin.callcenter.work'], function ($view) {
 
             $user = auth()->user();
@@ -69,7 +69,6 @@ class AppServiceProvider extends ServiceProvider
                 }
                 return $role_categories_with_terms;
             });
-
 
             $view->with([
                 'role_categories_with_terms' => $role_categories_with_terms,

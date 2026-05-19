@@ -15,4 +15,5 @@ class Permission extends LaratrustPermission
     {
         return $this->hasOne(CategoryPermission::class , 'id','cat_id');
     }
+
 }

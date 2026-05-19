@@ -9,8 +9,6 @@
     <div class="card">
         <div class="card-body">
             <div class="form-row">
-
-
                 <div class="col-12 col-md-3">
                     <label for="name">عنوان دسته بندی </label>
                     <input type="text" name="name" class="form-control" value="{{$categoryPermission->name}}">

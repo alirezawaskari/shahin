@@ -7,8 +7,47 @@
                     <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>
-            @if(auth()->user()->ghorfeOnlineLists[0]->type_work != 'service')
+
+            @if(count(auth()->user()->ghorfeOnlineLists) > 0)
+                @foreach(auth()->user()->ghorfeOnlineLists as $list)
+                    @if(count($list->ghorfeCategories) > 0)
+                        @foreach($list->ghorfeCategories as $ghorfeCategory)
+                            @if($ghorfeCategory->name == 'درخواست ها')
+                                <li>
+                                    <a href="#">
+                                        <i class="icon ti-control-record"></i>
+                                        <span>درخواست ها</span>
+                                    </a>
+
+                                    <ul>
+                                        @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
+                                        <li><a href="{{ route('callcenter.index') }}">درخواست ها</a></li>
+                                        @endpermission
+                                    </ul>
+                                </li>
+                            @endif
+
+                            @if($ghorfeCategory->name == 'کاربران')
+                                <li>
+                                    <a href="#">
+                                        <i class="icon ti-control-record"></i>
+                                        <span>کاربران</span>
+                                    </a>
+
+                                    <ul>
+                                        <li><a href="{{ route('sellers') }}">فروشندگان</a></li>
+                                    </ul>
+                                </li>
+                            @endif
+
+                        @endforeach
+
+                    @endif
+
+                @endforeach
+
             @endif
+
             <li><a href="#"><i class="icon ti-control-record"></i> <span>مغازه من</span> </a>
                 <ul>
                     <li>
@@ -18,6 +57,8 @@
                     @permission('slider')
                     <li><a href="{{ route('slider.index') }}">اسلایدر</a></li>
                     @endpermission
+
+
                     @permission('service')
 
                     @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'product')
