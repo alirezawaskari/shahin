@@ -184,6 +184,7 @@ Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
+
     Route::get('/run-query', function () {
         Artisan::call('command:query');
         return redirect()->back()->with([
@@ -319,7 +320,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItem/save-extra-pay', [TotalFactorItemController::class, 'saveExtraPay'])->name('totalFactorItem.saveExtraPay');
     Route::post('/totalFactorItem/store-impunity', [TotalFactorItemController::class, 'storeImpunity'])->name('totalFactorItem.storeImpunity');
     Route::delete('/totalFactorItem/destroy-impunity/{impunity}', [TotalFactorItemController::class, 'destroyImpunity'])->name('totalFactorItem.destroyImpunity');
-    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports']);
+    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports'])->name('totalFactorItem.reports');
     Route::get('/totalFactorItem/reports/filter', [TotalFactorItemController::class, 'filterReport']);
     Route::get('/totalFactorItem/reports/desktop', [TotalFactorItemController::class, 'desktopReports']);
     Route::get('/totalFactorItem/reports/desktop/filter', [TotalFactorItemController::class, 'filterDesktopReport']);

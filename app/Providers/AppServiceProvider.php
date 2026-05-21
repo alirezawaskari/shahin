@@ -2,19 +2,15 @@
 
 namespace App\Providers;
 
-use App\Http\Controllers\Admin\EmployeeTermsController;
 use App\Menu;
 use App\Models\Category;
 use App\Models\Center;
 use App\Models\CenterCategory;
-use App\Models\Context;
-use App\Models\Permission;
 use App\Models\Representation;
-use App\Models\Role;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Admin\MenuService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -35,8 +31,16 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Request $request)
+    public function boot(Request $request,MenuService $menuService): void
     {
+
+        view()->composer('Admin.*', function ($view) use ($menuService) {
+            if (auth()->check()) {
+                $menu = $menuService->getMenu(auth()->user());
+                $view->with('menu', $menu);
+            }
+        });
+
         view()->composer(['Admin.layouts.sitemenu' , 'Admin.callcenter.edit' , 'Admin.callcenter.work'], function ($view) {
 
             $user = auth()->user();
@@ -53,32 +57,6 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'callcenter_users' => $callcenterusers,
                 'notification' => '0',
-            ]);
-        });
-
-        view()->composer(['Admin.master'], function ($view) {
-            $role_categories_with_terms = Cache::remember('role_categories_with_terms', 60 * 24, function () {
-                $role_categories = Role::CATEGORIES;
-
-                $role_categories_with_terms = array();
-                foreach ($role_categories as $key_role => $value_role){
-                    $role_categories_with_terms[$key_role]['role_category_title'] = $key_role;
-                    $role_categories_with_terms[$key_role]['role_category_fa_title'] = $value_role;
-                    $context = Context::fetchByKey(EmployeeTermsController::PREFIX_TERMS_KEY_IN_CONTEXT_TABLE.$key_role);
-                    $role_categories_with_terms[$key_role]['role_category_terms_file_path'] = $context->value ?? null;
-                }
-                return $role_categories_with_terms;
-            });
-
-            $view->with([
-                'role_categories_with_terms' => $role_categories_with_terms,
-                'is_user_ghorfe' => (new AuthService)->checkUserGhorfe(),
-            ]);
-        });
-
-        view()->composer(['ghorfeAdmin.master'], function ($view) {
-            $view->with([
-                'is_user_ghorfe' => (new AuthService)->checkUserGhorfe(),
             ]);
         });
 

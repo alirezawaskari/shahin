@@ -8,7 +8,8 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Seed the application's database.1
+     * ?"L,XZ\
      *
      * @return void
      */

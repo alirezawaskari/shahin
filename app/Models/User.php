@@ -149,7 +149,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function isAdmin()
     {
-        if($this->level == 'admin' || $this->level == 'superAdmin' )
+        if($this->level == 'admin' || $this->level == 'superAdmin')
         {
             return true;
         }
@@ -340,6 +340,7 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->belongsTo(Representation::class);
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -402,6 +403,41 @@ class User extends Authenticatable implements LaratrustUser
             ->where('created_at', '>=', $dates->keys()->first())
             ->groupBy('date')
             ->latest();
+    }
+
+    public function menuPermissions()
+    {
+        $user = auth()->user();
+
+        $packageId = null;
+
+        if ($user->level === 'ghorfeAdmin') {
+            $packageId = optional($user->ghorfeOnlineList)->shahin_package_id;
+        }
+        $packagePermissions = [];
+
+        if ($packageId) {
+            $packagePermissions = \DB::table('category_permissions_shahin_packages')
+                ->where('shahin_package_id', $packageId)
+                ->pluck('permission_id')
+                ->toArray();
+        }
+        $permissions = \App\Models\Permission::with('category')->get();
+
+        $filteredPermissions = $permissions->filter(function ($permission) use ($user, $packagePermissions, $packageId) {
+
+            // شرط 1: کاربر این permission رو داشته باشه
+            if (!$user->can($permission->name)) {
+                return false;
+            }
+
+            // شرط 2: اگر پکیج داشت، باید داخل پکیج هم باشه
+            if ($packageId && !in_array($permission->id, $packagePermissions)) {
+                return false;
+            }
+
+            return true;
+        });
     }
 
     /**

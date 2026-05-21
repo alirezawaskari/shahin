@@ -59,6 +59,10 @@ class GhorfeOnlineList extends Model
     {
         return $this->belongsTo(Theme::class);
     }
+    public function shahinPackage()
+    {
+        return $this->belongsTo(ShahinPackage::class, 'shahin_package_id');
+    }
 
     /**
      * @return string
@@ -111,9 +115,9 @@ class GhorfeOnlineList extends Model
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function users()
+    public function user()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function menus()

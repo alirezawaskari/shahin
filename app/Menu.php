@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Models\GhorfeOnlineList;
 use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model

@@ -7,27 +7,26 @@
                     <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>
+            @foreach($menu as $categoryName => $items)
 
-            @php
-                $permissions = \App\Models\Permission::with('category')->get();
+                <li>
+                    <a href="#">
+                        <i class="icon ti-control-record"></i>
+                        <span>{{ $categoryName }}</span>
+                    </a>
 
-                $groupedPermissions = $permissions->groupBy(function ($item) {
-                    return $item->category ? $item->category->name : 'بدون دسته‌بندی';
-                });
-            @endphp
-
-            @foreach($groupedPermissions as $categoryName => $items)
-                <li><a href="#"><i class="icon ti-control-record"></i> <span>{{ $categoryName }}</span></a>
                     <ul>
-            @foreach($items as $list)
-                    @if($list->isMenu)
-                        <li><a href="{{ route($list->link)  }}">
-                                <span>{{ $list->display_name }}</span>
-                            </a>
-                        </li>
-                    @endif
-                @endforeach
+                        @foreach($items as $list)
+                            @if($list->isMenu)
+                                <li>
+                                    <a href="{{ route($list->link) }}">
+                                        {{ $list->display_name }}
+                                    </a>
+                                </li>
+                            @endif
+                        @endforeach
                     </ul>
+                </li>
             @endforeach
         </ul>
     </div>

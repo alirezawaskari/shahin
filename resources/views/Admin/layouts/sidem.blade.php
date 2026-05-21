@@ -7,7 +7,6 @@
                     <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>
-            @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>درخواست ها</span> </a>
                 <ul>
                     @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
@@ -33,16 +32,12 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('installment-calculate')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>محاسبه اقساط</span> </a>
                 <ul>
-                    <li><a href="{{ url('dashboard/totalFactorItem/calculate')}}"> <span>محاسبه اقساط</span> </a>
+                    <li><a href="{{ route('totalFactorItem.calculate')}}"> <span>محاسبه اقساط</span> </a>
                     </li>
                 </ul>
             </li>
-            @endpermission
-            @permission('user-detail|employee-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>کاربران</span> </a>
                 <ul>
                     <li><a href="{{ route('sellers') }}"><span> فروشندگان</span> </a></li>
@@ -70,8 +65,6 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('factor|factor-detail|callcenter-supporter')
             @if(auth()->user()->admin_organization_id)
                 <li><a href="#"><i class="icon ti-control-record"></i> <span>امور مالی</span> </a>
                     <ul>
@@ -114,7 +107,6 @@
                 </li>
             @endif
 
-            @endpermission
             <li><a href="#"><i class="icon ti-control-record"></i> <span>حساب کاربری من</span> </a>
                 <ul>
                     <li><a href="{{ route('employee.resume.edit', [auth()->user()->employee->id]) }}">رزومه کاری</a>
@@ -138,7 +130,6 @@
                     @endpermission
                 </ul>
             </li>
-            @permission('session|session-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>جلسات</span> </a>
                 <ul>
                     @permission('session-desktop-confirm')
@@ -150,24 +141,23 @@
                     <li><a href="{{ route('session.index') }}"> <span> جلسات</span></a></li>
                 </ul>
             </li>
-            @endpermission
             @if(!auth()->user()->center)
                 @permission('file-detail|file|file-desktop')
                 <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                     <ul>
                         @permission('installments-file-desktop')
-                        <li><a href="{{ url('/dashboard/totalFactorItem/desktop') }}">میزکار تایید پرونده های
+                        <li><a href="{{ route('totalFactorItem.desktop') }}">میزکار تایید پرونده های
                                 اقساطی</a></li>
                         @endpermission
                         @permission('file-desktop')
-                        <li><a href="{{ url('/dashboard/factorItem/desktop') }}">پرونده های قابل اجرا</a></li>
+                        <li><a href="{{ route('factorItem.desktop') }}">پرونده های قابل اجرا</a></li>
                         @endpermission
                         @permission('file-detail|file')
                         <li><a href="{{ route('factorItem.index') }}">کل پرونده ها</a></li>
                         <li><a href="{{ route('totalFactorItem.index') }}">پرونده های اقساطی</a></li>
                         @endpermission
                         @permission('file-report')
-                        <li><a href="{{ url('dashboard/totalFactorItem/reports') }}">گزارش مالی پرونده ها</a></li>
+                        <li><a href="{{ route('totalFactorItem.reports') }}">گزارش مالی پرونده ها</a></li>
                         @endpermission
                         @permission('file-report-installments')
                         <li><a href="{{ route('totalFactorItemInstallment.index') }}">بدهکاری اقساط</a></li>
@@ -182,7 +172,6 @@
                 </li>
                 @endpermission
             @endif
-            @permission('percentageAllocationEmployee_all')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>تسهیم درآمد</span> </a>
                 <ul>
                     @permission('percentageAllocationEmployee_all')
@@ -193,31 +182,25 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('center-category')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>سفارشات</span> </a>
                 <ul>
-                    <li><a href="{{ url('/dashboard/factorItem/desktop') }}">میزکار سفارشات</a></li>
-                    <li><a href="{{ url('/dashboard/factorItemProduct') }}">سفارشات آنلاین</a></li>
+                    <li><a href="{{ route('factorItem.desktop') }}">میزکار سفارشات</a></li>
+                    <li><a href="{{ route('factorItemProduct') }}">سفارشات آنلاین</a></li>
                     <li><a href="{{ route('factorItem.index') }}">سفارشات حضوری</a></li>
                     @permission('file-report-installments')
                     <li><a href="{{ route('totalFactorItemInstallment.index') }}">بدهکاری اقساط</a></li>
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('center-service')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پرونده ها</span> </a>
                 <ul>
-                    <li><a href="{{ url('/dashboard/factorItem/desktop') }}">پرونده های قابل اجرا</a></li>
+                    <li><a href="{{ route('factorItem.desktop') }}">پرونده های قابل اجرا</a></li>
                     <li><a href="{{ route('factorItem.index') }}">کل پرونده ها</a></li>
                     @permission('file-report-installments')
                     <li><a href="{{ route('totalFactorItemInstallment.index') }}">بدهکاری اقساط</a></li>
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('store-room-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>انبارداری</span> </a>
                 <ul>
                     <li><a href="{{ route('storeRoom.index') }}">فهرست انبارها</a></li>
@@ -231,8 +214,6 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('store-room')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>انبارداری</span> </a>
                 <ul>
                     <li><a href="{{ route('storeRoom.index') }}">فهرست انبارها</a></li>
@@ -243,8 +224,6 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('purchase-invoice|purchase-invoice-create')
             <li><a href="#"><i class="icon ti-control-record"></i><span>فاکتور های خرید</span> </a>
                 <ul>
                     @permission('purchase-invoice')
@@ -256,16 +235,12 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('purchase-invoice-detail')
             <li><a href="#"><i class="icon ti-control-record"></i><span>فاکتور خرید</span> </a>
                 <ul>
                     <li><a href="{{ route('purchaseInvoice.index') }}">فهرست فاکتورها</a></li>
                     <li><a href="{{ route('purchaseInvoice.create') }}">فاکتور جدید</a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('service')
             <li><a href="#"><i class="icon ti-control-record"></i><span>خدمات</span> </a>
                 <ul>
                     <li><a href="{{ route('service.index') }}"><i class="icon ti-control-record"></i> <span>خدمات</span>
@@ -274,8 +249,6 @@
                         </a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('center|center-request|center-request-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>مراکز</span> </a>
                 <ul>
                     @permission('center-request|center-request-detail')
@@ -286,24 +259,16 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-
-            @permission('')
             <li>
                 <a href=""><i class="icon ti-control-record"></i><span></span></a>
             </li>
-            @endpermission
 
-            @permission('contact|contact-detail')
             <li><a href="{{ route('contact.index') }}"><i class="icon ti-control-record"></i>
                     <span>تماس با ما</span>
                 </a></li>
-            @endpermission
 
-            @permission('financial-plans-type')
             <li><a href="{{ route('financialPlansType.index') }}"><i class="icon ti-control-record"></i> <span>طرح های
                         مالی</span> </a></li>
-            @endpermission
 
             @if(auth()->user()->center)
                 @permission('service-tariff')
@@ -320,7 +285,6 @@
                 @endpermission
             @endif
 
-            @permission('create_agency')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>عاملیت ها</span> </a>
                 <ul>
                     @permission('agency')
@@ -332,8 +296,6 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('ghorfe_online_list')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>مغازه های دیجیتال</span> </a>
                 <ul>
                     <li><a href="{{ route('ghorfeOnlineList.index') }}">فهرست مغازه های دیجیتال</a></li>
@@ -342,8 +304,6 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('sms-template')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>قالب های پیامکی</span> </a>
                 <ul>
                     <li><a href="{{ route('smsTemplate.index') }}">فهرست قالب های پیامکی</a></li>
@@ -352,23 +312,17 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('create_organ')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>سازمان ها</span> </a>
                 <ul>
                     <li><a href="{{ route('organization.index') }}">فهرست سازمان ها</a></li>
                     <li><a href="{{ route('organization.create') }}">سازمان جدید</a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('single_web_page')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>تک صفحه ها</span> </a>
                 <ul>
                     <li><a href="{{ route('singleWebPage.index') }}">فهرست تک صفحه ها</a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('contract')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>قراردادها</span> </a>
                 <ul>
                     <li><a href="{{ route('contract.index') }}">فهرست قراردادها</a></li>
@@ -376,8 +330,6 @@
                     <li><a href="{{ route('contractForm.index') }}">فرم قرارداد های پرونده های اقساطی</a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('resume|resume-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>رزومه ها</span> </a>
                 <ul>
                     <li><a href="{{ route('resume.index') }}"> فهرست رزومه ها</a></li>
@@ -386,30 +338,23 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('recruitment_notice')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>موقعیت شغلی</span> </a>
                 <ul>
                     <li><a href="{{ route('recruitmentNotice.index') }}"> موقعیت های شغلی</a></li>
                     <li><a href="{{ route('recruitmentNotice.create') }}">موقعیت شغلی جدید</a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('role')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>نقش ها</span> </a>
                 <ul>
                     <li><a href="{{ url('dashboard/role') }}">فهرست نقش ها</a></li>
                     <li><a href="{{ route('role.create') }}">نقش جدید</a></li>
                 </ul>
             </li>
-            @endpermission
-            @permission('menu')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>راهنمای سایت</span> </a>
                 <ul>
                     <li><a href="{{ route('help.index') }}">راهنمای سایت</a></li>
                 </ul>
             </li>
-            @endpermission
             <li><a href="#"><i class="icon ti-control-record"></i> <span>اتوماسیون اداری</span> </a>
                 <ul>
                     @permission('show_all_ticket')
@@ -446,7 +391,6 @@
                     </li>
                 </ul>
             </li>
-            @permission('coupon|campaign')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پویش و جشنواره</span> </a>
                 <ul>
                     @permission('campaign')
@@ -458,9 +402,7 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
 
-            @permission('sms')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پیامک</span> </a>
                 <ul>
 
@@ -475,38 +417,25 @@
                     @endpermission
                 </ul>
             </li>
-            @endpermission
-            @permission('phone')
             <li><a href="{{ route('lalecard.index') }}"><i class="icon ti-control-record"></i>
                     <span>لاله کارت</span>
                 </a></li>
             <li><a href="{{ route('phone.index') }}"><i class="icon ti-control-record"></i>
                     <span>شماره های ورودی</span>
                 </a></li>
-            @endpermission
-            @permission('newsletter')
             <li><a href="{{ route('newsletter.index') }}"><i class="icon ti-control-record"></i>
                     <span>ایمیل ها</span>
                 </a></li>
-            @endpermission
-            @permission('update_site_rules')
             <li><a href="{{ route('siteRules.index') }}"><i class="icon ti-control-record"></i>
                     <span>قوانین سایت</span>
                 </a></li>
-            @endpermission
-            @permission('access_short_link')
             <li><a href="{{ route('short-link.index') }}"><i class="fa fa-link "></i> <span class="mr-2">لینک های
                         کوتاه</span> </a></li>
-            @endpermission
-            @role('superadmin')
             <li><a href="{{ route('employee.terms.index') }}"><i class="fa fa-file "></i> <span class="mr-2">قوانین
                         پرسنل</span> </a></li>
-            @endrole
-            @role('superadmin')
             <li><a href="{{ route('settings.index') }}"><i class="fa fa-gears "></i> <span
                         class="mr-2">تنظیمات</span>
                 </a></li>
-            @endrole
             <li><a href="#"><i class="icon ti-control-record"></i><span>سایت</span> </a>
                 <ul>
                     @permission('product-detail')

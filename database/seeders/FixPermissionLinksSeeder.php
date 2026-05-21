@@ -10,55 +10,71 @@ class FixPermissionLinksSeeder extends Seeder
 {
     public function run()
     {
-        // reset
         DB::table('permissions')->update([
             'link' => null,
             'isMenu' => null,
         ]);
 
-        $blade = File::get(resource_path('views/Admin/layouts/sidemenu.blade.php'));
-
+        $blade = File::get(resource_path('views/Admin/layouts/sidem.blade.php'));
         $lines = preg_split('/\n/', $blade);
 
-        $stack = [];
-        $activePermissions = [];
+        $permissionStack = [];
+        $categoryStack = [];
+
         $results = [];
 
         foreach ($lines as $line) {
 
-            // شروع permission
+            // =========================
+            // permission start
+            // =========================
             if (preg_match('/@permission\([\'"](.*?)[\'"]\)/', $line, $m)) {
                 $perms = explode('|', $m[1]);
-                array_push($stack, $perms);
+                array_push($permissionStack, $perms);
             }
 
-            // پایان permission
+            // =========================
+            // permission end
+            // =========================
             if (str_contains($line, '@endpermission')) {
-                array_pop($stack);
+                array_pop($permissionStack);
             }
 
-            // گرفتن span name
-            $categoryName = null;
+            // =========================
+            // category (menu title)
+            // =========================
             if (preg_match('/<span>(.*?)<\/span>/', $line, $spanMatch)) {
-                $categoryName = trim($spanMatch[1]);
+                $category = trim($spanMatch[1]);
+                array_push($categoryStack, $category);
             }
 
-            // گرفتن route
-            if (preg_match('/route\([\'"](.*?)[\'"]\)/', $line, $routeMatch)) {
-                $route = $routeMatch[1];
-                $activePermissions = [];
+            // وقتی </li> بسته میشه category رو pop کن
+            if (str_contains($line, '</li>') && count($categoryStack)) {
+                array_pop($categoryStack);
+            }
 
-                foreach ($stack as $group) {
-                    $activePermissions = array_merge($activePermissions, $group);
+            if (preg_match('/route\([\'"](.*?)[\'"]\)/', $line, $routeMatch)) {
+
+                $route = $routeMatch[1];
+
+                // فقط permission مستقیم
+                $currentPermissions = end($permissionStack);
+
+                // اگر این route داخل permission مستقیم نیست → رد کن
+                if (!$currentPermissions) {
+                    continue;
                 }
 
-                foreach ($activePermissions as $perm) {
+                $currentCategory = end($categoryStack);
+
+                foreach ($currentPermissions as $perm) {
+
                     $perm = trim($perm);
 
                     if (!isset($results[$perm])) {
                         $results[$perm] = [
                             'route' => $route,
-                            'category' => $categoryName,
+                            'category' => $currentCategory,
                             'isMenu' => 1
                         ];
                     }
@@ -66,8 +82,11 @@ class FixPermissionLinksSeeder extends Seeder
             }
         }
 
-        // اتصال به category_permissions
+        // =========================
+        // save to DB
+        // =========================
         foreach ($results as $perm => $data) {
+
             DB::table('permissions')
                 ->where('name', $perm)
                 ->update([
