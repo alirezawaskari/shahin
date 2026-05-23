@@ -26,6 +26,7 @@ class MenuService
                     $query->whereIn('id', $packagePermissions);
                 })
                 ->get();
+
             return $this->groupByCategory($permissions);
         });
     }
@@ -86,11 +87,16 @@ class MenuService
      */
     private function groupByCategory($permissions)
     {
-        return $permissions->groupBy(fn($item) =>
-            $item->categoryPermissions?->name ?? 'بدون دسته‌بندی'
-        );
+        return $permissions->groupBy(function ($item) {
+            return $item->categoryPermissions?->name ?? 'بدون دسته‌بندی';
+        })->map(function ($items, $categoryName) {
+            return [
+                'name' => $categoryName,
+                'icon' => $items->first()->categoryPermissions?->icon ?? '',
+                'items' => $items
+            ];
+        });
     }
-
     /**
      * active check (بهینه)
      */

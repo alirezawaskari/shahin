@@ -40,16 +40,14 @@ class FilterHelper {
         switch($relation_type)
         {
             case('belongsToMany'):
-                $query = $query->whereHas('ghorfeOnlineLists',function ($query) use ($ghorfe_online_list){
-                    $query->Where('ghorfe_online_list_id', $ghorfe_online_list->id);
+                $query = $query->whereHas('ghorfeOnlineLists', function ($q) use ($ghorfe_online_list) {
+                    $q->where('id', $ghorfe_online_list->id);
                 });
                 break;
             case('morphTo'):
                 $query = $query->Where($morph_variable.'_id', $ghorfe_online_list->id)->Where($morph_variable.'_type', 'App\Models\GhorfeOnlineList');
                 break;
-            case('belongsTo'):
-                $query = $query->where( 'ghorfe_online_list_id', $ghorfe_online_list->id );
-                break;
+
         }
         return $query;
     }

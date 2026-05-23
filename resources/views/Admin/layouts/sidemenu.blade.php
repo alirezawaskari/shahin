@@ -7,16 +7,16 @@
                     <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>
-            @foreach($menu as $categoryName => $items)
+            @foreach($menu as $category)
 
                 <li>
                     <a href="#">
-                        <i class="icon ti-control-record"></i>
-                        <span>{{ $categoryName }}</span>
+                        <i class="icon {{ $category['icon'] }}"></i>
+                        <span>{{ $category['name'] }}</span>
                     </a>
 
                     <ul>
-                        @foreach($items as $list)
+                        @foreach($category['items'] as $list)
                             @if($list->isMenu)
                                 <li>
                                     <a href="{{ route($list->link) }}">
@@ -27,6 +27,7 @@
                         @endforeach
                     </ul>
                 </li>
+
             @endforeach
         </ul>
     </div>

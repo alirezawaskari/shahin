@@ -72,6 +72,10 @@ class GhorfeOnlineList extends Model
         return "/$this->slug";
     }
 
+    public function settings()
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
     public function ghorfeCategories()
     {
         return $this->belongsToMany(CategoryPermission::class);

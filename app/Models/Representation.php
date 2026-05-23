@@ -52,6 +52,11 @@ class Representation extends Model
         return "/$this->slug";
     }
 
+    public function settings()
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

@@ -14,9 +14,9 @@ class Setting extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function ghorfeOnline()
+    public function settingable()
     {
-        return $this->belongsTo(GhorfeOnlineList::class , 'ghorfe_online_list_id');
+        return $this->morphTo();
     }
     /**
      * Summary of scopeFilter
@@ -27,4 +27,5 @@ class Setting extends Model
     {
         $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsTo' , null);
     }
+
 }
