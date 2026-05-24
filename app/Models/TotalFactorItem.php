@@ -827,6 +827,16 @@ class TotalFactorItem extends Model implements AuditableContract
 
         return $item;
     }
+     /**
+     * @param mixed $item
+     * @return string //price
+     */
+    private static function getGuaranteePrice($item)
+    {
+        $guarantee_price = number_format($item['loan'] * (140 / 100));
+
+        return $guarantee_price;
+    }
     /**
      * @param TotalFactorItem $item
      * @param mixed $price
