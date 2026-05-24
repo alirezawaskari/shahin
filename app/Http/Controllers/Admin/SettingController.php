@@ -13,27 +13,25 @@ class SettingController extends AdminController
 
     public function index()
     {
-        $settingsKeys = [
-            'address',
-            'call',
-            'email',
-            'phone',
-            'shaba_number',
-            'card_number',
-            'card_holder',
-            'tax_free_shaba_number',
-            'tax_free_card_number',
-            'tax_free_card_holder',
-            'sms_panel',
-        ];
+        $user = auth()->user();
 
-        $settings = collect($settingsKeys)
-            ->mapWithKeys(fn ($key) => [$key => settings($key)])
+        $settings = $user->settings()
+            ->whereIn('key', [
+                'address',
+                'email',
+                'phone',
+                'shaba_number',
+                'card_number',
+                'card_holder',
+                'tax_free_shaba_number',
+                'tax_free_card_number',
+                'tax_free_card_holder',
+                'sms_panel',
+            ])
+            ->pluck('value', 'key')
             ->toArray();
-
         return view('Admin.setting.edit', compact('settings'));
     }
-
     public function updateCompanyInfo(Request $request)
     {
         $owner = $this->getOwner();

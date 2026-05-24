@@ -44,8 +44,10 @@ class ContextController extends Controller
     {
         $company_info = [
             'address' => $this->settings->get('address'),
-            'call' => $this->settings->get('call'),
+            'phone' => $this->settings->get('phone'),
             'email' => $this->settings->get('email'),
+            'shaba_number' => $this->settings->get('shaba_number'),
+            'card_number' => $this->settings->get('card_number'),
         ];
 
         return view('Admin.settings.index', compact('company_info'));
