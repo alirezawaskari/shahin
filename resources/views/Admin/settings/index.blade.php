@@ -152,10 +152,13 @@
                                 <div class="col-md-12 form-group p-3">
                                     <label for="fullName">پنل پیامکی</label>
                                     <select name="sms_panel" class="form-control select2">
-                                        <option value="iranSms" {{ ($setting['sms_panel'] ?? '') == 'iranSms' ? 'selected' : '' }}>
+                                        <option value="iranSms"
+                                            {{ old('sms_panel', $company_info['sms_panel'] ?? '') == 'iranSms' ? 'selected' : '' }}>
                                             ایران اس ام اس
                                         </option>
-                                        <option value="neginSms" {{ ($setting['sms_panel'] ?? '') == 'neginSms' ? 'selected' : '' }}>
+
+                                        <option value="neginSms"
+                                            {{ old('sms_panel', $company_info['sms_panel'] ?? '') == 'neginSms' ? 'selected' : '' }}>
                                             نگین اس ام اس
                                         </option>
                                     </select>
