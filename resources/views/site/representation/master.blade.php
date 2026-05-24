@@ -14,7 +14,7 @@
     <meta name="google-site-verification" content="2LiK03QLZtoxWosDgNx_gXH9ffVfCJmTiMduAI643K8" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
     {!! SEO::generate() !!}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133477056-1"></script>
+{{--    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133477056-1"></script>--}}
     <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];

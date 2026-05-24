@@ -78,7 +78,19 @@
                     <label>تاریخ پایان اجاره نامه</label>
                     <input type="text" name="contract_expiration_date" class="form-control date">
                 </div>
-
+                @permission('ghorfe_online_list_categories')
+                <div class="col-12 mb-3">
+                    <label>دسته‌بندی‌ها</label>
+                    <select name="categories[]" class="form-control select2" multiple required>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}"
+                                {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endpermission
                 <div class="col-12 col-md-4 mt-2">
                     <div class="card">
                         <div id="logo_src" class="show">

@@ -149,7 +149,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function isAdmin()
     {
-        if($this->level == 'admin' || $this->level == 'superAdmin')
+        if($this->level == 'admin' || $this->level == 'superAdmin' )
         {
             return true;
         }
@@ -345,7 +345,7 @@ class User extends Authenticatable implements LaratrustUser
      */
     public function ghorfeOnlineLists()
     {
-        return $this->belongsToMany(GhorfeOnlineList::class);
+        return $this->hasMany(GhorfeOnlineList::class);
     }
 
     /**

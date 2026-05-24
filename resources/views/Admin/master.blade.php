@@ -28,13 +28,9 @@
     <div class="spinner-border"></div>
     <span>در حال بارگذاری ...</span>
 </div>
-@if ($is_user_ghorfe)
-@include('Admin.layouts.sidemenuGhorfe')
-@else
-@include('Admin.layouts.sidemenu')
-@endif
-@include('Admin.layouts.navbar')
-@include('Admin.layouts.terms')
+    @include('Admin.layouts.sidemenu')
+    @include('Admin.layouts.navbar')
+    @include('Admin.layouts.terms')
 <main class="main-content" id="app">
     <div class="container-fluid">
         @yield('content')

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\UsersExport;
+use App\Models\CategoryPermission;
 use App\Models\GhorfeOnlineList;
+use App\Models\Permission;
 use App\Models\Service;
 use App\Models\Province;
+use App\Models\Theme;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
@@ -16,6 +19,18 @@ class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
+
+    public function getGhofeCategories($id)
+    {
+        $ghorfeOnlineList = GhorfeOnlineList::with('ghorfeCategories')->where('id', $id)->first();
+        return view( 'ghorfeAdmin.ghorfe.index', compact( 'ghorfeOnlineList' ) );
+    }
+
+    public function ghofeCategoryDetail($id)
+    {
+        $categoryPermission = Permission::with('category')->where('cat_id', $id)->get();
+        return view( 'ghorfeAdmin.ghorfe.categories', compact( 'categoryPermission' ) );
+    }
 
     public function index() {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list' ) ) {
@@ -31,8 +46,10 @@ class GhorfeOnlineListController extends AdminController {
 
     public function create() {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
+            $categories = CategoryPermission::all();
+
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' ) );
+            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' , 'categories' ) );
         }
 
         return abort( 401 );
@@ -44,47 +61,65 @@ class GhorfeOnlineListController extends AdminController {
     * @throws \Illuminate\Validation\ValidationException
     */
 
-    public function store( Request $request ) {
-        if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
-            $this->validate( request(), [
-                'title' => 'required|string',
-                'en_title' => 'required|string',
-                'user_id' => 'required',
-                'type_work' => 'required',
-                'call' => 'required',
-                'contract_start_date' => 'required',
-                'contract_expiration_date' => 'required',
-                'address' => 'required|string',
-                'domain_active' => 'required'
-            ] );
-            $inputs = $request->all();
-
-            if ( $request->urllogo ) {
-                $inputs[ 'logo' ] = Helper::moveImage( $request->urllogo, 'document' );
-            }
-
-            unset( $inputs[ 'sms_code' ] );
-            unset( $inputs[ 'urllogo' ] );
-            $inputs[ 'contract_start_date' ] = isset( $inputs[ 'contract_start_date' ] ) ? Helper::vertaToMiladi( $inputs[ 'contract_start_date' ] ) : '';
-            $inputs[ 'contract_expiration_date' ] = isset( $inputs[ 'contract_expiration_date' ] ) ? Helper::vertaToMiladi( $inputs[ 'contract_expiration_date' ] ) : '';
-
-            $ghorfeOnlineList = GhorfeOnlineList::create( $inputs );
-            $ghorfeOnlineList->about()->create();
-            $codes = [];
-            $array = explode( ',', $request->input( 'sms_code' ) );
-            foreach ( $array as $item ) {
-                array_push( $codes, Helper::numberConverter( $item ) );
-            }
-            $ghorfeOnlineList->update( [
-                'sms_code' => $codes,
-            ] );
-
-            return redirect( route( 'ghorfeOnlineList.index' ) )->with( [
-                'create' => 'success'
-            ] );
+    public function store(Request $request)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_create')) {
+            return abort(401);
         }
 
-        return abort( 401 );
+        $this->validate($request, [
+            'title' => 'required|string',
+            'en_title' => 'required|string',
+            'user_id' => 'required',
+            'type_work' => 'required',
+            'call' => 'required',
+            'contract_start_date' => 'required',
+            'contract_expiration_date' => 'required',
+            'address' => 'required|string',
+            'domain_active' => 'required',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:categories,id',
+        ]);
+
+        $inputs = $request->only([
+            'title',
+            'en_title',
+            'user_id',
+            'type_work',
+            'call',
+            'address',
+            'domain_active',
+            'status'
+        ]);
+
+        if ($request->urllogo) {
+            $inputs['logo'] = Helper::moveImage($request->urllogo, 'document');
+        }
+
+        $inputs['contract_start_date'] = Helper::vertaToMiladi($request->contract_start_date);
+        $inputs['contract_expiration_date'] = Helper::vertaToMiladi($request->contract_expiration_date);
+
+        $ghorfeOnlineList = GhorfeOnlineList::create($inputs);
+
+        $ghorfeOnlineList->about()->create();
+
+        if (auth()->user()->hasPermission('ghorfe_online_list_categories')) {
+
+            $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+        }
+
+        // sms code
+        $codes = collect(explode(',', $request->sms_code))
+            ->map(fn($item) => Helper::numberConverter(trim($item)))
+            ->toArray();
+
+        $ghorfeOnlineList->update([
+            'sms_code' => $codes,
+        ]);
+
+        return redirect(route('ghorfeOnlineList.index'))->with([
+            'create' => 'success'
+        ]);
     }
 
     /**
@@ -95,7 +130,8 @@ class GhorfeOnlineListController extends AdminController {
     public function edit( GhorfeOnlineList $ghorfeOnlineList ) {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList', 'employees' ) );
+            $categories = CategoryPermission::all();
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','categories', 'employees' ) );
         }
         return abort( 401 );
     }
@@ -209,6 +245,100 @@ class GhorfeOnlineListController extends AdminController {
             ] );
         }
         return abort( 401 );
+    }
+
+    public function menuUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        $this->validate($request, [
+            'titles.*' => 'required',
+            'links.*' => 'required',
+        ]);
+
+        $ids = $request->ids ?? [];
+
+        foreach ($request->titles as $index => $title) {
+
+            $data = [
+                'title' => $title,
+                'link' => $request->links[$index],
+                'ghorfe_online_list_id' => $ghorfeOnlineList->id,
+            ];
+
+            if (!empty($ids[$index])) {
+                Menu::where('id', $ids[$index])
+                    ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
+                    ->update($data);
+            } else {
+                Menu::create($data);
+            }
+        }
+
+        $existingIds = $ghorfeOnlineList->menus->pluck('id')->toArray();
+        $submittedIds = array_filter($request->ids);
+
+        $deletedIds = array_diff($existingIds, $submittedIds);
+
+        Menu::whereIn('id', $deletedIds)
+            ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
+            ->delete();
+    }
+    public function themeUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
+            return abort(401);
+        }
+
+        $request->validate([
+            'name'            => ['required', 'string', 'max:255'],
+            'color_primary'   => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'color_secondary' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+        ]);
+
+        $theme = $ghorfeOnlineList->theme;
+
+        if (!$theme || $theme->type === 'default') {
+            $newTheme = Theme::create([
+                'name'            => $request->name,
+                'color_primary'   => $request->color_primary,
+                'color_secondary' => $request->color_secondary,
+                'type'            => 'custom',
+            ]);
+
+            $ghorfeOnlineList->update([
+                'theme_id' => $newTheme->id
+            ]);
+
+            return redirect()->back()->with(['create' => 'success']);
+        }
+
+        $theme->update([
+            'name'            => $request->name,
+            'color_primary'   => $request->color_primary,
+            'color_secondary' => $request->color_secondary,
+        ]);
+
+        return redirect()->back()->with(['update' => 'success']);
+    }
+
+    public function categoriesGhorfe(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_categories')) {
+            return abort(401);
+        }
+
+        // Validate
+        $request->validate([
+            'categories' => 'required|array',
+            'categories.*' => 'exists:category_permissions,id',
+        ]);
+
+        // Sync categories
+        $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+
+        return redirect()->back()->with([
+            'update' => 'success'
+        ]);
+
     }
 
     /**

@@ -19,4 +19,9 @@ class CategoryPermission extends Model
         return $this->belongsTo(Permission::class);
     }
 
+    public function ghorfes()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class, 'category_ghorfe');
+    }
+
 }
