@@ -1132,33 +1132,6 @@ class FactorItemController extends Controller {
         $factor_item_user->update( [ 'factor_image' => $factor_images ] );
     }
     /**
-     * @param mixed $item //factorItem or totalFactorItem
-     * @return array
-     */
-    private function getPrepayment($item)
-    {
-        $prepayment_price = $item->property ? $item->property->prepayment_price : 0;
-        $prepayment_debt = $item->property ? $item->property->prepayment_debt : 0;
-        $prepayment_count = $item->property ? $item->property->prepayment_count : 0;
-        $prepayment_num = $item->property ? $item->property->prepayment_num : 0;
-        $prepayment = array('price' => $prepayment_price , 'debt' => $prepayment_debt , 'count' => $prepayment_count , 'num' => $prepayment_num);
-
-        return $prepayment;
-    }
-    /**
-     * @param mixed $item // factorItem or totalFactoItem
-     * @retrun int
-     */
-    private function getPriceDifference($item)
-    {
-        $price_difference_installment = $item->property ? $item->property->price_difference_installment : 0;
-        $price_difference_total = $item->property ? $item->property->price_difference_total : 0;
-        $price_difference_debt = $item->property ? $item->property->price_difference_debt : 0;
-        $price_difference = array('installment' => $price_difference_installment , 'total' => $price_difference_total , 'debt' => $price_difference_debt);
-
-        return $price_difference;
-    }
-    /**
      * @param $request
      * @param FactorItem $factorItem
      * @return \Illuminate\Http\RedirectResponse|void
