@@ -48,6 +48,11 @@ class ContextController extends Controller
             'email' => $this->settings->get('email'),
             'shaba_number' => $this->settings->get('shaba_number'),
             'card_number' => $this->settings->get('card_number'),
+            'card_holder' => $this->settings->get('card_holder'),
+            'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
+            'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
+            'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
+            'sms_panel' => $this->settings->get('sms_panel'),
         ];
 
         return view('Admin.settings.index', compact('company_info'));
