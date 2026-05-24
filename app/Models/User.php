@@ -144,6 +144,11 @@ class User extends Authenticatable implements LaratrustUser
        return Str::random(60);
     }
 
+    public function settings()
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
+
     /**
      * @return bool
      */

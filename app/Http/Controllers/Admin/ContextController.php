@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
-use App\Http\Controllers\Admin\ContextTraits\ExpireDates;
-use App\Http\Controllers\Admin\ContextTraits\SiteRules;
 use App\Http\Controllers\Controller;
 use App\Models\Context;
-use App\Models\Setting;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use App\Services\Settings\SettingsService;
+use App\Traits\ResolvesOwner;
+use App\Http\Controllers\Admin\ContextTraits\ExpireDates;
+use App\Http\Controllers\Admin\ContextTraits\SiteRules;
 
 class ContextController extends Controller
 {
-    use SiteRules;
-    use ExpireDates;
-    /**
-     *array list of domain expire date key
-     */
-    const DOMAINS_EXPIRE_DATE_KEYS = array(
+    use SiteRules, ExpireDates, ResolvesOwner;
+    protected $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
+
+    const DOMAINS_EXPIRE_DATE_KEYS = [
         'domain_expire_date_lalecard.ir',
         'domain_expire_date_lalecard.com',
         'domain_expire_date_ghorfe-online.ir',
@@ -28,44 +28,77 @@ class ContextController extends Controller
         'domain_expire_date_lalemarket.ir',
         'domain_expire_date_qorfe-online.ir',
         'domain_expire_date_lalebank.com',
-    );
+    ];
 
-    /**
-     *array lis of other expire date keys
-     */
-    const OTHER_EXPIRE_DATE_KEYS = array(
+    const OTHER_EXPIRE_DATE_KEYS = [
         'vps_expire_date',
         'plesk_expire_date',
-    );
+    ];
 
-    /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
-     */
+    /*
+    |-----------------------------------
+    | SETTINGS PAGE
+    |-----------------------------------
+    */
     public function settings()
     {
-        $this->generateSettingsKeys();
-        $expire_dates=self::fetchExpireDates();
-        $company_info= Setting::select('address','call','email','shaba_number','card_number','card_holder','tax_free_shaba_number','tax_free_card_number','tax_free_card_holder')->first();
-        $setting = Setting::first();
-        return view('Admin.settings.index', compact('expire_dates','company_info','setting'));
+        $company_info = [
+            'address' => $this->settings->get('address'),
+            'call' => $this->settings->get('call'),
+            'email' => $this->settings->get('email'),
+        ];
+
+        return view('Admin.settings.index', compact('company_info'));
     }
 
+    /*
+    |-----------------------------------
+    | MAP SETTINGS
+    |-----------------------------------
+    */
+    private function mapCompanyInfo(): array
+    {
+        $keys = [
+            'address',
+            'call',
+            'email',
+            'shaba_number',
+            'card_number',
+            'card_holder',
+            'tax_free_shaba_number',
+            'tax_free_card_number',
+            'tax_free_card_holder',
+        ];
 
-    /**
-     *generate Settings Keys
-     */
+        $result = [];
+
+        foreach ($keys as $key) {
+            $result[$key] = $this->settings->get($key);
+        }
+
+        return $result;
+    }
+    /*
+    |-----------------------------------
+    | GENERATE CONTEXT KEYS
+    |-----------------------------------
+    */
     private function generateSettingsKeys(): void
     {
-        $keys1 = self::DOMAINS_EXPIRE_DATE_KEYS;
-        $keys2 = self::OTHER_EXPIRE_DATE_KEYS;
-        $keys = array_merge($keys1, $keys2);
-        foreach ($keys as $key) {
-            $context = Context::where('key', $key)->first();
-            if (is_null($context)) {
-                Context::create(
-                    ['key' => $key, 'value' => Carbon::now()]
-                );
-            }
-        }
+        $keys = array_merge(
+            self::DOMAINS_EXPIRE_DATE_KEYS,
+            self::OTHER_EXPIRE_DATE_KEYS
+        );
+
+        $now = now();
+
+        $rows = array_map(fn ($key) => [
+            'key' => $key,
+            'value' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $keys);
+
+        Context::upsert($rows, ['key'], ['value', 'updated_at']);
     }
 }
