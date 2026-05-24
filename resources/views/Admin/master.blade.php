@@ -7,11 +7,12 @@
     <title>@yield('title','پنل مدیریت لاله')</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+{{--    <link href="{{asset('assets/dashboard/css/bootstrap.min.css')}}" rel="stylesheet">--}}
     <link rel="stylesheet" href="{{ asset('assets/dashboard/css/dashboard.css?v=2.1') }}">
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/persian-datepicker.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/adminCss.css')}}">
     <link rel="stylesheet" href="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.css')}}">
-    <link href="{{asset('assets/dashboard/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/bootstrap-5.3.8-dist/css/bootstrap.min.css') }}">
     <script src="{{asset('assets/dashboard/js/sweetalert.min.js')}}"></script>
      <!-- begin::favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/dashboard/images/laleh_icon.png') }}">
@@ -43,7 +44,7 @@
 <script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/jquery.twbsPagination.min.js')}}"></script>
 <script src="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.js')}}"></script>
-<script src="{{asset('assets/script/bootstrap.bundle.min.js')}}"></script>
+<script src="{{asset('assets/bootstrap-5.3.8-dist/js/bootstrap.min.js')}}"></script>
 
 <script>
   ck_uploader=  {
@@ -58,7 +59,7 @@
     });
     document.getElementById('toggleSidebarMobile').addEventListener('click', function () {
         const sidebar = document.getElementById('myNav');
-        sidebar.classList.remove('collapsed');
+        sidebar.classList.toggle('active');
     });
     document.getElementById('toggleSidebar').addEventListener('click', function () {
         const sidebar = document.getElementById('myNav');

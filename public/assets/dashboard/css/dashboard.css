@@ -5405,7 +5405,29 @@ body {
     line-height: 1.5;
     color: #212529;
     text-align: right;
+    overflow-x: hidden;
     background-color: #fff
+}
+
+#myNav {
+    transition: 0.3s;
+}
+
+/* موبایل */
+@media (max-width: 768px) {
+    #myNav {
+        position: fixed;
+        right: -250px;
+        top: 0;
+        width: 250px;
+        height: 100%;
+        background: #fff;
+        z-index: 999;
+    }
+
+    #myNav.active {
+        right: 0;
+    }
 }
 
 [tabindex="-1"]:focus {

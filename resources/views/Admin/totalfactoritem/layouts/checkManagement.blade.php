@@ -1,16 +1,17 @@
 <div class="container">
 {{--    @if($totalFactorItem->confirm!=1 && auth()->user()->isAbleTo('store-check'))--}}
     @if(true && auth()->user()->isAbleTo('store-check'))
-        <button class="btn btn-success m-2" data-toggle="modal" data-target="#storeCheckModal" id="add-new-check-btn">
-            <i class="fa fa-plus m-5"></i> افزودن چک
+        <button class="btn btn-success my-2" data-toggle="modal" data-target="#storeCheckModal" id="add-new-check-btn">
+            <i class="fa fa-plus m-1"></i> افزودن چک
         </button>
     @endif
     <div class="row">
-        <div class="card col-md-12 m-5">
+        <div class="card col-12 mt-5">
             <div class="card-header">
                 <h3>چک های پرونده</h3>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-bordered bg-check-light">
                     <thead>
                     <tr>
@@ -114,13 +115,13 @@
                                         data-pay_to="{{$check->paytoable ? $check->paytoable->name.' '.$check->paytoable->family : 'ثبت نشده'}}"
                                         data-title="{{$check->title}}" data-amount="{{number_format($check->amount)}}"
                                         data-jdate="{{verta($check->date)->format('Y/m/d')}}"
-                                        class="btn btn-outline-primary" data-toggle="modal"
+                                        class="btn btn-outline-primary mb-1 d-flex" data-toggle="modal"
                                         data-target="#updateCheckModal" id="edit-check-btn"> ویرایش <i
                                             class="fa fa-edit"></i></span>
                                     @endpermission
 
                                     @permission('update-status-check')
-                                    <button type="button" class="  list-check-status btn btn-outline-primary"
+                                    <button type="button" class=" mb-1 list-check-status btn btn-outline-primary"
                                     data-check_id="{{$check->id}}"
                                     data-check_date="{{verta($check->date)->format('Y/m/d')}}"
                                             data-front_image="{{$check->files->where('title','front')->first()->path??''}}"
@@ -139,6 +140,7 @@
                     @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 
@@ -166,7 +168,7 @@
                     <div class="col-md-12">
                         <form id="new-check-form">
                             <div class="installment-check">
-                                <div class="form-row  border rounded m-5">
+                                <div class="form-row  border rounded m-1">
                                     <div class="container card">
                                         <div class="row card-body">
                                             <div class="form-group col-md-4">
@@ -443,7 +445,7 @@
                     <div class="col-md-12">
                         <form id="new-check-form">
                             <div class="installment-check">
-                                <div class="form-row  border rounded m-5">
+                                <div class="form-row  border rounded">
                                     <div class="form-group col-md-4">
                                         <label>مبلغ (ریال) :</label>
                                         <input name="amount" id="edit-check-amount" class="form-control"
@@ -463,7 +465,7 @@
                                     </div>
                                     <div class="form-group col-md-4">
                                         <label>در وجه :</label>
-                                        <input id="edit-check-pay-to" name="pay_to" class="form-control" readonly
+                                        <input id="edit-check-pay-to" name="pay_to" class="form-control"
                                                placeholder="در وجه ..."
                                                value=" " required>
                                     </div>
