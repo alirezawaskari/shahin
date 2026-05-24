@@ -1191,17 +1191,6 @@ class TotalFactorItemController extends Controller
     }
 
     /**
-     * @param mixed $item
-     * @return string //price
-     */
-    private function getGuaranteePrice($item)
-    {
-        $guarantee_price = number_format($item['loan'] * (140 / 100));
-
-        return $guarantee_price;
-    }
-
-    /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
