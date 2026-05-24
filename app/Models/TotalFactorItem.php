@@ -779,7 +779,7 @@ class TotalFactorItem extends Model implements AuditableContract
      * @param \App\Models\TotalFactorItem $totalFactorItem
      * @return array
      */
-    public function setItem(TotalFactorItem $totalFactorItem)
+    public static function setItem(TotalFactorItem $totalFactorItem)
     {
         $item['id'] = $totalFactorItem->id;
         $item['is_pay_installment_by_check'] = TotalFactorItem::payInstallmentByCheck($totalFactorItem);
