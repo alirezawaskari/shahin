@@ -1142,8 +1142,7 @@ class FactorItem extends Model implements AuditableContract
      * @return array
      * set factorItem items for use in show && edit
      */
-    public static
-     function setItem( FactorItem $factor_item ) {
+    public static function setItem( FactorItem $factor_item ) {
         $supervisor_factor_item = $factor_item->supervisor;
         $factor_item[ 'id' ] = $factor_item->id;
         $factor_item[ 'factor' ] = $factor_item->factor;
