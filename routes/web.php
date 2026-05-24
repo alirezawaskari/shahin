@@ -351,7 +351,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/contractForm/items/{contract_form}', 'ContractFormController@formItems')->name('contract.formItems');
     Route::get('/contract_before_form_item_create/{contract_form}', 'contractFormController@formItemCreate')->name('contract.before.formItemCreate');
     //factor item
-    Route::get('/factorItem/{factorItem}/fastEdit', 'FactorItemController@fastEdit');
     Route::post('/factorItem/close', 'FactorItemController@close');
     Route::get('/factorItem/desktop', 'FactorItemController@desktop')->name('factorItem.desktop');
     Route::get('/factorItem/desktop/filter' , 'FactorItemController@filterDesktop');

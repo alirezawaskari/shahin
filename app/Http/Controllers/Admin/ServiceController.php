@@ -273,8 +273,8 @@ class ServiceController extends AdminController
     {
         if ($request->ajax()) {
             $id = is_array($request->input('id')) ? $request->input('id') : [$request->input('id')];
-            if (Service::filter()->whereIn('category_id', $id)->get()->count() > 0) {
-                $services = Service::filter()->whereIn('category_id', $id)->get();
+            if (Service::filter()->where('status' , true)->whereIn('category_id', $id)->get()->count() > 0) {
+                $services = Service::filter()->where('status' , true)->whereIn('category_id', $id)->get();
                 return response()->json(['count' => 'available', 'services' => $services]);
             }
         }

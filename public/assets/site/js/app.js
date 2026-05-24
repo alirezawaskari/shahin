@@ -29677,12 +29677,14 @@ $(document).ready(function () {
 	var factor = $(this).data('factor');
 	var task_id = $(this).data('task_id');
     var service_id = $(this).data('service_id');
+    var service_item_id = $(this).data('service_item_id');
     var financial_plans_type_id = $(this).data('financial_plans_type_id');
     var type = $(this).data('type');
     var url = $(this).data('href');
     axios.post('/addToCart', {
       "id": id,
       "service_id": service_id,
+      "service_item_id": service_item_id,
       "financial_plans_type_id": financial_plans_type_id,
       "representation": representation,
 	  "callcenter": callcenter,

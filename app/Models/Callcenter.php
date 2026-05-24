@@ -383,10 +383,11 @@ class Callcenter extends Model implements AuditableContract
         return $this->morphedByMany(ServiceItem::class, 'callcenterable','callcenterables');
     }
     /**
-    * @param \App\Models\User $user
-    * @param mixed $description
-    * @param array $callcenter_roles
-    * @return viod
+     * Summary of createTask
+     * @param User $user
+     * @param mixed $description
+     * @param mixed $callcenter_roles
+     * @return Callcenter
      */
     public static function createTask(User $user, $description , $callcenter_roles)
     {
@@ -410,6 +411,7 @@ class Callcenter extends Model implements AuditableContract
             'description' => $description
         ]);
         History::create($task , $task->user_id , null , $task->status , $description);
+        return $task;
     }
     /**
      * @param mixed $phone

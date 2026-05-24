@@ -186,12 +186,12 @@ class CallcenterController extends Controller
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
         $admin_users = User::filter()->where('level', 'admin')->withCount('tasks')->get();
 
-        $services = Service::filter()->where('status' , 1)->get();
+        $services = Service::filter()->where('status' , true)->where('status' , 1)->get();
         $categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
         $permission = false;
 
         if (auth()->user()->center_id) {
-            $services = Service::filter()->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
+            $services = Service::filter()->where('status' , true)->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
             $categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }
         if($user->isAbleTo('record_payment'))
@@ -811,10 +811,12 @@ class CallcenterController extends Controller
     }
 
     /**
-     * @param $request
-     * @param $task
+     * Summary of syncTaskItems
+     * @param mixed $request
+     * @param Callcenter $task
+     * @return void
      */
-    private function syncTaskItems($request , $task)
+    private function syncTaskItems($request , Callcenter $task)
     {
 
         if (is_array($request->product_category) && count($request->product_category)>0)
@@ -951,7 +953,7 @@ class CallcenterController extends Controller
             'payment_code' => $request->payment_code,
             'center_id' => auth()->user()->center_id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
-            'expired_at' => now()->addDay(3),
+            'expired_at' => now()->addMinutes(30),
         ]);
         //upload bill_image cash factor
         if ($request->url_bill_image) {
@@ -996,7 +998,7 @@ class CallcenterController extends Controller
             'payment_code' => $request->payment_code,
             'center_id' => auth()->user()->center_id,
             'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
-            'expired_at' => now()->addDay(3),
+            'expired_at' => now()->addMinutes(30),
         ]);
         //upload bill_image cash factor
         if ($request->url_bill_image) {

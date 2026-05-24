@@ -49,8 +49,8 @@ class Factorsms extends Command {
         $client = new Client( [
             'headers' => $headers
         ] );
-        //send sms expanding factor before the factor expiration
-        $final_factors = Factor::whereDate( 'expired_at', Carbon::now()->toDateString() )->where( 'remember', 0 )->where( 'status', '!=', '1' )->where( 'title', '!=', 'installment' )->take( 10 )->get();
+        //send sms expanding factor before the factor e xpiration
+        $final_factors = Factor::where( DB::raw( "(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))" ), '<=', now()->addMinutes(10) )->where( 'remember', 0 )->where( 'status', '!=', '1' )->where( 'title', '!=', 'installment' )->take( 10 )->get();
         if ( count( $final_factors ) > 0 ) {
             foreach ( $final_factors as $factor ) {
                 $items = Factor::setServiceItems( $factor );

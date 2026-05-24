@@ -216,7 +216,8 @@ class CenterRequestController extends AdminController
          توضیحات درخواست دهنده :
          {$center_description}،
          ";
-        Callcenter::createTask($user, $description , $callcenter_roles);
+        $task = Callcenter::createTask($user, $description , $callcenter_roles);
+        $task->services()->attach([104]);
     }
 
 

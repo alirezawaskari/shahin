@@ -168,7 +168,17 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-4 mb-3">
-                        <label>نمایندگی</label>
+                        <label>نمایندگی ایجاد کننده</label>
+                        <select name="creator_representation_id" class="form-control">
+                            <option value="">م تهران</option>
+                            @foreach($representations as $representation)
+                            <option value="{{$representation->id}}" {{ $representation->id == $center->creator_representation_id ? 'selected' : ''
+                                }}>{{$representation->fa_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>نمایندگی های ذینفع</label>
                         <select name="representation_id[]" class="custom-select select2" multiple>
                             @foreach($representations as $representation)
                             <option value="{{$representation->id}}" {{ in_array(trim($representation->id) ,

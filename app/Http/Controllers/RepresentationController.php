@@ -101,10 +101,13 @@ class RepresentationController extends Controller
        }
 
     /**
+     * Summary of serviceItemSingle
      * @param Representation $representation
      * @param ServiceItem $serviceItem
      * @param User $callcenter
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @param Callcenter $task
+     * @param Factor|null $factor
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function serviceItemSingle(Representation $representation , ServiceItem $serviceItem, User $callcenter , Callcenter $task, Factor $factor=null )
     {
@@ -158,10 +161,16 @@ class RepresentationController extends Controller
                     $check = false;
                 }
             }
+            $serviceItem['service_item_id'] = $serviceItem->id;
+            $serviceItem['id'] = $service->id;
+            $serviceItem['slug'] = $service->slug;
             $service = $serviceItem;
             return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor', 'representation' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
-
+        $serviceItem['service_item_id'] = $serviceItem->id;
+        $serviceItem['id'] = $service->id;
+        $serviceItem['slug'] = $service->slug;
+        $service = $serviceItem;
         return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor' , 'representation' , 'callcenter','service', 'financial_plans_types' ,'task'));
        }
 }

@@ -18,13 +18,6 @@
                 <i class="fa fa-print" aria-hidden="true"></i>
                 <span>پرینت فرم</span>
             </a>
-            @permission('file-fastEdit')
-            <a href="/dashboard/factorItem/{{$factorItem->resnumber}}/fastEdit"
-                class="btn btn-link btn-float has-text text-size-small rtl p-1">
-                <i class="fa fa-credit-card text-indigo-400" aria-hidden="true"></i>
-                <span>ثبت سریع پرونده</span>
-            </a>
-            @endpermission
             <a href="{{ $factorItem->type ? '/dashboard/totalFactorItem/'.$item['id'] : '/dashboard/factorItem/'.$factorItem->resnumber }}"
                 class="btn btn-link btn-float has-text text-size-small rtl p-1">
                 <i class="fa fa-eye text-indigo-400" aria-hidden="true"></i>

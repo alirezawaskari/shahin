@@ -176,14 +176,6 @@ function getDataRequired(id) {
         type: 'get',
         dataType: 'json',
         success: function (data) {
-            var serviceOptions = $(`#service_id${id}`).find('option');
-            serviceOptions.remove();
-            serviceOptions.append('<option selected disabled>انتخاب خدمات</option>');
-            for (var service of data.data.services) {
-                var option = `<option value="${service.id}">${service.label}</option>`;
-                serviceOptions.append(option);
-            }
-
             var categoryOptions = $(`#category_id${id}`).find('option');
             categoryOptions.remove();
             categoryOptions.append('<option value="all">انتخاب دسته بندی</option>');

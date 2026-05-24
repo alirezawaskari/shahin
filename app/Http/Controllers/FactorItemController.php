@@ -117,6 +117,7 @@ class FactorItemController extends Controller {
             $item[ 'count_installment_checks' ] = TotalFactorItem::getCountInstallmentChecks( $totalFactorItem );
             $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
             $item[ 'contract_values' ] = $totalFactorItem->contract_values;
+            $item['factoritemable'] = TotalFactorItem::setFactorItemable($totalFactorItem);
             $item[ 'status_mali' ] = $factorItem->status_mali;
             $item[ 'start_date' ] = verta( $totalFactorItem->approval_date )->format( 'Y/m/d' );
             $item[ 'status_mali_text' ] = FactorItem::statusMali( $totalFactorItem->status_mali );
