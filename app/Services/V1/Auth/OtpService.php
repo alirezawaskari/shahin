@@ -51,7 +51,7 @@ final readonly class OtpService
         $expiresAt = Carbon::now()->addSeconds($this->ttlSeconds);
         $this->repository->create($phone, $code, $expiresAt);
 
-//        $this->notifier->send($phone, $code);
+        $this->notifier->send($phone, $code);
 
         return $this->ttlSeconds;
 
