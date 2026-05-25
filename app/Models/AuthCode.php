@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AuthCode extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     /**
      * @var string
@@ -19,7 +19,7 @@ class AuthCode extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['code', 'phone', 'expiration_time', 'time_code_again'];
+    protected $fillable = ['code', 'phone', 'expiration_time', 'time_code_again','expires_at','attempts','user_at'];
 
     protected $casts = [
         'expires_at' => 'datetime',
