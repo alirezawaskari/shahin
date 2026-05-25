@@ -71,7 +71,7 @@ class AuthCode extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query
-            ->whereNull('used_at')
+            ->whereNull('user_at')
             ->where('expires_at', '>', Carbon::now());
     }
 
