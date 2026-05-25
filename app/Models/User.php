@@ -809,14 +809,15 @@ class User extends Authenticatable implements LaratrustUser
      */
     public static function getSupporterUserAdmin($representation)
     {
-        $users = User::whereDoesntHave('ghorfeOnlineLists')->where('admin_representation_id' , $representation)->where( 'level', 'admin')->get();
-        $supporter_users = [];
-        foreach ( $users as $user ) {
-            if ( $user->hasPermission('supporter_new_file') ) {
-                array_push( $supporter_users, $user );
-            }
-        }
-        return $supporter_users;
+        return self::query()
+            ->whereDoesntHave('ghorfeOnlineLists')
+            ->where('admin_representation_id', $representation)
+            ->where('level', 'admin')
+            ->whereHas('permissions', function ($q) {
+                $q->where('name', 'supporter_new_file');
+            })
+            ->orderBy('updated_at', 'desc')
+            ->get();
     }
     public function allocatedChildren()
     {

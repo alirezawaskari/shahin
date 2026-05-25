@@ -560,6 +560,7 @@ $(document).ready(function () {
 
     /*  create table   */
     function createTable(data) {
+        $('#loading').css('display', 'block');
         pagination(data.meta.last_page);
         document.getElementById("page_text").innerHTML = ' نمایش ' + data.meta.from + ' تا ' + data.meta.to + ' از ' + data.meta.total + ' آیتم ';
         if ($.fn.DataTable.isDataTable('#datatable-json')) {
@@ -569,9 +570,10 @@ $(document).ready(function () {
         var deletePermission = data.delete_permission;
         $('#datatable-json tbody').empty();
         var table = $('#datatable-json').DataTable({
+            scrollX: false,
+            autoWidth: true,
+            responsive: false,
             paging: false,
-            searching: false,
-            retrieve: true,
             data: data.data,
             columns: [{
                     "data": "sort_by"
@@ -831,6 +833,15 @@ $("body").on('change', 'input[name=type]', function (event) {
         }
     });
 });
+
+function updatePadding() {
+    let w = $('#datatable-json').width();
+    let p = w > 1400 ? '18px' : '10px';
+    document.documentElement.style.setProperty('--dt-padding', p);
+}
+
+$(window).on('resize', updatePadding);
+updatePadding();s
 
 //guarantor checked
 $("body").on('click', '.guarantor_checked', function () {

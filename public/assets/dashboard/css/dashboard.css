@@ -10,6 +10,20 @@
     font-style: normal
 }
 
+#datatable-json {
+    width: 100% !important;
+    overflow-x: scroll !important;
+}
+
+.dataTables_scrollHeadInner,
+.dataTables_scrollHeadInner table {
+    width: 100% !important;
+}
+
+#pagination-demo
+{
+    overflow-x: scroll;
+}
 .fa {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
@@ -10171,6 +10185,11 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
 
 .accordion .card .card-header {
     margin-bottom: -1px
+}
+.card>.table-responsive{
+    width: 100% !important;
+    overflow-x: scroll !important;
+    padding: 10px !important;
 }
 
 .breadcrumb {
