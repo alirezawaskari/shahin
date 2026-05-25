@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+
 namespace App\Repositories\Auth;
 
 
@@ -26,6 +27,7 @@ class AuthCodeRepository implements OtpRepositoryInterface
 
     public function findActive(string $phone, string $code): ?AuthCode
     {
+
         return AuthCode::query()
             ->forPhone($phone)
             ->where('code', $code)
@@ -37,7 +39,7 @@ class AuthCodeRepository implements OtpRepositoryInterface
     public function findMostRecentByPhone(string $phone): ?AuthCode
     {
         return AuthCode::query()
-            ->forPhone()
+            ->forPhone($phone)
             ->latest('id')
             ->first();
     }

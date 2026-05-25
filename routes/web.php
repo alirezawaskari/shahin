@@ -4,6 +4,8 @@ use App\Classes\External\SendSms;
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
+use App\Http\Controllers\Admin\Auth\AdminLoginController;
+use App\Http\Controllers\Admin\Auth\AdminOtpController;
 use App\Http\Controllers\Admin\CallcenterController;
 use App\Http\Controllers\Admin\CampaignController as CampaignControllerAdmin;
 use App\Http\Controllers\Admin\CategoryController;
@@ -180,9 +182,38 @@ Route::get('test/pay',[TestController::class,'test']);
 
 Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 
+
+//Routes for user
+Route::middleware('guest')->prefix('/admin')->name('admin.')->group(function () {
+
+    // نمایش فرم ورود
+    Route::get('login', [AdminLoginController::class, 'showLoginForm'])
+        ->name('login.show');
+
+    // ورود با رمز عبور
+    Route::post('login', [AdminLoginController::class, 'loginWithPassword'])
+        ->name('login.password');
+
+    // درخواست ارسال کد یکبار مصرف
+    Route::post('login/otp/request', [AdminOtpController::class, 'requestCode'])
+        ->name('login.otp.request');
+
+    // اعتبارسنجی کد و ورود
+    Route::post('login/otp/verify', [AdminOtpController::class, 'verifyCode'])
+        ->name('login.otp.verify');
+
+    // خروج — فقط برای کاربر authenticated
+    Route::middleware('auth')->post('logout', [AdminLoginController::class, 'logout'])
+        ->name('logout');
+});
+
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
+
+
+
+
 
     Route::get('/run-query', function () {
         Artisan::call('command:query');

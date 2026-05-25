@@ -11,6 +11,7 @@ use App\Exceptions\Auth\InvalidOtpException;
 use App\Exceptions\Auth\NotAdminException;
 use App\Exceptions\Auth\OtpAlreadyUsedException;
 use App\Exceptions\Auth\OtpExpiredException;
+use App\Exceptions\Auth\OtpNotificationException;
 use App\Exceptions\Auth\TooManyOtpAttemptsException;
 use App\Exceptions\Auth\TooManyOtpRequestsException;
 use App\Models\User;
@@ -32,6 +33,11 @@ final readonly class OtpService
 
     }
 
+    /**
+     * @throws OtpNotificationException
+     * @throws TooManyOtpRequestsException
+     * @throws NotAdminException
+     */
     public function sendCodeFor(string $phone): int
     {
         //check is user admin

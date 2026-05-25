@@ -21,6 +21,7 @@ final class PasswordAuthenticator
             ->first();
 
 
+
         if ($user === null || !Hash::check($credentials->password, $user->password)) {
             throw new InvalidAdminCredentialsException();
         }

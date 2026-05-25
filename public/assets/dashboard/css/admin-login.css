@@ -1,0 +1,350 @@
+/* ─────────────────────────────────────────────────────────────
+   admin-login.css
+   استایل اختصاصی صفحه‌ی ورود پنل ادمین
+   فقط در این صفحه load می‌شود، مستقل از CSS داشبورد اصلی
+   ───────────────────────────────────────────────────────────── */
+
+/* ─── فونت Vazir (استفاده از فونت‌های موجود پروژه) ─── */
+@font-face {
+    font-family: 'Vazir';
+    src: url('../fonts/vazir-400.woff2') format('woff2'),
+         url('../fonts/vazir-400.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazir';
+    src: url('../fonts/vazir-500.woff2') format('woff2'),
+         url('../fonts/vazir-500.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazir';
+    src: url('../fonts/vazir-700.woff2') format('woff2'),
+         url('../fonts/vazir-700.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ─── Reset/Base ─── */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Vazir', Tahoma, Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2d3748;
+    line-height: 1.6;
+}
+
+/* ─── Container/Card ─── */
+.login-wrapper {
+    width: 100%;
+    max-width: 480px;
+    padding: 20px;
+}
+
+.login-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 40px 32px 32px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.login-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: #2d3748;
+}
+
+.login-subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #718096;
+    margin: 0 0 28px 0;
+}
+
+/* ─── Tabs ─── */
+.login-tabs {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    border-bottom: 2px solid #e2e8f0;
+    flex-wrap: nowrap;
+}
+
+.login-tabs .nav-item {
+    flex: 1;
+}
+
+.login-tabs .nav-link {
+    display: block;
+    text-align: center;
+    color: #718096;
+    font-weight: 500;
+    font-size: 14px;
+    border: none;
+    background: transparent;
+    padding: 12px 8px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+    text-decoration: none;
+}
+
+.login-tabs .nav-link:hover {
+    color: #5a67d8;
+}
+
+.login-tabs .nav-link.active {
+    color: #5a67d8;
+    border-bottom-color: #5a67d8;
+    background: transparent;
+    font-weight: 700;
+}
+
+.login-tab-icon {
+    margin-left: 6px;
+    font-style: normal;
+}
+
+/* ─── Tab content ─── */
+.login-tab-content {
+    position: relative;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Form elements ─── */
+.login-form .form-group {
+    margin-bottom: 18px;
+}
+
+.login-form label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #4a5568;
+}
+
+.login-form .form-control {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #2d3748;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-form .form-control:focus {
+    outline: none;
+    border-color: #5a67d8;
+    box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.15);
+}
+
+.login-form .form-control::placeholder {
+    color: #a0aec0;
+}
+
+.login-form .form-control.is-invalid {
+    border-color: #e53e3e;
+}
+
+.login-form .form-control.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #e53e3e;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* ─── Buttons ─── */
+.btn {
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-primary {
+    background: #5a67d8;
+    color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #4c51bf;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
+}
+
+.btn-success {
+    background: #38a169;
+    color: #fff;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #2f855a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+}
+
+.btn-link {
+    background: transparent;
+    color: #5a67d8;
+    padding: 4px 8px;
+    text-decoration: underline;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-link:hover:not(:disabled) {
+    color: #4c51bf;
+}
+
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ─── Alerts ─── */
+.alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.alert-danger {
+    background: #fed7d7;
+    color: #9b2c2c;
+    border: 1px solid #feb2b2;
+}
+
+.alert-success {
+    background: #c6f6d5;
+    color: #22543d;
+    border: 1px solid #9ae6b4;
+}
+
+.alert-warning {
+    background: #faf089;
+    color: #744210;
+    border: 1px solid #f6e05e;
+}
+
+/* ─── OTP-specific styles ─── */
+.otp-help-text {
+    font-size: 13px;
+    color: #718096;
+    margin: 0 0 18px 0;
+    line-height: 1.7;
+}
+
+.otp-info {
+    text-align: center;
+    font-size: 13px;
+    color: #4a5568;
+    margin-bottom: 18px;
+    padding: 10px;
+    background: #f7fafc;
+    border-radius: 6px;
+}
+
+.otp-info a {
+    color: #5a67d8;
+    text-decoration: underline;
+    margin-right: 8px;
+    font-size: 12px;
+}
+
+.otp-info a:hover {
+    color: #4c51bf;
+}
+
+.otp-input {
+    text-align: center;
+    letter-spacing: 8px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.otp-input::placeholder {
+    letter-spacing: 6px;
+    color: #cbd5e0;
+}
+
+.otp-timer {
+    text-align: center;
+    font-size: 13px;
+    color: #718096;
+    margin: 12px 0 18px;
+    min-height: 24px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 28px 22px;
+    }
+    .login-title {
+        font-size: 19px;
+    }
+    .login-tabs .nav-link {
+        font-size: 13px;
+        padding: 10px 4px;
+    }
+    .otp-input {
+        letter-spacing: 6px;
+        font-size: 18px;
+    }
+}

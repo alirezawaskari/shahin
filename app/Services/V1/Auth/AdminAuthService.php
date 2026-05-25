@@ -8,7 +8,9 @@ use App\DTOs\Auth\PasswordCredentialsDTO;
 use App\Exceptions\Auth\InactiveAccountException;
 use App\Exceptions\Auth\InvalidAdminCredentialsException;
 use App\Exceptions\Auth\NotAdminException;
+use App\Exceptions\Auth\OtpNotificationException;
 use App\Exceptions\Auth\TooManyOtpAttemptsException;
+use App\Exceptions\Auth\TooManyOtpRequestsException;
 use App\Models\User;
 use Illuminate\Contracts\Auth\StatefulGuard;
 
@@ -38,6 +40,11 @@ final readonly class AdminAuthService
 
     }
 
+    /**
+     * @throws NotAdminException
+     * @throws OtpNotificationException
+     * @throws TooManyOtpRequestsException
+     */
     public function requestOtp(string $phone): int
     {
         return $this->otpService->sendCodeFor($phone);

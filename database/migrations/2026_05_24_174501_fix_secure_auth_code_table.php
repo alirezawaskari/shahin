@@ -22,8 +22,8 @@ return new class extends Migration
                 $table->unsignedTinyInteger('attempts')->default(0)->after('expires_at');
             }
 
-            if (!Schema::hasColumn('auth_code', 'used_at')) {
-                $table->timestamp('used_at')->nullable()->after('attempts');
+            if (!Schema::hasColumn('auth_code', 'user_at')) {
+                $table->timestamp('user_at')->nullable()->after('attempts');
             }
         });
 

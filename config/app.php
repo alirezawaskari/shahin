@@ -221,6 +221,8 @@ return [
         \Artesaos\SEOTools\Providers\SEOToolsServiceProvider::class,
        \App\Providers\FilterServiceProvider::class,
 
+        \App\Providers\AdminAuthProvider::class,
+
     ],
 
     /*

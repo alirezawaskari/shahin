@@ -10,14 +10,6 @@ use Carbon\CarbonInterface;
 
 interface OtpRepositoryInterface
 {
-    /**
-     * ساخت رکورد جدید برای کد یکبار مصرف.
-     *
-     * @param  string                 $phone      شماره موبایل ادمین
-     * @param  string                 $code       کد تولید شده
-     * @param  CarbonInterface        $expiresAt  زمان انقضای کد
-     * @return AuthCode                            رکورد ساخته شده
-     */
     public function create(string $phone, string $code, CarbonInterface $expiresAt): AuthCode;
 
 
