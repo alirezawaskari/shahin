@@ -4,6 +4,7 @@
 @section('content')
 <div class="card">
     <div class="card-body">
+
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
                 <a class="nav-link show active" id="official-info-tab" data-toggle="tab" href="#official_info"
