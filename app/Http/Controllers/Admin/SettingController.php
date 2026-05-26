@@ -52,7 +52,7 @@ class SettingController extends AdminController
             'tax_free_card_number',
             'tax_free_card_holder',
         ]))
-            ->filter(fn ($value) => filled($value))
+            ->filter(fn($value) => filled($value))
             ->toArray();
 
         if (!empty($payload)) {
@@ -60,10 +60,20 @@ class SettingController extends AdminController
             $this->clearCache($owner);
         }
 
-        alert()->success('', 'عملیات موفق');
+        if (auth()->user()->level == 'ghorfeAdmin') {
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $owner->slug)
+                ->with([
+                    'active_tab' => 'official_info'
+                ]);
 
-        return back();
+        } else {
+            redirect()->back()->with([
+                'update' => 'success',
+            ]);
+        }
     }
+
 
     public function updateSmsSetting(Request $request)
     {

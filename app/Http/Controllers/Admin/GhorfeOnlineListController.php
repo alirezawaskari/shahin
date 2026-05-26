@@ -9,6 +9,7 @@ use App\Models\Permission;
 use App\Models\Service;
 use App\Models\Province;
 use App\Models\Theme;
+use App\Services\Settings\SettingsService;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
@@ -19,11 +20,18 @@ class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
+    protected $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
 
     public function getGhofeCategories($id)
     {
         $ghorfeOnlineList = GhorfeOnlineList::with('ghorfeCategories')->where('id', $id)->first();
-        return view( 'ghorfeAdmin.ghorfe.index', compact( 'ghorfeOnlineList' ) );
+
+        return view( 'ghorfeAdmin.ghorfe.index', compact( ['ghorfeOnlineList'] ) );
     }
 
     public function ghofeCategoryDetail($id)
@@ -131,7 +139,20 @@ class GhorfeOnlineListController extends AdminController {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
             $employees = Employee::whereStatus( true )->get();
             $categories = CategoryPermission::all();
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','categories', 'employees' ) );
+
+            $company_info = [
+                'address' => $this->settings->get('address'),
+                'phone' => $this->settings->get('phone'),
+                'email' => $this->settings->get('email'),
+                'shaba_number' => $this->settings->get('shaba_number'),
+                'card_number' => $this->settings->get('card_number'),
+                'card_holder' => $this->settings->get('card_holder'),
+                'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
+                'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
+                'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
+                'sms_panel' => $this->settings->get('sms_panel'),
+            ];
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','categories', 'employees' ,'company_info', 'company_info' ) );
         }
         return abort( 401 );
     }
@@ -169,9 +190,12 @@ class GhorfeOnlineListController extends AdminController {
                 'sms_code' => $codes,
             ] );
 
-            return redirect()->back()->with( [
-                'update' => 'success'
-            ] );
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'text_content'
+                ]);
         }
         return abort( 401 );
     }
@@ -240,9 +264,12 @@ class GhorfeOnlineListController extends AdminController {
                 'footer_tag' => $codes,
             ] );
 
-            return redirect()->back()->with( [
-                'update' => 'success'
-            ] );
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'menu_content'
+                ]);
         }
         return abort( 401 );
     }
@@ -281,6 +308,13 @@ class GhorfeOnlineListController extends AdminController {
         Menu::whereIn('id', $deletedIds)
             ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
             ->delete();
+
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'theme_content'
+            ]);
     }
     public function themeUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
@@ -317,7 +351,12 @@ class GhorfeOnlineListController extends AdminController {
             'color_secondary' => $request->color_secondary,
         ]);
 
-        return redirect()->back()->with(['update' => 'success']);
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'category_content'
+            ]);
     }
 
     public function categoriesGhorfe(Request $request, GhorfeOnlineList $ghorfeOnlineList)
