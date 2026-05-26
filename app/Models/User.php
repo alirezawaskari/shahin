@@ -341,11 +341,12 @@ class User extends Authenticatable implements LaratrustUser
         return $this->belongsTo(Representation::class);
     }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * Summary of ghorfeOnlineLists
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<GhorfeOnlineList, User, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
     public function ghorfeOnlineLists()
     {
-        return $this->hasMany(GhorfeOnlineList::class);
+        return $this->belongsToMany(GhorfeOnlineList::class);
     }
 
     /**
@@ -730,6 +731,7 @@ class User extends Authenticatable implements LaratrustUser
             ]);
         }
         $user = User::where('phone',$request->phone)->first();
+
         if (is_null($user)){
            $user = self::storeUser($request->phone,$request->name,$request->family,$request->province,$request->city,$request->gender);
            return response ([
@@ -744,13 +746,19 @@ class User extends Authenticatable implements LaratrustUser
         }
     }
     /**
-     * @param $request
-     * @return mixed
+     * Summary of storeUser
+     * @param mixed $phone
+     * @param mixed $name
+     * @param mixed $family
+     * @param mixed $province_id
+     * @param mixed $city_id
+     * @param mixed $gender
+     * @return User
      */
     private static function storeUser($phone, $name, $family, $province_id, $city_id,$gender)
     {
         $pass = rand(12345, 99999);
-        return User::create([
+        $user = User::create([
             'name' => $name,
             'family' => $family,
             'phone' => $phone,
@@ -760,8 +768,14 @@ class User extends Authenticatable implements LaratrustUser
             'level' => 'user',
             'province_id' => $province_id,
             'city_id' => $city_id,
-            'representation_id' => auth()->user()->admin_representation_id,
+            'representation_id' => auth()->user() ? auth()->user()->admin_representation_id : null,
         ]);
+        //set user ghorfe if exists
+        $ghorfe = AuthService::getGhorfe();
+
+        if($ghorfe) $user->ghorfeOnlineLists()->attach([$ghorfe->id]);
+
+        return $user;
     }
     /**
      * @return array

@@ -16,8 +16,8 @@ class AuthService
     {
         $ghorfe_online_list = self::getGhorfe();
 
-        if(!$ghorfe_online_list)return false;
-        $ghorfe_online_list_user_exist = GhorfeOnlineListUser::where('user_id',$ghorfe_online_list->user_id)
+        if(!$ghorfe_online_list && !auth()->user())return false;
+        $ghorfe_online_list_user_exist = GhorfeOnlineListUser::where('user_id',auth()->user()->id)
             ->where('ghorfe_online_list_id',$ghorfe_online_list->id)
             ->exists();
         return $ghorfe_online_list_user_exist;

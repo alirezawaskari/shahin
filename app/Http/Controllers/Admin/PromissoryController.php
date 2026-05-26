@@ -127,10 +127,9 @@ class PromissoryController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * Summary of store
      * @param Request $request
-     * @return array
-     *
+     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
@@ -149,9 +148,9 @@ class PromissoryController extends Controller
 //        }
 
         //find exporter and payer user
-        is_null($request->exporter_id) ? $exporter = $this->createUser($request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id, $request->exporter_gender) : $exporter = User::find($request->exporter_id);
-        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->exporter_city_id, $request->pay_to_gender) : $pay_to = User::find($request->pay_to_id);
-        is_null($request->guaranty_id) ? $guarantor = $this->createUser($request->guaranty_phone, $request->guaranty_name, $request->guaranty_family, $request->guaranty_province_id, $request->guaranty_city_id, $request->guaranty_gender) : $guarantor = User::find($request->guaranty_id);
+        is_null($request->exporter_id) ? $exporter = $this->createUser($request , $request->exporter_phone, $request->exporter_name, $request->exporter_family, $request->exporter_province_id, $request->exporter_city_id, $request->exporter_gender) : $exporter = User::find($request->exporter_id);
+        is_null($request->pay_to_id) ? $pay_to = $this->createUser($request , $request->pay_to_phone, $request->pay_to_name, $request->pay_to_family, $request->pay_to_province_id, $request->pay_to_city_id, $request->pay_to_gender) : $pay_to = User::find($request->pay_to_id);
+        is_null($request->guaranty_id) ? $guarantor = $this->createUser($request , $request->guaranty_phone, $request->guaranty_name, $request->guaranty_family, $request->guaranty_province_id, $request->guaranty_city_id, $request->guaranty_gender) : $guarantor = User::find($request->guaranty_id);
          $applicant = User::find($request->applicant_id);
 
         //find case: |is factorItem or totalFactorItem|
@@ -354,25 +353,26 @@ class PromissoryController extends Controller
     }
 
     /**
-     * @param $request
-     * @return mixed
+     * Summary of createUser
+     * @param mixed $request
+     * @param mixed $phone
+     * @param mixed $name
+     * @param mixed $family
+     * @param mixed $province
+     * @param mixed $city
+     * @param mixed $gender
+     * @return User
      */
-    private function createUser($phone, $name, $family, $province_id, $city_id,$gender)
+    private function createUser($request , $phone, $name, $family, $province, $city,$gender)
     {
-        $pass = rand(12345, 99999);
-        $phone = Helper::numberConverter($phone);
-
-        return User::create([
-            'name' => $name,
-            'family' => $family,
-            'phone' => $phone,
-            'sex' => $gender,
-            'password' => Hash::make($pass),
-            'active' => true,
-            'level' => 'user',
-            'province_id ' => $province_id,
-            'city_id' => $city_id
-        ]);
+        $request->phone = $phone;
+        $request->name = $name;
+        $request->family = $family;
+        $request->province = $province;
+        $request->city = $city;
+        $request->gender = $gender;
+        User::createUser($request);
+        return User::where('phone',$request->phone)->first();
     }
 
     /**

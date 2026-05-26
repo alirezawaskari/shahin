@@ -76,12 +76,6 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        view()->composer(['ghorfeAdmin.master'], function ($view) {
-            $view->with([
-                'is_user_ghorfe' => (new AuthService)->checkUserGhorfe(),
-            ]);
-        });
-
         view()->composer(['Admin.center.create' , 'Admin.center.edit' ,'Admin.centerRequest.all' , 'Admin.centerRequest.create' , 'Admin.centerRequest.edit'], function ($view) {
 
             $product_categories = CenterCategory::where( 'type', 'category' )->get();
