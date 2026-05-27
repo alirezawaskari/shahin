@@ -7374,8 +7374,8 @@ pre code {
 
 .table-responsive {
     display: block;
-    width: 100%;
-    overflow-x: auto;
+    width: 100% !important;
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: -ms-autohiding-scrollbar
 }
