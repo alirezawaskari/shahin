@@ -151,6 +151,8 @@ class GhorfeOnlineListController extends AdminController {
                 'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
                 'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
                 'sms_panel' => $this->settings->get('sms_panel'),
+                'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
+                'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
             ];
             return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','categories', 'employees' ,'company_info', 'company_info' ) );
         }

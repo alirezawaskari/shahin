@@ -53,6 +53,8 @@ class ContextController extends Controller
             'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
             'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
             'sms_panel' => $this->settings->get('sms_panel'),
+            'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
+            'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
         ];
 
         return view('Admin.settings.index', compact('company_info'));
@@ -75,6 +77,9 @@ class ContextController extends Controller
             'tax_free_shaba_number',
             'tax_free_card_number',
             'tax_free_card_holder',
+            'sms_panel',
+            'iranSms_linenumber',
+            'iranSms_apikey',
         ];
 
         $result = [];

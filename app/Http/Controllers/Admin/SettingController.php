@@ -27,6 +27,8 @@ class SettingController extends AdminController
                 'tax_free_card_number',
                 'tax_free_card_holder',
                 'sms_panel',
+                'iranSms_linenumber',
+                'iranSms_apikey'
             ])
             ->pluck('value', 'key')
             ->toArray();
@@ -51,6 +53,9 @@ class SettingController extends AdminController
             'tax_free_shaba_number',
             'tax_free_card_number',
             'tax_free_card_holder',
+            'sms_panel',
+            'iranSms_linenumber',
+            'iranSms_apikey'
         ]))
             ->filter(fn($value) => filled($value))
             ->toArray();
@@ -60,40 +65,12 @@ class SettingController extends AdminController
             $this->clearCache($owner);
         }
 
-        if (auth()->user()->level == 'ghorfeAdmin') {
-            return redirect()
-                ->route('ghorfeOnlineList.edit', $owner->slug)
-                ->with([
-                    'active_tab' => 'official_info'
-                ]);
+        $with = [
+            'update' => 'success',
+            'active_tab'=> 'official_info'
+        ];
 
-        } else {
-            redirect()->back()->with([
-                'update' => 'success',
-            ]);
-        }
-    }
-
-
-    public function updateSmsSetting(Request $request)
-    {
-        $owner = $this->getOwner();
-
-        if (!$owner) {
-            abort(404);
-        }
-
-        if (filled($request->sms_panel)) {
-            $this->saveSettings($owner, [
-                'sms_panel' => $request->sms_panel,
-            ]);
-
-            $this->clearCache($owner);
-        }
-
-        alert()->success('', 'عملیات موفق');
-
-        return back();
+        return redirect()->back()->with($with);
     }
 
     private function saveSettings($owner, array $fields)
