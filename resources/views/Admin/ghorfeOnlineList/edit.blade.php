@@ -140,13 +140,13 @@
                         </button>
                     </div>
 
-                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'settings_info' ? 'show active' : '' }}"
+                    <div class="tab-pane fade p-t-20  {{ $activeTab == 'settings_info' ? 'show active' : '' }}"
                          id="settings_info" role="tabpanel">
-                        <form action="{{ route('settings.updateCompanyInfo') }}" method="POST">
+                        <form action="{{ route('settings.updateCompanyInfo') }}" method="POST" class="mb-2">
                             @csrf
                             @method('PATCH')
-                            <div class="form-row ">
-                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات حساب مالیاتی</div>
+                            <div class="form-row border ">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 text-center ">اطلاعات حساب مالیاتی</div>
                                 <div class="col-md-4 form-group">
                                     <label for="shaba_number">شماره شبا (IR0000000000000000)</label>
                                     <input type="text" name="shaba_number" class="form-control"   value="{{$company_info['shaba_number'] ?? ''}}">
@@ -160,7 +160,7 @@
                                     <input type="text" name="card_holder" class="form-control"   value="{{$company_info['card_holder'] ?? ''}}">
                                 </div>
                                 <hr>
-                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات حساب معمولی</div>
+                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات حساب معمولی</div>
                                 <div class="col-md-4 form-group">
                                     <label for="tax_free_shaba_number">شماره شبا (IR0000000000000000)</label>
                                     <input type="text" name="tax_free_shaba_number" class="form-control"   value="{{$company_info['tax_free_shaba_number'] ?? ''}}">
@@ -173,7 +173,7 @@
                                     <label for="tax_free_card_holder">نام کامل صاحب حساب</label>
                                     <input type="text" name="tax_free_card_holder" class="form-control"   value="{{$company_info['tax_free_card_holder'] ?? ''}}">
                                 </div>
-                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات سایت</div>
+                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات سایت</div>
                                 <div class="col-md-12 form-group">
                                     <label for="fullName">آدرس</label>
                                     <input type="text" name="address" class="form-control" value="{{$company_info['address'] ?? ''}}">
@@ -208,15 +208,14 @@
                                     <input type="text" name="iranSms_apikey" class="form-control" value="{{$company_info['iranSms_apikey'] ?? ''}}">
                                 </div>
 
-
                                 <div class="col-md-4 form-group">
                                     <label for="fullName">iransms linenumber</label>
                                     <input type="text" name="iranSms_linenumber" class="form-control" value="{{$company_info['iranSms_linenumber'] ?? ''}}">
                                 </div>
                                 @endpermission
 
-                                <div class="col-12 mt-3">
-                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                                <div class="col-12 my-3">
+                                    <input type="submit" class="btn btn-success border-0 " value="ثبت تغییرات">
                                 </div>
                             </div>
                         </form>
@@ -225,7 +224,7 @@
                             @csrf
                             @method('PATCH')
                             <div class="form-row border  ">
-                                <div class="card-header col-md-12 border  border-right-0 border-left-0  text-center ">موعد تمدید دامنه ها</div>
+                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">موعد تمدید دامنه ها</div>
                                 <div class="col-md-2 form-group">
                                     <label for="fullName">lalecard.ir</label>
                                     <input type="text" name="domain_expire_date_lalecard_ir" class="form-control date" value="{{$expire_dates['domain_expire_date_lalecard.ir'] ?? ''}}">
@@ -258,14 +257,13 @@
                                     <label for="fullName">lalebank.com</label>
                                     <input type="text" name="domain_expire_date_lalebank_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalebank.com'] ?? ''}}">
                                 </div>
-                                <div class="card-header col-md-12 border   text-center border-right-0 border-left-0  ">موعد تمدید سرورها</div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">سرور مجازی رادکام</label>
+                                <div class="form-group col-md-6 ">
+                                    <label for="fullName"> موعد تمدید سرور مجازی رادکام</label>
                                     <input type="text" name="vps_expire_date" class="form-control date"  value="{{$expire_dates['vps_expire_date'] ?? ''}}">
                                 </div>
-                                <div class="card-header col-md-12 border   text-center border-right-0 border-left-0  ">موعد تمدید پنل ها</div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">پلسک</label>
+
+                                <div class="form-group col-md-6">
+                                    <label for="fullName">موعد تمدید پنل های پلسک</label>
                                     <input type="text" name="plesk_expire_date" class="form-control date"  value="{{$expire_dates['plesk_expire_date'] ?? ''}}">
                                 </div>
                                 <div class="form-group col-md-12 ">
