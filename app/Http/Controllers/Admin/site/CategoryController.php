@@ -12,6 +12,7 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\Slider;
+use App\Services\V1\Auth\AuthService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -104,6 +105,14 @@ class CategoryController extends Controller
     $category->isActive = $request->input('isActive') ?? $category->isActive ?? 1; // Default value assumed
     $category->displayOrder = $request->input('displayOrder') ?? $category->displayOrder ?? 0;
     $category->save();
+
+    $ghorfe_online = (new AuthService)->getGhorfe();
+
+    if ($ghorfe_online) {
+        $category->ghorfeOnlineLists()->syncWithoutDetaching([
+            $ghorfe_online->id
+        ]);
+    }
     // Create menu if enabled
     $this->createMenuIfNeeded($request, $category);
     // Create menu for other parent if exists

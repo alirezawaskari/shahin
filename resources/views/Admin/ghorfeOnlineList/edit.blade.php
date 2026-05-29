@@ -10,69 +10,68 @@
             @endphp
             <!-- Sidebar Menu -->
             <div class="col-12 col-sm-2">
+                <ul class="nav nav-pills d-block d-md-none custom-steps flex-nowrap">
+                    <div class="d-flex justify-content-between mb-1">
+                        <button type="button" class="btn btn-secondary btn-prev">
+                            <span class="fa fa-arrow-circle-o-right"></span>
+                        </button>
+                        <button typse="button" class="btn btn-primary btn-next">
+                            <span class="fa fa-arrow-circle-o-left"></span>
+                        </button>
+                    </div>
 
-                    <ul class="nav nav-pills d-block d-md-none custom-steps flex-nowrap">
-                        <div class="d-flex justify-content-between mb-1">
-                            <button type="button" class="btn btn-secondary btn-prev">
-                                <span class="fa fa-arrow-circle-o-right"></span>
-                            </button>
-                            <button typse="button" class="btn btn-primary btn-next">
-                                <span class="fa fa-arrow-circle-o-left"></span>
-                            </button>
-                        </div>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'settings_info' ? 'active' : '' }}"
+                           data-toggle="pill"
+                           href="#settings_info">
+                            <span class="step-title"> تنظیمات</span>
+                        </a>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'settings_info' ? 'active' : '' }}"
-                               data-toggle="pill"
-                               href="#settings_info">
-                                <span class="step-title"> تنظیمات</span>
-                            </a>
+                    </li>
 
-                        </li>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'official_info' ? 'active' : '' }}"
+                           data-toggle="pill"
+                           href="#official_info">
+                            <span class="step-title">      اطلاعات رسمی</span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'official_info' ? 'active' : '' }}"
-                               data-toggle="pill"
-                               href="#official_info">
-                                <span class="step-title">      اطلاعات رسمی</span>
-                            </a>
-                        </li>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'text_content' ? 'active' : '' }}"
+                           data-toggle="pill"
+                           href="#text_content">
+                            <span class="step-title"> محتوا</span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'text_content' ? 'active' : '' }}"
-                               data-toggle="pill"
-                               href="#text_content">
-                                <span class="step-title"> محتوا</span>
-                            </a>
-                        </li>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
+                            <span class="step-title"> تصاویر</span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
-                                <span class="step-title"> تصاویر</span>
-                            </a>
-                        </li>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'menu_content' ? 'active' : '' }}" data-toggle="pill" href="#menu_content">
+                            <span class="step-title"> منوها </span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'menu_content' ? 'active' : '' }}" data-toggle="pill" href="#menu_content">
-                                <span class="step-title"> منوها </span>
-                            </a>
-                        </li>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill" href="#theme_content">
+                            <span class="step-title"> تم </span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill" href="#theme_content">
-                                <span class="step-title"> تم </span>
-                            </a>
-                        </li>
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'category_content' ? 'active' : '' }}" data-toggle="pill" href="#category_content">
+                            <span class="step-title"> دسته بندی</span>
+                        </a>
+                    </li>
 
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'category_content' ? 'active' : '' }}" data-toggle="pill" href="#category_content">
-                                <span class="step-title"> دسته بندی</span>
-                            </a>
-                        </li>
+                </ul>
 
-                    </ul>
-
-                    <ul class="nav nav-pills d-none d-md-block d-block nav-justified custom-steps mb-4">
+                <ul class="nav nav-pills d-none d-md-block d-block nav-justified custom-steps mb-4">
 
                         <li class="nav-item mb-2 text-center">
                             <a class="nav-link {{ $activeTab == 'settings_info' ? 'active' : '' }}"
@@ -344,9 +343,7 @@
                     </div>
                 </form>
                         @endpermission
-
                     </div>
-
                     <div class="tab-pane fade p-t-20 {{ $activeTab == 'text_content' ? 'show active' : '' }}"
                          id="text_content">
                         @permission('ghorfe_online_list_site_content')
@@ -702,10 +699,8 @@
                                                        class="form-control"
                                                        required>
                                             </div>
-
                                         </div>
                                     @endforeach
-
                                 </div>
 
                                 @if($ghorfeOnlineList->menus->count() < 5)

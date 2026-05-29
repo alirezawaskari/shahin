@@ -74,7 +74,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     <div class="card position-relative">
@@ -174,7 +173,6 @@
 
         </div>
     </div>
-
 @stop
 @section('js')
     <script src="/assets/script/ckeditor/ckeditor.js"></script>

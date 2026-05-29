@@ -376,8 +376,7 @@ class CallcenterController extends Controller
         $phone = Helper::numberConverter($request->phone);
         $client = User::where('phone', $phone)->first();
         //create new user
-        if (!
-        $client) {
+        if (!$client) {
             $client = self::createUser($request);
         }else{
             $conduct=null;

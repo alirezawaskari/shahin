@@ -109,7 +109,11 @@ class ServiceController extends AdminController
         $request['ability_invite_friend'] = isset($request['ability_invite_friend']) ? 1 : 0;
 
         $ghorfe_online = (new AuthService)->getGhorfe();
-        $service = ($ghorfe_online ? $ghorfe_online->services()->create($request->all()) : Service::create($request->all()));
+        $service = Service::create($request->all());
+
+        if ($ghorfe_online) {
+            $ghorfe_online->services()->attach($service->id);
+        }
         if($request->menu_title != '') $menu_title = $request->menu_title;
         else $menu_title = $service->title;
 
