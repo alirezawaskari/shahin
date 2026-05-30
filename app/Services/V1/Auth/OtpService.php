@@ -100,7 +100,7 @@ final readonly class OtpService
     {
         $user = User::query()->where('phone', $phone)->first();
 
-        if ($user === null || !$user->isAdmin() || !$user->isActive()) {
+        if ($user === null) {
             throw new NotAdminException();
         }
 

@@ -26,13 +26,13 @@ final class PasswordAuthenticator
             throw new InvalidAdminCredentialsException();
         }
 
-        if (!$user->isAdmin()) {
-            throw new NotAdminException();
-        }
+        // if (!$user->isAdmin()) {
+        //     throw new NotAdminException();
+        // }
 
-        if (!$user->isActive()) {
-            throw new InactiveAccountException();
-        }
+        // if (!$user->isActive()) {
+        //     throw new InactiveAccountException();
+        // }
 
         return $user;
 
