@@ -8,7 +8,9 @@ use App\Models\GhorfeOnlineList;
 use App\Models\Permission;
 use App\Models\Service;
 use App\Models\Province;
+use App\Models\ShahinPackage;
 use App\Models\Theme;
+use App\Services\Settings\SettingsService;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
@@ -19,11 +21,18 @@ class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
+    protected $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
 
     public function getGhofeCategories($id)
     {
         $ghorfeOnlineList = GhorfeOnlineList::with('ghorfeCategories')->where('id', $id)->first();
-        return view( 'ghorfeAdmin.ghorfe.index', compact( 'ghorfeOnlineList' ) );
+
+        return view( 'ghorfeAdmin.ghorfe.index', compact( ['ghorfeOnlineList'] ) );
     }
 
     public function ghofeCategoryDetail($id)
@@ -47,9 +56,10 @@ class GhorfeOnlineListController extends AdminController {
     public function create() {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
             $categories = CategoryPermission::all();
+            $packages=ShahinPackage::with('categoryPermission')->get();
 
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' , 'categories' ) );
+            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' , 'categories' ,'packages' ) );
         }
 
         return abort( 401 );
@@ -77,8 +87,7 @@ class GhorfeOnlineListController extends AdminController {
             'contract_expiration_date' => 'required',
             'address' => 'required|string',
             'domain_active' => 'required',
-            'categories' => 'required|array',
-            'categories.*' => 'exists:categories,id',
+            'shahin_package_id' => 'required|exists:shahin_packages,id',
         ]);
 
         $inputs = $request->only([
@@ -89,6 +98,7 @@ class GhorfeOnlineListController extends AdminController {
             'call',
             'address',
             'domain_active',
+            'shahin_package_id',
             'status'
         ]);
 
@@ -100,7 +110,6 @@ class GhorfeOnlineListController extends AdminController {
         $inputs['contract_expiration_date'] = Helper::vertaToMiladi($request->contract_expiration_date);
 
         $ghorfeOnlineList = GhorfeOnlineList::create($inputs);
-
         $ghorfeOnlineList->about()->create();
 
         if (auth()->user()->hasPermission('ghorfe_online_list_categories')) {
@@ -131,7 +140,23 @@ class GhorfeOnlineListController extends AdminController {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
             $employees = Employee::whereStatus( true )->get();
             $categories = CategoryPermission::all();
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','categories', 'employees' ) );
+
+            $company_info = [
+                'address' => $this->settings->get('address'),
+                'phone' => $this->settings->get('phone'),
+                'email' => $this->settings->get('email'),
+                'shaba_number' => $this->settings->get('shaba_number'),
+                'card_number' => $this->settings->get('card_number'),
+                'card_holder' => $this->settings->get('card_holder'),
+                'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
+                'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
+                'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
+                'sms_panel' => $this->settings->get('sms_panel'),
+                'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
+                'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
+            ];
+            $packages=ShahinPackage::with('categoryPermission')->get();
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
         }
         return abort( 401 );
     }
@@ -169,11 +194,31 @@ class GhorfeOnlineListController extends AdminController {
                 'sms_code' => $codes,
             ] );
 
-            return redirect()->back()->with( [
-                'update' => 'success'
-            ] );
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'text_content'
+                ]);
         }
         return abort( 401 );
+    }
+
+    public function packageUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_package_update')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'package_id' => 'required|exists:shahin_packages,id',
+        ]);
+
+        $ghorfeOnlineList->update([
+            'shahin_package_id' => $request->package_id,
+        ]);
+
+        return redirect()->back()->with('success', 'پکیج با موفقیت ثبت شد');
     }
 
     /**
@@ -182,7 +227,6 @@ class GhorfeOnlineListController extends AdminController {
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
     * @throws \Illuminate\Validation\ValidationException
     */
-
     public function contentUpdate( Request $request, GhorfeOnlineList $ghorfeOnlineList ) {
 
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content' ) ) {
@@ -240,9 +284,12 @@ class GhorfeOnlineListController extends AdminController {
                 'footer_tag' => $codes,
             ] );
 
-            return redirect()->back()->with( [
-                'update' => 'success'
-            ] );
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'menu_content'
+                ]);
         }
         return abort( 401 );
     }
@@ -281,6 +328,13 @@ class GhorfeOnlineListController extends AdminController {
         Menu::whereIn('id', $deletedIds)
             ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
             ->delete();
+
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'theme_content'
+            ]);
     }
     public function themeUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
@@ -317,7 +371,12 @@ class GhorfeOnlineListController extends AdminController {
             'color_secondary' => $request->color_secondary,
         ]);
 
-        return redirect()->back()->with(['update' => 'success']);
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'category_content'
+            ]);
     }
 
     public function categoriesGhorfe(Request $request, GhorfeOnlineList $ghorfeOnlineList)

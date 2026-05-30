@@ -2,61 +2,60 @@
 @section('title'){{ $title }}@endsection
 
 @section('content')
-<div class="page-header">
-    <div>
-        <h3>{{ $title }}</h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ $title }}</li>
-            </ol>
-        </nav>
-    </div>
-    <div class="btn-group" role="group">
-        <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            اقدامات
-        </button>
-        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" x-placement="bottom-start"
-            style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 35px, 0px);">
-            <a data-toggle="modal" href="#sendLinkModal" class="dropdown-item">تشکیل پرونده</a>
+    <div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <div>
+            <h3>{{ $title }}</h3>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $title }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="btn-group mt-2 mt-md-0" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                اقدامات
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" x-placement="bottom-start"
+                style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 35px, 0px);">
+                <a data-toggle="modal" href="#sendLinkModal" class="dropdown-item">تشکیل پرونده</a>
+            </div>
         </div>
     </div>
-</div>
-<div>
     <form id="filter_form" action="/dashboard/factorItem/{{$url}}" method="get">
         @csrf
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-12 col-md-3 mb-2"><input type="text" name="name" placeholder="نام"
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><input type="text" name="name" placeholder="نام"
                             class="form-control"></div>
-                    <div class="col-12 col-md-3 mb-2"><input type="text" name="family" placeholder="نام خانوادگی"
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><input type="text" name="family" placeholder="نام خانوادگی"
                             class="form-control"></div>
-                    <div class="col-12 col-md-3 mb-2"><input type="text" name="phone" placeholder="موبایل"
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><input type="text" name="phone" placeholder="موبایل"
                             class="form-control"></div>
-                    <div class="col-12 col-md-3 mb-2"><input type="text" name="service_tariff"
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><input type="text" name="service_tariff"
                             placeholder="نام تعرفه (مثال : ایمپلنت)" class="form-control"></div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select name="has_session" id="has_session" class="custom-select">
                             <option value="all">انتخاب وضعیت جلسه </option>
                             <option value="1">دارد</option>
                             <option value="0">ندارد</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <date-picker placeholder="از تاریخ" locale="fa,en" format="YYYY-M-D" name="startDate">
                         </date-picker>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <date-picker placeholder="تا تاریخ" locale="fa,en" format="YYYY-M-D" name="endDate">
                         </date-picker>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <date-picker placeholder="تاریخ مراجعه" locale="fa,en" format="YYYY-M-D" name="date">
                         </date-picker>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select name="status[]" id="select_status" class="custom-select" multiple="multiple">
                             <option value="0">جدید</option>
                             <option value="16">ارجاع به کارشناسی</option>
@@ -78,28 +77,28 @@
                             <option value="20">منتظر تایید فاکتور توسط کاربر</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select name="type" class="custom-select" id="type">
                             <option value="all">انتخاب نوع پرداخت</option>
                             <option value="0">نقد</option>
                             <option value="1">اقساط</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select name="purchase_type" class="custom-select" id="purchase_type">
                             <option value="all">انتخاب نوع خرید</option>
                             <option value="0">آنلاین</option>
                             <option value="1">حضوری</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2"><select name="user" class="custom-select select2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><select name="user" class="custom-select select2">
                             <option value="all">انتخاب پشتیبان</option>
                             @foreach($callcenters as $item)
                             <option value="{{$item->id}}">{{$item->name.' '.$item->family}}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2"><select name="center" class="custom-select select2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><select name="center" class="custom-select select2">
                             <option value="all">انتخاب مرکز</option>
                             @foreach($centers as $center)
                             <option value="{{$center->id}}">{{$center->title}}</option>
@@ -107,7 +106,7 @@
                         </select></div>
 
                     @if(!auth()->user()->admin_representation)
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select name="representation" class="custom-select select2">
                             <option value="all">انتخاب نمایندگی</option>
                             <option value="center_representation">نمایندگی کل</option>
@@ -117,7 +116,7 @@
                         </select>
                     </div>
                     @endif
-                    <div class="col-12 col-md-3 mb-2"><select name="organization" class="custom-select select2
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2"><select name="organization" class="custom-select select2
 ">
                             <option value="all">انتخاب سازمان</option>
                             @foreach($organizations as $organization)
@@ -125,21 +124,21 @@
                             @endforeach
                         </select></div>
                     @include('Admin.filter.productServiceFilterInputs')
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select class="form-control" name="has_payment">
                             <option value="all">انتخاب پرداختی پرونده</option>
                             <option value="true">دارد</option>
                             <option value="false">ندارد</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <div class="custom-control custom-switch mt-2">
                             <input type="checkbox" class="custom-control-input" name="exel" id="exel">
                             <label class="custom-control-label" for="exel">خروجی اکسل</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-3 mb-2">
-                        <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
+                    <div class="col-12 col-sm-6 col-lg-3 mb-2">
+                        <button type="button" class="btn btn-outline-primary btn-block py-2" id="do_filter">فیلتر کن</button>
                     </div>
                 </div>
             </div>
@@ -151,12 +150,12 @@
                 <div class="row transfer_message_box">
                 </div>
                 <div class="row">
-                    <div class="col-12 col-md-2 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2">
                         <select id="transfer" name="type" class="form-control">
                             <option value="select">بر حسب انتخاب</option>
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-2">
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2">
                         <select class="custom-select select2" name="transfer_type" id="transfer_type">
                             <option value=" ">ارجاع به</option>
                                 @permission('factor_item_referral_to_representation')
@@ -170,7 +169,7 @@
                                 @endpermission
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-2 d-none" id="representation_list_box">
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2 d-none" id="representation_list_box">
                         <select class="custom-select select2" name="selected_representation">
                             <option value="center_representation">نمایندگی کل</option>
                             @foreach($representations as $representation)
@@ -178,7 +177,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-2 d-none" id="supporter_list_box">
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2 d-none" id="supporter_list_box">
                         <select class="custom-select select2" name="selected_supporter">
                             <option value=" ">انتخاب پشتیبان</option>
                             @foreach($supporter_users as $supporter_user)
@@ -186,7 +185,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-2 d-none" id="center_list_box">
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2 d-none" id="center_list_box">
                         <select class="custom-select select2" name="selected_center">
                             <option value=" ">انتخاب مرکز</option>
                             @foreach($centers as $center)
@@ -194,15 +193,16 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 mb-2">
-                        <button id="do_transfer" type="button" class="btn btn-outline-primary py-2 px-4">انتقال</button>
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2">
+                        <button id="do_transfer" type="button" class="btn btn-outline-primary btn-block py-2">انتقال</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="card position-relative">
-            <div class="card-body table-responsive">
-                <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
+            <div class="card-body ">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="datatable-json">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -224,6 +224,7 @@
                     <tbody>
                     </tbody>
                 </table>
+</div>
 
                 <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center"
                     id="loading">
@@ -242,12 +243,11 @@
             </div>
         </div>
     </form>
-</div>
 
 @include('Admin.callcenter.sendLink')
 
 <div class="modal" id="sendLinkModal">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">

@@ -376,7 +376,19 @@ class CallcenterController extends Controller
         $phone = Helper::numberConverter($request->phone);
         User::createUser($request);
         $client = User::where('phone', $phone)->first();
-        self::userConductUpdate($request->challenging , $client);
+        //create new user
+        if (!$client) {
+            $client = self::createUser($request);
+        }else{
+            $conduct=null;
+            if ($request->challenging)
+              $conduct='challenging';
+            $client->update([
+                'sex'=>$request->gender,
+                'conduct'=>$conduct
+            ]);
+        }
+
         $payment_type = $request->payment_type != null ? $request->payment_type : 'online';
         if ($client) {
             $services = $request->service ?: [];

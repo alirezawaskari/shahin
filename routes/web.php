@@ -228,7 +228,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/', [AdminController::class,'dashboard']);
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
-    Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+    Route::patch(
+        '/settings/update-company-info',
+        [SettingController::class, 'updateCompanyInfo']
+    )->name('settings.updateCompanyInfo');
     Route::post('/settings/sms', [SettingController::class,'updateSmsSetting'])->name('settings.update.sms.setting');
 
     Route::resource('/campaign', CampaignControllerAdmin::class);
@@ -346,7 +349,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItem/save-extra-pay', [TotalFactorItemController::class, 'saveExtraPay'])->name('totalFactorItem.saveExtraPay');
     Route::post('/totalFactorItem/store-impunity', [TotalFactorItemController::class, 'storeImpunity'])->name('totalFactorItem.storeImpunity');
     Route::delete('/totalFactorItem/destroy-impunity/{impunity}', [TotalFactorItemController::class, 'destroyImpunity'])->name('totalFactorItem.destroyImpunity');
-    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports']);
+    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports'])->name('totalFactorItem.reports');
     Route::get('/totalFactorItem/reports/filter', [TotalFactorItemController::class, 'filterReport']);
     Route::get('/totalFactorItem/reports/desktop', [TotalFactorItemController::class, 'desktopReports']);
     Route::get('/totalFactorItem/reports/desktop/filter', [TotalFactorItemController::class, 'filterDesktopReport']);
@@ -680,6 +683,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //ghorfeOnlineList
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+    Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
     Route::post('ghorfeOnlineList/menuUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@menuUpdate')->name('ghorfeOnlineList.menuUpdate');
     Route::post('ghorfeOnlineList/themeUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@themeUpdate')->name('ghorfeOnlineList.themeUpdate');
     Route::post('ghorfeOnlineList/categoryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@categoriesGhorfe')->name('ghorfeOnlineList.categoriesGhorfe');

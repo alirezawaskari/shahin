@@ -6,9 +6,10 @@ use App\Models\SmsTemplate;
 use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-
+use App\Services\V1\Auth\AuthService;
 class IranSms
 {
+
     /**
      * @param string $template
      * @param $phone
@@ -25,9 +26,10 @@ class IranSms
         $client = new Client( [
             'headers' => $headers
         ] );
+
         $body = [
             //30005006003675
-            'sender' => config( 'services.iranSms.linenumber' ),
+            'sender' => self::resolveSender(),
             'receptor' => config('app.test_status')? config('app.test_true_sms_to'):$phone,
             'message' => $message
         ];
@@ -51,4 +53,14 @@ class IranSms
         return json_decode($response->getBody()->getContents());
     }
 
+    private static function resolveSender(): string
+    {
+        $ghorfe = AuthService::getGhorfe();
+
+        if ($ghorfe && !empty($ghorfe->linenumber)) {
+            return $ghorfe->linenumber;
+        }
+
+        return config('services.iranSms.linenumber');
+    }
 }

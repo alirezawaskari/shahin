@@ -2,82 +2,104 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Traits\ResolvesOwner;
+use App\Models\Setting;
 
 class SettingController extends AdminController
 {
-    /**
-     * Summary of index
-     * @return \Illuminate\Contracts\View\View
-     */
+    use ResolvesOwner;
+
     public function index()
     {
-        $setting = Setting::filter()->first();
-        return view('Admin.setting.edit' , compact('setting'));
+        $user = auth()->user();
+
+        $settings = $user->settings()
+            ->whereIn('key', [
+                'address',
+                'email',
+                'phone',
+                'shaba_number',
+                'card_number',
+                'card_holder',
+                'tax_free_shaba_number',
+                'tax_free_card_number',
+                'tax_free_card_holder',
+                'sms_panel',
+                'iranSms_linenumber',
+                'iranSms_apikey'
+            ])
+            ->pluck('value', 'key')
+            ->toArray();
+        return view('Admin.setting.edit', compact('settings'));
     }
-
-
     public function updateCompanyInfo(Request $request)
     {
-        Cache::forget('setting');
-        Setting::filter()->first()->update([
-           'address'=>$request->company_address,
-           'call'=>$request->company_call_phone,
-           'email'=>$request->company_email,
-           'shaba_number'=>$request->company_shaba_number,
-           'card_number'=>$request->company_card_number,
-           'card_holder'=>$request->company_card_holder,
-           'tax_free_shaba_number'=>$request->company_tax_free_shaba_number,
-           'tax_free_card_number'=>$request->company_tax_free_card_number,
-           'tax_free_card_holder'=>$request->company_tax_free_card_holder,
-        ]);
-        alert()->success('','عملیات موفق');
-        return redirect()->back();
-    }
-    public function updateSmsSetting(Request $request)
-    {
-        Cache::forget('setting');
-        Setting::first()->update([
-            'sms_panel' => $request->sms_panel
-        ]);
-        alert()->success('','عملیات موفق');
-        return redirect()->back();
-    }
+        $owner = $this->getOwner();
 
-    /**
-     * Summary of update
-     * @param Request $request
-     * @param Setting $setting
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(Request $request, Setting $setting)
-    {
-        $this->validate(request(), [
-            'title' => 'required',
-            'index_description' => 'required',
-        ]);
+        if (!$owner) {
+            abort(404);
+        }
 
-        $inputs = $request->all();
-        $setting->update($inputs);
+        $payload = collect($request->only([
+            'address',
+            'phone',
+            'call',
+            'email',
+            'shaba_number',
+            'card_number',
+            'card_holder',
+            'tax_free_shaba_number',
+            'tax_free_card_number',
+            'tax_free_card_holder',
+            'sms_panel',
+            'iranSms_linenumber',
+            'iranSms_apikey'
+        ]))
+            ->filter(fn($value) => filled($value))
+            ->toArray();
 
-        //cache
-        Cache::flush();
+        if (!empty($payload)) {
+            $this->saveSettings($owner, $payload);
+            $this->clearCache($owner);
+        }
 
-        return redirect(route('dashboard'))->with([
-            'setting_update'=>'success'
-        ]);
+        $with = [
+            'update' => 'success',
+            'active_tab'=> 'official_info'
+        ];
+
+        return redirect()->back()->with($with);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Setting  $setting
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Setting $setting)
+    private function saveSettings($owner, array $fields)
     {
-        //
+        foreach ($fields as $key => $value) {
+
+            $owner->settings()->updateOrCreate(
+                [
+                    'key' => $key,
+                    'settingable_id' => $owner->id,
+                    'settingable_type' => $owner::class,
+                ],
+                [
+                    'value' => $value,
+                ]
+            );
+        }
+    }
+
+    private function clearCache($owner)
+    {
+        match (true) {
+            $owner instanceof \App\Models\GhorfeOnlineList =>
+            Cache::forget('settings_ghorfe_' . $owner->id),
+
+            $owner instanceof \App\Models\Representation =>
+            Cache::forget('settings_rep_' . $owner->id),
+
+            default => null,
+        };
     }
 }

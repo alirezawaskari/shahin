@@ -9,16 +9,6 @@ use Illuminate\Http\Request;
 use App\Services\V1\Auth\AuthService;
 
 class LoginController extends Controller {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
 
     use AuthenticatesUsers;
 
@@ -58,14 +48,22 @@ class LoginController extends Controller {
     */
 
     protected function authenticated( Request $request, $user ) {
+
         $level = auth()->user()->level;
-        if ( $level == 'admin' || $level == 'ghorfeAdmin') {
+        if ( $level == 'admin') {
             if ( auth()->user()->employee->status == 2 && !auth()->user()->employee->confirm ) {
                 return redirect( '/dashboard/employee/contract/'.auth()->user()->employee->id );
             }
             return redirect( 'dashboard/dailyDesktop' );
+        }else if ( $level == 'ghorfeAdmin') {
+            $host = request()->getHost();
+
+            $owner = $user->ghorfeOnlineLists()
+                ->where('domain_active', $host)
+                ->first();
+            return redirect( 'dashboard/ghorfeOnlineList/'.$owner->slug.'/edit' );
         }
-        if ( $level == 'blockUser' ) {
+        if ( $level == 'ghorfeAdmin' ) {
             $this->guard()->logout();
         }
     }

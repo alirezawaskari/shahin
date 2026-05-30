@@ -78,17 +78,75 @@
                     <label>تاریخ پایان اجاره نامه</label>
                     <input type="text" name="contract_expiration_date" class="form-control date">
                 </div>
-                @permission('ghorfe_online_list_categories')
-                <div class="col-12 mb-3">
-                    <label>دسته‌بندی‌ها</label>
-                    <select name="categories[]" class="form-control select2" multiple required>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}"
-                                {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
+
+                @permission('ghorfe_online_list_package_update')
+                <div class="row">
+                    @include('Admin.layouts.errors')
+                    <div class="col-12 col-md-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-dark-gradient text-white">
+                                <h6 class="mb-0 text-center">پکیج‌ها</h6>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    @if(isset($packages) && count($packages))
+                                        @foreach($packages as $package)
+                                            @if($package->is_active)
+
+                                                <div class="col-md-3 mb-3">
+                                                    <label class="package-label w-100">
+                                                        <input type="radio"
+                                                               name="shahin_package_id"
+                                                               value="{{ $package->id }}"
+                                                               class="d-none package-radio"
+                                                               id="package_{{ $package->id }}"
+                                                            {{ $package->id ? 'checked' : '' }}>
+
+                                                        <div class="package-card p-3 text-center border rounded">
+
+                                                            <img src="{{ asset($package->image ?? 'images/default-package.png') }}"
+                                                                 class="img-fluid mb-2"
+                                                                 style="height:80px; object-fit:cover; border-radius:10px;">
+
+                                                            <h6 class="font-weight-bold">{{ $package->name }}</h6>
+
+                                                            <small class="text-muted d-block">
+                                                                {{ $package->type }} | {{ $package->duration_days }} روز
+                                                            </small>
+
+                                                            @php
+                                                                $features = is_array($package->features)
+                                                                    ? $package->features
+                                                                    : json_decode($package->features, true);
+                                                            @endphp
+
+                                                            @if($features)
+                                                                <ul class="list-unstyled small text-muted mt-2 mb-2">
+                                                                    @foreach($features as $feature)
+                                                                        <li>✔ {{ $feature }}</li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+
+                                                            <div class="text-success font-weight-bold">
+                                                                {{ number_format($package->price) }} تومان
+                                                            </div>
+
+                                                        </div>
+                                                    </label>
+                                                </div>
+
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <p class="text-muted text-center w-100">پکیجی وجود ندارد</p>
+                                    @endif
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 @endpermission
                 <div class="col-12 col-md-4 mt-2">
@@ -100,15 +158,14 @@
                             <label>لوگو</label>
                             <br>
                             <label for="logo" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2"
-                                    aria-hidden="true"></i> انتخاب تصویر </label>
+                                                                                           aria-hidden="true"></i> انتخاب تصویر </label>
                             <input name="logo" type="file" id="logo"
-                                class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
-                                accept=".jpg,.jpeg,.png">
+                                   class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
+                                   accept=".jpg,.jpeg,.png">
                             <input type="hidden" id="logo" class="path" name="urllogo">
                         </div>
                     </div>
                 </div>
-
                 <div class="col-12">
                     <input type="submit" class="btn btn-success border-0" value="ثبت">
                 </div>

@@ -154,7 +154,7 @@
                 </tbody>
             </table>
 
-            <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center" id="loading">
+            <div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5  text-center" id="loading">
                 <div role="status" class="spinner-border text-primary">
                 </div>
                 <br>

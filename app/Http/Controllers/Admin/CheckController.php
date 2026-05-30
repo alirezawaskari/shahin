@@ -41,7 +41,7 @@ class CheckController extends Controller
      */
     public function filter(Request $request)
     {
-        $checks = Check::filter()->orderBy('date', 'desc');
+        $checks = Check::filter()->orderBy('updated_at', 'desc');
         if (isset($request->excel) && $request->excel == 'on') {
             return (new CheckExport($checks))->download('checks.xlsx');
         }

@@ -10,21 +10,23 @@
          </h3>
      </div>
      <div class="row">
-         <div class="col-md-3 m-5">
-             <table class="table table-bordered">
-                 <tr>
-                     <td>نام و نام خانوادگی</td>
-                     <td>
-                         {{$user->name . ' ' . $user->family}}
-                     </td>
-                 </tr>
-                 <tr>
-                     <td>شماره موبایل</td>
-                     <td>
-                         {{$user->phone}}
-                     </td>
-                 </tr>
-             </table>
+         <div class="col-12 mt-5">
+             <div class="table-responsive">
+                 <table class="table table-bordered">
+                     <tr>
+                         <td>نام و نام خانوادگی</td>
+                         <td>
+                             {{$user->name . ' ' . $user->family}}
+                         </td>
+                     </tr>
+                     <tr>
+                         <td>شماره موبایل</td>
+                         <td>
+                             {{$user->phone}}
+                         </td>
+                     </tr>
+                 </table>
+             </div>
          </div>
      </div>
     @include('Admin.totalfactoritem.layouts.promissoryManagement')

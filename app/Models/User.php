@@ -144,6 +144,11 @@ class User extends Authenticatable implements LaratrustUser
        return Str::random(60);
     }
 
+    public function settings()
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
+
     /**
      * @return bool
      */
@@ -340,13 +345,14 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->belongsTo(Representation::class);
     }
+
     /**
      * Summary of ghorfeOnlineLists
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<GhorfeOnlineList, User, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
     public function ghorfeOnlineLists()
     {
-        return $this->belongsToMany(GhorfeOnlineList::class);
+        return $this->hasMany(GhorfeOnlineList::class,'user_id');
     }
 
     /**
@@ -403,6 +409,41 @@ class User extends Authenticatable implements LaratrustUser
             ->where('created_at', '>=', $dates->keys()->first())
             ->groupBy('date')
             ->latest();
+    }
+
+    public function menuPermissions()
+    {
+        $user = auth()->user();
+
+        $packageId = null;
+
+        if ($user->level === 'ghorfeAdmin') {
+            $packageId = optional($user->ghorfeOnlineList)->shahin_package_id;
+        }
+        $packagePermissions = [];
+
+        if ($packageId) {
+            $packagePermissions = \DB::table('category_permissions_shahin_packages')
+                ->where('shahin_package_id', $packageId)
+                ->pluck('permission_id')
+                ->toArray();
+        }
+        $permissions = \App\Models\Permission::with('category')->get();
+
+        $filteredPermissions = $permissions->filter(function ($permission) use ($user, $packagePermissions, $packageId) {
+
+            // شرط 1: کاربر این permission رو داشته باشه
+            if (!$user->can($permission->name)) {
+                return false;
+            }
+
+            // شرط 2: اگر پکیج داشت، باید داخل پکیج هم باشه
+            if ($packageId && !in_array($permission->id, $packagePermissions)) {
+                return false;
+            }
+
+            return true;
+        });
     }
 
     /**
@@ -782,14 +823,15 @@ class User extends Authenticatable implements LaratrustUser
      */
     public static function getSupporterUserAdmin($representation)
     {
-        $users = User::whereDoesntHave('ghorfeOnlineLists')->where('admin_representation_id' , $representation)->where( 'level', 'admin')->get();
-        $supporter_users = [];
-        foreach ( $users as $user ) {
-            if ( $user->hasPermission('supporter_new_file') ) {
-                array_push( $supporter_users, $user );
-            }
-        }
-        return $supporter_users;
+        return self::query()
+            ->whereDoesntHave('ghorfeOnlineLists')
+            ->where('admin_representation_id', $representation)
+            ->where('level', 'admin')
+            ->whereHas('permissions', function ($q) {
+                $q->where('name', 'supporter_new_file');
+            })
+            ->orderBy('updated_at', 'desc')
+            ->get();
     }
     public function allocatedChildren()
     {

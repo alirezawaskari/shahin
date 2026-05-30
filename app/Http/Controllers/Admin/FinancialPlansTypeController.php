@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Services\V1\Auth\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,6 +95,12 @@ class FinancialPlansTypeController extends Controller
         $input['start_date'] = Helper::vertaToMiladi($request->start_date);
         $input['end_date'] = Helper::vertaToMiladi($request->end_date);
         $financial_plans_type = FinancialPlansType::create($input);
+        $ghorfe_online = (new AuthService)->getGhorfe();
+
+        if ($ghorfe_online) {
+            $financial_plans_type->ghorfeOnlineLists()
+                ->syncWithoutDetaching([$ghorfe_online->id]);
+        }
         $financial_plans_type->categories()->attach($request->category);
         $financial_plans_type->services()->attach($request->service);
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');

@@ -41,8 +41,12 @@ trait ExpireDates
             $data[] = array('key' => $key, 'value' => Helper::vertaToMiladi($value));
         }
         Context::updateContext($data);
-        alert()->success(' ', 'عملیات موفق ')->autoclose(3000)->persistent('باشه');
-        return redirect()->back();
+        $with = [
+            'update' => 'success',
+            'active_tab'=> 'official_info'
+        ];
+
+        return redirect()->back()->with($with);
     }
 
 }

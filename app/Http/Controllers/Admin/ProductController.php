@@ -23,6 +23,7 @@ use App\Models\StoreRoom;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Validation;
+use App\Services\V1\Auth\AuthService;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use File;
 use Hekmatinasser\Verta\Verta;
@@ -469,6 +470,11 @@ class ProductController extends Controller
                     'weight' => $request->good['weight'], 'description' => $request->good['description']
                 ]);
 
+                $ghorfe_online = (new AuthService)->getGhorfe();
+
+                if ($ghorfe_online) {
+                    $product->ghorfeOnlineLists()->attach($ghorfe_online->id);
+                }
                 if (isset($request->category_id)) $product->categories()->attach($request->category_id);
 
                 //store_room

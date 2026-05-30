@@ -1,10 +1,11 @@
 <div class="container">
     <div class="row">
-        <div class="card col-md-12 m-5">
+        <div class="card col-12 mt-5">
             <div class="card-header">
                 <h3>فهرست چک ها</h3>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-bordered bg-check-light">
                     <thead>
                     <tr>
@@ -95,6 +96,7 @@
                     @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
