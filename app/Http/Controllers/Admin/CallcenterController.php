@@ -29,6 +29,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\SuspensionStandard;
 use App\Models\User;
+use App\Services\V1\Auth\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -378,6 +379,7 @@ class CallcenterController extends Controller
         //create new user
         if (!$client) {
             $client = self::createUser($request);
+
         }else{
             $conduct=null;
             if ($request->challenging)
@@ -795,6 +797,11 @@ class CallcenterController extends Controller
                     'description' => $request->description,
                     'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
                 ]);
+
+            $ghorfe_online = (new AuthService)->getGhorfe();
+            if ($ghorfe_online) {
+                $ghorfe_online->callcenters()->attach($callcenter->id);
+            }
                 //send a request registeration sms to the user
                 // $request->request_type == 'other' ? event(new registerRequestNotification($user)) : '';
         }else{
