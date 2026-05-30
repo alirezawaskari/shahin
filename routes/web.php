@@ -657,6 +657,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //ghorfeOnlineList
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+    Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
     Route::post('ghorfeOnlineList/menuUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@menuUpdate')->name('ghorfeOnlineList.menuUpdate');
     Route::post('ghorfeOnlineList/themeUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@themeUpdate')->name('ghorfeOnlineList.themeUpdate');
     Route::post('ghorfeOnlineList/categoryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@categoriesGhorfe')->name('ghorfeOnlineList.categoriesGhorfe');

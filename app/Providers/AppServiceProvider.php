@@ -33,7 +33,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Request $request,MenuService $menuService): void
     {
-
         view()->composer('Admin.*', function ($view) use ($menuService) {
             if (auth()->check()) {
                 $menu = $menuService->getMenu(auth()->user());

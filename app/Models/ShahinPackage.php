@@ -13,8 +13,12 @@ class ShahinPackage extends Model
         'slug',
         'description',
         'status',
+        'features',
     ];
 
+    protected $casts = [
+        'features' => 'array',
+    ];
     /**
      * 🔗 ارتباط با permission ها
      */

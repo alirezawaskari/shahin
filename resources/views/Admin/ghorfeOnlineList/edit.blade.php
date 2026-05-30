@@ -33,7 +33,7 @@
                         <a class="nav-link {{ $activeTab == 'official_info' ? 'active' : '' }}"
                            data-toggle="pill"
                            href="#official_info">
-                            <span class="step-title">      اطلاعات رسمی</span>
+                            <span class="step-title">  اطلاعات رسمی</span>
                         </a>
                     </li>
 
@@ -45,6 +45,11 @@
                         </a>
                     </li>
 
+                    <li class="nav-item mb-2 text-center">
+                        <a class="nav-link {{ $activeTab == 'package_content' ? 'active' : '' }}" data-toggle="pill" href="#package_content">
+                            <span class="step-title"> انتخاب پکیج</span>
+                        </a>
+                    </li>
                     <li class="nav-item mb-2 text-center">
                         <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
                             <span class="step-title"> تصاویر</span>
@@ -98,29 +103,36 @@
                         </li>
 
                         <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
+                            <a class="nav-link {{ $activeTab == 'package_content' ? 'active' : '' }}" data-toggle="pill" href="#package_content">
                                 <span class="step-circle">4</span>
+                                <span class="step-title"> انتخاب پکیج</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item mb-2 text-center">
+                            <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
+                                <span class="step-circle">5</span>
                                 <span class="step-title"> تصاویر</span>
                             </a>
                         </li>
 
                         <li class="nav-item mb-2 text-center">
                             <a class="nav-link {{ $activeTab == 'menu_content' ? 'active' : '' }}" data-toggle="pill" href="#menu_content">
-                                <span class="step-circle">5</span>
+                                <span class="step-circle">6</span>
                                 <span class="step-title"> منوها </span>
                             </a>
                         </li>
 
                         <li class="nav-item mb-2 text-center">
                             <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill" href="#theme_content">
-                                <span class="step-circle">5</span>
+                                <span class="step-circle">7</span>
                                 <span class="step-title"> تم </span>
                             </a>
                         </li>
 
                         <li class="nav-item mb-2 text-center">
                             <a class="nav-link {{ $activeTab == 'category_content' ? 'active' : '' }}" data-toggle="pill" href="#category_content">
-                                <span class="step-circle">6</span>
+                                <span class="step-circle">8</span>
                                 <span class="step-title"> دسته بندی</span>
                             </a>
                         </li>
@@ -443,6 +455,89 @@
                         </form>
                         @endpermission
                     </div>
+                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'package_content' ? 'show active' : '' }}" id="package_content" role="tabpanel" aria-labelledby="package-content-tab">
+                        @permission('ghorfe_online_list_package_update')
+                        <form class="form-horizontal" role="form" method="post"
+                              action="{{route('ghorfeOnlineList.packageUpdate', [$ghorfeOnlineList->slug])}}"
+                              enctype="multipart/form-data">
+                            @csrf
+
+                            <div class="row">
+                                @include('Admin.layouts.errors')
+                                <div class="col-12 col-md-12">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header bg-dark-gradient text-white">
+                                            <h6 class="mb-0 text-center">پکیج‌ها</h6>
+                                        </div>
+
+                                        <div class="card-body">
+                                            <div class="row">
+
+                                                @if(isset($packages) && count($packages))
+                                                    @foreach($packages as $package)
+                                                        @if($package->is_active)
+
+                                                            <div class="col-md-3 mb-3">
+                                                                <label class="package-label w-100">
+                                                                    <input type="radio"
+                                                                           name="package_id"
+                                                                           value="{{ $package->id }}"
+                                                                           class="d-none package-radio"
+                                                                           id="package_{{ $package->id }}"
+                                                                        {{ (optional($ghorfeOnlineList?->shahinPackage)->id == $package->id) ? 'checked' : '' }}>
+
+                                                                    <div class="package-card p-3 text-center border rounded">
+
+                                                                        <img src="{{ asset($package->image ?? 'images/default-package.png') }}"
+                                                                             class="img-fluid mb-2"
+                                                                             style="height:80px; object-fit:cover; border-radius:10px;">
+
+                                                                        <h6 class="font-weight-bold">{{ $package->name }}</h6>
+
+                                                                        <small class="text-muted d-block">
+                                                                            {{ $package->type }} | {{ $package->duration_days }} روز
+                                                                        </small>
+
+                                                                        @php
+                                                                            $features = is_array($package->features)
+                                                                                ? $package->features
+                                                                                : json_decode($package->features, true);
+                                                                        @endphp
+
+                                                                        @if($features)
+                                                                            <ul class="list-unstyled small text-muted mt-2 mb-2">
+                                                                                @foreach($features as $feature)
+                                                                                    <li>✔ {{ $feature }}</li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        @endif
+
+                                                                        <div class="text-success font-weight-bold">
+                                                                            {{ number_format($package->price) }} تومان
+                                                                        </div>
+
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <p class="text-muted text-center w-100">پکیجی وجود ندارد</p>
+                                                @endif
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <input type="submit" class="btn btn-success border-0" value="ثبت">
+                            </div>
+                        </form>
+
+                    @endpermission
+                    </div>
 
                     <div class="tab-pane fade p-t-20 {{ $activeTab == 'image_content' ? 'show active' : '' }}" id="image_content" role="tabpanel" aria-labelledby="image-content-tab">
                         @permission('ghorfe_online_list_site_content')
@@ -653,127 +748,116 @@
                                         <input type="submit" class="btn btn-success border-0" value="ثبت">
                                     </div>
                                 </div>
-                            </form>
+                        </form>
                             @endpermission
-                                <div class="d-flex justify-content-between mt-3">
+                    </div>
+                    <div class="tab-pane fade p-t-20   {{ $activeTab == 'menu_content' ? 'show active' : '' }}" id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
+                        @permission('ghorfe_online_list_site_content')
+                        <form class="form-horizontal" role="form" method="post"
+                              action="{{route('ghorfeOnlineList.menuUpdate', [$ghorfeOnlineList->slug])}}"
+                              enctype="multipart/form-data">
+                            @csrf
+                            <div class="row" id="menu-wrapper" >
+                                @include('Admin.layouts.errors')
 
-                                    <button type="button" class="btn btn-secondary btn-prev">
-                                        قبلی
-                                    </button>
+                                @foreach($ghorfeOnlineList->menus as $index => $menu)
+                                    <div class="menu-item border p-2 mb-3">
 
-                                    <button type="button" class="btn btn-primary btn-next">
-                                        بعدی
-                                    </button>
+                                        {{-- ✅ تشخیص برای update --}}
+                                        <input type="hidden" name="ids[]" value="{{ $menu->id }}">
 
-                                </div>
-                            </div>
-                        <div class="tab-pane fade p-t-20   {{ $activeTab == 'menu_content' ? 'show active' : '' }}" id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
-                            @permission('ghorfe_online_list_site_content')
-                            <form class="form-horizontal" role="form" method="post"
-                                  action="{{route('ghorfeOnlineList.menuUpdate', [$ghorfeOnlineList->slug])}}"
-                                  enctype="multipart/form-data">
-                                @csrf
-                                <div class="row" id="menu-wrapper" >
-                                    @include('Admin.layouts.errors')
-
-                                    @foreach($ghorfeOnlineList->menus as $index => $menu)
-                                        <div class="menu-item border p-2 mb-3">
-
-                                            {{-- ✅ تشخیص برای update --}}
-                                            <input type="hidden" name="ids[]" value="{{ $menu->id }}">
-
-                                            <div class="col-12">
-                                                <label>عنوان</label>
-                                                <input type="text"
-                                                       name="titles[]"
-                                                       value="{{ $menu->title }}"
-                                                       class="form-control"
-                                                       required>
-                                            </div>
-
-                                            <div class="col-12">
-                                                <label>لینک</label>
-                                                <input type="text"
-                                                       name="links[]"
-                                                       value="{{ $menu->link }}"
-                                                       class="form-control"
-                                                       required>
-                                            </div>
+                                        <div class="col-12">
+                                            <label>عنوان</label>
+                                            <input type="text"
+                                                   name="titles[]"
+                                                   value="{{ $menu->title }}"
+                                                   class="form-control"
+                                                   required>
                                         </div>
-                                    @endforeach
+
+                                        <div class="col-12">
+                                            <label>لینک</label>
+                                            <input type="text"
+                                                   name="links[]"
+                                                   value="{{ $menu->link }}"
+                                                   class="form-control"
+                                                   required>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @if($ghorfeOnlineList->menus->count() < 5)
+                                <button type="button" id="add-menu" class="btn btn-primary mb-3">
+                                    افزودن منو
+                                </button>
+                            @endif
+
+                            <div class="col-12">
+                                <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                            </div>
+                        </form>
+                        @endpermission
+                    </div>
+                    <div class="tab-pane fade p-t-20  {{ $activeTab == 'theme_content' ? 'show active' : '' }}" id="theme_content" role="tabpanel" aria-labelledby="text-content-tab">
+                        @permission('ghorfe_online_list_site_content')
+                        <form class="form-horizontal" role="form" method="post"
+                              action="{{ route('ghorfeOnlineList.themeUpdate', [$ghorfeOnlineList]) }}"
+                              enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                @include('Admin.layouts.errors')
+
+                                {{-- 1. Form fields now rend er using an inline default if theme doesn't exist yet --}}
+                                <div class="col-12 col-md-4 mt-2 d-block">
+                                    <label>انتخاب نام برای تم </label>
+                                    <input type="text" class="form-control mt-1" name="name"
+                                           value="{{ old('name', $ghorfeOnlineList->theme->name ?? 'تم سفارشی جدید') }}" required>
                                 </div>
 
-                                @if($ghorfeOnlineList->menus->count() < 5)
-                                    <button type="button" id="add-menu" class="btn btn-primary mb-3">
-                                        افزودن منو
-                                    </button>
-                                @endif
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label class="d-block">رنگ اصلی</label>
+                                    {{-- 2. Fixed variable pointing to the theme relationship --}}
+                                    <input type="color"
+                                           id="primaryPicker"
+                                           name="color_primary"
+                                           class="form-control-color w-100"
+                                           value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
+                                           oninput="document.getElementById('primaryText').value = this.value">
 
-                                <div class="col-12">
+                                    <input type="text"
+                                           id="primaryText"
+                                           class="form-control mt-2 text-center font-mono"
+                                           value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
+                                           readonly>
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label class="d-block">رنگ فرعی</label>
+                                    {{-- 3. Live syncing added via inline native JS 'oninput' --}}
+                                    <input type="color"
+                                           id="secondaryPicker"
+                                           name="color_secondary"
+                                           class="form-control-color w-100"
+                                           value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
+                                           oninput="document.getElementById('secondaryText').value = this.value">
+
+                                    <input type="text"
+                                           id="secondaryText"
+                                           class="form-control mt-2 text-center font-mono"
+                                           value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
+                                           readonly>
+                                </div>
+
+                                <div class="col-12 mt-3">
                                     <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                                 </div>
-                            </form>
-                            @endpermission
-                        </div>
-                        <div class="tab-pane fade p-t-20  {{ $activeTab == 'theme_content' ? 'show active' : '' }}" id="theme_content" role="tabpanel" aria-labelledby="text-content-tab">
-                            @permission('ghorfe_online_list_site_content')
-                            <form class="form-horizontal" role="form" method="post"
-                                  action="{{ route('ghorfeOnlineList.themeUpdate', [$ghorfeOnlineList]) }}"
-                                  enctype="multipart/form-data">
-                                @csrf
-                                <div class="row">
-                                    @include('Admin.layouts.errors')
 
-                                    {{-- 1. Form fields now rend er using an inline default if theme doesn't exist yet --}}
-                                    <div class="col-12 col-md-4 mt-2 d-block">
-                                        <label>انتخاب نام برای تم </label>
-                                        <input type="text" class="form-control mt-1" name="name"
-                                               value="{{ old('name', $ghorfeOnlineList->theme->name ?? 'تم سفارشی جدید') }}" required>
-                                    </div>
-
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <label class="d-block">رنگ اصلی</label>
-                                        {{-- 2. Fixed variable pointing to the theme relationship --}}
-                                        <input type="color"
-                                               id="primaryPicker"
-                                               name="color_primary"
-                                               class="form-control-color w-100"
-                                               value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
-                                               oninput="document.getElementById('primaryText').value = this.value">
-
-                                        <input type="text"
-                                               id="primaryText"
-                                               class="form-control mt-2 text-center font-mono"
-                                               value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
-                                               readonly>
-                                    </div>
-
-                                    <div class="col-12 col-md-4 mb-3">
-                                        <label class="d-block">رنگ فرعی</label>
-                                        {{-- 3. Live syncing added via inline native JS 'oninput' --}}
-                                        <input type="color"
-                                               id="secondaryPicker"
-                                               name="color_secondary"
-                                               class="form-control-color w-100"
-                                               value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
-                                               oninput="document.getElementById('secondaryText').value = this.value">
-
-                                        <input type="text"
-                                               id="secondaryText"
-                                               class="form-control mt-2 text-center font-mono"
-                                               value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
-                                               readonly>
-                                    </div>
-
-                                    <div class="col-12 mt-3">
-                                        <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
-                                    </div>
-
-                                </div>
-                            </form>
-                            @endpermission
-                        </div>
-                        <div class="tab-pane fade p-t-20   {{ $activeTab == 'category_content' ? 'show active' : '' }}" id="category_content" role="tabpanel" aria-labelledby="text-content-tab">
+                            </div>
+                        </form>
+                        @endpermission
+                    </div>
+                    <div class="tab-pane fade p-t-20   {{ $activeTab == 'category_content' ? 'show active' : '' }}" id="category_content" role="tabpanel" aria-labelledby="text-content-tab">
                             @permission('ghorfe_online_list_categories')
                             <form class="form-horizontal" role="form" method="post"
                                   action="{{ route('ghorfeOnlineList.categoriesGhorfe', [$ghorfeOnlineList]) }}"
@@ -804,11 +888,11 @@
                             </form>
                             @endpermission
                         </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @stop
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>

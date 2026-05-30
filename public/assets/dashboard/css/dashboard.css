@@ -14,6 +14,27 @@
     width: 100% !important;
     overflow-x: scroll !important;
 }
+.package-label {
+    cursor: pointer;
+    display: block;
+}
+
+.package-card {
+    transition: 0.25s;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.package-label input:checked + .package-card {
+    border: 2px solid #007bff;
+    background: #f0f7ff;
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,123,255,0.15);
+}
+
+.package-card:hover {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
 
 .dataTables_scrollHeadInner,
 .dataTables_scrollHeadInner table {
