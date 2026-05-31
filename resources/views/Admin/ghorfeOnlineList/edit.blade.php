@@ -67,17 +67,9 @@
                             <span class="step-title"> تم </span>
                         </a>
                     </li>
-
-                    <li class="nav-item mb-2 text-center">
-                        <a class="nav-link {{ $activeTab == 'category_content' ? 'active' : '' }}" data-toggle="pill" href="#category_content">
-                            <span class="step-title"> دسته بندی</span>
-                        </a>
-                    </li>
-
                 </ul>
 
                 <ul class="nav nav-pills d-none d-md-block d-block nav-justified custom-steps mb-4">
-
                         <li class="nav-item mb-2 text-center">
                             <a class="nav-link {{ $activeTab == 'settings_info' ? 'active' : '' }}"
                                data-toggle="pill" href="#settings_info">
@@ -127,13 +119,6 @@
                             <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill" href="#theme_content">
                                 <span class="step-circle">7</span>
                                 <span class="step-title"> تم </span>
-                            </a>
-                        </li>
-
-                        <li class="nav-item mb-2 text-center">
-                            <a class="nav-link {{ $activeTab == 'category_content' ? 'active' : '' }}" data-toggle="pill" href="#category_content">
-                                <span class="step-circle">8</span>
-                                <span class="step-title"> دسته بندی</span>
                             </a>
                         </li>
                 </ul>
@@ -198,6 +183,7 @@
                                     <input type="text" name="email" class="form-control  "   value="{{$company_info['email'] ?? ''}}">
                                 </div>
 
+                                @permission('ghorfe_online_list_sms_panel')
                                 <div class="col-md-4 form-group">
                                     <label for="fullName">پنل پیامکی</label>
                                     <select name="sms_panel" class="form-control select2">
@@ -212,13 +198,15 @@
                                         </option>
                                     </select>
                                 </div>
-
+                                @endpermission
                                 @permission('ghorfe_online_list_sms_apikey')
                                 <div class="col-md-4 form-group">
                                     <label for="fullName">iransms apikey</label>
                                     <input type="text" name="iranSms_apikey" class="form-control" value="{{$company_info['iranSms_apikey'] ?? ''}}">
                                 </div>
+                                @endpermission
 
+                                @permission('ghorfe_online_list_sms_linenumber')
                                 <div class="col-md-4 form-group">
                                     <label for="fullName">iransms linenumber</label>
                                     <input type="text" name="iranSms_linenumber" class="form-control" value="{{$company_info['iranSms_linenumber'] ?? ''}}">
@@ -231,57 +219,59 @@
                             </div>
                         </form>
 
-                        <form action="{{route('settings.updateExpireDates')}}" method="post">
-                            @csrf
-                            @method('PATCH')
-                            <div class="form-row border  ">
-                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">موعد تمدید دامنه ها</div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">lalecard.ir</label>
-                                    <input type="text" name="domain_expire_date_lalecard_ir" class="form-control date" value="{{$expire_dates['domain_expire_date_lalecard.ir'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">lalecard.com</label>
-                                    <input type="text" name="domain_expire_date_lalecard_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalecard.com'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">ghorfe-online.ir</label>
-                                    <input type="text" name="domain_expire_date_ghorfe_online_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_ghorfe-online.ir'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">lalehkart.ir</label>
-                                    <input type="text" name="domain_expire_date_lalehkart_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalehkart.ir'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">lalekart.ir</label>
-                                    <input type="text" name="domain_expire_date_lalekart_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalekart.ir'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">lalemarket.ir</label>
-                                    <input type="text" name="domain_expire_date_lalemarket_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalemarket.ir'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">qorfe-online.ir</label>
-                                    <input type="text" name="domain_expire_date_qorfe_online_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_qorfe-online.ir'] ?? ''}}">
-                                </div>
-                                <div class="col-md-2 form-group">
-                                    <label for="fullName">lalebank.com</label>
-                                    <input type="text" name="domain_expire_date_lalebank_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalebank.com'] ?? ''}}">
-                                </div>
-                                <div class="form-group col-md-6 ">
-                                    <label for="fullName"> موعد تمدید سرور مجازی رادکام</label>
-                                    <input type="text" name="vps_expire_date" class="form-control date"  value="{{$expire_dates['vps_expire_date'] ?? ''}}">
-                                </div>
+                        @if(auth()->user()->level != 'ghorfeAdmin')
+                            <form action="{{route('settings.updateExpireDates')}}" method="post">
+                                @csrf
+                                @method('PATCH')
+                                <div class="form-row border  ">
+                                    <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">موعد تمدید دامنه ها</div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">lalecard.ir</label>
+                                        <input type="text" name="domain_expire_date_lalecard_ir" class="form-control date" value="{{$expire_dates['domain_expire_date_lalecard.ir'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">lalecard.com</label>
+                                        <input type="text" name="domain_expire_date_lalecard_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalecard.com'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">ghorfe-online.ir</label>
+                                        <input type="text" name="domain_expire_date_ghorfe_online_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_ghorfe-online.ir'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">lalehkart.ir</label>
+                                        <input type="text" name="domain_expire_date_lalehkart_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalehkart.ir'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">lalekart.ir</label>
+                                        <input type="text" name="domain_expire_date_lalekart_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalekart.ir'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">lalemarket.ir</label>
+                                        <input type="text" name="domain_expire_date_lalemarket_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalemarket.ir'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">qorfe-online.ir</label>
+                                        <input type="text" name="domain_expire_date_qorfe_online_ir" class="form-control date"  value="{{$expire_dates['domain_expire_date_qorfe-online.ir'] ?? ''}}">
+                                    </div>
+                                    <div class="col-md-2 form-group">
+                                        <label for="fullName">lalebank.com</label>
+                                        <input type="text" name="domain_expire_date_lalebank_com" class="form-control date"  value="{{$expire_dates['domain_expire_date_lalebank.com'] ?? ''}}">
+                                    </div>
+                                    <div class="form-group col-md-6 ">
+                                        <label for="fullName"> موعد تمدید سرور مجازی رادکام</label>
+                                        <input type="text" name="vps_expire_date" class="form-control date"  value="{{$expire_dates['vps_expire_date'] ?? ''}}">
+                                    </div>
 
-                                <div class="form-group col-md-6">
-                                    <label for="fullName">موعد تمدید پنل های پلسک</label>
-                                    <input type="text" name="plesk_expire_date" class="form-control date"  value="{{$expire_dates['plesk_expire_date'] ?? ''}}">
+                                    <div class="form-group col-md-6">
+                                        <label for="fullName">موعد تمدید پنل های پلسک</label>
+                                        <input type="text" name="plesk_expire_date" class="form-control date"  value="{{$expire_dates['plesk_expire_date'] ?? ''}}">
+                                    </div>
+                                    <div class="form-group col-md-12 ">
+                                        <button type="submit" class="btn btn-success">ثبت </button>
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-12 ">
-                                    <button type="submit" class="btn btn-success">ثبت </button>
-                                </div>
-                            </div>
-                        </form>
+                            </form>
+                        @endif
 
                     </div>
                     <div class="tab-pane fade p-t-20 {{ $activeTab == 'official_info' ? 'show active' : '' }}"
@@ -379,11 +369,6 @@
                                 </div>
 
                                 <div class="col-12 col-md-4 mb-2">
-                                    <label>شماره تماس</label>
-                                    <input type="text" value="{{$ghorfeOnlineList->call}}" class="form-control" name="call">
-                                </div>
-
-                                <div class="col-12 col-md-4 mb-2">
                                     <label>ایمیل</label>
                                     <input type="email" value="{{$ghorfeOnlineList->email}}" class="form-control" name="email">
                                 </div>
@@ -398,12 +383,6 @@
                                     <label>کد پستی</label>
                                     <input type="text" value="{{$ghorfeOnlineList->postal_code}}" class="form-control"
                                         name="postal_code">
-                                </div>
-
-                                <div class="col-12 mb-2">
-                                    <label>آدرس</label>
-                                    <input type="text" value="{{$ghorfeOnlineList->address}}" class="form-control"
-                                        name="address">
                                 </div>
 
                                 <div class="col-12 mb-2">
@@ -857,37 +836,6 @@
                         </form>
                         @endpermission
                     </div>
-                    <div class="tab-pane fade p-t-20   {{ $activeTab == 'category_content' ? 'show active' : '' }}" id="category_content" role="tabpanel" aria-labelledby="text-content-tab">
-                            @permission('ghorfe_online_list_categories')
-                            <form class="form-horizontal" role="form" method="post"
-                                  action="{{ route('ghorfeOnlineList.categoriesGhorfe', [$ghorfeOnlineList]) }}"
-                                  enctype="multipart/form-data">
-                                @csrf
-                                <div class="row">
-                                    @include('Admin.layouts.errors')
-
-                                    <div class="col-12  mt-2">
-                                        <label>دسته‌بندی‌ها</label>
-                                        <select name="categories[]" class="form-control select2" multiple>
-                                            @php
-                                                $selectedCategories = $ghorfeOnlineList->ghorfeCategories->pluck('id')->toArray();
-                                            @endphp
-                                            @foreach($categories as $category)
-                                                <option value="{{ $category->id }}"
-                                                    {{ in_array($category->id, $selectedCategories) ? 'selected' : '' }}>
-                                                    {{ $category->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-12 mt-3">
-                                        <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
-                                    </div>
-
-                                </div>
-                            </form>
-                            @endpermission
-                        </div>
                 </div>
             </div>
         </div>

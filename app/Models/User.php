@@ -422,7 +422,7 @@ class User extends Authenticatable implements LaratrustUser
         $packagePermissions = [];
 
         if ($packageId) {
-            $packagePermissions = \DB::table('category_permissions_shahin_packages')
+            $packagePermissions = \DB::table('category_permission_shahin_package')
                 ->where('shahin_package_id', $packageId)
                 ->pluck('permission_id')
                 ->toArray();
