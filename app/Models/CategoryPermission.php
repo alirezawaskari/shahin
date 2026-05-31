@@ -28,7 +28,7 @@ class CategoryPermission extends Model
     {
         return $this->belongsToMany(
             ShahinPackage::class,
-            'category_permissions_shahin_packages',
+            'category_permission_shahin_package',
             'category_permission_id',
             'shahin_package_id'
         );

@@ -802,7 +802,6 @@ class CallcenterController extends Controller
      */
     private function syncTaskItems($request , Callcenter $task)
     {
-
         if (is_array($request->product_category) && count($request->product_category)>0)
         $task->categories()->attach($request->product_category);
         if (is_array($request->service) && count($request->service)>0)
