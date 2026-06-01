@@ -10,6 +10,25 @@
     font-style: normal
 }
 
+.edit-ghorfe .nav-item
+{
+    text-align: right !important;
+}
+.edit-ghorfe .nav-pills .nav-link.active, .nav-pills .show>.nav-link
+{
+    background-color: #0e2c4d;
+}
+
+.edit-ghorfe  .btn-prev,
+.edit-ghorfe  .btn-next
+{
+    padding: 0 !important;
+    color: #0e2c4d !important;
+    font-size: 1.5rem !important;
+    border: none !important;
+    outline: none !important;
+}
+
 #datatable-json {
     width: 100% !important;
     overflow-x: scroll !important;
