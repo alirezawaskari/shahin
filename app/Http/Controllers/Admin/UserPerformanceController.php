@@ -15,7 +15,7 @@ class UserPerformanceController extends AdminController {
     public function report() {
         $user = auth()->user();
         if ( $user->isAbleTo( 'percentageAllocationEmployee_report' ) ) {
-            $employees = Employee::whereStatus( true )->get();
+            $employees = Employee::filter()->whereStatus( true )->get();
 
             return view( 'Admin.percentageAllocationEmployee.report', compact( 'employees' ) );
         }

@@ -91,6 +91,11 @@ class UserPerformance extends Model implements AuditableContract
         $percentage_type = request( 'percentage_type' );
         $user = request( 'user' );
 
+        if (auth()->user()->admin_representation) {
+            $query->whereHas('user', function ($query) use ($family) {
+                $query->where('admin_representation_id', auth()->user()->admin_representation_id);
+            });
+        }
         if ( isset( $user ) && $user != 'all' ) {
             $query->where('user_id', $user);
         }
@@ -103,7 +108,6 @@ class UserPerformance extends Model implements AuditableContract
             });
         }
         if (isset($family) && trim($family) != '') {
-            $query->whereHas('userPerformance', function ($query) use ($family) {
                 $query->whereHas('factorItem', function ($query) use ($family) {
                     $query->whereHas('factor', function ($query) use ($family) {
                         $query->whereHas('user', function ($query) use ($family) {
@@ -111,11 +115,9 @@ class UserPerformance extends Model implements AuditableContract
                         });
                     });
                 });
-            });
         }
 
         if (isset($name) && trim($name) != '') {
-            $query->whereHas('userPerformance', function ($query) use ($name) {
                 $query->whereHas('factorItem', function ($query) use ($name) {
                     $query->whereHas('factor', function ($query) use ($name) {
                         $query->whereHas('user', function ($query) use ($name) {
@@ -123,11 +125,9 @@ class UserPerformance extends Model implements AuditableContract
                         });
                     });
                 });
-            });
         }
 
         if (isset($phone) && trim($phone) != '') {
-            $query->whereHas('userPerformance', function ($query) use ($phone) {
                 $query->whereHas('factorItem', function ($query) use ($phone) {
                     $query->whereHas('factor', function ($query) use ($phone) {
                         $query->whereHas('user', function ($query) use ($phone) {
@@ -135,7 +135,6 @@ class UserPerformance extends Model implements AuditableContract
                         });
                     });
                 });
-            });
         }
 
         if (isset($type) && trim($type) != '' && $type != 'all') {

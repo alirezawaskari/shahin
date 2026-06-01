@@ -22,10 +22,10 @@ class PercentageAllocationEmployeeController extends AdminController {
         abort_unless($user->isAbleTo('percentageAllocationEmployee_all'), 401);
 
         if ($user->hasRole('admin')) {
-            $employeesQuery = Employee::with(['service', 'center', 'user', 'childrenRecursive.user'])
+            $employeesQuery = Employee::filter()->with(['service', 'center', 'user', 'childrenRecursive.user'])
                 ->whereNull('deleted_at');
         } else {
-            $employeesQuery = Employee::with(['service', 'center', 'user', 'childrenRecursive.user'])
+            $employeesQuery = Employee::filter()->with(['service', 'center', 'user', 'childrenRecursive.user'])
                 ->whereNull('employees.deleted_at')
                 ->whereHas('percentageAllocations', function ($q) {
                     $q->whereNull('percentage_allocation_employees.deleted_at');
@@ -104,6 +104,7 @@ class PercentageAllocationEmployeeController extends AdminController {
                 'startDate' => 'required',
                 'endDate' => 'required',
                 'employee' => 'required',
+                'factor_sender' => 'required',
             ] );
 
             if ( $request->register_price && $request->service ) {
@@ -168,9 +169,9 @@ class PercentageAllocationEmployeeController extends AdminController {
     }
 
     /**
-     * delete resume
+     * *
      * @param PercentageAllocationEmployee $percentageAllocationEmployee
-     * @return PercentageAllocationEmployee
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(PercentageAllocationEmployee $percentageAllocationEmployee)
     {
