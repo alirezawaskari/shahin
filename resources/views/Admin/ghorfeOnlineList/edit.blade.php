@@ -5,6 +5,7 @@
 <div class="card edit-ghorfe">
     <div class="card-body">
         <div class="row">
+            <input type="hidden" id="ghorfe_id" value="{{ $ghorfeOnlineList->id }}">
             @php
                 $activeTab = session('active_tab', 'settings_info');
             @endphp
@@ -145,7 +146,7 @@
 
             <!-- Content -->
             <div class="col-12 col-sm-10">
-                <div class="tab-content border p-3 rounded-2">
+                <div class="tab-content border justify-content-center p-3 rounded-2">
                     <div class="d-none d-md-flex justify-content-between mb-1">
                         <button type="button" class="btn btn-prev">
                             <span class="fa fa-arrow-circle-o-right"></span>
@@ -875,33 +876,55 @@
                                     <div class="col-12 col-md-12 mb-2">
                                         <h5>برای قسمت دیتاماینیگ صفحه اصلی استفاده می شود</h5>
                                     </div>
-                                    <div class="col-12 col-md-6 mb-5">
+                                    <div class="col-12 mb-5">
                                         <label>دسته بندی های
                                         </label>
-                                        <select name="categories[]" class="selectMulti form-control" multiple="multiple">
-                                            @foreach($all_categories as $all_category)
+                                        <select name="category" class="selectMulti form-control">
+                                            <option value="">انتخاب دسته بندی</option>
+                                            @foreach($ghorfeOnlineList->categories as $all_category)
                                                 <option value="{{$all_category->id}}">{{$all_category->title}}</option>
                                             @endforeach
                                         </select>
-                                        @if($errors->has('categories'))
-                                            <span class="help-block sub-error  "> {{$errors->first('categories')}} </span>
+                                        @if($errors->has('category'))
+                                            <span class="help-block sub-error">
+                                                {{ $errors->first('category') }}
+                                            </span>
                                         @endif
                                     </div>
 
-                                    <div class="col-12 col-md-6 mb-5">
-                                        <label>خدمات
-                                        </label>
-                                        <select title="" name="services[]" class="selectMulti form-control" multiple="multiple">
-                                            @foreach($all_services as $all_service)
-                                                <option value="{{$all_service->id}}">{{$all_service->title}}</option>
-                                            @endforeach
-                                        </select>
-                                        @if($errors->has('services'))
+                                    <div class="col-12 mb-5">
+                                        <label>خدمات</label>
+                                        <div class="row">
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <label>سرویس</label>
+                                                    <select id="serviceSelect" name="service" class="form-control">
+                                                        <option value="">انتخاب سرویس</option>
+                                                        @foreach($ghorfeOnlineList->services as $service)
+                                                            <option value="{{ $service->id }}">{{ $service->title }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label>زیرسرویس</label>
+                                                    <select id="serviceItemSelect" name="service_item" class="form-control ">
+                                                        <option value="">ابتدا سرویس را انتخاب کنید</option>
+                                                    </select>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                        @if($errors->has('service'))
                                             <span class="help-block sub-error  "> {{$errors->first('services')}} </span>
                                         @endif
                                     </div>
-                                    @include('Admin.partials.createGhorfeGallery')
-
+                                    <div id="gallerySection">
+                                        <x-gallery-form :galleries="[]" />
+                                    </div>
                                 </div>
 
                                 {{-- ================= SUBMIT ================= --}}
@@ -929,6 +952,59 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script>
+    document.getElementById('serviceSelect').addEventListener('change', function() {
+        let serviceId = this.value;
+        let itemSelect = document.getElementById('serviceItemSelect');
+
+        itemSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
+
+        if (!serviceId) {
+            itemSelect.innerHTML = '<option value="">ابتدا سرویس را انتخاب کنید</option>';
+            return;
+        }
+
+        fetch(`/service-items/${serviceId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    itemSelect.innerHTML = '<option value="">خالی است</option>';
+                    return;
+                }
+
+                let options = '<option value="">انتخاب زیرسرویس</option>';
+                data.forEach(item => {
+                    options += `<option value="${item.id}">${item.title}</option>`;
+                });
+                itemSelect.innerHTML = options;
+            })
+            .catch(() => {
+                itemSelect.innerHTML = '<option value="">خطا در بارگذاری</option>';
+            });
+    });    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $('#categorySelect, #serviceSelect').change(function () {
+
+        $.ajax({
+            url: "{{ route('ghorfeOnlineList.getGallery') }}",
+            type: "POST",
+            data: {
+                category_id: $('#categorySelect').val(),
+                service_id: $('#serviceSelect').val(),
+                ghorfe_id: $('#ghorfe_id').val()
+            },
+            success: function (res) {
+                $('#gallerySection').html(res);
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+            }
+        });
+
+    });
         function previewImage(event, previewId) {
         const file = event.target.files[0];
         if (!file) return;

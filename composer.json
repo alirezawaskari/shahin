@@ -12,7 +12,7 @@
         "econea/nusoap": "^0.9.15",
         "guzzlehttp/guzzle": "^7.2",
         "hekmatinasser/verta": "^8.3",
-        "intervention/image": "^2.7",
+        "intervention/image": "^3.11",
         "laravel/framework": "^12.12",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10",

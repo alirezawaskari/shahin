@@ -95,6 +95,7 @@ class GalleryController extends AdminController
         unset($input['image']);
 
         $gallery->update($input);
+
         return redirect(route('gallery.index'))->with([
             'gallery_update'=>'success'
         ]);

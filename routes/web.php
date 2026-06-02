@@ -655,6 +655,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('organization', 'OrganizationController');
     Route::resource('representation', 'RepresentationController');
     //ghorfeOnlineList
+    Route::post('ghorfeOnlineList/getGallery', 'GhorfeOnlineListController@getGallery')->name('ghorfeOnlineList.getGallery');
+    Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
     Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
@@ -839,6 +841,7 @@ Route::post('/phone', 'HomeController@phone')->name('phone');
 Route::post('/service/financialPlansType', 'ServiceController@getFinancialPlansType');
 Route::post('/service/item', [\App\Http\Controllers\ServiceController::class,'getServiceItem']);
 Route::get('/services', 'ServiceController@index')->name('services');
+Route::get('/service-items/{id}', [ServiceController::class, 'getItems']);
 Route::get('/services/{service}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}/{task}', 'ServiceController@single');
