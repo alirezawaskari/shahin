@@ -2,7 +2,7 @@
 @section('title')ویرایش مغازه دیجیتال@endsection
 
 @section('content')
-<div class="card">
+<div class="card edit-ghorfe">
     <div class="card-body">
         <div class="row">
             @php
@@ -12,15 +12,15 @@
             <div class="col-12 col-sm-2">
                 <ul class="nav nav-pills d-block d-md-none custom-steps flex-nowrap">
                     <div class="d-flex justify-content-between mb-1">
-                        <button type="button" class="btn btn-secondary btn-prev">
+                        <button type="button" class="btn btn-prev">
                             <span class="fa fa-arrow-circle-o-right"></span>
                         </button>
-                        <button typse="button" class="btn btn-primary btn-next">
+                        <button typse="button" class="btn btn-next">
                             <span class="fa fa-arrow-circle-o-left"></span>
                         </button>
                     </div>
 
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'settings_info' ? 'active' : '' }}"
                            data-toggle="pill"
                            href="#settings_info">
@@ -29,7 +29,7 @@
 
                     </li>
 
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'official_info' ? 'active' : '' }}"
                            data-toggle="pill"
                            href="#official_info">
@@ -37,7 +37,7 @@
                         </a>
                     </li>
 
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'text_content' ? 'active' : '' }}"
                            data-toggle="pill"
                            href="#text_content">
@@ -45,32 +45,40 @@
                         </a>
                     </li>
 
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'package_content' ? 'active' : '' }}" data-toggle="pill" href="#package_content">
                             <span class="step-title"> انتخاب پکیج</span>
                         </a>
                     </li>
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
                             <span class="step-title"> تصاویر</span>
                         </a>
                     </li>
 
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'menu_content' ? 'active' : '' }}" data-toggle="pill" href="#menu_content">
                             <span class="step-title"> منوها </span>
                         </a>
                     </li>
 
-                    <li class="nav-item mb-2 text-center">
+                    <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill" href="#theme_content">
                             <span class="step-title"> تم </span>
                         </a>
                     </li>
+                    @permission('ghorfe_online_list_gallery')
+
+                    <li class="nav-item mb-2">
+                        <a class="nav-link {{ $activeTab == 'gallery_content' ? 'active' : '' }}" data-toggle="pill" href="#gallery_content">
+                            <span class="step-title"> گالری </span>
+                        </a>
+                    </li>
+                    @endpermission
                 </ul>
 
                 <ul class="nav nav-pills d-none d-md-block d-block nav-justified custom-steps mb-4">
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'settings_info' ? 'active' : '' }}"
                                data-toggle="pill" href="#settings_info">
                                 <span class="step-circle">1</span>
@@ -78,7 +86,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'official_info' ? 'active' : '' }}"
                                data-toggle="pill" href="#official_info">
                                 <span class="step-circle">2</span>
@@ -86,7 +94,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'text_content' ? 'active' : '' }}"
                                data-toggle="pill" href="#text_content">
                                 <span class="step-circle">3</span>
@@ -94,44 +102,55 @@
                             </a>
                         </li>
 
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'package_content' ? 'active' : '' }}" data-toggle="pill" href="#package_content">
                                 <span class="step-circle">4</span>
                                 <span class="step-title"> انتخاب پکیج</span>
                             </a>
                         </li>
 
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill" href="#image_content">
                                 <span class="step-circle">5</span>
                                 <span class="step-title"> تصاویر</span>
                             </a>
                         </li>
 
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'menu_content' ? 'active' : '' }}" data-toggle="pill" href="#menu_content">
                                 <span class="step-circle">6</span>
                                 <span class="step-title"> منوها </span>
                             </a>
                         </li>
 
-                        <li class="nav-item mb-2 text-center">
+                        <li class="nav-item mb-2">
                             <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill" href="#theme_content">
                                 <span class="step-circle">7</span>
                                 <span class="step-title"> تم </span>
                             </a>
                         </li>
+
+                    @permission('ghorfe_online_list_gallery')
+
+                    <li class="nav-item mb-2">
+                        <a class="nav-link {{ $activeTab == 'gallery_content' ? 'active' : '' }}" data-toggle="pill" href="#gallery_content">
+                            <span class="step-circle">8</span>
+                            <span class="step-title"> گالری  </span>
+                        </a>
+                    </li>
+
+                    @endpermission
                 </ul>
             </div>
 
             <!-- Content -->
             <div class="col-12 col-sm-10">
-                <div class="tab-content">
+                <div class="tab-content border p-3 rounded-2">
                     <div class="d-none d-md-flex justify-content-between mb-1">
-                        <button type="button" class="btn btn-secondary btn-prev">
+                        <button type="button" class="btn btn-prev">
                             <span class="fa fa-arrow-circle-o-right"></span>
                         </button>
-                        <button type="button" class="btn btn-primary btn-next">
+                        <button type="button" class="btn btn-next">
                             <span class="fa fa-arrow-circle-o-left"></span>
                         </button>
                     </div>
@@ -141,8 +160,8 @@
                         <form action="{{ route('settings.updateCompanyInfo') }}" method="POST" class="mb-2">
                             @csrf
                             @method('PATCH')
-                            <div class="form-row border ">
-                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 text-center ">اطلاعات حساب مالیاتی</div>
+                            <div class="row ">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">اطلاعات حساب مالیاتی</div>
                                 <div class="col-md-4 form-group">
                                     <label for="shaba_number">شماره شبا (IR0000000000000000)</label>
                                     <input type="text" name="shaba_number" class="form-control"   value="{{$company_info['shaba_number'] ?? ''}}">
@@ -156,7 +175,7 @@
                                     <input type="text" name="card_holder" class="form-control"   value="{{$company_info['card_holder'] ?? ''}}">
                                 </div>
                                 <hr>
-                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات حساب معمولی</div>
+                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  ">اطلاعات حساب معمولی</div>
                                 <div class="col-md-4 form-group">
                                     <label for="tax_free_shaba_number">شماره شبا (IR0000000000000000)</label>
                                     <input type="text" name="tax_free_shaba_number" class="form-control"   value="{{$company_info['tax_free_shaba_number'] ?? ''}}">
@@ -169,7 +188,7 @@
                                     <label for="tax_free_card_holder">نام کامل صاحب حساب</label>
                                     <input type="text" name="tax_free_card_holder" class="form-control"   value="{{$company_info['tax_free_card_holder'] ?? ''}}">
                                 </div>
-                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">اطلاعات سایت</div>
+                                <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  ">اطلاعات سایت</div>
                                 <div class="col-md-12 form-group">
                                     <label for="fullName">آدرس</label>
                                     <input type="text" name="address" class="form-control" value="{{$company_info['address'] ?? ''}}">
@@ -213,18 +232,18 @@
                                 </div>
                                 @endpermission
 
-                                <div class="col-12 my-3">
-                                    <input type="submit" class="btn btn-success border-0 " value="ثبت تغییرات">
+                                <div class="col-12 my-3 d-flex justify-content-end">
+                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                                 </div>
                             </div>
                         </form>
 
-                        @if(auth()->user()->level != 'ghorfeAdmin')
+                        @if($ghorfe_domain_active)
                             <form action="{{route('settings.updateExpireDates')}}" method="post">
                                 @csrf
                                 @method('PATCH')
-                                <div class="form-row border  ">
-                                    <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  text-center ">موعد تمدید دامنه ها</div>
+                                <div class="row  ">
+                                    <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  ">موعد تمدید دامنه ها</div>
                                     <div class="col-md-2 form-group">
                                         <label for="fullName">lalecard.ir</label>
                                         <input type="text" name="domain_expire_date_lalecard_ir" class="form-control date" value="{{$expire_dates['domain_expire_date_lalecard.ir'] ?? ''}}">
@@ -266,22 +285,22 @@
                                         <label for="fullName">موعد تمدید پنل های پلسک</label>
                                         <input type="text" name="plesk_expire_date" class="form-control date"  value="{{$expire_dates['plesk_expire_date'] ?? ''}}">
                                     </div>
-                                    <div class="form-group col-md-12 ">
-                                        <button type="submit" class="btn btn-success">ثبت </button>
+                                    <div class="col-12 my-3 d-flex justify-content-end">
+                                        <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                                     </div>
                                 </div>
                             </form>
                         @endif
 
                     </div>
-                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'official_info' ? 'show active' : '' }}"
+                    <div class="tab-pane fade  p-t-20 {{ $activeTab == 'official_info' ? 'show active' : '' }}"
                          id="official_info">
                         @permission('ghorfe_online_list_official_info')
                         <form class="form-horizontal" role="form" method="post"
                             action="{{route('ghorfeOnlineList.officialInfoUpdate' , [$ghorfeOnlineList->slug])}}"
                             enctype="multipart/form-data">
                             @csrf
-                            <div class="row">
+                            <div class="row ">
                                 @include('Admin.layouts.errors')
 
                                 <div class="col-12 col-md-4 mb-2">
@@ -329,21 +348,21 @@
                                     </select>
                                 </div>
 
-                        <div class="col-12 col-md-4 mb-3">
-                            <label>تاریخ شروع اجاره نامه</label>
-                            <input value="{{ $ghorfeOnlineList->contract_start_date }}" type="text"
-                                name="contract_start_date" class="form-control date">
-                        </div>
-                        <div class="col-12 col-md-4 mb-3">
-                            <label>تاریخ پایان اجاره نامه</label>
-                            <input value="{{ $ghorfeOnlineList->contract_expiration_date }}" type="text"
-                                name="contract_expiration_date" class="form-control date">
-                        </div>
-                        <div class="col-12">
-                            <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
-                        </div>
-                    </div>
-                </form>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>تاریخ شروع اجاره نامه</label>
+                                    <input value="{{ $ghorfeOnlineList->contract_start_date }}" type="text"
+                                        name="contract_start_date" class="form-control date">
+                                </div>
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>تاریخ پایان اجاره نامه</label>
+                                    <input value="{{ $ghorfeOnlineList->contract_expiration_date }}" type="text"
+                                        name="contract_expiration_date" class="form-control date">
+                                </div>
+                                <div class="col-12 my-3 d-flex justify-content-end">
+                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                                </div>
+                            </div>
+                      </form>
                         @endpermission
                     </div>
                     <div class="tab-pane fade p-t-20 {{ $activeTab == 'text_content' ? 'show active' : '' }}"
@@ -426,10 +445,9 @@
                                     <label>مانند نمونه: 'https://www.aparat.com/lalecard.ir'</label>
                                 </div>
 
-                                <div class="col-12">
+                                <div class="col-12 my-3 d-flex justify-content-end">
                                     <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                                 </div>
-
                             </div>
                         </form>
                         @endpermission
@@ -446,7 +464,7 @@
                                 <div class="col-12 col-md-12">
                                     <div class="card shadow-sm">
                                         <div class="card-header bg-dark-gradient text-white">
-                                            <h6 class="mb-0 text-center">پکیج‌ها</h6>
+                                            <h6 class="mb-0">پکیج‌ها</h6>
                                         </div>
 
                                         <div class="card-body">
@@ -465,7 +483,7 @@
                                                                            id="package_{{ $package->id }}"
                                                                         {{ (optional($ghorfeOnlineList?->shahinPackage)->id == $package->id) ? 'checked' : '' }}>
 
-                                                                    <div class="package-card p-3 text-center border rounded">
+                                                                    <div class="package-card p-3 border rounded">
 
                                                                         <img src="{{ asset($package->image ?? 'images/default-package.png') }}"
                                                                              class="img-fluid mb-2"
@@ -502,17 +520,17 @@
                                                         @endif
                                                     @endforeach
                                                 @else
-                                                    <p class="text-muted text-center w-100">پکیجی وجود ندارد</p>
+                                                    <p class="text-muted w-100">پکیجی وجود ندارد</p>
                                                 @endif
-
+                                                <div class="col-12 my-3 d-flex justify-content-end">
+                                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <input type="submit" class="btn btn-success border-0" value="ثبت">
-                            </div>
+
                         </form>
 
                     @endpermission
@@ -723,12 +741,12 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-12">
-                                        <input type="submit" class="btn btn-success border-0" value="ثبت">
-                                    </div>
+                                <div class="col-12 my-3 d-flex justify-content-end">
+                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                                 </div>
+                            </div>
                         </form>
-                            @endpermission
+                        @endpermission
                     </div>
                     <div class="tab-pane fade p-t-20   {{ $activeTab == 'menu_content' ? 'show active' : '' }}" id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
                         @permission('ghorfe_online_list_site_content')
@@ -767,12 +785,12 @@
                             </div>
 
                             @if($ghorfeOnlineList->menus->count() < 5)
-                                <button type="button" id="add-menu" class="btn btn-primary mb-3">
+                                <button type="button" id="add-menu" class="btn mb-3">
                                     افزودن منو
                                 </button>
                             @endif
 
-                            <div class="col-12">
+                            <div class="col-12 my-3 d-flex justify-content-end">
                                 <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                             </div>
                         </form>
@@ -806,7 +824,7 @@
 
                                     <input type="text"
                                            id="primaryText"
-                                           class="form-control mt-2 text-center font-mono"
+                                           class="form-control mt-2 font-mono"
                                            value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
                                            readonly>
                                 </div>
@@ -823,18 +841,84 @@
 
                                     <input type="text"
                                            id="secondaryText"
-                                           class="form-control mt-2 text-center font-mono"
+                                           class="form-control mt-2 font-mono"
                                            value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
                                            readonly>
                                 </div>
 
-                                <div class="col-12 mt-3">
+                                <div class="col-12 my-3 d-flex justify-content-end">
                                     <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                                 </div>
 
                             </div>
                         </form>
                         @endpermission
+                    </div>
+                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'gallery_content' ? 'show active' : '' }}"
+                         id="gallery_content"
+                         role="tabpanel"
+                         aria-labelledby="text-content-tab">
+
+                        @permission('ghorfe_online_list_gallery')
+                        <form class="form-horizontal"
+                              method="post"
+                              action="{{ route('ghorfeOnlineList.galleryUpdate', [$ghorfeOnlineList]) }}"
+                              enctype="multipart/form-data">
+
+                            @csrf
+
+                            <div class="row">
+
+                                @include('Admin.layouts.errors')
+
+                                <div class="row">
+                                    <div class="col-12 col-md-12 mb-2">
+                                        <h5>برای قسمت دیتاماینیگ صفحه اصلی استفاده می شود</h5>
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-5">
+                                        <label>دسته بندی های
+                                        </label>
+                                        <select name="categories[]" class="selectMulti form-control" multiple="multiple">
+                                            @foreach($all_categories as $all_category)
+                                                <option value="{{$all_category->id}}">{{$all_category->title}}</option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('categories'))
+                                            <span class="help-block sub-error  "> {{$errors->first('categories')}} </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-md-6 mb-5">
+                                        <label>خدمات
+                                        </label>
+                                        <select title="" name="services[]" class="selectMulti form-control" multiple="multiple">
+                                            @foreach($all_services as $all_service)
+                                                <option value="{{$all_service->id}}">{{$all_service->title}}</option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('services'))
+                                            <span class="help-block sub-error  "> {{$errors->first('services')}} </span>
+                                        @endif
+                                    </div>
+                                    @include('Admin.partials.createGhorfeGallery')
+
+                                </div>
+
+                                {{-- ================= SUBMIT ================= --}}
+                                <div class="col-12 my-3 d-flex justify-content-end">
+                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                                </div>
+                            </div>
+                        </form>
+                        @endpermission
+                    </div>
+                    <div class="d-none d-md-flex justify-content-between mb-1">
+                        <button type="button" class="btn btn-prev">
+                            <span class="fa fa-arrow-circle-o-right"></span>
+                        </button>
+                        <button type="button" class="btn btn-next">
+                            <span class="fa fa-arrow-circle-o-left"></span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -845,6 +929,25 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script>
+        function previewImage(event, previewId) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+        document.getElementById(previewId).src = e.target.result;
+    };
+
+        reader.readAsDataURL(file);
+    }
+
+
+        // حذف عکس (فقط UI - backend باید هندل کند)
+        function removeImage(previewId) {
+        const el = document.getElementById(previewId);
+        el.src = "https://via.placeholder.com/150x100?text=Removed";
+    }
         document.addEventListener('DOMContentLoaded', () => {
 
         initTabsNavigation();

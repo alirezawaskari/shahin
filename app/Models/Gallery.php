@@ -25,6 +25,11 @@ class Gallery extends Model
         return $this->belongsTo(GalleryCategory::class);
     }
 
+    public function galleryghorfe()
+    {
+        return $this->belongsTo(GalleryCategory::class);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */

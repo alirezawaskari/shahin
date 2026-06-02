@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\UsersExport;
+use App\Models\Category;
 use App\Models\CategoryPermission;
+use App\Models\Gallery;
+use App\Models\GalleryCategory;
 use App\Models\GhorfeOnlineList;
 use App\Models\Permission;
 use App\Models\Service;
 use App\Models\Province;
 use App\Models\ShahinPackage;
+use App\Models\Slider;
 use App\Models\Theme;
 use App\Services\Settings\SettingsService;
+use App\Services\V1\Auth\AuthService;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
@@ -156,11 +161,64 @@ class GhorfeOnlineListController extends AdminController {
                 'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
             ];
             $packages=ShahinPackage::with('categoryPermission')->get();
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
+            $categories = Category::where('depth', 1)->get();
+            $ghorfe_domain_active = false;
+            if (request()->host()==$ghorfeOnlineList->domain_active) {
+                $ghorfe_domain_active = true;
+            }
+
+            $all_categories = Category::filter()
+                ->select('id', 'title')
+                ->where('depth', 1)
+                ->get();
+
+            $all_services = Service::filter()
+                ->select('id', 'title')
+                ->get();
+
+
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'all_categories','all_services','ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
         }
         return abort( 401 );
     }
 
+    public function galleryUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        $files = $request->horizontalImages;
+        if ($files != '') {
+            foreach ($files as $extra_file) {
+                if (isset($extra_file['file'])) {
+                    if (isset($extra_file['gallery_id'])) {
+                        $gallery = Gallery::find($extra_file['gallery_id']);
+                        if ($gallery) {
+                            $image = Helper::moveImage($extra_file['file'],'category');
+                            $gallery->update(['title' => $extra_file['file_title'], 'image' => $image]);
+                        }
+                    }
+                    else{
+                        $image = Helper::moveImage($extra_file['file'],'category');
+                        Gallery::create(['galleryable_id' => 1,
+                            'galleryable_type' => Category::class, 'title' => $extra_file['file_title'],
+                            'image' => $image, 'type' => 1]);
+                    }
+                }
+            }
+        }
+
+        $files = $request->multiple_image;
+        if ($files != '') {
+            foreach ($files as $extra_file) {
+                if (isset($extra_file['file'])) {
+                    $image = Helper::moveImage($extra_file['file'],'service');
+                    Slider::create(['title'=>$extra_file['title'],'link'=>$extra_file['link'],
+                        'type'=>1,'category_id'=>1, 'img'=> $image]);
+
+                }
+            }
+        }
+
+        return back()->with('success', 'اطلاعات ذخیره شد');
+    }
     /**
     * @param Request $request
     * @param GhorfeOnlineList $ghorfeOnlineList
