@@ -330,7 +330,12 @@ class GhorfeOnlineListController extends AdminController {
         // -------------------------
         $processImages($request->mobileImage ?? [], 'mobile', 0);
 
-        return back()->with('success', 'اطلاعات ذخیره شد');
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'gallery_content'
+            ]);
     }
 
     /**
