@@ -65,6 +65,17 @@ class ServiceController extends AdminController
 
         return new ServiceCollection($services->paginate(20));
     }
+
+    public function getItems($id)
+    {
+        $service = Service::find($id);
+        if (!$service) {
+            return response()->json([], 404);
+        }
+
+        $items = $service->activeServiceItems($service);
+        return response()->json($items);
+    }
     /**
      * Summary of create
      * @return \Illuminate\Contracts\View\View

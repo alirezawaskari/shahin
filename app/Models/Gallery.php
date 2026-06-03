@@ -13,7 +13,7 @@ class Gallery extends Model
     protected $guarded = [];
 
     use SoftDeletes;
-    protected $fillable=['galleryable_id','galleryable_type','title','image','status','type'];
+    protected $fillable=['galleryable_id','galleryable_type','title','image','status','type','parent_id','position_index'];
 
     protected $dates = ['deleted_at'];
 

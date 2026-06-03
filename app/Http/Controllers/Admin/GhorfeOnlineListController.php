@@ -11,6 +11,7 @@ use App\Models\GhorfeOnlineList;
 use App\Models\Permission;
 use App\Models\Service;
 use App\Models\Province;
+use App\Models\ServiceItem;
 use App\Models\ShahinPackage;
 use App\Models\Slider;
 use App\Models\Theme;
@@ -21,7 +22,8 @@ use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
 use App\Models\Employee;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
 class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -167,58 +169,175 @@ class GhorfeOnlineListController extends AdminController {
                 $ghorfe_domain_active = true;
             }
 
-            $all_categories = Category::filter()
-                ->select('id', 'title')
-                ->where('depth', 1)
-                ->get();
-
-            $all_services = Service::filter()
-                ->select('id', 'title')
-                ->get();
-
-
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'all_categories','all_services','ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
         }
         return abort( 401 );
     }
 
+    public function getGallery(Request $request)
+    {
+        $category_id = $request->category_id;
+        $service_id = $request->service_id;
+
+        $galleries = Gallery::with('galleryable')
+            ->where(function ($q) use ($category_id, $service_id) {
+
+                if ($category_id) {
+                    $q->orWhere('parent_id', $category_id);
+                }
+
+                if ($service_id) {
+                    $q->orWhere('parent_id', $service_id);
+                }
+            })
+            ->get();
+
+        return view('components.gallery-form', [
+            'galleries' => $galleries
+        ]);
+    }
+
     public function galleryUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
-        $files = $request->horizontalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    if (isset($extra_file['gallery_id'])) {
-                        $gallery = Gallery::find($extra_file['gallery_id']);
-                        if ($gallery) {
-                            $image = Helper::moveImage($extra_file['file'],'category');
-                            $gallery->update(['title' => $extra_file['file_title'], 'image' => $image]);
-                        }
-                    }
-                    else{
-                        $image = Helper::moveImage($extra_file['file'],'category');
-                        Gallery::create(['galleryable_id' => 1,
-                            'galleryable_type' => Category::class, 'title' => $extra_file['file_title'],
-                            'image' => $image, 'type' => 1]);
-                    }
-                }
-            }
+        $categoryId = $request->category;
+        $targetClass = null;
+        $targetId = null;
+
+        if ($request->service_item) {
+            $targetClass = ServiceItem::class;
+            $targetId = $request->service_item;
         }
 
-        $files = $request->multiple_image;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    $image = Helper::moveImage($extra_file['file'],'service');
-                    Slider::create(['title'=>$extra_file['title'],'link'=>$extra_file['link'],
-                        'type'=>1,'category_id'=>1, 'img'=> $image]);
-
-                }
-            }
+        if (!$targetClass && $request->service) {
+            $targetClass = Service::class;
+            $targetId = $request->service;
         }
 
-        return back()->with('success', 'اطلاعات ذخیره شد');
+        if (!$targetClass && $categoryId) {
+            $targetClass = Category::class;
+            $targetId = $categoryId;
+        }
+
+        if (!$targetClass || !$targetId) {
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->withErrors([
+                    'target' => 'حداقل باید یک سرویس، زیرسرویس یا دسته انتخاب شود'
+                ])
+                ->withInput()
+                ->with('active_tab', 'gallery_content');
+        }
+
+        $manager = new \Intervention\Image\ImageManager(
+            new \Intervention\Image\Drivers\Gd\Driver()
+        );
+
+        $folder = public_path('uploads/gallery');
+
+        if (!file_exists($folder)) {
+            mkdir($folder, 0777, true);
+        }
+
+        $processImages = function ($images, $type, $typeValue) use (
+            $manager,
+            $folder,
+            $targetClass,
+            $targetId,
+            $categoryId,
+            $ghorfeOnlineList
+        ) {
+            foreach ($images as $index => $item) {
+
+                if (empty($item['file'])) continue;
+
+                $image = $manager->read($item['file']);
+
+                if ($type === 'desk') {
+                    $image = $index === 4
+                        ? $image->cover(900, 375)
+                        : $image->cover(300, 176);
+                } else {
+                    $image = $index === 4
+                        ? $image->cover(175, 420)
+                        : $image->cover(115, 190);
+                }
+
+                $filename = time().'_'.$type.'_'.$index.'_'.uniqid().'.jpg';
+                $path = $folder.'/'.$filename;
+
+                $image->toJpeg(80)->save($path);
+
+                // -------------------------
+                // KEY برای جلوگیری از تکرار
+                // -------------------------
+                $key = $type.'_'.$index;
+
+                // -------------------------
+                // FIND EXISTING
+                // -------------------------
+                $existing = Gallery::where('galleryable_id', $targetId)
+                    ->where('galleryable_type', $targetClass)
+                    ->where('type', $typeValue)
+                    ->where('position_index', $key)
+                    ->first();
+
+                if ($existing) {
+
+                    // UPDATE
+                    $existing->update([
+                        'title' => $item['file_title'] ?? '',
+                        'image' => 'uploads/gallery/'.$filename,
+                    ]);
+
+                    $gallery = $existing;
+
+                } else {
+
+                    // CREATE
+                    $gallery = Gallery::create([
+                        'galleryable_id' => $targetId,
+                        'galleryable_type' => $targetClass,
+                        'title' => $item['file_title'] ?? '',
+                        'image' => 'uploads/gallery/'.$filename,
+                        'type' => $typeValue,
+                        'category_id' => $categoryId,
+                        'position_index' => $key,
+                    ]);
+                }
+
+                // -------------------------
+                // LINK TABLE
+                // -------------------------
+                $ghorfeOnlineList->galleries()->updateOrCreate(
+                    [
+                        'parent_id' => $gallery->id,
+                    ],
+                    [
+                        'type' => $typeValue,
+                        'image' => 'uploads/gallery/'.$filename,
+                    ]
+                );
+            }
+        };
+
+        // -------------------------
+        // PROCESS DESKTOP
+        // -------------------------
+        $processImages($request->deskImage ?? [], 'desk', 1);
+
+        // -------------------------
+        // PROCESS MOBILE
+        // -------------------------
+        $processImages($request->mobileImage ?? [], 'mobile', 0);
+
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'gallery_content'
+            ]);
     }
+
     /**
     * @param Request $request
     * @param GhorfeOnlineList $ghorfeOnlineList
