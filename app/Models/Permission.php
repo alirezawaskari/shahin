@@ -11,8 +11,9 @@ class Permission extends LaratrustPermission
     /**
      * Get the phone associated with the user.
      */
-    public function category()
+    public function categoryPermissions()
     {
         return $this->hasOne(CategoryPermission::class , 'id','cat_id');
     }
+
 }

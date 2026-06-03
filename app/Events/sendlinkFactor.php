@@ -18,7 +18,6 @@ class sendlinkFactor
     public $callcenter;
     public $type;
 
-
     /**
      * Create a new event instance.
      *

@@ -10,6 +10,148 @@
     font-style: normal
 }
 
+.edit-ghorfe .nav-item
+{
+    text-align: right !important;
+}
+.edit-ghorfe .nav-pills .nav-link.active, .nav-pills .show>.nav-link
+{
+    background-color: #0e2c4d;
+}
+
+.edit-ghorfe  .btn-prev,
+.edit-ghorfe  .btn-next
+{
+    padding: 0 !important;
+    color: #0e2c4d !important;
+    font-size: 1.5rem !important;
+    border: none !important;
+    outline: none !important;
+}
+
+#datatable-json {
+    width: 100% !important;
+    overflow-x: scroll !important;
+}
+.package-label {
+    cursor: pointer;
+    display: block;
+}
+
+.package-card {
+    transition: 0.25s;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.package-label input:checked + .package-card {
+    border: 2px solid #007bff;
+    background: #f0f7ff;
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,123,255,0.15);
+}
+
+.package-card:hover {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.dataTables_scrollHeadInner,
+.dataTables_scrollHeadInner table {
+    width: 100% !important;
+}
+
+#pagination-demo
+{
+    overflow-x: scroll;
+}
+
+
+ .custom-steps .nav-link {
+     position: relative;
+     border-radius: 12px;
+     padding: 15px 10px;
+     transition: all 0.3s ease;
+     background: #f5f7fa;
+     color: #666;
+     font-weight: 500;
+ }
+
+.custom-steps .nav-link:hover {
+    background: #e9ecef;
+}
+
+.custom-steps .nav-link.active {
+    background: linear-gradient(135deg, #4e73df, #0b1d4e);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(78,115,223,0.3);
+}
+
+.step-circle {
+    display: inline-flex;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ddd;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.nav-link.active .step-circle {
+    background: #fff;
+    color: #4e73df;
+}
+
+.step-title {
+    font-size: 14px;
+}
+
+ .mobile-tabs-wrapper {
+     overflow-x: auto;
+     -webkit-overflow-scrolling: touch;
+     margin-bottom: 10px;
+ }
+
+/* جلوگیری از شکستن */
+.mobile-tabs-wrapper .nav {
+    flex-wrap: nowrap;
+    min-width: max-content;
+}
+
+/* هر تب */
+.mobile-tabs-wrapper .nav-item {
+    flex: 0 0 auto;
+}
+
+/* استایل تب */
+.mobile-tabs-wrapper .nav-link {
+    white-space: nowrap;
+    border-radius: 20px;
+    padding: 8px 14px;
+    margin-right: 6px;
+    background: #f1f3f5;
+    color: #555;
+    transition: 0.3s;
+}
+
+/* active */
+.mobile-tabs-wrapper .nav-link.active {
+    background: #4e73df;
+    color: #fff;
+}
+
+/* موبایل */
+@media (max-width: 768px) {
+
+    .mobile-tabs-wrapper .nav-link {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+
+}
+
 .fa {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
@@ -5405,7 +5547,29 @@ body {
     line-height: 1.5;
     color: #212529;
     text-align: right;
+    overflow-x: hidden;
     background-color: #fff
+}
+
+#myNav {
+    transition: 0.3s;
+}
+
+/* موبایل */
+@media (max-width: 768px) {
+    #myNav {
+        position: fixed;
+        right: -250px;
+        top: 0;
+        width: 250px;
+        height: 100%;
+        background: #fff;
+        z-index: 999;
+    }
+
+    #myNav.active {
+        right: 0;
+    }
 }
 
 [tabindex="-1"]:focus {
@@ -7250,8 +7414,8 @@ pre code {
 
 .table-responsive {
     display: block;
-    width: 100%;
-    overflow-x: auto;
+    width: 100% !important;
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: -ms-autohiding-scrollbar
 }
@@ -10149,6 +10313,11 @@ input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].bt
 
 .accordion .card .card-header {
     margin-bottom: -1px
+}
+.card>.table-responsive{
+    width: 100% !important;
+    overflow-x: scroll !important;
+    padding: 10px !important;
 }
 
 .breadcrumb {

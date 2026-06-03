@@ -100,52 +100,52 @@ class SMSController extends Controller
         }
         return response([ 'data' => ['iran_sms_credit'=>$iran_sms_credit,'iran_sms_credit_error' => $iran_sms_credit_error]]);
     }
-    //     /**
-    //  * @param \Illuminate\Http\Request $request
-    //  * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory|void
-    //  * use in negin sms postal for get sms
-    //  */
-    // public function gettingIncomingSms(Request $request)
-    // {
-    //     sms::create([
-    //         'recipient_number' => $request->smsNumber,
-    //         'sender_number' => $request->from,
-    //         'body' => trim($request->body),
-    //         'date' => now(),
-    //         'status' => 0,
-    //     ]);
-    //     return response([
-    //         'operator' => true,
-    //         'status'=>'success',
-    //         'messages'=>'پیامک با موفقیت ثبت شد .'
-    //     ]);
-    //     if($request->portalcode == config('sesvices.neginSms.portalcode'))
-    //     {
-    //         $validation = Validator::make($request->all(), [
-    //             'smsNumber' => 'required',
-    //             'from' => 'required',
-    //             'body' => 'required',
-    //         ]);
-    //         if ($validation->fails()){
-    //             return response(['status'=>'error','messages'=>$validation->messages()->all()]);
-    //         }
-    //         sms::create([
-    //             'recipient_number' => $request->smsNumber,
-    //             'sender_number' => $request->from,
-    //             'body' => trim($request->body),
-    //             'date' => now(),
-    //             'status' => 0,
-    //         ]);
-    //         return response([
-    //             'operator' => true,
-    //             'status'=>'success',
-    //             'messages'=>'پیامک با موفقیت ثبت شد .'
-    //         ]);
-    //     }
-    //     return response([
-    //         'operator' => false,
-    //         'status'=>'error',
-    //         'messages'=>'امکان فراخوانی برای شما وجود ندارد .'
-    //     ]);
-    // }
+    /**
+     * Summary of gettingIncomingSms
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function gettingIncomingSms(Request $request)
+    {
+        sms::create([
+            'recipient_number' => $request->smsNumber,
+            'sender_number' => $request->from,
+            'body' => trim($request->body),
+            'date' => now(),
+            'status' => 0,
+        ]);
+        return response([
+            'operator' => true,
+            'status'=>'success',
+            'messages'=>'پیامک با موفقیت ثبت شد .'
+        ]);
+        if($request->portalcode == config('sesvices.neginSms.portalcode'))
+        {
+            $validation = Validator::make($request->all(), [
+                'smsNumber' => 'required',
+                'from' => 'required',
+                'body' => 'required',
+            ]);
+            if ($validation->fails()){
+                return response(['status'=>'error','messages'=>$validation->messages()->all()]);
+            }
+            sms::create([
+                'recipient_number' => $request->smsNumber,
+                'sender_number' => $request->from,
+                'body' => trim($request->body),
+                'date' => now(),
+                'status' => 0,
+            ]);
+            return response([
+                'operator' => true,
+                'status'=>'success',
+                'messages'=>'پیامک با موفقیت ثبت شد .'
+            ]);
+        }
+        return response([
+            'operator' => false,
+            'status'=>'error',
+            'messages'=>'امکان فراخوانی برای شما وجود ندارد .'
+        ]);
+    }
 }

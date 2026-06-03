@@ -319,6 +319,7 @@ class EmployeeController extends AdminController
 
         return abort(401);
     }
+
     /**
      * @param \App\Models\Employee $employee
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

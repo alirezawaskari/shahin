@@ -7,19 +7,61 @@
                     <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>
-            @if($ghorfeOnlineList->type_work != 'service')
+
+            @if(count(auth()->user()->ghorfeOnlineLists) > 0)
+                @foreach(auth()->user()->ghorfeOnlineLists as $list)
+                    @if(count($list->ghorfeCategories) > 0)
+                        @foreach($list->ghorfeCategories as $ghorfeCategory)
+                            @if($ghorfeCategory->name == 'درخواست ها')
+                                <li>
+                                    <a href="#">
+                                        <i class="icon ti-control-record"></i>
+                                        <span>درخواست ها</span>
+                                    </a>
+
+                                    <ul>
+                                        @permission('callcenter|callcenter-detail|influencer-marketing|in-person-registration')
+                                        <li><a href="{{ route('callcenter.index') }}">درخواست ها</a></li>
+                                        @endpermission
+                                    </ul>
+                                </li>
+                            @endif
+
+                            @if($ghorfeCategory->name == 'کاربران')
+                                <li>
+                                    <a href="#">
+                                        <i class="icon ti-control-record"></i>
+                                        <span>کاربران</span>
+                                    </a>
+
+                                    <ul>
+                                        <li><a href="{{ route('sellers') }}">فروشندگان</a></li>
+                                    </ul>
+                                </li>
+                            @endif
+
+                        @endforeach
+
+                    @endif
+
+                @endforeach
+
             @endif
+
             <li><a href="#"><i class="icon ti-control-record"></i> <span>مغازه من</span> </a>
                 <ul>
                     <li>
-                        <a href="{{ route('ghorfeOnlineList.edit' , [$ghorfeOnlineList->slug]) }}">ویرایش محتوای
+                        <a href="{{ route('ghorfeOnlineList.edit' , [auth()->user()->ghorfeOnlineLists[0]->slug]) }}">ویرایش محتوای
                             سایت</a>
                     </li>
                     @permission('slider')
                     <li><a href="{{ route('slider.index') }}">اسلایدر</a></li>
                     @endpermission
+
+
                     @permission('service')
-                    @if($ghorfeOnlineList->type_work !== 'product')
+
+                    @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'product')
                     <li>
                         <a href="{{ route('service.index') }}"><i class="icon ti-control-record"></i>
                             <span>خدمات</span></a>
@@ -27,7 +69,7 @@
                     @endif
                     @endpermission
                     @permission('product-detail')
-                    @if($ghorfeOnlineList->type_work !== 'service')
+                    @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'service')
                     <li>
                         <a href="#"><i class="icon ti-control-record"></i><span>کالاها</span></a>
                         <ul>
@@ -74,17 +116,17 @@
                             <li><a href="{{ route('category.index') }}"><i class="icon ti-control-record"></i>
                                     <span>
                                         لیست دسته بندی</span> </a></li>
-                            @if($ghorfeOnlineList->type_work !== 'service')
+                            @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'service')
                             <li><a href="{{ route('categoryPosition', 1) }}"><i class="icon ti-control-record"></i>
                                     <span> نمایش دسته بندی کالا در منو</span> </a></li>
-                            @elseif($ghorfeOnlineList->type_work !== 'product')
+                            @elseif(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'product')
                             <li><a href="{{ route('categoryPosition', 2) }}"><i class="icon ti-control-record"></i>
                                     <span> نمایش خدمات در منو</span> </a></li>
                             @endif
                         </ul>
                     </li>
                     @endpermission
-                    @if($ghorfeOnlineList->type_work !== 'service')
+                    @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'service')
                     @permission('attributes-category')
                     <li><a href="#"><i class="icon ti-control-record"></i> <span>گروه های ویژگی</span></a>
                         <ul>
@@ -120,7 +162,7 @@
                         </ul>
                     </li>
                     @endpermission
-                    @if($ghorfeOnlineList->type_work !== 'service')
+                    @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'service')
                     @permission('validation')
                     <li><a href="{{ route('validation.index') }}"><i class="icon ti-control-record"></i> اعتبارسنجی
                             کالاها </a></li>
@@ -270,23 +312,23 @@
                     @endpermission
                 </ul>
             </li>
-            @if($ghorfeOnlineList->type_work !== 'service')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>سفارشات</span> </a>
-                <ul>
-                    <li>
-                        <a href="{{ route('admin.order.index',['type' => 'new']) }}">
-                            میز کار سفارشات
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('admin.order.index',['type' => 'allF']) }}">
-                            همه سفارشات
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            @endif
-            @if($ghorfeOnlineList->type_work !== 'product')
+{{--            @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'service')--}}
+{{--            <li><a href="#"><i class="icon ti-control-record"></i> <span>سفارشات</span> </a>--}}
+{{--                <ul>--}}
+{{--                    <li>--}}
+{{--                        <a href="{{ route('admin.order.index',['type' => 'new']) }}">--}}
+{{--                            میز کار سفارشات--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li>--}}
+{{--                        <a href="{{ route('admin.order.index',['type' => 'allF']) }}">--}}
+{{--                            همه سفارشات--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                </ul>--}}
+{{--            </li>--}}
+{{--            @endif--}}
+            @if(auth()->user()->ghorfeOnlineLists[0]->type_work !== 'product')
             @permission('session|session-detail')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>جلسات</span> </a>
                 <ul>
@@ -534,16 +576,16 @@
                 </ul>
             </li>
             @endpermission
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>اتوماسیون اداری</span> </a>
-                <ul>
-                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
-                                ارسالی</span> </a></li>
-                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات
-                                دریافتی</span> </a></li>
-                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>مکاتبه
-                                جدید</span> </a></li>
-                </ul>
-            </li>
+{{--            <li><a href="#"><i class="icon ti-control-record"></i> <span>اتوماسیون اداری</span> </a>--}}
+{{--                <ul>--}}
+{{--                    <li><a href="{{ route('send.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات--}}
+{{--                                ارسالی</span> </a></li>--}}
+{{--                    <li><a href="{{ route('received.tickets')}}"><i class="icon ti-control-record"></i> <span>مکاتبات--}}
+{{--                                دریافتی</span> </a></li>--}}
+{{--                    <li><a href="{{ route('ticket.create')}}"><i class="icon ti-control-record"></i> <span>مکاتبه--}}
+{{--                                جدید</span> </a></li>--}}
+{{--                </ul>--}}
+{{--            </li>--}}
             @permission('coupon')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>کد تخفیف</span> </a>
                 <ul>

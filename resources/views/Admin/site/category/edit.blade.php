@@ -42,7 +42,7 @@
                         <label>عنوان انگلیسی*</label>
                         <input type="text" class="form-control" placeholder="لطفا عنوان انگلیسی را وارد کنید"
                                name="en_title" value="{{$category->en_title}}">
-                        @if($errors->has('en_title'))
+                        @if($errors->has ('en_title'))
                             <span class="help-block sub-error  "> {{$errors->first('en_title')}} </span>
                         @endif
                     </div>

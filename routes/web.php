@@ -4,6 +4,8 @@ use App\Classes\External\SendSms;
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
+use App\Http\Controllers\Admin\Auth\AdminLoginController;
+use App\Http\Controllers\Admin\Auth\AdminOtpController;
 use App\Http\Controllers\Admin\CallcenterController;
 use App\Http\Controllers\Admin\CampaignController as CampaignControllerAdmin;
 use App\Http\Controllers\Admin\CategoryController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\Admin\FactorController;
 use App\Http\Controllers\Admin\FactorItemController;
 use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayController;
+use App\Http\Controllers\Admin\GhorfeOnlineListController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
 use App\Http\Controllers\Admin\PromissoryController;
 use App\Http\Controllers\Admin\RecruitmentNoticeController;
@@ -180,10 +183,34 @@ Route::get('test/pay',[TestController::class,'test']);
 
 Route::get('/gettingIncomingSms', [SMSController::class,'gettingIncomingSms']);
 
+
+//Routes for user
+Route::middleware('guest')->prefix('/admin')->name('admin.')->group(function () {
+
+    // نمایش فرم ورود
+    Route::get('login', [AdminLoginController::class, 'showLoginForm'])
+        ->name('login.show');
+
+    // ورود با رمز عبور
+    Route::post('login', [AdminLoginController::class, 'loginWithPassword'])
+        ->name('login.password');
+
+    // درخواست ارسال کد یکبار مصرف
+    Route::post('login/otp/request', [AdminOtpController::class, 'requestCode'])
+        ->name('login.otp.request');
+
+    // اعتبارسنجی کد و ورود
+    Route::post('login/otp/verify', [AdminOtpController::class, 'verifyCode'])
+        ->name('login.otp.verify');
+
+    // خروج — فقط برای کاربر authenticated
+    Route::middleware('auth')->post('logout', [AdminLoginController::class, 'logout'])
+        ->name('logout');
+});
+
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
     //dashboard
-
     Route::get('/run-query', function () {
         Artisan::call('command:query');
         return redirect()->back()->with([
@@ -201,7 +228,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/', [AdminController::class,'dashboard']);
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
-    Route::patch('/settings/update-company-info', [SettingController::class,'updateCompanyInfo'])->name('settings.updateCompanyInfo');
+    Route::patch(
+        '/settings/update-company-info',
+        [SettingController::class, 'updateCompanyInfo']
+    )->name('settings.updateCompanyInfo');
     Route::post('/settings/sms', [SettingController::class,'updateSmsSetting'])->name('settings.update.sms.setting');
 
     Route::resource('/campaign', CampaignControllerAdmin::class);
@@ -319,7 +349,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItem/save-extra-pay', [TotalFactorItemController::class, 'saveExtraPay'])->name('totalFactorItem.saveExtraPay');
     Route::post('/totalFactorItem/store-impunity', [TotalFactorItemController::class, 'storeImpunity'])->name('totalFactorItem.storeImpunity');
     Route::delete('/totalFactorItem/destroy-impunity/{impunity}', [TotalFactorItemController::class, 'destroyImpunity'])->name('totalFactorItem.destroyImpunity');
-    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports']);
+    Route::get('/totalFactorItem/reports', [TotalFactorItemController::class, 'reports'])->name('totalFactorItem.reports');
     Route::get('/totalFactorItem/reports/filter', [TotalFactorItemController::class, 'filterReport']);
     Route::get('/totalFactorItem/reports/desktop', [TotalFactorItemController::class, 'desktopReports']);
     Route::get('/totalFactorItem/reports/desktop/filter', [TotalFactorItemController::class, 'filterDesktopReport']);
@@ -330,7 +360,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/totalFactorItem/payment', [TotalFactorItemController::class, 'payment'])->name('totalFactorItem.sendPayment');
     Route::post('/totalFactorItem/save-installments-paid', [TotalFactorItemController::class, 'saveInstallmentsPaid'])->name('totalFactorItem.saveInstallment');
     Route::post('/totalFactorItem/return-payment', [TotalFactorItemController::class, 'returnPayment'])->name('totalFactorItem.returnPayment');
-    Route::get('/totalFactorItem/calculate', [TotalFactorItemInstallmentController::class, 'showCalculate']);
+    Route::get('/totalFactorItem/calculate', [TotalFactorItemInstallmentController::class, 'showCalculate'])->name('totalFactorItem.calculate');
     Route::post('/totalFactorItem/calculate', [TotalFactorItemController::class, 'updateCalculate'])->name('totalFactorItem.calculate');
     Route::post('/totalFactorItem/close', [TotalFactorItemController::class, 'close']);
     Route::resource('totalFactorItem', TotalFactorItemController::class);
@@ -651,8 +681,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('organization', 'OrganizationController');
     Route::resource('representation', 'RepresentationController');
     //ghorfeOnlineList
+    Route::post('ghorfeOnlineList/getGallery', 'GhorfeOnlineListController@getGallery')->name('ghorfeOnlineList.getGallery');
+    Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+    Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
+    Route::post('ghorfeOnlineList/menuUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@menuUpdate')->name('ghorfeOnlineList.menuUpdate');
+    Route::post('ghorfeOnlineList/themeUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@themeUpdate')->name('ghorfeOnlineList.themeUpdate');
+    Route::post('ghorfeOnlineList/galleryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@galleryUpdate')->name('ghorfeOnlineList.galleryUpdate');
+    Route::post('ghorfeOnlineList/categoryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@categoriesGhorfe')->name('ghorfeOnlineList.categoriesGhorfe');
     Route::get('ghorfeOnlineList/users', 'GhorfeOnlineListController@showUsersList')->name('ghorfeOnlineList.users');
     Route::get('ghorfeOnlineList/users/filter', 'GhorfeOnlineListController@filterUsers')->name('ghorfeOnlineList.users.filter');
 
@@ -830,6 +867,7 @@ Route::post('/phone', 'HomeController@phone')->name('phone');
 Route::post('/service/financialPlansType', 'ServiceController@getFinancialPlansType');
 Route::post('/service/item', [\App\Http\Controllers\ServiceController::class,'getServiceItem']);
 Route::get('/services', 'ServiceController@index')->name('services');
+Route::get('/service-items/{id}', [ServiceController::class, 'getItems']);
 Route::get('/services/{service}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}/{task}', 'ServiceController@single');
@@ -874,6 +912,7 @@ Route::get('/checkout/{factor}', 'CheckoutController@index')->name('checkout');
 Route::get('/loan', action: 'FinancialPlansTypeController@index');
 //Factor
 Route::middleware('auth')->group(function () {
+
     //Checkout
     Route::post('/checkout', 'CheckoutController@store')->name('checkout.store');
     Route::post('/upload_document', 'CheckoutController@upload_document')->name('checkout.upload');
@@ -893,6 +932,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/notifications', 'ProfileController@notifications')->name('profile.notifications');
     Route::get('/profile/notifications/read', 'ProfileController@notifications_read')->name('profile.notifications.read');
     Route::post('/profile', 'ProfileController@update')->name('profile.update');
+    Route::get('/ghorfeCatego/{ghorfeId}', [GhorfeOnlineListController::class,'getGhofeCategories'])->name('ghorfeCatego');
+    Route::get('/ghorfeCategoyDetail/{categoryId}', [GhorfeOnlineListController::class,'ghofeCategoryDetail'])->name('ghorfeCategoryDetail');
     Route::post('/useravatar', 'ProfileController@useravatar')->name('useravatar');
     Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily');
 });

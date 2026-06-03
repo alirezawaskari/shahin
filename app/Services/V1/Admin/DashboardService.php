@@ -145,7 +145,6 @@ class DashboardService
             ->when($isMonth, fn($q) => $q->whereBetween('created_at', $dateRange), fn($q) => $q->whereDate('created_at', $dateRange))
             ->when(true, fn($q) => $q->whereIn('type', Factor::getCashPaymentType()))
             ->sum('price');
-
         $userQuery = fn($dateRange, $isMonth = true) =>
         User::filter()
             ->when($representation_id, fn($q) => $q->where('representation_id', $representation_id))

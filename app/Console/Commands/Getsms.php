@@ -43,9 +43,12 @@ class Getsms extends Command {
 
     public function handle() {
         $this->getSmsFromIranSmsPanel();
-        $this->getSmsFromNeginSmsPanel();
     }
 
+    /**
+     * Summary of getSmsFromIranSmsPanel
+     * @return void
+     */
     private function getSmsFromIranSmsPanel() {
         //get messages sent by users && create record in sms table
         $linenumber = config( 'services.iranSms.linenumber' );
@@ -82,40 +85,6 @@ class Getsms extends Command {
             $this->info( 'command done!' );
         } else {
             $this->info( 'command error!' );
-        }
-    }
-
-    private function getSmsFromNeginSmsPanel() {
-        $wsdl = 'http://dev.homais.com/services/sms/index.asmx?WSDL';
-        try {
-            $client = new SoapClient( $wsdl, [
-                'trace' => true,
-                'exceptions' => true
-            ] );
-            $params = [
-                'PortalCode' => config( 'services.neginSms.portalcode' ),
-                'UserName' => config( 'services.neginSms.username' ),
-                'PassWord' => config( 'services.neginSms.password' ),
-                'lastItems' => 30,
-                'indexID' => -1,
-                'resultCode' => 0
-            ];
-            $response = $client->__soapCall( 'getInbox', [ $params ] );
-            foreach ( json_decode($response->getInboxResult) as $item ) {
-                if (!SMS::where('mid' , $item->id)->exists()) {
-                    sms::create( [
-                        'mid' => $item->id,
-                        'recipient_number' => $item->Number,
-                        'sender_number' => $item->Mobile,
-                        'body' => trim( $item->Message ),
-                        'date' => Carbon::createFromTimestamp( $item->InsDate )->toDateTimeString(),
-                        'status' => 0,
-                    ] );
-                    $this->info( 'command done!' );
-                }
-            }
-        } catch ( SoapFault $fault ) {
-            echo "Error: {$fault->getMessage()}";
         }
     }
 }

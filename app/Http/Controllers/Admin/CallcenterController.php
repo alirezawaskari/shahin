@@ -29,6 +29,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\SuspensionStandard;
 use App\Models\User;
+use App\Services\V1\Auth\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -374,11 +375,12 @@ class CallcenterController extends Controller
         $cash_factor = [];
         $credit_factor = [];
         $phone = Helper::numberConverter($request->phone);
+        User::createUser($request);
         $client = User::where('phone', $phone)->first();
         //create new user
-        if (!
-        $client) {
+        if (!$client) {
             $client = self::createUser($request);
+
         }else{
             $conduct=null;
             if ($request->challenging)
@@ -723,42 +725,19 @@ class CallcenterController extends Controller
     }
 
     /**
-     * @param $request
-     * @return mixed
-     * @throws \Illuminate\Validation\ValidationException
+     * Summary of userConductUpdate
+     * @param mixed $challenging
+     * @param User $user
+     * @return User
      */
-    private function createUser($request)
+    private function userConductUpdate($challenging , User $user)
     {
-        $request['phone'] = Helper::numberConverter($request->phone);
-        $this->validate($request, [
-            'name' => 'string|required',
-            'family' => 'string|required',
-            'gender'=>Rule::in(array(0,1)),
-            'phone' => 'numeric|required|unique:users|unique:users,phone|regex:/(09)[0-9]{9}/|digits:11|',
-            'province' => 'required',
-            'city' => 'required'
-        ]);
-
-        $pass = rand(12345, 99999);
         $challenging= null;
-        if ($request->challenging)
+        if ($challenging)
             $challenging='challenging';
-        $user = User::create([
-            'name' => $request->name,
-            'family' => $request->family,
-            'phone' => $request->phone,
-            'province_id' => $request->province,
-            'city_id' => $request->city,
-            'area_id' => $request->area,
-            'password' => Hash::make($pass),
-            'active' => true,
-            'level' => 'user',
-            'sex' => $request->gender,
+        $user->update([
             'conduct' => $challenging,
-            'callcenter_id' => auth()->user()->id,
-            'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
         ]);
-        //event(new fastregisterCallcenter($user, $pass));
         return $user;
     }
 
@@ -796,6 +775,11 @@ class CallcenterController extends Controller
                     'description' => $request->description,
                     'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
                 ]);
+
+            $ghorfe_online = (new AuthService)->getGhorfe();
+            if ($ghorfe_online) {
+                $ghorfe_online->callcenters()->attach($callcenter->id);
+            }
                 //send a request registeration sms to the user
                 // $request->request_type == 'other' ? event(new registerRequestNotification($user)) : '';
         }else{
@@ -818,7 +802,6 @@ class CallcenterController extends Controller
      */
     private function syncTaskItems($request , Callcenter $task)
     {
-
         if (is_array($request->product_category) && count($request->product_category)>0)
         $task->categories()->attach($request->product_category);
         if (is_array($request->service) && count($request->service)>0)

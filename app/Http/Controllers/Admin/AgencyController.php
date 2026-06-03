@@ -78,20 +78,7 @@ class AgencyController extends Controller
             'city' => 'required',
         ]);
 
-        $pass = rand(12345, 99999);
-        if(!User::where('phone' , $request->phone)->first())
-		{
-		    $user = User::create([
-                'name' => $request->name,
-                'family' => $request->family,
-                'phone' => $request->phone,
-                'password' => Hash::make($pass),
-                'active' => true,
-                'level' => 'user',
-                'callcenter_id' => auth()->user()->id,
-                'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
-            ]);
-		}
+        User::createUser($request);
 
         $inputs = $request->all();
         unset($inputs['urlimgmeli']);

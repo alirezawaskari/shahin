@@ -7,6 +7,7 @@
                href="{{ route('profile.service') }}">خدمات</a>--}}
             <a style="display: none" class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.wallet' ? 'active' : '' }}"
                href="{{ route('profile.wallet') }}">مشاهده و افزایش اعتبار</a>
+
             <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.factor' ? 'active' : '' }}"
              href="{{ route('profile.factor') }}">پرداخت های انجام شده</a>
 			 <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.factorItem' ? 'active' : '' }}"

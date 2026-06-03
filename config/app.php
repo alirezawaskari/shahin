@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -220,6 +220,8 @@ return [
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         \Artesaos\SEOTools\Providers\SEOToolsServiceProvider::class,
        \App\Providers\FilterServiceProvider::class,
+
+        \App\Providers\AdminAuthProvider::class,
 
     ],
 

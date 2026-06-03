@@ -107,7 +107,31 @@ class Callcenter extends Model implements AuditableContract
         $has_factor = request('has_factor');
 
         $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
-
+        if (auth()->user()->admin_representation) {
+            $query->where('representation_id', auth()->user()->admin_representation->id);
+        }
+        if (!auth()->user()->hasPermission('callcenter-detail')) {
+            $query->whereHas('callcenter',function ($query){
+                    $query->Where('user_id', auth()->user()->id)->orWhere('agent_id', auth()->user()->id);
+                    $query->orWhereHas('employee',function ($query){
+                       $query->where('parent_id',auth()->user()->employee->id);
+                    });
+            });
+        }
+        if(auth()->user()->center_id)
+		{
+            $query->where(function ($query){
+			$query->whereHas('factors', function ($query)  {
+                $query->whereHas('factorItems', function ($query)  {
+                    $query->where('factoritemable_id', auth()->user()->center->services->pluck('id')->toArray());
+                    });
+                })->orWhereHas('callcenter',function ($query){
+                    $query->whereHas('employee',function ($query){
+                       $query->where('parent_id',auth()->user()->employee->id);
+                });
+                })->orWhere('agent_id', auth()->user()->id)->orWhere('user_id', auth()->user()->id);
+            });
+		}
         if (isset($status) && !is_null($status) && is_array($status)) {
             $query->whereIn('status',$status);
         }
@@ -258,45 +282,15 @@ class Callcenter extends Model implements AuditableContract
         });
         }
 
-        if(auth()->user()->center_id)
-		{
-            $query->where(function ($query){
-			$query->whereHas('factors', function ($query)  {
-                $query->whereHas('factorItems', function ($query)  {
-                    $query->where('factoritemable_id', auth()->user()->center->services->pluck('id')->toArray());
-                    });
-                })->orWhereHas('callcenter',function ($query){
-                    $query->whereHas('employee',function ($query){
-                       $query->where('parent_id',auth()->user()->employee->id);
-                });
-                })->orWhere('agent_id', auth()->user()->id)->orWhere('user_id', auth()->user()->id);
-            });
-		}
-
-        if (auth()->user()->hasPermission('callcenter-detail')) {
-
-            if (auth()->user()->admin_representation) {
-                $query->where('representation_id', auth()->user()->admin_representation->id);
+        if (isset($representation) && trim($representation) != 'all') {
+           if(trim($representation) == 'center')
+            {
+                $query->where('representation_id', null);
             }
-            if (isset($representation) && trim($representation) != 'all') {
-                if(trim($representation) == 'center')
-                {
-                    $query->where('representation_id', null);
-                }
-                else
-                {
-                    $query->where('representation_id', $representation);
-                }
+            else
+            {
+                $query->where('representation_id', $representation);
             }
-        }
-        else
-        {
-                $query->whereHas('callcenter',function ($query){
-                    $query->Where('user_id', auth()->user()->id)->orWhere('agent_id', auth()->user()->id);
-                    $query->orWhereHas('employee',function ($query){
-                       $query->where('parent_id',auth()->user()->employee->id);
-                    });
-            });
         }
 
         if (isset($users) && count($users) > 0) {

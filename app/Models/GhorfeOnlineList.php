@@ -5,12 +5,13 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Builder;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class GhorfeOnlineList extends Model
+class GhorfeOnlineList extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable;
+    use SoftDeletes , Sluggable, InteractsWithMedia;
+
     /**
      * @var array
      */
@@ -46,6 +47,7 @@ class GhorfeOnlineList extends Model
         ];
     }
 
+
     /**
      * @return string
      */
@@ -54,6 +56,19 @@ class GhorfeOnlineList extends Model
         return 'slug';
     }
 
+    public function galleries()
+    {
+        return $this->morphMany(Gallery::class, 'galleryable');
+    }
+
+    public function theme()
+    {
+        return $this->belongsTo(Theme::class);
+    }
+    public function shahinPackage()
+    {
+        return $this->belongsTo(ShahinPackage::class, 'shahin_package_id');
+    }
 
     /**
      * @return string
@@ -61,6 +76,15 @@ class GhorfeOnlineList extends Model
     public function path()
     {
         return "/$this->slug";
+    }
+
+    public function settings()
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
+    public function ghorfeCategories()
+    {
+        return $this->belongsToMany(CategoryPermission::class);
     }
 
     /**
@@ -101,9 +125,14 @@ class GhorfeOnlineList extends Model
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function users()
+    public function user()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function menus()
+    {
+        return $this->hasMany(\App\Menu::class, 'ghorfe_online_list_id', 'id');
     }
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

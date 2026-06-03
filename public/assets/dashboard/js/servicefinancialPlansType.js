@@ -62,6 +62,9 @@ $(document).ready(function () {
                 paging: false,
                 searching: false,
                 retrieve: true,
+                autoWidth: false,
+                scrollX: true,
+                responsive: false,
                 data: data.data,
                 columns: [
                     {"data": "sort_by"},

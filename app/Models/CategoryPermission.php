@@ -19,4 +19,18 @@ class CategoryPermission extends Model
         return $this->belongsTo(Permission::class);
     }
 
+    public function ghorfes()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class, 'category_ghorfe');
+    }
+
+    public function shahinPackages()
+    {
+        return $this->belongsToMany(
+            ShahinPackage::class,
+            'category_permission_shahin_package',
+            'category_permission_id',
+            'shahin_package_id'
+        );
+    }
 }

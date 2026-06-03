@@ -52,6 +52,23 @@ class Representation extends Model
         return "/$this->slug";
     }
 
+    public function settings()
+    {
+        return $this->morphMany(Setting::class, 'settingable');
+    }
+
+    /*
+    |-----------------------------------
+    | HELPER ACCESS (خیلی مهم 😎)
+    |-----------------------------------
+    */
+    public function getSetting($key, $default = null)
+    {
+        $settings = $this->settings()
+            ->pluck('value', 'key');
+
+        return $settings[$key] ?? $default;
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

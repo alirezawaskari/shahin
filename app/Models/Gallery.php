@@ -13,7 +13,7 @@ class Gallery extends Model
     protected $guarded = [];
 
     use SoftDeletes;
-    protected $fillable=['galleryable_id','galleryable_type','title','image','status','type'];
+    protected $fillable=['galleryable_id','galleryable_type','title','image','status','type','parent_id','position_index'];
 
     protected $dates = ['deleted_at'];
 
@@ -21,6 +21,11 @@ class Gallery extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function gallerycategory()
+    {
+        return $this->belongsTo(GalleryCategory::class);
+    }
+
+    public function galleryghorfe()
     {
         return $this->belongsTo(GalleryCategory::class);
     }

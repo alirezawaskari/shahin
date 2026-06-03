@@ -95,9 +95,9 @@ class FactorItemController extends Controller {
      */
     public function destroy(FactorItem $factorItem, Request $request)
     {
-    if (!auth()->user()->hasPermission('delete-factor-item')) {
-        return $this->unauthorizedResponse($request);
-    }
+        if (!auth()->user()->hasPermission('delete-factor-item')) {
+            return $this->unauthorizedResponse($request);
+        }
 
     $check_payment = $factorItem->totalFactorItem
         ? TotalFactorItem::checkPayment($factorItem->totalFactorItem)
@@ -131,10 +131,10 @@ class FactorItemController extends Controller {
      */
     public function edit(FactorItem $factorItem)
     {
-
         $admin_users = User::where('center_id', $factorItem->center_id)->where('center_id', '!=' , null)->whereHas('employee', function ($query) {
             $query->where('show_status', 1);
         })->get();
+
         $center_agents = [];
         $assistants = [];
         $result = FactorItem::setItem( $factorItem );
