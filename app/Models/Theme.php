@@ -12,7 +12,6 @@ class Theme extends Model
 
     protected $dates = ['deleted_at'];
 
-
-    protected $fillable=['themplate_name','color_primary','color-secondary','type','name'];
+    protected $fillable=['themplate_name','color_primary','color_secondary','type','name'];
 
 }

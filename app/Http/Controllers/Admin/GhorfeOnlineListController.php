@@ -164,12 +164,13 @@ class GhorfeOnlineListController extends AdminController {
             ];
             $packages=ShahinPackage::with('categoryPermission')->get();
             $categories = Category::where('depth', 1)->get();
+            $themes = Theme::where('type', 'default')->get();
             $ghorfe_domain_active = false;
             if (request()->host()==$ghorfeOnlineList->domain_active) {
                 $ghorfe_domain_active = true;
             }
 
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
+            return view( 'Admin.ghorfeOnlineList.edit', compact( 'themes','ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
         }
         return abort( 401 );
     }
@@ -519,15 +520,21 @@ class GhorfeOnlineListController extends AdminController {
             return abort(401);
         }
 
-        $request->validate([
-            'name'            => ['required', 'string', 'max:255'],
-            'color_primary'   => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'color_secondary' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-        ]);
+        if ($request->themeId)
+        {
+            $ghorfeOnlineList->update([
+                'theme_id' => $request->themeId
+            ]);
 
-        $theme = $ghorfeOnlineList->theme;
+            return response()->json(['update' => 'success']);
+        }else
+        {
+            $request->validate([
+                'name'            => ['required', 'string', 'max:255'],
+                'color_primary'   => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+                'color_secondary' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            ]);
 
-        if (!$theme || $theme->type === 'default') {
             $newTheme = Theme::create([
                 'name'            => $request->name,
                 'color_primary'   => $request->color_primary,
@@ -539,21 +546,13 @@ class GhorfeOnlineListController extends AdminController {
                 'theme_id' => $newTheme->id
             ]);
 
-            return redirect()->back()->with(['create' => 'success']);
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'category_content'
+                ]);
         }
-
-        $theme->update([
-            'name'            => $request->name,
-            'color_primary'   => $request->color_primary,
-            'color_secondary' => $request->color_secondary,
-        ]);
-
-        return redirect()
-            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
-            ->with([
-                'update' => 'success',
-                'active_tab' => 'category_content'
-            ]);
     }
 
     public function categoriesGhorfe(Request $request, GhorfeOnlineList $ghorfeOnlineList)
