@@ -175,7 +175,6 @@
                                     <label for="card_holder">نام کامل صاحب حساب</label>
                                     <input type="text" name="card_holder" class="form-control"   value="{{$company_info['card_holder'] ?? ''}}">
                                 </div>
-                                <hr>
                                 <div class="card-header bg-dark-gradient col-md-12 border  border-right-0 border-left-0  ">اطلاعات حساب معمولی</div>
                                 <div class="col-md-4 form-group">
                                     <label for="tax_free_shaba_number">شماره شبا (IR0000000000000000)</label>
@@ -303,7 +302,9 @@
                             @csrf
                             <div class="row ">
                                 @include('Admin.layouts.errors')
-
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
+                                    اطلاعات رسمی
+                                </div>
                                 <div class="col-12 col-md-4 mb-2">
                                     <label>انتخاب مالک مغازه</label>
                                     <select class="form-control select2" name="user_id" required>
@@ -369,11 +370,14 @@
                     <div class="tab-pane fade p-t-20 {{ $activeTab == 'text_content' ? 'show active' : '' }}"
                          id="text_content">
                         @permission('ghorfe_online_list_site_content')
+
                         <form class="form-horizontal" role="form" method="post"
                             action="{{route('ghorfeOnlineList.contentUpdate', [$ghorfeOnlineList->slug])}}"
                             enctype="multipart/form-data">
                             @csrf
                             <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">  محتوا</div>
+
                                 @include('Admin.layouts.errors')
 
                                 <div class="col-12 col-md-4 mb-2">
@@ -536,7 +540,6 @@
 
                     @endpermission
                     </div>
-
                     <div class="tab-pane fade p-t-20 {{ $activeTab == 'image_content' ? 'show active' : '' }}" id="image_content" role="tabpanel" aria-labelledby="image-content-tab">
                         @permission('ghorfe_online_list_site_content')
                         <form class="form-horizontal" role="form" method="post"
@@ -544,6 +547,8 @@
                             enctype="multipart/form-data">
                             @csrf
                             <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">  تصاویر</div>
+
                                 @include('Admin.layouts.errors')
                                     <div class="col-12 row">
                                         <div class="col-12 col-md-3">
@@ -756,12 +761,12 @@
                               enctype="multipart/form-data">
                             @csrf
                             <div class="row" id="menu-wrapper" >
-                                @include('Admin.layouts.errors')
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">  سفارشی سازی منو</div>
 
+                                @include('Admin.layouts.errors')
                                 @foreach($ghorfeOnlineList->menus as $index => $menu)
                                     <div class="menu-item border p-2 mb-3">
 
-                                        {{-- ✅ تشخیص برای update --}}
                                         <input type="hidden" name="ids[]" value="{{ $menu->id }}">
 
                                         <div class="col-12">
@@ -805,52 +810,82 @@
                             @csrf
                             <div class="row">
                                 @include('Admin.layouts.errors')
+                                <div class="row mb-3">
+                                    <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
+                                         از بین تم های پیش فرض میتونید انتخاب کنید و یا تم مورد نظر خودتون رو بسازید
+                                    </div>
 
-                                {{-- 1. Form fields now rend er using an inline default if theme doesn't exist yet --}}
-                                <div class="col-12 col-md-4 mt-2 d-block">
-                                    <label>انتخاب نام برای تم </label>
-                                    <input type="text" class="form-control mt-1" name="name"
-                                           value="{{ old('name', $ghorfeOnlineList->theme->name ?? 'تم سفارشی جدید') }}" required>
+                                    <div class="d-flex flex-wrap gap-3 mt-2">
+                                        @foreach($themes as $theme)
+                                            <div
+                                                class="theme-box"
+                                                data-theme-id="{{ $theme->id }}"
+                                                data-primary="{{ $theme->color_primary }}"
+                                                data-secondary="{{ $theme->color_secondary }}"
+                                            >
+                                                <div
+                                                    class="primary-color"
+                                                    style="background: {{ $theme->color_primary }}"
+                                                ></div>
+
+                                                <div
+                                                    class="secondary-color"
+                                                    style="background: {{ $theme->color_secondary }}"
+                                                ></div>
+                                            </div>
+                                        @endforeach
+
+                                        <div id="successMessage" class="alert alert-success d-none mt-3"></div>
+
+                                    </div>
+                                    <div class="card-header mt-2 bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
+                                        تم دلخواه خودتان  را میتوانید بسازید
+                                    </div>
+
+                                    <div class="col-12 col-md-4 mt-2 d-block">
+                                        <label>انتخاب نام برای تم </label>
+                                        <input type="text" class="form-control mt-1" name="name"
+                                               value="{{ old('name', $ghorfeOnlineList->theme->name ?? 'تم سفارشی جدید') }}" required>
+                                    </div>
+
+                                    <div class="col-12 col-md-4 mb-3">
+                                        <label class="d-block">رنگ اصلی</label>
+                                        {{-- 2. Fixed variable pointing to the theme relationship --}}
+                                        <input type="color"
+                                               id="primaryPicker"
+                                               name="color_primary"
+                                               class="form-control-color w-100"
+                                               value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
+                                               oninput="document.getElementById('primaryText').value = this.value">
+
+                                        <input type="text"
+                                               id="primaryText"
+                                               class="form-control mt-2 font-mono"
+                                               value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
+                                               readonly>
+                                    </div>
+
+                                    <div class="col-12 col-md-4 mb-3">
+                                        <label class="d-block">رنگ فرعی</label>
+                                        {{-- 3. Live syncing added via inline native JS 'oninput' --}}
+                                        <input type="color"
+                                               id="secondaryPicker"
+                                               name="color_secondary"
+                                               class="form-control-color w-100"
+                                               value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
+                                               oninput="document.getElementById('secondaryText').value = this.value">
+
+                                        <input type="text"
+                                               id="secondaryText"
+                                               class="form-control mt-2 font-mono"
+                                               value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
+                                               readonly>
+                                    </div>
+
+                                    <div class="col-12 my-3 d-flex justify-content-end">
+                                        <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                                    </div>
                                 </div>
-
-                                <div class="col-12 col-md-4 mb-3">
-                                    <label class="d-block">رنگ اصلی</label>
-                                    {{-- 2. Fixed variable pointing to the theme relationship --}}
-                                    <input type="color"
-                                           id="primaryPicker"
-                                           name="color_primary"
-                                           class="form-control-color w-100"
-                                           value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
-                                           oninput="document.getElementById('primaryText').value = this.value">
-
-                                    <input type="text"
-                                           id="primaryText"
-                                           class="form-control mt-2 font-mono"
-                                           value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
-                                           readonly>
-                                </div>
-
-                                <div class="col-12 col-md-4 mb-3">
-                                    <label class="d-block">رنگ فرعی</label>
-                                    {{-- 3. Live syncing added via inline native JS 'oninput' --}}
-                                    <input type="color"
-                                           id="secondaryPicker"
-                                           name="color_secondary"
-                                           class="form-control-color w-100"
-                                           value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
-                                           oninput="document.getElementById('secondaryText').value = this.value">
-
-                                    <input type="text"
-                                           id="secondaryText"
-                                           class="form-control mt-2 font-mono"
-                                           value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
-                                           readonly>
-                                </div>
-
-                                <div class="col-12 my-3 d-flex justify-content-end">
-                                    <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
-                                </div>
-
                             </div>
                         </form>
                         @endpermission
@@ -871,10 +906,9 @@
                             <div class="row">
 
                                 @include('Admin.layouts.errors')
-
                                 <div class="row">
-                                    <div class="col-12 col-md-12 mb-2">
-                                        <h5>برای قسمت دیتاماینیگ صفحه اصلی استفاده می شود</h5>
+                                    <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
+                               برای قسمت دیتاماینیگ صفحه اصلی استفاده می شود
                                     </div>
                                     <div class="col-12 mb-5">
                                         <label>دسته بندی های
@@ -952,6 +986,47 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script>
+    const themeBoxes = document.querySelectorAll('.theme-box');
+    const primaryPicker = document.getElementById('primaryPicker');
+    const secondaryPicker = document.getElementById('secondaryPicker');
+    const primaryText = document.getElementById('primaryText');
+    const secondaryText = document.getElementById('secondaryText');
+
+    themeBoxes.forEach(box => {
+
+        box.addEventListener('click', () => {
+
+            themeBoxes.forEach(b => b.classList.remove('selected'));
+            box.classList.add('selected');
+
+            const themeId = box.dataset.themeId;
+
+            $.ajax({
+                url: "{{ route('ghorfeOnlineList.themeUpdate',$ghorfeOnlineList)}}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                data: {
+                    themeId: themeId
+                },
+                success: function (res) {
+                    const msg = document.getElementById('successMessage');
+                    msg.innerText = 'تم با موفقیت تغییر کرد';
+                    msg.classList.remove('d-none');
+
+                    setTimeout(() => {
+                        msg.classList.add('d-none');
+                    }, 5000);
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+
+        });
+    });
+
     document.getElementById('serviceSelect').addEventListener('change', function() {
         let serviceId = this.value;
         let itemSelect = document.getElementById('serviceItemSelect');
