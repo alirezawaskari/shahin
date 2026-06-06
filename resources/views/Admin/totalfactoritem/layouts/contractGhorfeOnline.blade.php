@@ -56,7 +56,7 @@
                 <span lang="FA" style="line-height: 150%;font-weight: 700;">
                     ماده 4) مدت اجاره :
                 </span>
-                مدت اجاره از تاریخ تحویل مورد اجاره، از تاریخ {{ $user->employee ? (verta($user->employee->contract_start_date)->format('Y/m/d').' تا '.verta($user->employee->contract_expiration_date)->format('Y/m/d')) : '<span style="color:red">این بخش را از قسمت همکاران کامل کنید</span>' }} میباشد و قرارداد
+                مدت اجاره از تاریخ تحویل مورد اجاره، از تاریخ {{ $user->employee ? (verta($user->employee->contract_start_date)->format('Y/m/d').' تا '.verta($user->employee->contract_expiration_date)->format('Y/m/d')) : 'این بخش را از قسمت همکاران کامل کنید' }} میباشد و قرارداد
                 علی‌حده کتبی
                 یا الکترونیکی دال بر تحویل کامل و نهایی مورد اجاره، لف قرارداد حاضر به مدت یک سال معتبر خواهد بود. تمدید
                 مدت قرارداد حداکثر یک ماه قبل از انقضای مدت با ارسال درخواست رسمی و سپس با توافق کتبی موجر امکان‌پذیر
@@ -292,7 +292,7 @@
             </span>
             <span lang="FA" style="line-height: 150%;">
                 <span lang="FA" style="line-height: 150%;font-weight: 700;">
-                    ماده 11 ) داروی :
+                    ماده 11 ) داوری :
                 </span>
                 <br>
                 <span lang="FA" style="line-height: 150%;">
