@@ -6,14 +6,12 @@ use App\Exports\UsersExport;
 use App\Models\Category;
 use App\Models\CategoryPermission;
 use App\Models\Gallery;
-use App\Models\GalleryCategory;
 use App\Models\GhorfeOnlineList;
 use App\Models\Permission;
 use App\Models\Service;
-use App\Models\Province;
 use App\Models\ServiceItem;
 use App\Models\ShahinPackage;
-use App\Models\Slider;
+use App\Models\Template;
 use App\Models\Theme;
 use App\Services\Settings\SettingsService;
 use App\Services\V1\Auth\AuthService;
@@ -22,8 +20,7 @@ use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
 use App\Models\Employee;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
+
 class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
@@ -64,9 +61,9 @@ class GhorfeOnlineListController extends AdminController {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
             $categories = CategoryPermission::all();
             $packages=ShahinPackage::with('categoryPermission')->get();
-
+            $templates = Template::with('menus')->get();
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.create', compact( 'employees' , 'categories' ,'packages' ) );
+            return view( 'Admin.ghorfeOnlineList.create', compact( 'templates','employees' , 'categories' ,'packages' ) );
         }
 
         return abort( 401 );
@@ -95,6 +92,7 @@ class GhorfeOnlineListController extends AdminController {
             'address' => 'required|string',
             'domain_active' => 'required',
             'shahin_package_id' => 'required|exists:shahin_packages,id',
+            'template_id' => 'required|exists:templates,id',
         ]);
 
         $inputs = $request->only([
@@ -106,6 +104,7 @@ class GhorfeOnlineListController extends AdminController {
             'address',
             'domain_active',
             'shahin_package_id',
+            'template_id',
             'status'
         ]);
 
@@ -120,7 +119,6 @@ class GhorfeOnlineListController extends AdminController {
         $ghorfeOnlineList->about()->create();
 
         if (auth()->user()->hasPermission('ghorfe_online_list_categories')) {
-
             $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
         }
 
@@ -142,39 +140,58 @@ class GhorfeOnlineListController extends AdminController {
     * @param GhorfeOnlineList $ghorfeOnlineList
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
+    public function edit(GhorfeOnlineList $ghorfeOnlineList)
+    {
+        $user = auth()->user();
 
-    public function edit( GhorfeOnlineList $ghorfeOnlineList ) {
-        if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
-            $employees = Employee::whereStatus( true )->get();
-            $categories = CategoryPermission::all();
-
-            $company_info = [
-                'address' => $this->settings->get('address'),
-                'phone' => $this->settings->get('phone'),
-                'email' => $this->settings->get('email'),
-                'shaba_number' => $this->settings->get('shaba_number'),
-                'card_number' => $this->settings->get('card_number'),
-                'card_holder' => $this->settings->get('card_holder'),
-                'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
-                'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
-                'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
-                'sms_panel' => $this->settings->get('sms_panel'),
-                'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
-                'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
-            ];
-            $packages=ShahinPackage::with('categoryPermission')->get();
-            $categories = Category::where('depth', 1)->get();
-            $themes = Theme::where('type', 'default')->get();
-            $ghorfe_domain_active = false;
-            if (request()->host()==$ghorfeOnlineList->domain_active) {
-                $ghorfe_domain_active = true;
-            }
-
-            return view( 'Admin.ghorfeOnlineList.edit', compact( 'themes','ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
+        // ✅ Check permission first
+        if (!$user->hasPermission('ghorfe_online_list_site_content') &&
+            !$user->hasPermission('ghorfe_online_list_official_info')) {
+            return abort(401);
         }
-        return abort( 401 );
-    }
 
+        // ✅ If admin, check domain
+        if ($user->level == 'ghorfeAdmin') {
+            if (request()->getHost() !== $ghorfeOnlineList->domain_active) {
+                return abort(401);
+            }
+        }
+
+        // ✅ Shared data (no duplication)
+        $employees = Employee::whereStatus(true)->get();
+        $packages = ShahinPackage::with('categoryPermission')->get();
+        $categories = Category::where('depth', 1)->get();
+        $themes = Theme::where('type', 'default')->get();
+        $templates = Template::with('menus')->get();
+
+        $company_info = [
+            'address' => $this->settings->get('address'),
+            'phone' => $this->settings->get('phone'),
+            'email' => $this->settings->get('email'),
+            'shaba_number' => $this->settings->get('shaba_number'),
+            'card_number' => $this->settings->get('card_number'),
+            'card_holder' => $this->settings->get('card_holder'),
+            'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
+            'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
+            'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
+            'sms_panel' => $this->settings->get('sms_panel'),
+            'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
+            'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
+        ];
+
+        $ghorfe_domain_active = request()->getHost() === $ghorfeOnlineList->domain_active;
+
+        return view('Admin.ghorfeOnlineList.edit', compact(
+            'templates',
+            'themes',
+            'ghorfe_domain_active',
+            'categories',
+            'ghorfeOnlineList',
+            'packages',
+            'employees',
+            'company_info'
+        ));
+    }
     public function getGallery(Request $request)
     {
         $category_id = $request->category_id;
@@ -474,45 +491,40 @@ class GhorfeOnlineListController extends AdminController {
 
     public function menuUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
-        $this->validate($request, [
-            'titles.*' => 'required',
-            'links.*' => 'required',
-        ]);
-
-        $ids = $request->ids ?? [];
-
-        foreach ($request->titles as $index => $title) {
-
-            $data = [
-                'title' => $title,
-                'link' => $request->links[$index],
-                'ghorfe_online_list_id' => $ghorfeOnlineList->id,
-            ];
-
-            if (!empty($ids[$index])) {
-                Menu::where('id', $ids[$index])
-                    ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
-                    ->update($data);
-            } else {
-                Menu::create($data);
-            }
-        }
-
-        $existingIds = $ghorfeOnlineList->menus->pluck('id')->toArray();
-        $submittedIds = array_filter($request->ids);
-
-        $deletedIds = array_diff($existingIds, $submittedIds);
-
-        Menu::whereIn('id', $deletedIds)
-            ->where('ghorfe_online_list_id', $ghorfeOnlineList->id)
-            ->delete();
-
-        return redirect()
-            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
-            ->with([
-                'update' => 'success',
-                'active_tab' => 'theme_content'
+        if ($request->template_id)
+        {
+            $ghorfeOnlineList->template_id = $request->template_id;
+            $ghorfeOnlineList->update();
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'menu_content'
+                ]);
+        }else {
+            $this->validate($request, [
+                'titles.*' => 'required',
+                'links.*' => 'required',
             ]);
+
+            $ids = $request->ids ?? [];
+
+            foreach ($request->titles as $index => $title) {
+                $data = [
+                    'title' => $title,
+                    'link' => $request->links[$index],
+                    'ghorfe_online_list_id' => $ghorfeOnlineList->id,
+                ];
+                $ghorfeOnlineList->menus()->updateOrCreate($data);
+            }
+
+            return redirect()
+                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+                ->with([
+                    'update' => 'success',
+                    'active_tab' => 'theme_content'
+                ]);
+        }
     }
     public function themeUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {

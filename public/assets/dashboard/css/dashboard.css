@@ -101,6 +101,28 @@
     box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
+.template-label {
+    cursor: pointer;
+    display: block;
+}
+
+.template-card {
+    transition: 0.25s;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.template-label input:checked + .template-card {
+    border: 2px solid #007bff;
+    background: #f0f7ff;
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,123,255,0.15);
+}
+
+.template-card:hover {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
 .dataTables_scrollHeadInner,
 .dataTables_scrollHeadInner table {
     width: 100% !important;

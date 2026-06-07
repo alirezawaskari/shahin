@@ -24,6 +24,11 @@ class Menu extends Model
         return $this->morphTo();
     }
 
+    public function templates()
+    {
+        return $this->belongsToMany(Template::class, 'menu_template', 'template_id', 'menu_id');
+    }
+
     /**
      * @param $cat_id
      * @param $parent_id

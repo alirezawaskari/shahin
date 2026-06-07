@@ -754,53 +754,85 @@
                         </form>
                         @endpermission
                     </div>
-                    <div class="tab-pane fade p-t-20   {{ $activeTab == 'menu_content' ? 'show active' : '' }}" id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
-                        @permission('ghorfe_online_list_site_content')
+                    <div class="tab-pane fade p-t-20    {{ $activeTab == 'menu_content' ? 'show active' : '' }}" id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
                         <form class="form-horizontal" role="form" method="post"
                               action="{{route('ghorfeOnlineList.menuUpdate', [$ghorfeOnlineList->slug])}}"
                               enctype="multipart/form-data">
                             @csrf
                             <div class="row" id="menu-wrapper" >
-                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">  سفارشی سازی منو</div>
-
                                 @include('Admin.layouts.errors')
-                                @foreach($ghorfeOnlineList->menus as $index => $menu)
-                                    <div class="menu-item border p-2 mb-3">
 
-                                        <input type="hidden" name="ids[]" value="{{ $menu->id }}">
-
-                                        <div class="col-12">
-                                            <label>عنوان</label>
-                                            <input type="text"
-                                                   name="titles[]"
-                                                   value="{{ $menu->title }}"
-                                                   class="form-control"
-                                                   required>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <label>لینک</label>
-                                            <input type="text"
-                                                   name="links[]"
-                                                   value="{{ $menu->link }}"
-                                                   class="form-control"
-                                                   required>
-                                        </div>
+                                @if($ghorfeOnlineList->template)
+                                    <div class="card-header mb-2 bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
+                                    منو دلخواه را انتخاب کنید
                                     </div>
-                                @endforeach
-                            </div>
+                                    @foreach($ghorfeOnlineList->template->menus as $index => $menu)
+                                        <div class="menu-item border p-2 mb-3">
+                                            <input type="hidden" name="ids[]" value="{{ $menu->id }}">
 
-                            @if($ghorfeOnlineList->menus->count() < 5)
-                                <button type="button" id="add-menu" class="btn mb-3">
-                                    افزودن منو
-                                </button>
-                            @endif
+                                            <div class="col-12">
+                                                <label>عنوان</label>
+                                                <input type="text"
+                                                       name="titles[]"
+                                                       value="{{ $menu->title }}"
+                                                       class="form-control"
+                                                       required>
+                                            </div>
 
-                            <div class="col-12 my-3 d-flex justify-content-end">
+                                            <div class="col-12">
+                                                <label>لینک</label>
+                                                <input type="text"
+                                                       name="links[]"
+                                                       value="{{ $menu->link }}"
+                                                       class="form-control"
+                                                       required>
+                                            </div>
+                                        </div>
+                                    @endforeach
+
+                                @else
+                                    <div class="card-header mb-2 bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
+                                    ابتدا قالب مورد نظر را انتخاب نمایید
+                                    </div>
+                                    @if(isset($templates) && count($templates))
+                                        @foreach($templates as $template)
+                                            @if($template->active)
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="template-label w-100">
+                                                        <input type="radio"
+                                                               name="template_id"
+                                                               value="{{ $template->id }}"
+                                                               class="d-none template-radio"
+                                                               id="template_{{ $template->id }}"
+                                                            {{ $template->id ? 'checked' : '' }}>
+
+                                                        <div class="template-card p-3 text-center border rounded">
+                                                            <img src="{{asset('img/upload.jpg')}}"
+                                                                 class="img-fluid mb-2"
+                                                                 style="height: 32px">
+                                                            <h6 class="font-weight-bold">{{ $template->name }}</h6>
+                                                            <strong>{{$template->type}}</strong>
+
+                                                            @if($template->menus)
+                                                                <ul class="list-unstyled small text-muted mt-2 mb-2">
+                                                                    @foreach($template->menus as $menu)
+                                                                        <li>✔ {{ $menu->title }}</li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endif
+
+                                 <div class="col-12 my-3 d-flex justify-content-end">
                                 <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
                             </div>
+                            </div>
                         </form>
-                        @endpermission
                     </div>
                     <div class="tab-pane fade p-t-20  {{ $activeTab == 'theme_content' ? 'show active' : '' }}" id="theme_content" role="tabpanel" aria-labelledby="text-content-tab">
                         @permission('ghorfe_online_list_site_content')
