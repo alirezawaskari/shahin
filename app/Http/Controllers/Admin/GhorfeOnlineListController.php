@@ -140,77 +140,58 @@ class GhorfeOnlineListController extends AdminController {
     * @param GhorfeOnlineList $ghorfeOnlineList
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
-    public function edit( GhorfeOnlineList $ghorfeOnlineList ) {
-        if (auth()->user()->level == 'ghorfe_admin') {
-            $has=AuthService::getGhorfe();
-            if ($has!= null)
-            {
-                if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
-                    $employees = Employee::whereStatus( true )->get();
-                    $categories = CategoryPermission::all();
+    public function edit(GhorfeOnlineList $ghorfeOnlineList)
+    {
+        $user = auth()->user();
 
-                    $company_info = [
-                        'address' => $this->settings->get('address'),
-                        'phone' => $this->settings->get('phone'),
-                        'email' => $this->settings->get('email'),
-                        'shaba_number' => $this->settings->get('shaba_number'),
-                        'card_number' => $this->settings->get('card_number'),
-                        'card_holder' => $this->settings->get('card_holder'),
-                        'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
-                        'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
-                        'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
-                        'sms_panel' => $this->settings->get('sms_panel'),
-                        'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
-                        'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
-                    ];
-                    $packages=ShahinPackage::with('categoryPermission')->get();
-                    $categories = Category::where('depth', 1)->get();
-                    $themes = Theme::where('type', 'default')->get();
-                    $templates = Template::with('menus')->get();
-                    $ghorfe_domain_active = false;
-                    if (request()->host()==$ghorfeOnlineList->domain_active) {
-                        $ghorfe_domain_active = true;
-                    }
-
-                    return view( 'Admin.ghorfeOnlineList.edit', compact( 'templates','themes','ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
-                }
-                return abort( 401 );
-            }
-        }else
-        {
-            if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content') || auth()->user()->hasPermission( 'ghorfe_online_list_official_info')) {
-                $employees = Employee::whereStatus( true )->get();
-                $categories = CategoryPermission::all();
-
-                $company_info = [
-                    'address' => $this->settings->get('address'),
-                    'phone' => $this->settings->get('phone'),
-                    'email' => $this->settings->get('email'),
-                    'shaba_number' => $this->settings->get('shaba_number'),
-                    'card_number' => $this->settings->get('card_number'),
-                    'card_holder' => $this->settings->get('card_holder'),
-                    'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
-                    'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
-                    'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
-                    'sms_panel' => $this->settings->get('sms_panel'),
-                    'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
-                    'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
-                ];
-                $packages=ShahinPackage::with('categoryPermission')->get();
-                $categories = Category::where('depth', 1)->get();
-                $themes = Theme::where('type', 'default')->get();
-                $templates = Template::with('menus')->get();
-                $ghorfe_domain_active = false;
-                if (request()->host()==$ghorfeOnlineList->domain_active) {
-                    $ghorfe_domain_active = true;
-                }
-
-                return view( 'Admin.ghorfeOnlineList.edit', compact( 'templates','themes','ghorfe_domain_active','categories','ghorfeOnlineList','packages','categories', 'employees' ,'company_info', 'company_info' ) );
-            }
-            return abort( 401 );
+        // ✅ Check permission first
+        if (!$user->hasPermission('ghorfe_online_list_site_content') &&
+            !$user->hasPermission('ghorfe_online_list_official_info')) {
+            return abort(401);
         }
-    }
 
+        // ✅ If admin, check domain
+        if ($user->level == 'ghorfeAdmin') {
+            if (request()->getHost() !== $ghorfeOnlineList->domain_active) {
+                return abort(401);
+            }
+        }
+
+        // ✅ Shared data (no duplication)
+        $employees = Employee::whereStatus(true)->get();
+        $packages = ShahinPackage::with('categoryPermission')->get();
+        $categories = Category::where('depth', 1)->get();
+        $themes = Theme::where('type', 'default')->get();
+        $templates = Template::with('menus')->get();
+
+        $company_info = [
+            'address' => $this->settings->get('address'),
+            'phone' => $this->settings->get('phone'),
+            'email' => $this->settings->get('email'),
+            'shaba_number' => $this->settings->get('shaba_number'),
+            'card_number' => $this->settings->get('card_number'),
+            'card_holder' => $this->settings->get('card_holder'),
+            'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
+            'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
+            'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
+            'sms_panel' => $this->settings->get('sms_panel'),
+            'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
+            'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
+        ];
+
+        $ghorfe_domain_active = request()->getHost() === $ghorfeOnlineList->domain_active;
+
+        return view('Admin.ghorfeOnlineList.edit', compact(
+            'templates',
+            'themes',
+            'ghorfe_domain_active',
+            'categories',
+            'ghorfeOnlineList',
+            'packages',
+            'employees',
+            'company_info'
+        ));
+    }
     public function getGallery(Request $request)
     {
         $category_id = $request->category_id;
