@@ -19,12 +19,16 @@ use App\Models\Callcenter;
 use App\Models\History;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
+use App\Services\EmployeeService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 class EmployeeController extends AdminController
 {
+    public function __construct(
+        protected EmployeeService $employeeService
+    ) {}
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
      */
@@ -113,106 +117,8 @@ class EmployeeController extends AdminController
      */
     public function update(Request $request, Employee $employee)
     {
-        $user = $employee->user;
-        $this->validate(request(), [
-            'name' => 'string',
-            'family' => 'string',
-            'password' => 'nullable|string|min:6|confirmed',
-            'show_status' => [Rule::in([0, 1])],
-            'status' => [Rule::in([0, 1])]
-        ]);
-
-        $inputs = $request->all();
-
-        $employee_items = isset($inputs['employee']) ? $inputs['employee'] : [];
-        isset($employee_items['contract_start_date']) ? ($employee_items['contract_start_date'] = Helper::vertaToMiladi($employee_items['contract_start_date'])) : '';
-        isset($employee_items['contract_expiration_date']) ? ($employee_items['contract_expiration_date'] = Helper::vertaToMiladi($employee_items['contract_expiration_date'])) : '';
-        $employee_items['parent_id'] =$request->parent_id == 'null'?null:$request->parent_id;
-        if ($request->urlimgaccess) {
-            Helper::deleteImage($employee->imgaccess);
-            $employee_items['imgaccess'] = Helper::moveImage($request->urlimgaccess, 'document');
-        }
-        if ($request->urlimglastcertificate) {
-            Helper::deleteImage($employee->imglastcertificate);
-            $employee_items['imglastcertificate'] = Helper::moveImage($request->urlimglastcertificate, 'document');
-        }
-        if(isset($inputs['employee']))
-        {
-            $validate= Validator::make($inputs, [
-                'sales_commitment' => 'numeric|min:0',
-            ]);
-            if ($validate->fails()){
-                return redirect()->back()->with([
-                    'failByMessage' => $validate->errors()->all(),
-                ]);
-            }
-            $user->employee->update($employee_items);
-            unset($inputs['employee']);
-        }
-
-        $role_id = $request->input('role_id') || $user->roles->count() == 0 ? $request->input('role_id') : $user->roles[0]->id;
-        $employee->update([
-            'show_status' => $request->show_status,
-        ]);
-        isset($request->status) ? $employee->update(['status' => $request->status]) : '';
-        if($employee->status == 0)
-        {
-            $user->update(['level' => 'user']);
-        }
-        else
-        {
-            $user->update(['level' => 'admin']);
-        }
-        if ($request->urlimgshenasname) {
-            Helper::deleteImage($user->imgshenasname);
-            $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname, 'document');
-        }
-        if ($request->urlimgmeli) {
-            Helper::deleteImage($user->imgmeli);
-            $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli, 'document');
-        }
-
-        if ($request->urlimgsignature) {
-            Helper::deleteImage($user->imgsignature);
-            $inputs['imgsignature'] = Helper::moveImage($request->urlimgsignature, 'document');
-        }
-
-        if ($request->urlavatar) {
-            Helper::deleteImage($user->avatar);
-            $inputs['avatar'] = Helper::moveImage($request->urlavatar, 'document');
-        }
-        unset($inputs['urlimgshenasname']);
-        unset($inputs['urlimgmeli']);
-        unset($inputs['urlavatar']);
-        unset($inputs['urlimgsignature']);
-        unset($inputs['urlimgaccess']);
-        unset($inputs['urlimglastcertificate']);
-
-        unset($inputs['role_id']);
-        $inputs['wallet'] = (float)str_replace(',', '', $request->wallet);
-        if (isset($inputs['password']) && $inputs['password'] == '') {
-            unset($inputs['password']);
-            unset($inputs['password_confirmation']);
-        } elseif(isset($inputs['password'])) {
-            $user->update(array_merge($inputs, ['password' => Hash::make($inputs['password'])]));
-            unset($inputs['password']);
-            unset($inputs['password_confirmation']);
-        }
-        $user->update($inputs);
-
-        if ($role_id == 0) {
-            if ($user->roles->count() != 0) {
-                $user->removeRole($user->roles[0]->id);
-            }
-        } else {
-            $user->syncRoles([$role_id]);
-        }
-
-        return redirect()->back()->with([
-            'update' => 'success'
-        ]);
+        return $this->employeeService->update($request, $employee);
     }
-
     /**
      * @param Employee $employee
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
