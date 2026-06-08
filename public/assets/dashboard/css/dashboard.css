@@ -23004,7 +23004,7 @@ body.horizontal-side-menu nav.navbar {
     display: flex;
     -webkit-box-align: center;
     align-items: center;
-    padding: 8px 30px;
+    padding: 10px;
     color: #323232;
     -webkit-transition: background .3s;
     transition: background .3s;
@@ -23114,7 +23114,7 @@ body.horizontal-side-menu nav.navbar {
 .side-menu > .side-menu-body > ul li a + ul li a,
 .side-menu > .container > .side-menu-body > ul li a + ul li a,
 .side-menu > .container-fluid > .side-menu-body > ul li a + ul li a {
-    padding: 8px 50px 8px 0px;
+    padding: 8px 20px 8px 0px;
 }
 
 .side-menu > .side-menu-body > ul li a + ul ul,
