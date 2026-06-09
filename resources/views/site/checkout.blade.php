@@ -183,7 +183,7 @@
                                     @case('multi-select')
                                     <div class="col-12 col-md-4 mb-2">
                                         {!! $form->help !!}
-                                        <select multiple class="form-control selectpicker" {{ $form->required == true ?
+                                        <select multiple class="form-control selectpicker bg-secondary" {{ $form->required == true ?
                                             'required' : '' }} name="items[{{ $key }}][{{
                                             $form->name }}][]">
                                             <option value="" selected disabled>انتخاب کنید</option>
