@@ -56,6 +56,10 @@ class GhorfeOnlineList extends Model implements HasMedia
         return 'slug';
     }
 
+    public function template()
+    {
+        return $this->belongsTo(Template::class, 'template_id');
+    }
     public function galleries()
     {
         return $this->morphMany(Gallery::class, 'galleryable');
@@ -134,6 +138,7 @@ class GhorfeOnlineList extends Model implements HasMedia
     {
         return $this->hasMany(\App\Menu::class, 'ghorfe_online_list_id', 'id');
     }
+
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

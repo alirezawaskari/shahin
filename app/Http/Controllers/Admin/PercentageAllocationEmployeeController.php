@@ -104,7 +104,6 @@ class PercentageAllocationEmployeeController extends AdminController {
                 'startDate' => 'required',
                 'endDate' => 'required',
                 'employee' => 'required',
-                'factor_sender' => 'required',
             ] );
 
             if ( $request->register_price && $request->service ) {
@@ -186,7 +185,7 @@ class PercentageAllocationEmployeeController extends AdminController {
 
         $stillExists = PercentageAllocationEmployee::where('user_id', $percentageAllocationEmployee->user_id)
             ->whereNull('deleted_at')
-            ->exists();
+            ->delete();
 
         return response()->json([
             'status' => 'success',

@@ -683,12 +683,12 @@ class Factor extends Model implements AuditableContract
      * @return void
      * store change on factor task if exist
      */
-    public static function factorTaskChenge(Factor $item)
+    public static function factorTaskChenge(Factor $item): void
     {
-        if($item->task)
-        {
-            $item->task->update(['user_id' => $item->callcenter_id , 'status' => 3]);
-        }
+        $item->task?->update([
+            'user_id' => $item->callcenter_id,
+            'status'  => $item->price == 0 ? 10 : 3,
+        ]);
     }
     /**
      * @param Factor $item
@@ -704,20 +704,21 @@ class Factor extends Model implements AuditableContract
         }
     }
     /**
-     * @param \App\Models\Factor $factor
-     * @param mixed $center
+     * Summary of refferalFactorItemToCenter
+     * @param Factor $factor
      * @return void
      */
     private static function refferalFactorItemToCenter(Factor $factor)
     {
-
-        $factor->factorItems()->each(function ($factorItem) {
+        $factor->factorItems()->each(function (FactorItem $factorItem) {
+            //set center for single center service or representation
+            FactorItem::setCenterForSingleCenter($factorItem);
             if($factorItem->center_id)
             {
-            $request['center_id'] = $factorItem->center_id;
-            $request['check'] = true;
-            $request['description'] = 'درخواست مشاوره - ثبت شده توسط مرکز';
-            FactorItem::referralCenter($factorItem , $request);
+                $request['center_id'] = $factorItem->center_id;
+                $request['check'] = true;
+                $request['description'] = 'درخواست مشاوره - ثبت شده توسط مرکز';
+                FactorItem::referralCenter($factorItem , $request);
             }
         });
     }

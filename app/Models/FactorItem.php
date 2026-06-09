@@ -108,7 +108,8 @@ class FactorItem extends Model implements AuditableContract
         return $this->hasMany(Session::class)->orderBy('date');
     }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Summary of representation
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<RepresentationFactorItem, FactorItem>
      */
     public function representation()
     {
@@ -1025,19 +1026,12 @@ class FactorItem extends Model implements AuditableContract
      * @return void
      * get financialPlansType if exist else get factorItem serviceItem
      */
-    public static function getFnancialPlansType(FactorItem $factor_item)
+    public static function getFinancialPlansType(FactorItem $factorItem): string
     {
-        if($factor_item->financialPlansType)
-        {
-            return $factor_item->financialPlansType->title;
-        }
-        elseif($factor_item->ServiceItem)
-        {
-            return $factor_item->serviceItem->title;
-        }
-        return 'ثبت نشده';
+        return $factorItem->financialPlansType?->title
+            ?? $factorItem->serviceItem?->title
+            ?? 'ثبت نشده';
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
@@ -1049,46 +1043,60 @@ class FactorItem extends Model implements AuditableContract
      * @param \App\Models\FactorItem $item
      * @return mixed //array or null
      */
-    public static function getSelectableCenters(FactorItem $item)
+    public static function getSelectableCenters(FactorItem $item): \Illuminate\Database\Eloquent\Collection
     {
-        $selectable_centers = Center::where( 'status', true )
-            ->whereHas('services', function ($query) use ($item) {
-            $query->where('centerable_id', $item->factoritemable_id)->where('centerable_type', $item->factoritemable_type);
-        });
-
-        if(auth()->user() && auth()->user()->admin_representation_id)
-        {
-            $selectable_centers = $selectable_centers->whereHas('representations', function ($query) use ($item) {
-                $query->where('id', $item->representation_id);
-            });
-        }
-        return $selectable_centers->get();
+        return Center::query()
+            ->where('status', true)
+            ->whereHas('services', fn($q) => $q->where([
+                'centerable_id'   => $item->factoritemable_id,
+                'centerable_type' => $item->factoritemable_type,
+            ]))
+            ->when(
+                auth()->user()?->admin_representation_id,
+                fn($q) => $q->whereHas('representations', fn($q) => $q->where('id', auth()->user()->admin_representation_id))
+            )
+            ->get();
     }
     /**
      *@param \App\Models\FactorItem $item
      *@param int $representation
      *@return void
      */
-    public static function createRepresentation(FactorItem $item , $representation)
+    public static function createRepresentation(FactorItem $item, $representation)
     {
+        $user = auth()->user();
+
         $item->histories()->create([
-            'user_id' => auth()->user()->id,
-            'callcenter_id' => auth()->user()->id,
+            'user_id' => $user->id,
+            'callcenter_id' => $user->id,
             'status' => 1,
-            'description' => " نمایندگی این پرونده توسط ".auth()->user()->family."تغییر کرده است.",
+            'description' => "نمایندگی این پرونده توسط {$user->family} تغییر کرده است.",
         ]);
-        if($representation == 'center_representation')
-        {
+
+        if ($representation === 'center_representation') {
             $item->representation()->delete();
-        }
-        else
-        {
-            $item->representation()->updateOrCreate(['representation_id' => $representation], ['agent_id' => auth()->user()->id]);
+        } else {
+            $item->representation()->updateOrCreate(
+               ['representation_id' => $representation],
+               ['agent_id' => $user->id]
+            );
         }
     }
     /**
+     * Summary of setCenterForSingleCenter
+     * @param FactorItem $factorItem
+     * @return void
+     */
+    public static function setCenterForSingleCenter(FactorItem $factorItem): void
+    {
+        $selectableCenters = FactorItem::getSelectableCenters($factorItem);
+        if ($selectableCenters->count() === 1) {
+            $factorItem->update(['center_id' => $selectableCenters->first()->id]);
+        }
+     }
+    /**
      * Summary of referralCenter
-     * @param \App\Models\FactorItem $factorItem
+     * @param FactorItem $factorItem
      * @param mixed $request
      * @return void
      */
@@ -1178,7 +1186,7 @@ class FactorItem extends Model implements AuditableContract
         $factor_item[ 'histories' ] = $factor_item->histories;
         $factor_item[ 'address' ] = $factor_item->factor->address;
         $factor_item[ 'user_histories'] = Helper::userHistories( $factor_item->factor->user );
-        $factor_item[ 'financial_plans_type' ] = FactorItem::getFnancialPlansType($factor_item);
+        $factor_item[ 'financial_plans_type' ] = FactorItem::getFinancialPlansType($factor_item);
         $factor_item[ 'financial_plans_types_list' ] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
         $factor_item['factor_histories'] = $factor_item->histories->where('reason_id' , 2);
         //fill prepayment array

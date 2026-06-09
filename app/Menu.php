@@ -11,15 +11,21 @@ class Menu extends Model
 
     public function getChild()
     {
-        return $this->hasMany(Menu::class, 'parent_id', 'id');
+        return $this->hasMany(Menu::class, 'parent_id');
     }
 
     public function getParent()
     {
-        return $this->hasMany(Menu::class, 'id', 'parent_id');
+        return $this->belongsTo(Menu::class, 'parent_id');
     }
-    public function ghorfeOnlineList()
+
+    public function ghorfeOnlineLists()
     {
-        return $this->hasMany(GhorfeOnlineList::class, 'ghorfe_online_list_id', 'id');
+        return $this->hasMany(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function scopeMainMenu($query)
+    {
+        return $query->whereNull('parent_id');
     }
 }

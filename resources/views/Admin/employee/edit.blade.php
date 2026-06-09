@@ -283,7 +283,7 @@
                                 name="employee[data_access_date]" class="form-control date">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>تاریخ شروع همکاری</label>
+                            <label>تاریخ شروع قرارداد</label>
                             <input value="{{ $employee->contract_start_date }}" type="text"
                                 name="employee[contract_start_date]" class="form-control date">
                         </div>

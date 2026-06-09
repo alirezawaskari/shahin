@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             if(row.length){
                                 table.row(row).remove().draw();
                             }
-
+                            $("#do_filter").click();
                             swal({
                                 text: "با موفقیت حذف گردید.",
                                 icon: "success",

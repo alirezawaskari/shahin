@@ -120,7 +120,7 @@ class PercentageAllocationEmployee extends Model {
      */
     public static function setPercentageAllocationEmployee(Factor $item , $payment_type)
     {
-        $percentage_allocation_employees = $item->factorItems->map(function ($factor_item , $payment_type) {
+        $percentage_allocation_employees = $item->factorItems->map(function ($factor_item) use ($payment_type) {
             //set emplloyee performance from percentageAllocation employee
             $price = $factor_item->financialPlansType->price;
             return PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $price , now() , null , $payment_type);

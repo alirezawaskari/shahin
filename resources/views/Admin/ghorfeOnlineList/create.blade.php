@@ -79,15 +79,66 @@
                     <input type="text" name="contract_expiration_date" class="form-control date">
                 </div>
 
-                @permission('ghorfe_online_list_package_update')
                 <div class="row">
                     @include('Admin.layouts.errors')
                     <div class="col-12 col-md-12">
                         <div class="card shadow-sm">
                             <div class="card-header bg-dark-gradient text-white">
-                                <h6 class="mb-0 text-center">پکیج‌ها</h6>
+                                <h6 class="mb-0 text-center">قالب ها</h6>
                             </div>
 
+                            <div class="card-body">
+                                <div class="row">
+                                    @if(isset($templates) && count($templates))
+                                        @foreach($templates as $template)
+                                            @if($template->active)
+                                                <div class="col-md-3 mb-3">
+                                                    <label class="template-label w-100">
+                                                        <input type="radio"
+                                                               name="template_id"
+                                                               value="{{ $template->id }}"
+                                                               class="d-none template-radio"
+                                                               id="template_{{ $template->id }}"
+                                                            {{ $template->id ? 'checked' : '' }}>
+
+                                                        <div class="template-card p-3 text-center border rounded">
+                                                            <img src="{{asset('img/upload.jpg')}}"
+                                                                 class="img-fluid mb-2"
+                                                                 style="height: 32px">
+                                                            <h6 class="font-weight-bold">{{ $template->name }}</h6>
+                                                            <strong>{{$template->type}}</strong>
+
+                                                            @if($template->menus)
+                                                                <ul class="list-unstyled small text-muted mt-2 mb-2">
+                                                                    @foreach($template->menus as $menu)
+                                                                        <li>✔ {{ $menu->title }}</li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            @endif
+                                                        </div>
+                                                    </label>
+                                                </div>
+
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <p class="text-muted text-center w-100">پکیجی وجود ندارد</p>
+                                    @endif
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    @include('Admin.layouts.errors')
+                    <div class="col-12 col-md-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-dark-gradient text-white">
+                                <h6 class="mb-0 text-center">پکیج ها</h6>
+                            </div>
                             <div class="card-body">
                                 <div class="row">
                                     @if(isset($packages) && count($packages))
@@ -145,10 +196,10 @@
 
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
-                @endpermission
                 <div class="col-12 col-md-4 mt-2">
                     <div class="card">
                         <div id="logo_src" class="show">

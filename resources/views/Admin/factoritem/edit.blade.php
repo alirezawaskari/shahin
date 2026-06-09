@@ -11,7 +11,7 @@
                        id="factor-tab" data-toggle="tab" href="#factor" role="tab" aria-controls="factor"
                        aria-selected="false">پرونده کاربر</a>
                 </li>
-                
+
                 @if(!auth()->user()->center_id && !isset($factorItem->center))
                 <li class="nav-item">
                     <a class="nav-link show {{ !$factorItem->center ? 'active' : ''}}" id="contact-tab"
@@ -45,7 +45,7 @@
                 @endif
                     <div class="tab-pane fade p-t-20 {{ !$factorItem->center ? 'active show' : ''}}"
                         id="turnRatings" role="tabpanel" aria-labelledby="contact-tab">
-                       @include('Admin.factoritem.show.determineCentering')
+                        @include('Admin.factoritem.show.setCenter')
                     </div>
             </div>
         </div>
