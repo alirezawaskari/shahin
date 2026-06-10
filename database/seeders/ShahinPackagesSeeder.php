@@ -10,6 +10,8 @@ class ShahinPackagesSeeder extends Seeder
 {
     public function run(): void
     {
+        $permissions = DB::table('category_permissions')->get();
+
         DB::table('shahin_packages')->insert([
             [
                 'name' => 'پکیج عمومی',
@@ -60,5 +62,16 @@ class ShahinPackagesSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
+
+        $packages = DB::table('shahin_packages')->get();
+
+        foreach ($packages as $package) {
+            foreach ($permissions as $permission) {
+                DB::table('category_permission_shahin_package')->insert([
+                    'category_permission_id' => $permission->id,
+                    'shahin_package_id' => $package->id,
+                ]);
+            }
+        }
     }
 }
