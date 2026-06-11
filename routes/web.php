@@ -1,6 +1,5 @@
 <?php
 
-use App\Classes\External\SendSms;
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
@@ -34,6 +33,7 @@ use App\Http\Controllers\Admin\site\NewsController;
 use App\Http\Controllers\Admin\site\WorkSampleController;
 use App\Http\Controllers\Admin\SMSController;
 use App\Http\Controllers\Admin\SmsTemplateController;
+use App\Http\Controllers\Admin\MenuSettingController;
 use App\Http\Controllers\Admin\SuspensionStandardController;
 use App\Http\Controllers\Admin\TariffController;
 use App\Http\Controllers\Admin\TicketController;
@@ -308,7 +308,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     // SMS templates
     Route::get('/smsTemplate/filter', [SmsTemplateController::class, 'filter']);
+    Route::get('/menuSetting/filter', [MenuSettingController::class, 'filter']);
+    Route::post('/permissions/updateSubMenu', [MenuSettingController::class, 'updateSubMenu'])->name('permissions.updateSubMenu');
     Route::resource('/smsTemplate', SmsTemplateController::class);
+    Route::resource('/menuSetting', menuSettingController::class);
 
     //total factor item
     Route::post('/totalFactorItem/suspension', [TotalFactorItemController::class, 'suspension'])->name('totalFactorItem.suspension');

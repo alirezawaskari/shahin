@@ -16,7 +16,7 @@
                     </a>
 
                     <ul>
-                        @foreach($category['items'] as $list)
+                        @foreach($category->permission as $list)
                             @if($list->isMenu)
                                 <li>
                                     <a href="{{ route($list->link) }}">

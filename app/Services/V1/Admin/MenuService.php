@@ -2,6 +2,7 @@
 
 namespace App\Services\V1\Admin;
 
+use App\Models\CategoryPermission;
 use App\Models\GhorfeOnlineList;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Cache;
@@ -65,12 +66,10 @@ class MenuService
     {
         $currentRoute = Route::currentRouteName();
 
-        return $this->groupByCategory(
-            Permission::with('categoryPermissions')
-                ->where('isMenu', true)
+        return
+            CategoryPermission::with('permission')
                 ->get()
-                ->map(fn($p) => $this->mapPermission($p, $currentRoute))
-        );
+                ->map(fn($p) => $this->mapPermission($p, $currentRoute));
     }
 
     /**
