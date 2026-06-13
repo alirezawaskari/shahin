@@ -42,7 +42,7 @@
                                          name="endDate"></date-picker>
                         </div>
                         <div class="col-12 col-md-3 mb-2">
-                            @include('admin.user.layouts.levelSelect')
+                            @include('Admin.user.layouts.levelSelect')
                         </div>
                         <div class="col-12 col-md-3 mb-2">
                             <select name="sex" class="custom-select" >

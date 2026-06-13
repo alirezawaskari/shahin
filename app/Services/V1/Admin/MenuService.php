@@ -12,7 +12,7 @@ class MenuService
 {
     public function getMenu($user)
     {
-        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+        if ($user->level == 'superAdmin' || $user->level == 'admin') {
             return Cache::remember('menu_super_admin', 60, fn() => $this->getAllMenus());
         }
 
@@ -65,7 +65,6 @@ class MenuService
     private function getAllMenus()
     {
         $currentRoute = Route::currentRouteName();
-
         return
             CategoryPermission::with('permission')
                 ->get()

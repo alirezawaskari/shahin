@@ -131,7 +131,7 @@
                 @permission('user_change_level')
                 <div class="col-12 col-md-4 mb-3">
                     <label>نوع کاربر</label>
-                    @include('admin.user.layouts.levelSelect')
+                    @include('Admin.user.layouts.levelSelect')
                 </div>
                 @endpermission
                 <div class="col-12 col-md-4 mb-3">

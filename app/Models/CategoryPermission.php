@@ -12,7 +12,8 @@ class CategoryPermission extends Model
     protected $guarded = [];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Summary of permission
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Permission, CategoryPermission>
      */
     public function permission()
     {

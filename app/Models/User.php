@@ -819,7 +819,9 @@ class User extends Authenticatable implements LaratrustUser
         return $user;
     }
     /**
-     * @return array
+     * Summary of getSupporterUserAdmin
+     * @param mixed $representation
+     * @return \Illuminate\Database\Eloquent\Collection<int, User>|\Illuminate\Support\Collection<int, \stdClass>
      */
     public static function getSupporterUserAdmin($representation)
     {
