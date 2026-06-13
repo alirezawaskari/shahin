@@ -16,7 +16,7 @@ class CategoryPermission extends Model
      */
     public function permission()
     {
-        return $this->belongsTo(Permission::class);
+        return $this->hasMany(Permission::class,'cat_id','id');
     }
 
     public function ghorfes()
