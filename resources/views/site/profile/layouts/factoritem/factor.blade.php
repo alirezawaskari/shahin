@@ -2,8 +2,6 @@
 
 @section('content')
 
-@include('Admin.factoritem.printFile.contractFactor')
-
 <div class="p-3">
     <div class="section position-relative">
         <div class="overlay position-absolute"></div>

@@ -57,6 +57,7 @@
                     <i class="fa fa-check font-18 text-success"></i>
                 </div>
                 @endif
+                @include('Admin.factoritem.layouts.file.factorHistories')
                 <form class="form-horizontal" role="form" method="post"
                     action="{{$factorItem['total_price'] == 0 ? route('factorItem.createFactor' , [ $factorItem['resnumber']]) : route('factorItem.calculate') }}">
                     @csrf
@@ -93,7 +94,6 @@
                         : '' }}>
                     @endpermission
                 </form>
-                @include('Admin.factoritem.layouts.file.factorHistories')
             </div>
         </div>
     </div>
