@@ -92,7 +92,7 @@
                 <div class="card border-contract p-2 text-center">
                     @if(isset($factorItem['factor_values'][$form->name]) && $factorItem['factor_values'][$form->name] !=
                     "")
-                    <a href="{{ asset(\App\Models\User::getUser($factorItem['factor_values'][$form->name])->imgsignature) }}"
+                    {{-- <a href="{{ asset(\App\Models\User::getUser($factorItem['factor_values'][$form->name])->imgsignature) }}"
                         target="_blank">
                         <img src="{{ \App\Models\User::getUser($factorItem['factor_values'][$form->name])->imgsignature }}"
                             class="card-img-top" height="150px">
@@ -101,7 +101,7 @@
                         <h5 class="card-title">{{
                             \App\Models\User::getUser($factorItem['factor_values'][$form->name])->family.' -
                             '.$form->help }}</h5>
-                    </div>
+                    </div> --}}
                     @else
                     <img class="card-img-top" height="150px">
                     <div class="card-body">
