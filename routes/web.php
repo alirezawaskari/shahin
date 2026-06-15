@@ -856,7 +856,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 });
 
 //Front Routes
-Route::get('/', [AdminLoginController::class, 'showLoginForm'])->name('login.show');
+Route::get('/', 'HomeController@index')->name('index');
 Route::get('/help', 'HelpController@index')->name('site.help');
 Route::get('/calculate', 'FactorItemInstallmentController@index')->name('site.help');
 Route::post('dashboard/financialPlansType/setByItem', 'Admin\FinancialPlansTypeController@setFinancialPlansTypeByItem');
