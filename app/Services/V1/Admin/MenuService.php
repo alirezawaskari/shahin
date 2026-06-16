@@ -2,6 +2,7 @@
 
 namespace App\Services\V1\Admin;
 
+use App\Models\CategoryPermission;
 use App\Models\GhorfeOnlineList;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Cache;
@@ -11,7 +12,7 @@ class MenuService
 {
     public function getMenu($user)
     {
-        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+        if ($user->level == 'superAdmin' || $user->level == 'admin') {
             return Cache::remember('menu_super_admin', 60, fn() => $this->getAllMenus());
         }
 
@@ -64,13 +65,10 @@ class MenuService
     private function getAllMenus()
     {
         $currentRoute = Route::currentRouteName();
-
-        return $this->groupByCategory(
-            Permission::with('categoryPermissions')
-                ->where('isMenu', true)
+        return
+            CategoryPermission::with('permission')
                 ->get()
-                ->map(fn($p) => $this->mapPermission($p, $currentRoute))
-        );
+                ->map(fn($p) => $this->mapPermission($p, $currentRoute));
     }
 
     /**

@@ -13,7 +13,7 @@ class Permission extends LaratrustPermission
      */
     public function categoryPermissions()
     {
-        return $this->hasOne(CategoryPermission::class , 'id','cat_id');
+        return $this->belongsTo(CategoryPermission::class, 'cat_id');
     }
 
 }

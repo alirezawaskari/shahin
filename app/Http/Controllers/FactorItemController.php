@@ -109,7 +109,7 @@ class FactorItemController extends Controller {
         $item[ 'date_first_pay' ] = isset( $factorItem->factors->where( 'title', '!=', 'register' )->where( 'status', true )->first()->created_at ) ? verta( $factorItem->factors->where( 'title', '!=', 'register' )->first()->created_at )->format( 'Y/m/d' ) : '';
         $item[ 'start_date' ] = verta( $factorItem->approval_date )->format( 'Y/m/d' );
         $item['contract_histories'] = $factorItem->histories->where('reason_id' , 1);
-        $factorItem['factor_histories'] = $factorItem->histories->where('reason_id' , 2);
+		$item['factor_histories'] = $factorItem->histories->where('reason_id' , 2);
         //if factorItem type is installment
         if ( $totalFactorItem ) {
             $item['contract_histories'] = $totalFactorItem->histories->where('reason_id' , 1);
@@ -117,7 +117,7 @@ class FactorItemController extends Controller {
             $item[ 'count_installment_checks' ] = TotalFactorItem::getCountInstallmentChecks( $totalFactorItem );
             $item[ 'guarantee_type' ] = $totalFactorItem->guarantee_type;
             $item[ 'contract_values' ] = $totalFactorItem->contract_values;
-            $item['factoritemable'] = TotalFactorItem::setFactorItemable($totalFactorItem);
+			$item['factoritemable'] = TotalFactorItem::setFactorItemable($totalFactorItem);
             $item[ 'status_mali' ] = $factorItem->status_mali;
             $item[ 'start_date' ] = verta( $totalFactorItem->approval_date )->format( 'Y/m/d' );
             $item[ 'status_mali_text' ] = FactorItem::statusMali( $totalFactorItem->status_mali );
@@ -443,12 +443,11 @@ class FactorItemController extends Controller {
     public function uploadSingleImage( Request $request ) {
         return Helper::uploadImage( $request->file, 'document' );
     }
-
     /**
-    * @param \Illuminate\Http\Request $request
-    * @return \Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
-    */
-
+     * Summary of sendConfirmContractCode
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function sendConfirmContractCode( Request $request ) {
         if ( $request->confirm_contract_check == true ) {
             $factorItem = FactorItem::find( $request->factor_item );

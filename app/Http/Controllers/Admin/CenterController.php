@@ -133,6 +133,7 @@ class CenterController extends AdminController
         $center->update( [
             'centerable_id' => $centerable_id,
             'centerable_type' => $centerable_type,
+            'creator_representation_id' => $request->creator_representation_id,
             'title' => $request->title,
             'status' => $request->status,
             'description' => $request->description,

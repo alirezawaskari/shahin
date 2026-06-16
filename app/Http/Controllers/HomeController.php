@@ -24,7 +24,7 @@ class HomeController extends Controller
      */
     public function index(User $callcenter)
     {
-        //forget representation session's if it is set
+        return redirect('/dashboard');
         session()->has('representation') ? session()->forget('representation') : '';
 		if(isset(auth()->user()->organization_id))
         {

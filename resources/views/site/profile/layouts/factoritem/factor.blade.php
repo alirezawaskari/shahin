@@ -3,7 +3,6 @@
 @section('content')
 
 <div class="p-3">
-    {{--contact--}}
     <div class="section position-relative">
         <div class="overlay position-absolute"></div>
         <div class="container col-10">

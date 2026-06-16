@@ -1,6 +1,16 @@
 @switch($form->type)
 @case('multi-select')
-
+<div class="col-12 col-md-4 mb-2">
+    {!! $form->help !!}
+    <select multiple class="form-control select2 bg-secondary" {{ $form->required == true ?
+        'required' : '' }} name="item[{{ $form->name }}][]">
+        <option value="" disabled>انتخاب کنید</option>
+        @foreach($form->beforeformitems as $select_item)
+        <option value="{{ $select_item->value }}" class="text-right" {{ isset($factorItem['factor_values'][$form->name]) && in_array($select_item->value , $factorItem['factor_values'][$form->name]) ? 'selected' : ''  }}>{{
+            $select_item->title }}</option>
+        @endforeach
+    </select>
+</div>
 @break
 @case('textarea')
 <div class="col-12 mb-2">
@@ -212,8 +222,9 @@
 @case('calendar')
 <div class="col-12 col-md-4 mb-3">
     {!! $form->help !!}
-    <date-picker value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}" format="YYYY/M/D" name="item[{{ $form->name }}]" type="date"
-        display-format="YYYY/MM/DD">
+    <date-picker
+        value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}"
+        format="YYYY/M/D" name="item[{{ $form->name }}]" type="date" display-format="YYYY/MM/DD">
     </date-picker>
 </div>
 @break

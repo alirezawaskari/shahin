@@ -441,14 +441,14 @@ class FactorController extends Controller
      */
     private function changeStatusToPaid($request , $factor , $inputs)
     {
-        if(auth()->user()->representation_id)
-        {
-            $result = self::savePaymentRepresentation($inputs , $factor);
-            $message = $result['message'];
-            $status = $result['status'];
-        }
-        else
-        {
+        // if(auth()->user()->representation_id)
+        // {
+        //     $result = self::savePaymentRepresentation($inputs , $factor);
+        //     $message = $result['message'];
+        //     $status = $result['status'];
+        // }
+        // else
+        // {
             $factor->update($inputs);
             Factor::savePayment($factor);
             //upload bill_image cash factor
@@ -459,7 +459,7 @@ class FactorController extends Controller
             }
             $message = 'با موفقیت ثبت شد.';
             $status = 'success';
-        }
+       // }
 
         return ['message' => $message , 'status' => $status];
     }
