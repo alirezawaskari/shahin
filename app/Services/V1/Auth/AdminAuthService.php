@@ -88,7 +88,7 @@ final readonly class AdminAuthService
      */
     public static function getGhorfe() : GhorfeOnlineList| null
     {
-        $ghorfe_domain_active = request()->host();
+        $ghorfe_domain_active = request()->header('X-Original-Host') ?? request()->getHost();
         $GhorfeOnlineList = GhorfeOnlineList::where('domain_active' , $ghorfe_domain_active)->first();
         return $GhorfeOnlineList ?? null;
     }
