@@ -379,7 +379,7 @@ class Category extends Model
     {
         return $this->hasMany(Service::class,'category_id','id');
     }
-  /**
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function ghorfeOnlineLists()
@@ -394,5 +394,17 @@ class Category extends Model
     {
         $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
         return $query;
+    }
+    /**
+     * Summary of scopeFilterByGhorfe
+     * @param mixed $query
+     * @param mixed $ghorfe
+     */
+    public function scopeFilterByGhorfe($query, $ghorfe)
+    {
+        if (!$ghorfe || $ghorfe->type_work === 'all') {
+            return $query->where('depth', 0)->orderBy('id', 'DESC');
+        }
+        return $query->where('id', $ghorfe->type_work === 'product' ? 1 : 2);
     }
 }

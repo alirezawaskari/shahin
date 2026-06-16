@@ -6,7 +6,6 @@ use App\Classes\External\SendSms;
 use App\Events\referralCenterNotification;
 use App\Models\Employee;
 use App\Models\User;
-use App\Services\V1\Auth\AuthService;
 
 class ReferralCenterSMSNotification
 {

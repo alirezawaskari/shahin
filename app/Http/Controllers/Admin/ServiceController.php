@@ -12,7 +12,7 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\WorkSample;
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Auth\AdminAuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -119,7 +119,7 @@ class ServiceController extends AdminController
         if($request->min_credit > 0 )$request['min_credit'] = str_replace(",","",$request->min_credit);
         $request['ability_invite_friend'] = isset($request['ability_invite_friend']) ? 1 : 0;
 
-        $ghorfe_online = (new AuthService)->getGhorfe();
+        $ghorfe_online = ghorfe();
         $service = Service::create($request->all());
 
         if ($ghorfe_online) {

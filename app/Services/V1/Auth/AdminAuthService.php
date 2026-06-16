@@ -11,6 +11,8 @@ use App\Exceptions\Auth\NotAdminException;
 use App\Exceptions\Auth\OtpNotificationException;
 use App\Exceptions\Auth\TooManyOtpAttemptsException;
 use App\Exceptions\Auth\TooManyOtpRequestsException;
+use App\Models\GhorfeOnlineList;
+use App\Models\GhorfeOnlineListUser;
 use App\Models\User;
 use Illuminate\Contracts\Auth\StatefulGuard;
 
@@ -66,6 +68,30 @@ final readonly class AdminAuthService
         return $user;
     }
 
+    /**
+     * Summary of checkUserGhorfe
+     * @return bool
+     */
+    public static function checkUserGhorfe()
+    {
+        $ghorfe_online_list = self::getGhorfe();
+        if(!$ghorfe_online_list)return false;
+        $ghorfe_online_list_user_exist = GhorfeOnlineListUser::where('user_id',auth()->user()->id)
+            ->where('ghorfe_online_list_id',$ghorfe_online_list->id)
+            ->exists();
+
+        return $ghorfe_online_list_user_exist;
+    }
+    /**
+     * Summary of getGhorfe
+     * @return GhorfeOnlineList|null
+     */
+    public static function getGhorfe() : GhorfeOnlineList| null
+    {
+        $ghorfe_domain_active = request()->host();
+        $GhorfeOnlineList = GhorfeOnlineList::where('domain_active' , $ghorfe_domain_active)->first();
+        return $GhorfeOnlineList ?? null;
+    }
     public function logout(): void
     {
         $this->guard->logout();

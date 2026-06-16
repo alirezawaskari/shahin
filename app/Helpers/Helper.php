@@ -470,4 +470,7 @@ class Helper {
         }
         return $text;
     }
+    
 }
+
+

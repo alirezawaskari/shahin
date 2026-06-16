@@ -6,7 +6,7 @@ use App\Models\SmsTemplate;
 use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Auth\AdminAuthService;
 class IranSms
 {
 
@@ -55,7 +55,7 @@ class IranSms
 
     private static function resolveSender(): string
     {
-        $ghorfe = AuthService::getGhorfe();
+        $ghorfe = ghorfe();
 
         if ($ghorfe && !empty($ghorfe->linenumber)) {
             return $ghorfe->linenumber;

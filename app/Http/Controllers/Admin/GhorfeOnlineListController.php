@@ -14,7 +14,6 @@ use App\Models\ShahinPackage;
 use App\Models\Template;
 use App\Models\Theme;
 use App\Services\Settings\SettingsService;
-use App\Services\V1\Auth\AuthService;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;

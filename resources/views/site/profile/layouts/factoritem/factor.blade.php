@@ -1,9 +1,21 @@
 @extends('site.master')
 
 @section('content')
-
+<style>
+    @media print {
+  .noprint{
+    display:none;
+  }
+}
+</style>
+<div class="text-center">
+    <button class="noprint btn btn-danger py-1 px-2 mt-4" onclick="printSection()"><i class="fa fa-file-pdf-o"></i>
+ذخیره به صورت PDF</button>
+    <button onclick="window.print();" class="noprint btn btn-secondary py-1 px-2 mt-4"><i class="fa fa-print" aria-hidden="true"></i>
+پرینت قرارداد</button>
+</div>
 <div class="p-3">
-    <div class="section position-relative">
+    <div id="pdf-section" class="section position-relative">
         <div class="overlay position-absolute"></div>
         <div class="container col-10">
             <div class="row">
@@ -105,7 +117,7 @@
     </div>
 </div>
 @if(session()->get('success')=='success')
-    <span id="contact_success"></span>
+<span id="contact_success"></span>
 @endif
 @stop
 @section('js')
@@ -168,6 +180,15 @@
     });
     }
     });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    function printSection() {
+    const element = document.getElementById('pdf-section');
+    html2pdf()
+        .from(element)
+        .save('contract.pdf');
+}
 </script>
 <script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
 <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>

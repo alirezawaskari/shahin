@@ -40,7 +40,8 @@
         },
         "files": [
             "app/Lib/nusoap.php",
-            "app/Lib/zarinpal.php"
+            "app/Lib/zarinpal.php",
+            "app/helpers/GhorfeHelper.php"
         ]
     },
     "autoload-dev": {
