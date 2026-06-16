@@ -44,7 +44,7 @@ class MenuService
         $currentDomain = $this->normalizeDomain(request()->getHost());
 
         $ghorfe = $user->ghorfeOnlineLists()
-            ->with('shahinPackage.categoryPermission:id') // 🔥 فقط id
+            ->with('shahinPackage.categoryPermission:id')
             ->get()
             ->first(fn($item) =>
                 $this->normalizeDomain($item->domain_active) === $currentDomain
@@ -67,6 +67,7 @@ class MenuService
         $currentRoute = Route::currentRouteName();
         return
             CategoryPermission::with('permission')
+                ->where('is_active','!=',0)
                 ->get()
                 ->map(fn($p) => $this->mapPermission($p, $currentRoute));
     }
