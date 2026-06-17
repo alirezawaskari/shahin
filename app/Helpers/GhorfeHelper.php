@@ -9,6 +9,6 @@ if ( !function_exists( 'ghorfe' ) ) {
      */
     function ghorfe()
     {
-        return ghorfe();
+        return AdminAuthService::getGhorfe();
     }
 }

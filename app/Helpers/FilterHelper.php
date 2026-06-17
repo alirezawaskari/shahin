@@ -59,7 +59,7 @@ class FilterHelper {
      */
     public static function getDataByCheckGhorfeExistOrNot($query , $relation_type , $morph_variable)
     {
-        if((new AdminAuthService)->getGhorfe())
+        if(ghorfe())
         {
             return self::filterWithHaveGhorfeOnline($query , $relation_type , $morph_variable);
         }
