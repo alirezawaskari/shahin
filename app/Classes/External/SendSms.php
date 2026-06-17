@@ -13,7 +13,7 @@ class SendSms
     /**
      * @throws GuzzleException
      */
-     public static function sendSingleSmsTemplate(string $template, $phone, array $params)
+     public static function sendSingleSms(string $template, $phone, array $params)
      {
         $SmsTemplate = SmsTemplate::where('name',$template)->first();
          if($SmsTemplate){
@@ -39,7 +39,7 @@ class SendSms
      * @param array $params
      * @return void
      */
-    public static function sendSingleSms(string $template, $phone, array $params)
+    public static function sendSingleSmsOtp(string $template, $phone, array $params)
     {
         $headers = ['apikey' => config('services.iranSms.apikey'), 'Content-Type' => 'application/x-www-form-urlencoded'];
         $client = new Client(['headers' => $headers]);
