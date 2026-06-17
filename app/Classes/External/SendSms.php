@@ -4,22 +4,28 @@ namespace App\Classes\External;
 
 use App\Models\Setting;
 use App\Models\SmsTemplate;
+use App\Services\Settings\SettingsService;
 use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
 class SendSms
 {
-    /**
-     * @throws GuzzleException
-     */
-     public static function sendSingleSmsTemplate(string $template, $phone, array $params)
+    protected SettingsService $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
+
+    public function sendTemplate(string $template, string $phone, array $params): bool
      {
-        $SmsTemplate = SmsTemplate::where('name',$template)->first();
+         $SmsTemplate = SmsTemplate::where('name',$template)->first();
+
          if($SmsTemplate){
             $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
              if($message !== false){
-                $smsService = Setting::first()->sms_panel ?? 'IranSms';
+                $smsService = $this->settings->get('sms_panel') ?? 'IranSms';;
                if ($smsService === 'NeginSms') {
                     NeginSms::sendSingleSms($phone, $message,service_type:'test');
                 } else {

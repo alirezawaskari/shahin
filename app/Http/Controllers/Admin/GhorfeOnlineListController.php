@@ -422,73 +422,88 @@ class GhorfeOnlineListController extends AdminController {
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
     * @throws \Illuminate\Validation\ValidationException
     */
-    public function contentUpdate( Request $request, GhorfeOnlineList $ghorfeOnlineList ) {
-
-        if ( auth()->user()->hasPermission( 'ghorfe_online_list_site_content' ) ) {
-            $this->validate( request(), [
-                'postal_code' => 'integer',
-                'email' => 'email',
-            ] );
-            $inputs = $request->all();
-            if ( $request->urllarge_vertical_image ) {
-                $inputs[ 'large_vertical_image' ] = Helper::moveImage( $request->urllarge_vertical_image, 'document' );
-            }
-            if ( $request->urllarge_horizontal_image ) {
-                $inputs[ 'large_horizontal_image' ] = Helper::moveImage( $request->urllarge_horizontal_image, 'document' );
-            }
-            if ( $request->urlleft_small_horizontal_image ) {
-                $inputs[ 'left_small_horizontal_image' ] = Helper::moveImage( $request->urlleft_small_horizontal_image, 'document' );
-            }
-            if ( $request->urlright_small_horizontal_image ) {
-                $inputs[ 'right_small_horizontal_image' ] = Helper::moveImage( $request->urlright_small_horizontal_image, 'document' );
-            }
-            if ( $request->urllogo ) {
-                $inputs[ 'logo' ] = Helper::moveImage( $request->urllogo, 'document' );
-            }
-            if ( $request->urlfooter_logo ) {
-                $inputs[ 'footer_logo' ] = Helper::moveImage( $request->urlfooter_logo, 'document' );
-            }
-            if ( $request->urlfav ) {
-                $inputs[ 'fav' ] = Helper::moveImage( $request->urlfav, 'document' );
-            }
-            if ( $request->urlmohr ) {
-                $inputs[ 'mohr' ] = Helper::moveImage( $request->urlmohr, 'document' );
-            }
-            if ( $request->urladdvertisment_slider ) {
-                $inputs[ 'addvertisment_slider' ] = Helper::moveImage( $request->urladdvertisment_slider, 'document' );
-            }
-            unset( $inputs[ 'footer_tag' ] );
-            unset( $inputs[ 'urllarge_vertical_image' ] );
-            unset( $inputs[ 'urllarge_horizontal_image' ] );
-            unset( $inputs[ 'urlleft_small_horizontal_image' ] );
-            unset( $inputs[ 'urlright_small_horizontal_image' ] );
-            unset( $inputs[ 'urllogo' ] );
-            unset( $inputs[ 'urlfooter_logo' ] );
-            unset( $inputs[ 'urlfav' ] );
-            unset( $inputs[ 'urlmohr' ] );
-            unset( $inputs[ 'urladdvertisment_slider' ] );
-
-            $ghorfeOnlineList->update( $inputs );
-
-            $codes = [];
-            $array = explode( ',', $request->input( 'footer_tag' ) );
-            foreach ( $array as $item ) {
-                array_push( $codes, Helper::numberConverter( $item ) );
-            }
-            $ghorfeOnlineList->update( [
-                'footer_tag' => $codes,
-            ] );
-
-            return redirect()
-                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
-                ->with([
-                    'update' => 'success',
-                    'active_tab' => 'menu_content'
-                ]);
+    public function contentUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
+            abort(401);
         }
-        return abort( 401 );
-    }
 
+        $request->validate([
+            'postal_code' => 'integer',
+            'email' => 'email',
+        ]);
+
+        // فقط فیلدهای مجاز (جلوگیری از ورود logo و داده‌های ناخواسته)
+        $inputs = $request->only([
+            'theme_id',
+            'user_id',
+            'template_id',
+            'title',
+            'fav_id',
+            'logo_id',
+            'en_title',
+            'title_ar',
+            'title_turk',
+            'slug',
+            'type_work',
+            'call',
+            'address',
+            'address_en',
+            'address_ar',
+            'address_turk',
+            'lat',
+            'lon',
+            'postal_code',
+            'email',
+            'description',
+            'keywords',
+            'status',
+            'domain_active'
+        ]);
+
+        // تصاویر (فقط file واقعی، نه url/hidden)
+        if ($request->file('logo_file')) {
+            $inputs['logo_id'] = Helper::moveImage($request->file('logo_file'), 'document');
+        }
+
+        if ($request->file('footer_logo_file')) {
+            $inputs['footer_logo_id'] = Helper::moveImage($request->file('footer_logo_file'), 'document');
+        }
+
+        if ($request->file('fav_file')) {
+            $inputs['fav_id'] = Helper::moveImage($request->file('fav_file'), 'document');
+        }
+
+        if ($request->file('mohr_file')) {
+            $inputs['mohr_id'] = Helper::moveImage($request->file('mohr_file'), 'document');
+        }
+
+        if ($request->file('addvertisment_slider_file')) {
+            $inputs['addvertisment_slider_id'] = Helper::moveImage(
+                $request->file('addvertisment_slider_file'),
+                'document'
+            );
+        }
+
+        // footer_tag جداگانه (بدون overwrite کل update)
+        if ($request->filled('footer_tag')) {
+            $codes = collect(explode(',', $request->footer_tag))
+                ->map(fn ($item) => Helper::numberConverter($item))
+                ->toArray();
+
+            $inputs['footer_tag'] = $codes;
+        }
+
+        // update اصلی
+        $ghorfeOnlineList->update($inputs);
+
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'menu_content'
+            ]);
+    }
     public function menuUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
         if ($request->template_id)
