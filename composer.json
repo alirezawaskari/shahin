@@ -41,7 +41,7 @@
         "files": [
             "app/Lib/nusoap.php",
             "app/Lib/zarinpal.php",
-            "app/helpers/GhorfeHelper.php"
+            "app/Helpers/GhorfeHelper.php"
         ]
     },
     "autoload-dev": {
