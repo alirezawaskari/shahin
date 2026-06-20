@@ -18,25 +18,45 @@ class SendSms
         $this->settings = $settings;
     }
 
-    public function sendTemplate(string $template, string $phone, array $params): bool
-     {
-         $SmsTemplate = SmsTemplate::where('name',$template)->first();
-
-         if($SmsTemplate){
+    public  function sendSingleSmsTemplate(string $template, $phone, array $params)
+    {
+        $SmsTemplate = SmsTemplate::where('name',$template)->first();
+        if($SmsTemplate){
             $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
-             if($message !== false){
+            if($message !== false){
                 $smsService = $this->settings->get('sms_panel') ?? 'IranSms';;
-               if ($smsService === 'NeginSms') {
+                if ($smsService === 'NeginSms') {
                     NeginSms::sendSingleSms($phone, $message,service_type:'test');
                 } else {
-                     IranSms::sendSingleSms($phone, $message);
-               }
-             }else{
-                 return redirect('500');
+                    IranSms::sendSingleSms($phone, $message);
+                }
+            }else{
+                return redirect('500');
             }
         }else{
-           return redirect('500');
-       }
+            return redirect('500');
+        }
+    }
+
+    public function sendSingleSmsTemplate1(string $template, string $phone, array $params): bool
+    {
+        $SmsTemplate = SmsTemplate::where('name', $template)->first();
+
+        if ($SmsTemplate) {
+            $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
+            if ($message !== false) {
+                $smsService = $this->settings->get('sms_panel') ?? 'IranSms';;
+                if ($smsService === 'NeginSms') {
+                    NeginSms::sendSingleSms($phone, $message, service_type: 'test');
+                } else {
+                    IranSms::sendSingleSms($phone, $message);
+                }
+            } else {
+                return redirect('500');
+            }
+        } else {
+            return redirect('500');
+        }
     }
     /**
      * Summary of sendSingleSmsOtp
