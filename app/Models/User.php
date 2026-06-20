@@ -40,7 +40,7 @@ class User extends Authenticatable implements LaratrustUser
         'user' => 'کاربر فعال',
         'blockUser' => 'کاربر غیرفعال(لیست سیاه)',
         'admin' => 'همکار لاله',
-        'ghorfeAdmin' => 'همکار غرفه',
+        'ghorfeAdmin' => 'همکار کسب و کار',
         'superAdmin' => 'همکار کل',
     ];
     /**

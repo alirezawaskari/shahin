@@ -126,7 +126,7 @@ class FilterServiceProvider extends ServiceProvider
             'reasons' => Reason::where('id', '!=', 0)->get(),
             'provinces' => Province::all(),
             'areas' => Area::all(),
-            'centers' => Center::where('status' , 1)->get(),
+            'centers' => Center::filter()->where('status' , 1)->get(),
             'representations' => Representation::all(),
             'organizations' => Organization::all(),
             'recruitment_notices' => RecruitmentNotice::all(),
