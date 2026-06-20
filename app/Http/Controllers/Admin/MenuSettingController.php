@@ -50,7 +50,7 @@ class MenuSettingController extends Controller
 
     /**
      * @param Permission $permission
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @return \Illuminate\Contracts\FoundatiSettingon\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
     public function edit($id)
     {

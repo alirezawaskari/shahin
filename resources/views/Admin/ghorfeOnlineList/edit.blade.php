@@ -68,14 +68,12 @@
                             <span class="step-title"> تم </span>
                         </a>
                     </li>
-                    @permission('ghorfe_online_list_gallery')
 
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'gallery_content' ? 'active' : '' }}" data-toggle="pill" href="#gallery_content">
                             <span class="step-title"> گالری </span>
                         </a>
                     </li>
-                    @endpermission
                 </ul>
 
                 <ul class="nav nav-pills d-none d-md-block d-block nav-justified custom-steps mb-4">
@@ -131,7 +129,6 @@
                             </a>
                         </li>
 
-                    @permission('ghorfe_online_list_gallery')
 
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'gallery_content' ? 'active' : '' }}" data-toggle="pill" href="#gallery_content">
@@ -140,7 +137,6 @@
                         </a>
                     </li>
 
-                    @endpermission
                 </ul>
             </div>
 
@@ -550,92 +546,8 @@
                                 <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">  تصاویر</div>
 
                                 @include('Admin.layouts.errors')
-                                    <div class="col-12 row">
-                                        <div class="col-12 col-md-3">
-                                            <div class="card">
-                                                <div id="large_vertical_image_src" class="show">
-                                                    <img src={{ asset($ghorfeOnlineList->large_vertical_image) }}
-                                                    class="card-img-top" width="100%"
-                                                    height="200px">
-                                                </div>
-                                                <div class="card-body">
-                                                    <label>تصویر عمودی بزرک (340*294)</label>
-                                                    <br>
-                                                    <label for="large_vertical_image" id="up-label" class="btn badge-secondary"><i
-                                                            class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                                    <input name="large_vertical_image" type="file" id="large_vertical_image"
-                                                        class="filestyle file-upload file_upload_ajax file-up"
-                                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="large_vertical_image" class="path"
-                                                        name="urllarge_vertical_image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <div class="card">
-                                                <div id="large_horizontal_image_src" class="show">
-                                                    <img src={{ asset($ghorfeOnlineList->large_horizontal_image) }}
-                                                    class="card-img-top" width="100%"
-                                                    height="200px">
-                                                </div>
-                                                <div class="card-body">
-                                                    <label>تصویر افقی بزرگ (227*318)</label>
-                                                    <br>
-                                                    <label for="large_horizontal_image" id="up-label" class="btn badge-secondary"><i
-                                                            class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                                    <input name="large_horizontal_image" type="file" id="large_horizontal_image"
-                                                        class="filestyle file-upload file_upload_ajax file-up"
-                                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="large_horizontal_image" class="path"
-                                                        name="urllarge_horizontal_image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <div class="card">
-                                                <div id="left_small_horizontal_image_src" class="show">
-                                                    <img src={{ asset($ghorfeOnlineList->left_small_horizontal_image) }}
-                                                    class="card-img-top" width="100%"
-                                                    height="200px">
-                                                </div>
-                                                <div class="card-body">
-                                                    <label>تصویر افقی کوچک سمت چپ (110*155)</label>
-                                                    <br>
-                                                    <label for="left_small_horizontal_image" id="up-label"
-                                                        class="btn badge-secondary"><i class="fa fa-upload ml-2"
-                                                            aria-hidden="true"></i> انتخاب تصویر </label>
-                                                    <input name="left_small_horizontal_image" type="file"
-                                                        id="left_small_horizontal_image"
-                                                        class="filestyle file-upload file_upload_ajax file-up"
-                                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="left_small_horizontal_image" class="path"
-                                                        name="urlleft_small_horizontal_image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-3">
-                                            <div class="card">
-                                                <div id="right_small_horizontal_image_src" class="show">
-                                                    <img src={{ asset($ghorfeOnlineList->right_small_horizontal_image) }}
-                                                    class="card-img-top" width="100%"
-                                                    height="200px">
-                                                </div>
-                                                <div class="card-body">
-                                                    <label>تصویر افقی کوچک سمت راست (110*155)</label>
-                                                    <br>
-                                                    <label for="right_small_horizontal_image" id="up-label"
-                                                        class="btn badge-secondary"><i class="fa fa-upload ml-2"
-                                                            aria-hidden="true"></i> انتخاب تصویر </label>
-                                                    <input name="right_small_horizontal_image" type="file"
-                                                        id="right_small_horizontal_image"
-                                                        class="filestyle file-upload file_upload_ajax file-up"
-                                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="right_small_horizontal_image" class="path"
-                                                        name="urlright_small_horizontal_image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-3">
+                                    <div class="col-12 row mt-1">
+                                        <div class="col-12 col-md-6">
                                             <div class="card">
                                                 <div id="logo_src" class="show">
                                                     <img src={{ asset($ghorfeOnlineList->logo) }}
@@ -648,16 +560,16 @@
                                                     <label for="logo" id="up-label"
                                                         class="btn badge-secondary"><i class="fa fa-upload ml-2"
                                                             aria-hidden="true"></i> انتخاب تصویر </label>
-                                                    <input name="logo" type="file"
+                                                    <input name="logo_id" type="file"
                                                         id="logo"
                                                         class="filestyle file-upload file_upload_ajax file-up"
                                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                     <input type="hidden" id="logo" class="path"
-                                                        name="urllogo">
+                                                        name="logo_id">
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-md-6">
                                             <div class="card">
                                                 <div id="footer_logo_src" class="show">
                                                     <img src={{ asset($ghorfeOnlineList->footer_logo) }}
@@ -679,7 +591,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-md-6">
                                             <div class="card">
                                                 <div id="footer_logo_src" class="show">
                                                     <img src={{ asset($ghorfeOnlineList->footer_logo) }}
@@ -701,7 +613,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-3">
+                                        <div class="col-12 col-md-6">
                                             <div class="card">
                                                 <div id="mohr_src" class="show">
                                                     <img src={{ asset($ghorfeOnlineList->mohr) }}
@@ -927,7 +839,6 @@
                          role="tabpanel"
                          aria-labelledby="text-content-tab">
 
-                        @permission('ghorfe_online_list_gallery')
                         <form class="form-horizontal"
                               method="post"
                               action="{{ route('ghorfeOnlineList.galleryUpdate', [$ghorfeOnlineList]) }}"
@@ -999,7 +910,6 @@
                                 </div>
                             </div>
                         </form>
-                        @endpermission
                     </div>
                     <div class="d-none d-md-flex justify-content-between mb-1">
                         <button type="button" class="btn btn-prev">

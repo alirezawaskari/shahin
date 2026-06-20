@@ -33,7 +33,7 @@ class SettingsMigrationSeeder extends Seeder
                     [
                         'key' => $key,
                         'settingable_id' => $row->ghorfe_online_list_id,
-                        'settingable_type' => 'App\Models\Ghorfe', // اگر مدل دیگه‌ای داری تغییر بده
+                        'settingable_type' => 'App\Models\Ghorfe',
                     ],
                     [
                         'value' => $value,
