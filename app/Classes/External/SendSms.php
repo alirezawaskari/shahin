@@ -38,26 +38,7 @@ class SendSms
         }
     }
 
-    public function sendSingleSmsTemplate1(string $template, string $phone, array $params): bool
-    {
-        $SmsTemplate = SmsTemplate::where('name', $template)->first();
 
-        if ($SmsTemplate) {
-            $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
-            if ($message !== false) {
-                $smsService = $this->settings->get('sms_panel') ?? 'IranSms';;
-                if ($smsService === 'NeginSms') {
-                    NeginSms::sendSingleSms($phone, $message, service_type: 'test');
-                } else {
-                    IranSms::sendSingleSms($phone, $message);
-                }
-            } else {
-                return redirect('500');
-            }
-        } else {
-            return redirect('500');
-        }
-    }
     /**
      * Summary of sendSingleSmsOtp
      * @param string $template
