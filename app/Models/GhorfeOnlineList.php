@@ -45,9 +45,24 @@ class GhorfeOnlineList extends Model implements HasMedia
                 'source' => 'en_title'
             ]
         ];
+    } 
+    /**
+     * Summary of getActiveDomainName
+     * @return string
+     */
+    public function getActiveDomainName() {
+        $host = request()->getHost();
+
+        $parts = explode( '.', $host );
+
+        if ( count( $parts ) > 2 ) {
+            $domain = implode( '.', array_slice( $parts, -2 ) );
+        } else {
+            $domain = $host;
+        }
+
+        return $domain;
     }
-
-
     /**
      * @return string
      */
