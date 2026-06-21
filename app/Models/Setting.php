@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
+    protected $table = 'ghorfe_settings';
     protected $guarded = [];
 
     /*
