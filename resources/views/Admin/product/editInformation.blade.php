@@ -77,7 +77,7 @@
                             <input type="checkbox" id="no_stock" class="custom-control-input" name="no_stock"
                                    @if(isset($queries['no_stock'])) @if($queries['no_stock'] == 1) checked @endif @endif
                                    value="1">
-                            <label for="no_stock" class="custom-control-label">کالا های بدون موجودی</label>
+                            <label for="no_stock" class="custom-control-label">کالاهای بدون موجودی</label>
                         </div>
                     </div>
 

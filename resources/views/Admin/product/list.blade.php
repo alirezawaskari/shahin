@@ -1,20 +1,18 @@
 @extends('Admin.master')
-
 @section('css')
-    <link rel="stylesheet" href="{{asset('assets/dashboard/css/site/sweetalert2.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/css/site/sweetalert2.css') }}" />
 @stop
 @section('content')
-
     <div class="page-header">
         <div>
             @if($type_id == 0) <h3> لیست مواد اولیه </h3> @endif
-            @if($type_id == 1) <h3> مدیریت کالا ها </h3> @endif
+            @if($type_id == 1) <h3> مدیریت کالاها </h3> @endif
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
                     <li class="breadcrumb-item active" aria-current="page">
                         @if($type_id == 0)  مواد اولیه @endif
-                            @if($type_id == 1)  مدیریت کالا ها | <span>برای ویرایش و مدیریت کالا ها ، گروه ، تصویر کالا ها و درج تنوع (گارانتی ، به همراه رنگ یا سایز یا گارانتی) از این قسمت استفاده نمایید.</span> @endif
+                            @if($type_id == 1)  مدیریت کالاها | <span>برای ویرایش و مدیریت کالاها ، گروه ، تصویر کالاها و درج تنوع (گارانتی ، به همراه رنگ یا سایز یا گارانتی) از این قسمت استفاده نمایید.</span> @endif
                     </li>
                 </ol>
             </nav>
@@ -33,6 +31,7 @@
         <div class="card-body">
             <form method="get" action="{{$page_link}}">
                 <div class="row">
+
                     <div class="col-12 col-md-3 mb-2">
                         <input class="form-control" name="id" placeholder="کد کالا"
                                value="@if(isset($queries['id'])) @if($queries['id']) {{$queries['id']}} @endif @endif">
@@ -103,7 +102,7 @@
     <div class="card position-relative">
         <div class="card-body">
             @if(isset($center_id) && $center_id != null)<br/>
-            <p>توجه : کالا با قابلیت پیش نویس فقط برای شما قابل نمایش است و توسط شعبه فروشندگان قابل رويت نیست . کالا
+            <p>توجه : کالا با قابلیت پیش نویس فقط برای شما قابل نمایش است و توسط مرکز فروشندگان قابل رويت نیست . کالا
                 پیش نویس خود را انتشار داده و منتظر تایید آن باشید.</p>
             <br/> @endif
 
@@ -120,5 +119,4 @@
 @section('js')
     <script src="{{ asset('assets/dashboard/js/site/sweetalert2.all.js') }}"></script>
     <script src="{{ asset('assets/dashboard/js/site/product/productList.js') }}"></script>
-
 @stop

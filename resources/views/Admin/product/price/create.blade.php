@@ -11,7 +11,7 @@
 
                 <div class="row mb-4">
                     <div class="col-md-2 col-sm-12 col-xs-3">
-                        <img src="{{$product->image}}" class="border-radius5 disTable" alt="{{$product->name}}"
+                        <img src="{{$product->image_url}}" class="border-radius5 disTable" alt="{{$product->name}}"
                              width="120px">
                     </div>
                     <div class="col-md-10 col-sm-12 col-xs-8">
@@ -52,45 +52,10 @@
                 <br/><br/>
 
                 <div class="row mb-4">
-                    @if(isset($center_id))
-                        <input class="hidden center_id" title="center_id" value="{{$center_id}}" name="center_id[]">
-                    @endif
-                    @if(\App\Models\User::checkManager() == null)
-                        @permission('product-detail')
-                        @if(count($center_products) > 0)
-                            <div class="col-md-6">
-                                <label>مراکز *</label>
-                                <select title="center_id" id="center_id" name="center_id[]"
-                                        class="selectMulti form-control center_id"
-                                        multiple="multiple">
-                                    @foreach($center_products as $center)
-                                        <option value="{{$center->id}}">{{$center->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
-
-                        @if(count($product_store_rooms) > 0)
-                                <div class="col-md-6">
-                                    <label>انبار *</label>
-                                    <select title="product_store_room_id" id="product_store_room_id" name="product_store_room_id[]"
-                                            class="selectMulti form-control product_store_room_id"
-                                            multiple="multiple">
-                                        @foreach($product_store_rooms as $product_store_room)
-                                            <option value="{{$product_store_room->pivot->id}}">{{ $product_store_room->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                        @endif
-                        @endpermission
-                    @endif
-                </div>
-
-                <div class="row mb-4">
                     @if(isset($attributes) && $attributes != [])
                         <div class="col-md-3">
                             <label>ویژگی انتخابی <span class="required">*</span> :</label>
-                            <input class="attribute_item_id hidden" name="attribute_item_id" title="">
+                            <input class="attribute_item_id" type="hidden" name="attribute_item_id" title="">
                             <input type="text" readonly class="form-control selectedAttribute" title="">
                         </div>
                     @endif

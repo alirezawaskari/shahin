@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-2">
-                        <label> ویرایش قیمت و تعداد همه کالا ها </label>
+                        <label> ویرایش قیمت و تعداد همه کالاها </label>
                         <div class="col-12 col-md-2 disInline">
                             <label>% تخفیف از قیمت شما </label>
                             <input type="text" class="form-control globalDiscount " placeholder="%" name="globalDiscount">
