@@ -17,7 +17,7 @@
 
                     <ul>
                         @foreach($category->permission as $list)
-                            @if($list->isMenu)
+                            @if($list->isMenu && $list->is_active)
                                 <li>
                                     <a href="{{ route($list->link) }}">
                                         {{ $list->display_name }}

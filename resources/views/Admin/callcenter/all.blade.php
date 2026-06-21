@@ -74,7 +74,7 @@
                 <div class="col-12 col-md-3 mb-2">
                     <select name="request_type" id="request_type" class="custom-select">
                         <option value="all" selected>انتخاب نوع درخواست کاربر</option>
-                        <option value="link">ارسال لینک</option>
+                        <option value="link">ارسال کارت ویزیت</option>
                         <option value="other">سایر</option>
                     </select>
                 </div>

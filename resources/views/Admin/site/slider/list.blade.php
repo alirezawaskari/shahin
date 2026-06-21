@@ -29,6 +29,8 @@
                 <tr>
                     <th>عکس</th>
                     <th>عنوان</th>
+                    <th>لینک</th>
+                    <th>نمایش در حالت</th>
                     <th>نمایندگی</th>
                     <th>اقدام</th>
                 </tr>
@@ -42,6 +44,8 @@
                             @endif
                         </td>
                         <td>{{$item->title}} </td>
+                        <td>{{$item->link}} </td>
+                        <td>{{isset($item::TYPE[$item->type]) ? $item::TYPE[$item->type] : 'حالت قدیمی'}} </td>
                         <td>{{$item->representation ? $item->representation->fa_name : 'نمایندگی کل'}} </td>
                         <td>
                             <div data-v-15965e3b="" class="dropdown">

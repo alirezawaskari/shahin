@@ -4,7 +4,7 @@ $(document).ready(function () {
     //     placeholder: "انتخاب وضعیت"
     // });
     $('#task_type').select2({
-        placeholder: "انتخاب نوع تسک "
+        placeholder: "انتخاب نوع درخواست "
     });
     $('#product_category').select2({
         placeholder: "انتخاب دسته بندی کالا "

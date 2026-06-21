@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Auth\AdminAuthService;
 
 class FilterHelper {
 
@@ -36,7 +36,7 @@ class FilterHelper {
      */
     public static function filterWithHaveGhorfeOnline($query , $relation_type , $morph_variable)
     {
-        $ghorfe_online_list = (new AuthService)->getGhorfe();
+        $ghorfe_online_list = ghorfe();
         switch($relation_type)
         {
             case('belongsToMany'):
@@ -59,7 +59,7 @@ class FilterHelper {
      */
     public static function getDataByCheckGhorfeExistOrNot($query , $relation_type , $morph_variable)
     {
-        if((new AuthService)->getGhorfe())
+        if(ghorfe())
         {
             return self::filterWithHaveGhorfeOnline($query , $relation_type , $morph_variable);
         }

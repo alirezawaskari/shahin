@@ -7,7 +7,7 @@
        container_name: lalecart_app
        volumes:
           -  ./:/var/www
-          - ./php.ini:/usr/local/etc/php/conf.d/uploads.ini
+          - ./docker/php/php.ini:/usr/local/etc/php/conf.d/uploads.ini
        working_dir: /var/www
        depends_on:
           - db

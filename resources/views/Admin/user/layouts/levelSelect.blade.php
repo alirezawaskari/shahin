@@ -1,21 +1,21 @@
 <select class="form-control" name="level">
     <option value="user" {{ (isset($user) && $user->level == 'user') ? 'selected' : '' }}>
-        کاربر فعال
+        {{ App\Models\User::LEVEL['user'] }}
     </option>
     <option value="blockUser" {{ (isset($user) && $user->level == 'blockUser') ? 'selected' : '' }}>
-        کاربر غیرفعال(لیست سیاه)
+        {{ App\Models\User::LEVEL['blockUser'] }}
     </option>
     @if(in_array(auth()->user()->level , ['admin' , 'superAdmin']) )
     <option value="admin" {{ (isset($user) && $user->level == 'admin') ? 'selected' : '' }}>
-        همکار
+        {{ App\Models\User::LEVEL['admin'] }}
     </option>
     @endif
     <option value="ghorfeAdmin" {{ (isset($user) && $user->level == 'ghorfeAdmin') ? 'selected' : '' }}>
-        همکار غرفه
+        {{ App\Models\User::LEVEL['ghorfeAdmin'] }}
     </option>
     @if(auth()->user()->level == 'superAdmin')
     <option value="superAdmin" {{ (isset($user) && $user->level == 'superAdmin') ? 'selected' : '' }}>
-        مدیرسایت
+        {{ App\Models\User::LEVEL['superAdmin'] }}
     </option>
     @endif 
 </select>

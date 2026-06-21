@@ -9,12 +9,20 @@ use App\Models\Employee;
 use App\Models\Factor;
 use App\Models\PercentageAllocationEmployee;
 use App\Models\Setting;
+use App\Services\Settings\SettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use nusoap_client;
 
 class PaymentController extends Controller
 {
+    protected $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
+
     public function pay(Request $request)
     {
         $gateway = $request->gateway ?? 'saman';
@@ -94,7 +102,7 @@ class PaymentController extends Controller
                 }
             }
         }
-        $mainIBN = Setting::first()->shaba_number;
+        $mainIBN=$this->settings->get('shaba_number');
         $remainingAmount = $totalAmount - $totalShared;
         if ($remainingAmount > 0) {
             if ($mainIBN) {

@@ -4,15 +4,25 @@ namespace App\Lib;
 
 use App\Models\Factor;
 use App\Models\Setting;
+use App\Services\Settings\SettingsService;
 use Illuminate\Support\Facades\Http;
 
 class saman
 {
+    protected SettingsService $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
+
     public function token(Factor $factor , int $amount)
     {
+        $shaba = $this->settings->get('shaba_number');
+
         $resNum = session('resnumber') ?: uniqid();
         session(['resnumber' => $resNum]);
-        $shaba = Setting::first()->shaba_number;
+
         $IBANInfo = [
             [
             "IBAN" => $shaba,
@@ -37,7 +47,7 @@ class saman
             ];
         }
 
-        $body = $response->json();
+        $body = $response->json() ?? [];
 
         if (isset($body['status']) && $body['status'] == 1 && isset($body['token'])) {
             return $body['token'];

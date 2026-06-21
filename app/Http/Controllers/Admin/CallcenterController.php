@@ -29,7 +29,7 @@ use App\Models\Role;
 use App\Models\Service;
 use App\Models\SuspensionStandard;
 use App\Models\User;
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Auth\AdminAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -776,7 +776,7 @@ class CallcenterController extends Controller
                     'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
                 ]);
 
-            $ghorfe_online = (new AuthService)->getGhorfe();
+            $ghorfe_online = ghorfe();
             if ($ghorfe_online) {
                 $ghorfe_online->callcenters()->attach($callcenter->id);
             }

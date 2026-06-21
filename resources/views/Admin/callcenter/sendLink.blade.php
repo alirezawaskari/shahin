@@ -84,7 +84,7 @@
 
                         <div class="col-6 mb-3 mt-3">
                             <select class="form-control my-2" type="int" name="request_type" id="requestType" required>
-                                <option value="link">نوع درخواست کاربر - ارسال لینک</option>
+                                <option value="link">نوع درخواست کاربر - ارسال کارت ویزیت</option>
                                 <option value="other">نوع درخواست کاربر - سایر</option>
                             </select>
                         </div>

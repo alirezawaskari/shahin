@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Auth\AdminAuthService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -40,7 +40,7 @@ class User extends Authenticatable implements LaratrustUser
         'user' => 'کاربر فعال',
         'blockUser' => 'کاربر غیرفعال(لیست سیاه)',
         'admin' => 'همکار لاله',
-        'ghorfeAdmin' => 'همکار غرفه',
+        'ghorfeAdmin' => 'همکار کسب و کار',
         'superAdmin' => 'همکار کل',
     ];
     /**
@@ -160,7 +160,7 @@ class User extends Authenticatable implements LaratrustUser
         }
         elseif($this->level == 'ghorfeAdmin')
         {
-            return (new AuthService)->checkUserGhorfe();
+            return AdminAuthService::checkUserGhorfe(); 
         }
         return false;
     }
@@ -812,7 +812,7 @@ class User extends Authenticatable implements LaratrustUser
             'representation_id' => auth()->user() ? auth()->user()->admin_representation_id : null,
         ]);
         //set user ghorfe if exists
-        $ghorfe = AuthService::getGhorfe();
+        $ghorfe = ghorfe();
 
         if($ghorfe) $user->ghorfeOnlineLists()->attach([$ghorfe->id]);
 

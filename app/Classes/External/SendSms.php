@@ -4,34 +4,41 @@ namespace App\Classes\External;
 
 use App\Models\Setting;
 use App\Models\SmsTemplate;
+use App\Services\Settings\SettingsService;
 use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 
 class SendSms
 {
-    /**
-     * @throws GuzzleException
-     */
-     public static function sendSingleSmsTemplate(string $template, $phone, array $params)
-     {
+    protected SettingsService $settings;
+
+    public function __construct(SettingsService $settings)
+    {
+        $this->settings = $settings;
+    }
+
+    public  function sendSingleSms(string $template, $phone, array $params)
+    {
         $SmsTemplate = SmsTemplate::where('name',$template)->first();
-         if($SmsTemplate){
+        if($SmsTemplate){
             $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
-             if($message !== false){
-                $smsService = Setting::first()->sms_panel ?? 'IranSms';
-               if ($smsService === 'NeginSms') {
+            if($message !== false){
+                $smsService = $this->settings->get('sms_panel') ?? 'IranSms';;
+                if ($smsService === 'NeginSms') {
                     NeginSms::sendSingleSms($phone, $message,service_type:'test');
                 } else {
-                     IranSms::sendSingleSms($phone, $message);
-               }
-             }else{
-                 return redirect('500');
+                    IranSms::sendSingleSms($phone, $message);
+                }
+            }else{
+                return redirect('500');
             }
         }else{
-           return redirect('500');
-       }
+            return redirect('500');
+        }
     }
+
+
     /**
      * Summary of sendSingleSmsOtp
      * @param string $template
@@ -39,7 +46,7 @@ class SendSms
      * @param array $params
      * @return void
      */
-    public static function sendSingleSms(string $template, $phone, array $params)
+    public static function sendSingleSmsOtp(string $template, $phone, array $params)
     {
         $headers = ['apikey' => config('services.iranSms.apikey'), 'Content-Type' => 'application/x-www-form-urlencoded'];
         $client = new Client(['headers' => $headers]);

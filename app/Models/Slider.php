@@ -17,7 +17,10 @@ class Slider extends Model
      * @var string[]
      */
     protected $fillable=['img','title','link','type','category_id','representation_id'];
-
+    const TYPE = [
+        '0' => 'pc',
+        '4' => 'موبایل',
+    ];
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
     */

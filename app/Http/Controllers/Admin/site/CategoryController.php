@@ -12,7 +12,7 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\Slider;
-use App\Services\V1\Auth\AuthService;
+use App\Services\V1\Auth\AdminAuthService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -106,7 +106,7 @@ class CategoryController extends Controller
     $category->displayOrder = $request->input('displayOrder') ?? $category->displayOrder ?? 0;
     $category->save();
 
-    $ghorfe_online = (new AuthService)->getGhorfe();
+    $ghorfe_online = ghorfe();
 
     if ($ghorfe_online) {
         $category->ghorfeOnlineLists()->syncWithoutDetaching([
