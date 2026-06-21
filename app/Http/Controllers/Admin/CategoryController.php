@@ -66,7 +66,7 @@ class CategoryController extends Controller
         $create['displayOrder'] = $request->displayOrder ?? 1;
         $create['isActive'] = $request->isActive ?? 1;
         $category = Category::create($create);
-        $category->ghorfeOnlineLists()->syncWithoutDetaching([Helper::getGhorfe()->id]);
+        $category->ghorfeOnlineLists()->syncWithoutDetaching([ghorfe()->id]);
         $this->updateCategoryImages($request, $category);
         return $this->returnResponse($category);
     }
@@ -189,12 +189,6 @@ class CategoryController extends Controller
             return redirect('/dashboard/site/category/sub/' . $category->parent_id)->with(['create' => 'success']);
         }
     }
-
-    /**
-     * @param $id
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
-     */
-
     /**
      * @param Request $request
      * @param $id
@@ -224,13 +218,6 @@ class CategoryController extends Controller
             }
         }
     }
-
-    /**
-     * @param $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-
-
     /**
      * Display a listing of the sub Category.
      * @return \Illuminate\Http\Response

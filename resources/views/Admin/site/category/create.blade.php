@@ -52,14 +52,14 @@
                         @endif
                     </div>
 
-                    <div class="col-12 col-md-4 mb-5">
+                    {{-- <div class="col-12 col-md-4 mb-5">
                         <label> حداقل تخفیف (%)</label>
                         <input type="text" class="form-control" placeholder="لطفا حداقل تخفیف (%) را وارد کنید"
                                name="minimum_discount" value="{{old('minimum_discount')}}">
                         @if($errors->has('minimum_discount'))
                             <span class="help-block sub-error  "> {{$errors->first('minimum_discount')}} </span>
                         @endif
-                    </div>
+                    </div> --}}
 
                     <div class="col-12 col-md-2 mb-5">
                         <label></label>
@@ -84,7 +84,7 @@
                                 class="help-block sub-error  ">{{$errors->first('displayOrder')}}</span>@endif
                     </div>
                 </div>
-                @if($depth == 0 || $depth == 1)
+                {{-- @if($depth == 0 || $depth == 1)
                     <hr/>
                     <div class="row">
                         <div class="col-12 col-md-12 mb-2">
@@ -135,7 +135,7 @@
                         </div>
                         <br/>
                     </div>
-                @endif
+                @endif --}}
                 <hr/>
                 <div class="row">
                     <div class="col-12 col-md-12 mb-2"><h5>تصاویر</h5></div>
