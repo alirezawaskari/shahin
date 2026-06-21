@@ -569,7 +569,7 @@ class ProductController extends Controller
                 }
 
             } else {
-                return redirect(route('createGood'))->with(['failByMessage' => 'بایستی مرکز و یا انبار برای کالا مشخص شود']);
+                return redirect(route('createGood'))->with(['failByMessage' => 'بایستی شعبه و یا انبار برای کالا مشخص شود']);
             }
         } else {
             return redirect(route('createGood'))
@@ -1040,7 +1040,7 @@ class ProductController extends Controller
 
             if (isset($product)) {
                 if (isset($request->center_id)) {
-                    //حذف از طریق لیست کالا ها هر مرکز
+                    //حذف از طریق لیست کالا ها هر شعبه
                     if (isset($product->centers)) {
                         $center_products = $product->centers()->where('center_id', $request->center_id)->get();
                         foreach ($center_products as $center_product) {

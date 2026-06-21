@@ -66,7 +66,7 @@
 
                 @permission('center-ticket')
                 <div class="col-12 col-md-4 mb-2">
-                    <label>مرکز مربوطه</label>
+                    <label>شعبه مربوطه</label>
                     <select class="form-control select2" name="center_id[]" multiple>
                         @foreach($centers as $center)
                         <option value="{{ $center->id }}">{{ $center->title }}</option>

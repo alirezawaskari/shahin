@@ -194,7 +194,7 @@ function getDataRequired(id) {
 
             var centerOptions = $('#center_id').find('option');
             centerOptions.remove();
-            centerOptions.append('<option value="all">انتخاب مرکز</option>');
+            centerOptions.append('<option value="all">انتخاب شعبه</option>');
             for (var center of data.data.centers) {
                 var option = `<option value="${center.id}">${center.title}</option>`;
                 centerOptions.append(option);

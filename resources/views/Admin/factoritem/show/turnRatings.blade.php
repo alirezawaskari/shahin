@@ -18,7 +18,7 @@
             </div>
             <hr>
             <div class="col-12 mb-2">
-                <label for="item[date]">زمان پیشنهادی جهت حضور در مرکز:</label>
+                <label for="item[date]">زمان پیشنهادی جهت حضور در شعبه:</label>
                 <input type="text" name="date" class="form-control date" value="{{ $factorItem['date'] }}">
             </div>
             <div class="col-12 mb-3">

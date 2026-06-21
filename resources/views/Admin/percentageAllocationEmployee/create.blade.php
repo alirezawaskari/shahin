@@ -57,9 +57,9 @@
             </select>
         </div>
         <div class="col-12 mb-3 mt-2 center">
-            <label class="w-100">انتخاب مرکز</label>
+            <label class="w-100">انتخاب شعبه</label>
             <select class="form-control select2" onchange="checkSelectValue('center_id')" name="center[]" id="center_id" multiple>
-                <option disabled>انتخاب مرکز</option>
+                <option disabled>انتخاب شعبه</option>
                 <option value="select_all">انتخاب همه</option>
                 <option value="de_select_all">حذف همه</option>
                 @foreach ($centers as $center)

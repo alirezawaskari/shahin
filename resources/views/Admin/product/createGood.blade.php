@@ -155,8 +155,8 @@
                                                            value="0"><span class="lblRadioBtn font-weight-bold font16">انبار </span>
 
                                                     <input class="type_good_selected disInline" type="radio"
-                                                           name="type_good_selected" title="مرکز"
-                                                           value="1"><span class="lblRadioBtn font-weight-bold font16">مرکز </span>
+                                                           name="type_good_selected" title="شعبه"
+                                                           value="1"><span class="lblRadioBtn font-weight-bold font16">شعبه </span>
                                                 @endif
                                             </div>
                                             <div class="goodStockBox" style="display: none;"><br/><br/>
@@ -171,7 +171,7 @@
                                                     @else
                                                         <input name="createByAdmin" value="1" type="hidden">
                                                         <div class="col-md-8 col-sm-8 col-xs-12 ">
-                                                            <label for="center_lbl">مرکز<span class="required">*</span>
+                                                            <label for="center_lbl">شعبه<span class="required">*</span>
                                                                 :</label>
                                                             <div class="centerCategoryBox">
                                                             </div>

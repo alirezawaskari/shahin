@@ -73,7 +73,7 @@
                                 <div class="row mb-3">
 
                                     <div class="col-12 col-md-4 d-flex align-items-center justify-content-center">
-                                        <span>آدرس مرکز: {{ $factorItem->center->address }}</span>
+                                        <span>آدرس شعبه: {{ $factorItem->center->address }}</span>
                                     </div>
                                 </div>
                             @endif

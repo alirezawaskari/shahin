@@ -124,7 +124,7 @@
 
                 <div class="col-12 col-md-3 mb-2">
                     <select class="form-control select2" name="center" id="center_id">
-                        <option value="all">انتخاب مرکز</option>
+                        <option value="all">انتخاب شعبه</option>
 
                     </select>
                 </div>

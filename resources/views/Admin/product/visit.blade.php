@@ -361,7 +361,7 @@
                                                 @if($product->centers()->count() > 0)
                                                     @include('Admin.modal.validation',['field'=>'center'])
                                                     <div class="col-12 col-md-12 mb-3 disInline">
-                                                        <label>مرکز *</label>
+                                                        <label>شعبه *</label>
                                                         <select id="center_lbl" name="centers_id[]" title="centers_id"
                                                                 class="selectMulti form-control"
                                                                 multiple="multiple">

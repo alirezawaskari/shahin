@@ -717,7 +717,7 @@ class Factor extends Model implements AuditableContract
             {
                 $request['center_id'] = $factorItem->center_id;
                 $request['check'] = true;
-                $request['description'] = 'درخواست مشاوره - ثبت شده توسط مرکز';
+                $request['description'] = 'درخواست مشاوره - ثبت شده توسط شعبه';
                 FactorItem::referralCenter($factorItem , $request);
             }
         });

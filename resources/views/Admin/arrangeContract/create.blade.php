@@ -47,9 +47,9 @@
                                value="0">
                         <span class="lblRadioBtn font-weight-bold font16">عاملیت </span>
 
-                        <input class="center_selected" type="radio" name="contract_type_selected" title="مرکز"
+                        <input class="center_selected" type="radio" name="contract_type_selected" title="شعبه"
                                value="1">
-                        <span class="lblRadioBtn font-weight-bold font16">مرکز </span>
+                        <span class="lblRadioBtn font-weight-bold font16">شعبه </span>
 
                     </div>
 
@@ -67,7 +67,7 @@
                         @endif
                     </div>
                     <div class="col-12 col-md-4 mb-5 center_box" style="display: none;">
-                        <label>مرکز *</label>
+                        <label>شعبه *</label>
                         <select name="center_id" class="form-control" title="">
                             <option value="">لطفا انتخاب کنید..</option>
                             @foreach($centers as $center)

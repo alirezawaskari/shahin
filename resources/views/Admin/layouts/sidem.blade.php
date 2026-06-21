@@ -124,7 +124,7 @@
                     @permission('center_financial_report')
                     @if (auth()->user()->center_id)
                         <li><a href="{{ route('center.financialReport' , [auth()->user()->center_id]) }}">عملکرد
-                                مالی مرکز</a>
+                                مالی شعبه</a>
                         </li>
                     @endif
                     @endpermission

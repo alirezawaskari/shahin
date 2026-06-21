@@ -9,7 +9,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item"><a href="/{{$center->id}}">مرکز {{$center->title}}</a></li>
+                    <li class="breadcrumb-item"><a href="/{{$center->id}}">شعبه {{$center->title}}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">فهرست تعرفه ها</li>
                 </ol>
             </nav>
@@ -55,7 +55,7 @@
                 <tr>
                     <th>#</th>
                     <th>عنوان تعرفه</th>
-                    <th>قیمت فروش مرکز به سجا(ریال)</th>
+                    <th>قیمت فروش شعبه به سجا(ریال)</th>
                     @if($access_selling_price)
                     <th>قیمت مصرف کننده (ریال)</th>
                     <th>نرخ اختلاف خرید</th>

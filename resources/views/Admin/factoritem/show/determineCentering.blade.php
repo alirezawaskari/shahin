@@ -3,7 +3,7 @@
 @permission('factor_item_referral_to_center')
 <div class="tab">
     <div class="row">
-        <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'referralCenter')">ارجاع به مرکز</button>
+        <button class="tablinks col-12 col-md-6" onclick="openTab(event, 'referralCenter')">ارجاع به شعبه</button>
 
         <button id="defaultOpen" class="tablinks col-12 col-md-6"
             onclick="openTab(event, 'registrationInitialConsultation')">ثبت مشاوره اولیه</button>

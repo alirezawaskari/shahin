@@ -48,7 +48,7 @@
                     @if(!$has_center)
                     <div class="col-12 col-md-3 mb-2">
                         <select class="form-control select2" name="center">
-                            <option value="all">انتخاب مرکز</option>
+                            <option value="all">انتخاب شعبه</option>
                             @foreach($centers as $center)
                                 <option value="{{$center->id}}">{{$center->title}}</option>
                             @endforeach
@@ -95,7 +95,7 @@
                     <th>ثبت کننده</th>
                     <th>تایید کننده</th>
                     <th>تاریخ و ساعت</th>
-                    <th>مرکز</th>
+                    <th>شعبه</th>
                     <th>وضعیت</th>
                     <th>اقدام</th>
                 </tr>

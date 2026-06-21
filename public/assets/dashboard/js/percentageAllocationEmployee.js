@@ -257,7 +257,7 @@ function selectByService() {
             success: function success(data) {
                 if (data.count == 'available') {
                     $('#center_id').find('option').remove();
-                    $('#center_id').append('<option disabled>انتخاب مرکز</option>');
+                    $('#center_id').append('<option disabled>انتخاب شعبه</option>');
                     $('#center_id').append('<option value="select_all">انتخاب همه</option>');
                     $('#center_id').append('<option value="de_select_all">حذف همه</option>');
                     for (var i = 0; i < data.centers.length; i++) {

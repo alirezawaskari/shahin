@@ -59,7 +59,7 @@
                         <select name="status[]" id="select_status" class="custom-select" multiple="multiple">
                             <option value="0">جدید</option>
                             <option value="16">ارجاع به کارشناسی</option>
-                            <option value="17">منتظر مشاوره مرکز</option>
+                            <option value="17">منتظر مشاوره شعبه</option>
                             <option value="4">منتظر تکمیل مدارک</option>
                             <option value="14">منتظر تایید پشتیبان</option>
                             <option value="3">تعلیق پشتیبان</option>
@@ -99,7 +99,7 @@
                         </select>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-3 mb-2"><select name="center" class="custom-select select2">
-                            <option value="all">انتخاب مرکز</option>
+                            <option value="all">انتخاب شعبه</option>
                             @foreach($centers as $center)
                             <option value="{{$center->id}}">{{$center->title}}</option>
                             @endforeach
@@ -165,7 +165,7 @@
                                 <option value="supporter">پشتیبان</option>
                                 @endpermission
                                 @permission('factor_item_referral_to_center')
-                                <option value="center">مرکز</option>
+                                <option value="center">شعبه</option>
                                 @endpermission
                         </select>
                     </div>
@@ -187,7 +187,7 @@
                     </div>
                     <div class="col-12 col-sm-6 col-lg-2 mb-2 d-none" id="center_list_box">
                         <select class="custom-select select2" name="selected_center">
-                            <option value=" ">انتخاب مرکز</option>
+                            <option value=" ">انتخاب شعبه</option>
                             @foreach($centers as $center)
                                 <option value="{{$center->id}}">{{$center->title}}</option>
                             @endforeach

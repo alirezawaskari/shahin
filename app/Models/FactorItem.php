@@ -468,7 +468,7 @@ class FactorItem extends Model implements AuditableContract
     {
         return [
             '0' => 'جدید',
-            '17' => 'منتظر مشاوره مرکز',
+            '17' => 'منتظر مشاوره شعبه',
             '20' => 'منتظر تایید فاکتور توسط کاربر',
             '21' => 'درانتظار اصلاح فاکتور به درخواست کاربر',
             '2' => 'مشاوره شد',
@@ -1105,7 +1105,7 @@ class FactorItem extends Model implements AuditableContract
         //close older sessions
         Session::whereIn('status',[3,5,8])->where('factor_item_id',$factorItem->id)->update([
             'status'=>7,
-            'description'=>'لغو این جلسه به دلیل ارجاع به مرکز جدید'
+            'description'=>'لغو این جلسه به دلیل ارجاع به شعبه جدید'
         ]);
 
         //update center_id

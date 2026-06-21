@@ -1,5 +1,5 @@
 @extends('Admin.master')
-@section('title')مشاهده مرکز@endsection
+@section('title')مشاهده شعبه@endsection
 
 @section('content')
 <form class="form-horizontal" role="form" method="post" action="{{route('center.update' , [$center->id])}}"
@@ -114,8 +114,8 @@
                     </div>
 
                     <div class="col-12 col-md-4 mb-3">
-                        <label>شماره تماس مرکز</label>
-                        <input type="number" name="phone" placeholder="شماره تماس مرکز" class="form-control"
+                        <label>شماره تماس شعبه</label>
+                        <input type="number" name="phone" placeholder="شماره تماس شعبه" class="form-control"
                             value="{{ $center->phone }}">
                     </div>
 
@@ -213,7 +213,7 @@
                             class="form-control date">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
-                        <label>توضیحات مرکز</label>
+                        <label>توضیحات شعبه</label>
                         <textarea type="text" class="form-control"
                             name="item[description]">{{ $center_request->description }}</textarea>
                     </div>

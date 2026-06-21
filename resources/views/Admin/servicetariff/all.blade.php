@@ -16,7 +16,7 @@
     </div>
        <div class="p-5">
            <span>
-           <span> مرکز : </span>
+           <span> شعبه : </span>
            <span>{{$center->title}}</span>
            </span>
        </div>
