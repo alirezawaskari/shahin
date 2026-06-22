@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\ServiceCollection;
 use App\Http\Resources\ServiceItemCollection;
 use App\Models\AskedQuestion;
@@ -447,7 +448,7 @@ class ServiceController extends AdminController
         $imagesTitles['image_app']=$request->file('image_app');
         foreach ($imagesTitles as $key=>$value){
             if (!is_null($request->file($key))){
-                $service->$key = Helper::uploadImage($value , 'service');
+                $service->$key = MediaLibraryHelper::uploadImage($value , 'service');
                 Helper::deleteImage(public_path($service->$key));
                 $service->save();
             }
@@ -639,7 +640,7 @@ class ServiceController extends AdminController
    */
     private function uploadDesktopSliderImage(Service $service, array|\Illuminate\Http\UploadedFile|null $file)
     {
-        $url_front_image = Helper::uploadImage($file, 'service');
+        $url_front_image = MediaLibraryHelper::uploadImage($file, 'service');
         return $service->files()->create(['path' => $url_front_image, 'title' => 'desktop_slider']);
     }
     /**
@@ -649,7 +650,7 @@ class ServiceController extends AdminController
      */
     private function uploadMobileSliderImage(Service $service, array|\Illuminate\Http\UploadedFile|null $file)
     {
-        $url_front_image = Helper::uploadImage($file, 'service');
+        $url_front_image = MediaLibraryHelper::uploadImage($file, 'service');
         return $service->files()->create(['path' => $url_front_image, 'title' => 'mobile_slider']);
     }
     /**

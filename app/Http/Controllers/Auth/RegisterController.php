@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Callcenter;
@@ -173,11 +174,11 @@ class RegisterController extends Controller
             ]);
 
             if ($request->file('imgmeli')) {
-                $imgmeli = Helper::uploadImage($request->file('imgmeli'), 'agency');
+                $imgmeli = MediaLibraryHelper::uploadImage($request->file('imgmeli'), 'agency');
                 $agency->update(['imgmeli' => $imgmeli]);
             }
             if ($request->file('imgturnover')) {
-                $imgturnover = Helper::uploadImage($request->file('imgturnover'), 'agency');
+                $imgturnover = MediaLibraryHelper::uploadImage($request->file('imgturnover'), 'agency');
                 $agency->update(['imgturnover' => $imgturnover]);
             }
         }

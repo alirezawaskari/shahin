@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Gateway;
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class GatewayController extends Controller
             'status'
         ]);
         if ($request->logo)
-            $create['logo'] = Helper::uploadImage($request->logo, 'gateway');
+            $create['logo'] = MediaLibraryHelper::uploadImage($request->logo, 'gateway');
         Gateway::create($create);
         alert()->success('موفق', 'درگاه با موفقیت اضافه شد.');
         return redirect(route('gateway.index') );
@@ -71,7 +72,7 @@ class GatewayController extends Controller
         if ($request->logo){
             if(File::exists(public_path($gateway->logo)))
                 File::delete(public_path($gateway->logo));
-            $update['logo'] = Helper::uploadImage($request->logo, 'gateway');
+            $update['logo'] = MediaLibraryHelper::uploadImage($request->logo, 'gateway');
         }
         $gateway->update($update);
         alert()->success('موفق', 'درگاه با موفقیت به روز شد');

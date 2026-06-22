@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
@@ -167,14 +168,15 @@ class CategoryController extends Controller
             if (File::exists(public_path($category->image_category_path))) {
                 File::delete(public_path($category->image_category_path));
             }
-            $category->image_category_id = Helper::newMoveImage($request->image_path,auth()->id())->id;
+            $category->image_category_id = MediaLibraryHelper::moveImage($request->image_path,auth()->id())->id;
+
             $category->save();
         }
         if (isset($request->icon_path)) {
             if (File::exists(public_path($category->icon_category_path))) {
                 File::delete(public_path($category->icon_category_path));
             }
-            $category->icon_category_id = Helper::newMoveImage($request->icon_path,auth()->id())->id;
+            $category->icon_category_id = MediaLibraryHelper::moveImage($request->icon_path,auth()->id())->id;
             $category->save();
         }
     }

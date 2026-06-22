@@ -104,13 +104,12 @@ class  Product extends Model implements HasMedia
             ->withPivot('id','user_id','purchase_type','pay_type','price','stock')->withTimestamps();
     }
 
-    /**
+     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function ghorfeOnline()
+    public function ghorfeOnlineLists()
     {
-        return $this->belongsToMany(GhorfeOnlineList::class, 'ghorfe_online_list_product')
-            ->withPivot('id','user_id','purchase_type','pay_type','price','stock')->withTimestamps();
+        return $this->belongsToMany(GhorfeOnlineList::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

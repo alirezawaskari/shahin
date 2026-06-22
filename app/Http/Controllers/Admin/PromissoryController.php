@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\PromissoryExport;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PromissoryCollection;
 use App\Models\File;
@@ -243,7 +244,7 @@ class PromissoryController extends Controller
      */
     private function uploadPromissoryFrontImage(Promissory $promissory, $file)
     {
-        $url_front_image = Helper::uploadImage($file, 'promissories');
+        $url_front_image = MediaLibraryHelper::uploadImage($file, 'promissories');
         return $promissory->files()->create(['path' => $url_front_image, 'title' => 'front']);
     }
 
@@ -255,7 +256,7 @@ class PromissoryController extends Controller
      */
     private function uploadPromissoryBackImage(Promissory $promissory, $file)
     {
-        $url_back_image = Helper::uploadImage($file, 'promissories');
+        $url_back_image = MediaLibraryHelper::uploadImage($file, 'promissories');
         return $promissory->files()->create(['path' => $url_back_image, 'title' => 'back']);
     }
 

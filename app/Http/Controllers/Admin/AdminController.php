@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\City;
 use App\Models\Contact;
@@ -62,31 +63,8 @@ class AdminController extends Controller
     public function uploadPhotosTemporarily(Request $request)
     {
         if (isset($request->file)) {
-            if (isset($request->image_name) && $request->image_name != '') {
-                if (File::exists(public_path($request->image_name))) {
-                    File::delete(public_path($request->image_name));
-                }
-            }
-            $path = '/upload';
-            $year = Carbon::now()->year;
-            $month = Carbon::now()->month;
-            $file = $request->file;
-            $random=random_int('10000','99999');
-            $filepath = "{$path}/{$year}/{$month}/document/";
-            $filename = "{$random}_" . $file->getClientOriginalName();
-            // image max size
-            $max_file_size = 6 * 1024 * 1024;
-            if($file->getSize() > $max_file_size){
-                return [
-                    'status' => false,
-                    'message' => 'حجم فایل ارسال شده نباید بیشتر 6 مگابایت باشد.'
-                ];
-            }
-
-            $file->move(public_path($filepath), $filename);
-            $image_name =  $filepath . $filename;
-
-            return ['image_name' => $image_name, 'status' => true];
+            $media = MediaLibraryHelper::uploadImage($request->file, auth()->id());
+            return ['image_name' => $media, 'status' => true];
         }
         return ['status' => false];
     }
@@ -257,7 +235,7 @@ class AdminController extends Controller
      * @return string
      */
     public function uploadFile(Request $request ) {
-        return Helper::uploadImage( $request->file, $request->path );
+        return MediaLibraryHelper::uploadImage( $request->file, $request->path );
     }
 
     /**
