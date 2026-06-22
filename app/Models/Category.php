@@ -1,14 +1,18 @@
 <?php
 
 namespace App\Models;
+use Spatie\MediaLibrary\HasMedia;
 
 use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Category extends Model
+class Category extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes,InteractsWithMedia;
+
+
 
     /**
      * @var string[]
