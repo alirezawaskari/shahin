@@ -3,7 +3,7 @@
       app:
        build:
           context: .
-          dockerfile: Dockerfile
+          dockerfile: ./docker/Dockerfile
        container_name: lalecart_app
        volumes:
           -  ./:/var/www

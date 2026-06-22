@@ -15,7 +15,7 @@
             @endif
             <th>برند</th>
             @if($type_id == 1)
-                <th>وضعیت</th>
+                {{-- <th>وضعیت</th> --}}
                 <th>نمایش در سایت</th>
             @endif
             <th>اقدام</th>
@@ -26,10 +26,17 @@
             <tr>
                 <td>{{++$ind}}</td>
                 @if($type_id == 1)
-                    <td>@if(File::exists(public_path() .$item->image)) <img src="{{$item->image}}"
-                                                                            alt="{{$item->title}}" width="60px"
-                                                                            class="border-radius5"> @endif
-                    </td> @endif
+                    <td>
+                        @if($item->getMedia('images')->first())
+                            <img
+                                src="{{ $item->getMedia('images')->first()->getUrl() }}"
+                                alt="{{$item->title}}"
+                                width="60px"
+                                class="border-radius5"
+                            >
+                        @endif
+                    </td>
+                @endif
                 <td>{{$item->id}}</td>
                 <td>{{$item->name}} @if($item->en_name != null) | {{$item->en_name}} @endif</td>
                 @if($type_id == 1)
@@ -49,7 +56,7 @@
                     @endif
                 </td>
                 @if($type_id == 1)
-                    <td>
+                    {{-- <td>
                         @if($item->status != 0 && $item->status != 1 && $item->status != 5 && $item->status != 3)
                             <a class="bellMessage curpon" data-title="message" id="{{$item->id}}"> <i class="fa fa-bell"
                                                                                                       aria-hidden="true"></i>
@@ -58,8 +65,8 @@
                         @if($item->status != null)
                             {{ $item::STATUS[$item->status] }}
                         @endif
-                    </td>
-                    <td>{!! \App\Helpers\Helper::iconIsItOrNot($item->isShow) !!} </td>
+                    </td> --}}
+                    <td>{!! \App\Helpers\Helper::iconIsItOrNot($item->is_sale ) !!} </td>
                 @endif
 
                 <td>
@@ -125,8 +132,10 @@
 
             </tr>
         @endforeach
-        </tbody>
-    </table>
 
+        </tbody>
+
+    </table>
+    {{ $products->links('vendor.pagination.bootstrap-4') }}
 </div>
-{{ $products->links() }}
+

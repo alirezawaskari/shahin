@@ -30,8 +30,8 @@
             <table class="table table-bordered table-striped table-responsive-md">
                     <thead>
                     <tr>
-                        <th>مالک ویژگی</th>
-                        <th>قیمت</th>
+                        <th>قیمت (ریال)</th>
+                        <th>موجودی اولیه</th>
                         <th>موجودی</th>
                         <th>گارانتی</th>
                         <th>ارسال با</th>
@@ -45,11 +45,6 @@
 
                     @foreach($product_attributes as $item)
                         <tr>
-                            <td>
-                                @if($item->productattributeable_type == 'App\Models\Center') {{\App\Models\Center::find( $item->productattributeable_id)->title }}
-                                @elseif($item->productattributeable_type == 'App\Models\ProductStoreRoom')  {{ $item->store_room_name  }}
-                                @endif
-                            </td>
                             <td>{{number_format($item->price)}}</td>
                             <td>{{$item->initial_stock}}</td>
                             <td>{{$item->stock}}</td>

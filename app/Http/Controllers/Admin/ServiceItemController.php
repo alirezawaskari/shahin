@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\Menu;
 use App\Models\ServiceItem;
 use Illuminate\Http\Request;
@@ -200,7 +201,7 @@ class ServiceItemController extends Controller
         $imagesTitles['image_app']=$request->file('image_app');
         foreach ($imagesTitles as $key=>$value){
             if (!is_null($request->file($key))){
-                $serviceItem->$key = Helper::uploadImage($value , 'serviceItem');
+                $serviceItem->$key = MediaLibraryHelper::uploadImage($value , 'serviceItem');
                 Helper::deleteImage(public_path($serviceItem->$key));
                 $serviceItem->save();
             }

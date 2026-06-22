@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\userActivation;
 use App\Exports\CheckExport;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\CheckCollection;
 use App\Models\Check;
 use App\Models\Factor;
@@ -206,7 +207,7 @@ class CheckController extends Controller
      */
     private function uploadCheckFrontImage(Check $check, $file)
     {
-        $url_front_image = Helper::uploadImage($file, 'checks');
+        $url_front_image = MediaLibraryHelper::uploadImage($file, 'checks');
         return $check->files()->create(['path' => $url_front_image, 'title' => 'front']);
     }
 
@@ -218,7 +219,7 @@ class CheckController extends Controller
      */
     private function uploadCheckBackImage(Check $check, $file)
     {
-        $url_back_image = Helper::uploadImage($file, 'checks');
+        $url_back_image = MediaLibraryHelper::uploadImage($file, 'checks');
         return $check->files()->create(['path' => $url_back_image, 'title' => 'back']);
     }
 

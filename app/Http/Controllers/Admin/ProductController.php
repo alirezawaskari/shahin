@@ -15,15 +15,19 @@ use App\Models\ChangeStoreRoom;
 use App\Models\CountingUnit;
 use App\Models\CouponItem;
 use App\Models\Gallery;
+use App\Models\GhorfeOnlineList;
+use App\Models\Media;
+use App\Models\MediaLibrary;
 use App\Models\Product;
 use App\Models\ProductAttribute;
+use App\Models\ProductStoreRoom;
 use App\Models\Review;
 use App\Models\StorageStoreRoom;
 use App\Models\StoreRoom;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Validation;
-use App\Services\V1\Auth\AdminAuthService;
+use App\Services\V1\Admin\ProductService;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use File;
 use Hekmatinasser\Verta\Verta;
@@ -32,6 +36,10 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
+
+    protected ProductService $productService;
+
+
     /**
      * @var
      */
@@ -40,9 +48,10 @@ class ProductController extends Controller
     /**
      * @param Product $products
      */
-    public function __construct(Product $products)
+    public function __construct(Product $products,ProductService $productService)
     {
-        $this->product = $products;
+        $this->products = $products;
+        $this->productService = $productService;
     }
 
 
@@ -54,37 +63,37 @@ class ProductController extends Controller
         return view('Admin.product.findProduct');
     }
 
-    /**
-     * Display a listing of the Materials products.
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
-        $products = Product::where('type', 0)->orderBy('id', 'DESC');
-        $categories = Category::where('depth', 2)->get();
+        $ghorfe = ghorfe();
+        $products = Product::filter()->where('type', 0)->orderBy('id', 'DESC');
+        $categories = $ghorfe->categories();
         $create_link = route('createMaterials');
         $queries = [];
+        $columns = ['id', 'name','brand_id'];
 
-        if ($request->filled('id')) {
-            $products->where('id', $request->input('id'));
-            $queries['id'] = $request->input('id');
-        }
-
-        if ($request->filled('name')) {
-            $name = trim(preg_replace('/\s+/', ' ', $request->input('name')));
-            $products->where('name', 'like', '%' . $name . '%');
-            $queries['name'] = $request->input('name');
-        }
-
-        if ($request->has('brand_id')) {
-            if ($request->input('brand_id') !== 'all') {
-                $products->where('brand_id', $request->input('brand_id'));
-                $queries['brand_id'] = $request->input('brand_id');
-            } else {
-                $queries['brand_id'] = 'all';
+        foreach ($columns as $column) {
+            if ($request->has($column)) {
+                if ($request->$column != null) {
+                    if ($column == 'id') {
+                        $products = $products->where($column, $request->$column);
+                        $queries[$column] = $request->$column;
+                    }
+                    if ($column == 'name') {
+                        $products = $products->where($column, 'like', '%' . $request->$column . '%');
+                        $queries[$column] = $request->$column;
+                    }
+                    if ($column == 'brand_id') {
+                        if ($request->$column != 'all') {
+                            $products = $products->where($column, $request->$column);
+                            $queries[$column] = $request->$column;
+                        } else {
+                            $queries[$column] = 'all';
+                        }
+                    }
+                }
             }
         }
-
 
         $products = $products->paginate(15)->appends($queries);
 
@@ -106,16 +115,14 @@ class ProductController extends Controller
             $product['sellers'] = $sellers;
         }
 
-        $page_link = url()->current();
+        $page_link = "/dashboard/products";
 
         $brands = [];
-        $product_brands = Product::with(['brand'])->where('type', 0)->get();
+        $product_brands = Product::filter()->with(['brand'])->where('type', 0)->get();
         foreach ($product_brands as $item) {
             if (isset($item->brand->title)) $brands[$item->brand->id] = $item->brand->title;
         }
         $brands = array_unique($brands);
-
-
         if ($request->ajax()) {
             return view('Admin.product.load', ['products' => $products, 'type_id' => 0])->render();
         }
@@ -174,10 +181,10 @@ class ProductController extends Controller
         $store_rooms = StoreRoom::all();
         $counting_units = CountingUnit::where('type', 'packing')->get();
         $counting_units_measurement = CountingUnit::where('type', 'measurement')->get();
-        $parents = Category::where('parent_id', 0)->get();
-        $products = Product::orderBy('id', 'DESC')->get();
+        $parents = Category::filter()->where('parent_id', 0)->get();
+        $products = Product::filter()->orderBy('id', 'DESC')->get();
 
-        $material_products = Product::orderBy('id', 'DESC')->where('type', 0)->get();
+        $material_products = Product::filter()->orderBy('id', 'DESC')->where('type', 0)->get();
 
         return view('Admin.product.createMaterials', compact('parents', 'store_rooms',
             'category_store_rooms', 'counting_units', 'products', 'material_products'
@@ -196,7 +203,7 @@ class ProductController extends Controller
     {
         $insert_by_store_room = 0;
         if (isset($request->material['product_id']) && $request->material['product_id'] != '') {
-            $product = Product::find($request->material['product_id']);
+            $product = Product::filter()->find($request->material['product_id']);
 
             $request->validate([
                 'material.category_store_room_id' => 'required',
@@ -403,14 +410,15 @@ class ProductController extends Controller
         $centers = Center::all();
         $storage_store_rooms = StorageStoreRoom::all();
         $category_store_rooms = CategoryStoreRoom::all();
-        $store_rooms = StoreRoom::all();
+        $store_rooms = ghorfe()->store_room;
         $counting_units = CountingUnit::where('type', 'packing')->get();
         $counting_units_measurement = CountingUnit::where('type', 'measurement')->get();
-        $parents = Category::where('parent_id', 1)->get();
-
+        $parents = Category::filter()->where('parent_id', 1)->get();
         $tags = Tag::all();
+        $brands = Brand::where('title','!=',null)->get();
         $category_center_id = 0;
-
+        $ghorfe_online = ghorfe();
+        $categories = $ghorfe_online->categories()->active()->get();
         if (User::checkManager() != null) {
             $center_id = User::checkManager();
             $center = Center::find($center_id);
@@ -419,7 +427,8 @@ class ProductController extends Controller
 
         return view('Admin.product.createGood', compact('parents', 'centers', 'store_rooms',
             'category_store_rooms', 'counting_units', 'tags', 'category_center_id',
-            'storage_store_rooms', 'counting_units_measurement', 'store_room_id', 'purchase_invoice_id', 'center_id'));
+            'storage_store_rooms', 'counting_units_measurement', 'store_room_id',
+            'purchase_invoice_id', 'center_id','categories','brands'));
     }
 
     //store good
@@ -433,52 +442,55 @@ class ProductController extends Controller
     {
         $insertByStoreRoom = 0;
         if (isset($request->image_name_good) && $request->image_name_good != null) {
-            //center_id store_manager or admin
-            if (isset($request->good['center_id']) || isset($request->good['store_room_id'])) {
-
+            if (isset($request->type_good_selected)) {
                 $productattributeable_id = 0;
                 $productattributeable_type = '';
-
-                //store_room
-                if (isset($request->type_good_selected) && $request->type_good_selected == 0) {
-                    Product::validationStoreRoomGood($request);
-                }
-
-                //center_id maybe choose by admin or store manager
-                if (isset($request->good['center_id'])) {
-                    Product::validationCenterGoodAdmin($request);
-                    $productattributeable_id = $request->good['center_id'];
-                    $productattributeable_type = Center::class;
-                }
-
                 $request['is_sale'] = isset($request->good['is_sale']) ? 1 : 0;
                 $request['internal_use'] = isset($request->good['internal_use']) ? 1 : 0;
                 $request['slug'] = SlugService::createSlug(Product::class, 'slug', $request->good['name']);
-
                 $all_father = Category::findAllFather($request->choose_category_id);
                 array_push($all_father, $request->choose_category_id);
-                $request->category_id = $all_father;
-                if (isset($request->category_id)) $request['root_category_id'] = $request->category_id[2];
-
-                $product = Product::create(['name' => $request->good['name'], 'en_name' => $request->good['en_name']
-                    , 'slug' => $request['slug'], 'brand_id' => $request->good['brand_id']
-                    , 'is_sale' => $request['is_sale'], 'status' => 1,
+                $request['category_id'] = $all_father;
+                if (isset($request->category_id)){
+                    $request['root_category_id'] = $request['category_id'][1];
+                }
+                $reference_price = $request->good['reference_price'] ? str_replace(',', '', $request->good['reference_price']) : 0;
+                $create = [
+                    'name' => $request->good['name'],
+                    'en_name' => $request->good['en_name'],
+                    'slug' => $request['slug'],
+                    'brand_id' => $request->good['brand_id'],
+                    'is_sale' => $request['is_sale'], 'status' => 1,
                     'internal_use' => $request['internal_use'],
-                    'root_category_id' => $request['root_category_id']
-                    , 'type' => 1, 'length' => $request->good['length'],
-                    'width' => $request->good['width'], 'height' => $request->good['height'],
-                    'weight' => $request->good['weight'], 'description' => $request->good['description']
-                ]);
-
-                $ghorfe_online = ghorfe();
-
-                if ($ghorfe_online) {
-                    $product->ghorfeOnlineLists()->attach($ghorfe_online->id);
+                    'root_category_id' => $request['root_category_id'],
+                    'type' => 1,
+                    'length' => $request->good['length'],
+                    'width' => $request->good['width'],
+                    'height' => $request->good['height'],
+                    'weight' => $request->good['weight'],
+                    'description' => $request->good['description'],
+                    'reference_price' => $reference_price,
+                ];
+                if($request->type_good_selected === 1){
+                    $create['locationable_id'] = ghorfe()->id;
+                    $create['locationable_type'] = GhorfeOnlineList::class;
+                }
+                $product = Product::create($create);
+                $data = [
+                    'user_id' => auth()->user()->id,
+                    'product_id' => $product->id,
+                    'ghorfe_online_list_id' => $request['ghorfe_online_list_id'],
+                    'purchase_type' => $request->good['purchase_type'],
+                    'pay_type' => $request->good['pay_type'],
+                    'tariff_id' => $request->tariff_id,
+                    'guarantee' => $request->guarantee,
+                ];
+                if(ghorfe())
+                {
+                    $this->productService->createGhorfeProduct($data);
                 }
                 if (isset($request->category_id)) $product->categories()->attach($request->category_id);
-
-                //store_room
-                if ($request->type_good_selected == 0) {
+                if ($request->type_good_selected === 0) {
 
                     $expire_date = Helper::convert($request->good['expire_date']);
                     $expire_date = Verta::parse($expire_date);
@@ -499,8 +511,6 @@ class ProductController extends Controller
 
                     $store_room_purchase_price = $request->good['purchase_price'];
                     if ($store_room_purchase_price > 0) $store_room_purchase_price = str_replace(",", "", $store_room_purchase_price);
-
-
                     // Product with StoreRoom
                     $product->storeRooms()->attach($request->good['store_room_id'],
                         ['user_id'=>Auth::user()->id,
@@ -536,28 +546,10 @@ class ProductController extends Controller
                         $productattributeable_type = ProductStoreRoom::class;
                     }
                 }
-
-                //center
-                if (isset($request->good['center_id'])) {
-                    foreach ($request->good['center_id'] as $key => $value) {
-                        $center = Center::find($value);
-                        $product->centers()->attach($value, ['purchase_type' => $center->purchase_type,
-                            'pay_type' => $center->pay_type,'user_id'=>Auth::user()->id
-                        ]);
-                    }
-                }
-
-                Product::saveImageGood($request, $product);
+                $this->productService->saveImageProduct($request, $product);
                 Product::saveAttributeGood($request, $product, $productattributeable_id, $productattributeable_type);
-
-                //tag
-//                if (isset($request->tag) && $request->tag) $product->tag(['tag_name' => $request->tag]);
-
                 if(isset($request->createByAdmin)){ $product->status=3 ;$product->save();}
-
                 Product::saveReviewsGood($request, $product, $productattributeable_id, $productattributeable_type);
-
-
                 if ($insertByStoreRoom == 1) {
                     return redirect(route('createGoodByValues',['type'=>'store_room','id'=>$request->good['store_room_id']]))->with(['create' => 'success']);
                 }
@@ -568,8 +560,6 @@ class ProductController extends Controller
                     return redirect(route('createGood'))->with(['create' => 'success']);
                 }
 
-            } else {
-                return redirect(route('createGood'))->with(['failByMessage' => 'بایستی شعبه و یا انبار برای کالا مشخص شود']);
             }
         } else {
             return redirect(route('createGood'))
@@ -586,19 +576,27 @@ class ProductController extends Controller
      */
     public function show($id, Request $request)
     {
+
         $center_id = null;
-        if (User::checkManager() != null) {
+        $ghorfe = ghorfe();
+        if ($ghorfe) {
+            $products = $ghorfe->products()
+                ->with('brand')
+                ->where('type', $id)
+                ->select('products.id', 'products.name', 'products.image', 'products.type', 'products.isShow', 'products.root_category_id', 'products.internal_use', 'products.brand_id', 'products.status')
+                ->orderBy('products.id', 'desc');
+        } elseif (User::checkManager() != null) {
             $center_id = User::checkManager();
-            $products = Product::with('centers')->whereHas('centers', function ($query) use ($center_id) {
+            $products = Product::filter()->with('centers')->whereHas('centers', function ($query) use ($center_id) {
                 $query->where('center_id', $center_id);
             })->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
                 ->orderBy('id', 'DESC')->where('type', $id);
-            $categories = Category::categoryDepth($center_id);
         } else {
-            $products = Product::select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
+            $products = Product::filter()->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
                 ->orderBy('id', 'DESC')->where('type', $id);
-            $categories = Category::categoryDepth(null);
         }
+
+        $categories = $ghorfe->categories;
 
         $columns = ['id', 'name', 'root_category_id', 'status', 'brand_id'];
         $queries = [];
@@ -763,7 +761,7 @@ class ProductController extends Controller
             $reviews_weakness = $product->reviews()->where('type', 1)->get();
             $tags = Tag::pluck('name');
 
-            $parents = Category::where('parent_id', 1)->get();
+            $parents = Category::filter()->where('parent_id', 1)->get();
             $categories_product = $product->categories()->orderBy('category_product.id', 'ASC')->get();
 
             $parent_category_id = '';
@@ -774,10 +772,10 @@ class ProductController extends Controller
                 $product_by_center = 'true';
                 $center = Center::find($center_id);
                 $category_center_id = $center->centerable_id;
-                $category_center = Category::where('parent_id', $category_center_id)->get();
-                $category = Category::find($category_center_id);
+                $category_center = Category::filter()->where('parent_id', $category_center_id)->get();
+                $category = Category::filter()->find($category_center_id);
                 if ($category) {
-                    $parent_category = Category::where('id', $category->parent_id)->select('id')->first();
+                    $parent_category = Category::filter()->where('id', $category->parent_id)->select('id')->first();
                     $parent_category_id = $parent_category->id;
                 }
             }
@@ -800,7 +798,7 @@ class ProductController extends Controller
             }
             $product_attributes = $product->attributes()->where('is_price', 0)->get();
 
-            $brands = Category::find($last_category_id);
+            $brands = Category::filter()->find($last_category_id);
             if (!is_null($brands)){
                 $brands=$brands->brands;
             }else{
@@ -836,14 +834,11 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::find($id);
-
+        $product = Product::filter()->find($id);
         if ($product->type == 0) {
             $request['internal_use'] = isset($request['internal_use']) ? $request['internal_use'] : 0;
             $request['slug'] = SlugService::createSlug(Product::class, 'slug', $request->name);
-
             $brand_id = null;
-
             $brand = Brand::find($product->brand_id);
             if (isset($brand)) {
                 $brand->update(['title' => $request->brand_name_fa, 'title_en' => $request->brand_name_en]);
@@ -852,11 +847,18 @@ class ProductController extends Controller
                 $data_brand = Brand::create(['title' => $request->brand_name_fa, 'title_en' => $request->brand_name_en]);
                 $brand_id = $data_brand->id;
             }
-
-            $product->update(['name' => $request->name, 'slug' => $request['slug'], 'type' => 0,
-                'internal_use' => $request['internal_use'], 'brand_id' => $brand_id]);
-
-
+            $update =  [
+                'name' => $request->name,
+                'slug' => $request['slug'],
+                'type' => 0,
+                'brand_id' => $brand_id,
+                'reference_price' => $request->good['reference_price'] ? str_replace(',', '', $request->good['reference_price']) : $product->reference_price,
+            ];
+            if($request->type_good_selected === 1){
+                $update['locationable_id'] = ghorfe()->id;
+                $update['locationable_type'] = GhorfeOnlineList::class;
+            }
+            $product->update($update);
             return redirect('/dashboard/products')->with(['update' => 'success']);
         }
 
@@ -867,8 +869,6 @@ class ProductController extends Controller
             if (User::checkManager() == null) {
                 $request['reference_price'] = str_replace(',', '', $request->reference_price);
                 $request['isShow'] = isset($request['isShow']) ? $request['isShow'] : 0;
-                $request['is_sale'] = isset($request->good['is_sale']) ? $request->good['is_sale'] : 0;
-                $request['internal_use'] = isset($request['internal_use']) ? $request['internal_use'] : 0;
 
                 //admin:The edited product goes into product-edit review mode
                 if ($product->status == 4) $request['status'] = 6;
@@ -892,20 +892,25 @@ class ProductController extends Controller
                 $productattributeable_type = ProductStoreRoom::class;
             }
 
-            Product::saveImageGood($request, $product);
+
+//            Product::saveImageGood($request, $product);
+
+            $this->productService->saveImageProduct($request, $product);
             Product::updateAttributeGood($request, $product, $productattributeable_id, $productattributeable_type);
 
-            if ($request->good['name'] != null)
+            if ($product->good !=null && $product->good['name'] != null)
                 $request['slug'] = SlugService::createSlug(Product::class, 'slug', $request->good['name']);
 
-            $product = Product::find($id);
+            $product = Product::filter()->find($id);
 
             //category
             if (isset($request->choose_category_id)) {
                 $all_father = Category::findAllFather($request->choose_category_id);
                 array_push($all_father, $request->choose_category_id);
                 $request->category_id = $all_father;
-                $request['root_category_id'] = $request->category_id[2];
+                if (isset($request->category_id)){
+                    $request['root_category_id'] = $request->category_id[1];
+                }
                 foreach ($product->categories()->get() as $cat_pro) {
                     $cat_pro->pivot->delete();
                     if (!isset($request->good['brand_id'])) {
@@ -919,9 +924,10 @@ class ProductController extends Controller
             if (isset($request->good['brand_id'])) $request['brand_id'] = $request->good['brand_id'];
 
             $product->update(['name' => $request->good['name'], 'en_name' => $request->good['en_name'],
-                'is_sale' => $request->is_sale, 'isShow' => $request->isShow, 'internal_use' => $request->internal_use,
+                'is_sale' => $request->good['is_sale'],
                 'length' => $request->good['length'], 'width' => $request->good['width'], 'height' => $request->good['height'],
-                'weight' => $request->good['weight'], 'description' => $request->good['description'], 'root_category_id' => $request['root_category_id']
+                'weight' => $request->good['weight'], 'description' => $request->good['description'], 'root_category_id' => $request['root_category_id'],
+                'reference_price' => $request->good['reference_price'] ? str_replace(',', '', $request->good['reference_price']) : $product->reference_price,
             ]);
 
             if (isset($request->centers_id)) {
@@ -935,13 +941,13 @@ class ProductController extends Controller
                 $product->centers()->sync([], true);//delete old entries = true
             }
 
-            //tag
-//            if (isset($request->tag)) {
-//                $request_tags = $request->tag;
-//                $list_tags_product = $product->tagNames();
-//
-//                Product::UpdateTag($list_tags_product, $request_tags, $product);
-//            }
+
+           if (isset($request->tag)) {
+               $request_tags = $request->tag;
+               $list_tags_product = $product->tagNames();
+
+               Product::UpdateTag($list_tags_product, $request_tags, $product);
+           }
 
             if (isset($request->image_path) || isset($request->multiple_image)) {
                 Product::storeImagesProduct($request->image_path, $request->multiple_image, $product);
@@ -962,7 +968,7 @@ class ProductController extends Controller
                     $review->update(['text' => $value['text']]);
                 }
             }
-
+            Product::saveReviewsGood($request, $product, $productattributeable_id, $productattributeable_type);
 
             //edit store Rooms
             if (isset($request->store_room_id)) {
@@ -1028,7 +1034,7 @@ class ProductController extends Controller
     public function destroy($id, Request $request)
     {
         if ($id) {
-            $product = Product::find($id);
+            $product = Product::filter()->find($id);
             //all records in tables belongs to product be delete
             //table : center_product
             //table : products_attribute
@@ -1037,10 +1043,9 @@ class ProductController extends Controller
             //table : changeStoreRoom
             //image product
             //table : product
-
             if (isset($product)) {
                 if (isset($request->center_id)) {
-                    //حذف از طریق لیست کالا ها هر شعبه
+                    //حذف از طریق لیست کالاها هر مرکز
                     if (isset($product->centers)) {
                         $center_products = $product->centers()->where('center_id', $request->center_id)->get();
                         foreach ($center_products as $center_product) {
@@ -1095,19 +1100,14 @@ class ProductController extends Controller
 
                         }
                     }
-                    if ($product->galleries()) {
-                        foreach ($product->galleries()->get() as $item) {
-                            if (\File::exists(public_path($item->image))) {
-                                \File::delete(public_path($item->image));
+                    if ($product->getMedia('images')) {
+                        foreach ($product->getMedia('images') as $item) {
+                            if (\File::exists($item->getUrl())) {
+                                \File::delete($item->getUrl());
                             }
                             $item->delete();
                         }
                     }
-
-                    if (\File::exists(public_path($product->image))) {
-                        \File::delete(public_path($product->image));
-                    }
-
                     if($product->changeStoreRooms()){
                         $product->changeStoreRooms()->delete();
                     }
@@ -1145,7 +1145,18 @@ class ProductController extends Controller
         }
         return ['status' => 'false'];
     }
-
+    public function removeMedia(Request $request)
+    {
+        if (isset($request['image_id'])) {
+            $media = Media::find($request['image_id']);
+            if (File::exists($media->getPath())) {
+                \File::delete($media->getPath());
+                $media->delete();
+                return ['status' => 'true'];
+            }
+        }
+        return ['status' => 'false'];
+    }
     //remove Review product of database
 
     /**
@@ -1193,11 +1204,11 @@ class ProductController extends Controller
             if (isset($center)) {
                 $category_id = $request->id;
 
-                $pro_centers_ids = Product::with('centers')->whereHas('centers', function ($query) use ($center_id) {
+                $pro_centers_ids = Product::filter()->with('centers')->whereHas('centers', function ($query) use ($center_id) {
                     $query->where('centers.id', $center_id);
                 })->pluck('id');
 
-                $products = Product::where('name', 'like', '%' . $request->text . '%')->
+                $products = Product::filter()->where('name', 'like', '%' . $request->text . '%')->
                 select('id', 'name', 'image', 'root_category_id', 'isShow', 'status')->where('type', 1)
                     ->where('status', 5)->where('isShow', 1);
 
@@ -1210,7 +1221,7 @@ class ProductController extends Controller
         }
 
         if (\Auth::user()->isAbleTo('product-detail')) {
-            $products = Product::select('id', 'name', 'image', 'root_category_id')->where('isShow', 1)->where('status', 5);
+            $products = Product::filter()->select('id', 'name', 'image', 'root_category_id')->where('isShow', 1)->where('status', 5);
             $products = $products->where('name', 'like', '%' . $request->text . '%')
                 ->orderBy('id', 'DESC');
             $view = view('Admin.partials.transferProductList', ['products' => $products->get()]);
@@ -1232,7 +1243,7 @@ class ProductController extends Controller
             $center_id = User::checkManager();
             $center = Center::find($center_id);
             if (isset($center)) {
-                $product = Product::find($request->product_id);
+                $product = Product::filter()->find($request->product_id);
                 $product->centers()->attach($center_id, ['purchase_type' => $center->purchase_type,
                     'pay_type' => $center->pay_type,'user_id'=>Auth::user()->id
                 ]);
@@ -1253,7 +1264,7 @@ class ProductController extends Controller
      */
     public function status($id, $status_id)
     {
-        $product = Product::find($id);
+        $product = Product::filter()->find($id);
         if ($product) {
             $product->status = $status_id;
             if ($product->status == 5) {
@@ -1309,7 +1320,7 @@ class ProductController extends Controller
         if ($type == 'center') {
             $center_id = $id;
         }
-        $product = Product::find($product_id);
+        $product = Product::filter()->find($product_id);
         if($product->status == 7){
             $product->msg = Product::messageStatus($product->id, 7);
         }
@@ -1319,7 +1330,7 @@ class ProductController extends Controller
         $store_rooms = StoreRoom::all();
         $counting_units = CountingUnit::where('type', 'packing')->get();
         $counting_units_measurement = CountingUnit::where('type', 'measurement')->get();
-        $parents = Category::where('parent_id', 1)->get();
+        $parents = Category::filter()->where('parent_id', 1)->get();
 
         $tags = Tag::all();
         $category_center_id = 0;
@@ -1327,7 +1338,7 @@ class ProductController extends Controller
         $categories_product = $product->categories()->orderBy('category_product.id', 'ASC')->get();
 
         $last_category_id = Category::latestCategory($product);
-        $brands = Category::find($last_category_id)->brands;
+        $brands = Category::filter()->find($last_category_id)->brands;
         $attributeGroups = AttributeGroup::where('category_id', $last_category_id)->get();
         $attributes = [];
         if (isset($attributeGroups) && count($attributeGroups) > 0) {
@@ -1349,7 +1360,7 @@ class ProductController extends Controller
 
         $product_validations_count = $product->productValidations()->count();
 
-        $similar_products_available = Product::where('name', $product->name)
+        $similar_products_available = Product::filter()->where('name', $product->name)
             ->where('en_name', $product->en_name)
             ->where('brand_id', $product->brand_id)
             ->where('is_sale', $product->is_sale)
@@ -1382,7 +1393,7 @@ class ProductController extends Controller
      */
     public function assignSimilarProduct(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = Product::filter()->find($request->id);
         if ($product) {
             $product->message = $request->similar_id;
             $product->status = 7;
@@ -1401,7 +1412,7 @@ class ProductController extends Controller
      */
     public function getProduct(Request $request)
     {
-        $product = Product::select('id', 'message', 'status')->where('id', $request->id)->first();
+        $product = Product::filter()->select('id', 'message', 'status')->where('id', $request->id)->first();
         if ($product->status == 7) {
             $product['message'] = Product::messageStatus($product->message, 7);
         }
@@ -1415,7 +1426,7 @@ class ProductController extends Controller
     public function removeImageProduct(Request $request)
     {
         if (isset($request->id)) {
-            $product = Product::find($request->id);
+            $product = Product::filter()->find($request->id);
             if ($product) {
                 if (\File::exists(public_path($product->image))) {
                     \File::delete(public_path($product->image));
@@ -1437,7 +1448,7 @@ class ProductController extends Controller
         if (isset($request->id)) {
             if (isset($request->reference_price))
                 $request['reference_price'] = str_replace(',', '', $request->reference_price);
-            $product = Product::find($request->id);
+            $product = Product::filter()->find($request->id);
             if ($product) {
                 $product->isShow = $request->isShow;
                 $product->is_sale = $request->is_sale;
@@ -1462,7 +1473,7 @@ class ProductController extends Controller
         $center_id = null;
         if (User::checkManager() != null) {
             $center_id = User::checkManager();
-            $product_ids = Product::with('centers')->whereHas('centers', function ($query) use ($center_id) {
+            $product_ids = Product::filter()->with('centers')->whereHas('centers', function ($query) use ($center_id) {
                 $query->where('center_id', $center_id);
             })->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
                 ->orderBy('id', 'DESC')->where('type', $id)->pluck('id');
@@ -1549,5 +1560,53 @@ class ProductController extends Controller
         }
         return ['status' => false];
     }
+    public function setProductItem(Request $request)
+    {
+        if ($request->ajax()) {
+            $id = $request->input('id');
+            $category = Category::filter()->find($id);
+
+            if (!$category) {
+                return response()->json([
+                    'count' => 'not_found',
+                    'items' => []
+                ]);
+            }
+
+            $allCategoryIds = collect([$category->id])
+                ->merge($category->childs->pluck('id'))
+                ->toArray();
+
+            $products = ghorfe()->products;
+
+            $matchedProducts = $products->filter(function ($product) use ($allCategoryIds) {
+                return $product->categories->pluck('id')->intersect($allCategoryIds)->isNotEmpty();
+            });
+
+            if ($matchedProducts->isNotEmpty()) {
+                $items = $matchedProducts->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'label' => $product->name
+                    ];
+                });
+
+                return response()->json([
+                    'count' => 'available',
+                    'items' => $items->values()->toArray()
+                ]);
+            }
+
+            return response()->json([
+                'count' => 'empty',
+                'items' => []
+            ]);
+        }
+
+        return response()->json([
+            'error' => 'Invalid request'
+        ], 400);
+    }
+
 
 }

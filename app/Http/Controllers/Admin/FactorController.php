@@ -6,6 +6,7 @@ use App\Events\sendlinkFactor;
 use App\Events\smsService;
 use App\Exports\FactorsExport;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AuditCollection;
 use App\Http\Resources\FactorCollection;
@@ -454,7 +455,7 @@ class FactorController extends Controller
             //upload bill_image cash factor
             $imgbill = $request->file('bill_image');
             if ($imgbill) {
-                $url_bill_image = Helper::uploadImage($imgbill , 'document');
+                $url_bill_image = MediaLibraryHelper::uploadImage($imgbill , 'document');
                 $factor->update(['bill_image' => $url_bill_image]);
             }
             $message = 'با موفقیت ثبت شد.';
