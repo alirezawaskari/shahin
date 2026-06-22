@@ -1,183 +1,133 @@
 <div class="col-md-12 mb-3">
     <h4>عکس های گالری *</h4>
     <span>تمامی عکس ها الزامی هستند.</span><br/>
-    <span> نمایش عکس های گالری در صفحه موبایل و دسکتاپ</span><br/>
-    <span>4 عکس کوچک و یک عکس  بزرگ </span>
+    <span>نمایش در موبایل و دسکتاپ</span><br/>
+    <span>4 عکس کوچک و 1 عکس بزرگ</span>
 </div>
 
+{{-- ================= DESKTOP ================= --}}
 <div class="row">
-    <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">عکس های دسک تاپ</div>
-    @for($i=0;$i<4;$i++)
+
+    <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+        عکس های دسکتاپ
+    </div>
+
+    @php
+        $deskImages = $galleries->where('type', 1)->values();
+    @endphp
+
+    @for($i = 0; $i < 4; $i++)
         @php
-            $image = $galleries->where('type',1)->values()->get($i);
+            $image = $deskImages[$i] ?? null;
         @endphp
-        <div class="card col-md-6 p-2 shadow-sm text-center">
+
+        <div class="card col-md-6 p-2 text-center mb-3">
+
             <input type="text"
                    name="deskImage[{{$i}}][file_title]"
-                   value="{{ $image?->title }}"
+                   value="{{ $image->title ?? '' }}"
                    class="form-control mb-2"
-                   placeholder="عنوان عکس"/>
+                   placeholder="عنوان">
 
-            <img id="preview_h_{{$i}}"
-                 src="{{ $image?->image ?? 'https://via.placeholder.com/150x100?text=Preview' }}"
-                 class="img-fluid mb-2 rounded"
+            <img id="preview_desk_{{$i}}"
+                 src="{{ $image ? asset($image->image) : 'https://via.placeholder.com/150x100' }}"
+                 class="img-fluid mb-2"
                  style="height:100px;object-fit:cover">
 
             <input type="file"
                    name="deskImage[{{$i}}][file]"
-                   class="d-none"
-                   id="file_h_{{$i}}"
-                   onchange="previewImage(event,'preview_h_{{$i}}')">
-
-            <input type="hidden"
-                   name="deskImage[{{$i}}][file]"
-                   id="hidden_h_{{$i}}">
-
-            <button type="button"
-                    class="btn btn-outline-primary btn-sm mb-2"
-                    onclick="document.getElementById('file_h_{{$i}}').click()">
-                انتخاب تصویر
-                <strong> 176*300</strong>
-            </button>
-
-            @if($image?->id)
-                <button type="button"
-                        class="btn btn-outline-danger btn-sm"
-                        onclick="removeImage('preview_h_{{$i}}')">
-                    حذف
-                </button>
-            @endif
+                   class="form-control"
+                   onchange="previewImage(event,'preview_desk_{{$i}}')">
 
         </div>
     @endfor
-    <div class="col-md-12 card p-2 shadow-sm text-center">
+
+    {{-- ================= BIG DESKTOP IMAGE ================= --}}
+    @php
+        $bigDesk = $deskImages[4] ?? null;
+    @endphp
+
+    <div class="col-md-12 card p-3 shadow-sm text-center">
 
         <input type="text"
-               name="deskImage[{{$i}}][file_title]"
-               value="{{ $image?->title }}"
+               name="deskImage[4][file_title]"
+               value="{{ $bigDesk->title ?? '' }}"
                class="form-control mb-2"
-               placeholder="عنوان عکس"/>
+               placeholder="عنوان عکس بزرگ">
 
-        <img id="preview_h_{{$i}}"
-             src="{{ $image?->image ?? 'https://via.placeholder.com/150x100?text=Preview' }}"
+        <img id="preview_desk_4"
+             src="{{ $bigDesk ? asset($bigDesk->image) : 'https://via.placeholder.com/300x200' }}"
              class="img-fluid mb-2 rounded"
-             style="height:100px;object-fit:cover">
+             style="height:180px;object-fit:cover">
 
         <input type="file"
-               name="deskImage[{{$i}}][file]"
-               class="d-none"
-               id="file_h_{{$i}}"
-               onchange="previewImage(event,'preview_h_{{$i}}')">
-
-        <input type="hidden"
-               name="deskImage[{{$i}}][file]"
-               id="hidden_h_{{$i}}">
-
-        <button type="button"
-                class="btn btn-outline-primary btn-sm mb-2"
-                onclick="document.getElementById('file_h_{{$i}}').click()">
-            انتخاب تصویر
-
-            <strong>375 * 900 </strong>
-
-        </button>
-
-        @if($image?->id)
-            <button type="button"
-                    class="btn btn-outline-danger btn-sm"
-                    onclick="removeImage('preview_h_{{$i}}')">
-                حذف
-            </button>
-        @endif
+               name="deskImage[4][file]"
+               class="form-control"
+               onchange="previewImage(event,'preview_desk_4')">
 
     </div>
+
 </div>
 
-<div class="row">
-    <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 "> عکس های موبایل</div>
+{{-- ================= MOBILE ================= --}}
+<div class="row mt-4">
 
-    @for($i=0;$i<4;$i++)
+    <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+        عکس های موبایل
+    </div>
+
+    @php
+        $mobileImages = $galleries->where('type', 0)->values();
+    @endphp
+
+    @for($i = 0; $i < 4; $i++)
         @php
-            $image = $galleries->where('type',0)->values()->get($i);
+            $image = $mobileImages[$i] ?? null;
         @endphp
-        <div class="card col-md-6 p-2 shadow-sm text-center">
+
+        <div class="card col-md-6 p-2 text-center mb-3">
 
             <input type="text"
                    name="mobileImage[{{$i}}][file_title]"
-                   value="{{ $image?->title }}"
+                   value="{{ $image->title ?? '' }}"
                    class="form-control mb-2"
-                   placeholder="عنوان عکس"/>
+                   placeholder="عنوان">
 
-            <img id="preview_v_{{$i}}"
-                 src="{{ $image?->image ?? 'https://via.placeholder.com/100x150?text=Preview' }}"
-                 class="img-fluid mb-2 rounded"
+            <img id="preview_mobile_{{$i}}"
+                 src="{{ $image ? asset($image->image) : 'https://via.placeholder.com/100x150' }}"
+                 class="img-fluid mb-2"
                  style="height:120px;object-fit:cover">
 
             <input type="file"
-                   name="mobileImage[{{$i}}][file_title]"
-                   class="d-none"
-                   id="file_v_{{$i}}"
-                   onchange="previewImage(event,'preview_v_{{$i}}')">
-
-            <input type="hidden"
                    name="mobileImage[{{$i}}][file]"
-                   id="hidden_v_{{$i}}">
-
-            <button type="button"
-                    class="btn btn-outline-primary btn-sm mb-2"
-                    onclick="document.getElementById('file_v_{{$i}}').click()">
-                انتخاب تصویر
-                <strong>190 * 115 </strong>
-            </button>
-
-            @if($image?->id)
-                <button type="button"
-                        class="btn btn-outline-danger btn-sm"
-                        onclick="removeImage('preview_v_{{$i}}')">
-                    حذف
-                </button>
-            @endif
+                   class="form-control"
+                   onchange="previewImage(event,'preview_mobile_{{$i}}')">
 
         </div>
     @endfor
 
-    <div class=" col-md-12 card p-2 m-1 shadow-sm text-center">
+    {{-- ================= BIG MOBILE IMAGE ================= --}}
+    @php
+        $bigMobile = $mobileImages[4] ?? null;
+    @endphp
+
+    <div class="col-md-12 card p-3 shadow-sm text-center">
 
         <input type="text"
-               name="mobileImage[{{$i}}][file]"
-               value="{{ $image?->title }}"
+               name="mobileImage[4][file_title]"
+               value="{{ $bigMobile->title ?? '' }}"
                class="form-control mb-2"
-               placeholder="عنوان عکس"/>
+               placeholder="عنوان عکس بزرگ">
 
-        <img id="preview_v_{{$i}}"
-             src="{{ $image?->image ?? 'https://via.placeholder.com/100x150?text=Preview' }}"
+        <img id="preview_mobile_4"
+             src="{{ $bigMobile ? asset($bigMobile->image) : 'https://via.placeholder.com/150x250' }}"
              class="img-fluid mb-2 rounded"
-             style="height:120px;object-fit:cover">
+             style="height:180px;object-fit:cover">
 
         <input type="file"
-               name="mobileImage[{{$i}}][file]"
-               class="d-none"
-               id="file_v_{{$i}}"
-               onchange="previewImage(event,'preview_v_{{$i}}')">
-
-        <input type="hidden"
-               name="mobileImage[{{$i}}][file]"
-               id="hidden_v_{{$i}}">
-
-        <button type="button"
-                class="btn btn-outline-primary btn-sm mb-2"
-                onclick="document.getElementById('file_v_{{$i}}').click()">
-            انتخاب تصویر
-            <strong>175 * 420</strong>
-        </button>
-
-        @if($image?->id)
-            <button type="button"
-                    class="btn btn-outline-danger btn-sm"
-                    onclick="removeImage('preview_v_{{$i}}')">
-                حذف
-            </button>
-        @endif
+               name="mobileImage[4][file]"
+               class="form-control"
+               onchange="previewImage(event,'preview_mobile_4')">
 
     </div>
 

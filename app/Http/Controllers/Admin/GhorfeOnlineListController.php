@@ -13,6 +13,7 @@ use App\Models\ServiceItem;
 use App\Models\ShahinPackage;
 use App\Models\Template;
 use App\Models\Theme;
+use App\Services\GalleryService;
 use App\Services\Settings\SettingsService;
 use App\Services\V1\Auth\AuthService;
 use Illuminate\Http\Request;
@@ -246,108 +247,16 @@ class GhorfeOnlineListController extends AdminController {
                 ->with('active_tab', 'gallery_content');
         }
 
-        $manager = new \Intervention\Image\ImageManager(
-            new \Intervention\Image\Drivers\Gd\Driver()
-        );
 
-        $folder = public_path('uploads/gallery');
+        $galleryService = new GalleryService();
 
-        if (!file_exists($folder)) {
-            mkdir($folder, 0777, true);
-        }
-
-        $processImages = function ($images, $type, $typeValue) use (
-            $manager,
-            $folder,
-            $targetClass,
-            $targetId,
-            $categoryId,
+        $galleryService->handle(
+            $request,
+            GhorfeOnlineList::class,
+            $ghorfeOnlineList->id,
+            $ghorfeOnlineList->id,
             $ghorfeOnlineList
-        ) {
-            foreach ($images as $index => $item) {
-
-                if (empty($item['file'])) continue;
-
-                $image = $manager->read($item['file']);
-
-                if ($type === 'desk') {
-                    $image = $index === 4
-                        ? $image->cover(900, 375)
-                        : $image->cover(300, 176);
-                } else {
-                    $image = $index === 4
-                        ? $image->cover(175, 420)
-                        : $image->cover(115, 190);
-                }
-
-                $filename = time().'_'.$type.'_'.$index.'_'.uniqid().'.jpg';
-                $path = $folder.'/'.$filename;
-
-                $image->toJpeg(80)->save($path);
-
-                // -------------------------
-                // KEY برای جلوگیری از تکرار
-                // -------------------------
-                $key = $type.'_'.$index;
-
-                // -------------------------
-                // FIND EXISTING
-                // -------------------------
-                $existing = Gallery::where('galleryable_id', $targetId)
-                    ->where('galleryable_type', $targetClass)
-                    ->where('type', $typeValue)
-                    ->where('position_index', $key)
-                    ->first();
-
-                if ($existing) {
-
-                    // UPDATE
-                    $existing->update([
-                        'title' => $item['file_title'] ?? '',
-                        'image' => 'uploads/gallery/'.$filename,
-                    ]);
-
-                    $gallery = $existing;
-
-                } else {
-
-                    // CREATE
-                    $gallery = Gallery::create([
-                        'galleryable_id' => $targetId,
-                        'galleryable_type' => $targetClass,
-                        'title' => $item['file_title'] ?? '',
-                        'image' => 'uploads/gallery/'.$filename,
-                        'type' => $typeValue,
-                        'category_id' => $categoryId,
-                        'position_index' => $key,
-                    ]);
-                }
-
-                // -------------------------
-                // LINK TABLE
-                // -------------------------
-                $ghorfeOnlineList->galleries()->updateOrCreate(
-                    [
-                        'parent_id' => $gallery->id,
-                    ],
-                    [
-                        'type' => $typeValue,
-                        'image' => 'uploads/gallery/'.$filename,
-                    ]
-                );
-            }
-        };
-
-        // -------------------------
-        // PROCESS DESKTOP
-        // -------------------------
-        $processImages($request->deskImage ?? [], 'desk', 1);
-
-        // -------------------------
-        // PROCESS MOBILE
-        // -------------------------
-        $processImages($request->mobileImage ?? [], 'mobile', 0);
-
+        );
         return redirect()
             ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
             ->with([

@@ -853,54 +853,47 @@
                                     <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
                                برای قسمت دیتاماینیگ صفحه اصلی استفاده می شود
                                     </div>
+                                    @php
+                                        $selectedCategory = old('category', $ghorfeOnlineList->category_id ?? null);
+                                    @endphp
+
                                     <div class="col-12 mb-5">
-                                        <label>دسته بندی های
-                                        </label>
+                                        <label>دسته بندی ها</label>
+
                                         <select name="category" class="selectMulti form-control">
                                             <option value="">انتخاب دسته بندی</option>
-                                            @foreach($ghorfeOnlineList->categories as $all_category)
-                                                <option value="{{$all_category->id}}">{{$all_category->title}}</option>
+
+                                            @foreach($categories as $category)
+                                                <option value="{{ $category->id }}"
+                                                        @selected($selectedCategory == $category->id)>
+                                                    {{ $category->title }}
+                                                </option>
                                             @endforeach
+
                                         </select>
-                                        @if($errors->has('category'))
-                                            <span class="help-block sub-error">
-                                                {{ $errors->first('category') }}
-                                            </span>
-                                        @endif
+
+                                        @error('category')
+                                        <span class="help-block sub-error">{{ $message }}</span>
+                                        @enderror
                                     </div>
 
-                                    <div class="col-12 mb-5">
-                                        <label>خدمات</label>
-                                        <div class="row">
 
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <label>سرویس</label>
-                                                    <select id="serviceSelect" name="service" class="form-control">
-                                                        <option value="">انتخاب سرویس</option>
-                                                        @foreach($ghorfeOnlineList->services as $service)
-                                                            <option value="{{ $service->id }}">{{ $service->title }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
+                                    @php
+                                        $selectedService = old('service', $ghorfeOnlineList->service_id ?? null);
+                                    @endphp
 
-                                                <div class="col-md-6">
-                                                    <label>زیرسرویس</label>
-                                                    <select id="serviceItemSelect" name="service_item" class="form-control ">
-                                                        <option value="">ابتدا سرویس را انتخاب کنید</option>
-                                                    </select>
-                                                </div>
+                                    <select id="serviceSelect" name="service" class="form-control">
+                                        <option value="">انتخاب سرویس</option>
 
-                                            </div>
-                                        </div>
-
-
-                                        @if($errors->has('service'))
-                                            <span class="help-block sub-error  "> {{$errors->first('services')}} </span>
-                                        @endif
-                                    </div>
+                                        @foreach($ghorfeOnlineList->services as $service)
+                                            <option value="{{ $service->id }}"
+                                                    @selected($selectedService == $service->id)>
+                                                {{ $service->title }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     <div id="gallerySection">
-                                        <x-gallery-form :galleries="[]" />
+                                        <x-gallery-form :galleries="$ghorfeOnlineList->galleries" />
                                     </div>
                                 </div>
 
@@ -928,222 +921,165 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script>
-    const themeBoxes = document.querySelectorAll('.theme-box');
-    const primaryPicker = document.getElementById('primaryPicker');
-    const secondaryPicker = document.getElementById('secondaryPicker');
-    const primaryText = document.getElementById('primaryText');
-    const secondaryText = document.getElementById('secondaryText');
+    document.addEventListener('DOMContentLoaded', () => {
 
-    themeBoxes.forEach(box => {
+        // =====================================================
+        // CSRF SETUP (AJAX)
+        // =====================================================
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+            }
+        });
 
-        box.addEventListener('click', () => {
+        // =====================================================
+        // ELEMENTS (SAFE CHECK)
+        // =====================================================
+        const serviceSelect = document.getElementById('serviceSelect');
+        const itemSelect = document.getElementById('serviceItemSelect');
+        const categorySelect = document.getElementById('categorySelect');
+        const ghorfeId = document.getElementById('ghorfe_id');
 
-            themeBoxes.forEach(b => b.classList.remove('selected'));
-            box.classList.add('selected');
+        // =====================================================
+        // SERVICE -> SERVICE ITEM (FETCH)
+        // =====================================================
+        function loadServiceItems(serviceId, selectedId = null) {
+            if (!itemSelect) return;
 
-            const themeId = box.dataset.themeId;
+            itemSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
+
+            if (!serviceId) {
+                itemSelect.innerHTML = '<option value="">ابتدا سرویس را انتخاب کنید</option>';
+                return;
+            }
+
+            fetch(`/service-items/${serviceId}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!data || data.length === 0) {
+                        itemSelect.innerHTML = '<option value="">خالی است</option>';
+                        return;
+                    }
+
+                    let options = '<option value="">انتخاب زیرسرویس</option>';
+
+                    data.forEach(item => {
+                        const selected = selectedId == item.id ? 'selected' : '';
+                        options += `<option value="${item.id}" ${selected}>${item.title}</option>`;
+                    });
+
+                    itemSelect.innerHTML = options;
+                })
+                .catch(() => {
+                    itemSelect.innerHTML = '<option value="">خطا در بارگذاری</option>';
+                });
+        }
+
+        if (serviceSelect) {
+            serviceSelect.addEventListener('change', function () {
+                loadServiceItems(this.value);
+                loadGallery();
+            });
+        }
+
+        // =====================================================
+        // GALLERY LOAD (CATEGORY + SERVICE)
+        // =====================================================
+        function loadGallery() {
+            if (!categorySelect || !serviceSelect || !ghorfeId) return;
 
             $.ajax({
-                url: "{{ route('ghorfeOnlineList.themeUpdate',$ghorfeOnlineList)}}",
+                url: "/ghorfe-online-list/get-gallery",
                 type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
                 data: {
-                    themeId: themeId
+                    category_id: categorySelect.value,
+                    service_id: serviceSelect.value,
+                    ghorfe_id: ghorfeId.value
                 },
                 success: function (res) {
-                    const msg = document.getElementById('successMessage');
-                    msg.innerText = 'تم با موفقیت تغییر کرد';
-                    msg.classList.remove('d-none');
-
-                    setTimeout(() => {
-                        msg.classList.add('d-none');
-                    }, 5000);
+                    $('#gallerySection').html(res);
                 },
                 error: function (xhr) {
                     console.log(xhr.responseText);
                 }
             });
-
-        });
-    });
-
-    document.getElementById('serviceSelect').addEventListener('change', function() {
-        let serviceId = this.value;
-        let itemSelect = document.getElementById('serviceItemSelect');
-
-        itemSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
-
-        if (!serviceId) {
-            itemSelect.innerHTML = '<option value="">ابتدا سرویس را انتخاب کنید</option>';
-            return;
         }
 
-        fetch(`/service-items/${serviceId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.length === 0) {
-                    itemSelect.innerHTML = '<option value="">خالی است</option>';
-                    return;
-                }
-
-                let options = '<option value="">انتخاب زیرسرویس</option>';
-                data.forEach(item => {
-                    options += `<option value="${item.id}">${item.title}</option>`;
-                });
-                itemSelect.innerHTML = options;
-            })
-            .catch(() => {
-                itemSelect.innerHTML = '<option value="">خطا در بارگذاری</option>';
-            });
-    });    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        if (categorySelect) {
+            categorySelect.addEventListener('change', loadGallery);
         }
-    });
 
-    $('#categorySelect, #serviceSelect').change(function () {
+        if (serviceSelect) {
+            serviceSelect.addEventListener('change', loadGallery);
+        }
 
-        $.ajax({
-            url: "{{ route('ghorfeOnlineList.getGallery') }}",
-            type: "POST",
-            data: {
-                category_id: $('#categorySelect').val(),
-                service_id: $('#serviceSelect').val(),
-                ghorfe_id: $('#ghorfe_id').val()
-            },
-            success: function (res) {
-                $('#gallerySection').html(res);
-            },
-            error: function (xhr) {
-                console.log(xhr.responseText);
-            }
-        });
+        // =====================================================
+        // INIT LOAD (VERY IMPORTANT FOR EDIT PAGE)
+        // =====================================================
+        loadGallery();
 
-    });
-        function previewImage(event, previewId) {
-        const file = event.target.files[0];
-        if (!file) return;
+        if (serviceSelect && serviceSelect.value) {
+            loadServiceItems(serviceSelect.value);
+        }
 
-        const reader = new FileReader();
+        // =====================================================
+        // IMAGE PREVIEW
+        // =====================================================
+        window.previewImage = function (event, previewId) {
+            const file = event.target.files?.[0];
+            if (!file) return;
 
-        reader.onload = function(e) {
-        document.getElementById(previewId).src = e.target.result;
-    };
-
-        reader.readAsDataURL(file);
-    }
-
-
-        // حذف عکس (فقط UI - backend باید هندل کند)
-        function removeImage(previewId) {
-        const el = document.getElementById(previewId);
-        el.src = "https://via.placeholder.com/150x100?text=Removed";
-    }
-        document.addEventListener('DOMContentLoaded', () => {
-
-        initTabsNavigation();
-        initMenuBuilder();
-        initColorPicker();
-
-        function initTabsNavigation() {
-        const tabs = Array.from(document.querySelectorAll('.nav-link[data-toggle="pill"]'))
-        .filter(t => t.offsetParent !== null);
-
-        const getActiveIndex = () =>
-        tabs.findIndex(t => t.classList.contains('active'));
-
-        const showTab = (i) => {
-            if (i < 0 || i >= tabs.length) return;
-            $(tabs[i]).tab('show');
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const el = document.getElementById(previewId);
+                if (el) el.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         };
 
-        document.querySelectorAll('.btn-next').forEach(btn =>
-        btn.addEventListener('click', () => showTab(getActiveIndex() + 1))
-        );
+        // =====================================================
+        // REMOVE IMAGE (UI ONLY)
+        // =====================================================
+        window.removeImage = function (previewId) {
+            const el = document.getElementById(previewId);
+            if (el) {
+                el.src = "https://via.placeholder.com/150x100?text=Removed";
+            }
+        };
 
-        document.querySelectorAll('.btn-prev').forEach(btn =>
-        btn.addEventListener('click', () => showTab(getActiveIndex() - 1))
-        );
-    }
+        // =====================================================
+        // THEME SELECT (SAFE)
+        // =====================================================
+        document.querySelectorAll('.theme-box').forEach(box => {
+            box.addEventListener('click', function () {
 
+                document.querySelectorAll('.theme-box')
+                    .forEach(b => b.classList.remove('selected'));
 
-        function initMenuBuilder() {
-        const btn = document.getElementById('add-menu');
-        const wrapper = document.getElementById('menu-wrapper');
-        if (!btn || !wrapper) return;
+                this.classList.add('selected');
 
-        btn.addEventListener('click', () => {
-        const items = wrapper.querySelectorAll('.menu-item');
+                const themeId = this.dataset.themeId;
 
-        if (items.length >= 5) {
-        alert('حداکثر 5 منو');
-        return;
-    }
+                $.ajax({
+                    url: "/ghorfe-online-list/theme-update",
+                    type: "POST",
+                    data: { themeId },
+                    success: function () {
+                        const msg = document.getElementById('successMessage');
+                        if (!msg) return;
 
-        const last = items[items.length - 1];
-        if (last && !isMenuValid(last)) {
-        alert('لطفا منوی قبلی را کامل کنید');
-        return;
-    }
+                        msg.innerText = 'تم با موفقیت تغییر کرد';
+                        msg.classList.remove('d-none');
 
-        wrapper.insertAdjacentHTML('beforeend', menuTemplate());
-
-        if (wrapper.querySelectorAll('.menu-item').length >= 5) {
-        btn.style.display = 'none';
-    }
-    });
-
-        function isMenuValid(el) {
-        return [...el.querySelectorAll('input[required]')]
-        .every(i => i.value.trim() !== '');
-    }
-
-        function menuTemplate() {
-        return `
-                <div class="menu-item border p-2 mb-3">
-                    <input type="hidden" name="ids[]" value="">
-                    <div class="col-12">
-                        <label>عنوان</label>
-                        <input type="text" name="titles[]" class="form-control" required>
-                    </div>
-                    <div class="col-12">
-                        <label>لینک</label>
-                        <input type="text" name="links[]" class="form-control" required>
-                    </div>
-                </div>
-            `;
-    }
-    }
-
-
-        function initColorPicker() {
-        const primary = document.getElementById('primaryPicker');
-        const secondary = document.getElementById('secondaryPicker');
-        const primaryText = document.getElementById('primaryText');
-        const secondaryText = document.getElementById('secondaryText');
-
-        if (!primary || !secondary) return;
-
-        const sync = () => {
-        primaryText.value = primary.value;
-        secondaryText.value = secondary.value;
-    };
-
-        primary.addEventListener('input', sync);
-        secondary.addEventListener('input', sync);
-
-        sync();
-    }
-        const activeTab = document.querySelector('.mobile-tabs-wrapper .nav-link.active');
-
-        if (activeTab) {
-            activeTab.scrollIntoView({
-                behavior: 'smooth',
-                inline: 'center'
+                        setTimeout(() => {
+                            msg.classList.add('d-none');
+                        }, 3000);
+                    }
+                });
             });
-        }
+        });
+
     });
 </script>
 

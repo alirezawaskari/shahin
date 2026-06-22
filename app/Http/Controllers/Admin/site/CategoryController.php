@@ -12,6 +12,7 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\Slider;
+use App\Services\GalleryService;
 use App\Services\V1\Auth\AuthService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -31,15 +32,6 @@ class CategoryController extends Controller
         $categories = Category::where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
         return view('Admin.site.category.lists', compact('categories'));
     }
-
-    /**
-     *
-     */
-    public function create()
-    {
-        //
-    }
-
 
     /**
      * @param $cat_id
@@ -91,28 +83,34 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-    // Validate based on category depth level
-    $this->validateCategory($request);
-    // Convert numeric fields with comma to integer
-    $this->sanitizeNumericFields($request);
-    // Create new category
-    $category = new Category();
-    $category->title = $request->input('title');
-    $category->en_title = $request->input('en_title');
-    $category->parent_id = $request->input('parent_id');
-    $category->path = $request->input('path');
-    $category->depth = $request->input('depth');
-    $category->isActive = $request->input('isActive') ?? $category->isActive ?? 1; // Default value assumed
-    $category->displayOrder = $request->input('displayOrder') ?? $category->displayOrder ?? 0;
-    $category->save();
+        // Validate based on category depth level
+        $this->validateCategory($request);
+        // Convert numeric fields with comma to integer
+        $this->sanitizeNumericFields($request);
+        // Create new category
+        $category = new Category();
+        $category->title = $request->input('title');
+        $category->en_title = $request->input('en_title');
+        $category->parent_id = $request->input('parent_id');
+        $category->path = $request->input('path');
+        $category->depth = $request->input('depth');
+        $category->isActive = $request->input('isActive') ?? $category->isActive ?? 1; // Default value assumed
+        $category->displayOrder = $request->input('displayOrder') ?? $category->displayOrder ?? 0;
+        $category->save();
 
-    $ghorfe_online = (new AuthService)->getGhorfe();
+            $targetClass = Category::class;
+            $targetId = $category->id;
 
-    if ($ghorfe_online) {
-        $category->ghorfeOnlineLists()->syncWithoutDetaching([
-            $ghorfe_online->id
-        ]);
-    }
+            $galleryService = new GalleryService();
+
+            $galleryService->handle(
+                $request,
+                Category::class,
+                $category->id,
+                $category->id,
+            $category
+        );
+
     // Create menu if enabled
     $this->createMenuIfNeeded($request, $category);
     // Create menu for other parent if exists
@@ -129,7 +127,7 @@ class CategoryController extends Controller
     return $this->returnResponse($category);
 }
 
-/**
+    /**
  * Validate based on category depth level
  */
 private function validateCategory(Request $request)
@@ -323,8 +321,9 @@ private function returnResponse(Category $category)
     public function edit($id)
     {
         if ($id) {
-            $category = Category::find($id);
+            $category = Category::with('galleries')->findOrFail($id);
             $parent_id = $category->parent_id;
+
             //دسته بندی های مشابه
             $all_categories = Category::filter()->where('id', '!=', $id)->select('id', 'title')->get();
             //خدمات مشابه
@@ -369,9 +368,30 @@ private function returnResponse(Category $category)
                 $cateDepthOne = Category::where('depth', 1)->where('path', $path_explode[0])->get();
             }
 
+            $galleries = Gallery::where('galleryable_id', $category->id)
+                ->where('galleryable_type', Category::class)
+                ->get()
+                ->groupBy('type');
+
+            $deskImages = $galleries->get(1, collect())->keyBy('position_index');
+            $mobileImages = $galleries->get(0, collect())->keyBy('position_index');
+
             return view('Admin.site.category.edit',
-                compact('category','parents','all_categories','all_services','similar_categories','similar_services',
-                    'all_services','similar_categories', 'similar_services','cateDepthOne','family_cat_ids_list','related_category','hasInOtherMenu','parent_id')
+                compact(
+                    'category',
+                    'parents',
+                    'all_categories',
+                    'all_services',
+                    'similar_categories',
+                    'similar_services',
+                    'cateDepthOne',
+                    'family_cat_ids_list',
+                    'related_category',
+                    'hasInOtherMenu',
+                    'parent_id',
+                    'deskImages',
+                    'mobileImages'
+                )
             );
         }
         return redirect()->back();
@@ -384,161 +404,142 @@ private function returnResponse(Category $category)
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'title' => 'required',
+            'en_title' => 'required',
+        ], [
+            'title.required' => 'لطفا نام دسته بندی را وارد کنید',
+            'en_title.required' => 'لطفا نام انگلیسی دسته بندی را وارد کنید',
+        ]);
 
-        $request->validate(['title' => 'required', 'en_title' => 'required',
-        ],
-            ['title.required' => 'لطفا نام دسته بندی را وارد کنید',
-                'en_title.required' => 'لطفا نام انگلیسی دسته بندی را وارد کنید',
-            ]
+        $request->merge([
+            'price' => $request->price ? str_replace(',', '', $request->price) : null,
+            'tax' => $request->tax ? str_replace(',', '', $request->tax) : null,
+            'min_credit' => $request->min_credit ? str_replace(',', '', $request->min_credit) : null,
+            'max_credit' => $request->max_credit ? str_replace(',', '', $request->max_credit) : null,
+            'percent' => $request->percent ?? null,
+            'isActive' => $request->has('isActive') ? 1 : 0,
+            'displayOrder' => $request->has('displayOrder') ? 1 : 0,
+        ]);
+
+        $cat = Category::findOrFail($id);
+
+        $cat->update([
+            'title' => $request->title,
+            'en_title' => $request->en_title,
+            'subTitle' => $request->subTitle,
+            'minimum_discount' => $request->minimum_discount,
+            'price' => $request->price,
+            'tax' => $request->tax,
+            'min_credit' => $request->min_credit,
+            'max_credit' => $request->max_credit,
+            'percent' => $request->percent,
+            'isActive' => $request->isActive,
+            'displayOrder' => $request->displayOrder,
+        ]);
+
+        if ($request->image_path) {
+            $cat->image = Helper::moveImage($request->image_path, 'category');
+        }
+
+        // ✅ Icon
+        if ($request->icon_path) {
+            $cat->icon = Helper::moveImage($request->icon_path, 'category');
+        }
+
+        $cat->save();
+
+        $menu_title = $request->menu_title ?: $cat->title;
+
+        if ($request->is_menu) {
+            Menu::updateOrCreate(
+                [
+                    'menuable_id' => $cat->id,
+                    'menuable_type' => Category::class,
+                    'parent_id' => $cat->parent_id,
+                ],
+                [
+                    'title' => $menu_title,
+                    'depth' => $cat->depth,
+                ]
+            );
+        } else {
+            Menu::where('menuable_id', $cat->id)
+                ->where('menuable_type', Category::class)
+                ->delete();
+        }
+
+        if ($request->other_parent_id) {
+            Menu::updateOrCreate(
+                [
+                    'menuable_id' => $cat->id,
+                    'menuable_type' => Category::class,
+                    'parent_id' => $request->other_parent_id,
+                ],
+                [
+                    'title' => $request->other_parent_title ?: $cat->title,
+                    'depth' => 2,
+                    'duplicate' => 1,
+                    'duplicate_subset' => $request->has('duplicate_subset') ? 1 : 0,
+                ]
+            );
+        }
+
+        $galleryService = new GalleryService();
+
+        $galleryService->handle(
+            $request,
+            Category::class,
+            $cat->id,
+            $cat->id,
+            $cat
         );
-        if($request->min_credit > 0)$request['min_credit'] = str_replace(",","",$request->min_credit);
-        if($request->max_credit > 0)$request['max_credit'] = str_replace(",","",$request->max_credit);
-        if($request->price > 0)$request['price'] = str_replace(",","",$request->price);
-        $request['isActive'] = isset($request['isActive']) ? $request['isActive'] : 0;
-        $request['displayOrder'] = isset($request['displayOrder']) ? $request['displayOrder'] : 0;
-
-        $cat = Category::find($id);
-
-        $cat->update($request->all());
-
-        if($request->menu_title != '') $menu_title = $request->menu_title;
-        else $menu_title = $cat->title;
-
-        if($request->is_menu == 1){
-            Menu::updateOrCreate(['menuable_id' => $id , 'menuable_type'=>Category::class],[
-                'menuable_type' => Category::class,'parent_id'=>$cat->parent_id,'title'=>$menu_title
-                ,'depth'=>$cat->depth]);
-        }
-        if($request->is_menu == 0){
-           Menu::where('menuable_id',$id)->where('menuable_type',Category::class)->delete();
+        if ($request->filled('similar_categories')) {
+            $cat->similarGroups()
+                ->where('relation_model', Category::class)
+                ->sync($request->similar_categories);
         }
 
-        if($request->other_parent_title != '')  $other_parent_title = $request->other_parent_title;
-        else $other_parent_title = $cat->title;
-
-        if($request->other_parent_id){
-            Menu::create(['menuable_id' => $id,
-                'menuable_type' => Category::class,'parent_id'=>$request->other_parent_id,
-                'title'=>$other_parent_title,'depth'=>2,'duplicate'=>1,'duplicate_subset'=>$request->duplicate_subset]);
+        if ($request->filled('similar_services')) {
+            $cat->similarGroupsServices()
+                ->where('relation_model', Service::class)
+                ->sync($request->similar_services);
         }
 
-        $image_name = $request->image_path;
-        if(isset($image_name)) {
-            $cat->image = Helper::moveImage($image_name,'category');
-            $cat->save();
-        }
+        $cat->related()->sync($request->family_cat_ids_list ?? []);
 
-        $file_icon = $request->icon_path;
-        if(isset($file_icon)) {
-            $cat->icon = Helper::moveImage($file_icon,'category');
-            $cat->save();
-        }
+        if (!empty($request->multiple_image)) {
+            foreach ($request->multiple_image as $item) {
+                if (isset($item['file'])) {
+                    $img = Helper::moveImage($item['file'], 'service');
 
-        //banner : vertical images
-        $files = $request->verticalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    if (isset($extra_file['gallery_id'])) {
-
-                        $gallery = Gallery::find($extra_file['gallery_id']);
-                        if ($gallery) {
-                            $image = Helper::moveImage($extra_file['file'],'category');
-                            $gallery->update(['title' => $extra_file['file_title'], 'image' => $image]);
-                        }
-                    }
-                    else{
-                        $image = Helper::moveImage($extra_file['file'],'category');
-                        Gallery::create(['galleryable_id' => $cat->id,
-                            'galleryable_type' => Category::class, 'title' => $extra_file['file_title'],
-                            'image' => $image, 'type' => 0]);
-                    }
-
+                    Slider::create([
+                        'title' => $item['title'],
+                        'link' => $item['link'],
+                        'type' => 1,
+                        'category_id' => $cat->id,
+                        'img' => $img
+                    ]);
                 }
             }
         }
 
-        //banner : horizontal images
-        $files = $request->horizontalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    if (isset($extra_file['gallery_id'])) {
-                        $gallery = Gallery::find($extra_file['gallery_id']);
-                        if ($gallery) {
-                            $image = Helper::moveImage($extra_file['file'],'category');
-                            $gallery->update(['title' => $extra_file['file_title'], 'image' => $image]);
-                        }
-                    }
-                    else{
-                        $image = Helper::moveImage($extra_file['file'],'category');
-                        Gallery::create(['galleryable_id' => $cat->id,
-                            'galleryable_type' => Category::class, 'title' => $extra_file['file_title'],
-                            'image' => $image, 'type' => 1]);
-                    }
+        if (!empty($request->edit_slider)) {
+            foreach ($request->edit_slider as $id => $sliderData) {
+                $slider = Slider::find($id);
+                if ($slider) {
+                    $slider->update([
+                        'title' => $sliderData['title'],
+                        'link' => $sliderData['link']
+                    ]);
                 }
             }
         }
 
+        return redirect()->back()->with('success', 'دسته بندی با موفقیت ویرایش شد');
 
-        if (isset($request->similar_categories) && $request->similar_categories != []) {
-            $cat->similarGroups()->where('relation_model', Category::class)->sync($request->similar_categories);
         }
 
-        if (isset($request->similar_services) && $request->similar_services != []) {
-            $cat->similarGroupsServices()->where('relation_model', service::class)->sync($request->similar_services);
-        }
-
-        $cat->related()->sync($request->family_cat_ids_list,$cat->id);
-
-
-        $files = $request->multiple_image;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    $image = Helper::moveImage($extra_file['file'],'service');
-                    Slider::create(['title'=>$extra_file['title'],'link'=>$extra_file['link'],
-                        'type'=>1,'category_id'=>$cat->id , 'img'=> $image]);
-
-                }
-            }
-        }
-
-        if(isset($request->edit_slider)){
-            $edit_sliders = $request->edit_slider;
-            foreach ($edit_sliders as $index=>$edit_slider) {
-                $slider=Slider::find($index);
-                $slider->update(['title'=>$edit_slider['title'],'link'=>$edit_slider['link']]);
-            }
-        }
-
-        if(isset($request->category_id) && $request->category_id[0] != null){
-            $category_id=$request->category_id;$path='';
-            $depth = count($category_id) - 1;
-            for($i=0 ; $i < count($category_id) - 1 ; $i++){
-                if($i < count($category_id) - 2){
-                    $path=$path . $category_id[$i] .'/';
-                }else{
-                    $path=$path . $category_id[$i] ;
-                }
-            }
-
-            $cat->parent_id = $category_id[3];
-            $cat->depth = $depth;
-            $cat->path = $path;
-            $cat->save();
-        }
-
-        if ($cat->parent_id == 0) {
-            $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
-            return view('Admin.site.category.lists', ['categories' => $categories,'update' => 'success']);
-        }
-        else
-
-        return redirect()->back()->with([ 'update' => 'success']);
-//        return redirect('/dashboard/category/sub/' . $cat->parent_id )->with([ 'update' => 'success']);
-
-    }
 
     /**
      * @param $id
