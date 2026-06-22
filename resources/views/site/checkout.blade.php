@@ -49,9 +49,9 @@
                                 <div class="row p-3 position-relative">
                                     @if($item['service']->center && count($item['centers']) > 0)
                                     <div class="col-12 col-md-6 mb-2">
-                                        <label for="items[{{ $key }}][center]">انتخاب مرکز:</label>
+                                        <label for="items[{{ $key }}][center]">انتخاب شعبه:</label>
                                         <select name="items[{{ $key }}][center]" id="" class="form-control" required>
-                                            <option value="">انتخاب مرکز</option>
+                                            <option value="">انتخاب شعبه</option>
                                             @foreach($item['centers'] as $center)
                                             <option {{$item['center_id']==$center->id?'selected' : ''}} value="{{
                                                 $center->id }}"

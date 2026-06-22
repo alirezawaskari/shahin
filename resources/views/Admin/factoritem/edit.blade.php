@@ -15,7 +15,7 @@
                 @if(!auth()->user()->center_id && !isset($factorItem->center))
                 <li class="nav-item">
                     <a class="nav-link show {{ !$factorItem->center ? 'active' : ''}}" id="contact-tab"
-                       data-toggle="tab" href="#turnRatings" role="tab" aria-controls="turnRatings" aria-selected="false">تعیین مرکز</a>
+                       data-toggle="tab" href="#turnRatings" role="tab" aria-controls="turnRatings" aria-selected="false">تعیین شعبه</a>
                 </li>
                 @endif
                 <li class="nav-item">
@@ -40,7 +40,7 @@
                      @include('Admin.factoritem.layouts.histories',['user_histories'=>$factorItem['user_histories'],'factor'=>$factorItem['factor']])
                 @else
                     <div class="alert alert-info alert-with-border mt-3">
-                        <h6>مرکز برای این پرونده انتخاب نشده است.</h6>
+                        <h6>شعبه برای این پرونده انتخاب نشده است.</h6>
                     </div>
                 @endif
                     <div class="tab-pane fade p-t-20 {{ !$factorItem->center ? 'active show' : ''}}"

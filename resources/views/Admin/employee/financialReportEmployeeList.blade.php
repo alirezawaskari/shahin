@@ -15,7 +15,7 @@
     </div>
     <div>
         @if(auth()->user()->center)
-        <a class="btn btn-primary" href="{{ route('role.create') }}">عملکرد مرکز</a>
+        <a class="btn btn-primary" href="{{ route('role.create') }}">عملکرد شعبه</a>
         @endif
     </div>
 </div>

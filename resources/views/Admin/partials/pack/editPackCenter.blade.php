@@ -1,10 +1,10 @@
 <div class="col-12 col-md-12 mb-3">
-    <h4 class="text-center">اطلاعات مرکز </h4>
+    <h4 class="text-center">اطلاعات شعبه </h4>
 </div>
 
     @if($center_id == null)
         <div class="col-12 col-md-6 mb-3">
-            <label >مرکز</label>
+            <label >شعبه</label>
                 <select name="center_id" class="form-control">
                     <option value="">لطفا انتخاب کنید..</option>
                     @foreach($centers as $center)

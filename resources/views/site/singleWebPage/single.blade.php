@@ -17,7 +17,7 @@
                     @endforeach
                     @if(auth()->check() || isset($factor['id']))
                     @if($service->special == true)
-                    <h6 class="text-green my-2 font-16">مرکز واقع در کرج می باشد.</h6>
+                    <h6 class="text-green my-2 font-16">شعبه واقع در کرج می باشد.</h6>
                     @endif
                     <div id="login_box">
                     @if(isset($check) && !$check)

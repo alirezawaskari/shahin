@@ -28,7 +28,7 @@
                 </li>
                 <li class="nav-item"><a id="center-tab" data-toggle="tab" href="#center" role="tab"
                                         aria-controls="center" aria-selected="false"
-                                        class="nav-link show">مرکز</a>
+                                        class="nav-link show">شعبه</a>
                 </li>
             </ul>
             <div id="myTabContent" class="tab-content">
@@ -93,7 +93,7 @@
                             <div class="col-12 col-md-8 mb-3"><label>عنوان کالا </label>
                                 <input title="product_id" placeholder="کالا " class="form-control productName">
                             </div>
-                            <div class="col-12 col-md-4 mb-3"><label>مرکز</label>
+                            <div class="col-12 col-md-4 mb-3"><label>شعبه</label>
                                 <select class="form-control center_id" name="center_id" title="center_id">
                                     <option value=""></option>
                                     @foreach($centers as $center)
@@ -122,7 +122,7 @@
                         <input name="center_type" value="App\Models\Center" type="hidden">
                         <input name="type" value="center" type="hidden">
                         <div class="row">
-                            <div class="col-12 col-md-4 mb-3"><label>مرکز</label>
+                            <div class="col-12 col-md-4 mb-3"><label>شعبه</label>
                                 <select class="form-control" name="center_id" title="center_id">
                                     <option value=""></option>
                                     @foreach($centers as $center)

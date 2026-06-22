@@ -77,7 +77,7 @@ class PackController extends Controller
         //انبار
         if ($request->type_good_selected == 0) { $this->storeValidationStoreRoom($request); }
 
-        //مرکز
+        //شعبه
         if ($request->type_good_selected == 1) { $this->storeValidationCenter($request,$packByCenter); }
 
         $request['isShow'] = isset($request->isShow) ? 1 : 0;
@@ -262,7 +262,7 @@ class PackController extends Controller
                     'image.required' => 'لطفا عکس را وارد کنید',
                     'pack.price_center.required' => 'لطفا قیمت را وارد کنید',
                     'pack.stock_center.required' => 'لطفا موجودی را وارد کنید',
-                    'pack.center_id.required' => 'لطفا مرکز را انتخاب کنید',
+                    'pack.center_id.required' => 'لطفا شعبه را انتخاب کنید',
                 ]
             );
         }
@@ -335,7 +335,7 @@ class PackController extends Controller
                 $this->updateValidationStoreRoom($request);
             }
 
-            //مرکز
+            //شعبه
             $pack_center = $pack->centers;
             if (isset($pack_center) && count($pack_center) > 0) {
                 $this->updateValidationCenter($request,$pack_by_center);

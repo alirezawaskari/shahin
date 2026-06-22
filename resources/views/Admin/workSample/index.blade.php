@@ -25,7 +25,7 @@
                 <tr>
                     <th>تصویر</th>
                     <th>عنوان</th>
-                    <th>مرکز</th>
+                    <th>شعبه</th>
                     <th>مربوط به</th>
                     <th>تاریخ ثبت</th>
                     <th>وضعیت</th>
@@ -43,7 +43,7 @@
                             @endif
                         </td>
                         <td>{{ $item->title }}</td>
-                        <td>{{ $item->center->title ?? 'بدون مرکز' }}</td>
+                        <td>{{ $item->center->title ?? 'بدون شعبه' }}</td>
                         <td>
                             {{ optional($item->worksampleable)->title ?? '---' }}
                         </td>

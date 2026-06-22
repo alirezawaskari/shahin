@@ -211,7 +211,7 @@ class FactorItemController extends Controller {
         // check factorItem have serviceTariff or not
         if ($factor_item->serviceTariffs()->exists()){
             return redirect()->back()->with( [
-                'failByMessage' => 'جهت تغییر مرکز پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .'
+                'failByMessage' => 'جهت تغییر شعبه پرونده برای پرونده نباید طرح درمانی ثبت شده باشد .'
             ] );
         }
         // unset center
@@ -222,12 +222,12 @@ class FactorItemController extends Controller {
                 'status_factor' => 14,
             ] );
             return redirect()->back()->with( [
-                'successByMessage' => 'مرکز تعیین شده با موفقیت حذف گردید.'
+                'successByMessage' => 'شعبه تعیین شده با موفقیت حذف گردید.'
             ] );
         }
         FactorItem::referralCenter($factor_item , $request);
         return redirect()->back()->with( [
-            'successByMessage' => 'پرونده جهت انجام مشاوره به مرکز ارجاع داده شد.'
+            'successByMessage' => 'پرونده جهت انجام مشاوره به شعبه ارجاع داده شد.'
         ] );
     }
     /**
@@ -237,7 +237,7 @@ class FactorItemController extends Controller {
      */
     public function turnRatings(FactorItem $factorItem , Request $request ) {
         if (is_null($factorItem->center_id)){
-            alert()->error('لطفا ابتدا تعیین مرکز نمایید .', 'عملیات ناموفق ')->persistent('باشه');
+            alert()->error('لطفا ابتدا تعیین شعبه نمایید .', 'عملیات ناموفق ')->persistent('باشه');
             return redirect()->back();
         }
         $factorItem->update( [

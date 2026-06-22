@@ -5,16 +5,16 @@
 
 <div class="page-header">
     <div>
-        <h3>فهرست مراکز</h3>
+        <h3>فهرست شعب</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">فهرست مراکز</li>
+                <li class="breadcrumb-item active" aria-current="page">فهرست شعب</li>
             </ol>
         </nav>
     </div>
     <div>
-        <a class="btn btn-primary" href="{{ route('center.create') }}">مرکز جدید</a>
+        <a class="btn btn-primary" href="{{ route('center.create') }}">شعبه جدید</a>
     </div>
 </div>
 
@@ -71,7 +71,7 @@
                                 @endpermission
                                 @permission('center_financial_report_detail')
                                 <a href="{{ route('center.financialReport' , [ $item->id]) }}" class="dropdown-item pointer"
-                                    target="_blank">عملکرد مالی مرکز
+                                    target="_blank">عملکرد مالی شعبه
                                 </a>
                                 @endpermission
                                 <form class="delete_form" method="post"

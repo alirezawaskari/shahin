@@ -67,7 +67,7 @@ class BeforeForm extends Model
         'panel_print_form' => 'پرینت فرم ثبت نام - امور اجرایی',
         'panel_show_file' => 'فاکتور - امور اداری و مالی',
         'panel_basic_document' => 'مدارک اولیه و پشتیبانی - امور اداری و مالی',
-        'panel_determine_center' => 'ثبت مشاوره و ارجاع به مرکز - امور اداری و مالی',
+        'panel_determine_center' => 'ثبت مشاوره و ارجاع به شعبه - امور اداری و مالی',
         'show_recommendations_site' => 'مشاهده پرونده - توصیه ها و دستورات - سایت ',
     ];
     /**

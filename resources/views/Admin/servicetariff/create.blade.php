@@ -37,7 +37,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>انتخاب مرکز</label>
+                    <label>انتخاب شعبه</label>
                     <select class="form-control" name="center_id[]" id="center1">
                         @foreach($centers as $center)
                         <option value="{{ $center->id }}">{{ $center->title }}</option>

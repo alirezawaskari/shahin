@@ -8,7 +8,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item"><a href="/{{$center->id}}">مرکز {{$center->title}}</a></li>
+                <li class="breadcrumb-item"><a href="/{{$center->id}}">شعبه {{$center->title}}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">ایجاد تعرفه جدید</li>
             </ol>
         </nav>
@@ -32,7 +32,7 @@
                     <input type="text" class="form-control" name="name" required>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش مرکز به سجا (ریال)</label>
+                    <label>قیمت فروش شعبه به سجا (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         oninput="separatePrices(this)">
                 </div>

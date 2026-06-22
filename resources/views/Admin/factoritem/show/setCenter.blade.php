@@ -4,9 +4,9 @@
         <form action="{{ route('factorItem.setCenter') }}" method="POST">
             @csrf
             <div class="col-12 mb-2">
-                <label for="factorItem[center]">ارجاع به مرکز:</label>
+                <label for="factorItem[center]">ارجاع به شعبه:</label>
                 <select name="center_id" class="form-control" required>
-                    <option value="null">بدون مرکز</option>
+                    <option value="null">بدون شعبه</option>
                     @foreach ($factorItem['centers'] as $center)
                     <option value="{{ $center->id }}" class="font-12" {{ $factorItem['center'] !=null &&
                         $factorItem['center']->id ==
@@ -25,7 +25,7 @@
                     لطفا توضیحات مرتبط با نوبت داده شده را وارد کنید.</p>
                 @else
                 <p class="text-warning col-12"> <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> همکار
-                    محترم توجه داشته باشید که توضیحات ثبت شده توسط شما به مرکز انتخابی نمایش داده میشود.</p>
+                    محترم توجه داشته باشید که توضیحات ثبت شده توسط شما به شعبه انتخابی نمایش داده میشود.</p>
 
                 @endif
             </div>

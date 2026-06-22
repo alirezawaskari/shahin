@@ -179,10 +179,10 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>انتخاب مرکز</label>
+                            <label>انتخاب شعبه</label>
                             <select class="form-control" name="employee[center_id]">
                                 <option value="" {{ $employee->center_id == null ? 'selected' : ''}}>
-                                    بدون مرکز
+                                    بدون شعبه
                                 </option>
                                 @foreach($centers as $center)
                                 <option value="{{ $center->id }}" {{ $employee->user->center_id != null &&

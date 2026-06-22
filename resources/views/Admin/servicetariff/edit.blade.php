@@ -8,7 +8,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item"><a href="/{{$center->id}}">مرکز {{$center->title}}</a></li>
+                <li class="breadcrumb-item"><a href="/{{$center->id}}">شعبه {{$center->title}}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">ویرایش تعرفه</li>
             </ol>
         </nav>
@@ -27,7 +27,7 @@
                     <input class="form-control" value="{{$serviceTariff->tariff->title}}" readonly>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش مرکز (ریال)</label>
+                    <label>قیمت فروش شعبه (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         value="{{number_format($serviceTariff->purchase_price)}}" oninput="separatePrices(this)">
                 </div>

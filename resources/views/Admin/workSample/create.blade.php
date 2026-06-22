@@ -39,7 +39,7 @@
                     <br><br>
                     <div class="form-row">
                         <div class="col-md-4 mb-3">
-                            <label>انتخاب مرکز</label>
+                            <label>انتخاب شعبه</label>
                             <select name="center_id" class="custom-select selectSearch" id="select-center" required>
                                 <option value="" disabled selected>انتخاب کنید</option>
                                 @foreach(\App\Models\Center::all() as $center)
@@ -79,7 +79,7 @@
     <script>
         $('#worksampleable_type').on('change', function () {
             const type = $(this).val();
-            const centerId = $('#select-center').val(); // گرفتن id مرکز
+            const centerId = $('#select-center').val(); // گرفتن id شعبه
             $('#worksampleable_id').html('<option>در حال دریافت اطلاعات...</option>');
 
             $.ajax({
@@ -88,7 +88,7 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     type: type,
-                    center_id: centerId // ارسال مرکز
+                    center_id: centerId // ارسال شعبه
                 },
                 success: function (res) {
                     let options = '<option value="">انتخاب کنید</option>';

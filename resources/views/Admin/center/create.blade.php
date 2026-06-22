@@ -85,8 +85,8 @@
                             <input type="text" name="item[name]" placeholder="نام و نام خانوادگی" class="form-control">
                         </div>
                         <div class="col-12 col-md-4 mb-3">
-                            <label>شماره تماس مرکز</label>
-                            <input type="number" name="phone" placeholder="شماره تماس مرکز" class="form-control">
+                            <label>شماره تماس شعبه</label>
+                            <input type="number" name="phone" placeholder="شماره تماس شعبه" class="form-control">
                         </div>
                     </div>
 
@@ -119,7 +119,7 @@
                     <div class="form-row">
                         <div class="col-12 col-md-4 mb-3">
                             <label>عنوان (در سایت نمایش داده می شود)</label>
-                            <input name="title" class="form-control" placeholder="عنوان مرکز را وارد نمایید">
+                            <input name="title" class="form-control" placeholder="عنوان شعبه را وارد نمایید">
                         </div>
 
                         @if(!auth()->user()->admin_representation_id)
@@ -165,7 +165,7 @@
                         @endif
                         <div class="col-12 mb-3">
                             <label>آدرس</label>
-                            <input name="address" class="form-control" placeholder="آدرس دقیق مرکز را وارد نمایید">
+                            <input name="address" class="form-control" placeholder="آدرس دقیق شعبه را وارد نمایید">
                         </div>
                         <div class="col-12 col-md-6 mb-3">
                             <label>شماره قرارداد</label>

@@ -21,13 +21,12 @@ use Illuminate\Validation\Rule;
 class ServiceController extends AdminController
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of index
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\View
      */
     public function index(Request $request)
     {
-        $services = Service::filter()->orderBy('id', 'DESC');
         // $columns=['title','pay_type','purchase_type'];
 
         // foreach ($columns as $column) {
@@ -102,21 +101,15 @@ class ServiceController extends AdminController
             'en_title' => 'required',
             'price' => 'required',
             'category_id'=>'required',
-            'min_credit'=>'required',
-            'max_credit'=>'required',
             'status'=>array('required',Rule::in(0,1)),
             'isShow'=>array('required',Rule::in(0,1)),
             'items'=>array('required',Rule::in(0,1)),
             'center'=>array('required',Rule::in(0,1)),
             'multiple'=>array('required',Rule::in(0,1)),
             'ability_invite_friend'=>array('required',Rule::in(0,1)),
-            'purchase_type'=>array('required',Rule::in(0,1,2)),
-            'pay_type'=>array('required',Rule::in(0,1,2)),
          ]);
 
         if($request->price > 0 )$request['price'] = str_replace(",","",$request->price);
-        if($request->max_credit > 0 )$request['max_credit'] = str_replace(",","",$request->max_credit);
-        if($request->min_credit > 0 )$request['min_credit'] = str_replace(",","",$request->min_credit);
         $request['ability_invite_friend'] = isset($request['ability_invite_friend']) ? 1 : 0;
 
         $ghorfe_online = ghorfe();
@@ -329,11 +322,9 @@ class ServiceController extends AdminController
             'center'=>array('required',Rule::in(0,1)),
             'multiple'=>array('required',Rule::in(0,1)),
             'ability_invite_friend'=>array('required',Rule::in(0,1)),
-            'wage_percent'=>['required'],
             'price'=>['required'],
-            'tax'=>['required'],
             ]);
-        $request->price = (float) str_replace(',', '', $request->price);
+        $request['price'] = (float) str_replace(',', '', $request['price']);
         if ($validator->fails()) {
             return response(['status'=>'error','messages'=>$validator->messages()->all()]);
         }
@@ -347,9 +338,7 @@ class ServiceController extends AdminController
             'center'=>$request->center,
             'multiple'=>$request->multiple,
             'session'=> $request->has('is_session') ? 1 : 0,
-            'tax'=>$request->tax,
             'ability_invite_friend'=>$request->ability_invite_friend,
-            'wage_percent'=>$request->wage_percent,
             'price'=>$request->price,
             'gift'=>$request->gift,
         ]);
@@ -382,10 +371,6 @@ class ServiceController extends AdminController
         $validator = Validator::make($request->all(),
             [
                 'category_id'=>'required',
-                'min_credit'=>'required',
-                'max_credit'=>'required',
-                'pay_type'=>array('required',Rule::in(0,1,2)),
-                'purchase_type'=>array('required',Rule::in(0,1,2)),
             ]);
         if ($validator->fails()) {
             return response(['status'=>'error','messages'=>$validator->messages()->all()]);
@@ -393,10 +378,6 @@ class ServiceController extends AdminController
 
         $service->update(array(
               'category_id'=>$request->category_id,
-              'min_credit'=> (float) str_replace(',', '', $request->min_credit),
-              'max_credit'=>(float) str_replace(',', '', $request->max_credit),
-              'purchase_type'=>$request->purchase_type,
-              'pay_type'=>$request->pay_type,
               'menu_title'=>$request->menu_title,
           ));
         if($service->menu()->exists()) {

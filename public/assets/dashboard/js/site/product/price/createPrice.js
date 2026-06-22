@@ -137,7 +137,7 @@ $('.productPrice').click(function () {
             toastr.info(' لطفا قیمت وارد نمایید.');
         }
     } else {
-        toastr.info(' لطفا مرکز | انبار انتخاب نمایید.');
+        toastr.info(' لطفا شعبه | انبار انتخاب نمایید.');
     }
 
 });

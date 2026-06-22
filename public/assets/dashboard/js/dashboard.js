@@ -70393,7 +70393,7 @@
                                             },
                                             [
                                                 _c("option", { attrs: { value: "all" } }, [
-                                                    _vm._v("انتخاب مرکز")
+                                                    _vm._v("انتخاب شعبه")
                                                 ]),
                                                 _vm._v(" "),
                                                 _vm._l(_vm.centers, function(item) {

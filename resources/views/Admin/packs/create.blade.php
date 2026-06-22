@@ -21,7 +21,7 @@
                             <input class="type_good_selected" type="radio" name="type_good_selected" title="انبار"
                                    value="0"><span class="lblRadioBtn font-weight-bold font16">انبار </span>
 
-                            <input class="type_good_selected" type="radio" name="type_good_selected" title="مرکز" value="1"><span class="lblRadioBtn font-weight-bold font16">مرکز </span>
+                            <input class="type_good_selected" type="radio" name="type_good_selected" title="شعبه" value="1"><span class="lblRadioBtn font-weight-bold font16">شعبه </span>
                         @endif
 
                     </div>
@@ -44,11 +44,11 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-3 goodCenterBox" style="display: none;">
-                        <h4 class="text-center">اطلاعات مرکز</h4>
+                        <h4 class="text-center">اطلاعات شعبه</h4>
                         <div class="row">
                             @if($center_id == null)
                                 <div class="col-12 col-md-6 mb-3">
-                                    <label>مرکز</label>
+                                    <label>شعبه</label>
                                     <select name="pack[center_id]" class="form-control productPack" id="center">
                                         <option value="">لطفا انتخاب کنید..</option>
                                         @foreach($centers as $center)

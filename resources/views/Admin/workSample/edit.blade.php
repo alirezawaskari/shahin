@@ -42,7 +42,7 @@
                     <h5>ارتباط با مدل مربوطه</h5><br><br>
                     <div class="form-row">
                         <div class="col-md-4 mb-3">
-                            <label>انتخاب مرکز</label>
+                            <label>انتخاب شعبه</label>
                             <select name="center_id" class="custom-select selectSearch" id="select-center" required>
                                 @foreach(\App\Models\Center::all() as $center)
                                     <option value="{{ $center->id }}" @selected($workSample->center_id == $center->id)>{{ $center->title }}</option>

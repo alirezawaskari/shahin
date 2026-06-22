@@ -226,7 +226,7 @@ class CouponItemsController extends Controller
 
             foreach ($product_attributes as $item){
                 if($item->productattributeable_type == Center::class){
-                    $item['seller_type'] ='مرکز';
+                    $item['seller_type'] ='شعبه';
                     $item['attribute_title']=Attribute::find($item->attribute_id)->title;
                     $item['seller']=Center::find($item->productattributeable_id)->title;
                 }

@@ -180,7 +180,7 @@ function selectByService() {
             success: function success(data) {
                 if (data.count == 'available') {
                     $('#center_id').find('option').remove();
-                    $('#center_id').append('<option disabled>انتخاب مرکز</option>');
+                    $('#center_id').append('<option disabled>انتخاب شعبه</option>');
                     for (var i = 0; i < data.centers.length; i++) {
                         $('#center_id').append('<option value="' + data.centers[i]['id'] + '">' + data.centers[i]['title'] + '</option>');
                     }

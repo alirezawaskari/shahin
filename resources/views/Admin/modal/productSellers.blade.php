@@ -12,7 +12,7 @@
                 <div class="row">
                     <table class="table table-bordered table-striped">
                         <thead>
-                            <tr><th>انبار / مرکز</th>
+                            <tr><th>انبار / شعبه</th>
                                 @if($product_type != 2)<th>موجودی </th>@endif<th>قیمت </th><th>اقدام</th></tr>
                         </thead>
                         <tbody>
