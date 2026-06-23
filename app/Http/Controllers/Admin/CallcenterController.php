@@ -802,6 +802,8 @@ class CallcenterController extends Controller
         $task->categories()->attach($request->product_category);
         if (is_array($request->service) && count($request->service)>0)
         $task->services()->attach($request->service);
+        if (is_array($request->service_item) && count($request->service_item)>0)
+        $task->services_item()->attach($request->service_item);
     }
 
     /**
