@@ -232,13 +232,16 @@
                                 @endforeach
                             </select>
                             @if($errors->has('similar_services'))
-                                <span class="help-block sub-error"> {{$errors->first('similar_services')}} </span>
+                                  <span class="help-block sub-error"> {{$errors->first('similar_services')}} </span>
                             @endif
                         </div>
+
                     </div>
                     <hr/>
                 @endif
-
+                <div id="gallerySection">
+                    <x-gallery-form :galleries="$category->galleries" />
+                </div>
                 @if($category->depth == 0 || $category->depth == 1)
                 @include('Admin.partials.editBannerHomePage',['model'=>$category])
                 @endif

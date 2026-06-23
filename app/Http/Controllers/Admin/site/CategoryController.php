@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ServiceCollection;
 use App\Http\Resources\ServiceResource;
 use App\Models\AttributeGroup;
 use App\Models\Category;
@@ -12,14 +11,12 @@ use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\Slider;
-use App\Services\GalleryService;
+use App\Services\V1\Admin\GalleryService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
