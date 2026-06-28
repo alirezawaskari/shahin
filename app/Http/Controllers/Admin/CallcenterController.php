@@ -1171,7 +1171,7 @@ class CallcenterController extends Controller
         $description = "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .";
         History::create($task , $task->user_id , null , 0 , $description);
         $services = Service::whereIn('id', $request->service)->get();
-        $service_items = ServiceItem::whereIn('id', $request->service_item)->get();
+        $service_items = $request->service_item ? ServiceItem::whereIn('id', $request->service_item)->get() : collect();
         $count = max($services->count(), $service_items->count());
         for ($i = 0; $i < $count; $i++) {
             $service = $services->get($i);
