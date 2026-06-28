@@ -53,7 +53,7 @@ class smsServiceNotification {
             'param1' => implode(',', $factoritemable),
             'param2' => $center_title,
             'param3' => $center_call,
-            'param4' => $center_address,
+            // 'param4' => $center_address,
         ];
         SendSms::sendSingleSms( 'setCenterUserNotification', $userMobile, $body );
     }
