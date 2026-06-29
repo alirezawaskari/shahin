@@ -27,7 +27,6 @@ class MenuService
                     $query->whereIn('id', $packagePermissions);
                 })
                 ->get();
-
             return $this->groupByCategory($permissions);
         });
     }
@@ -40,15 +39,9 @@ class MenuService
         if ($user->level !== 'ghorfeAdmin') {
             return [];
         }
-
         $currentDomain = $this->normalizeDomain(request()->getHost());
 
-        $ghorfe = $user->ghorfeOnlineLists()
-            ->with('shahinPackage.categoryPermission:id')
-            ->get()
-            ->first(fn($item) =>
-                $this->normalizeDomain($item->domain_active) === $currentDomain
-            );
+        $ghorfe = ghorfe();
 
         if (!$ghorfe?->shahinPackage) {
             return [];
