@@ -18,7 +18,7 @@ class SendSms
         $this->settings = $settings;
     }
 
-    public  function sendSingleSms(string $template, $phone, array $params)
+    public static function sendSingleSms(string $template, $phone, array $params)
     {
         $SmsTemplate = SmsTemplate::where('name',$template)->first();
         if($SmsTemplate){

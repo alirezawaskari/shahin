@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\SendSms;
 use App\Events\fastserviceCallcenter;
-use App\Events\registerRequestNotification;
 use App\Events\sendlinkFactor;
 use App\Events\smsNotAnswer;
 use App\Exports\CallcenterExport;
@@ -27,13 +26,10 @@ use App\Models\RecruitmentNotice;
 use App\Models\Representation;
 use App\Models\Role;
 use App\Models\Service;
+use App\Models\ServiceItem;
 use App\Models\SuspensionStandard;
 use App\Models\User;
-use App\Services\V1\Auth\AdminAuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -806,6 +802,8 @@ class CallcenterController extends Controller
         $task->categories()->attach($request->product_category);
         if (is_array($request->service) && count($request->service)>0)
         $task->services()->attach($request->service);
+        if (is_array($request->service_item) && count($request->service_item)>0)
+        $task->services_item()->attach($request->service_item);
     }
 
     /**
@@ -1172,9 +1170,17 @@ class CallcenterController extends Controller
         //create history
         $description = "لینک صفحه {$services_title} جهت مطالعه شرایط و اطلاعات خدمات ارسال گردید .";
         History::create($task , $task->user_id , null , 0 , $description);
-        $services=Service::whereIn('id',$request->service)->get();
-        foreach ($services as $service ){
-            event(new fastserviceCallcenter($client, $service , $task, 'callcenter'));
+        $services = Service::whereIn('id', $request->service)->get();
+        $service_items = $request->service_item ? ServiceItem::whereIn('id', $request->service_item)->get() : collect();
+        $count = max($services->count(), $service_items->count());
+        for ($i = 0; $i < $count; $i++) {
+            $service = $services->get($i);
+            $service_item = $service_items->get($i);
+            if ($service_item) {
+                event(new fastserviceCallcenter($client, $service_item, $task, 'serviceItem'));
+            } elseif ($service) {
+                event(new fastserviceCallcenter($client, $service, $task, 'service'));
+            }
         }
     }
 
@@ -1186,7 +1192,7 @@ class CallcenterController extends Controller
         History::create($task , $task->user_id , null , 0 , $description);
         $services=Service::whereIn('id',$request->service)->get();
         foreach ($services as $service ){
-            event(new fastserviceCallcenter($client, $service ,$task, 'callcenter'));
+            event(new fastserviceCallcenter($client, $service ,$task, 'service'));
         }
     }
 

@@ -203,7 +203,12 @@ class FactorController extends Controller {
             default:
             $debt_price = 0;
         }
-        return number_format( $debt_price - $factor->price > 0 ? $debt_price - $factor->price : 0 );
+        if($factor->status != 1)
+        {
+           $debt_price = ($debt_price - $factor->price > 0 ? $debt_price - $factor->price : 0);
+        }
+
+        return number_format( $debt_price );
     }
 
 }
