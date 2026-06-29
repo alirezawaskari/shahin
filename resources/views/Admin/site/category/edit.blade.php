@@ -194,13 +194,6 @@
                         </table>
                     </div>
                     @endif
-                    <div class="col-12 col-md-12 mb-5">
-                        <h5>اسلایدر دسته بندی </h5>
-                        <span>برای استفاده در صفحه تکی دسته بندی است</span>
-                    </div>
-                    <div class="col-12 col-md-12 mb-5">
-                        @include('Admin.partials.multipleImages',['has_link'=>"1"])
-                    </div>
                     @endif
                 </div>
 
@@ -224,27 +217,27 @@
                         @endif
                     </div>
 
-                        <div class="col-12 col-md-6 mb-5">
-                            <label>خدمات مشابه</label>
-                            <select title="" name="similar_services[]" class="selectMulti form-control" multiple="multiple">
-                                @foreach($all_services as $all_service)
-                                    <option value="{{$all_service->id}}" {{ in_array(trim($all_service->id) , $similar_services) ? 'selected' : '' }}>{{$all_service->title}}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('similar_services'))
-                                  <span class="help-block sub-error"> {{$errors->first('similar_services')}} </span>
-                            @endif
-                        </div>
-
+                    <div class="col-12 col-md-6 mb-5">
+                        <label>خدمات مشابه</label>
+                        <select title="" name="similar_services[]" class="selectMulti form-control" multiple="multiple">
+                            @foreach($all_services as $all_service)
+                            <option value="{{$all_service->id}}" {{ in_array(trim($all_service->id) , $similar_services)
+                                ? 'selected' : '' }}>{{$all_service->title}}</option>
+                            @endforeach
+                        </select>
+                        @if($errors->has('similar_services'))
+                        <span class="help-block sub-error"> {{$errors->first('similar_services')}} </span>
+                        @endif
                     </div>
-                    <hr/>
+
+                </div>
+                <hr />
                 @endif
+
+                @if($category->depth == 0 || $category->depth == 1)
                 <div id="gallerySection">
                     <x-gallery-form :galleries="$category->galleries" />
-                </div>
-                @if($category->depth == 0 || $category->depth == 1)
-                @include('Admin.partials.editBannerHomePage',['model'=>$category])
-                @endif
+                </div> @endif
                 <hr />
                 <div class="row">
                     <div class="col-12 col-md-12 mb-2">

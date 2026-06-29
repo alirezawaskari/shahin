@@ -5,10 +5,11 @@
 @stop
 
 @section('content')
-    <div class="card"><br/>
+    <div class="card p-4"><br/>
         <h4 class="disTable">ثبت زیر مجموعه در دسته بندی
             @if($parent)  {{$parent->title}} @endif
         </h4>
+        <hr/>
         <div class="card-body">
             <form id="bannerImage" class="form-horizontal" method="post"
                   action="{{route('category.store')}}" enctype="multipart/form-data">
@@ -166,16 +167,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-12 col-md-12 mb-5">
-                        <h5>اسلایدر دسته بندی </h5>
-                        <span>برای استفاده در صفحه تکی دسته بندی است</span>
-                    </div>
-                    <div class="col-12 col-md-12 mb-2">
-                        @include('Admin.partials.multipleImages',['has_link'=>"1"])
-                    </div>
-                </div>
-
                 @if($depth == 1)
                     <hr/>
                     <div class="row">
@@ -205,18 +196,13 @@
                                 <span class="help-block sub-error  "> {{$errors->first('similar_services')}} </span>
                             @endif
                         </div>
-
-                        <div id="gallerySection">
-                            <x-gallery-form :galleries="[]" />
-                        </div>
-
                     </div>
                     <hr/>
                 @endif
 
                 @if($depth == 0 || $depth == 1)
-                    <div class="row">
-                        @include('Admin.partials.createBannerHomePage')
+                    <div id="gallerySection">
+                            <x-gallery-form :galleries="[]" />
                     </div>
                 @endif
                 <hr/>
