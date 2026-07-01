@@ -170,17 +170,6 @@
                         <div class="btn btn-success" id="new-role">ایجاد نقش جدید +</div>
                     </a>
                 </div>
-                <div class="col-12 col-md-4 mb-3">
-                    <label>انتخاب شعبه</label>
-                    <select class="form-control" name="center_id">
-                        <option value="" {{ $user->center_id == null ? 'selected'  : ''}}>
-                            بدون شعبه
-                        </option>
-                        @foreach(\App\Models\Center::get() as $center)
-                        <option value="{{ $center->id }}" {{ $user->center_id != null &&  $user->center_id == $center->id ? 'selected' : '' }}>{{ $center->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
                 @endpermission
                 <div class="col-12 col-md-4 mb-3">
                     <label>ویژگی های سلامتی</label>

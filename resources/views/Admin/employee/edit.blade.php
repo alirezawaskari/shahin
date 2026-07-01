@@ -180,13 +180,12 @@
                         </div>
                         <div class="col-12 col-md-4 mb-3">
                             <label>انتخاب شعبه</label>
-                            <select class="form-control" name="employee[center_id]">
-                                <option value="" {{ $employee->center_id == null ? 'selected' : ''}}>
+                            <select class="form-control" name="center_id">
+                                <option value="" {{ $employee->user->center_id == null ? 'selected' : ''}}>
                                     بدون شعبه
                                 </option>
                                 @foreach($centers as $center)
-                                <option value="{{ $center->id }}" {{ $employee->user->center_id != null &&
-                                    $employee->center_id == $center->id ? 'selected' : '' }}>{{ $center->title }}
+                                <option value="{{ $center->id }}" {{ $employee->user->center_id == $center->id ? 'selected' : '' }}>{{ $center->title }}
                                 </option>
                                 @endforeach
                             </select>
