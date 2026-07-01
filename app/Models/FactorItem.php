@@ -1072,10 +1072,8 @@ class FactorItem extends Model implements AuditableContract
             'status' => 1,
             'description' => "نمایندگی این پرونده توسط {$user->family} تغییر کرده است.",
         ]);
-
-        if ($representation === 'center_representation') {
-            $item->representation()->delete();
-        } else {
+        $item->representation()->delete();
+        if ($representation != 'center_representation') {
             $item->representation()->updateOrCreate(
                ['representation_id' => $representation],
                ['agent_id' => $user->id]
