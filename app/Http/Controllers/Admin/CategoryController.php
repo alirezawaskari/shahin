@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Gallery;
+use App\Models\MediaLibrary;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\Slider;
@@ -81,7 +82,6 @@ class CategoryController extends Controller
             //خدمات مشابه
             $all_services = Service::filter()->select('id', 'title')->get();
             $parents = Category::filter()->where('parent_id', 0)->get();
-
 
             //مرتبط با دسته بندی
             $family_cat_ids_list=[];

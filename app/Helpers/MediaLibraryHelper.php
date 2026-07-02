@@ -27,7 +27,7 @@ class MediaLibraryHelper {
             $mediaLibrary->addMedia( $image )
             ->usingFileName( $filename )
             ->preservingOriginal()
-            ->toMediaCollectionOnDisk( 'images', 'file_lalecard', now()->format('Y/m/d') );
+            ->toMediaCollection( 'images' );
         } catch ( \Exception $e ) {
             $mediaLibrary->delete();
             throw new \RuntimeException( 'Failed to upload image: ' . $e->getMessage() );
@@ -36,12 +36,12 @@ class MediaLibraryHelper {
         return $mediaLibrary;
     }
     /**
-     * Summary of moveImage
-     * @param string $fileUrl
-     * @param int $userId
-     * @throws \RuntimeException
-     * @return MediaLibrary
-     */
+    * Summary of moveImage
+    * @param string $fileUrl
+    * @param int $userId
+    * @throws \RuntimeException
+    * @return MediaLibrary
+    */
     public static function moveImage( string $fileUrl, int $userId ): MediaLibrary {
         $filename = pathinfo( parse_url( $fileUrl, PHP_URL_PATH ), PATHINFO_BASENAME );
 
@@ -54,12 +54,12 @@ class MediaLibraryHelper {
         try {
             $mediaLibrary->addMedia( $fileUrl )
             ->usingFileName( $filename )
-            ->toMediaCollectionOnDisk( 'images', 'file_lalecard', now()->format('Y/m/d') );
+            ->toMediaCollection( 'images' );
         } catch ( \Exception $e ) {
             $mediaLibrary->delete();
             throw new \RuntimeException( 'Failed to move image: ' . $e->getMessage() );
         }
 
         return $mediaLibrary;
-    }
+    } 
 }

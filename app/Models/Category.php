@@ -1,18 +1,17 @@
 <?php
 
 namespace App\Models;
+use App\Traits\HasMediaImage;
 use Spatie\MediaLibrary\HasMedia;
-
 use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Category extends Model implements HasMedia
 {
-    use SoftDeletes,InteractsWithMedia;
-
-
+    use SoftDeletes,InteractsWithMedia,HasMediaImage;
 
     /**
      * @var string[]
@@ -62,14 +61,6 @@ class Category extends Model implements HasMedia
     {
         return $this->morphMany(FactorItem::class, 'factoritemable');
     }
-//
-//    /**
-//     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-//     */
-//    public function centers()
-//    {
-//        return $this->morphMany(Center::class, 'centerable');
-//    }
     /**
      * Get all of the centers for the post.
      */
@@ -411,4 +402,24 @@ class Category extends Model implements HasMedia
         }
         return $query->where('id', $ghorfe->type_work === 'product' ? 1 : 2);
     }
+
+    public function imageCategory(): BelongsTo
+    {
+        return $this->belongsTo(MediaLibrary::class, 'image_category_id');
+    }
+
+    public function iconCategory(): BelongsTo
+    {
+        return $this->belongsTo(MediaLibrary::class, 'icon_category_id');
+    }
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->getMediaUrl('image_category_id');
+    }
+
+    public function getIconUrlAttribute(): ?string
+    {
+        return $this->getMediaUrl('icon_category_id');
+    }
 }
+
