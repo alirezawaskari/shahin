@@ -44,16 +44,6 @@
                         <span class="help-block sub-error  "> {{$errors->first('en_title')}} </span>
                         @endif
                     </div>
-
-                    {{-- <div class="col-12 col-md-4 mb-5">
-                        <label> حداقل تخفیف (%)</label>
-                        <input type="text" class="form-control" placeholder="لطفا حداقل تخفیف (%) را وارد کنید"
-                            name="minimum_discount" value="{{$category->minimum_discount}}">
-                        @if($errors->has('minimum_discount'))
-                        <span class="help-block sub-error  "> {{$errors->first('minimum_discount')}} </span>
-                        @endif
-                    </div> --}}
-
                     <div class="col-12 col-md-2 mb-5">
                         <label></label>
                         <div class="custom-control custom-checkbox">
@@ -76,97 +66,88 @@
                             class="help-block sub-error  ">{{$errors->first('displayOrder')}}</span>@endif
                     </div>
                 </div>
-                {{-- @if($category->depth == 0 || $category->depth == 1)
-                <hr />
-                <div class="row">
-                    <div class="col-12 col-md-12 mb-2">
-                        <h5> قیمت و اعتبار برای فروش اقساطی و نقدی</h5>
-                    </div>
-                    <div class="col-12 col-md-3 mb-5">
-                        <label>قیمت </label>
-                        <input type="text" name="price" id="currency-field" value="{{number_format($category->price)}}"
-                            class="form-control" data-type="currency" placeholder="لطفا قیمت را وارد کنید">
-                        @if($errors->has('price'))
-                        <span class="help-block sub-error  "> {{$errors->first('price')}} </span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-3 mb-5">
-                        <label>مالیات </label>
-                        <input type="text" name="tax" value="{{number_format($category->tax)}}" class="form-control"
-                            placeholder="لطفا مالیات را وارد کنید">
-                        @if($errors->has('tax'))
-                        <span class="help-block sub-error "> {{$errors->first('tax')}} </span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-2 mb-5">
-                        <label>کمترین اعتبار </label>
-                        <input type="text" name="min_credit" id="currency-field"
-                            value="{{number_format($category->min_credit)}}" class="form-control" data-type="currency"
-                            placeholder="لطفا کمترین اعتبار را وارد کنید">
-                        @if($errors->has('min_credit'))
-                        <span class="help-block sub-error "> {{$errors->first('min_credit')}} </span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-2 mb-5">
-                        <label>بیشترین اعتبار </label>
-                        <input type="text" name="max_credit" id="currency-field"
-                            value="{{number_format($category->max_credit)}}" class="form-control" data-type="currency"
-                            placeholder="لطفا بیشترین اعتبار را وارد کنید">
-                        @if($errors->has('max_credit'))
-                        <span class="help-block sub-error "> {{$errors->first('max_credit')}} </span>
-                        @endif
-                    </div>
-
-                    <div class="col-12 col-md-2 mb-5">
-                        <label>درصد پیش پرداخت (%)</label>
-                        <input id="percent_lbl" type="text" class="form-control" name="percent"
-                            placeholder="لطفا درصد را وارد کنید" value="{{$category->percent}}">
-                        @if($errors->has('percent'))
-                        <span class="help-block sub-error "> {{$errors->first('percent')}} </span>
-                        @endif
-                    </div>
-                    <br />
-                </div>
-                @endif --}}
                 <hr />
                 <div class="row">
                     <div class="col-12 col-md-12 mb-2">
                         <h5>تصاویر</h5>
                     </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center g-3">
+                                        <div class="col-md-3 text-center">
+                                            <label class="form-label d-block fw-bold">تصویر فعلی</label>
+                                            <img src="{{ $category->image_url }}" class="img-thumbnail shadow-sm"
+                                                style="width: 120px; height: 120px; object-fit: cover;"
+                                                alt="تصویر دسته‌بندی">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">آپلود تصویر جدید</label>
 
-                    <div class="col-12 col-md-2 mb-5">
-                        <label>عکس ذخیره شده :</label>
-                        <img src="{{$category->image}}" class="border-radius5" width="80px">
+                                            <div class="input-group mb-2">
+                                                <input id="image"
+                                                    class="d-none form-control file-upload file_upload_ajax" type="file"
+                                                    name="image" accept="image/*" />
+                                                <label for="image"
+                                                    class="btn btn-primary custom-file-upload border border-1">
+                                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                                                </label>
+                                            </div>
+
+                                            <input type="hidden" id="image" class="path" name="image_path" value="">
+                                            @if($errors->has('image'))
+                                            <span class="text-danger small">{{ $errors->first('image') }}</span>
+                                            @endif
+
+                                            <small class="text-muted d-block mt-1">
+                                                فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 220*190
+                                            </small>
+                                        </div>
+                                        <div id="image_src" class="show disInline col-md-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row align-items-center g-3">
+                                        <div class="col-md-3 text-center">
+                                            <label class="form-label d-block fw-bold">تصویر فعلی</label>
+                                            <img src="{{ $category->icon_url }}" class="img-thumbnail shadow-sm"
+                                                style="width: 120px; height: 120px; object-fit: cover;"
+                                                alt="آیکن دسته‌بندی">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">آپلود آیکن جدید</label>
 
-                    <div class="col-12 col-md-4 mb-5">
-                        <label>تغییر عکس :</label><br />
-                        <label for="image" class="custom-file-upload">
-                            <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
-                        </label>
-                        <input id="image" class="file-upload file_upload_ajax" type="file" name="image" />
-                        <div id="image_src" class="show disInline"></div>
-                        <input type="hidden" id="image" class="path" name="image_path" value="">
-                        @if($errors->has('image'))
-                        <span class="help-block sub-error"> {{$errors->first('image')}} </span>
-                        @endif
-                    </div>
+                                            <div class="input-group mb-2">
+                                                <input id="icon"
+                                                    class="d-none form-control file-upload file_upload_ajax" type="file"
+                                                    name="icon" accept="image/*" />
+                                                <label for="icon"
+                                                    class="btn btn-primary custom-file-upload border border-1">
+                                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                                                </label>
+                                            </div>
 
-                    <div class="col-12 col-md-2 mb-5">
-                        <label>آیکون ذخیره شده :</label>
-                        <img src="{{$category->icon}}" class="border-radius5" width="80px">
-                    </div>
+                                            <input type="hidden" id="icon" class="path" name="icon_path" value="">
+                                            @if($errors->has('icon'))
+                                            <span class="text-danger small">{{ $errors->first('icon') }}</span>
+                                            @endif
 
-                    <div class="col-12 col-md-4 mb-5">
-                        <label>تغییر آیکون :</label><br />
-                        <label for="icon" class="custom-file-upload"><i class="fa fa-cloud-upload"></i>
-                            بارگذاری تصویر</label>
-                        <input id="icon" class="file-upload file_upload_ajax" type="file" name="icon" />
-                        <div id="icon_src" class="show disInline"></div>
-                        <input type="hidden" id="icon" class="path" name="icon_path" value="">
-                        @if($errors->has('icon'))
-                        <span class="help-block sub-error"> {{$errors->first('icon')}} </span>
-                        @endif
+                                            <small class="text-muted d-block mt-1">
+                                                فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
+                                            </small>
+                                        </div>
+                                        <div id="image_src" class="show disInline col-md-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -365,191 +346,5 @@
 </div>
 @stop
 @section('js')
-
 <script src="{{ asset('assets/dashboard/js/site/category/categoryEdit.js') }}"></script>
-<script>
-    const themeBoxes = document.querySelectorAll('.theme-box');
-    const primaryPicker = document.getElementById('primaryPicker');
-    const secondaryPicker = document.getElementById('secondaryPicker');
-    const primaryText = document.getElementById('primaryText');
-    const secondaryText = document.getElementById('secondaryText');
-
-
-    document.getElementById('serviceSelect').addEventListener('change', function() {
-        let serviceId = this.value;
-        let itemSelect = document.getElementById('serviceItemSelect');
-
-        itemSelect.innerHTML = '<option value="">در حال بارگذاری...</option>';
-
-        if (!serviceId) {
-            itemSelect.innerHTML = '<option value="">ابتدا سرویس را انتخاب کنید</option>';
-            return;
-        }
-
-        fetch(`/service-items/${serviceId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.length === 0) {
-                    itemSelect.innerHTML = '<option value="">خالی است</option>';
-                    return;
-                }
-
-                let options = '<option value="">انتخاب زیرسرویس</option>';
-                data.forEach(item => {
-                    options += `<option value="${item.id}">${item.title}</option>`;
-                });
-                itemSelect.innerHTML = options;
-            })
-            .catch(() => {
-                itemSelect.innerHTML = '<option value="">خطا در بارگذاری</option>';
-            });
-    });    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    $('#categorySelect, #serviceSelect').change(function () {
-
-        $.ajax({
-            url: "{{ route('ghorfeOnlineList.getGallery') }}",
-            type: "POST",
-            data: {
-                category_id: $('#categorySelect').val(),
-                service_id: $('#serviceSelect').val(),
-                ghorfe_id: $('#ghorfe_id').val()
-            },
-            success: function (res) {
-                $('#gallerySection').html(res);
-            },
-            error: function (xhr) {
-                console.log(xhr.responseText);
-            }
-        });
-
-    });
-    function previewImage(event, previewId) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            document.getElementById(previewId).src = e.target.result;
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-
-    // حذف عکس (فقط UI - backend باید هندل کند)
-    function removeImage(previewId) {
-        const el = document.getElementById(previewId);
-        el.src = "https://via.placeholder.com/150x100?text=Removed";
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-
-        initTabsNavigation();
-        initMenuBuilder();
-        initColorPicker();
-
-        function initTabsNavigation() {
-            const tabs = Array.from(document.querySelectorAll('.nav-link[data-toggle="pill"]'))
-                .filter(t => t.offsetParent !== null);
-
-            const getActiveIndex = () =>
-                tabs.findIndex(t => t.classList.contains('active'));
-
-            const showTab = (i) => {
-                if (i < 0 || i >= tabs.length) return;
-                $(tabs[i]).tab('show');
-            };
-
-            document.querySelectorAll('.btn-next').forEach(btn =>
-                btn.addEventListener('click', () => showTab(getActiveIndex() + 1))
-            );
-
-            document.querySelectorAll('.btn-prev').forEach(btn =>
-                btn.addEventListener('click', () => showTab(getActiveIndex() - 1))
-            );
-        }
-
-
-        function initMenuBuilder() {
-            const btn = document.getElementById('add-menu');
-            const wrapper = document.getElementById('menu-wrapper');
-            if (!btn || !wrapper) return;
-
-            btn.addEventListener('click', () => {
-                const items = wrapper.querySelectorAll('.menu-item');
-
-                if (items.length >= 5) {
-                    alert('حداکثر 5 منو');
-                    return;
-                }
-
-                const last = items[items.length - 1];
-                if (last && !isMenuValid(last)) {
-                    alert('لطفا منوی قبلی را کامل کنید');
-                    return;
-                }
-
-                wrapper.insertAdjacentHTML('beforeend', menuTemplate());
-
-                if (wrapper.querySelectorAll('.menu-item').length >= 5) {
-                    btn.style.display = 'none';
-                }
-            });
-
-            function isMenuValid(el) {
-                return [...el.querySelectorAll('input[required]')]
-                    .every(i => i.value.trim() !== '');
-            }
-
-            function menuTemplate() {
-                return `
-                <div class="menu-item border p-2 mb-3">
-                    <input type="hidden" name="ids[]" value="">
-                    <div class="col-12">
-                        <label>عنوان</label>
-                        <input type="text" name="titles[]" class="form-control" required>
-                    </div>
-                    <div class="col-12">
-                        <label>لینک</label>
-                        <input type="text" name="links[]" class="form-control" required>
-                    </div>
-                </div>
-            `;
-            }
-        }
-
-
-        function initColorPicker() {
-            const primary = document.getElementById('primaryPicker');
-            const secondary = document.getElementById('secondaryPicker');
-            const primaryText = document.getElementById('primaryText');
-            const secondaryText = document.getElementById('secondaryText');
-
-            if (!primary || !secondary) return;
-
-            const sync = () => {
-                primaryText.value = primary.value;
-                secondaryText.value = secondary.value;
-            };
-
-            primary.addEventListener('input', sync);
-            secondary.addEventListener('input', sync);
-
-            sync();
-        }
-        const activeTab = document.querySelector('.mobile-tabs-wrapper .nav-link.active');
-
-        if (activeTab) {
-            activeTab.scrollIntoView({
-                behavior: 'smooth',
-                inline: 'center'
-            });
-        }
-    });
-</script>
 @stop

@@ -72,7 +72,7 @@ function readURL(input) {
                                 }
 
                                 var tr_images = $('<tr id="' + index_add_img + '" class="row_image">');
-                                var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="image_name_good[' + index_add_img + '][name]" value="' + result['image_name'] + '"></td>';
+                                var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="image_name_good[' + index_add_img + '][name]" value="' + result['image_name']['id'] + '"></td>';
                                 var remove = '<td><a id="' + index_add_img + '" class="flagProduct">' + input_first_photo + '</a><a id="' + index_add_img + '" class="btn btn-sm btn-danger removeImageCreated"><i class="fa fa-trash"></i></a></td>';
 
                                 tr_images.append(image).append(remove);
@@ -125,7 +125,7 @@ function multipleImages(input) {
                             if (result['status'] === true) {
 
                                 var tr_images = $('<tr id="' + index_add_img + '" class="row_image">');
-                                var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="multiple_image[' + index_add_img + '][file]" value="' + result['image_name'] + '"></td>';
+                                var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="multiple_image[' + index_add_img + '][file]" value="' + result['image_name']['id'] + '"></td>';
                                 var remove = '<td><a id="' + index_add_img + '" class="btn btn-sm btn-danger removeImageCreated"><i class="fa fa-trash"></i></a></td>';
                                 var title = '<td><input type="text" class="form-control" placeholder="عنوان" name="multiple_image[' + index_add_img + '][title]"></td>';
                                 if (multipleImagesHasLink === "1") {
@@ -174,7 +174,7 @@ $(document).on('change', '.file_upload_ajax', function () {
             "application/vnd.ms-excel",
             "application/x-rar-compressed",
             "application/x-zip-compressed",
-            
+
         ];
         var size = file.size;
         if ($.inArray(fileType, validImageTypes) > 0) {
@@ -210,16 +210,16 @@ $(document).on('change', '.file_upload_ajax', function () {
                                     file = '<img src="' + e.target.result + '" id="' + index_add_photo + '" ' +
                                         'class="card-img-top" height="150px">';
                                 } else {
-                                    file = '<a href="' + result['image_name'] + '" id="' + index_add_photo + '" ' +
+                                    file = '<a href="' + result['image_name']['id'] + '" id="' + index_add_photo + '" ' +
                                         'class="disInline image_create btn border border-success mr-3" >مشاهده</a>';
                                 }
                                 if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
                                     new_link(file_attr_id);
                                     $('#' + file_attr_id + '_src' + ct + '.show').append(file);
-                                    $('#' + file_attr_id + ct + '.path').val(result['image_name']);
+                                    $('#' + file_attr_id + ct + '.path').val(result['image_name']['id']);
                                 } else {
                                     $('#' + file_attr_id + '_src.show').append(file);
-                                    $('#' + file_attr_id + '.path').val(result['image_name']);
+                                    $('#' + file_attr_id + '.path').val(result['image_name']['id']);
                                 }
                             } else if (result['status'] === false) {
                                 let errorMessage = result['message'];

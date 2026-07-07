@@ -3,17 +3,12 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Gallery;
 use App\Models\Menu;
 use App\Models\Service;
-use App\Models\Slider;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -81,7 +76,6 @@ class CategoryController extends Controller
             //خدمات مشابه
             $all_services = Service::filter()->select('id', 'title')->get();
             $parents = Category::filter()->where('parent_id', 0)->get();
-
 
             //مرتبط با دسته بندی
             $family_cat_ids_list=[];
@@ -168,7 +162,7 @@ class CategoryController extends Controller
             if (File::exists(public_path($category->image_category_path))) {
                 File::delete(public_path($category->image_category_path));
             }
-            $category->image_category_id = MediaLibraryHelper::moveImage($request->image_path,auth()->id())->id;
+            $category->image_category_id = $request->image_path;
 
             $category->save();
         }
@@ -176,7 +170,7 @@ class CategoryController extends Controller
             if (File::exists(public_path($category->icon_category_path))) {
                 File::delete(public_path($category->icon_category_path));
             }
-            $category->icon_category_id = MediaLibraryHelper::moveImage($request->icon_path,auth()->id())->id;
+            $category->icon_category_id = $request->icon_path;
             $category->save();
         }
     }

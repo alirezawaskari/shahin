@@ -28,7 +28,7 @@
                 <option value="{{ $service_tariff->id }}">
                     {{ $service_tariff->name }} (
                     {{ number_format($service_tariff->price) }} ریال -
-                    تعرفه {{ $service_tariff->tariff->title }})
+                    تعرفه {{ $service_tariff->tariff ? $service_tariff->tariff->title : $service_tariff->tariff }})
                 </option>
             @endforeach
         </select>

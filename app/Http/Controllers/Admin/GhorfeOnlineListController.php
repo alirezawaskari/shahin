@@ -152,7 +152,7 @@ class GhorfeOnlineListController extends AdminController {
 
         // ✅ If admin, check domain
         if ($user->level == 'ghorfeAdmin') {
-            if (request()->getHost() !== $ghorfeOnlineList->domain_active) {
+            if (ghorfe() !== $ghorfeOnlineList) {
                 return abort(401);
             }
         }

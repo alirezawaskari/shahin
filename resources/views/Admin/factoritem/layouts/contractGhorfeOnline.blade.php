@@ -7,12 +7,13 @@
             </div>
             <div class="col-6 mt-4 text-center">
                 <h3>شبکه خدمات رفاهی لاله</h3>
-                <h5>قرارداد اجاره مغازه دیجیتال</h5>
+                <h5>قرارداد اجاره سامانه مطب دیجیتال شاهین</h5>
             </div>
             <div class="col-3 mt-4">
                 <p> تاریخ : {{ $item[ 'start_date' ] }} </p>
                 <p> شماره قرارداد : {{ $factorItem->resnumber }} </p>
             </div>
+            مستند به پروانه شماره : 1404137339 انقضاء تا تاریخ 04/02/1409 کد آیسیک 521124
         </div>
     </div>
     <div class="border-contract page-break-first p-6" style="text-align: justify;">
@@ -32,7 +33,7 @@
                 {{ $user::getGenderTitle($user->sex) }} {{ $user->name.' '.$user->family }} فرزند {{ $user->father }}
                 متولد {{ $user->birthdate ?? '1372/03/21' }} به شماره شناسنامه {{ $user->shenasnamecode ?? '8581' }}
                 صادره از {{ $user->birth_city ?? 'اصفهان' }} و کد ملی {{ $user->melicode ?? '......' }}
-                به نشانی {{ $user->address ?? '......' }}. تلفن {{ $user->phone ?? '......' }}
+                به نشانی محل کار {{ $user->address ?? '......' }}. تلفن {{ $user->phone ?? '......' }}
                 <br>
             </span>
 

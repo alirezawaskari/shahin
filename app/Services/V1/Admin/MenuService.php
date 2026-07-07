@@ -18,7 +18,6 @@ class MenuService
 
         return Cache::remember("menu_user_{$user->id}", 60, function () use ($user) {
 
-            $currentRoute = Route::currentRouteName();
             $packagePermissions = $this->getUserPackagePermissions($user);
             $permissions = Permission::query()
                 ->with('categoryPermissions')
@@ -57,12 +56,11 @@ class MenuService
      */
     private function getAllMenus()
     {
-        $currentRoute = Route::currentRouteName();
-        return
-            CategoryPermission::with('permission')
-                ->where('is_active','!=',0)
-                ->get()
-                ->map(fn($p) => $this->mapPermission($p, $currentRoute));
+        $permissions = Permission::query()
+            ->with('categoryPermissions')
+            ->where('isMenu', true)
+            ->get();
+        return $this->groupByCategory($permissions);
     }
 
     /**
