@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\site;
+namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
