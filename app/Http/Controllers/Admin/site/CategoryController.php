@@ -3,18 +3,12 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Gallery;
-use App\Models\MediaLibrary;
 use App\Models\Menu;
 use App\Models\Service;
-use App\Models\Slider;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 

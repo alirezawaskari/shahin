@@ -140,7 +140,7 @@
                                             @endif
 
                                             <small class="text-muted d-block mt-1">
-                                                فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 220*190
+                                                فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
                                             </small>
                                         </div>
                                         <div id="image_src" class="show disInline col-md-3"></div>
