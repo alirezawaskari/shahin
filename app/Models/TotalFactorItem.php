@@ -1090,7 +1090,7 @@ class TotalFactorItem extends Model implements AuditableContract
 
         if ( $totalFactorItem->factorItems->where( 'factoritemable_id', 124 )->count() ) {
             $contract_view = 'Admin.totalfactoritem.layouts.contractLoanCash';
-        } elseif ( $totalFactorItem->factorItems->where( 'factoritemable_id', 17 )->count() ) {
+        } elseif ( $totalFactorItem->factorItems->whereIn( 'factoritemable_id', [17 , 198] )->count() ) {
             $contract_view = 'Admin.totalfactoritem.layouts.contractGhorfeOnline';
         } else {
             $contract_view = 'Admin.totalfactoritem.layouts.contract';
