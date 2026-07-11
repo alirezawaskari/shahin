@@ -10,46 +10,7 @@ use Illuminate\Support\Facades\File;
 
 class MediaLibraryHelper
 {
-    /**
-     * Resolve a temporary ajax upload (a MediaLibrary id produced by
-     * uploadPhotosTemporarily / the .file_upload_ajax handler) into a
-     * permanent path string under public/upload, mirroring the legacy
-     * Helper::moveImage() output so asset()/public_path() keep working.
-     *
-     * @param string|null $mediaId  MediaLibrary id from the hidden *_path field
-     * @param string $folder        sub-folder under upload/{Y}/{m}/ (e.g. 'service')
-     * @return string               e.g. /upload/2026/07/service/20260708_120000.jpg, or '' when nothing to persist
-     */
-    public static function persist(?string $mediaId, string $folder): string
-    {
-        if (empty($mediaId)) {
-            return '';
-        }
-
-        $media = MediaLibrary::find($mediaId);
-        if (!$media) {
-            return '';
-        }
-
-        $source = $media->getFirstMediaPath('images');
-        if (!$source || !file_exists($source)) {
-            return '';
-        }
-
-        $datePath   = ($media->created_at ?? now())->format('Y/m');
-        $relativeDir = 'upload/' . $datePath . '/' . $folder;
-        $destDir     = public_path($relativeDir);
-
-        if (!is_dir($destDir)) {
-            File::makeDirectory($destDir, 0777, true, true);
-        }
-
-        $filename = basename($source);
-        File::copy($source, $destDir . '/' . $filename);
-
-        return '/' . $relativeDir . '/' . $filename;
-    }
-
+   
     /**
      * Move a temporary ajax upload (a MediaLibrary id from the hidden *_path
      * field) into a model's own Spatie media collection.
@@ -70,13 +31,21 @@ class MediaLibraryHelper
             return;
         }
 
-        $temp = MediaLibrary::find($tempId);
-        if (!$temp) {
+        // $tempId is the Spatie Media row id (the "media_id" the ajax upload returns).
+        $tempMedia = Media::find($tempId);
+        if (!$tempMedia) {
             return;
         }
 
-        $tempMedia = $temp->getFirstMedia('images');
-        $absolutePath = $tempMedia ? $tempMedia->getPath() : null;
+        // The temp holder that owns this media (needed for temp cleanup). Guard that
+        // it's a genuine ajax-temp upload (MediaLibrary/'images') so a caller can never
+        // smuggle a model's permanent media id in here and have it moved/deleted.
+        $temp = $tempMedia->model;
+        if (!($temp instanceof MediaLibrary) || $tempMedia->collection_name !== 'images') {
+            return;
+        }
+
+        $absolutePath = $tempMedia->getPath();
 
         if ($absolutePath && is_file($absolutePath)) {
             // Optimize (cap the longest side to 2560px + recompress) so the stored file

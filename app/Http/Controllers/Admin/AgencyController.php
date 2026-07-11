@@ -10,6 +10,7 @@ use App\Models\Province;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\AgencyCollection;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -81,21 +82,13 @@ class AgencyController extends Controller
         User::createUser($request);
 
         $inputs = $request->all();
-        unset($inputs['urlimgmeli']);
-        unset($inputs['urlimgturnover']);
-
-
-        if($request->urlimgmeli)
-        {
-
-            $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli,'document');
-        }
-		if($request->urlimgturnover)
-        {
-            $inputs['imgturnover'] = Helper::moveImage($request->urlimgturnover,'document');
-        }
+        // document images stored via Spatie (see attachTo below), never as column values
+        unset($inputs['urlimgmeli'], $inputs['urlimgturnover'], $inputs['imgmeli'], $inputs['imgturnover']);
 
         $agency = Agency::create($inputs);
+
+        MediaLibraryHelper::attachTo($agency, $request->urlimgmeli, 'imgmeli');
+        MediaLibraryHelper::attachTo($agency, $request->urlimgturnover, 'imgturnover');
 
         $agency->histories()->create([
             'user_id' => auth()->user()->id,
@@ -140,26 +133,18 @@ class AgencyController extends Controller
 
         $inputs = $request->all();
 
-		unset($inputs['urlimgmeli']);
-        unset($inputs['urlimgturnover']);
+        // document images handled by Spatie (attachTo replaces the old file); never column values
+        unset($inputs['urlimgmeli'], $inputs['urlimgturnover'], $inputs['imgmeli'], $inputs['imgturnover']);
         unset($inputs['description']);
 
 
 		$inputs['status'] = $request->description && $request->status == 0 ? 1 : $request->status;
         $inputs['expire_date'] = Helper::vertaToMiladi($request->expire_date);
 
-        if($request->urlimgmeli)
-        {
-            Helper::deleteImage($agency->urlimgmeli);
-            $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli,'document');
-        }
-		if($request->urlimgturnover)
-        {
-            Helper::deleteImage($agency->urlimgturnover);
-            $inputs['imgturnover'] = Helper::moveImage($request->urlimgturnover,'document');
-        }
-
         $agency->update($inputs);
+
+        MediaLibraryHelper::attachTo($agency, $request->urlimgmeli, 'imgmeli');
+        MediaLibraryHelper::attachTo($agency, $request->urlimgturnover, 'imgturnover');
 
         return redirect(route('agency.index'))->with([
             'agency_update' => 'success'

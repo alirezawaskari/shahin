@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\Province;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 
 class RepresentationController extends AdminController
 {
@@ -46,21 +47,15 @@ class RepresentationController extends AdminController
         ]);
         $inputs = $request->all();
 
-        if($request->urlstamp)
-        {
-            $inputs['stamp'] = Helper::moveImage($request->urlstamp,'document');
-        }
-        if($request->urlimage)
-        {
-            $inputs['image'] = Helper::moveImage($request->urlimage,'document');
-        }
-
+        // stamp/image stored via Spatie (see attachTo below), never as column values
         unset($inputs['service_id']);
         unset($inputs['sms_code']);
-        unset($inputs['urlstamp']);
-        unset($inputs['urlimage']);
+        unset($inputs['urlstamp'], $inputs['urlimage'], $inputs['stamp'], $inputs['image']);
 
         $representation = Representation::create($inputs);
+
+        MediaLibraryHelper::attachTo($representation, $request->urlstamp, 'stamp');
+        MediaLibraryHelper::attachTo($representation, $request->urlimage, 'image');
 
         $representation->services()->sync($request->input('service_id'));
 
@@ -109,24 +104,16 @@ class RepresentationController extends AdminController
         ]);
         $inputs = $request->all();
 
-
-        if($request->urlstamp)
-        {
-            Helper::deleteImage($representation->stamp);
-            $inputs['stamp'] = Helper::moveImage($request->urlstamp,'document');
-        }
-        if($request->urlimage)
-        {
-            Helper::deleteImage($representation->image);
-            $inputs['image'] = Helper::moveImage($request->urlimage,'document');
-        }
-
+        // stamp/image handled by Spatie (attachTo replaces the old file); never column values
         unset($inputs['service_id']);
         unset($inputs['sms_code']);
-        unset($inputs['urlstamp']);
-        unset($inputs['urlimage']);
+        unset($inputs['urlstamp'], $inputs['urlimage'], $inputs['stamp'], $inputs['image']);
 
         $representation->update($inputs);
+
+        MediaLibraryHelper::attachTo($representation, $request->urlstamp, 'stamp');
+        MediaLibraryHelper::attachTo($representation, $request->urlimage, 'image');
+
         $representation->services()->sync($request->input('service_id'));
 
         $codes = [];

@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Resume extends Model
+class Resume extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     /**
      * @var array
      */
@@ -22,6 +26,17 @@ class Resume extends Model
     protected $casts = [
         'detail' => 'array',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        // resume file (pdf/image) — non-image files pass through the optimizer untouched
+        $this->addMediaCollection('resume')->useDisk('public')->singleFile();
+    }
+
+    public function getResumeAttribute(): string
+    {
+        return $this->getFirstMediaUrl('resume');
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

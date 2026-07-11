@@ -245,6 +245,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     // delete a Spatie media row by id (gallery images, etc.)
     Route::post('removeMedia', [AdminController::class,'removeMedia']);
 
+    // stream a media file inline by id (temp uploads live on the private `local`
+    // disk with no public url) — pdf renders in-browser, other types download.
+    Route::get('viewMedia/{id}', [AdminController::class,'viewMedia'])->name('viewMedia');
+
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
     Route::resource('workSample',WorkSampleController::class)->except(['show','destroy']);
@@ -949,6 +953,12 @@ Route::middleware('auth')->group(function () {
 Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily')
     ->middleware('throttle:60,1')
     ->name('uploadPhotosTemporarily');
+
+// Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard auth).
+// Scoped in the controller to temp holders only, so it can never serve a model's saved media.
+Route::get('/upload/view/{id}', 'Admin\AdminController@viewTempMedia')
+    ->middleware('throttle:120,1')
+    ->name('viewTempMedia');
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');

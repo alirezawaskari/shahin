@@ -5,10 +5,16 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Representation extends Model
+class Representation extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable;
+    use SoftDeletes , Sluggable, InteractsWithMedia;
+
+    /** Document images owned by the representation (logo/header image, stamp). */
+    const MEDIA_FIELDS = ['image', 'stamp'];
+
     /**
      * @var array
      */
@@ -21,6 +27,23 @@ class Representation extends Model
     protected $casts = [
         'sms_code' => 'array'
     ];
+
+    public function registerMediaCollections(): void
+    {
+        foreach (self::MEDIA_FIELDS as $field) {
+            $this->addMediaCollection($field)->useDisk('public')->singleFile();
+        }
+    }
+
+    public function getImageAttribute(): string
+    {
+        return $this->getFirstMediaUrl('image');
+    }
+
+    public function getStampAttribute(): string
+    {
+        return $this->getFirstMediaUrl('stamp');
+    }
     /**
      * Return the sluggable configuration array for this model.
      *

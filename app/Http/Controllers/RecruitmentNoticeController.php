@@ -129,9 +129,7 @@ class RecruitmentNoticeController extends Controller
         User::createUser($request);
         $user = User::where('phone',$request->phone)->first();
         $resume = $this->createResume($request);
-        if (!empty($request->resume_path)) {
-            $resume->update(['resume' => MediaLibraryHelper::persist($request->resume_path, 'resume')]);
-        }
+        MediaLibraryHelper::attachTo($resume, $request->resume_path, 'resume');
         $callcenter_roles = Role::select('id')->where('card_id' , 1)->get();
         $province = $recruitment_notice->province ? $recruitment_notice->province->name : 'استخدام کشوری (دورکاری)';
         $description = "جویای کار،
