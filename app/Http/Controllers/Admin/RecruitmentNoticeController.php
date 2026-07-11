@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\RecruitmentNoticeExport;
 use App\Exports\RecruitmentNoticExport;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\RecruitmentNoticeCollection;
 use App\Models\Province;
 use App\Models\RecruitmentNotice;
@@ -68,13 +69,10 @@ class RecruitmentNoticeController extends AdminController
             'description' => 'nullable|string',
         ]);
         $inputs = $request->all();
-        if($request->urlimage)
-        {
-            $inputs['image'] = Helper::moveImage($request->urlimage,'document');
-        }
-        unset($inputs['urlimage']);
+        unset($inputs['image'], $inputs['urlimage']);
 
         $recruitment_notice = RecruitmentNotice::create($inputs);
+        MediaLibraryHelper::attachTo($recruitment_notice, $request->urlimage, 'image');
         if(auth()->user()->admin_representation_id)
         {
             $recruitment_notice->update(['representation_id' => auth()->user()->admin_representation_id]);
@@ -110,14 +108,10 @@ class RecruitmentNoticeController extends AdminController
             'description' => 'nullable|string',
         ]);
         $inputs = $request->all();
-        if($request->urlimage)
-        {
-            Helper::deleteImage($recruitmentNotice->image);
-            $inputs['image'] = Helper::moveImage($request->urlimage,'document');
-        }
-        unset($inputs['urlimage']);
+        unset($inputs['image'], $inputs['urlimage']);
 
         $recruitmentNotice->update($inputs);
+        MediaLibraryHelper::attachTo($recruitmentNotice, $request->urlimage, 'image');
         return redirect()->back();
     }
 
@@ -128,6 +122,9 @@ class RecruitmentNoticeController extends AdminController
     public function destroy( RecruitmentNotice $recruitmentNotice, Request $request)
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
+            foreach ($recruitmentNotice->media as $media) {
+                MediaLibraryHelper::deleteMedia($media);
+            }
             $recruitmentNotice->delete();
             if ($request->ajax()) {
                 return response([

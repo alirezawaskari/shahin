@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BrandCollection;
 use App\Models\Brand;
@@ -66,6 +67,14 @@ class BrandController extends Controller
         //Brand request
         if($request->request_by == 1) {$request['request_by'] = \Auth::user()->id;$request['status']=0;}
 
+        // logo is always required; the registration form only for Iranian brands (type 0)
+        if (empty($request->logo_path)) {
+            return response(['status' => 'warning', 'message' => 'لطفا لوگوی برند را بارگذاری کنید']);
+        }
+        if ($request->type == 0 && empty($request->registration_form_path)) {
+            return response(['status' => 'warning', 'message' => 'لطفا برگه ثبت برند را بارگذاری کنید']);
+        }
+
         $same_brands = Brand::where('title',$request->title)->get();
         $count=0;
         foreach ($same_brands as $same_brand) {
@@ -75,20 +84,9 @@ class BrandController extends Controller
             $brand = Brand::create($request->all());
 
             if($request->type == 0){
-                $registration_form_path = $request->registration_form_path;
-                if(isset($registration_form_path)) {
-                    if (\File::exists(public_path($brand->registration_form))) \File::delete(public_path($brand->registration_form));
-                    $brand->registration_form = Helper::moveImage($registration_form_path,'brand');
-                    $brand->save();
-                }
+                MediaLibraryHelper::attachTo($brand, $request->registration_form_path, 'registration_form');
             }
-
-            $logo_path = $request->logo_path;
-            if(isset($logo_path)) {
-                if (\File::exists(public_path($brand->logo))) \File::delete(public_path($brand->logo));
-                $brand->logo = Helper::moveImage($logo_path,'brand');
-                $brand->save();
-            }
+            MediaLibraryHelper::attachTo($brand, $request->logo_path, 'logo');
 
             if(isset($request->category_id)){
                 $count_cat = $brand->categories()->where('category_id',$request->category_id)->count();
@@ -152,23 +150,20 @@ class BrandController extends Controller
         if($request->type == 0) $request['link'] = $request->link_zero;
         if($request->type == 1) $request['link'] = $request->link_one;
 
+        // logo required (keep existing or upload new); registration form for Iranian brands (type 0)
+        if (!$brand->getFirstMedia('logo') && empty($request->logo_path)) {
+            return back()->withErrors(['logo' => 'لطفا لوگوی برند را بارگذاری کنید'])->withInput();
+        }
+        if ($request->type == 0 && !$brand->getFirstMedia('registration_form') && empty($request->registration_form_path)) {
+            return back()->withErrors(['registration_form' => 'لطفا برگه ثبت برند را بارگذاری کنید'])->withInput();
+        }
+
         $brand->update($request->all());
 
         if($request->type == 0){
-            $registration_form_path = $request->registration_form_path;
-            if(isset($registration_form_path)) {
-                if (\File::exists(public_path($brand->registration_form))) \File::delete(public_path($brand->registration_form));
-                $brand->registration_form = Helper::moveImage($registration_form_path,'brand');
-                $brand->save();
-            }
+            MediaLibraryHelper::attachTo($brand, $request->registration_form_path, 'registration_form');
         }
-
-        $logo_path = $request->logo_path;
-        if(isset($logo_path)) {
-            if (\File::exists(public_path($brand->logo))) \File::delete(public_path($brand->logo));
-            $brand->logo = Helper::moveImage($logo_path,'brand');
-            $brand->save();
-        }
+        MediaLibraryHelper::attachTo($brand, $request->logo_path, 'logo');
 
         return redirect()->back()->with([
             'update' => 'success'
@@ -189,6 +184,9 @@ class BrandController extends Controller
             if($brand) {
                 foreach ($brand->categories()->get() as $item) {
                     $item->pivot->delete();
+                }
+                foreach ($brand->media as $media) {
+                    MediaLibraryHelper::deleteMedia($media);
                 }
                 $brand->delete();
                 return response([

@@ -8,8 +8,8 @@
 <div class="col-12">
     <div class="card"><br />
         <div class="card-body">
-            <form class="form-horizontal" method="post" action="{{route('category.update',$category->id)}}"
-                enctype="multipart/form-data">
+            <form class="form-horizontal" id="category-edit-form" method="post"
+                action="{{route('category.update',$category->id)}}" enctype="multipart/form-data">
                 {{csrf_field()}} {{ method_field('PATCH') }}
 
                 <div class="row">
@@ -78,9 +78,23 @@
                                     <div class="row align-items-center g-3">
                                         <div class="col-md-3 text-center">
                                             <label class="form-label d-block fw-bold">تصویر فعلی</label>
-                                            <img src="{{ $category->image_url }}" class="img-thumbnail shadow-sm"
-                                                style="width: 120px; height: 120px; object-fit: cover;"
-                                                alt="تصویر دسته‌بندی">
+                                            @php $imgMedia = $category->getFirstMedia('image'); @endphp
+                                            <div id="image_current" data-box-h="120">
+                                                @if($imgMedia)
+                                                <div class="div_remove_btn d-inline-block mb-2"
+                                                    id="media_{{ $imgMedia->id }}">
+                                                    <img src="{{ $imgMedia->getFullUrl() }}" class="rounded border"
+                                                        style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                                        alt="تصویر دسته‌بندی">
+                                                    <a data-id="{{ $imgMedia->id }}" title="حذف عکس"
+                                                        class="btn btn-sm remove_media_btn"><i
+                                                            class="fa fa-close"></i></a>
+                                                </div>
+                                                @else
+                                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                                                    style="height:120px;background:#f8f9fa;">بدون تصویر</div>
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">آپلود تصویر جدید</label>
@@ -95,7 +109,7 @@
                                                 </label>
                                             </div>
 
-                                            <input type="hidden" id="image" class="path" name="image_path" value="">
+                                            <input type="hidden" id="image_path" class="path" name="image_path" value="">
                                             @if($errors->has('image'))
                                             <span class="text-danger small">{{ $errors->first('image') }}</span>
                                             @endif
@@ -117,9 +131,23 @@
                                     <div class="row align-items-center g-3">
                                         <div class="col-md-3 text-center">
                                             <label class="form-label d-block fw-bold">تصویر فعلی</label>
-                                            <img src="{{ $category->icon_url }}" class="img-thumbnail shadow-sm"
-                                                style="width: 120px; height: 120px; object-fit: cover;"
-                                                alt="آیکن دسته‌بندی">
+                                            @php $iconMedia = $category->getFirstMedia('icon'); @endphp
+                                            <div id="icon_current" data-box-h="120">
+                                                @if($iconMedia)
+                                                <div class="div_remove_btn d-inline-block mb-2"
+                                                    id="media_{{ $iconMedia->id }}">
+                                                    <img src="{{ $iconMedia->getFullUrl() }}" class="rounded border"
+                                                        style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                                        alt="آیکن دسته‌بندی">
+                                                    <a data-id="{{ $iconMedia->id }}" title="حذف عکس"
+                                                        class="btn btn-sm remove_media_btn"><i
+                                                            class="fa fa-close"></i></a>
+                                                </div>
+                                                @else
+                                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                                                    style="height:120px;background:#f8f9fa;">بدون تصویر</div>
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">آپلود آیکن جدید</label>
@@ -134,7 +162,7 @@
                                                 </label>
                                             </div>
 
-                                            <input type="hidden" id="icon" class="path" name="icon_path" value="">
+                                            <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                             @if($errors->has('icon'))
                                             <span class="text-danger small">{{ $errors->first('icon') }}</span>
                                             @endif
@@ -143,7 +171,7 @@
                                                 فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
                                             </small>
                                         </div>
-                                        <div id="image_src" class="show disInline col-md-3"></div>
+                                        <div id="icon_src" class="show disInline col-md-3"></div>
                                     </div>
                                 </div>
                             </div>
@@ -217,7 +245,7 @@
 
                 @if($category->depth == 0 || $category->depth == 1)
                 <div id="gallerySection">
-                    <x-gallery-form :galleries="$category->galleries" />
+                    <x-media-gallery-form :owner="$category" />
                 </div> @endif
                 <hr />
                 <div class="row">
@@ -337,7 +365,7 @@
                 <br />
                 <div class="row">
                     <div class="col-12">
-                        <input type="submit" class="btn btn-success border-0" value="ویرایش">
+                        <span class="btn btn-success border-0" id="category-update-submit">ویرایش</span>
                     </div>
                 </div>
             </form>
@@ -346,5 +374,6 @@
 </div>
 @stop
 @section('js')
-<script src="{{ asset('assets/dashboard/js/site/category/categoryEdit.js') }}"></script>
+<script
+    src="{{ asset('assets/dashboard/js/site/category/categoryEdit.js') }}?v={{ filemtime(public_path('assets/dashboard/js/site/category/categoryEdit.js')) }}"></script>
 @stop

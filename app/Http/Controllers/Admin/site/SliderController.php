@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Representation;
 use App\Models\Slider;
@@ -80,10 +81,7 @@ class SliderController extends Controller
         );
         $request['type'] = 0;
         $slider = Slider::create($request->all());
-        if(isset( $request->image_path)) {
-            $slider->img = Helper::moveImage($request->image_path,'slider');
-            $slider->save();
-        }
+        MediaLibraryHelper::attachTo($slider, $request->image_path, 'img');
         if(auth()->user()->admin_representation_id)
         {
             $slider->update(['representation_id' => auth()->user()->admin_representation_id]);
@@ -109,10 +107,7 @@ class SliderController extends Controller
         );
         $request['type'] = 4;
         $slider = Slider::create($request->all());
-        if(isset( $request->image_path)) {
-            $slider->img = Helper::moveImage($request->image_path,'slider');
-            $slider->save();
-        }
+        MediaLibraryHelper::attachTo($slider, $request->image_path, 'img');
         if(auth()->user()->admin_representation_id)
         {
             $slider->update(['representation_id' => auth()->user()->admin_representation_id]);
@@ -159,14 +154,7 @@ class SliderController extends Controller
 
         $s = Slider::find($id);
         $s->update($request->all());
-
-        if(isset( $request->image_path)) {
-            if (\File::exists(public_path($s->image))) {
-                \File::delete(public_path($s->image));
-            }
-            $s->img = Helper::moveImage($request->image_path,'slider');
-            $s->save();
-        }
+        MediaLibraryHelper::attachTo($s, $request->image_path, 'img');
         return redirect()->back();
         return redirect()
             ->route('slider.index')
@@ -182,8 +170,8 @@ class SliderController extends Controller
     {
         if ($id) {
             $slider = Slider::find($id);
-            if(\File::exists(public_path($slider->img))){
-                \File::delete(public_path($slider->img));
+            foreach ($slider->media as $media) {
+                MediaLibraryHelper::deleteMedia($media);
             }
             $slider->delete();
             return redirect()
@@ -203,8 +191,8 @@ class SliderController extends Controller
         if (isset($request->slider_id)) {
             $slider = Slider::find($request->slider_id);
             if ($slider) {
-                if (\File::exists(public_path($slider->image))) {
-                    \File::delete(public_path($slider->image));
+                foreach ($slider->media as $media) {
+                    MediaLibraryHelper::deleteMedia($media);
                 }
                 $slider->delete();
             }

@@ -3,6 +3,7 @@
 namespace App\View\Composers;
 
 use App\Models\Representation;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 
 class RepresentationsComposer

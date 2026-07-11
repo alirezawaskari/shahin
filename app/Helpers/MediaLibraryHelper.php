@@ -6,31 +6,291 @@ use App\Models\Media;
 use App\Models\MediaLibrary;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 
-class MediaLibraryHelper {
+class MediaLibraryHelper
+{
     /**
-    * @param UploadedFile $image
-    * @param int $userId
-    * @return MediaLibrary
-    * @throws \RuntimeException
-    */
-    public static function uploadImage( UploadedFile $image, int $userId ): MediaLibrary {
-        $filename = now()->format( 'Ymd_His' ) . '.' . strtolower( $image->getClientOriginalExtension() );
+     * Resolve a temporary ajax upload (a MediaLibrary id produced by
+     * uploadPhotosTemporarily / the .file_upload_ajax handler) into a
+     * permanent path string under public/upload, mirroring the legacy
+     * Helper::moveImage() output so asset()/public_path() keep working.
+     *
+     * @param string|null $mediaId  MediaLibrary id from the hidden *_path field
+     * @param string $folder        sub-folder under upload/{Y}/{m}/ (e.g. 'service')
+     * @return string               e.g. /upload/2026/07/service/20260708_120000.jpg, or '' when nothing to persist
+     */
+    public static function persist(?string $mediaId, string $folder): string
+    {
+        if (empty($mediaId)) {
+            return '';
+        }
 
-        $mediaLibrary = MediaLibrary::create( [
+        $media = MediaLibrary::find($mediaId);
+        if (!$media) {
+            return '';
+        }
+
+        $source = $media->getFirstMediaPath('images');
+        if (!$source || !file_exists($source)) {
+            return '';
+        }
+
+        $datePath   = ($media->created_at ?? now())->format('Y/m');
+        $relativeDir = 'upload/' . $datePath . '/' . $folder;
+        $destDir     = public_path($relativeDir);
+
+        if (!is_dir($destDir)) {
+            File::makeDirectory($destDir, 0777, true, true);
+        }
+
+        $filename = basename($source);
+        File::copy($source, $destDir . '/' . $filename);
+
+        return '/' . $relativeDir . '/' . $filename;
+    }
+
+    /**
+     * Move a temporary ajax upload (a MediaLibrary id from the hidden *_path
+     * field) into a model's own Spatie media collection.
+     *
+     * The temp file lives on the private `local` disk and the model's media on
+     * `public`, so this is a cross-disk copy — which works on both Linux and
+     * Windows (same-disk copies fail on Windows). The temp record is removed
+     * afterwards.
+     *
+     * @param \Spatie\MediaLibrary\HasMedia $model
+     * @param string|null $tempId          MediaLibrary id
+     * @param string $collection           target media collection on $model
+     * @param array $customProperties      optional media custom properties (e.g. title, index)
+     */
+    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): void
+    {
+        if (empty($tempId)) {
+            return;
+        }
+
+        $temp = MediaLibrary::find($tempId);
+        if (!$temp) {
+            return;
+        }
+
+        $tempMedia = $temp->getFirstMedia('images');
+        $absolutePath = $tempMedia ? $tempMedia->getPath() : null;
+
+        if ($absolutePath && is_file($absolutePath)) {
+            // Optimize (cap the longest side to 2560px + recompress) so the stored file
+            // stays under the size limit, keeping the original format and any transparency.
+            $extension = pathinfo($tempMedia->file_name, PATHINFO_EXTENSION);
+            $bytes = self::optimizeToUnderLimit($absolutePath, $extension);
+            if ($bytes === false || $bytes === '') {
+                \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo could not read temp file: ' . $absolutePath);
+                return; // keep the temp so nothing is lost
+            }
+
+            // Physically delete the file(s) a new upload replaces, so nothing is orphaned
+            // on disk even when the user didn't press the remove button first. Native delete
+            // because Spatie's own delete() deep-lists the media dir (fails on Windows/Apache).
+            //   - single-file collection  -> clear the whole collection (image, icon, …)
+            //   - slot-based collection    -> clear only the media in this slot (has an 'index')
+            //   - append collection        -> keep everything (portfolio: genuinely additive)
+            if (self::isSingleFileCollection($model, $collection)) {
+                foreach ($model->getMedia($collection) as $old) {
+                    self::deleteMedia($old);
+                }
+                $model->unsetRelation('media');
+            } elseif (array_key_exists('index', $customProperties)) {
+                $slotIndex = (int) $customProperties['index'];
+                foreach ($model->getMedia($collection) as $old) {
+                    if ((int) $old->getCustomProperty('index') === $slotIndex) {
+                        self::deleteMedia($old);
+                    }
+                }
+                $model->unsetRelation('media');
+            }
+
+            try {
+                // Plain PHP read + addMediaFromString: avoids Flysystem's disk-to-disk
+                // streaming which fails under Apache/Windows.
+                $media = $model->addMediaFromString($bytes)
+                    ->usingFileName($tempMedia->file_name)
+                    ->withCustomProperties($customProperties)
+                    ->toMediaCollection($collection);
+
+                // Guarantee the file physically exists: Spatie's Flysystem write can
+                // silently no-op on Apache/Windows (media row created, file missing),
+                // so write it with native PHP ops as a fallback.
+                $target = $media->getPath();
+                if (!is_file($target)) {
+                    \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($target));
+                    \Illuminate\Support\Facades\File::put($target, $bytes);
+                }
+            } catch (\Throwable $e) {
+                // Keep the temp upload so the image is NOT lost — the user can retry.
+                \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo attach failed: ' . $e->getMessage());
+                return;
+            }
+        }
+
+        // Clean up the temp with native file/DB ops (Spatie's delete() deep-lists the
+        // media directory via RecursiveDirectoryIterator, which fails on Windows/Apache).
+        self::forceDeleteTemp($temp, $absolutePath);
+    }
+
+    /**
+     * Remove a temporary MediaLibrary + its media file without triggering Spatie's
+     * filesystem cleanup (which does a recursive directory listing that breaks on Windows).
+     */
+    private static function forceDeleteTemp(MediaLibrary $temp, ?string $filePath = null): void
+    {
+        try {
+            if ($filePath && is_file($filePath)) {
+                @unlink($filePath);
+            }
+            Media::where('model_type', MediaLibrary::class)->where('model_id', $temp->id)->delete();
+            MediaLibrary::where('id', $temp->id)->delete();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::forceDeleteTemp failed: ' . $e->getMessage());
+        }
+    }
+
+    /** Longest side (px) an optimized image is allowed to keep. */
+    public const MAX_IMAGE_DIMENSION = 2560;
+
+    /** Target ceiling for a stored image file. */
+    public const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
+
+    /**
+     * Delete a single media (file + DB row) with native ops, cross-platform safe.
+     * Spatie's $media->delete() deep-lists the media directory (RecursiveDirectoryIterator)
+     * which fails under Windows/Apache, so we unlink the file and drop the row directly.
+     */
+    public static function deleteMedia($media): void
+    {
+        if (!$media) {
+            return;
+        }
+        try {
+            $path = $media->getPath();
+            if ($path && is_file($path)) {
+                @unlink($path);
+            }
+        } catch (\Throwable $e) {
+            // ignore path resolution issues; still drop the row below
+        }
+        Media::where('id', $media->id)->delete();
+    }
+
+    /** Whether $collection is declared singleFile() on the model. */
+    private static function isSingleFileCollection(\Spatie\MediaLibrary\HasMedia $model, string $collection): bool
+    {
+        foreach ($model->getRegisteredMediaCollections() as $registered) {
+            if ($registered->name === $collection) {
+                return (bool) $registered->singleFile;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return the bytes to store for an uploaded image, resized/recompressed so the file
+     * fits within MAX_IMAGE_BYTES and no side exceeds MAX_IMAGE_DIMENSION. The original
+     * format is preserved (jpg/png/webp) and transparency is kept (GD alpha handling).
+     * Vector (svg) and animated (gif) files are returned untouched.
+     *
+     * @return string|false  optimized bytes, original bytes when nothing to do, or false on read failure
+     */
+    private static function optimizeToUnderLimit(string $sourcePath, string $extension)
+    {
+        $ext = strtolower($extension);
+        $original = @file_get_contents($sourcePath);
+        if ($original === false) {
+            return false;
+        }
+
+        // Only raster formats GD can safely re-encode; keep svg (vector) and gif (animation) as-is.
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+            return $original;
+        }
+
+        $size = @getimagesize($sourcePath);
+        $w = $size[0] ?? 0;
+        $h = $size[1] ?? 0;
+        $overSize = strlen($original) > self::MAX_IMAGE_BYTES;
+        $overDim  = $w > self::MAX_IMAGE_DIMENSION || $h > self::MAX_IMAGE_DIMENSION;
+
+        // already within both limits -> keep original bytes untouched (no quality loss)
+        if (!$overSize && !$overDim) {
+            return $original;
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'opt_');
+        @unlink($tmp);
+        $tmp .= '.' . $ext;
+
+        $isLossy  = in_array($ext, ['jpg', 'jpeg', 'webp'], true);
+        $quality  = $isLossy ? 82 : 90;
+        $dimSteps = [self::MAX_IMAGE_DIMENSION, 2200, 1900, 1600, 1300, 1100, 900];
+
+        $best = null;
+        try {
+            foreach ($dimSteps as $maxSide) {
+                $img = \Spatie\Image\Image::load($sourcePath);
+                // cap the longest side, preserving aspect ratio (downscale only)
+                if ($img->getWidth() >= $img->getHeight()) {
+                    if ($img->getWidth() > $maxSide) {
+                        $img->width($maxSide);
+                    }
+                } elseif ($img->getHeight() > $maxSide) {
+                    $img->height($maxSide);
+                }
+                $img->quality($quality)->save($tmp);
+
+                $bytes = @file_get_contents($tmp);
+                if ($bytes !== false && $bytes !== '') {
+                    $best = $bytes; // steps only get smaller, so keep the latest as best-so-far
+                    if (strlen($bytes) <= self::MAX_IMAGE_BYTES) {
+                        break; // largest variant that still fits under the ceiling
+                    }
+                }
+                if ($isLossy && $quality > 55) {
+                    $quality -= 7;
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper image optimize failed: ' . $e->getMessage());
+        } finally {
+            @unlink($tmp);
+        }
+
+        return ($best !== null && $best !== '') ? $best : $original;
+    }
+
+    /**
+     * @param UploadedFile $image
+     * @param int $userId
+     * @return MediaLibrary
+     * @throws \RuntimeException
+     */
+    public static function uploadImage(UploadedFile $image, ?int $userId = null): MediaLibrary
+    {
+        // include a unique suffix so rapid multi-uploads in the same second don't collide
+        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . strtolower($image->getClientOriginalExtension());
+
+        $mediaLibrary = MediaLibrary::create([
             'title'   => $filename,
             'alt'     => $filename,
             'user_id' => $userId,
-        ] );
+        ]);
 
         try {
-            $mediaLibrary->addMedia( $image )
-            ->usingFileName( $filename )
-            ->preservingOriginal()
-            ->toMediaCollection( 'images' );
-        } catch ( \Exception $e ) {
+            $mediaLibrary->addMedia($image)
+                ->usingFileName($filename)
+                ->preservingOriginal()
+                ->toMediaCollection('images');
+        } catch (\Exception $e) {
             $mediaLibrary->delete();
-            throw new \RuntimeException( 'Failed to upload image: ' . $e->getMessage() );
+            throw new \RuntimeException('Failed to upload image: ' . $e->getMessage());
         }
 
         return $mediaLibrary;

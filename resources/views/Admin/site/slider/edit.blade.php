@@ -46,16 +46,16 @@
                     <div class="col-12 col-md-12 mb-5">
                         <label> عکس ذخیره شده :</label>
                         <div class="width30 marginAuto">
-                            <a href="{{asset($slider->img)}}"> <img src="{{$slider->img}}" class="border-radius5" width="200px"></a>
+                            @include('Admin.partials.currentMedia', ['owner' => $slider, 'field' => 'img', 'required' => true])
                         </div>
                         <label> تغییر عکس :</label>
-                        <label for="image" class="custom-file-upload">
+                        <label for="image" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                         </label>
-                        <input id="image" class="file-upload file_upload_ajax mb-5" type="file"
+                        <input id="image" class="d-none file-upload file_upload_ajax mb-5" type="file"
                                name="image"/>
                         <div id="image_src" class="show"></div>
-                        <input type="hidden" id="image" class="path" name="image_path" value="">
+                        <input type="hidden" id="image_path" class="path" name="image_path" value="">
                         @if($errors->has('image'))
                             <span class="help-block sub-error  "> {{$errors->first('image')}} </span>
                         @endif

@@ -242,6 +242,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     // درگاه انتخابی
     Route::resource('gateway', GatewayController::class);
 
+    // delete a Spatie media row by id (gallery images, etc.)
+    Route::post('removeMedia', [AdminController::class,'removeMedia']);
+
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
     Route::resource('workSample',WorkSampleController::class)->except(['show','destroy']);
@@ -938,8 +941,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/ghorfeCatego/{ghorfeId}', [GhorfeOnlineListController::class,'getGhofeCategories'])->name('ghorfeCatego');
     Route::get('/ghorfeCategoyDetail/{categoryId}', [GhorfeOnlineListController::class,'ghofeCategoryDetail'])->name('ghorfeCategoryDetail');
     Route::post('/useravatar', 'ProfileController@useravatar')->name('useravatar');
-    Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily');
 });
+
+// Public temporary upload endpoint (used by the .file_upload_ajax / multipleImages widgets on
+// both dashboard and guest-facing site forms). Throttled to mitigate abuse; the controller
+// validates file type/size server-side.
+Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily')
+    ->middleware('throttle:60,1')
+    ->name('uploadPhotosTemporarily');
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');

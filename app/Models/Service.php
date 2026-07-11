@@ -8,10 +8,65 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
-class Service extends Model implements AuditableContract
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class Service extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
-    use Sluggable,SoftDeletes;
+    use Sluggable,SoftDeletes,InteractsWithMedia;
+
+    /** Media collections owned directly by the service (Spatie native). */
+    const MEDIA_FIELDS = ['image', 'icon', 'img_box_1', 'thumb', 'image_app'];
+
+    /** Multi-image gallery collections (data-mining / homepage slider). */
+    const GALLERY_COLLECTIONS = [
+        'gallery_horizontal' => 4, // max horizontal banners
+        'gallery_vertical'   => 2, // max vertical banners
+    ];
+
+    public function registerMediaCollections(): void
+    {
+        foreach (self::MEDIA_FIELDS as $field) {
+            $this->addMediaCollection($field)->useDisk('public')->singleFile();
+        }
+        foreach (array_keys(self::GALLERY_COLLECTIONS) as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public');
+        }
+        // portfolio / work-samples: unlimited multi-image collection
+        $this->addMediaCollection('portfolio')->useDisk('public');
+    }
+
+    /** The media occupying gallery slot $index in $collection, if any. */
+    public function gallerySlot(string $collection, int $index)
+    {
+        return $this->getMedia($collection)
+            ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
+    }
+
+    public function getImageAttribute(): string
+    {
+        return $this->getFirstMediaUrl('image');
+    }
+
+    public function getIconAttribute(): string
+    {
+        return $this->getFirstMediaUrl('icon');
+    }
+
+    public function getImgBox1Attribute(): string
+    {
+        return $this->getFirstMediaUrl('img_box_1');
+    }
+
+    public function getThumbAttribute(): string
+    {
+        return $this->getFirstMediaUrl('thumb');
+    }
+
+    public function getImageAppAttribute(): string
+    {
+        return $this->getFirstMediaUrl('image_app');
+    }
 
     /**
      * @var string[]

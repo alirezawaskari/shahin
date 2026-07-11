@@ -119,7 +119,12 @@ function updateService(formId){
                     button: "باشه"
                 });
 
-                if(response.data.type == 'asked_question'){
+                // in-place media update for image / gallery saves (no reload)
+                if (response.media && typeof applySavedMedia === 'function') {
+                    applySavedMedia(response.media);
+                }
+
+                if(response.data && response.data.type == 'asked_question'){
                     addNewAskedQuestionToList(response.data.data)
                 }
             } else {

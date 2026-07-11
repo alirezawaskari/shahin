@@ -14,7 +14,7 @@
 <body>
     <div class="agency">
         <div class="header position-relative d-md-flex justify-content-md-center flex-md-column align-items-md-center">
-            <img src="{{ asset($singleWebPage->image) }}" width="100%" class="h-md-5 h-5">
+            <img src="{{ $singleWebPage->image }}" width="100%" class="h-md-5 h-5">
             <div class="logo bg-white position-absolute d-flex justify-content-end flex-column align-items-center">
                 <img src="{{ asset('assets/site/images/footer-logo.png') }}" alt="شبکه خدمات رفاهی ، درمانی و اقساطی لاله" width="150px">
             </div>
@@ -37,7 +37,7 @@
                                     </a>
                                 </div>
                                 <div class="col-12">
-                                    <img src="{{ asset($service->image_app) }}" alt="{{ $service->title }}"
+                                    <img src="{{ $service->image_app }}" alt="{{ $service->title }}"
                                         width="100%">
                                 </div>
                                 <div class="col-12 my-3 mx-2">

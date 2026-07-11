@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleCollection;
 use App\Models\Article;
@@ -68,12 +69,12 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $request->validate(['title' => 'required','slug_title' => 'required', 'category_article_id' => 'required',
-            'old_image' => 'required','description'=>'required','summary'=>'required'],
+            'image_path' => 'required','description'=>'required','summary'=>'required'],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
                 'slug_title.required' => 'لطفا عنوان  url مرتبط با این مقاله را وارد کنید',
                 'category_article_id.required' => 'لطفا دسته بندی را وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید',
+                'image_path.required' => 'لطفا عکس را وارد کنید',
                 'description.required' => 'لطفا متن را وارد کنید',
                 'summary.required' => 'لطفا خلاصه را وارد کنید',
             ]
@@ -83,10 +84,7 @@ class ArticleController extends Controller
         $article = Article::create($request->all());
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
         $article->representations()->sync($representations);
-        if(isset($request->image_path)) {
-            $article->old_image = Helper::moveImage($request->image_path,'article');
-            $article->save();
-        }
+        MediaLibraryHelper::attachTo($article, $request->image_path, 'old_image');
 
 //        if($request->tag != '')) $article->tag(['tag_name'=>$request->tag]);
 
@@ -140,13 +138,7 @@ class ArticleController extends Controller
         $article->update($request->all());
         !auth()->user()->admin_representation_id ? $article->representations()->sync($request->input('representation_id')) : '';
 
-        if(isset( $request->image_path)) {
-            if (\File::exists(public_path($article->image))) {
-                \File::delete(public_path($article->image));
-            }
-            $article->old_image = Helper::moveImage($request->image_path,'article');
-            $article->save();
-        }
+        MediaLibraryHelper::attachTo($article, $request->image_path, 'old_image');
 
 //        $list_tags_article=$article->tagNames();
 //        $request_tags=$request->tag;
@@ -181,8 +173,8 @@ class ArticleController extends Controller
     {
         if ($id) {
             $article = Article::find($id);
-            if(\File::exists(public_path($article->image))){
-                \File::delete(public_path($article->image));
+            foreach ($article->media as $media) {
+                MediaLibraryHelper::deleteMedia($media);
             }
             $article->delete();
             return response([

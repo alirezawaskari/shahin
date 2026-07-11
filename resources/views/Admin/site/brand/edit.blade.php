@@ -57,22 +57,20 @@
                 </div>
 
                 <div class="row type_zero_box mb-5" style="display: none;">
-                    @if($brand->registration_form != null)
-                        <div class="col-12 col-md-6 disInline mb-5">
-                            <label>برگه ثبت برند ذخیره شده :</label>
-                            <img src="{{$brand->registration_form}}" class="border-radius5" width="80px">
-                        </div>
-                    @endif
+                    <div class="col-12 col-md-6 disInline mb-5">
+                        <label>برگه ثبت برند ذخیره شده :</label>
+                        @include('Admin.partials.currentMedia', ['owner' => $brand, 'field' => 'registration_form', 'required' => true])
+                    </div>
 
                     <div class="col-12 col-md-6 mb-5 disInline">
                         <label>برگه ثبت برند:</label><br/>
-                        <label for="registration_form" class="custom-file-upload">
+                        <label for="registration_form" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                         </label>
-                        <input id="registration_form" class="file-upload file_upload_ajax" type="file"
+                        <input id="registration_form" class="d-none file-upload file_upload_ajax" type="file"
                                name="registration_form"/>
                         <div id="registration_form_src" class="show disInline"></div>
-                        <input type="hidden" id="registration_form" class="path" name="registration_form_path" value="">
+                        <input type="hidden" id="registration_form_path" class="path" name="registration_form_path" value="">
                         @if($errors->has('registration_form'))
                             <span class="help-block sub-error  "> {{$errors->first('registration_form')}} </span>
                         @endif
@@ -105,15 +103,15 @@
                 <div class="row">
                     <div class="col-12 col-md-6 disInline mb-5">
                         <label>لوگوی برند ذخیره شده :</label>
-                        <img src="{{$brand->logo}}" class="border-radius5" width="80px">
+                        @include('Admin.partials.currentMedia', ['owner' => $brand, 'field' => 'logo', 'required' => true])
                     </div>
                     <div class="col-12 col-md-6 mb-5">
                         <label>لوگوی برند :</label><br/>
-                        <label for="logo" class="custom-file-upload"><i class="fa fa-cloud-upload"></i>
+                        <label for="logo" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-cloud-upload"></i>
                             بارگذاری تصویر</label>
-                        <input id="logo" class="file-upload file_upload_ajax" type="file" name="logo"/>
+                        <input id="logo" class="d-none file-upload file_upload_ajax" type="file" name="logo"/>
                         <div id="logo_src" class="show disInline"></div>
-                        <input type="hidden" id="logo" class="path" name="logo_path" value="">
+                        <input type="hidden" id="logo_path" class="path" name="logo_path" value="">
                         @if($errors->has('logo'))
                             <span class="help-block sub-error  "> {{$errors->first('logo')}} </span>
                         @endif

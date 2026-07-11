@@ -14,18 +14,20 @@
             >
                 @csrf
                 <h3 class="text-center">ایجاد درگاه</h3>
+                @include('Admin.layouts.errors')
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">نام درگاه</label>
-                        <input type="text" name="name" class="form-control" required>
+                        <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">نام فارسی درگاه</label>
-                        <input type="text" name="fa_name" class="form-control" required>
+                        <input type="text" name="fa_name" class="form-control" value="{{ old('fa_name') }}" required>
                     </div>
                     <div class="col-12  card-body">
                         <div id="logo_src" class="show">
-                            <img class="card-img-top" width="120" height="80">
+                            <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                                style="height:120px;background:#f8f9fa;">بدون تصویر</div>
                         </div>
                         <label>لوگو</label>
                         <br>
@@ -36,13 +38,13 @@
                         <input name="logo" type="file" id="logo"
                                class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                                accept=".jpg,.jpeg,.png">
-                        <input type="hidden" id="logo" class="path" name="urllogo">
+                        <input type="hidden" id="logo_path" class="path" name="urllogo">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label">وضعیت</label>
                         <select name="status" class="form-control">
-                            <option value="1">فعال</option>
-                            <option value="0">غیرفعال</option>
+                            <option value="1" {{ old('status') === '1' ? 'selected' : '' }}>فعال</option>
+                            <option value="0" {{ old('status') === '0' ? 'selected' : '' }}>غیرفعال</option>
                         </select>
                     </div>
                 </div>

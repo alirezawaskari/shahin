@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
@@ -158,21 +159,9 @@ class CategoryController extends Controller
 
     private function updateCategoryImages(Request $request, Category $category)
     {
-        if (isset($request->image_path)) {
-            if (File::exists(public_path($category->image_category_path))) {
-                File::delete(public_path($category->image_category_path));
-            }
-            $category->image_category_id = $request->image_path;
-
-            $category->save();
-        }
-        if (isset($request->icon_path)) {
-            if (File::exists(public_path($category->icon_category_path))) {
-                File::delete(public_path($category->icon_category_path));
-            }
-            $category->icon_category_id = $request->icon_path;
-            $category->save();
-        }
+        // attach the temporary ajax uploads into the category's own Spatie collections
+        MediaLibraryHelper::attachTo($category, $request->input('image_path'), 'image');
+        MediaLibraryHelper::attachTo($category, $request->input('icon_path'), 'icon');
     }
 
 
