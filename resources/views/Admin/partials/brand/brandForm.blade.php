@@ -53,7 +53,7 @@
 <div class="row type_zero_box" style="display: none;">
     <div class="col-12 col-md-6 mb-5 disInline">
         <label>برگه ثبت برند<span class="required">*</span> :</label>
-        <p class="grayColor">برگه ثبت سند را با حجم کمتر از 700 مگا بایت و فرمت PNG ویا JPEG وارد نمایید.</p>
+        <p class="grayColor">برگه ثبت سند را با حجم کمتر از ۶ مگابایت و فرمت JPG یا PNG وارد کنید</p>
     </div>
 
     <div class="col-12 col-md-5 mb-5 disInline">

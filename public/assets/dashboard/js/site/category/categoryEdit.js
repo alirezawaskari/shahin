@@ -45,7 +45,7 @@ const primaryText = document.getElementById('primaryText');
 const secondaryText = document.getElementById('secondaryText');
 
 
-document.getElementById('serviceSelect').addEventListener('change', function () {
+document.getElementById('serviceSelect')?.addEventListener('change', function () {
     let serviceId = this.value;
     let itemSelect = document.getElementById('serviceItemSelect');
 
@@ -78,6 +78,44 @@ $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
+});
+
+// ajax save for the category edit form (no full-page form redirect)
+$('body').on('click', '#category-update-submit', function (e) {
+    e.preventDefault();
+    var $btn = $(this);
+    if ($btn.hasClass('disabled')) return;
+    $btn.addClass('disabled').css('opacity', 0.6);
+
+    var form = $('#category-edit-form');
+    $.ajax({
+        url: form.attr('action'),
+        type: 'POST', // form carries _method=PATCH
+        data: form.serialize(),
+        success: function (res) {
+            var msg = (res && res.messages && res.messages[0]) ? res.messages[0] : 'با موفقیت ویرایش شد';
+            if (typeof toastr !== 'undefined') {
+                toastr.success(msg);
+            } else if (typeof swal !== 'undefined') {
+                swal(msg, { icon: 'success', button: 'باشه' });
+            }
+            // update the UI in place (no reload): fill/replace image, icon and gallery slots
+            if (typeof applySavedMedia === 'function') {
+                applySavedMedia(res && res.media);
+            }
+            $btn.removeClass('disabled').css('opacity', 1);
+        },
+        error: function (xhr) {
+            $btn.removeClass('disabled').css('opacity', 1);
+            var msg = 'ویرایش انجام نشد، دوباره تلاش کنید.';
+            if (typeof toastr !== 'undefined') {
+                toastr.error(msg);
+            } else if (typeof swal !== 'undefined') {
+                swal('خطا', msg, 'error');
+            }
+            console.error('category update failed:', xhr.status, xhr.responseText);
+        }
+    });
 });
 
 $('#categorySelect, #serviceSelect').change(function () {

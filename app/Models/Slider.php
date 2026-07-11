@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Slider extends Model
+class Slider extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
 
     /**
      * @var string[]
@@ -17,6 +19,16 @@ class Slider extends Model
      * @var string[]
      */
     protected $fillable=['img','title','link','type','category_id','representation_id'];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('img')->useDisk('public')->singleFile();
+    }
+
+    public function getImgAttribute(): string
+    {
+        return $this->getFirstMediaUrl('img');
+    }
     const TYPE = [
         '0' => 'pc',
         '4' => 'موبایل',

@@ -35,17 +35,18 @@ class GatewayController extends Controller
         $request->validate([
             'fa_name' => ['required', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'logo' => ['required', 'mimes:jpeg,jpg,png', 'max:20000'],
+            'urllogo' => ['required'],
             'status' => ['required', 'boolean']
+        ], [
+            'urllogo.required' => 'لطفا لوگو را بارگذاری کنید',
         ]);
         $create = $request->only([
             'name',
             'fa_name',
             'status'
         ]);
-        if ($request->logo)
-            $create['logo'] = MediaLibraryHelper::uploadImage($request->logo, 'gateway');
-        Gateway::create($create);
+        $gateway = Gateway::create($create);
+        MediaLibraryHelper::attachTo($gateway, $request->urllogo, 'logo');
         alert()->success('موفق', 'درگاه با موفقیت اضافه شد.');
         return redirect(route('gateway.index') );
     }
@@ -61,7 +62,7 @@ class GatewayController extends Controller
         $request->validate([
             'fa_name' => ['nullable', 'string', 'max:255'],
             'name' => ['nullable', 'string', 'max:255'],
-            'logo' => ['nullable', 'mimes:jpeg,jpg,png', 'max:20000'],
+            'urllogo' => ['nullable'],
             'status' => ['nullable', 'boolean']
         ]);
         $update = $request->only([
@@ -69,12 +70,8 @@ class GatewayController extends Controller
             'fa_name',
             'status'
         ]);
-        if ($request->logo){
-            if(File::exists(public_path($gateway->logo)))
-                File::delete(public_path($gateway->logo));
-            $update['logo'] = MediaLibraryHelper::uploadImage($request->logo, 'gateway');
-        }
         $gateway->update($update);
+        MediaLibraryHelper::attachTo($gateway, $request->urllogo, 'logo');
         alert()->success('موفق', 'درگاه با موفقیت به روز شد');
         return redirect(route('gateway.index') );
     }

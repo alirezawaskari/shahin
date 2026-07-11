@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NewsCollection;
 use App\Models\CategoryNews;
@@ -57,20 +58,18 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required','subject'=> 'required', 'image' => 'required'],
+        $request->validate(['title' => 'required','subject'=> 'required', 'image_path' => 'required'],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید',
+                'image_path.required' => 'لطفا عکس را وارد کنید',
                 'subject.required' => 'لطفا موضوع خبر را وارد کنید',
             ]);
 
         $request['user_id'] = $request->user()->id;
         $news = News::create($request->all());
 
-        if(isset($request->image_path)) {
-            $news->image = Helper::moveImage($request->image_path,'news');
-            $news->save();
-        }
+        // move the temp ajax upload into the news image collection (Spatie, optimized)
+        MediaLibraryHelper::attachTo($news, $request->image_path, 'image');
 //      if(isset($request->tag)) $news->tag($request->tag);
 
         return redirect('/dashboard/site/news')->with(['create' => 'success']);
@@ -114,13 +113,8 @@ class NewsController extends Controller
         $news = News::find($id);
         $news->update($request->all());
 
-        if(isset( $request->image_path)) {
-            if (\File::exists(public_path($news->image))) {
-                \File::delete(public_path($news->image));
-            }
-            $news->image = Helper::moveImage($request->image_path,'news');
-            $news->save();
-        }
+        // replace the news image via Spatie (deletes the old file, optimizes the new one)
+        MediaLibraryHelper::attachTo($news, $request->image_path, 'image');
 
 //        $list_tags_news=$news->tagNames();
 //        $request_tags=$request->tag;
@@ -148,9 +142,6 @@ class NewsController extends Controller
     {
         if ($id) {
             $news = News::find($id);
-            if(\File::exists(public_path($news->image))){
-                \File::delete(public_path($news->image));
-            }
             $news->delete();
             return response([
                 'operator' => true,

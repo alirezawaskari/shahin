@@ -9,7 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 {{--    <link href="{{asset('assets/dashboard/css/bootstrap.min.css')}}" rel="stylesheet">--}}
     <link rel="stylesheet" href="{{asset('assets/dashboard/css/persian-datepicker.min.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/dashboard/css/adminCss.css')}}">
+ {{--    <link rel="stylesheet" href="{{asset('assets/dashboard/css/adminCss.css')}}">--}}
     <link rel="stylesheet" href="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.css')}}">
     <link rel="stylesheet" href="{{ asset('assets/bootstrap-5.3.8-dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/dashboard/css/dashboard.css?v=2.1') }}">

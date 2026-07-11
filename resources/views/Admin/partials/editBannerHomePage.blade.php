@@ -5,131 +5,82 @@
     <span>4 عکس افقی در موبایل نمایش داده می شوند.</span><br/>
 </div>
 
-<div class="col-12 col-md-12 mb-5">
+<div class="col-12 col-md-12 mb-5 row">
+
+    {{-- ================= HORIZONTAL ================= --}}
     <div class="col-md-6">
         <p>عکس های افقی : </p>
-        @if($model->galleries()->where('type',1)->count() > 0 )
-            @foreach($model->galleries()->where('type',1)->get() as $i=>$img_banner)
-                <div class="col-md-12">
-                    <input type="hidden" name="horizontalImages[{{$i}}][gallery_id]" value="{{$img_banner->id}}">
+        @for($i = 0; $i < 4; $i++)
+            @php
+                $slot = method_exists($model, 'gallerySlot') ? $model->gallerySlot('gallery_horizontal', $i) : null;
+            @endphp
+            <div class="col-md-12 border rounded p-2 mb-2 d-flex align-items-center">
+                <input type="text" placeholder="عنوان عکس" name="horizontalImages[{{$i}}][file_title]"
+                       value="{{ $slot ? $slot->getCustomProperty('title') : '' }}"
+                       class="form-control disInline width30"/>
 
-                    <input type="text" placeholder="عنوان عکس" name="horizontalImages[{{$i}}][file_title]"
-                           value="@if($img_banner){{$img_banner->title}}@endif"
-                           class="form-control disInline width30"/>
+                <label for="horizontalImages_{{$i}}" class="btn btn-primary custom-file-upload border border-1 mb-0 mx-2">
+                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                </label>
+                <input id="horizontalImages_{{$i}}" name="horizontalImages_{{$i}}" class="d-none file-upload file_upload_ajax" type="file" accept="image/*"/>
+                <input type="hidden" id="horizontalImages_{{$i}}_path" class="path" name="horizontalImages[{{$i}}][file]" value="">
 
-                    <label for="banner{{$i}}" class="custom-file-upload"><i
-                                class="fa fa-cloud-upload"></i></label>
-
-                    <div class="disInline">
-                        <input id="banner{{$i}}" class="file-upload file_upload_ajax" type="file"
-                               name="banner{{$i}}"/>
-                        <div id="banner{{$i}}_src" class="show">
-
-                            <div class="div_remove_btn" id="gallery_{{$img_banner->id}}">
-                                <img class="border-radius5" src="{{$img_banner->image}}"
-                                     alt="{{$img_banner->title}}"
-                                     width="80px">
-                                <a id="{{$img_banner->id}}" title="حذف عکس"
-                                   class="btn btn-default remove_btn">
-                                    <i class="fa fa-close" aria-hidden="true"></i></a>
-                            </div>
-
+                <div id="horizontalImages_{{$i}}_current" data-box-h="80" style="width:100px" class="mx-2">
+                    @if($slot)
+                        <div class="div_remove_btn d-inline-block mb-2" id="media_{{$slot->id}}">
+                            <img class="rounded border" style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                 src="{{ $slot->getFullUrl() }}" alt="{{ $slot->getCustomProperty('title') }}">
+                            <a data-id="{{ $slot->id }}" title="حذف عکس" class="btn btn-sm remove_media_btn">
+                                <i class="fa fa-close" aria-hidden="true"></i>
+                            </a>
                         </div>
-                        <input type="hidden" id="banner{{$i}}" class="path" name="horizontalImages[{{$i}}][file]"
-                               value="">
-                    </div>
+                    @else
+                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                             style="height:80px;background:#f8f9fa;">بدون تصویر</div>
+                    @endif
                 </div>
 
-            @endforeach
-
-
-        @else
-            @for($i=0;$i < 4;$i++)
-                <div class="col-md-12">
-                    <input type="text" placeholder="عنوان عکس" name="horizontalImages[{{$i}}][file_title]"
-                           class="form-control disInline width30"/>
-                    <label for="banner{{$i}}" class="custom-file-upload mrgZ"><i
-                                class="fa fa-cloud-upload"></i>
-                    </label>
-                    <div class="disInline">
-                        <input id="banner{{$i}}" class="file-upload file_upload_ajax" type="file"
-                               name="banner{{$i}}"/>
-                        <div id="banner{{$i}}_src" class="show"></div>
-                        <input type="hidden" id="banner{{$i}}" class="path" name="horizontalImages[{{$i}}][file]"
-                               value="">
-                        @if($errors->has("horizontalImages.$i.file"))
-                            <span class="help-block sub-error"> {{$errors->first("horizontalImages.$i.file")}} </span>
-                        @endif
-                    </div>
-                </div>
-
-            @endfor
-        @endif
-
+                <div id="horizontalImages_{{$i}}_src" class="show disInline mx-2"></div>
+            </div>
+        @endfor
     </div>
 
-    <div class="col-md-5">
+    {{-- ================= VERTICAL ================= --}}
+    <div class="col-md-6">
         <p>عکس های عمودی : </p>
+        @for($i = 0; $i < 2; $i++)
+            @php
+                $slot = method_exists($model, 'gallerySlot') ? $model->gallerySlot('gallery_vertical', $i) : null;
+            @endphp
+            <div class="col-md-12 border rounded p-2 mb-2 d-flex align-items-center">
+                <input type="text" placeholder="عنوان عکس" name="verticalImages[{{$i}}][file_title]"
+                       value="{{ $slot ? $slot->getCustomProperty('title') : '' }}"
+                       class="form-control disInline width30"/>
 
-        @if($model->galleries()->where('type',0)->count() > 0)
-            @foreach($model->galleries()->where('type',0)->get() as $i=>$img_banner)
-                <div class="col-md-12">
-                    <input type="hidden" name="horizontalImages[{{$img_banner->id}}][gallery_id]"
-                           value="{{$img_banner->id}}">
-                    <input type="text" placeholder="عنوان عکس"
-                           name="horizontalImages[{{$img_banner->id}}][file_title]"
-                           value="@if($img_banner){{$img_banner->title}}@endif"
-                           class="form-control disInline width30"/>
+                <label for="verticalImages_{{$i}}" class="btn btn-primary custom-file-upload border border-1 mb-0 mx-2">
+                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                </label>
+                <input id="verticalImages_{{$i}}" name="verticalImages_{{$i}}" class="d-none file-upload file_upload_ajax" type="file" accept="image/*"/>
+                <input type="hidden" id="verticalImages_{{$i}}_path" class="path" name="verticalImages[{{$i}}][file]" value="">
 
-                    <label for="banner{{$img_banner->id}}" class="custom-file-upload"><i
-                                class="fa fa-cloud-upload"></i></label>
-
-                    <div class="disInline">
-                        <input id="banner{{$img_banner->id}}" class="file-upload file_upload_ajax" type="file"
-                               name="banner{{$img_banner->id}}"/>
-                        <div id="banner{{$img_banner->id}}_src" class="show">
-
-                            <div class="div_remove_btn" id="gallery_{{$img_banner->id}}">
-                                <img class="border-radius5" src="{{$img_banner->image}}"
-                                     alt="{{$img_banner->title}}"
-                                     width="80px">
-                                <a id="{{$img_banner->id}}" title="حذف عکس"
-                                   class="btn btn-default remove_btn">
-                                    <i class="fa fa-close" aria-hidden="true"></i></a>
-                            </div>
-
+                <div id="verticalImages_{{$i}}_current" data-box-h="80" style="width:100px" class="mx-2">
+                    @if($slot)
+                        <div class="div_remove_btn d-inline-block mb-2" id="media_{{$slot->id}}">
+                            <img class="rounded border" style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                 src="{{ $slot->getFullUrl() }}" alt="{{ $slot->getCustomProperty('title') }}">
+                            <a data-id="{{ $slot->id }}" title="حذف عکس" class="btn btn-sm remove_media_btn">
+                                <i class="fa fa-close" aria-hidden="true"></i>
+                            </a>
                         </div>
-                        <input type="hidden" id="banner{{$img_banner->id}}" class="path"
-                               name="horizontalImages[{{$img_banner->id}}][file]" value="">
-                    </div>
-                </div>
-            @endforeach
-
-        @else
-            @for($i=0;$i < 2;$i++)
-                <div class="col-md-12">
-                    <input type="text" placeholder="عنوان عکس" name="verticalImages[{{$i}}][file_title]"
-                           class="form-control disInline width30"/>
-                    <label for="banner{{$i}}" class="custom-file-upload mrgZ"><i
-                                class="fa fa-cloud-upload"></i>
-                    </label>
-                    <div class="disInline">
-                        <input id="banner{{$i}}" class="file-upload file_upload_ajax" type="file"
-                               name="banner{{$i}}"/>
-                        <div id="banner{{$i}}_src" class="show"></div>
-                        <input type="hidden" id="banner{{$i}}" class="path" name="verticalImages[{{$i}}][file]"
-                               value="">
-                        @if($errors->has("verticalImages.$i.file"))
-                            <span class="help-block sub-error"> {{$errors->first("verticalImages.$i.file")}} </span>
-                        @endif
-                    </div>
+                    @else
+                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                             style="height:80px;background:#f8f9fa;">بدون تصویر</div>
+                    @endif
                 </div>
 
-            @endfor
-        @endif
+                <div id="verticalImages_{{$i}}_src" class="show disInline mx-2"></div>
+            </div>
+        @endfor
     </div>
 
 </div>
-
-
-

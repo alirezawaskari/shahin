@@ -239,7 +239,7 @@
 
             @if($depth == 0 || $depth == 1)
             <div id="gallerySection">
-                <x-gallery-form :galleries="[]" />
+                <x-media-gallery-form />
             </div>
             @endif
             <hr />

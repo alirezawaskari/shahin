@@ -4,15 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class RecruitmentNotice extends Model
+class RecruitmentNotice extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
 
     /**
      * @var array
      */
     protected $guarded = [];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+    }
+
+    public function getImageAttribute(): string
+    {
+        return $this->getFirstMediaUrl('image');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

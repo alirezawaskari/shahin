@@ -19,7 +19,7 @@ use App\Models\Callcenter;
 use App\Models\History;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
-use App\Services\EmployeeService;
+use App\Services\V1\Admin\EmployeeService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;

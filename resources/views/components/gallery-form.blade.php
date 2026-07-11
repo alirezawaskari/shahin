@@ -34,10 +34,18 @@
                  class="img-fluid mb-2"
                  style="height:100px;object-fit:cover">
 
-            <input type="file"
-                   name="deskImage[{{$i}}][file]"
-                   class="form-control"
-                   onchange="previewImage(event,'preview_desk_{{$i}}')">
+            <div class="input-group mb-2">
+                <input id="desk_{{$i}}" name="desk_file_{{$i}}"
+                       class="d-none form-control file-upload file_upload_ajax" type="file"
+                       accept="image/*"/>
+                <label for="desk_{{$i}}"
+                       class="btn btn-primary custom-file-upload border border-1">
+                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                </label>
+            </div>
+
+            <input type="hidden" id="desk_{{$i}}_path" class="path" name="deskImage[{{$i}}][file]" value="">
+            <div id="desk_{{$i}}_src" class="show disInline"></div>
 
         </div>
     @endfor
@@ -60,10 +68,18 @@
              class="img-fluid mb-2 rounded"
              style="height:180px;object-fit:cover">
 
-        <input type="file"
-               name="deskImage[4][file]"
-               class="form-control"
-               onchange="previewImage(event,'preview_desk_4')">
+        <div class="input-group mb-2">
+            <input id="desk_4" name="desk_file_4"
+                   class="d-none form-control file-upload file_upload_ajax" type="file"
+                   accept="image/*"/>
+            <label for="desk_4"
+                   class="btn btn-primary custom-file-upload border border-1">
+                <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+            </label>
+        </div>
+
+        <input type="hidden" id="desk_4_path" class="path" name="deskImage[4][file]" value="">
+        <div id="desk_4_src" class="show disInline"></div>
 
     </div>
 
@@ -98,10 +114,18 @@
                  class="img-fluid mb-2"
                  style="height:120px;object-fit:cover">
 
-            <input type="file"
-                   name="mobileImage[{{$i}}][file]"
-                   class="form-control"
-                   onchange="previewImage(event,'preview_mobile_{{$i}}')">
+            <div class="input-group mb-2">
+                <input id="mobile_{{$i}}" name="mobile_file_{{$i}}"
+                       class="d-none form-control file-upload file_upload_ajax" type="file"
+                       accept="image/*"/>
+                <label for="mobile_{{$i}}"
+                       class="btn btn-primary custom-file-upload border border-1">
+                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                </label>
+            </div>
+
+            <input type="hidden" id="mobile_{{$i}}_path" class="path" name="mobileImage[{{$i}}][file]" value="">
+            <div id="mobile_{{$i}}_src" class="show disInline"></div>
 
         </div>
     @endfor
@@ -124,10 +148,18 @@
              class="img-fluid mb-2 rounded"
              style="height:180px;object-fit:cover">
 
-        <input type="file"
-               name="mobileImage[4][file]"
-               class="form-control"
-               onchange="previewImage(event,'preview_mobile_4')">
+        <div class="input-group mb-2">
+            <input id="mobile_4" name="mobile_file_4"
+                   class="d-none form-control file-upload file_upload_ajax" type="file"
+                   accept="image/*"/>
+            <label for="mobile_4"
+                   class="btn btn-primary custom-file-upload border border-1">
+                <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+            </label>
+        </div>
+
+        <input type="hidden" id="mobile_4_path" class="path" name="mobileImage[4][file]" value="">
+        <div id="mobile_4_src" class="show disInline"></div>
 
     </div>
 

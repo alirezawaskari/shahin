@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-use App\Traits\HasMediaImage;
 use Spatie\MediaLibrary\HasMedia;
 use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Category extends Model implements HasMedia
 {
-    use SoftDeletes,InteractsWithMedia,HasMediaImage;
+    use SoftDeletes,InteractsWithMedia;
 
     /**
      * @var string[]
@@ -403,23 +402,33 @@ class Category extends Model implements HasMedia
         return $query->where('id', $ghorfe->type_work === 'product' ? 1 : 2);
     }
 
-    public function imageCategory(): BelongsTo
+    /** Slot-based gallery collections (data-mining homepage: 4 small + 1 big each). */
+    const GALLERY_COLLECTIONS = ['gallery_desktop', 'gallery_mobile'];
+
+    public function registerMediaCollections(): void
     {
-        return $this->belongsTo(MediaLibrary::class, 'image_category_id');
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('icon')->useDisk('public')->singleFile();
+        foreach (self::GALLERY_COLLECTIONS as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public');
+        }
     }
 
-    public function iconCategory(): BelongsTo
+    /** The media occupying gallery slot $index in $collection, if any. */
+    public function gallerySlot(string $collection, int $index)
     {
-        return $this->belongsTo(MediaLibrary::class, 'icon_category_id');
+        return $this->getMedia($collection)
+            ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
     }
+
     public function getImageUrlAttribute(): ?string
     {
-        return $this->getMediaUrl('image_category_id');
+        return $this->getFirstMediaUrl('image') ?: null;
     }
 
     public function getIconUrlAttribute(): ?string
     {
-        return $this->getMediaUrl('icon_category_id');
+        return $this->getFirstMediaUrl('icon') ?: null;
     }
 }
 

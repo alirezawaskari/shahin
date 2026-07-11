@@ -62,9 +62,51 @@ class AdminController extends Controller
      */
     public function uploadPhotosTemporarily(Request $request)
     {
-        if (isset($request->file)) {
-            $media = MediaLibraryHelper::uploadImage($request->file, auth()->id());
-            return ['image_name' => $media, 'status' => true];
+        // Public endpoint: validate strictly to prevent abuse (arbitrary/oversized uploads).
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'file' => [
+                'required',
+                'file',
+                'max:6144', // 6 MB, matches the client-side limit
+                'mimes:jpg,jpeg,png,webp,svg,gif,pdf,doc,docx,xls,xlsx,zip,rar',
+            ],
+        ], [
+            'file.required' => 'فایلی ارسال نشده است.',
+            'file.max'      => 'حجم فایل نباید بیشتر از ۶ مگابایت باشد.',
+            'file.mimes'    => 'فرمت فایل مجاز نیست.',
+        ]);
+
+        if ($validator->fails()) {
+            return ['status' => false, 'message' => $validator->errors()->first()];
+        }
+
+        $media = MediaLibraryHelper::uploadImage($request->file, auth()->id());
+        return [
+            'image_name' => $media,                                  // MediaLibrary id -> hidden *_path (attach on save)
+            'media_id'   => optional($media->getFirstMedia('images'))->id, // temp Spatie media id -> removeMedia (delete the ✕ before save)
+            'status'     => true,
+        ];
+    }
+
+    /**
+     * Delete a Spatie media row by id (used by gallery remove buttons).
+     */
+    public function removeMedia(Request $request)
+    {
+        $media = \App\Models\Media::find($request->media_id);
+        if ($media) {
+            // native delete of just this file + row (avoids Spatie's recursive
+            // directory listing that fails on Windows, and our shared per-date dirs)
+            try {
+                $path = $media->getPath();
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('removeMedia unlink failed: ' . $e->getMessage());
+            }
+            \App\Models\Media::where('id', $media->id)->delete();
+            return ['status' => true];
         }
         return ['status' => false];
     }

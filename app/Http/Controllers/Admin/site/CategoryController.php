@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\site;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
@@ -64,6 +65,8 @@ class CategoryController extends Controller
         $category = Category::create($create);
         $category->ghorfeOnlineLists()->syncWithoutDetaching([ghorfe()->id]);
         $this->updateCategoryImages($request, $category);
+        $this->syncGallerySlots($category, 'gallery_desktop', $request->input('deskImage', []));
+        $this->syncGallerySlots($category, 'gallery_mobile', $request->input('mobileImage', []));
         return $this->returnResponse($category);
     }
     public function edit($id)
@@ -136,6 +139,27 @@ class CategoryController extends Controller
         $category = Category::find($id);
         $category->update($update);
         $this->updateCategoryImages($request,$category);
+        $this->syncGallerySlots($category, 'gallery_desktop', $request->input('deskImage', []));
+        $this->syncGallerySlots($category, 'gallery_mobile', $request->input('mobileImage', []));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            $category->load('media');
+            return response([
+                'status'   => 'success',
+                'messages' => array('دسته بندی با موفقیت ویرایش شد'),
+                'media'    => [
+                    'singles' => [
+                        'image' => $this->singleMediaInfo($category, 'image'),
+                        'icon'  => $this->singleMediaInfo($category, 'icon'),
+                    ],
+                    'slots' => [
+                        'deskImage'   => $this->gallerySlotsInfo($category, 'gallery_desktop'),
+                        'mobileImage' => $this->gallerySlotsInfo($category, 'gallery_mobile'),
+                    ],
+                ],
+            ]);
+        }
+
         if ($category->parent_id == 0) {
             $categories = Category::filter()->where('depth', 0)->orderByDesc('id')->paginate(15);
             return view('Admin.site.category.lists', [
@@ -158,22 +182,9 @@ class CategoryController extends Controller
 
     private function updateCategoryImages(Request $request, Category $category)
     {
-        if (isset($request->image_path)) {
-            if (File::exists(public_path($category->image_category_path))) {
-                File::delete(public_path($category->image_category_path));
-            }
-
-            $category->image_category_id = $request->image_path;
-
-            $category->save();
-        }
-        if (isset($request->icon_path)) {
-            if (File::exists(public_path($category->icon_category_path))) {
-                File::delete(public_path($category->icon_category_path));
-            }
-            $category->icon_category_id = $request->icon_path;
-            $category->save();
-        }
+        // attach the temporary ajax uploads into the category's own Spatie collections
+        MediaLibraryHelper::attachTo($category, $request->input('image_path'), 'image');
+        MediaLibraryHelper::attachTo($category, $request->input('icon_path'), 'icon');
     }
 
 
@@ -192,26 +203,61 @@ class CategoryController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
      */
 
-    private function handleGalleryFiles($files, $cat, $type)
+    /**
+     * Attach/replace/rename the slot-based Spatie gallery collection of a category.
+     *
+     * Each slot's metadata (the former `galleries` table columns) is preserved as
+     * media custom properties so the galleries table is no longer needed for categories.
+     */
+    /** Media info for a single-file collection (image/icon), or null. */
+    private function singleMediaInfo(Category $category, string $collection): ?array
     {
-        foreach ($files as $file) {
-            if (isset($file['file'])) {
-                $image = Helper::moveImage($file['file'], 'category');
+        $media = $category->getFirstMedia($collection);
+        return $media ? ['id' => $media->id, 'url' => $media->getFullUrl()] : null;
+    }
 
-                if (!empty($file['gallery_id']) && $gallery = Gallery::find($file['gallery_id'])) {
-                    $gallery->update([
-                        'title' => $file['file_title'],
-                        'image' => $image
-                    ]);
-                } else {
-                    Gallery::create([
-                        'galleryable_id' => $cat->id,
-                        'galleryable_type' => Category::class,
-                        'title' => $file['file_title'],
-                        'image' => $image,
-                        'type' => $type
-                    ]);
+    /** Media info keyed by slot index for a gallery collection. */
+    private function gallerySlotsInfo(Category $category, string $collection): array
+    {
+        $slots = [];
+        foreach ($category->getMedia($collection) as $media) {
+            $slots[(int) $media->getCustomProperty('index')] = [
+                'id'    => $media->id,
+                'url'   => $media->getFullUrl(),
+                'title' => $media->getCustomProperty('title'),
+            ];
+        }
+        return $slots;
+    }
+
+    private function syncGallerySlots(Category $category, string $collection, array $items): void
+    {
+        foreach ($items as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $properties = [
+                'index'      => (int) $index,
+                'title'      => $item['file_title'] ?? null,
+                'title_en'   => $item['title_en'] ?? null,
+                'title_ar'   => $item['title_ar'] ?? null,
+                'title_turk' => $item['title_turk'] ?? null,
+                'parent_id'  => $item['parent_id'] ?? null,
+            ];
+
+            $existing = $category->gallerySlot($collection, (int) $index);
+
+            if (!empty($item['file'])) {
+                // new upload for this slot -> attachTo() replaces the media in this slot
+                // (matched by the 'index' custom property) and deletes the old file natively.
+                MediaLibraryHelper::attachTo($category, $item['file'], $collection, $properties);
+            } elseif ($existing) {
+                // metadata-only update (titles etc.) for the existing image
+                foreach ($properties as $key => $value) {
+                    $existing->setCustomProperty($key, $value);
                 }
+                $existing->save();
             }
         }
     }

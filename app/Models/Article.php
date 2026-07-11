@@ -5,9 +5,11 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Article extends Model {
-    use Sluggable, SoftDeletes;
+class Article extends Model implements HasMedia {
+    use Sluggable, SoftDeletes, InteractsWithMedia;
 
     /**
     * @var array
@@ -22,6 +24,16 @@ class Article extends Model {
     */
     protected $fillable = [ 'user_id', 'category_article_id', 'title', 'slug_title', 'slug', 'old_image', 'summary',
     'description', 'status' ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('old_image')->useDisk('public')->singleFile();
+    }
+
+    public function getOldImageAttribute(): string
+    {
+        return $this->getFirstMediaUrl('old_image');
+    }
 
     /**
     * @return \string[][]

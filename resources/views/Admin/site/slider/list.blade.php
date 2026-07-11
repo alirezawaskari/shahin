@@ -39,8 +39,8 @@
                 @foreach($sliders as $item)
                     <tr>
                         <td class="width30">
-                            @if(File::exists(public_path() .$item->img))
-                                <a target="_blank" href="{{asset($item->img)}}"> <img src="{{$item->img}}" width="5%" class="border-radius5" alt="{{$item->title}}"></a>
+                            @if($item->img)
+                                <a target="_blank" href="{{$item->img}}"> <img src="{{$item->img}}" width="5%" class="border-radius5" alt="{{$item->title}}"></a>
                             @endif
                         </td>
                         <td>{{$item->title}} </td>
