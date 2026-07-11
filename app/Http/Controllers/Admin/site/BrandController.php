@@ -185,9 +185,6 @@ class BrandController extends Controller
                 foreach ($brand->categories()->get() as $item) {
                     $item->pivot->delete();
                 }
-                foreach ($brand->media as $media) {
-                    MediaLibraryHelper::deleteMedia($media);
-                }
                 $brand->delete();
                 return response([
                     'operator' => true,

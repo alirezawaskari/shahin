@@ -388,10 +388,7 @@ class ServiceItemController extends Controller
     public function destroy(ServiceItem $serviceItem)
     {
         if ($serviceItem) {
-            // remove all attached Spatie media (files + rows), cross-platform safe
-            foreach ($serviceItem->media as $media) {
-                MediaLibraryHelper::deleteMedia($media);
-            }
+            // media is purged by Spatie's delete cascade (native + soft-delete aware)
             $serviceItem->menu()->delete();
             $serviceItem->delete();
             return redirect('/dashboard/service/serviceItem/'.$serviceItem->service->slug)

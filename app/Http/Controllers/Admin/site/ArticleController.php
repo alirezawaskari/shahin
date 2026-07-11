@@ -173,9 +173,6 @@ class ArticleController extends Controller
     {
         if ($id) {
             $article = Article::find($id);
-            foreach ($article->media as $media) {
-                MediaLibraryHelper::deleteMedia($media);
-            }
             $article->delete();
             return response([
                 'operator' => true,

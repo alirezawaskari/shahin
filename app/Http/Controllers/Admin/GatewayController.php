@@ -78,9 +78,6 @@ class GatewayController extends Controller
 
     public function destroy(Gateway $gateway)
     {
-        foreach ($gateway->media as $media) {
-            MediaLibraryHelper::deleteMedia($media);
-        }
         $gateway->delete();
         alert()->success('موفق', 'درگاه با موفقیت حذف شد');
         return redirect()->back();

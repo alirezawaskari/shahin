@@ -170,9 +170,6 @@ class SliderController extends Controller
     {
         if ($id) {
             $slider = Slider::find($id);
-            foreach ($slider->media as $media) {
-                MediaLibraryHelper::deleteMedia($media);
-            }
             $slider->delete();
             return redirect()
                 ->route('slider.index')
@@ -191,9 +188,6 @@ class SliderController extends Controller
         if (isset($request->slider_id)) {
             $slider = Slider::find($request->slider_id);
             if ($slider) {
-                foreach ($slider->media as $media) {
-                    MediaLibraryHelper::deleteMedia($media);
-                }
                 $slider->delete();
             }
             return ['status' => 'true'];

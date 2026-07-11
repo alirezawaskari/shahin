@@ -113,9 +113,6 @@ class SingleWebPageController extends AdminController
      */
     public function destroy(SingleWebPage $single_web_page)
     {
-        foreach ($single_web_page->media as $media) {
-            MediaLibraryHelper::deleteMedia($media);
-        }
         $single_web_page->delete();
         return redirect(route('singleWebPage.index'))->with([
             'delete' => 'success'

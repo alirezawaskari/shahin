@@ -122,9 +122,6 @@ class RecruitmentNoticeController extends AdminController
     public function destroy( RecruitmentNotice $recruitmentNotice, Request $request)
     {
         if (auth()->user()->hasPermission('recruitment_notice')) {
-            foreach ($recruitmentNotice->media as $media) {
-                MediaLibraryHelper::deleteMedia($media);
-            }
             $recruitmentNotice->delete();
             if ($request->ajax()) {
                 return response([

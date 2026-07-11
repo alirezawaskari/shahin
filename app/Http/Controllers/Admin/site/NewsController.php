@@ -142,9 +142,6 @@ class NewsController extends Controller
     {
         if ($id) {
             $news = News::find($id);
-            foreach ($news->media as $media) {
-                MediaLibraryHelper::deleteMedia($media);
-            }
             $news->delete();
             return response([
                 'operator' => true,
