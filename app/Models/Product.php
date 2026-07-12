@@ -39,6 +39,20 @@ class  Product extends Model implements HasMedia
         'root_category_id','type','status', 'center_id','description','length','width','height','weight',
         'reference_price','message','status'
     ];
+
+    /** Product media (Spatie native): single main image + a multi-image gallery. */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('gallery')->useDisk('public');
+    }
+
+    /** Main image url (shadows the legacy `image` column so reads go through Spatie). */
+    public function getImageAttribute(): string
+    {
+        return $this->getFirstMediaUrl('image');
+    }
+
     /**
      *status of products
      */

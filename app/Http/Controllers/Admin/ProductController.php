@@ -418,7 +418,7 @@ class ProductController extends Controller
         $brands = Brand::where('title','!=',null)->get();
         $category_center_id = 0;
         $ghorfe_online = ghorfe();
-        $categories = $ghorfe_online->categories()->active()->get();
+        $categories = $ghorfe_online->categories()->where('isActive', 1)->get();
         if (User::checkManager() != null) {
             $center_id = User::checkManager();
             $center = Center::find($center_id);
