@@ -35,12 +35,12 @@ class Agency extends Model implements HasMedia
 
     public function getImgmeliAttribute(): string
     {
-        return $this->getFirstMediaUrl('imgmeli');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli');
     }
 
     public function getImgturnoverAttribute(): string
     {
-        return $this->getFirstMediaUrl('imgturnover');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover');
     }
 
     /**

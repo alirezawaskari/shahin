@@ -150,6 +150,45 @@ class MediaLibraryHelper
         Media::where('id', $media->id)->delete();
     }
 
+    /**
+     * URL of the first media in $collection, but ONLY if its file physically exists
+     * on disk — otherwise ''. Lets image accessors ($model->image, …) stay falsy for
+     * a media row whose file is missing, so `@if($model->image)` in views is a real
+     * "show the image" check (mirrors the old File::exists(public_path().$col) guards)
+     * without every view having to stat the disk itself.
+     */
+    public static function urlIfFileExists(\Spatie\MediaLibrary\HasMedia $model, string $collection): string
+    {
+        $media = $model->getFirstMedia($collection);
+        if (! $media) {
+            return '';
+        }
+        try {
+            $path = $media->getPath();
+        } catch (\Throwable $e) {
+            return '';
+        }
+        return ($path && is_file($path)) ? $media->getUrl() : '';
+    }
+
+    /**
+     * The media in $collection whose files physically exist on disk (a media row
+     * with a missing file is dropped). Use for galleries / multi-image collections
+     * so a broken file never renders. Returns a re-indexed Spatie media collection,
+     * so callers can ->map(fn($m) => $m->getUrl()) or iterate and call getUrl().
+     */
+    public static function existingMedia(\Spatie\MediaLibrary\HasMedia $model, string $collection)
+    {
+        return $model->getMedia($collection)->filter(function ($media) {
+            try {
+                $path = $media->getPath();
+            } catch (\Throwable $e) {
+                return false;
+            }
+            return $path && is_file($path);
+        })->values();
+    }
+
     /** Whether $collection is declared singleFile() on the model. */
     private static function isSingleFileCollection(\Spatie\MediaLibrary\HasMedia $model, string $collection): bool
     {

@@ -132,19 +132,26 @@ $(document).on('change', '.file_upload_ajax', function () {
 // form submits with no resume attached.
 $(document).on('click', '.remove_temp_media', function (e) {
     e.preventDefault();
-    var media_id = $(this).data('id');
-    var field = $(this).data('field');
-    var clear = function () {
-        $('#' + field + '_src').empty();
-        $('#' + field + '_path').val('');
+    var $btn = $(this);
+    var media_id = $btn.data('id');
+    var field = $btn.data('field');
+    var done = function () {
+        if (field) {
+            // single-file field: clear its preview + hidden temp id
+            $('#' + field + '_src').empty();
+            $('#' + field + '_path').val('');
+        } else {
+            // multipleImages row: drop the whole row
+            $btn.closest('tr.row_image').remove();
+        }
     };
-    if (!media_id) { clear(); return; }
+    if (!media_id) { done(); return; }
     $.ajax({
         type: 'post',
         url: '/upload/removeTemp',
         data: { media_id: media_id },
-        success: clear,
-        error: clear
+        success: done,
+        error: done
     });
 });
 
@@ -182,7 +189,7 @@ function multipleImages(input) {
                         if (result['status'] === true) {
                             var tr_images = $('<tr id="' + currentIndex + '" class="row_image">');
                             var image = '<td><img src="' + e.target.result + '" id="' + currentIndex + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + currentIndex + '" class="image_name_good" name="multiple_image[' + currentIndex + '][file]" value="' + result['media_id'] + '"></td>';
-                            var remove = '<td><a id="' + currentIndex + '" class="btn btn-sm btn-danger removeImageCreated"><i class="fa fa-trash"></i></a></td>';
+                            var remove = '<td><a data-id="' + result['media_id'] + '" title="حذف عکس" class="btn btn-sm btn-danger remove_temp_media"><i class="fa fa-close"></i></a></td>';
                             var title = '<td><input type="text" class="form-control" placeholder="عنوان" name="multiple_image[' + currentIndex + '][title]"></td>';
                             if (multipleImagesHasLink === "1") {
                                 var link = '<td><input type="text" class="form-control" placeholder="لینک" name="multiple_image[' + currentIndex + '][link]" required></td>';
@@ -206,7 +213,3 @@ function multipleImages(input) {
     input.value = '';
 }
 
-// Remove a row added by multipleImages (temp media is throwaway; remove client-side).
-$(document).on('click', '.removeImageCreated', function () {
-    $(this).closest('tr.row_image').remove();
-});

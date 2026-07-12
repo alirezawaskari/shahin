@@ -206,26 +206,6 @@ $(document).on({
     }
 });
 
-// removeImg in edit product
-$(document).on('click', '.remove_btn', function () {
-    var gallery_id = $(this).attr('id');
-    $.ajax({
-        type: "post",
-        url: '/dashboard/removeImgGallery',
-        data: {
-            gallery_id: gallery_id
-        },
-        headers: {
-            "Authorization": localStorage.getItem('token')
-        },
-        success: function (result) {
-            if (result['status'] == 'true') {
-                $('#gallery_' + gallery_id).remove();
-                $('.gallery_' + gallery_id).remove();
-            }
-        }
-    });
-});
 
 //select2
 $(document).ready(function () {
@@ -270,7 +250,7 @@ function readURL(input) {
 
                                 var tr_images = $('<tr id="' + index_add_img + '" class="row_image">');
                                 var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="image_name_good[' + index_add_img + '][name]" value="' + result['media_id'] + '"></td>';
-                                var remove = '<td><a id="' + index_add_img + '" class="flagProduct">' + input_first_photo + '</a><a id="' + index_add_img + '" class="btn btn-sm btn-danger removeImageCreated"><i class="fa fa-trash"></i></a></td>';
+                                var remove = '<td><a id="' + index_add_img + '" class="flagProduct">' + input_first_photo + '</a><a data-id="' + result['media_id'] + '" data-temp="1" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a></td>';
 
                                 tr_images.append(image).append(remove);
                                 $('.imagesList').append(tr_images);
@@ -740,29 +720,6 @@ $(document).on('click', '.remove-tr', function () {
     $(this).parents('tr').remove();
 });
 
-
-$(document).on('click', '.removeImageCreated', function () {
-    var index = $(this).attr('id');
-    var image_name_good = $("#" + index + '.image_name_good').val();
-    $.ajax({
-        type: "post",
-        url: '/dashboard/removeImageCreated',
-        data: {
-            image_name_good: image_name_good
-        },
-        success: function (result) {
-            if (result['status'] == true) {
-                $('#' + index + '.row_image').remove();
-                if (!$('.imagesList tr').html()) {
-                    $('.submitGood').css({
-                        'display': 'none'
-                    });
-                    index_add_img = 0;
-                }
-            }
-        }
-    });
-});
 
 // work_sample
 $(document).on('click', '.remove_work_sample', function () {

@@ -632,9 +632,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     //products
     Route::resource('product', 'ProductController');
-    Route::post('/removeImgGallery', 'ProductController@removeImgGallery');
     Route::post('/product/store', 'ProductController@store');
-    Route::post('/removeImageCreated', 'ProductController@removeImageCreated');
     Route::get('/find/product', 'ProductController@findProduct')->name('findProduct');
 
     Route::post('/searchTransferProduct', 'ProductController@searchTransferProduct');
@@ -680,7 +678,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('/productValidation','ProductValidationController');
     Route::resource('/validation','ValidationController');
     Route::post('/getValidation','ProductValidationController@getValidation');
-    Route::post('/removeImageProduct','ProductController@removeImageProduct');
     Route::post('/saveChangeVisitProduct','ProductController@saveChangeVisitProduct');
 
     //organization & representation
