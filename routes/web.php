@@ -960,6 +960,12 @@ Route::get('/upload/view/{id}', 'Admin\AdminController@viewTempMedia')
     ->middleware('throttle:120,1')
     ->name('viewTempMedia');
 
+// Public removal of a just-uploaded TEMP file (guest site forms). Scoped in the
+// controller to temp holders only, so it can never delete a model's saved media.
+Route::post('/upload/removeTemp', 'Admin\AdminController@removeTempMedia')
+    ->middleware('throttle:60,1')
+    ->name('removeTempMedia');
+
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');
 Route::get('/factorItem/factor/{factorItem}', 'FactorItemController@showFactor');

@@ -161,6 +161,28 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * Public removal of a just-uploaded TEMP file (guest site forms have no dashboard
+     * auth). Scoped to temp holders only — MediaLibrary + the private 'images'
+     * collection — so it can never delete a model's saved media by id. Called when a
+     * site user removes the selection or picks a different file, so temp uploads don't
+     * pile up orphaned on disk.
+     */
+    public function removeTempMedia(Request $request)
+    {
+        $media = \App\Models\Media::where('id', $request->media_id)
+            ->where('model_type', \App\Models\MediaLibrary::class)
+            ->where('collection_name', 'images')
+            ->first();
+        if (! $media) {
+            return ['status' => false];
+        }
+        MediaLibraryHelper::deleteMedia($media);
+        // drop the now-empty temp holder too
+        \App\Models\MediaLibrary::where('id', $media->model_id)->delete();
+        return ['status' => true];
+    }
+
     public function dashboard(Request $request)
     {
         $totalMonthFactorCount = 0;

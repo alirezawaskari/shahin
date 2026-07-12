@@ -46,6 +46,15 @@ $(document).on('change', '.file_upload_ajax', function () {
 
     var file_attr_name = $(this).attr('name') || '';
     var file_attr_id = $(this).attr('id');
+
+    // Re-selecting a different file for a single field: drop the previously uploaded
+    // temp on the server so it isn't orphaned on disk, and clear its hidden id.
+    var prevTemp = $('#' + file_attr_id + '_path').val();
+    if (prevTemp) {
+        $.post('/upload/removeTemp', { media_id: prevTemp });
+        $('#' + file_attr_id + '_path').val('');
+    }
+
     var fileType = file["type"];
     var validImageTypes = [
         "image/jpg", "image/jpeg", "image/png", "image/webp", "image/svg+xml",
@@ -83,8 +92,7 @@ $(document).on('change', '.file_upload_ajax', function () {
             processData: false,
             success: function (result) {
                 if (result['status'] === true) {
-                    $('#' + file_attr_id + '_src.show div').remove();
-                    $('#' + file_attr_id + '_src.show img').remove();
+                    $('#loading' + file_attr_id).remove();
                     var previewFile = '';
                     if (!((fileType == 'application/x-rar-compressed') || (fileType == 'application/x-zip-compressed') || (fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') || (fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
                         previewFile = '<img src="' + e.target.result + '" id="' + index_add_photo + '" class="rounded border" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">';
@@ -97,7 +105,12 @@ $(document).on('change', '.file_upload_ajax', function () {
                         $('#' + file_attr_id + '_src' + ct + '.show').append(previewFile);
                         $('#' + file_attr_id + ct + '.path').val(result['media_id']);
                     } else {
-                        $('#' + file_attr_id + '_src.show').append(previewFile);
+                        // single-file field: replace the whole preview (image OR مشاهده link,
+                        // never both) and add a remove (✕) button that drops the temp upload.
+                        var removeBtn = '<div class="mt-1"><a href="javascript:void(0)" ' +
+                            'class="btn btn-sm btn-danger remove_temp_media" data-id="' + result['media_id'] + '" ' +
+                            'data-field="' + file_attr_id + '"><i class="fa fa-close"></i> حذف فایل</a></div>';
+                        $('#' + file_attr_id + '_src.show').empty().append(previewFile).append(removeBtn);
                         $('#' + file_attr_id + '_path').val(result['media_id']);
                     }
                 } else if (result['status'] === false) {
@@ -112,6 +125,27 @@ $(document).on('change', '.file_upload_ajax', function () {
         });
     };
     reader.readAsDataURL(file);
+});
+
+// Remove a just-uploaded TEMP file on a guest site form (public, temp-scoped route).
+// Deletes the temp media server-side, then clears the preview + hidden id so the
+// form submits with no resume attached.
+$(document).on('click', '.remove_temp_media', function (e) {
+    e.preventDefault();
+    var media_id = $(this).data('id');
+    var field = $(this).data('field');
+    var clear = function () {
+        $('#' + field + '_src').empty();
+        $('#' + field + '_path').val('');
+    };
+    if (!media_id) { clear(); return; }
+    $.ajax({
+        type: 'post',
+        url: '/upload/removeTemp',
+        data: { media_id: media_id },
+        success: clear,
+        error: clear
+    });
 });
 
 // Multiple-image ajax upload widget (mirrors the dashboard multipleImages()).

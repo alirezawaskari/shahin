@@ -369,6 +369,16 @@ $(document).on('change', '.file_upload_ajax', function () {
     if (file) {
         var file_attr_name = $(this).attr('name');
         var file_attr_id = $(this).attr('id');
+
+        // Re-selecting a different file for a single field: drop the previously
+        // uploaded temp so it isn't orphaned on disk (the hidden *_path only ever
+        // holds a temp id, never a saved media id), then clear its hidden id.
+        var prevTemp = $('#' + file_attr_id + '_path').val();
+        if (prevTemp) {
+            $.post('/dashboard/removeMedia', { media_id: prevTemp });
+            $('#' + file_attr_id + '_path').val('');
+        }
+
         var fileType = file["type"];
         var validImageTypes = [
             "image/jpg",
