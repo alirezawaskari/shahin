@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 //use Conner\Tagging\Taggable;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,20 @@ class  Product extends Model implements HasMedia
         'root_category_id','type','status', 'center_id','description','length','width','height','weight',
         'reference_price','message','status'
     ];
+
+    /** Product media (Spatie native): single main image + a multi-image gallery. */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('gallery')->useDisk('public');
+    }
+
+    /** Main image url (shadows the legacy `image` column so reads go through Spatie). */
+    public function getImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+    }
+
     /**
      *status of products
      */
@@ -257,21 +272,16 @@ class  Product extends Model implements HasMedia
      * @param $product
      */
     public static function storeImagesProduct($image_path, $multiple_image, $product){
-        if (isset($image_path)) {
-            if (\File::exists(public_path($product->image))) {
-                \File::delete(public_path($product->image));
-            }
-            $product->image = Helper::moveImage($image_path, 'product');
-            $product->save();
-        }
+        // main image (temp media id) -> single-file 'image' collection (replaces old)
+        MediaLibraryHelper::attachTo($product, $image_path, 'image');
 
-        $files = $multiple_image;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
+        // gallery images -> 'gallery' collection
+        if (is_array($multiple_image)) {
+            foreach ($multiple_image as $extra_file) {
                 if (isset($extra_file['file'])) {
-                    $image = Helper::moveImage($extra_file['file'], 'product');
-                    Gallery::create(['galleryable_id' => $product->id,
-                        'galleryable_type' => Product::class, 'title' => $extra_file['title'], 'image' => $image]);
+                    MediaLibraryHelper::attachTo($product, $extra_file['file'], 'gallery', [
+                        'title' => $extra_file['title'] ?? null,
+                    ]);
                 }
             }
         }
@@ -280,7 +290,7 @@ class  Product extends Model implements HasMedia
 
     public function getFirstImage()
     {
-        return $this->getMedia('images')->first();
+        return $this->getMedia('image')->first();
     }
     //use in ProductController
 
@@ -479,35 +489,21 @@ class  Product extends Model implements HasMedia
      */
     public static function saveImageGood($request, $product)
     {
-        if (isset($request->image_name_good)) {
-            foreach ($request->image_name_good as $image_name) {
-
-                if (isset($image_name['name'])) {
-                    $img_detail = explode('/', $image_name['name']);
-                    $year = $img_detail[3];
-                    $month = $img_detail[4];
-                    $img_name = $img_detail[6];
-//                    $path = 'upload/product/' . $year . '/' . $month;
-                    $path = 'upload/' . $year . '/' . $month.'/product/';
-
-                    if (!is_dir($path)) {
-                        File::makeDirectory($path, 0777, true, true);
-                        File::move(public_path($image_name['name']), public_path($path . '/' . $img_name));
-                    } else {
-                        File::move(public_path($image_name['name']), public_path($path . '/' . $img_name));
-                    }
-
-                }
-                if (isset($image_name['index']) && isset($path) && isset($img_name)) {
-                    $product->image = '/' . $path . '/' . $img_name;
-                    $product->save();
-                }
-                if (!isset($image_name['index']) && isset($path) && isset($img_name)) {
-                    Gallery::create(['galleryable_id' => $product->id,
-                        'galleryable_type' => Product::class,
-                        'title' => $request->good['name'], 'image' => '/' . $path . '/' . $img_name]);
-                }
-
+        if (! isset($request->image_name_good)) {
+            return;
+        }
+        // $image_name['name'] is the temp media id from the ajax uploader; the item
+        // flagged main (submits an 'index') -> single-file 'image', the rest -> 'gallery'.
+        foreach ($request->image_name_good as $image_name) {
+            if (empty($image_name['name'])) {
+                continue;
+            }
+            if (isset($image_name['index'])) {
+                MediaLibraryHelper::attachTo($product, $image_name['name'], 'image');
+            } else {
+                MediaLibraryHelper::attachTo($product, $image_name['name'], 'gallery', [
+                    'title' => $request->good['name'] ?? null,
+                ]);
             }
         }
     }
@@ -709,12 +705,12 @@ class  Product extends Model implements HasMedia
 
     public function getImageUrlAttribute()
     {
-        return $this->getFirstMediaUrl('images');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
     }
 
     public function getImagesUrlAttribute()
     {
-        return $this->getMedia('images')->map(fn($media) => $media->getUrl());
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, 'gallery')->map(fn($media) => $media->getUrl());
     }
     /**
      * Summary of getMinPrice

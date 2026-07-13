@@ -64,13 +64,13 @@
                     <div class="col-12 col-md-6 mb-5">
                         <label>عکس *</label>
 
-                        <label for="image" class="custom-file-upload">
+                        <label for="image" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                         </label>
-                        <input id="image" class="file-upload file_upload_ajax" type="file"
+                        <input id="image" class="d-none file-upload file_upload_ajax" type="file"
                                name="image"/>
                         <div id="image_src" class="show"></div>
-                        <input type="hidden" id="image" class="path" name="image_path" value="">
+                        <input type="hidden" id="image_path" class="path" name="image_path" value="">
                         @if($errors->has('image'))
                             <span class="help-block sub-error"> {{$errors->first('image')}} </span>
                         @endif
@@ -89,8 +89,8 @@
                     <br/> <br/>
                     <div class="col-12 col-md-12 mb-5">
                         <label>توضیحات *</label>
-                        <textarea id="editor1" class="editor1" class="form-control" name="content" rows="15"
-                                  cols="5" title="متن ">{{old('content')}}</textarea>
+                        <textarea id="editor1" class="editor1 form-control" name="content" rows="15"
+                                  title="متن ">{{old('content')}}</textarea>
                         @if($errors->has('content'))
                             <span class="help-block sub-error"> {{$errors->first('content')}} </span>
                         @endif
@@ -118,7 +118,7 @@
 
 @section('js')
 
-    <script src="{{asset('assets/dashboard/ckeditor/ckeditor.js')}}"></script>
+    <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
     <script type="text/javascript">
         CKEDITOR.replace('editor1', {
             filebrowserUploadUrl: "{{route('ckeditor.upload', ['_token' => csrf_token()])}}",

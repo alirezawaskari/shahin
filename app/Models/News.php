@@ -29,7 +29,7 @@ class News extends Model implements HasMedia
 
     public function getImageAttribute(): string
     {
-        return $this->getFirstMediaUrl('image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
     }
 
     /**

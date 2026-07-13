@@ -283,8 +283,8 @@
 
                             <span>مهر و امضا فروشنده</span>
                             @if(!is_null($factor->representation))
-                            @if(!is_null($factor->representation->stamp))
-                            <img src="{{ asset($factor->representation->stamp) }}" alt="">
+                            @if($factor->representation->stamp)
+                            <img src="{{ $factor->representation->stamp }}" alt="">
                             @else
                             <img src="/assets/site/images/mohr.png" alt="">
                             @endif

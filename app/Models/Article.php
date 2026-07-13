@@ -32,7 +32,7 @@ class Article extends Model implements HasMedia {
 
     public function getOldImageAttribute(): string
     {
-        return $this->getFirstMediaUrl('old_image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'old_image');
     }
 
     /**

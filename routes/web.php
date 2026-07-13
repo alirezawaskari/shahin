@@ -245,6 +245,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     // delete a Spatie media row by id (gallery images, etc.)
     Route::post('removeMedia', [AdminController::class,'removeMedia']);
 
+    // stream a media file inline by id (temp uploads live on the private `local`
+    // disk with no public url) — pdf renders in-browser, other types download.
+    Route::get('viewMedia/{id}', [AdminController::class,'viewMedia'])->name('viewMedia');
+
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
     Route::resource('workSample',WorkSampleController::class)->except(['show','destroy']);
@@ -628,9 +632,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     //products
     Route::resource('product', 'ProductController');
-    Route::post('/removeImgGallery', 'ProductController@removeImgGallery');
     Route::post('/product/store', 'ProductController@store');
-    Route::post('/removeImageCreated', 'ProductController@removeImageCreated');
     Route::get('/find/product', 'ProductController@findProduct')->name('findProduct');
 
     Route::post('/searchTransferProduct', 'ProductController@searchTransferProduct');
@@ -676,7 +678,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('/productValidation','ProductValidationController');
     Route::resource('/validation','ValidationController');
     Route::post('/getValidation','ProductValidationController@getValidation');
-    Route::post('/removeImageProduct','ProductController@removeImageProduct');
     Route::post('/saveChangeVisitProduct','ProductController@saveChangeVisitProduct');
 
     //organization & representation
@@ -946,9 +947,21 @@ Route::middleware('auth')->group(function () {
 // Public temporary upload endpoint (used by the .file_upload_ajax / multipleImages widgets on
 // both dashboard and guest-facing site forms). Throttled to mitigate abuse; the controller
 // validates file type/size server-side.
-Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily')
+Route::post('/dashboard/uploadFilesTemporarily', 'Admin\AdminController@uploadFilesTemporarily')
     ->middleware('throttle:60,1')
-    ->name('uploadPhotosTemporarily');
+    ->name('uploadFilesTemporarily');
+
+// Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard auth).
+// Scoped in the controller to temp holders only, so it can never serve a model's saved media.
+Route::get('/upload/view/{id}', 'Admin\AdminController@viewTempMedia')
+    ->middleware('throttle:120,1')
+    ->name('viewTempMedia');
+
+// Public removal of a just-uploaded TEMP file (guest site forms). Scoped in the
+// controller to temp holders only, so it can never delete a model's saved media.
+Route::post('/upload/removeTemp', 'Admin\AdminController@removeTempMedia')
+    ->middleware('throttle:60,1')
+    ->name('removeTempMedia');
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');

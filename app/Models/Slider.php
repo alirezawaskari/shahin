@@ -27,7 +27,7 @@ class Slider extends Model implements HasMedia
 
     public function getImgAttribute(): string
     {
-        return $this->getFirstMediaUrl('img');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img');
     }
     const TYPE = [
         '0' => 'pc',

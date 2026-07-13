@@ -57,14 +57,14 @@
                     <div class="col-12 col-md-6">
                         <div class="card">
                             <div id="imgmeli_src" class="show">
-                                <img class="card-img-top" height="150px">
+                                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
                             </div>
                             <div class="card-body">
                                 <label>کارت ملی</label>
                                 <br>
                                 <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
+                                <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
                             </div>
                         </div>
                     </div>
@@ -72,14 +72,14 @@
                     <div class="col-12 col-md-6">
                         <div class="card">
                             <div id="imgturnover_src" class="show">
-                            <img class="card-img-top" height="150px">
+                                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
                             </div>
                             <div class="card-body">
                                 <label>تصویر پرینت حساب | موجودی حساب</label>
                                 <br>
                                 <label for="imgturnover" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="imgturnover"  type="file" id="imgturnover" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="imgturnover" class="path" name="urlimgturnover">
+                                <input type="hidden" id="imgturnover_path" class="path" name="urlimgturnover">
                             </div>
                         </div>
                     </div>

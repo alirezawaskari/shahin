@@ -10,46 +10,7 @@ use Illuminate\Support\Facades\File;
 
 class MediaLibraryHelper
 {
-    /**
-     * Resolve a temporary ajax upload (a MediaLibrary id produced by
-     * uploadPhotosTemporarily / the .file_upload_ajax handler) into a
-     * permanent path string under public/upload, mirroring the legacy
-     * Helper::moveImage() output so asset()/public_path() keep working.
-     *
-     * @param string|null $mediaId  MediaLibrary id from the hidden *_path field
-     * @param string $folder        sub-folder under upload/{Y}/{m}/ (e.g. 'service')
-     * @return string               e.g. /upload/2026/07/service/20260708_120000.jpg, or '' when nothing to persist
-     */
-    public static function persist(?string $mediaId, string $folder): string
-    {
-        if (empty($mediaId)) {
-            return '';
-        }
-
-        $media = MediaLibrary::find($mediaId);
-        if (!$media) {
-            return '';
-        }
-
-        $source = $media->getFirstMediaPath('images');
-        if (!$source || !file_exists($source)) {
-            return '';
-        }
-
-        $datePath   = ($media->created_at ?? now())->format('Y/m');
-        $relativeDir = 'upload/' . $datePath . '/' . $folder;
-        $destDir     = public_path($relativeDir);
-
-        if (!is_dir($destDir)) {
-            File::makeDirectory($destDir, 0777, true, true);
-        }
-
-        $filename = basename($source);
-        File::copy($source, $destDir . '/' . $filename);
-
-        return '/' . $relativeDir . '/' . $filename;
-    }
-
+   
     /**
      * Move a temporary ajax upload (a MediaLibrary id from the hidden *_path
      * field) into a model's own Spatie media collection.
@@ -70,13 +31,21 @@ class MediaLibraryHelper
             return;
         }
 
-        $temp = MediaLibrary::find($tempId);
-        if (!$temp) {
+        // $tempId is the Spatie Media row id (the "media_id" the ajax upload returns).
+        $tempMedia = Media::find($tempId);
+        if (!$tempMedia) {
             return;
         }
 
-        $tempMedia = $temp->getFirstMedia('images');
-        $absolutePath = $tempMedia ? $tempMedia->getPath() : null;
+        // The temp holder that owns this media (needed for temp cleanup). Guard that
+        // it's a genuine ajax-temp upload (MediaLibrary/'images') so a caller can never
+        // smuggle a model's permanent media id in here and have it moved/deleted.
+        $temp = $tempMedia->model;
+        if (!($temp instanceof MediaLibrary) || $tempMedia->collection_name !== 'images') {
+            return;
+        }
+
+        $absolutePath = $tempMedia->getPath();
 
         if ($absolutePath && is_file($absolutePath)) {
             // Optimize (cap the longest side to 2560px + recompress) so the stored file
@@ -179,6 +148,85 @@ class MediaLibraryHelper
             // ignore path resolution issues; still drop the row below
         }
         Media::where('id', $media->id)->delete();
+    }
+
+    /**
+     * URL of the first media in $collection, but ONLY if its file physically exists
+     * on disk — otherwise ''. Lets image accessors ($model->image, …) stay falsy for
+     * a media row whose file is missing, so `@if($model->image)` in views is a real
+     * "show the image" check (mirrors the old File::exists(public_path().$col) guards)
+     * without every view having to stat the disk itself.
+     */
+    public static function urlIfFileExists(\Spatie\MediaLibrary\HasMedia $model, string $collection): string
+    {
+        $media = $model->getFirstMedia($collection);
+        if (! $media) {
+            return '';
+        }
+        try {
+            $path = $media->getPath();
+        } catch (\Throwable $e) {
+            return '';
+        }
+        return ($path && is_file($path)) ? $media->getUrl() : '';
+    }
+
+    /**
+     * The media in $collection whose files physically exist on disk (a media row
+     * with a missing file is dropped). Use for galleries / multi-image collections
+     * so a broken file never renders. Returns a re-indexed Spatie media collection,
+     * so callers can ->map(fn($m) => $m->getUrl()) or iterate and call getUrl().
+     */
+    public static function existingMedia(\Spatie\MediaLibrary\HasMedia $model, string $collection)
+    {
+        return $model->getMedia($collection)->filter(function ($media) {
+            try {
+                $path = $media->getPath();
+            } catch (\Throwable $e) {
+                return false;
+            }
+            return $path && is_file($path);
+        })->values();
+    }
+
+    /**
+     * Optimize an uploaded image and attach it straight to $model's $collection via
+     * Spatie (with the native File::put fallback for Windows/Apache). For DIRECT
+     * uploads — e.g. CKEditor content images owned by the Ckeditor model — that don't
+     * go through the temp (uploadFilesTemporarily) flow. Runs the same optimizer as
+     * attachTo (resize + recompress, transparency-safe; svg/gif untouched).
+     *
+     * @return \App\Models\Media|null  the created media, or null on failure
+     */
+    public static function attachUpload(\Spatie\MediaLibrary\HasMedia $model, UploadedFile $file, string $collection, array $customProperties = [])
+    {
+        $extension = strtolower($file->getClientOriginalExtension()) ?: 'jpg';
+        $bytes = self::optimizeToUnderLimit($file->getRealPath(), $extension);
+        if ($bytes === false || $bytes === '') {
+            $bytes = @file_get_contents($file->getRealPath());
+        }
+        if ($bytes === false) {
+            return null;
+        }
+
+        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
+        try {
+            $media = $model->addMediaFromString($bytes)
+                ->usingFileName($filename)
+                ->withCustomProperties($customProperties)
+                ->toMediaCollection($collection);
+
+            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
+            $target = $media->getPath();
+            if (!is_file($target)) {
+                File::ensureDirectoryExists(dirname($target));
+                File::put($target, $bytes);
+            }
+            return $media;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachUpload failed: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /** Whether $collection is declared singleFile() on the model. */

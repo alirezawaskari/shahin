@@ -41,7 +41,9 @@ class FilterHelper {
         {
             case('belongsToMany'):
                 $query = $query->whereHas('ghorfeOnlineLists', function ($q) use ($ghorfe_online_list) {
-                    $q->where('id', $ghorfe_online_list->id);
+                    // qualify the key: whereHas on a belongsToMany joins the pivot table,
+                    // so an unqualified `id` is ambiguous between it and ghorfe_online_lists.
+                    $q->whereKey($ghorfe_online_list->id);
                 });
                 break;
             case('morphTo'):

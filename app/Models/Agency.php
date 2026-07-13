@@ -4,10 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Agency extends Model
+class Agency extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
+
+    /** Document images owned by the agency (national-id card, turnover statement). */
+    const MEDIA_FIELDS = ['imgmeli', 'imgturnover'];
 
     /**
      * @var array
@@ -20,6 +25,23 @@ class Agency extends Model
     protected $casts = [
         'values' => 'array'
     ];
+
+    public function registerMediaCollections(): void
+    {
+        foreach (self::MEDIA_FIELDS as $field) {
+            $this->addMediaCollection($field)->useDisk('public')->singleFile();
+        }
+    }
+
+    public function getImgmeliAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli');
+    }
+
+    public function getImgturnoverAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

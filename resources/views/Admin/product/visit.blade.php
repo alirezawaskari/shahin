@@ -317,8 +317,8 @@
                                             </li>
                                             <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب کنید.
                                             </li>
-                                            <li>سطل زباله: اگر تصویر را به اشتباه انتخاب کرده‌اید، روی علامت سطل
-                                                زباله کلیک کنید تا تصویر مورد نظر حذف شود
+                                            <li>
+                                                برای حدف تصویر علامت ضربدر را بزنید
                                             </li>
                                         </ul>
                                         <br /><br />
@@ -331,13 +331,12 @@
                                             @include('Admin.modal.validation',['field'=>'image'])
                                         </div>
 
-                                        @if($product->galleries()->count() > 0)
+                                        @if($product->getMedia('gallery')->count() > 0)
                                         <div class="col-12 col-md-12 mb-4">
-                                            @foreach($product->galleries()->get() as $index=>$gallery)
-                                            <div class="div_remove_btn" id="gallery_{{$gallery->id}}">
-                                                <img src="{{$gallery->image}}" alt="{{$gallery->title}}" width="80px"
+                                            @foreach($product->getMedia('gallery') as $index=>$gallery)
+                                            <div class="d-inline-block mb-2" id="gallery_{{$gallery->id}}">
+                                                <img src="{{$gallery->getUrl()}}" alt="{{$gallery->title}}" width="80px"
                                                     class="border-radius5">
-                                                @include('Admin.modal.validation',['field'=>'gallery'.$gallery->id,'validationable_id'=>$gallery->id,'validationable_type'=>'App\Models\Gallery'])
                                             </div>
                                             @endforeach
                                         </div>
