@@ -1,8 +1,13 @@
-
+// This is a static .js file, so Blade {{route()}} never runs here — building the URL
+// from that literal produced a 404 ("{{route('ckeditor.upload'...")). Build the upload
+// URL from the csrf-token meta at runtime instead, and guard CKEDITOR so a failed
+// ckeditor.js load can't halt the rest of this script.
+if (typeof CKEDITOR !== 'undefined') {
     CKEDITOR.replace('description', {
-        filebrowserUploadUrl: "{{route('ckeditor.upload', ['_token' => csrf_token()])}}",
+        filebrowserUploadUrl: '/dashboard/ckeditor/upload?_token=' + $('meta[name="csrf-token"]').attr('content'),
         filebrowserUploadMethod: 'form'
     });
+}
 
 
 if ($('.type_selected').attr("value") == 0) {

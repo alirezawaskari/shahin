@@ -118,25 +118,10 @@ $('body').on('click', '#category-update-submit', function (e) {
     });
 });
 
-$('#categorySelect, #serviceSelect').change(function () {
-
-    $.ajax({
-        url: "{{ route('ghorfeOnlineList.getGallery') }}",
-        type: "POST",
-        data: {
-            category_id: $('#categorySelect').val(),
-            service_id: $('#serviceSelect').val(),
-            ghorfe_id: $('#ghorfe_id').val()
-        },
-        success: function (res) {
-            $('#gallerySection').html(res);
-        },
-        error: function (xhr) {
-            console.log(xhr.responseText);
-        }
-    });
-
-});
+// NOTE: a legacy #categorySelect/#serviceSelect -> getGallery handler used to live here.
+// It was dead copy-paste code cloned from the ghorfeOnlineList views (those elements do
+// not exist on the category pages) and it rendered the OLD non-Spatie `gallery-form`.
+// The category pages now use the Spatie <x-media-gallery-form> component, so it's removed.
 
 function previewImage(event, previewId) {
     const file = event.target.files[0];

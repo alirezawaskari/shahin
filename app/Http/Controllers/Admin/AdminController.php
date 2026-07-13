@@ -60,7 +60,7 @@ class AdminController extends Controller
      * @return array|false[]
      * @throws \Exception
      */
-    public function uploadPhotosTemporarily(Request $request)
+    public function uploadFilesTemporarily(Request $request)
     {
         // Public endpoint: validate strictly to prevent abuse (arbitrary/oversized uploads).
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [

@@ -389,31 +389,12 @@
             }
 
             /* =========================
-                CATEGORY / SERVICE AJAX
+                (removed) CATEGORY / SERVICE -> getGallery AJAX
+                Legacy copy-paste from the ghorfeOnlineList views: #categorySelect /
+                #serviceSelect do not exist on this page, and getGallery renders the OLD
+                non-Spatie gallery-form. The Spatie <x-media-gallery-form> above is the
+                single source of truth for the gallery now.
             ========================== */
-            const categorySelect = document.getElementById('categorySelect');
-
-            if (window.jQuery && categorySelect) {
-                $('#categorySelect, #serviceSelect').on('change', function () {
-
-                    $.ajax({
-                        url: "{{ route('ghorfeOnlineList.getGallery') }}",
-                        type: "POST",
-                        data: {
-                            category_id: $('#categorySelect').val(),
-                            service_id: $('#serviceSelect').val(),
-                            ghorfe_id: $('#ghorfe_id').val()
-                        },
-                        success: function (res) {
-                            $('#gallerySection').html(res);
-                        },
-                        error: function (xhr) {
-                            console.error(xhr.responseText);
-                        }
-                    });
-
-                });
-            }
 
             /* =========================
                 IMAGE PREVIEW (SAFE)

@@ -189,6 +189,46 @@ class MediaLibraryHelper
         })->values();
     }
 
+    /**
+     * Optimize an uploaded image and attach it straight to $model's $collection via
+     * Spatie (with the native File::put fallback for Windows/Apache). For DIRECT
+     * uploads — e.g. CKEditor content images owned by the Ckeditor model — that don't
+     * go through the temp (uploadFilesTemporarily) flow. Runs the same optimizer as
+     * attachTo (resize + recompress, transparency-safe; svg/gif untouched).
+     *
+     * @return \App\Models\Media|null  the created media, or null on failure
+     */
+    public static function attachUpload(\Spatie\MediaLibrary\HasMedia $model, UploadedFile $file, string $collection, array $customProperties = [])
+    {
+        $extension = strtolower($file->getClientOriginalExtension()) ?: 'jpg';
+        $bytes = self::optimizeToUnderLimit($file->getRealPath(), $extension);
+        if ($bytes === false || $bytes === '') {
+            $bytes = @file_get_contents($file->getRealPath());
+        }
+        if ($bytes === false) {
+            return null;
+        }
+
+        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
+        try {
+            $media = $model->addMediaFromString($bytes)
+                ->usingFileName($filename)
+                ->withCustomProperties($customProperties)
+                ->toMediaCollection($collection);
+
+            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
+            $target = $media->getPath();
+            if (!is_file($target)) {
+                File::ensureDirectoryExists(dirname($target));
+                File::put($target, $bytes);
+            }
+            return $media;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachUpload failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     /** Whether $collection is declared singleFile() on the model. */
     private static function isSingleFileCollection(\Spatie\MediaLibrary\HasMedia $model, string $collection): bool
     {

@@ -116,7 +116,7 @@
 
 @section('js')
 
-    <script src="/assets/dashboard/ckeditor/ckeditor.js"></script>
+    <script src="/assets/script/ckeditor/ckeditor.js"></script>
     <script type="text/javascript">
 
         CKEDITOR.replace('editor1', {

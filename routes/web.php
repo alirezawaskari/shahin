@@ -947,9 +947,9 @@ Route::middleware('auth')->group(function () {
 // Public temporary upload endpoint (used by the .file_upload_ajax / multipleImages widgets on
 // both dashboard and guest-facing site forms). Throttled to mitigate abuse; the controller
 // validates file type/size server-side.
-Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily')
+Route::post('/dashboard/uploadFilesTemporarily', 'Admin\AdminController@uploadFilesTemporarily')
     ->middleware('throttle:60,1')
-    ->name('uploadPhotosTemporarily');
+    ->name('uploadFilesTemporarily');
 
 // Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard auth).
 // Scoped in the controller to temp holders only, so it can never serve a model's saved media.

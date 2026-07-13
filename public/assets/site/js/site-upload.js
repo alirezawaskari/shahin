@@ -4,7 +4,7 @@
  * Site pages do not load the dashboard bundle (adminJs.js), so this file
  * mirrors the upload helpers the .file_upload_ajax and multipleImages
  * widgets rely on. Uploads go to the (now public, throttled + validated)
- * /dashboard/uploadPhotosTemporarily endpoint and the returned MediaLibrary
+ * /dashboard/uploadFilesTemporarily endpoint and the returned MediaLibrary
  * id is written into the hidden *_path field / multiple_image[i][file] rows.
  */
 
@@ -86,7 +86,7 @@ $(document).on('change', '.file_upload_ajax', function () {
     reader.onload = function (e) {
         $.ajax({
             type: "post",
-            url: '/dashboard/uploadPhotosTemporarily',
+            url: '/dashboard/uploadFilesTemporarily',
             data: fd,
             contentType: false,
             processData: false,
@@ -181,7 +181,7 @@ function multipleImages(input) {
             reader.onload = function (e) {
                 $.ajax({
                     type: "post",
-                    url: '/dashboard/uploadPhotosTemporarily',
+                    url: '/dashboard/uploadFilesTemporarily',
                     data: fd,
                     contentType: false,
                     processData: false,
