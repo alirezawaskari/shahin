@@ -355,11 +355,15 @@ class ServiceController extends AdminController
      */
     private function updateTextInformation(Request $request, Service $service)
     {
-          $service->update(array(
-              'content'=>$request['content'],
-              'txt_box_1'=>$request->txt_box_1,
-              'left_content'=>$request->left_content,
-          ));
+          // Persist only the text fields actually submitted. The ghorfe متن form sends just
+          // `content`; writing the others unconditionally would null out txt_box_1/left_content.
+          $fields = [];
+          foreach (['content', 'txt_box_1', 'left_content'] as $f) {
+              if (!is_null($request->input($f))) {
+                  $fields[$f] = $request->input($f);
+              }
+          }
+          $service->update($fields);
         return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
     }
     /**

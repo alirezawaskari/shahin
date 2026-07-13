@@ -85,7 +85,7 @@
                     <td><input type="text" class="form-control" placeholder="عنوان"
                                name="gallery_title[{{$gallery->id}}]" value="{{$gallery->getCustomProperty('title')}}"></td>
                     <td><a data-id="{{$gallery->id}}" title="حذف عکس"
-                           class="btn btn-sm btn-danger remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a></td>
+                           class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a></td>
                 </tr>
             @endforeach
             </tbody>

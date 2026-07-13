@@ -4,10 +4,51 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Center extends Model {
-    use SoftDeletes;
+class Center extends Model implements HasMedia {
+    use SoftDeletes, InteractsWithMedia;
     protected $dates = [ 'deleted_at' ];
+
+    /**
+     * Spatie media collections. Legacy path columns (image, background_image,
+     * contract_file) are kept, but reads route through the accessors below.
+     * Only `contract_file` is wired in the admin UI today; the rest are declared
+     * so the model is fully Spatie-ready for wherever they get used.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('background_image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('contract_file')->useDisk('public')->singleFile();
+        $this->addMediaCollection('gallery')->useDisk('public');
+    }
+
+    /** Contract file url (shadows the legacy `contract_file` column; disk-checked). */
+    public function getContractFileAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'contract_file');
+    }
+
+    /** Main image url (shadows the legacy `image` column; disk-checked). */
+    public function getImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+    }
+
+    /** Background image url (shadows the legacy `background_image` column; disk-checked). */
+    public function getBackgroundImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'background_image');
+    }
+
+    /** Disk-checked gallery image urls (skips media whose file is missing). */
+    public function galleryUrls(string $collection = 'gallery')
+    {
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
+            ->map(fn ($m) => $m->getUrl());
+    }
 
     protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
     'pay_type', 'purchase_type', 'status', 'is_show', 'lat', 'lon', 'has_subset', 'type', 'fullName',
