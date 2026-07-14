@@ -60,13 +60,127 @@ class AdminController extends Controller
      * @return array|false[]
      * @throws \Exception
      */
-    public function uploadPhotosTemporarily(Request $request)
+    public function uploadFilesTemporarily(Request $request)
     {
-        if (isset($request->file)) {
-            $media = MediaLibraryHelper::uploadImage($request->file, auth()->id());
-            return ['image_name' => $media, 'status' => true];
+        // Public endpoint: validate strictly to prevent abuse (arbitrary/oversized uploads).
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'file' => [
+                'required',
+                'file',
+                'max:6144', // 6 MB, matches the client-side limit
+                'mimes:jpg,jpeg,png,webp,svg,gif,pdf,doc,docx,xls,xlsx,zip,rar',
+            ],
+        ], [
+            'file.required' => 'فایلی ارسال نشده است.',
+            'file.max'      => 'حجم فایل نباید بیشتر از ۶ مگابایت باشد.',
+            'file.mimes'    => 'فرمت فایل مجاز نیست.',
+        ]);
+
+        if ($validator->fails()) {
+            return ['status' => false, 'message' => $validator->errors()->first()];
+        }
+
+        $media = MediaLibraryHelper::uploadImage($request->file, auth()->id());
+        return [
+            // Single temp id used for everything: hidden *_path (attachTo on save),
+            // removeMedia (✕) and viewMedia (مشاهده). The whole MediaLibrary model is
+            // deliberately NOT returned — this endpoint is public and serializing it
+            // would leak internal columns (user_id, upload_location, …).
+            'media_id' => optional($media->getFirstMedia('images'))->id,
+            'status'   => true,
+        ];
+    }
+
+    /**
+     * Delete a Spatie media row by id (used by gallery remove buttons).
+     */
+    public function removeMedia(Request $request)
+    {
+        $media = \App\Models\Media::find($request->media_id);
+        if ($media) {
+            // native delete of just this file + row (avoids Spatie's recursive
+            // directory listing that fails on Windows, and our shared per-date dirs)
+            try {
+                $path = $media->getPath();
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('removeMedia unlink failed: ' . $e->getMessage());
+            }
+            \App\Models\Media::where('id', $media->id)->delete();
+            return ['status' => true];
         }
         return ['status' => false];
+    }
+
+    /**
+     * Stream a media file inline by id. Temp ajax uploads live on the private
+     * `local` disk (no public url), so the "مشاهده" view links resolve here.
+     * response()->file() sets the Content-Type from the file, so pdf/images
+     * render in the browser and other types are offered for download.
+     */
+    public function viewMedia($id)
+    {
+        $media = \App\Models\Media::find($id);
+        if (! $media) {
+            abort(404);
+        }
+        $path = $media->getPath();
+        if (! $path || ! is_file($path)) {
+            abort(404);
+        }
+        return response()->file($path, [
+            'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+        ]);
+    }
+
+    /**
+     * Public inline view of a just-uploaded TEMP file (guest site forms, e.g. the
+     * recruitment resume upload, have no dashboard auth). Scoped to temp holders
+     * only — MediaLibrary + the private 'images' collection — so this public route
+     * can never be used to stream a model's saved media (resumes, invoices, …) by
+     * id. Temp ids are unguessable UUIDs and the file is deleted once the form is
+     * submitted, so the exposure window is tiny.
+     */
+    public function viewTempMedia($id)
+    {
+        $media = \App\Models\Media::where('id', $id)
+            ->where('model_type', \App\Models\MediaLibrary::class)
+            ->where('collection_name', 'images')
+            ->first();
+        if (! $media) {
+            abort(404);
+        }
+        $path = $media->getPath();
+        if (! $path || ! is_file($path)) {
+            abort(404);
+        }
+        return response()->file($path, [
+            'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+        ]);
+    }
+
+    /**
+     * Public removal of a just-uploaded TEMP file (guest site forms have no dashboard
+     * auth). Scoped to temp holders only — MediaLibrary + the private 'images'
+     * collection — so it can never delete a model's saved media by id. Called when a
+     * site user removes the selection or picks a different file, so temp uploads don't
+     * pile up orphaned on disk.
+     */
+    public function removeTempMedia(Request $request)
+    {
+        $media = \App\Models\Media::where('id', $request->media_id)
+            ->where('model_type', \App\Models\MediaLibrary::class)
+            ->where('collection_name', 'images')
+            ->first();
+        if (! $media) {
+            return ['status' => false];
+        }
+        MediaLibraryHelper::deleteMedia($media);
+        // drop the now-empty temp holder too
+        \App\Models\MediaLibrary::where('id', $media->model_id)->delete();
+        return ['status' => true];
     }
 
     public function dashboard(Request $request)

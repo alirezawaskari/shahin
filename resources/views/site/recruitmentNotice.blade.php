@@ -129,7 +129,14 @@
 
                                         <div class="col-12 m2">
                                             <label> فایل رزومه: </label>
-                                            <input type="file" name="resume" id="file" accept=".pdf,.jpg,.jpeg">
+                                            <div class="input-group mb-2">
+                                                <input id="resume_{{$recruitment_notice->id}}" class="d-none form-control file-upload file_upload_ajax" type="file" name="resume" accept=".pdf,.jpg,.jpeg"/>
+                                                <label for="resume_{{$recruitment_notice->id}}" class="btn btn-primary custom-file-upload border border-1">
+                                                    <i class="fa fa-cloud-upload"></i> انتخاب فایل
+                                                </label>
+                                            </div>
+                                            <input type="hidden" id="resume_{{$recruitment_notice->id}}_path" class="path" name="resume_path" value="">
+                                            <div id="resume_{{$recruitment_notice->id}}_src" class="show disInline"></div>
                                         </div>
                                         <div class="col-md-12">
                                             <p>توجه : کاربر گرامی در صورت داشتن فایل رزومه جداگانه لطفا رزومه را با

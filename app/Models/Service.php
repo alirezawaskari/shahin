@@ -8,10 +8,77 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
-class Service extends Model implements AuditableContract
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class Service extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
-    use Sluggable,SoftDeletes;
+    use Sluggable,SoftDeletes,InteractsWithMedia;
+
+    /** Media collections owned directly by the service (Spatie native). */
+    const MEDIA_FIELDS = ['image', 'icon', 'img_box_1', 'thumb', 'image_app'];
+
+    /** Multi-image gallery collections (data-mining / homepage slider). */
+    const GALLERY_COLLECTIONS = [
+        'gallery_horizontal' => 4, // max horizontal banners
+        'gallery_vertical'   => 2, // max vertical banners
+    ];
+
+    public function registerMediaCollections(): void
+    {
+        foreach (self::MEDIA_FIELDS as $field) {
+            $this->addMediaCollection($field)->useDisk('public')->singleFile();
+        }
+        foreach (array_keys(self::GALLERY_COLLECTIONS) as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public');
+        }
+        // portfolio / work-samples: unlimited multi-image collection
+        $this->addMediaCollection('portfolio')->useDisk('public');
+    }
+
+    /** The media occupying gallery slot $index in $collection, if any. */
+    public function gallerySlot(string $collection, int $index)
+    {
+        return $this->getMedia($collection)
+            ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
+    }
+
+    /**
+     * Disk-checked URLs of a multi-image gallery collection (gallery_horizontal,
+     * gallery_vertical, portfolio) — media whose file is missing on disk is skipped,
+     * mirroring the single-image accessors. For display surfaces; edit/management
+     * views should keep iterating getMedia() so broken rows stay removable.
+     */
+    public function galleryUrls(string $collection)
+    {
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
+            ->map(fn ($m) => $m->getUrl());
+    }
+
+    public function getImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+    }
+
+    public function getIconAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon');
+    }
+
+    public function getImgBox1Attribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1');
+    }
+
+    public function getThumbAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb');
+    }
+
+    public function getImageAppAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app');
+    }
 
     /**
      * @var string[]

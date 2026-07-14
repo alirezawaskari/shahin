@@ -6,11 +6,33 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Pack extends Model
+class Pack extends Model implements HasMedia
 {
-    use SoftDeletes,Sluggable;
+    use SoftDeletes,Sluggable,InteractsWithMedia;
 //        ,Taggable;
+
+    /** Spatie media: single main image + a multi-image gallery. */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('gallery')->useDisk('public');
+    }
+
+    /** Main image url (shadows the legacy `image` column; disk-checked). */
+    public function getImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+    }
+
+    /** Disk-checked gallery image urls (skips media whose file is missing). */
+    public function galleryUrls(string $collection = 'gallery')
+    {
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
+            ->map(fn ($m) => $m->getUrl());
+    }
 
     /**
      * @var string[]

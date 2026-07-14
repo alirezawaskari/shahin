@@ -21,7 +21,10 @@ class MediaLibrary extends Model implements HasMedia {
     ];
 
     public function registerMediaCollections(): void {
+        // Private staging disk for temporary ajax uploads. Kept off the public
+        // media disk so moving a temp upload into a model's collection is a
+        // cross-disk copy (works on both Linux and Windows).
         $this->addMediaCollection( 'images' )
-        ->useDisk( 'public' );
+        ->useDisk( 'local' );
     }
 }

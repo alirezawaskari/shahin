@@ -50,23 +50,14 @@
 
                     <div class="col-12 col-md-8 mt-2">
                         <div class="card">
-                            @if($singleWebPage->image)
-                            <div id="image_src" class="show">
-                            <a href="{{ asset($singleWebPage->image) }}" target="_blank">
-                                <img src="{{ asset($singleWebPage->image) }}" class="card-img-top" height="150px">
-                            </a>
-                            </div>
-                            @else
-                            <div id="image_src" class="show">
-                            <img class="card-img-top" height="150px">
-                            </div>
-                            @endif
                             <div class="card-body">
+                                @include('Admin.partials.currentMedia', ['owner' => $singleWebPage, 'field' => 'image', 'boxH' => 150])
                                 <label>تصویر سایت</label>
                                 <br>
                                 <label for="image" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="image"  type="file" id="image" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="image" class="path" name="urlimage">
+                                <div id="image_src" class="show"></div>
+                                <input type="hidden" id="image_path" class="path" name="urlimage">
                             </div>
                         </div>
                     </div>

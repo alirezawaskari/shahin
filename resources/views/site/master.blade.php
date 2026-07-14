@@ -142,6 +142,7 @@
             </div>
         </div>
     </div> --}}
+    <script src="{{ asset('assets/site/js/site-upload.js') }}"></script>
     @yield('js')
 </body>
 

@@ -13,6 +13,7 @@ use App\Http\Resources\ResumeCollection;
 use App\Http\Controllers\Controller;
 use App\Exports\ResumsExport;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -148,8 +149,8 @@ class ResumeController extends Controller
            {$recruitment_notice->title}";
             Callcenter::createTask($user, $description , $callcenter_roles);
         }
-        $inputs['resume'] = $request->urlresume;
-		unset($inputs['urlresume']);
+        // resume file is stored via Spatie (see attachTo below), never as a column value
+        unset($inputs['urlresume'], $inputs['resume']);
         $inputs['name']=$request->name.' '.$request->family;
         unset($inputs['family']);
         unset($inputs['province']);
@@ -158,9 +159,8 @@ class ResumeController extends Controller
 
         $resume = Resume::create($inputs);
 
-        if ($request->urlresume) {
-            $resume->update(['resume' => ($request->urlresume)]);
-        }
+        MediaLibraryHelper::attachTo($resume, $request->urlresume, 'resume');
+
         if(auth()->user()->admin_representation_id)
         {
             $resume->update(['representation_id' => auth()->user()->admin_representation_id]);
@@ -204,15 +204,14 @@ class ResumeController extends Controller
                 'description' => $request->description,
             ]);
         }
-        unset($inputs['resume']);
-        if ($request->urlresume) {
-            $inputs['resume'] = Helper::moveImage($request->urlresume,'document');
-        }
-		unset($inputs['urlresume']);
+        // resume file handled by Spatie (attachTo replaces the old file); never a column value
+        unset($inputs['resume'], $inputs['urlresume']);
         unset($inputs['province_id']);
         unset($inputs['city_id']);
 
         $resume->update($inputs);
+
+        MediaLibraryHelper::attachTo($resume, $request->urlresume, 'resume');
 
         return redirect(route('resume.index'))->with([
             'update'=>'success'

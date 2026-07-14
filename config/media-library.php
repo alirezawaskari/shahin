@@ -98,8 +98,10 @@ return [
 
     /*
      * The fully qualified class name of the media model.
+     * Must be the UUID-based model — the media table id column is char(36),
+     * so the default Spatie (auto-increment) model produces empty/colliding ids.
      */
-    'media_model' => Media::class,
+    'media_model' => \App\Models\Media::class,
 
     /*
      * The fully qualified class name of the media observer.
@@ -236,7 +238,7 @@ return [
      * The path where to store temporary files while performing image conversions.
      * If set to null, storage_path('media-library/temp') will be used.
      */
-    'temporary_directory_path' => null,
+    'temporary_directory_path' => "media_library/temp",
 
     /*
      * The engine that should perform the image conversions.

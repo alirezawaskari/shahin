@@ -2,6 +2,7 @@
 
 namespace App\Services\V1\Admin;
 
+use App\Helpers\MediaLibraryHelper;
 use App\Models\GhorfeOnlineListProduct;
 
 class ProductService
@@ -20,21 +21,23 @@ class ProductService
     }
     public function saveImageProduct($request,$product) : void
     {
+        // $image['name'] is the temp media id (media_id) from the ajax uploader.
+        // The item flagged as main (its radio submits an 'index') goes to the
+        // single-file 'image' collection; the rest go to the multi 'gallery'.
         $images = $request->input('image_name_good');
-        $currentImageCount = $product->getMedia('images')->count();
-        if ($images  != null && $currentImageCount + count($images) > 4) {
-            $firstImage = $product->getMedia('images')->first();
-
-            if (!empty($firstImage)) {
-                $firstImage->delete();
-            }
+        if (! $images) {
+            return;
         }
-        if ($images)
-        {
-            foreach ($images as $image) {
-                $imagePath = public_path($image['name']);
-                $product->addMedia($imagePath)
-                    ->toMediaCollection('images');
+        foreach ($images as $image) {
+            if (empty($image['name'])) {
+                continue;
+            }
+            if (isset($image['index'])) {
+                MediaLibraryHelper::attachTo($product, $image['name'], 'image');
+            } else {
+                MediaLibraryHelper::attachTo($product, $image['name'], 'gallery', [
+                    'title' => $request->input('good.name'),
+                ]);
             }
         }
     }

@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Cviebrock\EloquentSluggable\Sluggable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 
-class News extends Model
+class News extends Model implements HasMedia
 {
-    use Sluggable , SoftDeletes;
+    use Sluggable , SoftDeletes, InteractsWithMedia;
 //    use Taggable ;
     /**
      * @var string[]
@@ -19,6 +21,16 @@ class News extends Model
      * @var string[]
      */
     protected $fillable=['user_id','category_news_id','title','subject','slug','image','description','status'];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+    }
+
+    public function getImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+    }
 
     /**
      * @return \string[][]

@@ -105,7 +105,7 @@ $(document).ready(function () {
                                         <button type="button" class="dropdown-item pointer">مشاهده</button></a>
                                     `;
                         if (data.per_delete){
-                            output=output+ ` <button  data-id="${data.id}" class="resume_delete dropdown-item pointer">حذف</button>
+                            output=output+ ` <button type="button" data-id="${data.id}" class="resume_delete dropdown-item pointer">حذف</button>
                                 </div>
                                 </div>`
                         }else{

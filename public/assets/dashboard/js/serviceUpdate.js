@@ -6,6 +6,9 @@ $(document).ready(function () {
     $("body").on('click', '#text-information-submit', function () {
         updateTextInformation()
     })
+    $("body").on('click', '#save-all-tabs', function () {
+        saveAllServiceTabs()
+    })
     $("body").on('click', '#site-information-submit', function () {
         updateService('site-information-form')
     })
@@ -38,11 +41,18 @@ $(document).ready(function () {
         deleteAskedQuestion(this)
     })
 
-    CKEDITOR.replace( 'content',ck_uploader ,ck_uploader) ;
-    CKEDITOR.replace( 'txt_box_1',ck_uploader) ;
-    CKEDITOR.replace( 'left_content',ck_uploader) ;
-    CKEDITOR.replace('content',ck_uploader) ;
-    CKEDITOR.replace( 'service_rules', ck_uploader);
+    // The متن form renders a different subset of these textareas for ghorfe vs non-ghorfe
+    // services (ghorfe: only `content`). Replace an editor ONLY when its textarea is on the
+    // page and it isn't already an editor — the old code replaced all of them (and `content`
+    // twice), which threw "instance already exists" and left phantom instances.
+    var __hasEl = function (name) {
+        return document.getElementById(name) || document.getElementsByName(name).length > 0;
+    };
+    ['content', 'txt_box_1', 'left_content', 'service_rules'].forEach(function (name) {
+        if (__hasEl(name) && !CKEDITOR.instances[name]) {
+            CKEDITOR.replace(name, ck_uploader);
+        }
+    });
 
     // work_sample
     $(document).on('click', '.remove_work_sample', function () {
@@ -102,28 +112,38 @@ $(document).ready(function () {
     })
 
 });
+// When true (during "Save All"), individual tab saves skip their own success popup so
+// only one consolidated result is shown. Errors still render in .transfer_message_box.
+var suppressSaveSwal = false;
+
 //update service
 function updateService(formId){
-    $('.transfer_message_box').empty();
+    if (!suppressSaveSwal) $('.transfer_message_box').empty();
     var form = $('#'+formId);
     var formData = form.serialize();
 
-    $.ajax({
+    return $.ajax({
         url: $('#basic-information-form').attr("action"),
         data: formData,
         type : 'PATCH',
         success: function (response) {
             if (response.status == 'success') {
-                swal(response.messages[0], {
-                    icon: "success",
-                    button: "باشه"
-                });
+                if (!suppressSaveSwal) {
+                    swal(response.messages[0], {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                }
 
-                if(response.data.type == 'asked_question'){
+                // in-place media update for image / gallery saves (no reload)
+                if (response.media && typeof applySavedMedia === 'function') {
+                    applySavedMedia(response.media);
+                }
+
+                if(response.data && response.data.type == 'asked_question'){
                     addNewAskedQuestionToList(response.data.data)
                 }
             } else {
-                $('.transfer_message_box').empty();
                 $.each(response.messages, function (i, val) {
                     $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
                 });
@@ -133,26 +153,31 @@ function updateService(formId){
 }
 //update texts of service
 function updateTextInformation(){
-    var content = CKEDITOR.instances.content.getData();
-    var left_content = CKEDITOR.instances.left_content.getData();
-    var txt_box_1 = CKEDITOR.instances.txt_box_1.getData();
-    $.ajax({
-        url: $('#basic-information-form').attr("action"),
-        data: {
-            update_type:'text_information',
-            content:content,
-            left_content:left_content,
-            txt_box_1:txt_box_1
-        },
+    // Only read editors that actually exist. The ghorfe متن form has just `content`; reading
+    // a missing instance's .getData() threw a TypeError that silently aborted the whole save.
+    var getData = function (name) {
+        return (window.CKEDITOR && CKEDITOR.instances[name]) ? CKEDITOR.instances[name].getData() : null;
+    };
+    var data = { update_type: 'text_information' };
+    var content = getData('content');
+    var left_content = getData('left_content');
+    var txt_box_1 = getData('txt_box_1');
+    if (content !== null) data.content = content;
+    if (left_content !== null) data.left_content = left_content;
+    if (txt_box_1 !== null) data.txt_box_1 = txt_box_1;
+    return $.ajax({
+        url: $('#text-information-form').attr("action"),
+        data: data,
         type : 'PATCH',
         success: function (response) {
             if (response.status == 'success') {
-                swal(response.messages[0], {
-                    icon: "success",
-                    button: "باشه"
-                });
+                if (!suppressSaveSwal) {
+                    swal(response.messages[0], {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                }
             } else {
-                $('.transfer_message_box').empty();
                 $.each(response.messages, function (i, val) {
                     $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
                 });
@@ -162,10 +187,11 @@ function updateTextInformation(){
 }
 //update rules of service
 function updateRules(){
-    // var rules = CKEDITOR.instances.rules.getData();
+    // Guard: the service_rules editor may not exist on every service form.
+    if (!(window.CKEDITOR && CKEDITOR.instances.service_rules)) return;
     const rules = CKEDITOR.instances.service_rules.getData();
 
-    $.ajax({
+    return $.ajax({
         url: $('#rules-form').attr("action"),
         data: {
             update_type:'rules',
@@ -174,11 +200,46 @@ function updateRules(){
         type : 'PATCH',
         success: function (response) {
             if (response.status == 'success') {
-                swal(response.messages[0], {
-                    icon: "success",
-                    button: "باشه"
-                });
+                if (!suppressSaveSwal) {
+                    swal(response.messages[0], {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                }
             }
+        }
+    });
+}
+// Save every content tab in one go (triggered by the header "ثبت همه" button). Fires each
+// present tab's save, suppresses the per-tab popups, and shows one consolidated result.
+// Deliberately excludes row/action operations (insert/update/delete question, session-title
+// reorder) — those are explicit actions, not "save the current content".
+function saveAllServiceTabs(){
+    suppressSaveSwal = true;
+    $('.transfer_message_box').empty();
+
+    var jobs = [];
+    var add = function (present, fn) {
+        if (!present) return;
+        try { var p = fn(); if (p) jobs.push(p); }
+        catch (e) { console.error('save-all: a tab failed to save', e); }
+    };
+
+    add(document.getElementById('basic-information-form'),     function(){ return updateService('basic-information-form'); });
+    add(document.getElementById('text-information-form'),      function(){ return updateTextInformation(); });
+    add(document.getElementById('site-information-form'),      function(){ return updateService('site-information-form'); });
+    add(document.getElementById('rules-form'),                 function(){ return updateRules(); });
+    add(document.getElementById('question-information-form'),  function(){ return updateService('question-information-form'); });
+    add(document.getElementById('first-images-form'),          function(){ return updateService('first-images-form'); });
+    add(document.getElementById('portfolio-information-form'), function(){ return updateService('portfolio-information-form'); });
+    add(document.getElementById('site-images-form'),           function(){ return updateService('site-images-form'); });
+
+    $.when.apply($, jobs).always(function () {
+        suppressSaveSwal = false;
+        if ($('.transfer_message_box').children().length) {
+            swal('برخی بخش‌ها ذخیره نشد', 'خطاهای نمایش داده شده را بررسی کنید.', 'warning');
+        } else {
+            swal('همه بخش‌ها با موفقیت ذخیره شد', { icon: 'success', button: 'باشه' });
         }
     });
 }

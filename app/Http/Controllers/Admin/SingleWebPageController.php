@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\Province;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 
 class SingleWebPageController extends AdminController
 {
@@ -24,7 +25,7 @@ class SingleWebPageController extends AdminController
      */
     public function create()
     {
-        $services = Service::filter()->where('status' , true)->get();
+        $services = Service::filter()->get();
         return view('Admin.singleWebPage.create' , compact('services'));
     }
 
@@ -40,18 +41,20 @@ class SingleWebPageController extends AdminController
             'en_name' => 'required|string',
             'status' => 'required|string',
             'service_id' => 'required',
+        ], [
+            'fa_name.required' => 'لطفا عنوان فارسی را وارد کنید',
+            'en_name.required' => 'لطفا نشان اینترنتی را وارد کنید',
+            'status.required' => 'لطفا وضعیت را انتخاب کنید',
+            'service_id.required' => 'لطفا حداقل یک خدمت را انتخاب کنید',
         ]);
         $inputs = $request->all();
         $inputs['agent_id'] = auth()->user()->id;
-        if($request->urlimage)
-        {
-            $inputs['image'] = Helper::moveImage($request->urlimage,'document');
-        }
 
         unset($inputs['service_id']);
         unset($inputs['urlimage']);
 
         $single_web_page = SingleWebPage::create($inputs);
+        MediaLibraryHelper::attachTo($single_web_page, $request->urlimage, 'image');
 
         $single_web_page->services()->sync($request->input('service_id'));
 
@@ -84,19 +87,19 @@ class SingleWebPageController extends AdminController
             'slug' => 'required|string',
             'status' => 'required|string',
             'service_id' => 'required',
+        ], [
+            'fa_name.required' => 'لطفا عنوان فارسی را وارد کنید',
+            'slug.required' => 'لطفا نشان اینترنتی را وارد کنید',
+            'status.required' => 'لطفا وضعیت را انتخاب کنید',
+            'service_id.required' => 'لطفا حداقل یک خدمت را انتخاب کنید',
         ]);
         $inputs = $request->all();
-
-        if($request->urlimage)
-        {
-            Helper::deleteImage($singleWebPage->image);
-            $inputs['image'] = Helper::moveImage($request->urlimage,'document');
-        }
 
         unset($inputs['service_id']);
         unset($inputs['urlimage']);
 
         $singleWebPage->update($inputs);
+        MediaLibraryHelper::attachTo($singleWebPage, $request->urlimage, 'image');
         $singleWebPage->services()->sync($request->input('service_id'));
 
         return redirect(route('singleWebPage.index'))->with([

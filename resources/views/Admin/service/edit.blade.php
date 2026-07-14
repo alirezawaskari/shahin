@@ -8,6 +8,13 @@
             @include('Admin.layouts.errors')
         </div>
         <div class="transfer_message_box"></div>
+        <div class="d-flex justify-content-end">
+            {{-- Saves every content tab at once (basic, متن, images, rules, questions,
+                 portfolio, site images). Per-tab buttons still save just their own tab. --}}
+            <button type="button" id="save-all-tabs" class="btn btn-success">
+                <i class="fa fa-save"></i> ثبت همه بخش‌ها
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -352,85 +359,92 @@
                         @if(ghorfe())
                         <div class="row">
                             <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail" src="{{asset($service->image)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image'])
                                 <label>تصویر اصلی (قابل نمایش در صفحه خدمت)</label>
-                                <label for="image" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="image" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="image" class="form-control btn btn-outline-info file-upload" type="file"
-                                    name="image" />
+                                <input id="image" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="image" accept="image/*" />
+                                <input type="hidden" id="image_path" class="path" name="image_path" value="">
                                 <div id="image_src" class="show"></div>
                             </div>
                             <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail" src="{{asset($service->icon)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'icon'])
                                 <label>(قابل نمایش در صفحه اول ) تصویر آیکن</label>
-                                <label for="icon" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="icon" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="icon" class="form-control btn btn-outline-info file-upload" type="file"
-                                    name="icon" />
+                                <input id="icon" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="icon" accept="image/*" />
+                                <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                 <div id="icon_src" class="show"></div>
                             </div>
                         </div>
                         @else
                         <div class="row">
                             <div class="col-12 col-md-3 mb-3 border border">
-                                <img class="img-thumbnail" src="{{asset($service->img_box_1)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'img_box_1'])
                                 <label>تصویر بخش اول</label>
-                                <label for="img_box_1" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="img_box_1" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="img_box_1" class="form-control btn btn-outline-info file-upload " type="file"
-                                    name="img_box_1" />
+                                <input id="img_box_1" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="img_box_1" accept="image/*" />
+                                <input type="hidden" id="img_box_1_path" class="path" name="img_box_1_path" value="">
                                 <div id="img_box_1_src" class="show"></div>
                             </div>
 
                             <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail" src="{{asset($service->thumb)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'thumb'])
                                 <label>تصویر اسلاید زیر فرم ثبت نام</label>
-                                <label for="thumb" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="thumb" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="thumb" class="form-control btn btn-outline-info file-upload " type="file"
-                                    name="thumb" />
+                                <input id="thumb" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="thumb" accept="image/*" />
+                                <input type="hidden" id="thumb_path" class="path" name="thumb_path" value="">
                                 <div id="thumb_src" class="show"></div>
 
                             </div>
                             <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail" src="{{asset($service->image)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image'])
                                 <label>تصویر بخش دوم</label>
-                                <label for="image" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="image" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="image" class="form-control btn btn-outline-info file-upload" type="file"
-                                    name="image" />
+                                <input id="image" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="image" accept="image/*" />
+                                <input type="hidden" id="image_path" class="path" name="image_path" value="">
                                 <div id="image_src" class="show"></div>
 
                             </div>
                             <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail" src="{{asset($service->image_app)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image_app'])
                                 <label>تصویر اصلی (استفاده شده درصفحه اول تک صفحه ای و فهرست خدمات)</label>
-                                <label for="image_app" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="image_app" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="image_app" class="form-control btn btn-outline-info file-upload " type="file"
-                                    name="image_app" />
+                                <input id="image_app" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="image_app" accept="image/*" />
+                                <input type="hidden" id="image_app_path" class="path" name="image_app_path" value="">
                                 <div id="image_app_src" class="show"></div>
                             </div>
                             <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail" src="{{asset($service->icon)}}" alt="">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'icon'])
                                 <label>(استفاده شده در صفحه اول سایت) تصویر آیکن</label>
-                                <label for="icon" class="custom-file-upload">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                <label for="icon" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="icon" class="form-control btn btn-outline-info file-upload" type="file"
-                                    name="icon" />
+                                <input id="icon" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="icon" accept="image/*" />
+                                <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                 <div id="icon_src" class="show"></div>
                             </div>
                         </div>
                         @endif
                         <div class="col-12 col-md-12 mb-3">
-                            <input class="btn btn-success" type="submit" value="ثبت تغییرات" id="first-images-submit">
+                            <span class="btn btn-success" id="first-images-submit">ثبت تغییرات</span>
                         </div>
                     </form>
                 </div>
@@ -473,23 +487,40 @@
             <div class="tab-pane fade" id="portfolio-data" role="tabpanel" aria-labelledby="portfolio-tab">
                 <div class="container m-top-40">
                     <div class="row">
-                        @if($service->workSamples()->count() > 0)
-                        <div class="col-12 col-md-12 mb-5">
-                            <label> نمونه کار های ذخیره شده</label>
-                            @foreach($service->workSamples()->get() as $work_sample)
-                            <div class="div_remove_btn" id="work_sample_{{$work_sample->id}}">
-                                <img src="{{$work_sample->image}}" alt="{{$work_sample->title}}" class="border-radius5"
-                                    width="80px">
-                                <a id="{{$work_sample->id}}" title="حذف عکس" class="btn btn-default remove_work_sample">
-                                    <i class="fa fa-close" aria-hidden="true"></i></a>
-                            </div>
-                            @endforeach
-                        </div>
-                        @endif
                         <form action="{{route('service.update' , [$service->slug ])}}" id="portfolio-information-form">
                             <input type="hidden" name="update_type" value="portfolio_images">
+
+                            <div class="col-12 col-md-12 mb-4" id="portfolio_list_wrap"
+                                @if($service->getMedia('portfolio')->count() == 0) style="display:none" @endif>
+                                <label> نمونه کار های ذخیره شده</label>
+                                <table class="table table-striped">
+                                    <tbody id="portfolio_list" data-title-name="existing_portfolio" data-box-h="80">
+                                        @foreach($service->getMedia('portfolio') as $media)
+                                        <tr class="row_image" id="media_{{$media->id}}">
+                                            <td>
+                                                <img src="{{$media->getFullUrl()}}"
+                                                    alt="{{$media->getCustomProperty('title')}}"
+                                                    class="rounded border"
+                                                    style="height:80px;width:auto;object-fit:contain;background:#f8f9fa;">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" placeholder="عنوان"
+                                                    name="existing_portfolio[{{$media->id}}][title]"
+                                                    value="{{$media->getCustomProperty('title')}}">
+                                            </td>
+                                            <td>
+                                                <a data-id="{{$media->id}}" title="حذف عکس"
+                                                    class="btn btn-sm remove_media_btn"><i
+                                                        class="fa fa-close"></i></a>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <div class="col-md-12 col-sm-12 col-xs-12 mb-5">
-                                @include('Admin.partials.multipleImages',['has_link'=>0])
+                                @include('Admin.partials.multipleImages',['has_link'=>0,'listKey'=>'portfolio'])
                             </div>
                             <div class="col-12 col-md-12 mb-3">
                                 <span class="btn btn-success" id="portfolio-information-submit">ثبت تغییرات</span>
@@ -577,7 +608,7 @@
 @section('js')
 <script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/serviceUpdate.js?v=2.1') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/serviceUpdate.js?v=2.2') }}"></script>
 <script>
     @if(session()->get('message'))
         toastr.success('{{ session()->get('message') }}');

@@ -11,4 +11,13 @@ CKEDITOR.editorConfig = function( config ) {
      config.extraPlugins = 'autogrow,html5video,toc';
     config.skin = 'office2013';
 
+    // Route EVERY editor's image "Upload" tab through the Spatie-backed endpoint
+    // (CkeditorController -> Ckeditor model -> storage/app/public/ckeditor). Applied
+    // globally here so all instances get it without per-view config. Instances that
+    // set their own filebrowserUploadUrl still override this. Token read from the
+    // page's csrf-token meta tag (present on every dashboard page).
+    var __csrf = document.querySelector('meta[name="csrf-token"]');
+    config.filebrowserUploadUrl = '/dashboard/ckeditor/upload?_token=' + (__csrf ? __csrf.getAttribute('content') : '');
+    config.filebrowserUploadMethod = 'form';
+
 };

@@ -53,16 +53,16 @@
 <div class="row type_zero_box" style="display: none;">
     <div class="col-12 col-md-6 mb-5 disInline">
         <label>برگه ثبت برند<span class="required">*</span> :</label>
-        <p class="grayColor">برگه ثبت سند را با حجم کمتر از 700 مگا بایت و فرمت PNG ویا JPEG وارد نمایید.</p>
+        <p class="grayColor">برگه ثبت سند را با حجم کمتر از ۶ مگابایت و فرمت JPG یا PNG وارد کنید</p>
     </div>
 
     <div class="col-12 col-md-5 mb-5 disInline">
-        <label for="registration_form" class="custom-file-upload">
+        <label for="registration_form" class="btn btn-primary custom-file-upload border border-1">
             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
         </label>
-        <input id="registration_form" class="file-upload file_upload_ajax" type="file" name="registration_form"/>
+        <input id="registration_form" class="d-none file-upload file_upload_ajax" type="file" name="registration_form"/>
         <div id="registration_form_src" class="show disInline"></div>
-        <input type="hidden" id="registration_form" class="path registration_form_path" name="registration_form_path"
+        <input type="hidden" id="registration_form_path" class="path registration_form_path" name="registration_form_path"
                value="">
         @if($errors->has('registration_form'))
             <span class="help-block sub-error  "> {{$errors->first('registration_form')}} </span>
@@ -101,11 +101,11 @@
         <p class="grayColor">لوگو برند را با ابعاد 600 * 600 پیکسل و با فرمت PNG ویا JPEG و با پس زمینه سفید بارگذاری کنید</p>
     </div>
     <div class="col-12 col-md-5 mb-3 disInline">
-        <label for="file-upload_icon" class="custom-file-upload"><i class="fa fa-cloud-upload"></i>
+        <label for="logo" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-cloud-upload"></i>
             بارگذاری تصویر</label>
-        <input id="file-upload_icon" class="file-upload file_upload_ajax" type="file" name="logo"/>
+        <input id="logo" class="d-none file-upload file_upload_ajax" type="file" name="logo"/>
         <div id="logo_src" class="show disInline"></div>
-        <input type="hidden" id="logo" class="path logo_path" name="logo_path" value="">
+        <input type="hidden" id="logo_path" class="path logo_path" name="logo_path" value="">
         @if($errors->has('logo'))
             <span class="help-block sub-error  "> {{$errors->first('logo')}} </span>
         @endif

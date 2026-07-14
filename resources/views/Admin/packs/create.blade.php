@@ -116,6 +116,6 @@
 @stop
 
 @section('js')
-    <script src="/assets/dashboard/ckeditor/ckeditor.js"></script>
+    <script src="/assets/script/ckeditor/ckeditor.js"></script>
     <script src="/assets/dashboard/js/site/pack/packCreate.js"></script>
 @stop

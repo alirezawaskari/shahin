@@ -5,10 +5,12 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class SingleWebPage extends Model
+class SingleWebPage extends Model implements HasMedia
 {
-    use SoftDeletes, Sluggable;
+    use SoftDeletes, Sluggable, InteractsWithMedia;
 
     /**
      * @var array
@@ -23,6 +25,16 @@ class SingleWebPage extends Model
         'description',
     ];
     protected $guarded = [];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->useDisk('public')->singleFile();
+    }
+
+    public function getImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+    }
 
     /**
      * Return the sluggable configuration array for this model.

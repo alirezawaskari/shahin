@@ -194,19 +194,22 @@ class ServiceItemController extends Controller
                 'image_app' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
             ]);
 
-        $imagesTitles['img_box_1']=$request->file('img_box_1');
-        $imagesTitles['icon']=$request->file('icon');
-        $imagesTitles['thumb']=$request->file('thumb');
-        $imagesTitles['image']=$request->file('image');
-        $imagesTitles['image_app']=$request->file('image_app');
-        foreach ($imagesTitles as $key=>$value){
-            if (!is_null($request->file($key))){
-                $serviceItem->$key = MediaLibraryHelper::uploadImage($value , 'serviceItem');
-                Helper::deleteImage(public_path($serviceItem->$key));
-                $serviceItem->save();
-            }
+        foreach (ServiceItem::MEDIA_FIELDS as $key) {
+            // attach the temporary ajax upload into the service item's own media collection (Spatie)
+            MediaLibraryHelper::attachTo($serviceItem, $request->input($key . '_path'), $key);
         }
-        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+
+        $serviceItem->load('media');
+        $singles = [];
+        foreach (ServiceItem::MEDIA_FIELDS as $key) {
+            $singles[$key] = $this->singleMediaInfo($serviceItem, $key);
+        }
+
+        return response([
+            'status'   => 'success',
+            'messages' => array('ثبت تغییرات با موفقیت انجام گرفت !'),
+            'media'    => ['singles' => $singles],
+        ]);
     }
 
     /**
@@ -216,20 +219,32 @@ class ServiceItemController extends Controller
      */
     private function uploadPortfolioImages(Request $request, ServiceItem $serviceItem)
     {
-        $files = $request->multiple_image;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    $extra_file['title'] = isset($extra_file['title']) ? $extra_file['title'] : null;
-                    $image = Helper::moveImage($extra_file['file'],'serviceItem');
-                    WorkSample::create(['worksampleable_id' => $serviceItem->id,
-                        'worksampleable_type' => ServiceItem::class, 'title' => $extra_file['title']
-                        ,'image' => $image]);
-                }
+        // update titles of already-saved portfolio images
+        foreach ($request->existing_portfolio ?? [] as $mediaId => $data) {
+            $media = \App\Models\Media::find($mediaId);
+            if ($media && $media->model_type === ServiceItem::class && (string) $media->model_id === (string) $serviceItem->id) {
+                $media->setCustomProperty('title', $data['title'] ?? '');
+                $media->save();
             }
         }
 
-        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+        // attach newly uploaded images into the portfolio collection (Spatie)
+        foreach ($request->multiple_image ?? [] as $item) {
+            if (!empty($item['file'])) {
+                MediaLibraryHelper::attachTo($serviceItem, $item['file'], 'portfolio', [
+                    'title' => $item['title'] ?? '',
+                ]);
+            }
+        }
+
+        $serviceItem->load('media');
+        return response([
+            'status'   => 'success',
+            'messages' => array('ثبت تغییرات با موفقیت انجام گرفت !'),
+            'media'    => ['lists' => [
+                'portfolio' => $this->mediaListInfo($serviceItem, 'portfolio'),
+            ]],
+        ]);
     }
 
     /**
@@ -239,31 +254,71 @@ class ServiceItemController extends Controller
      */
     private function uploadSiteImages(Request $request, ServiceItem $serviceItem)
     {
-        //banner vertical image
-        $files = $request->verticalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    $image = Helper::moveImage($extra_file['file'],'serviceItem');
-                    Gallery::create(['galleryable_id' => $serviceItem->id,
-                        'galleryable_type' => ServiceItem::class, 'title' => $extra_file['file_title']
-                        , 'image' => $image, 'type' => 0]);
-                }
+        $this->syncGallerySlots($serviceItem, 'gallery_horizontal', $request->horizontalImages ?? []);
+        $this->syncGallerySlots($serviceItem, 'gallery_vertical', $request->verticalImages ?? []);
+
+        $serviceItem->load('media');
+        return response([
+            'status'   => 'success',
+            'messages' => array('ثبت تغییرات با موفقیت انجام گرفت !'),
+            'media'    => ['slots' => [
+                'horizontalImages' => $this->gallerySlotsInfo($serviceItem, 'gallery_horizontal'),
+                'verticalImages'   => $this->gallerySlotsInfo($serviceItem, 'gallery_vertical'),
+            ]],
+        ]);
+    }
+
+    /** Media info for a single-file collection (image/icon/thumb…), or null. */
+    private function singleMediaInfo(ServiceItem $serviceItem, string $collection): ?array
+    {
+        $media = $serviceItem->getFirstMedia($collection);
+        return $media ? ['id' => $media->id, 'url' => $media->getFullUrl()] : null;
+    }
+
+    /** Media info keyed by slot index for a gallery collection. */
+    private function gallerySlotsInfo(ServiceItem $serviceItem, string $collection): array
+    {
+        $slots = [];
+        foreach ($serviceItem->getMedia($collection) as $media) {
+            $slots[(int) $media->getCustomProperty('index')] = [
+                'id'    => $media->id,
+                'url'   => $media->getFullUrl(),
+                'title' => $media->getCustomProperty('title'),
+            ];
+        }
+        return $slots;
+    }
+
+    /** Ordered media info for an unlimited "list" collection (portfolio…). */
+    private function mediaListInfo(ServiceItem $serviceItem, string $collection): array
+    {
+        return $serviceItem->getMedia($collection)->map(fn ($media) => [
+            'id'    => $media->id,
+            'url'   => $media->getFullUrl(),
+            'title' => $media->getCustomProperty('title'),
+        ])->values()->all();
+    }
+
+    /** Attach/replace/rename the images of a slot-based Spatie gallery collection. */
+    private function syncGallerySlots(ServiceItem $serviceItem, string $collection, array $items): void
+    {
+        foreach ($items as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $existing = $serviceItem->gallerySlot($collection, (int) $index);
+
+            if (!empty($item['file'])) {
+                // attachTo() replaces the media in this slot (matched by 'index') and deletes the old file
+                MediaLibraryHelper::attachTo($serviceItem, $item['file'], $collection, [
+                    'index' => (int) $index,
+                    'title' => $item['file_title'] ?? '',
+                ]);
+            } elseif ($existing && array_key_exists('file_title', $item)) {
+                $existing->setCustomProperty('title', $item['file_title'] ?? '');
+                $existing->save();
             }
         }
-        //banner horizontal image
-        $files = $request->horizontalImages;
-        if ($files != '') {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    $image = Helper::moveImage($extra_file['file'],'serviceItem');
-                    Gallery::create(['galleryable_id' => $serviceItem->id,
-                        'galleryable_type' => ServiceItem::class,
-                        'title' => $extra_file['file_title'], 'image' => $image, 'type' => 1]);
-                }
-            }
-        }
-        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
     }
         /**
      * @param Request $request
@@ -333,22 +388,10 @@ class ServiceItemController extends Controller
     public function destroy(ServiceItem $serviceItem)
     {
         if ($serviceItem) {
-            $service_item = $serviceItem;
-
-            if($service_item->galleries()){
-                foreach ($service_item->galleries()->get() as $item) {
-                    if (\File::exists(public_path($item->image))) {
-                        \File::delete(public_path($item->image));
-                    }
-                }
-            }
-
-            if (\File::exists(public_path($service_item->image))) {
-                \File::delete(public_path($service_item->image));
-            }
-            $service_item->menu()->delete();
-            $service_item->delete();
-            return redirect('/dashboard/service/serviceItem/'.$service_item->service->slug)
+            // media is purged by Spatie's delete cascade (native + soft-delete aware)
+            $serviceItem->menu()->delete();
+            $serviceItem->delete();
+            return redirect('/dashboard/service/serviceItem/'.$serviceItem->service->slug)
                 ->with(['delete' => 'success']);
         }
         return redirect()->back();

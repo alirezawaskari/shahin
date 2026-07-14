@@ -63,6 +63,7 @@
     </div>
     <div class="position-fixed d-none - d-md-block" style="left: 120px;bottom: 0;">
     </div>
+    <script src="{{ asset('assets/site/js/site-upload.js') }}"></script>
     @yield('js')
 </body>
 
