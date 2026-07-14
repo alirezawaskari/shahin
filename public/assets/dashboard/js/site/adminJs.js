@@ -344,7 +344,9 @@ function multipleImages(input) {
 ct = 1;
 //upload single image
 var index_add_photo = 0;
-$(document).on('change', '.file_upload_ajax', function () {
+// Namespaced + off-before-on so pages that load BOTH this file and the site-upload.js
+// (e.g. the site factorItem page) bind the handler only ONCE (no duplicate uploads).
+$(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUploadAjax', '.file_upload_ajax', function () {
     var file = $($(this)).prop('files')[0];
     if (file) {
         var file_attr_name = $(this).attr('name');

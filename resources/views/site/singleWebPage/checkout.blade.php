@@ -177,7 +177,7 @@
                                                 @else
                                                 <a href="{{ asset($item['factor_values'][$form->name]) }}">
                                                     <img src="{{ asset($item['factor_values'][$form->name]) }}"
-                                                        class="card-img-top" height="150px">
+                                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                                 <div class="card-body">
                                                     {!! $form->help !!}
@@ -221,7 +221,7 @@
                                             @foreach($item['factor_values'][$form->name] as $image)
                                             <div class="card col-md-3">
                                                 <a href="{{ asset($image) }}" target="_blank">
-                                                    <img src="{{ $image }}" class="card-img-top" height="150px">
+                                                    <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                             @endforeach
@@ -289,7 +289,7 @@
                                                 <div class="card-group">
                                                     <div class="col-12 col-md-6">
                                                         <div class="card">
-                                                            @if(is_null($factor->user->imgmeli))
+                                                            @if(empty($factor->user->imgmeli))
                                                             <p class="my-4 text-danger text-center">
                                                                 ثبت نشده</p>
                                                             <div class="card-body">
@@ -299,9 +299,9 @@
                                                                     accept=".jpg,.jpeg,.png">
                                                             </div>
                                                             @else
-                                                            <a href="{{ asset($factor->user->imgmeli) }}">
-                                                                <img src="{{ asset($factor->user->imgmeli) }}"
-                                                                    class="card-img-top" height="150px">
+                                                            <a href="{{ $factor->user->imgmeli }}">
+                                                                <img src="{{ $factor->user->imgmeli }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                             <div class="card-body">
                                                                 <h5 class="card-title">کارت ملی</h5>
@@ -314,7 +314,7 @@
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <div class="card">
-                                                            @if(is_null($factor->user->imgshenasname))
+                                                            @if(empty($factor->user->imgshenasname))
                                                             <p class="my-4 text-danger text-center">
                                                                 ثبت نشده</p>
                                                             <div class="card-body">
@@ -324,9 +324,9 @@
                                                                     required accept=".jpg,.jpeg,.png">
                                                             </div>
                                                             @else
-                                                            <a href="{{ asset($factor->user->imgshenasname) }}">
-                                                                <img src="{{ asset($factor->user->imgshenasname) }}"
-                                                                    class="card-img-top" height="150px">
+                                                            <a href="{{ $factor->user->imgshenasname }}">
+                                                                <img src="{{ $factor->user->imgshenasname }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                             <div class="card-body">
                                                                 <h5 class="card-title">شناسنامه</h5>
@@ -366,7 +366,7 @@
                                                             <a
                                                                 href="{{ asset($item['contract_values'][$contract_form->name]) }}">
                                                                 <img src="{{ asset($item['contract_values'][$contract_form->name]) }}"
-                                                                    class="card-img-top" height="150px">
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                             <div class="card-body">
                                                                 {!! $contract_form->help !!}

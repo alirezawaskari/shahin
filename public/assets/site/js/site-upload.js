@@ -40,7 +40,10 @@ function delIt(eleId, file_attr_id) {
 }
 
 // Single-file ajax upload.
-$(document).on('change', '.file_upload_ajax', function () {
+// Namespaced + off-before-on so that pages which load BOTH this file and the dashboard
+// adminJs.js (e.g. the site factorItem page) bind the handler only ONCE — otherwise every
+// selected file uploads and previews twice.
+$(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUploadAjax', '.file_upload_ajax', function () {
     var file = $($(this)).prop('files')[0];
     if (!file) return;
 

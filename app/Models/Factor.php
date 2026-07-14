@@ -480,9 +480,14 @@ class Factor extends Model implements AuditableContract
     {
         $temp = [];
         foreach ($item->factorItems as $factor_item) {
-            array_push($temp, $factor_item->factoritemable->title);
+            // factoritemable can be null if the related service/category was deleted.
+            if ($title = optional($factor_item->factoritemable)->title) {
+                array_push($temp, $title);
+            }
         }
-        isset($item->factorItem) ? array_push($temp, $item->factorItem->factoritemable->title) : '';
+        if (isset($item->factorItem) && ($title = optional($item->factorItem->factoritemable)->title)) {
+            array_push($temp, $title);
+        }
         array_push($temp, $item::TITLE[$item->title]);
         return implode(' - ', $temp);
     }

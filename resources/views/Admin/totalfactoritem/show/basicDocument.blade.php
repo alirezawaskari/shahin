@@ -33,15 +33,14 @@
                                 <div class="row">
                                     <div class="col-12 col-md-4">
                                         <div class="card">
-                                            @if (is_null($factor->user->imgmeli))
+                                            @if (empty($factor->user->imgmeli))
                                             <div id="imgmeli_src" class="show">
-                                                <img class="card-img-top" height="150px">
+                                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                             </div>
                                             @else
                                             <div id="imgmeli_src" class="show">
-                                                <a href="{{ asset($factor->user->imgmeli) }}" target="_blank">
-                                                    <img src="{{ asset($factor->user->imgmeli) }}" class="card-img-top"
-                                                        height="150px">
+                                                <a href="{{ $factor->user->imgmeli }}" target="_blank">
+                                                    <img src="{{ $factor->user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                             @endif
@@ -54,23 +53,23 @@
                                                 <input name="imgmeli" id="imgmeli" type="file"
                                                     class="filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                <input type="hidden" id="imgmeli" class="path" name="urlimgmeli"
+                                                <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli"
                                                     value="">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <div class="card">
-                                            @if (is_null($factor->user->imgshenasname))
+                                            @if (empty($factor->user->imgshenasname))
                                             <div id="imgshenasname_src" class="show">
-                                                <img class="card-img-top" height="150px">
+                                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                             </div>
                                             @else
                                             <div id="imgshenasname_src" class="show">
-                                                <a href="{{ asset($factor->user->imgshenasname) }}" target="_blank">
+                                                <a href="{{ $factor->user->imgshenasname }}" target="_blank">
                                                     <img id="imgshenasname_src"
-                                                        src="{{ asset($factor->user->imgshenasname) }}"
-                                                        class="card-img-top" height="150px">
+                                                        src="{{ $factor->user->imgshenasname }}"
+                                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                             @endif
@@ -83,7 +82,7 @@
                                                 <input name="imgshenasname" id="imgshenasname" type="file"
                                                     class="filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                <input type="hidden" id="imgshenasname" class="path"
+                                                <input type="hidden" id="imgshenasname_path" class="path"
                                                     name="urlimgshenasname" value="">
                                             </div>
                                         </div>
@@ -92,14 +91,13 @@
                                         <div class="card">
                                             @if($user->imgturnover)
                                             <div id="imgturnover_src" class="show">
-                                                <a href="{{ asset($user->imgturnover) }}" target="_blank">
-                                                    <img src="{{ asset($user->imgturnover) }}" class="card-img-top"
-                                                        height="150px">
+                                                <a href="{{ $user->imgturnover }}" target="_blank">
+                                                    <img src="{{ $user->imgturnover }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                             @else
                                             <div id="imgturnover_src" class="show">
-                                                <img class="card-img-top" height="150px">
+                                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                             </div>
                                             @endif
                                             <div class="card-body">
@@ -111,7 +109,7 @@
                                                 <input name="imgturnover" type="file" id="imgturnover"
                                                     class="filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                <input type="hidden" id="imgturnover" class="path"
+                                                <input type="hidden" id="imgturnover_path" class="path"
                                                     name="urlimgturnover">
                                             </div>
                                         </div>
@@ -195,7 +193,7 @@
                                             <div class="card">
                                                 @if (!isset($item['contract_values'][$contract_form->name]))
                                                 <div id="{{ $contract_form->name }}_src" class="show">
-                                                    <img class="card-img-top" height="150px">
+                                                    <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                 </div>
                                                 @else
                                                 <div id="{{ $contract_form->name }}_src" class="show">
@@ -203,7 +201,7 @@
                                                         target="_blank">
                                                         <img id="{{ $contract_form->name }}_src"
                                                             src="{{ asset($item['contract_values'][$contract_form->name]) }}"
-                                                            class="card-img-top" height="150px">
+                                                            class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                     </a>
                                                 </div>
                                                 @endif
@@ -269,7 +267,7 @@
                                         <div class="col-12 col-md-3 mb-2 mt-3">
                                             <div class="card">
                                                 <a href="{{ asset($image) }}" target="_blank">
-                                                    <img src="{{ $image }}" class="card-img-top" height="150px">
+                                                    <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                         </div>
@@ -415,7 +413,7 @@
                                         <div class="card">
                                             @if (!isset($item['contract_values'][$contract_form->name]))
                                             <div id="{{ $contract_form->name }}_src" class="show">
-                                                <img class="card-img-top" height="150px">
+                                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                             </div>
                                             @else
                                             <div id="{{ $contract_form->name }}_src" class="show">
@@ -423,7 +421,7 @@
                                                     target="_blank">
                                                     <img id="{{ $contract_form->name }}_src"
                                                         src="{{ asset($item['contract_values'][$contract_form->name]) }}"
-                                                        class="card-img-top" height="150px">
+                                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                             @endif
@@ -489,7 +487,7 @@
                                     <div class="col-12 col-md-3 mb-2 mt-3">
                                         <div class="card">
                                             <a href="{{ asset($image) }}" target="_blank">
-                                                <img src="{{ $image }}" class="card-img-top" height="150px">
+                                                <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                     </div>

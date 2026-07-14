@@ -182,7 +182,7 @@
         <div class="row">
             @foreach($purchaseInvoice->values as $key => $value)
             <div class="card col-12 col-md-3 p-2">
-                <a href="{{ asset(App\Models\User::getUser($value)->imgsignature) }}" target="_blank">
+                <a href="{{ App\Models\User::getUser($value)->imgsignature }}" target="_blank">
                     <img src="{{ App\Models\User::getUser($value)->imgsignature }}" class="card-img-top" height="150px">
                 </a>
                 <div class="card-body text-center">

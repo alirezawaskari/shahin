@@ -24,17 +24,18 @@ class MediaLibraryHelper
      * @param string|null $tempId          MediaLibrary id
      * @param string $collection           target media collection on $model
      * @param array $customProperties      optional media custom properties (e.g. title, index)
+     * @return \App\Models\Media|null       the created media, or null when nothing was attached
      */
-    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): void
+    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): ?Media
     {
         if (empty($tempId)) {
-            return;
+            return null;
         }
 
         // $tempId is the Spatie Media row id (the "media_id" the ajax upload returns).
         $tempMedia = Media::find($tempId);
         if (!$tempMedia) {
-            return;
+            return null;
         }
 
         // The temp holder that owns this media (needed for temp cleanup). Guard that
@@ -42,9 +43,10 @@ class MediaLibraryHelper
         // smuggle a model's permanent media id in here and have it moved/deleted.
         $temp = $tempMedia->model;
         if (!($temp instanceof MediaLibrary) || $tempMedia->collection_name !== 'images') {
-            return;
+            return null;
         }
 
+        $attached = null;
         $absolutePath = $tempMedia->getPath();
 
         if ($absolutePath && is_file($absolutePath)) {
@@ -54,7 +56,7 @@ class MediaLibraryHelper
             $bytes = self::optimizeToUnderLimit($absolutePath, $extension);
             if ($bytes === false || $bytes === '') {
                 \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo could not read temp file: ' . $absolutePath);
-                return; // keep the temp so nothing is lost
+                return null; // keep the temp so nothing is lost
             }
 
             // Physically delete the file(s) a new upload replaces, so nothing is orphaned
@@ -94,16 +96,19 @@ class MediaLibraryHelper
                     \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($target));
                     \Illuminate\Support\Facades\File::put($target, $bytes);
                 }
+                $attached = $media;
             } catch (\Throwable $e) {
                 // Keep the temp upload so the image is NOT lost — the user can retry.
                 \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo attach failed: ' . $e->getMessage());
-                return;
+                return null;
             }
         }
 
         // Clean up the temp with native file/DB ops (Spatie's delete() deep-lists the
         // media directory via RecursiveDirectoryIterator, which fails on Windows/Apache).
         self::forceDeleteTemp($temp, $absolutePath);
+
+        return $attached;
     }
 
     /**

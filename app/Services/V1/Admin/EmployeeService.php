@@ -145,15 +145,24 @@ class EmployeeService {
      * @return void
      */
     public function handleUserImages( Request $request, User $user, array &$inputs ): void {
+        // Spatie: attach each KYC/avatar image from its temp media id to the user's
+        // single-file collection (replaces the legacy replaceImage/moveImage writes).
+        foreach ( [
+            'urlimgshenasname' => 'imgshenasname',
+            'urlimgmeli'       => 'imgmeli',
+            'urlimgsignature'  => 'imgsignature',
+            'urlavatar'        => 'avatar',
+        ] as $inputField => $collection ) {
+            if ( !empty( $request->$inputField ) ) {
+                \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->$inputField, $collection );
+            }
+        }
 
-        $this->replaceImage( $request, $user, 'urlimgshenasname', 'imgshenasname', 'document' );
-
-        $this->replaceImage( $request, $user, 'urlimgmeli', 'imgmeli', 'document' );
-
-        $this->replaceImage( $request, $user, 'urlimgsignature', 'imgsignature', 'document' );
-
-        $this->replaceImage( $request, $user, 'urlavatar', 'avatar', 'document' );
-
+        // Keep the image fields out of the mass-update — they're Spatie collections now.
+        unset(
+            $inputs['imgshenasname'], $inputs['imgmeli'], $inputs['imgsignature'], $inputs['avatar'],
+            $inputs['urlimgshenasname'], $inputs['urlimgmeli'], $inputs['urlimgsignature'], $inputs['urlavatar']
+        );
     }
     /**
      * Summary of cleanupInputs

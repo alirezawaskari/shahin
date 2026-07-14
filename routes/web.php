@@ -924,6 +924,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', 'CheckoutController@store')->name('checkout.store');
     Route::post('/upload_document', 'CheckoutController@upload_document')->name('checkout.upload');
     Route::post('/factorItem/request-contract-settlement', 'FactorItemController@requestContractSettlement')->name('site.factorItem.requestContractSettlement');
+    Route::post('/factorItem/save-recommendations', 'FactorItemController@saveRecommendations')->name('site.factorItem.saveRecommendations');
     Route::get('/factor/create', 'FactorController@create')->name('factor.create');
     Route::get('/cart', 'CartController@index')->name('cart');
     Route::post('/addToCart', 'CartController@add');

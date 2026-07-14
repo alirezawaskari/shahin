@@ -106,13 +106,7 @@
                         <div class="card-body">
                             <div class="card-body">
                                 <div class="tab-content" id="myTabContent">
-                                    @if(!is_null($item['forms']))
-                                    @foreach($item['forms'] as $form)
-                                    @if (in_array('show_recommendations_site' , $form->data_display_level))
-                                    @include('Admin.factoritem.layouts.formItem')
-                                    @endif
-                                    @endforeach
-                                    @endif
+                                    @include('site.profile.layouts.factoritem.recommendations')
                                 </div>
                             </div>
                         </div>
@@ -199,13 +193,7 @@
                             <div class="card-body">
                                 <div class="card-body">
                                     <div class="tab-content" id="myTabContent">
-                                        @if(!is_null($item['forms']))
-                                        @foreach($item['forms'] as $form)
-                                        @if (in_array('show_recommendations_site' , $form->data_display_level))
-                                        @include('Admin.factoritem.layouts.formItem')
-                                        @endif
-                                        @endforeach
-                                        @endif
+                                        @include('site.profile.layouts.factoritem.recommendations')
                                     </div>
                                 </div>
                             </div>

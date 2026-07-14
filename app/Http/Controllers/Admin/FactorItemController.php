@@ -778,19 +778,29 @@ class FactorItemController extends Controller {
             $values = $factor_item->factor_values ? $factor_item->factor_values : [];
             foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
                 if ( $form->data_save_level == 'user' ) {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
-                    }
-                    if ( $form->type == 'file' ) {
+                    if ( $form->type == 'file' && in_array( $form->name, \App\Models\User::IMAGE_COLLECTIONS, true ) ) {
+                        // Spatie shadowed field: attach the uploaded temp media id instead of
+                        // writing a raw path into the (now accessor-shadowed) User column.
+                        if ( !empty( $item[ 'url' . $form->name ] ) ) {
+                            \App\Helpers\MediaLibraryHelper::attachTo(
+                                User::find( $item[ 'user_id' ] ), $item[ 'url' . $form->name ], $form->name
+                            );
+                        }
+                    } else {
                         if ( isset( $item[ $form->name ] ) ) {
-                            $image = $item[ $form->name ];
-                            if ( $image ) {
-                                $url = Helper::moveImage($item['url' . $form->name],'document');
-                                if ( isset( $values[ $form->name ] ) ) {
-                                      $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
+                            User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
+                        }
+                        if ( $form->type == 'file' ) {
+                            if ( isset( $item[ $form->name ] ) ) {
+                                $image = $item[ $form->name ];
+                                if ( $image ) {
+                                    $url = Helper::moveImage($item['url' . $form->name],'document');
+                                    if ( isset( $values[ $form->name ] ) ) {
+                                          $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
+                                    }
+                                    $values[ $form->name ] = $url;
+                                    User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $url ] );
                                 }
-                                $values[ $form->name ] = $url;
-                                User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $url ] );
                             }
                         }
                     }

@@ -139,7 +139,9 @@ function new_link(file_attr_id) {
     var div1 = document.createElement('div');
     div1.id = ct;
     div1.className = "col-md-3";
-    var delLink = '<div class="btn badge-red mt-2"><a class="text-white" href="javascript:delIt(' + ct + ' , ' + file_attr_id + ')"><i class="fa fa-trash" aria-hidden="true"></i></a></div>';
+    // file_attr_id must be passed as a STRING literal (quoted) — otherwise delIt receives
+    // an undefined identifier and the remove button throws.
+    var delLink = '<div class="btn badge-red mt-2"><a class="text-white" href="javascript:delIt(' + ct + ' , \'' + file_attr_id + '\')"><i class="fa fa-trash" aria-hidden="true"></i></a></div>';
     div1.innerHTML = document.getElementById(file_attr_id + '_newlinktpl').innerHTML + delLink;
     document.getElementById(file_attr_id + '_newlink').appendChild(div1);
     div1.children[0].id = file_attr_id + '_src' + ct;
@@ -148,10 +150,12 @@ function new_link(file_attr_id) {
 }
 
 function delIt(eleId, file_attr_id) {
-    d = document;
-    var ele = d.getElementById(eleId);
-    var parentEle = d.getElementById(file_attr_id.id + '_newlink');
-    parentEle.removeChild(ele);
+    // Remove the cloned preview row by its own id (its hidden url<name>[] input goes with
+    // it, so the dropped image is not submitted). Robust to how it's called.
+    var ele = document.getElementById(eleId);
+    if (ele && ele.parentNode) {
+        ele.parentNode.removeChild(ele);
+    }
 }
 
 $(function () {

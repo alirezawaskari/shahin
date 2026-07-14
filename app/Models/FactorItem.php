@@ -14,10 +14,28 @@ use Illuminate\Support\Arr;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use Illuminate\Support\Facades\View;
-class FactorItem extends Model implements AuditableContract
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class FactorItem extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
     use SoftDeletes;
+    use InteractsWithMedia;
+
+    /**
+     * Spatie collection that permanently holds the ajax-uploaded document images for
+     * this factor item (recommendations section, checkout multi_file uploads, …). It is
+     * additive (NOT singleFile) — each upload is kept and its public URL is appended to
+     * the factor_values[<form name>] JSON, so all existing path-based views (admin +
+     * site) keep rendering unchanged. Logical separation is by the factor_values key,
+     * not by collection, so a single bucket is correct.
+     */
+    const DOCUMENTS_COLLECTION = 'factor_documents';
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::DOCUMENTS_COLLECTION)->useDisk('public');
+    }
 
     /**
      * @var string[]

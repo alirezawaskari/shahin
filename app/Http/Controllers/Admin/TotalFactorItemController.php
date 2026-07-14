@@ -487,19 +487,16 @@ class TotalFactorItemController extends Controller
             'total_factor_item_status_id' => $request->status_factor ?? $total_factor_item->total_factor_item_status_id,
         ]);
         $user = User::find($request->user_id);
+        // Spatie: KYC docs arrive as temp media ids; attachTo replaces the single file
+        // in each collection (native old-file cleanup, no deleteImage).
         if ($request->urlimgmeli) {
-            Helper::deleteImage($user->imgmeli);
-            $user->update(['imgmeli' => Helper::moveImage($request->urlimgmeli, 'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgmeli, 'imgmeli');
         }
-
         if ($request->urlimgshenasname) {
-            Helper::deleteImage($user->imgshenasname);
-            $user->update(['imgshenasname' => Helper::moveImage($request->urlimgshenasname, 'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgshenasname, 'imgshenasname');
         }
-
         if ($request->urlimgturnover) {
-            Helper::deleteImage($user->imgturnover);
-            $user->update(['imgturnover' => Helper::moveImage($request->urlimgturnover, 'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgturnover, 'imgturnover');
         }
 
         $input = $request->user;

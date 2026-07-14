@@ -15,11 +15,51 @@ use Laratrust\Traits\HasRolesAndPermissions;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laratrust\Contracts\LaratrustUser;
-class User extends Authenticatable implements LaratrustUser
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class User extends Authenticatable implements LaratrustUser, HasMedia
 {
     use HasRolesAndPermissions;
     use Notifiable;
     use SoftDeletes;
+    use InteractsWithMedia;
+
+    /** Single-file KYC/avatar image collections (legacy path columns kept, read via accessors). */
+    const IMAGE_COLLECTIONS = ['avatar', 'imgmeli', 'imgshenasname', 'imgturnover', 'imgsignature'];
+
+    public function registerMediaCollections(): void
+    {
+        foreach (self::IMAGE_COLLECTIONS as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public')->singleFile();
+        }
+    }
+
+    /** Avatar url: Spatie media if present, else the app default (avatar must never be blank). */
+    public function getAvatarAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'avatar') ?: asset('/img/user.png');
+    }
+
+    /** KYC image url accessors (shadow the legacy columns; disk-checked, '' when unset). */
+    public function getImgmeliAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli');
+    }
+
+    public function getImgshenasnameAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgshenasname');
+    }
+
+    public function getImgturnoverAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover');
+    }
+
+    public function getImgsignatureAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgsignature');
+    }
 
     /**
      * @var string[]

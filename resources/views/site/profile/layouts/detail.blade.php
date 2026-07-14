@@ -142,15 +142,15 @@
                         <div class="form-row my-2">
                             <div class="col-12 col-md-4">
                                 <div class="card">
-                                    @if(is_null($user->imgmeli))
+                                    @if(empty($user->imgmeli))
                                         <p class="my-4 text-danger text-center">ثبت نشده</p>
                                         <div class="card-body">
                                             <h5 class="card-title">کارت ملی</h5>
                                             <input name="imgmeli" type="file" class="filestyle" data-buttonname="btn-white">
                                         </div>
                                     @else
-                                        <a href="{{ asset($user->imgmeli) }}">
-                                            <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
+                                        <a href="{{ $user->imgmeli }}">
+                                            <img src="{{ $user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                         </a>
                                         <div class="card-body">
                                             <h5 class="card-title">کارت ملی</h5>
@@ -161,15 +161,15 @@
                             </div>
                             <div class="col-12 col-md-4">
                                 <div class="card">
-                                    @if(is_null($user->imgshenasname))
+                                    @if(empty($user->imgshenasname))
                                         <p class="my-4 text-danger text-center">ثبت نشده</p>
                                         <div class="card-body">
                                             <h5 class="card-title">شناسنامه</h5>
                                             <input name="imgshenasname" type="file" class="filestyle" data-buttonname="btn-white">
                                         </div>
                                     @else
-                                        <a href="{{ asset($user->imgshenasname) }}">
-                                            <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
+                                        <a href="{{ $user->imgshenasname }}">
+                                            <img src="{{ $user->imgshenasname }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                         </a>
                                         <div class="card-body">
                                             <h5 class="card-title">شناسنامه</h5>
@@ -180,15 +180,15 @@
                             </div>
 							<div class="col-12 col-md-4">
                                 <div class="card">
-                                    @if(is_null($user->avatar))
+                                    @if(empty($user->avatar))
                                         <p class="my-4 text-danger text-center">ثبت نشده</p>
                                         <div class="card-body">
                                             <h5 class="card-title">تصویر پرسنلی 3*4</h5>
                                             <input name="avatar" type="file" class="filestyle" data-buttonname="btn-white">
                                         </div>
                                     @else
-                                        <a href="{{ asset($user->avatar) }}">
-                                            <img src="{{ asset($user->avatar) }}" class="card-img-top" height="150px">
+                                        <a href="{{ $user->avatar }}">
+                                            <img src="{{ $user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                         </a>
                                         <div class="card-body">
                                             <h5 class="card-title">تصویر پرسنلی 3*4</h5>
