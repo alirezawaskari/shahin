@@ -433,12 +433,19 @@ class GhorfeOnlineListController extends AdminController {
             $ids = $request->ids ?? [];
 
             foreach ($request->titles as $index => $title) {
-                $data = [
-                    'title' => $title,
-                    'link' => $request->links[$index],
-                    'ghorfe_online_list_id' => $ghorfeOnlineList->id,
-                ];
-                $ghorfeOnlineList->menus()->updateOrCreate($data);
+
+                $menu = $ghorfeOnlineList->menus()
+                    ->where('id', $request->ids[$index])
+                    ->first();
+
+                if (!$menu) continue;
+
+                $menu->title = $title;
+                $menu->link = $request->links[$index];
+
+                $menu->is_active = isset($request->actives[$index]) ? 1 : 0;
+
+                $menu->save();
             }
 
             return redirect()

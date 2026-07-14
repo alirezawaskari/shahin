@@ -613,8 +613,9 @@
                                     <div class="card-header mb-2 bg-dark-gradient col-md-12 border border-right-0 border-left-0 ">
                                     منو دلخواه را انتخاب کنید
                                     </div>
-                                    @foreach($ghorfeOnlineList->template->menus as $index => $menu)
-                                        <div class="menu-item border p-2 mb-3">
+{{--                                @dd($ghorfeOnlineList->menus)--}}
+                                    @foreach($ghorfeOnlineList->menus as $index => $menu)
+                                        <div class="menu-item border p-2 mb-3 row">
                                             <input type="hidden" name="ids[]" value="{{ $menu->id }}">
 
                                             <div class="col-12">
@@ -633,6 +634,15 @@
                                                        value="{{ $menu->link }}"
                                                        class="form-control"
                                                        required>
+
+                                            </div>
+                                            <div class="col-12">
+                                                <span>وضعیت </span>
+                                                <label class="switch-status">
+                                                    <input type="checkbox" name="actives[{{ $index }}]" value="1" {{ $menu->is_active ? 'checked' : '' }}>
+                                                    <span class="slider round "></span>
+                                                </label>
+
                                             </div>
                                         </div>
                                     @endforeach
