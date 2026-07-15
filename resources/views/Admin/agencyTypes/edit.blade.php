@@ -101,16 +101,25 @@
                     <div class="col-12 col-md-12 mb-5">
                         @if(isset($agencyTypes->galleries) && $agencyTypes->galleries()->count() > 0 )
                             <label> عکس های ذخیره شده</label>
-                            @foreach($agencyTypes->galleries()->get() as $gallery)
-                                <div class="div_remove_btn" id="gallery_{{$gallery->id}}">
-                                    <img src="{{$gallery->image}}" alt="{{$gallery->title}}"
-                                         class="border-radius5" width="80px">
-                                    <a id="{{$gallery->id}}" title="حذف عکس"
-                                       class="btn btn-default remove_btn">
-                                        <i class="fa fa-close" aria-hidden="true"></i></a>
-                                </div>
-                            @endforeach
+                            <table class="table table-striped">
+                                <tbody>
+                                @foreach($agencyTypes->getMedia('gallery') as $gallery)
+                                    <tr class="row_image" id="media_{{$gallery->id}}">
+                                        <td><img src="{{$gallery->getUrl()}}" alt="{{$gallery->getCustomProperty('title')}}"
+                                                 class="border-radius5" width="80px"></td>
+                                        <td><input type="text" class="form-control" placeholder="عنوان"
+                                                   name="gallery_title[{{$gallery->id}}]"
+                                                   value="{{$gallery->getCustomProperty('title')}}"></td>
+                                        {{-- no ✕ on the last image while legacy `galleries` rows remain —
+                                             see AdoptsLegacyMedia::galleryMediaIsRemovable() --}}
+                                        <td>@if($agencyTypes->galleryMediaIsRemovable('gallery'))<a data-id="{{$gallery->id}}" title="حذف عکس"
+                                               class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>@endif</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
                         @endif
+                        @include('Admin.partials.legacyGalleryFallback', ['model' => $agencyTypes, 'collections' => ['gallery']])
                     </div>
                     <div class="col-12 col-md-12 mb-3">
                     <label>سایر عکس ها</label>

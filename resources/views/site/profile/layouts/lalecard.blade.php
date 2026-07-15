@@ -98,59 +98,65 @@
                         <div class="form-row my-2">
                             <div class="col-12 col-md-4">
                                 <div class="card">
-                                    @if(is_null($user->imgmeli))
-                                        <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                        <div class="card-body">
-                                            <h5 class="card-title">کارت ملی</h5>
-                                            <input name="imgmeli" type="file" class="filestyle" data-buttonname="btn-white">
+                                    @if($user->imgmeli)
+                                        <div id="imgmeli_src" class="show">
+                                            <a href="{{ $user->imgmeli }}" target="_blank">
+                                                <img src="{{ $user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                            </a>
                                         </div>
                                     @else
-                                        <a href="{{ asset($user->imgmeli) }}">
-                                            <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
-                                        </a>
-                                        <div class="card-body">
-                                            <h5 class="card-title">کارت ملی</h5>
-                                            <input name="imgmeli" type="file" class="filestyle" data-buttonname="btn-white">
+                                        <div id="imgmeli_src" class="show">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                     @endif
+                                    <div class="card-body">
+                                        <h5 class="card-title">کارت ملی</h5>
+                                        <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="imgmeli" type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-4">
                                 <div class="card">
-                                    @if(is_null($user->imgshenasname))
-                                        <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                        <div class="card-body">
-                                            <h5 class="card-title">شناسنامه</h5>
-                                            <input name="imgshenasname" type="file" class="filestyle" data-buttonname="btn-white">
+                                    @if($user->imgshenasname)
+                                        <div id="imgshenasname_src" class="show">
+                                            <a href="{{ $user->imgshenasname }}" target="_blank">
+                                                <img src="{{ $user->imgshenasname }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                            </a>
                                         </div>
                                     @else
-                                        <a href="{{ asset($user->imgshenasname) }}">
-                                            <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
-                                        </a>
-                                        <div class="card-body">
-                                            <h5 class="card-title">شناسنامه</h5>
-                                            <input name="imgshenasname" type="file" class="filestyle" data-buttonname="btn-white">
+                                        <div id="imgshenasname_src" class="show">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                     @endif
+                                    <div class="card-body">
+                                        <h5 class="card-title">شناسنامه</h5>
+                                        <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="imgshenasname" type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <input type="hidden" id="imgshenasname_path" class="path" name="urlimgshenasname">
+                                    </div>
                                 </div>
                             </div>
 							<div class="col-12 col-md-4">
                                 <div class="card">
-                                    @if(is_null($user->avatar))
-                                        <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                        <div class="card-body">
-                                            <h5 class="card-title">تصویر پرسنلی 3*4</h5>
-                                            <input name="avatar" type="file" class="filestyle" data-buttonname="btn-white">
+                                    @if($user->avatar)
+                                        <div id="personalPicture_src" class="show">
+                                            <a href="{{ $user->avatar }}" target="_blank">
+                                                <img src="{{ $user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                            </a>
                                         </div>
                                     @else
-                                        <a href="{{ asset($user->avatar) }}">
-                                            <img src="{{ asset($user->avatar) }}" class="card-img-top" height="150px">
-                                        </a>
-                                        <div class="card-body">
-                                            <h5 class="card-title">تصویر پرسنلی 3*4</h5>
-                                            <input name="avatar" type="file" class="filestyle" data-buttonname="btn-white">
+                                        <div id="personalPicture_src" class="show">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                     @endif
+                                    <div class="card-body">
+                                        <h5 class="card-title">تصویر پرسنلی 3*4</h5>
+                                        <label for="personalPicture" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <input name="personalPicture" type="file" id="personalPicture" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <input type="hidden" id="personalPicture_path" class="path" name="urlpersonalPicture">
+                                    </div>
                                 </div>
                             </div>
 

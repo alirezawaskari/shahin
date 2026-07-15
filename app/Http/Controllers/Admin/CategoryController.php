@@ -175,35 +175,6 @@ class CategoryController extends Controller
         }
     }
     /**
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse
-     */
-
-    private function handleGalleryFiles($files, $cat, $type)
-    {
-        foreach ($files as $file) {
-            if (isset($file['file'])) {
-                $image = Helper::moveImage($file['file'], 'category');
-
-                if (!empty($file['gallery_id']) && $gallery = Gallery::find($file['gallery_id'])) {
-                    $gallery->update([
-                        'title' => $file['file_title'],
-                        'image' => $image
-                    ]);
-                } else {
-                    Gallery::create([
-                        'galleryable_id' => $cat->id,
-                        'galleryable_type' => Category::class,
-                        'title' => $file['file_title'],
-                        'image' => $image,
-                        'type' => $type
-                    ]);
-                }
-            }
-        }
-    }
-    /**
      * Display a listing of the sub Category.
      * @return \Illuminate\Http\Response
      */

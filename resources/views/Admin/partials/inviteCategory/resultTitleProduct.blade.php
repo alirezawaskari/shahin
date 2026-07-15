@@ -19,7 +19,7 @@
                     @foreach($products as $item)
                         <tr>
                             <td>
-                                @if(File::exists(public_path() .$item->image))
+                                @if($item->image)
                                     <img src="{{$item->image}}" class="border-radius5" alt="{{$item->title}}" width="80px">
                                 @endif
                             </td>

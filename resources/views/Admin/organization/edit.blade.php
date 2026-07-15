@@ -108,8 +108,8 @@
                         <div class="card">
                             @if($organization->stamp)
                             <div id="stamp_src" class="show">
-                            <a href="{{ asset($organization->stamp) }}" target="_blank">
-                                <img src="{{ asset($organization->stamp) }}" class="card-img-top" height="150px">
+                            <a href="{{ $organization->stamp }}" target="_blank">
+                                <img src="{{ $organization->stamp }}" class="card-img-top" height="150px">
                             </a>
                             </div>
                             @else
@@ -122,7 +122,7 @@
                                 <br>
                                 <label for="stamp" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="stamp"  type="file" id="stamp" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="stamp" class="path" name="urlstamp">
+                                <input type="hidden" id="stamp_path" class="path" name="urlstamp">
                             </div>
                         </div>
                     </div>
@@ -131,8 +131,8 @@
                         <div class="card">
                             @if($organization->image)
                             <div id="image_src" class="show">
-                                <a href="{{ asset($organization->image) }}" target="_blank">
-                                    <img id="image_src" src="{{ asset($organization->image) }}" class="card-img-top" height="150px">
+                                <a href="{{ $organization->image }}" target="_blank">
+                                    <img id="image_src" src="{{ $organization->image }}" class="card-img-top" height="150px">
                                 </a>
                             </div>
                             @else
@@ -145,7 +145,7 @@
                                 <br>
                                 <label for="image" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="image"  type="file" id="image" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="image" class="path" name="urlimage">
+                                <input type="hidden" id="image_path" class="path" name="urlimage">
                             </div>
                         </div>
                     </div>
@@ -174,7 +174,7 @@
                     @if(isset($organization->document))
                     @foreach($organization->document as $image)
                     <div class="card col-md-3">
-                        <a href="{{ asset($image) }}" target="_blank">
+                        <a href="{{ $image }}" target="_blank">
                             <img src="{{ $image }}" class="card-img-top" height="150px">
                         </a>
                     </div>

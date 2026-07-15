@@ -66,7 +66,7 @@ class BeforeFormItemController extends Controller
             'title'=>$request->title,
             'value'=>$request->value,
         ]);
-        alert()->success(' ','عملیات موفق')->cancelButton('باشه');
+        alert()->success(' ','عملیات موفق');
         return back();
     }
 

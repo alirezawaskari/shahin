@@ -26,7 +26,7 @@
             <tr>
                 <td>{{++$ind}}</td>
                 @if($type_id == 1)
-                    <td>@if(File::exists(public_path() .$item->image)) <img src="{{$item->image}}"
+                    <td>@if($item->image) <img src="{{$item->image}}"
                                                                             alt="{{$item->title}}" width="60px"
                                                                             class="border-radius5"> @endif
                     </td> @endif
