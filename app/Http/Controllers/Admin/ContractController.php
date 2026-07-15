@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\ContractHistory;
@@ -70,9 +70,8 @@ class ContractController extends Controller
 
         $contract = Contract::create( $request->all() );
 
-        if ( isset( $request->file_path ) ) {
-            $contract->file = Helper::moveImage( $request->file_path, 'contract' );
-            $contract->save();
+        if ( $request->file_path ) {
+            MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
         }
 
         ContractHistory::create( [ 'contract_id'=>$contract->id, 'user_id'=>\Auth::user()->id, 'file'=>$contract->file ] );
@@ -126,9 +125,8 @@ class ContractController extends Controller
         $contract = Contract::find( $id );
         $contract->update( $request->all() );
 
-        if ( isset( $request->file_path ) ) {
-            $contract->file = Helper::moveImage( $request->file_path, 'contract' );
-            $contract->save();
+        if ( $request->file_path ) {
+            MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
 
             ContractHistory::create( [ 'contract_id'=>$contract->id, 'user_id'=>\Auth::user()->id, 'file'=>$contract->file ] );
         }

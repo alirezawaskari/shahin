@@ -223,9 +223,42 @@
                             name="description">{{ $center->description }}</textarea>
                     </div>
 
-                    <div class='col-12 mb-3 file file--upload'>
-                        <label for='contract_file'>
-                            <i class="fa fa-cloud-upload"></i>بارگذاری فایل قرارداد
+                    <div class='col-12 mb-3'>
+                        <label class="d-block">فایل قرارداد :</label>
+
+                        {{-- Currently saved contract file (Spatie single-file collection). It's a
+                             document (pdf/doc), so shown as a "مشاهده قرارداد" link + in-place
+                             remove (✕), not the image-oriented currentMedia partial. --}}
+                        @php
+                            $__contract = $center->getFirstMedia('contract_file');
+                            // not yet adopted -> keep the legacy file reachable (link, not img: it's a pdf/doc)
+                            $__legacyContract = (! $__contract && method_exists($center, 'legacyMediaUrl'))
+                                ? $center->legacyMediaUrl('contract_file') : '';
+                        @endphp
+                        <div class="mb-2">
+                            @if($__contract)
+                                <span class="div_remove_btn d-inline-block" id="media_{{ $__contract->id }}">
+                                    <a href="{{ $__contract->getFullUrl() }}" target="_blank" rel="noopener"
+                                       class="btn btn-primary py-1 px-2">مشاهده قرارداد</a>
+                                    {{-- contract_file is optional here, so a ✕ is legitimate — but only
+                                         once nothing legacy is left to resurrect it. See
+                                         AdoptsLegacyMedia::mediaIsRemovable(). --}}
+                                    @if($center->mediaIsRemovable('contract_file'))
+                                    <a data-id="{{ $__contract->id }}" title="حذف فایل"
+                                       class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
+                                    @endif
+                                </span>
+                            @elseif($__legacyContract)
+                                <a href="{{ $__legacyContract }}" target="_blank" rel="noopener"
+                                   class="btn btn-primary py-1 px-2">مشاهده قرارداد</a>
+                                <small class="d-block text-warning mt-1">فایل قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @else
+                                <span class="text-muted">فایلی بارگذاری نشده است</span>
+                            @endif
+                        </div>
+
+                        <label for="contract_file" class="btn btn-primary custom-file-upload border border-1">
+                            <i class="fa fa-cloud-upload"></i> بارگذاری فایل قرارداد
                         </label>
                         <input name="contract_file" type="file" id="contract_file"
                             class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">

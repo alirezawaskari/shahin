@@ -63,20 +63,29 @@ class MediaLibraryHelper
      * @param string|null $tempId          MediaLibrary id
      * @param string $collection           target media collection on $model
      * @param array $customProperties      optional media custom properties (e.g. title, index)
+     * @return \App\Models\Media|null       the created media, or null when nothing was attached
      */
-    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): void
+    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): ?Media
     {
         if (empty($tempId)) {
+            return null;
+        }
+
+        // $tempId is the Spatie Media row id (the "media_id" the ajax upload returns).
+        $tempMedia = Media::find($tempId);
+        if (!$tempMedia) {
+            return null;
+        }
+
+        // The temp holder that owns this media (needed for temp cleanup). Guard that
+        // it's a genuine ajax-temp upload (MediaLibrary/'images') so a caller can never
+        // smuggle a model's permanent media id in here and have it moved/deleted.
+        $temp = $tempMedia->model;
+        if (!($temp instanceof MediaLibrary) || $tempMedia->collection_name !== 'images') {
             return;
         }
 
-        $temp = MediaLibrary::find($tempId);
-        if (!$temp) {
-            return;
-        }
-
-        $tempMedia = $temp->getFirstMedia('images');
-        $absolutePath = $tempMedia ? $tempMedia->getPath() : null;
+        $absolutePath = $tempMedia->getPath();
 
         if ($absolutePath && is_file($absolutePath)) {
             // Optimize (cap the longest side to 2560px + recompress) so the stored file
@@ -85,7 +94,7 @@ class MediaLibraryHelper
             $bytes = self::optimizeToUnderLimit($absolutePath, $extension);
             if ($bytes === false || $bytes === '') {
                 \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo could not read temp file: ' . $absolutePath);
-                return; // keep the temp so nothing is lost
+                return null; // keep the temp so nothing is lost
             }
 
             // Physically delete the file(s) a new upload replaces, so nothing is orphaned
@@ -125,16 +134,19 @@ class MediaLibraryHelper
                     \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($target));
                     \Illuminate\Support\Facades\File::put($target, $bytes);
                 }
+                $attached = $media;
             } catch (\Throwable $e) {
                 // Keep the temp upload so the image is NOT lost — the user can retry.
                 \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo attach failed: ' . $e->getMessage());
-                return;
+                return null;
             }
         }
 
         // Clean up the temp with native file/DB ops (Spatie's delete() deep-lists the
         // media directory via RecursiveDirectoryIterator, which fails on Windows/Apache).
         self::forceDeleteTemp($temp, $absolutePath);
+
+        return $attached;
     }
 
     /**
@@ -179,6 +191,85 @@ class MediaLibraryHelper
             // ignore path resolution issues; still drop the row below
         }
         Media::where('id', $media->id)->delete();
+    }
+
+    /**
+     * URL of the first media in $collection, but ONLY if its file physically exists
+     * on disk — otherwise ''. Lets image accessors ($model->image, …) stay falsy for
+     * a media row whose file is missing, so `@if($model->image)` in views is a real
+     * "show the image" check (mirrors the old File::exists(public_path().$col) guards)
+     * without every view having to stat the disk itself.
+     */
+    public static function urlIfFileExists(\Spatie\MediaLibrary\HasMedia $model, string $collection): string
+    {
+        $media = $model->getFirstMedia($collection);
+        if (! $media) {
+            return '';
+        }
+        try {
+            $path = $media->getPath();
+        } catch (\Throwable $e) {
+            return '';
+        }
+        return ($path && is_file($path)) ? $media->getUrl() : '';
+    }
+
+    /**
+     * The media in $collection whose files physically exist on disk (a media row
+     * with a missing file is dropped). Use for galleries / multi-image collections
+     * so a broken file never renders. Returns a re-indexed Spatie media collection,
+     * so callers can ->map(fn($m) => $m->getUrl()) or iterate and call getUrl().
+     */
+    public static function existingMedia(\Spatie\MediaLibrary\HasMedia $model, string $collection)
+    {
+        return $model->getMedia($collection)->filter(function ($media) {
+            try {
+                $path = $media->getPath();
+            } catch (\Throwable $e) {
+                return false;
+            }
+            return $path && is_file($path);
+        })->values();
+    }
+
+    /**
+     * Optimize an uploaded image and attach it straight to $model's $collection via
+     * Spatie (with the native File::put fallback for Windows/Apache). For DIRECT
+     * uploads — e.g. CKEditor content images owned by the Ckeditor model — that don't
+     * go through the temp (uploadFilesTemporarily) flow. Runs the same optimizer as
+     * attachTo (resize + recompress, transparency-safe; svg/gif untouched).
+     *
+     * @return \App\Models\Media|null  the created media, or null on failure
+     */
+    public static function attachUpload(\Spatie\MediaLibrary\HasMedia $model, UploadedFile $file, string $collection, array $customProperties = [])
+    {
+        $extension = strtolower($file->getClientOriginalExtension()) ?: 'jpg';
+        $bytes = self::optimizeToUnderLimit($file->getRealPath(), $extension);
+        if ($bytes === false || $bytes === '') {
+            $bytes = @file_get_contents($file->getRealPath());
+        }
+        if ($bytes === false) {
+            return null;
+        }
+
+        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
+        try {
+            $media = $model->addMediaFromString($bytes)
+                ->usingFileName($filename)
+                ->withCustomProperties($customProperties)
+                ->toMediaCollection($collection);
+
+            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
+            $target = $media->getPath();
+            if (!is_file($target)) {
+                File::ensureDirectoryExists(dirname($target));
+                File::put($target, $bytes);
+            }
+            return $media;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachUpload failed: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /** Whether $collection is declared singleFile() on the model. */

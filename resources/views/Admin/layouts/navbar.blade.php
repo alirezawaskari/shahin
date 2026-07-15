@@ -60,7 +60,7 @@
 
                         <a href="#" data-toggle="dropdown">
                             <figure class="avatar avatar-sm avatar-state-success">
-                                <img class="rounded-circle" src="{{ asset(auth()->user()->avatar) }}" alt="...">
+                                <img class="rounded-circle" src="{{ auth()->user()->avatar }}" alt="...">
                             </figure>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">

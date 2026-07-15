@@ -630,7 +630,7 @@ class FactorItemController extends Controller {
         $factor->save();
         //upload bill_image cash factor
         if ( $request->url_bill_image ) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
         }
 
         //send sms for pay factor
@@ -778,19 +778,29 @@ class FactorItemController extends Controller {
             $values = $factor_item->factor_values ? $factor_item->factor_values : [];
             foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
                 if ( $form->data_save_level == 'user' ) {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
-                    }
-                    if ( $form->type == 'file' ) {
+                    if ( $form->type == 'file' && in_array( $form->name, \App\Models\User::IMAGE_COLLECTIONS, true ) ) {
+                        // Spatie shadowed field: attach the uploaded temp media id instead of
+                        // writing a raw path into the (now accessor-shadowed) User column.
+                        if ( !empty( $item[ 'url' . $form->name ] ) ) {
+                            \App\Helpers\MediaLibraryHelper::attachTo(
+                                User::find( $item[ 'user_id' ] ), $item[ 'url' . $form->name ], $form->name
+                            );
+                        }
+                    } else {
                         if ( isset( $item[ $form->name ] ) ) {
-                            $image = $item[ $form->name ];
-                            if ( $image ) {
-                                $url = Helper::moveImage($item['url' . $form->name],'document');
-                                if ( isset( $values[ $form->name ] ) ) {
-                                      $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
+                            User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
+                        }
+                        if ( $form->type == 'file' ) {
+                            if ( isset( $item[ $form->name ] ) ) {
+                                $image = $item[ $form->name ];
+                                if ( $image ) {
+                                    $media = \App\Helpers\MediaLibraryHelper::attachTo( $factor_item, (string) $item['url' . $form->name], FactorItem::DOCUMENTS_COLLECTION );
+                                    if ( $media ) {
+                                        $url = $media->getUrl();
+                                        $values[ $form->name ] = $url;
+                                        User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $url ] );
+                                    }
                                 }
-                                $values[ $form->name ] = $url;
-                                User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $url ] );
                             }
                         }
                     }
@@ -800,24 +810,28 @@ class FactorItemController extends Controller {
                         if ( isset( $item[ $form->name ] ) ) {
                             $image = $item[ $form->name ];
                             if ( $image ) {
-                                $url = Helper::moveImage($item['url' . $form->name],'document');
-                                if ( isset( $values[ $form->name ] ) ) {
-                                    $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
-                                    $values[ $form->name ] = $url;
+                                $media = \App\Helpers\MediaLibraryHelper::attachTo( $factor_item, (string) $item['url' . $form->name], FactorItem::DOCUMENTS_COLLECTION );
+                                if ( $media ) {
+                                    $url = $media->getUrl();
+                                    if ( isset( $values[ $form->name ] ) ) {
+                                        $values[ $form->name ] = $url;
+                                    }
+                                    $values = Arr::add( $values, $form->name, $url );
                                 }
-                                $values = Arr::add( $values, $form->name, $url );
                             }
                         }
                     }
                     elseif ( $form->type == 'multi_file' ) {
                         if ( isset( $item[ $form->name ] ) ) {
-                            $images = isset( $values[ $form->name ] ) ? $values[ $form->name ] : [];
+                            $images = isset( $values[ $form->name ] ) && is_array( $values[ $form->name ] ) ? $values[ $form->name ] : [];
                             $files = $item[ 'url' . $form->name ];
-                            foreach ( $files as $file ) {
-                                if ( $file ) {
-                                    if ( isset( $images ) ) {
-                                        $url = Helper::moveImage($file,'document');
-                                        $images[] = $url;
+                            if ( is_array( $files ) ) {
+                                foreach ( $files as $file ) {
+                                    if ( $file ) {
+                                        $media = \App\Helpers\MediaLibraryHelper::attachTo( $factor_item, (string) $file, FactorItem::DOCUMENTS_COLLECTION );
+                                        if ( $media ) {
+                                            $images[] = $media->getUrl();
+                                        }
                                     }
                                 }
                             }

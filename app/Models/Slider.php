@@ -9,7 +9,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Slider extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['img' => 'img'];
+    }
 
     /**
      * @var string[]
@@ -27,7 +33,8 @@ class Slider extends Model implements HasMedia
 
     public function getImgAttribute(): string
     {
-        return $this->getFirstMediaUrl('img');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img')
+            ?: ($this->getRawOriginal('img') ? asset($this->getRawOriginal('img')) : '');
     }
     const TYPE = [
         '0' => 'pc',

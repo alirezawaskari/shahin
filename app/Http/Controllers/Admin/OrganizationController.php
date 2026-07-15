@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\OrganizationCollection;
 use App\Models\Organization;
 use App\Models\Representation;
@@ -57,29 +58,11 @@ class OrganizationController extends AdminController {
         ] );
         $inputs = $request->all();
 
-        if ( $request->urlstamp ) {
-            $inputs[ 'stamp' ] = Helper::moveImage($request->urlstamp,'document');
-        }
-        if ( $request->urlimage ) {
-            $inputs[ 'image' ] = Helper::moveImage($request->urlimage,'document');
-        }
-
-        $files = $request->urldocument;
-        $document = [];
-        if ( isset( $files ) ) {
-            foreach ( $files as $file ) {
-                if ( $file ) {
-                    if ( isset( $document ) ) {
-                        $url = Helper::moveImage($file,'document');
-                        $document[] = $url;
-                    }
-                }
-            }
-            $inputs[ 'document' ] = $document;
-        }
-
         $inputs[ 'credit' ] = ( float ) str_replace( ',', '', $request->credit );
 
+        unset( $inputs[ 'stamp' ] );
+        unset( $inputs[ 'image' ] );
+        unset( $inputs[ 'document' ] );
         unset( $inputs[ 'service_id' ] );
         unset( $inputs[ 'sms_code' ] );
         unset( $inputs[ 'urlstamp' ] );
@@ -87,6 +70,27 @@ class OrganizationController extends AdminController {
         unset( $inputs[ 'urldocument' ] );
 
         $organization = Organization::create( $inputs );
+
+        if ( $request->urlstamp ) {
+            MediaLibraryHelper::attachTo( $organization, $request->urlstamp, 'stamp' );
+        }
+        if ( $request->urlimage ) {
+            MediaLibraryHelper::attachTo( $organization, $request->urlimage, 'image' );
+        }
+
+        $files = $request->urldocument;
+        $document = [];
+        if ( isset( $files ) ) {
+            foreach ( $files as $file ) {
+                if ( $file ) {
+                    $media = MediaLibraryHelper::attachTo( $organization, (string) $file, 'document' );
+                    if ( $media ) {
+                        $document[] = $media->getUrl();
+                    }
+                }
+            }
+            $organization->update( [ 'document' => $document ] );
+        }
 
         $organization->services()->sync( $request->input( 'service_id' ) );
 
@@ -129,29 +133,10 @@ class OrganizationController extends AdminController {
             'service_id' => 'required',
         ] );
         $inputs = $request->all();
-        if ( $request->urlstamp ) {
-            Helper::deleteImage($organization->stamp);
-            $inputs[ 'stamp' ] = Helper::moveImage($request->urlstamp,'document');
-        }
-        if ( $request->urlimage ) {
-            Helper::deleteImage($organization->image);
-            $inputs[ 'image' ] = Helper::moveImage($request->urlimage,'document');
-        }
 
-        $files = $request->urldocument;
-        $document = $organization->document ? $organization->document : [];
-        if ( isset( $files ) ) {
-            foreach ( $files as $file ) {
-                if ( $file ) {
-                    if ( isset( $document ) ) {
-                        $url = Helper::moveImage($file,'document');
-                        $document[] = $url;
-                    }
-                }
-            }
-            $inputs[ 'document' ] = $document;
-        }
-
+        unset( $inputs[ 'stamp' ] );
+        unset( $inputs[ 'image' ] );
+        unset( $inputs[ 'document' ] );
         unset( $inputs[ 'service_id' ] );
         unset( $inputs[ 'sms_code' ] );
         unset( $inputs[ 'urlstamp' ] );
@@ -161,10 +146,29 @@ class OrganizationController extends AdminController {
         $inputs[ 'credit' ] = ( float ) str_replace( ',', '', $request->credit );
 
         $organization->update( $inputs );
-        $organization->services()->sync( $request->input( 'service_id' ) );
 
-        $files = $request->file( 'document' );
+        if ( $request->urlstamp ) {
+            MediaLibraryHelper::attachTo( $organization, $request->urlstamp, 'stamp' );
+        }
+        if ( $request->urlimage ) {
+            MediaLibraryHelper::attachTo( $organization, $request->urlimage, 'image' );
+        }
+
+        $files = $request->urldocument;
         $document = $organization->document ? $organization->document : [];
+        if ( isset( $files ) ) {
+            foreach ( $files as $file ) {
+                if ( $file ) {
+                    $media = MediaLibraryHelper::attachTo( $organization, (string) $file, 'document' );
+                    if ( $media ) {
+                        $document[] = $media->getUrl();
+                    }
+                }
+            }
+            $organization->update( [ 'document' => $document ] );
+        }
+
+        $organization->services()->sync( $request->input( 'service_id' ) );
 
         $codes = [];
         $array = explode( ',', $request->input( 'sms_code' ) );

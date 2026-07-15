@@ -11,12 +11,40 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Symfony\Component\CssSelector\Node\ElementNode;
 
-class Factor extends Model implements AuditableContract
+class Factor extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
     use SoftDeletes;
+    use InteractsWithMedia;
+    use \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['bill_image' => 'bill_image'];
+    }
+
+    /**
+     * Spatie collection for the payment receipt image (shadows the legacy
+     * `bill_image` path column). Single file; the accessor falls back to the
+     * raw column so existing data still renders.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('bill_image')->useDisk('public')->singleFile();
+    }
+
+    /** Payment receipt url (Spatie first, legacy `bill_image` column as fallback). */
+    public function getBillImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'bill_image')
+            ?: ($this->getRawOriginal('bill_image') ? asset($this->getRawOriginal('bill_image')) : '');
+    }
+
     /**
      * @var array
      */
@@ -480,9 +508,14 @@ class Factor extends Model implements AuditableContract
     {
         $temp = [];
         foreach ($item->factorItems as $factor_item) {
-            array_push($temp, $factor_item->factoritemable->title);
+            // factoritemable can be null if the related service/category was deleted.
+            if ($title = optional($factor_item->factoritemable)->title) {
+                array_push($temp, $title);
+            }
         }
-        isset($item->factorItem) ? array_push($temp, $item->factorItem->factoritemable->title) : '';
+        if (isset($item->factorItem) && ($title = optional($item->factorItem->factoritemable)->title)) {
+            array_push($temp, $title);
+        }
         array_push($temp, $item::TITLE[$item->title]);
         return implode(' - ', $temp);
     }

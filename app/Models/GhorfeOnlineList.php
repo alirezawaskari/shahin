@@ -10,7 +10,31 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class GhorfeOnlineList extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable, InteractsWithMedia;
+    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /**
+     * Touch-to-migrate: legacy single-image columns -> Spatie single-file collections.
+     *
+     * Only footer_logo is here: it is the one field with a real legacy PATH column. The
+     * logo / fav / mohr / addvertisment_slider legacy values live in the *_id columns
+     * (logo_id, fav_id, ...) as MediaLibrary UUID FKs, not paths — a different shape this
+     * path-based map cannot adopt, so mapping them here would be dead code.
+     */
+    protected function legacyMediaMap(): array
+    {
+        return [
+            'footer_logo' => 'footer_logo',
+        ];
+    }
+
+    /** Touch-to-migrate: legacy gallery rows -> slot collections (desktop=type 1, mobile=type 0). */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery_desktop', 'type' => 1, 'slotted' => true, 'max' => 5],
+            ['collection' => 'gallery_mobile',  'type' => 0, 'slotted' => true, 'max' => 5],
+        ];
+    }
 
     /**
      * @var array
@@ -78,6 +102,67 @@ class GhorfeOnlineList extends Model implements HasMedia
     public function galleries()
     {
         return $this->morphMany(Gallery::class, 'galleryable');
+    }
+
+    /** Slot-based data-mining homepage gallery (4 small + 1 big, desktop + mobile). */
+    const GALLERY_COLLECTIONS = ['gallery_desktop', 'gallery_mobile'];
+
+    /** Single-file settings images (legacy *_id columns kept, read through accessors). */
+    const SINGLE_IMAGE_COLLECTIONS = ['logo', 'footer_logo', 'fav', 'mohr', 'addvertisment_slider'];
+
+    public function registerMediaCollections(): void
+    {
+        foreach (self::GALLERY_COLLECTIONS as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public');
+        }
+        foreach (self::SINGLE_IMAGE_COLLECTIONS as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public')->singleFile();
+        }
+    }
+
+    /** The media occupying gallery slot $index in $collection, if any. */
+    public function gallerySlot(string $collection, int $index)
+    {
+        return $this->getMedia($collection)
+            ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
+    }
+
+    /** Disk-checked URLs of a gallery collection (skips media whose file is missing). */
+    public function galleryUrls(string $collection)
+    {
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
+            ->map(fn ($m) => $m->getUrl());
+    }
+
+    /** Settings-image url accessors (shadow the legacy *_id columns; disk-checked). */
+    public function getLogoAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo')
+            ?: ($this->getRawOriginal('logo') ? asset($this->getRawOriginal('logo')) : '');
+    }
+
+    public function getFooterLogoAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'footer_logo')
+            ?: ($this->getRawOriginal('footer_logo') ? asset($this->getRawOriginal('footer_logo')) : '');
+    }
+
+    public function getFavAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'fav')
+            ?: ($this->getRawOriginal('fav') ? asset($this->getRawOriginal('fav')) : '');
+    }
+
+    public function getMohrAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'mohr')
+            ?: ($this->getRawOriginal('mohr') ? asset($this->getRawOriginal('mohr')) : '');
+    }
+
+    public function getAddvertismentSliderAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'addvertisment_slider')
+            ?: ($this->getRawOriginal('addvertisment_slider') ? asset($this->getRawOriginal('addvertisment_slider')) : '');
     }
 
     public function theme()
