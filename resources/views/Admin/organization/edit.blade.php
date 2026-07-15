@@ -122,7 +122,7 @@
                                 <br>
                                 <label for="stamp" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="stamp"  type="file" id="stamp" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="stamp" class="path" name="urlstamp">
+                                <input type="hidden" id="stamp_path" class="path" name="urlstamp">
                             </div>
                         </div>
                     </div>
@@ -145,7 +145,7 @@
                                 <br>
                                 <label for="image" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="image"  type="file" id="image" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="image" class="path" name="urlimage">
+                                <input type="hidden" id="image_path" class="path" name="urlimage">
                             </div>
                         </div>
                     </div>

@@ -27,6 +27,30 @@ class Service extends Model implements AuditableContract, HasMedia
         ];
     }
 
+    /**
+     * Touch-to-migrate: legacy `galleries` rows -> the homepage-banner slot collections.
+     *
+     * The type mapping is taken from the ORIGINAL writer, ServiceController::uploadSiteImages()
+     * before the Spatie migration (commit 08c1026c):
+     *     verticalImages   -> Gallery type 0
+     *     horizontalImages -> Gallery type 1
+     * Note this is NOT the mapping Category/GhorfeOnlineList use (1=desktop, 0=mobile): the
+     * legacy `type` column means different things per model, so it must never be assumed.
+     *
+     * Legacy type 2 rows also exist for services (20, under /upload/gallery/, all titled
+     * "تست 1"), but nothing in the codebase — past or present — ever wrote a Gallery with
+     * type 2, so there is no collection they belong to. They are deliberately NOT adopted.
+     */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery_horizontal', 'type' => 1, 'slotted' => true,
+             'max' => self::GALLERY_COLLECTIONS['gallery_horizontal']],
+            ['collection' => 'gallery_vertical',   'type' => 0, 'slotted' => true,
+             'max' => self::GALLERY_COLLECTIONS['gallery_vertical']],
+        ];
+    }
+
     /** Media collections owned directly by the service (Spatie native). */
     const MEDIA_FIELDS = ['image', 'icon', 'img_box_1', 'thumb', 'image_app'];
 

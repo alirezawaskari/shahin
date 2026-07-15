@@ -356,14 +356,26 @@
                                             <div class="row mb-4">
                                                 <h4 class="col-12 col-md-12 mb-4"> تصویر اصلی و گالری تصاویر</h4>
                                                 @php($mainImage = $product->getFirstMedia('image'))
+                                                @php($__legacyMain = (! $mainImage && method_exists($product, 'legacyMediaUrl')) ? $product->legacyMediaUrl('image') : '')
                                                 @if($mainImage)
                                                     <div class="col-12 col-md-3 mb-3 div_remove_btn text-center" id="media_{{$mainImage->id}}">
                                                         <img src="{{$mainImage->getUrl()}}" alt="{{$mainImage->title}}"
                                                              style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
                                                         <div class="mt-1">
                                                             <span class="badge badge-success">تصویر اصلی</span>
+                                                            {{-- no ✕ while the legacy `image` column still holds a path —
+                                                                 see AdoptsLegacyMedia::mediaIsRemovable() --}}
+                                                            @if($product->mediaIsRemovable('image'))
                                                             <a data-id="{{$mainImage->id}}" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
+                                                            @endif
                                                         </div>
+                                                    </div>
+                                                @elseif($__legacyMain)
+                                                    {{-- legacy main image, not yet adopted: read-only (no media id to delete by) --}}
+                                                    <div class="col-12 col-md-3 mb-3 text-center">
+                                                        <img src="{{ $__legacyMain }}" alt="تصویر اصلی (سیستم قبلی)"
+                                                             style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
+                                                        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                     </div>
                                                 @endif
                                                 @foreach($product->getMedia('gallery') as $gallery)
@@ -371,7 +383,11 @@
                                                         <img src="{{$gallery->getUrl()}}" alt="{{$gallery->title}}"
                                                              style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
                                                         <div class="mt-1">
+                                                            {{-- no ✕ on the last image while legacy `galleries` rows remain —
+                                                                 see AdoptsLegacyMedia::galleryMediaIsRemovable() --}}
+                                                            @if($product->galleryMediaIsRemovable('gallery'))
                                                             <a data-id="{{$gallery->id}}" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endforeach

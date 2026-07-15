@@ -190,9 +190,9 @@
                                         @break
                                         @case('multi_file')
                                         <div class="col-12">
-                                            <div id="addnew">
+                                            <div id="addnew" class="mt-4">
                                                 <label for='{{ $form->name }}' class="btn btn-primary custom-file-upload border border-1">
-                                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
+                                                    <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                                                 </label>
                                                 <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
                                                     id="{{ $form->name }}"
@@ -481,8 +481,13 @@
 <script src="/assets/site/js/checkout.js"></script>
 @endsection
 @section('js')
-<script src="/assets/dashboard/js/site/adminJs.js"></script>
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+{{--
+    No dashboard bundle here (adminJs.js / layouts.js) — customer-facing page.
+    site-upload.js (site/singleWebPage/master.blade.php) already serves the upload
+    widget, and @yield('js') renders AFTER it, so the dashboard bundle overrode it and
+    routed removes to the admin-only /dashboard/removeMedia. This page's own behaviour
+    lives in checkout.js (@section('footer') above).
+--}}
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
 <script>

@@ -113,6 +113,93 @@ trait AdoptsLegacyMedia
         }
     }
 
+    /**
+     * The legacy (pre-Spatie) url for a single-image collection, or '' if there isn't one.
+     *
+     * For admin previews: lets a view show the not-yet-adopted image without knowing each
+     * model's accessor name (image_url on Category, image on Service, logo on Gateway...).
+     * Reads the same legacyMediaMap()/placeholder rules adoption uses, so a preview can never
+     * disagree with what a save would actually migrate.
+     */
+    public function legacyMediaUrl(string $collection): string
+    {
+        $column = $this->legacyMediaMap()[$collection] ?? null;
+        if (! $column) {
+            return '';
+        }
+
+        $legacy = $this->getRawOriginal($column);
+        if (empty($legacy) || in_array($legacy, $this->legacyMediaPlaceholders(), true)) {
+            return '';
+        }
+
+        return asset($legacy);
+    }
+
+    /**
+     * May the admin delete this collection's media outright (i.e. would a ✕ tell the truth)?
+     *
+     * FALSE while the legacy column still holds a path, because a delete cannot stick:
+     *   1. the read accessors are "Spatie if any, else legacy", so the legacy file is served
+     *      again the moment the media row is gone; and
+     *   2. adoptLegacyMedia() below skips a collection only while it HAS media — delete it and
+     *      the next save re-adopts the very same legacy file.
+     * The ✕ would appear to work and then silently undo itself, which is worse than no ✕.
+     * Replacing still works: these are singleFile() collections, so a new upload supersedes.
+     *
+     * TRUE for anything with nothing to fall back to — collections with no legacy column at
+     * all (uploaded fresh on the new system), an empty column, or a placeholder value. Once a
+     * record's legacy column is eventually cleared, the ✕ appears here automatically.
+     */
+    public function mediaIsRemovable(string $collection): bool
+    {
+        return $this->legacyMediaUrl($collection) === '';
+    }
+
+    /**
+     * Does the legacy `galleries` table still hold row(s) that would feed this collection?
+     * READ-ONLY — the galleries rows are never modified or deleted, only counted.
+     */
+    public function hasLegacyGalleryRows(string $collection): bool
+    {
+        if (! method_exists($this, 'galleries')) {
+            return false;
+        }
+
+        foreach ($this->legacyGalleryMigrations() as $migration) {
+            if (($migration['collection'] ?? null) !== $collection) {
+                continue;
+            }
+            $query = $this->galleries();
+            // mirror adoptLegacyMedia()'s filter exactly, so this can never disagree
+            // with what a save would actually re-adopt
+            if (array_key_exists('type', $migration) && $migration['type'] !== null) {
+                $query->where('type', $migration['type']);
+            }
+            return $query->whereNotNull('image')->where('image', '!=', '')->exists();
+        }
+
+        return false;
+    }
+
+    /**
+     * May the admin delete THIS media from a gallery/multi-file collection?
+     *
+     * Deleting one of several is fine: adoptLegacyMedia() skips a collection that still has
+     * media, so the remaining images hold the door shut. Deleting the LAST one empties the
+     * collection, and the next save re-adopts every legacy `galleries` row again — the delete
+     * would silently undo itself. So the ✕ is hidden on the final image while legacy rows
+     * still exist. Uploading more images restores it (count > 1).
+     */
+    public function galleryMediaIsRemovable(string $collection): bool
+    {
+        if ($this->getMedia($collection)->count() > 1) {
+            return true;
+        }
+
+        return ! $this->hasLegacyGalleryRows($collection);
+    }
+
     /** Copy any not-yet-migrated legacy images into Spatie. Safe to call repeatedly. */
     public function adoptLegacyMedia(): void
     {

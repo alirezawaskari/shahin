@@ -29,12 +29,16 @@ class ArrangeContractController extends Controller
      */
     public function arrangeContractList($id)
     {
+        // findOrFail, not find: a missing (or soft-deleted) contract used to reach
+        // ->arrangeContracts() on null and 500. A 404 is the honest answer.
+        $contract = Contract::findOrFail($id);
+
         $arrange_contracts=[];
         if (\Auth::user()->isAbleTo('arrange-contract-detail')) {
-            $arrange_contracts = Contract::find($id)->arrangeContracts()->orderBy('id','DESC')->paginate(15);
+            $arrange_contracts = $contract->arrangeContracts()->orderBy('id','DESC')->paginate(15);
         }
         if (\Auth::user()->isAbleTo('arrange-contract')) {
-            $arrange_contracts = Contract::find($id)->arrangeContracts()->where('user_id',\Auth::user()->id)
+            $arrange_contracts = $contract->arrangeContracts()->where('user_id',\Auth::user()->id)
                 ->orderBy('id','DESC')->paginate(15);
         }
 
@@ -48,13 +52,16 @@ class ArrangeContractController extends Controller
      */
     public function arrangeContractListDesktop($id)
     {
+        // see arrangeContractList(): find() on a missing contract 500'd here too
+        $contract = Contract::findOrFail($id);
+
         $arrange_contracts=[];
         if (\Auth::user()->isAbleTo('arrange-contract-detail')) {
             $has_role = User::find(\Auth::user()->id)->whereHas('roles', function ($query)  {
                 $query->where('roles.name','superadmin');
             })->count();
             if($has_role == 1){
-                $arrange_contracts = Contract::find($id)->arrangeContracts()->where('status',2)
+                $arrange_contracts = $contract->arrangeContracts()->where('status',2)
                     ->orderBy('id','DESC')->paginate(15);
             }
         }
@@ -156,17 +163,23 @@ class ArrangeContractController extends Controller
             'no' => 'required'], ['no.required' => 'لطفا شماره را وارد کنید']
         );
 
+        // $rec stays null when neither select is submitted — edit() only renders the list
+        // matching the owner, and renders neither when the owner is neither an agency nor a
+        // center. Previously $rec was undefined in that case, so `if($rec)` silently skipped
+        // the whole update and `no` + the file were never saved.
+        $rec = null;
         if(isset($request->agency_type_id)){ $rec=AgencyType::find($request->agency_type_id); }
         if(isset($request->center_id) ){ $rec=Center::find($request->center_id); }
 
         $arrange_contract = ArrangeContract::find($id);
+        if(! $arrange_contract){ return redirect()->back(); }
 
-        if($rec){  $arrange_contract->update(['no'=>$request->no, 'owner_id'=>$rec->user_id]);
+        $data = ['no' => $request->no];
+        if($rec){ $data['owner_id'] = $rec->user_id; }   // only reassign the owner when one was picked
+        $arrange_contract->update($data);
 
-            if ($request->file_path) {
-                MediaLibraryHelper::attachTo($arrange_contract, $request->file_path, 'file');
-            }
-
+        if ($request->file_path) {
+            MediaLibraryHelper::attachTo($arrange_contract, $request->file_path, 'file');
         }
 
         return redirect('/dashboard/arrangeContractList/'.$request->contract_id)->with(['update' => 'success' ]);

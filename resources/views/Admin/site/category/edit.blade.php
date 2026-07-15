@@ -86,9 +86,13 @@
                                                     <img src="{{ $imgMedia->getFullUrl() }}" class="rounded border"
                                                         style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
                                                         alt="تصویر دسته‌بندی">
+                                                    {{-- no ✕ while the legacy `image` column still holds a path —
+                                                         see AdoptsLegacyMedia::mediaIsRemovable() --}}
+                                                    @if($category->mediaIsRemovable('image'))
                                                     <a data-id="{{ $imgMedia->id }}" title="حذف عکس"
                                                         class="btn btn-sm remove_media_btn"><i
                                                             class="fa fa-close"></i></a>
+                                                    @endif
                                                 </div>
                                                 @elseif($category->image_url)
                                                 <img src="{{ $category->image_url }}" class="rounded border"
@@ -144,9 +148,13 @@
                                                     <img src="{{ $iconMedia->getFullUrl() }}" class="rounded border"
                                                         style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
                                                         alt="آیکن دسته‌بندی">
+                                                    {{-- no ✕ while the legacy `icon` column still holds a path —
+                                                         see AdoptsLegacyMedia::mediaIsRemovable() --}}
+                                                    @if($category->mediaIsRemovable('icon'))
                                                     <a data-id="{{ $iconMedia->id }}" title="حذف عکس"
                                                         class="btn btn-sm remove_media_btn"><i
                                                             class="fa fa-close"></i></a>
+                                                    @endif
                                                 </div>
                                                 @elseif($category->icon_url)
                                                 <img src="{{ $category->icon_url }}" class="rounded border"

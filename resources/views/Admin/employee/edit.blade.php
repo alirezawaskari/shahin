@@ -444,7 +444,7 @@
                                             <input name="employee[imgaccess]" type="file" id="imgaccess"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imgaccess" class="path" name="urlimgaccess">
+                                            <input type="hidden" id="imgaccess_path" class="path" name="urlimgaccess">
                                         </div>
                                     </div>
                                 </div>
@@ -472,7 +472,7 @@
                                                 id="imglastcertificate"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imglastcertificate" class="path"
+                                            <input type="hidden" id="imglastcertificate_path" class="path"
                                                 name="urlimglastcertificate">
                                         </div>
                                     </div>

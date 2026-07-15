@@ -117,7 +117,9 @@ class CenterRequestController extends AdminController
             ->take(50)
             ->get()
             : [];
-        $galleries = $centerRequest->galleries;
+        // Spatie media if any, else the legacy `galleries` rows (which a save migrates).
+        // Each entry exposes ->url and ->title regardless of which system served it.
+        $galleries = $centerRequest->galleryImages();
         return view('Admin.centerRequest.edit', compact('galleries', 'histories', 'center_request'));
     }
 

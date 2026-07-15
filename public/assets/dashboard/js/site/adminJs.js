@@ -9,20 +9,64 @@ $.ajaxSetup({
 });
 
 /**
- * Universal upload indicator.
+ * Universal upload indicator, with real byte progress.
  *
  * Hooks jQuery's GLOBAL ajax events rather than each call site, so every file upload —
  * the ones that already draw their own per-field spinner, the ones that never did, and
  * any added later — shows feedback with no extra work from the caller. Scoped to the
  * upload endpoints so ordinary ajax (saves, lookups, removeMedia) never triggers it, and
  * it counts overlapping uploads so the bar only clears when the last one finishes.
+ *
+ * The bar sits on #eff2fa and fills right-to-left (RTL reading direction) with the repo
+ * green as bytes actually reach the server.
  */
 (function () {
+    if (window.__shahinUploadBarInstalled) return;   // both bundles define this; install once
+    window.__shahinUploadBarInstalled = true;
+
+    var PROGRESS_BG = '#eff2fa';
+    var PROGRESS_FILL = '#28a745';   // repo green
+    var PROGRESS_INK = '#0b3d21';    // readable on the bg AND on the fill sweeping under it
+
     var pending = 0;
+    var active = [];   // one {loaded,total} per in-flight upload — drives the percentage
 
     function isUploadRequest(settings) {
         var url = (settings && settings.url) || '';
         return /uploadFilesTemporarily|ckeditor\/upload/i.test(url);
+    }
+
+    // Real byte progress needs the RAW XMLHttpRequest. The jqXHR wrapper handed to
+    // ajaxSend/ajaxComplete has no .upload, so xhr.upload.onprogress is unreachable there.
+    // jQuery builds its transport with `options.xhr()`, invoked with `this` = the settings —
+    // the one hook that sees both the target URL and the real xhr.
+    var baseXhrFactory = $.ajaxSettings.xhr;
+    $.ajaxSetup({
+        xhr: function () {
+            var settings = this;
+            var xhr = baseXhrFactory.call(settings);
+            if (xhr && xhr.upload && isUploadRequest(settings)) {
+                var rec = { loaded: 0, total: 0 };
+                settings.__sulRec = rec;
+                active.push(rec);
+                xhr.upload.addEventListener('progress', function (ev) {
+                    // lengthComputable is false for chunked/unknown-size bodies -> stay indeterminate
+                    if (!ev.lengthComputable) return;
+                    rec.loaded = ev.loaded;
+                    rec.total = ev.total;
+                    render();
+                });
+            }
+            return xhr;
+        }
+    });
+
+    /** Aggregate percent across overlapping uploads; -1 when the size isn't knowable. */
+    function percent() {
+        var loaded = 0, total = 0;
+        for (var i = 0; i < active.length; i++) { loaded += active[i].loaded; total += active[i].total; }
+        if (total <= 0) return -1;
+        return Math.max(0, Math.min(100, Math.round(loaded / total * 100)));
     }
 
     function ensureUi() {
@@ -31,18 +75,28 @@ $.ajaxSetup({
         var style = document.createElement('style');
         style.textContent =
             '#shahin_upload_loading{position:fixed;top:0;left:0;right:0;z-index:99999;display:none;' +
-            'align-items:center;justify-content:center;gap:8px;padding:10px 14px;background:#28a745;' +
-            'color:#fff;font-size:14px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}' +
-            '#shahin_upload_loading .sul-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.45);' +
-            'border-top-color:#fff;border-radius:50%;display:inline-block;animation:sulspin .7s linear infinite}' +
-            '@keyframes sulspin{to{transform:rotate(360deg)}}';
+            'padding:10px 14px;background:' + PROGRESS_BG + ';color:' + PROGRESS_INK + ';font-size:14px;' +
+            'line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2);overflow:hidden}' +
+            // anchored right -> grows leftwards as it fills
+            '#shahin_upload_loading .sul-fill{position:absolute;top:0;right:0;bottom:0;width:0;' +
+            'background:' + PROGRESS_FILL + ';transition:width .12s linear}' +
+            '#shahin_upload_loading.sul-indeterminate .sul-fill{width:100%;animation:sulpulse 1s ease-in-out infinite}' +
+            '#shahin_upload_loading .sul-body{position:relative;display:flex;align-items:center;' +
+            'justify-content:center;gap:8px}' +
+            '#shahin_upload_loading .sul-spin{width:16px;height:16px;border:2px solid rgba(11,61,33,.25);' +
+            'border-top-color:' + PROGRESS_INK + ';border-radius:50%;display:inline-block;' +
+            'animation:sulspin .7s linear infinite}' +
+            '@keyframes sulspin{to{transform:rotate(360deg)}}' +
+            '@keyframes sulpulse{0%,100%{opacity:.25}50%{opacity:.5}}';
         document.head.appendChild(style);
 
         var bar = document.createElement('div');
         bar.id = 'shahin_upload_loading';
-        bar.setAttribute('role', 'status');
+        bar.setAttribute('role', 'progressbar');
         bar.setAttribute('aria-live', 'polite');
-        bar.innerHTML = '<span class="sul-spin"></span><span class="sul-txt">در حال بارگذاری فایل...</span>';
+        bar.innerHTML = '<div class="sul-fill"></div>' +
+                        '<div class="sul-body"><span class="sul-spin"></span>' +
+                        '<span class="sul-txt">در حال بارگذاری فایل...</span></div>';
         document.body.appendChild(bar);
     }
 
@@ -50,22 +104,47 @@ $.ajaxSetup({
         ensureUi();
         var bar = document.getElementById('shahin_upload_loading');
         if (!bar) return;
-        if (pending > 0) {
-            bar.querySelector('.sul-txt').textContent = pending > 1
-                ? 'در حال بارگذاری ' + pending + ' فایل...'
-                : 'در حال بارگذاری فایل...';
-            bar.style.display = 'flex';
-        } else {
+        var fill = bar.querySelector('.sul-fill');
+
+        if (pending <= 0) {
             bar.style.display = 'none';
+            fill.style.width = '0%';
+            bar.removeAttribute('aria-valuenow');
+            return;
         }
+
+        var pct = percent();
+        var txt = pending > 1
+            ? 'در حال بارگذاری ' + pending + ' فایل...'
+            : 'در حال بارگذاری فایل...';
+
+        if (pct >= 0) {
+            bar.classList.remove('sul-indeterminate');
+            fill.style.width = pct + '%';
+            bar.setAttribute('aria-valuenow', pct);
+            bar.querySelector('.sul-txt').textContent = txt + ' ' + pct + '٪';
+        } else {
+            bar.classList.add('sul-indeterminate');
+            bar.removeAttribute('aria-valuenow');
+            bar.querySelector('.sul-txt').textContent = txt;
+        }
+        bar.style.display = 'block';
     }
 
-    $(document).ajaxSend(function (e, xhr, settings) {
+    $(document).ajaxSend(function (e, jqXhr, settings) {
         if (isUploadRequest(settings)) { pending++; render(); }
     });
     // fires on success AND error, so the bar can never get stuck on a failed upload
-    $(document).ajaxComplete(function (e, xhr, settings) {
-        if (isUploadRequest(settings)) { pending = Math.max(0, pending - 1); render(); }
+    $(document).ajaxComplete(function (e, jqXhr, settings) {
+        if (!isUploadRequest(settings)) return;
+        pending = Math.max(0, pending - 1);
+        var rec = settings.__sulRec;
+        if (rec) {
+            var i = active.indexOf(rec);
+            if (i > -1) active.splice(i, 1);
+        }
+        if (pending === 0) active.length = 0;   // belt-and-braces: never leak stale records
+        render();
     });
 })();
 

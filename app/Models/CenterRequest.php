@@ -8,16 +8,57 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class CenterRequest extends Model implements HasMedia {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
 
     /**
-     * Spatie media collection for gallery images attached to this request.
-     * Multi-file (no singleFile); each media's public URL is copied into the
-     * legacy Gallery.image string column.
+     * Spatie media collection for gallery images attached to this request. Multi-file.
+     * This is now the ONLY place new gallery images are written: the dual-write that also
+     * mirrored each media's URL into a legacy `galleries` row has been removed, so nothing
+     * in the app creates legacy gallery rows any more.
      */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('galleries')->useDisk('public');
+    }
+
+    /**
+     * Touch-to-migrate: legacy `galleries` rows -> the Spatie 'galleries' collection.
+     *
+     * Every CenterRequest gallery row is type 0 (the old writer never passed a type), so
+     * there is no type filter and no cap. Titles carry across as the media's `title` custom
+     * property — the same key attachTo() now stores for new uploads, so both systems read
+     * back identically.
+     *
+     * Rows left behind by the retired dual-write hold a /storage/ URL rather than a legacy
+     * /upload/ path. They only exist where Spatie media already exists, and adoptLegacyMedia()
+     * skips a collection that still has media, so they are never re-adopted as duplicates.
+     */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'galleries', 'type' => null, 'slotted' => false, 'max' => null],
+        ];
+    }
+
+    /**
+     * Gallery images to display: Spatie media if any, else the legacy `galleries` rows (which
+     * the next save migrates). Each entry exposes ->url and ->title so callers don't need to
+     * know which system served it. Read-only — legacy rows are never modified.
+     */
+    public function galleryImages(): \Illuminate\Support\Collection
+    {
+        $media = \App\Helpers\MediaLibraryHelper::existingMedia($this, 'galleries');
+        if ($media->isNotEmpty()) {
+            return $media->map(fn ($m) => (object) [
+                'url'   => $m->getUrl(),
+                'title' => $m->getCustomProperty('title'),
+            ])->values();
+        }
+
+        return $this->galleries
+            ->filter(fn ($g) => ! empty($g->image))
+            ->map(fn ($g) => (object) ['url' => $g->image, 'title' => $g->title])
+            ->values();
     }
 
     /**

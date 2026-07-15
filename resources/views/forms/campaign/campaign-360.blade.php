@@ -113,9 +113,9 @@
                 </div>
 
                 <div class="col-12">
-                    <div id="addnew">
+                    <div id="addnew" class="mt-4">
                         <label for='file' class="btn btn-primary custom-file-upload border border-1">
-                            <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
+                            <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                         </label>
                         <input name="file[]" type="file" id="file"
                                class="d-none filestyle file-upload file_upload_ajax file-up"

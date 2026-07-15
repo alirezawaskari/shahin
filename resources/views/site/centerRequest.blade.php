@@ -135,9 +135,9 @@
                                             </div>
 
                                             <div class="col-12">
-                                                <div id="addnew">
+                                                <div id="addnew" class="mt-4">
                                                     <label for='file' class="btn btn-primary custom-file-upload border border-1">
-                                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
+                                                        <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                                                     </label>
                                                     <input name="file[]" type="file" id="file"
                                                         class="d-none filestyle file-upload file_upload_ajax file-up"
@@ -239,7 +239,17 @@
 </script>
 
 @stop
-@section('js')
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-@endsection
+{{--
+    Deliberately NO dashboard bundle here (adminJs.js / layouts.js).
+
+    This is a public, guest-facing page. site.master already loads site-upload.js, which
+    provides everything this form needs (the .file_upload_ajax handler, new_link, and the
+    remove control) and posts to the PUBLIC endpoints.
+
+    The dashboard bundle would be loaded after site-upload.js (master -> @yield('js')) and
+    override it: both define new_link() and both bind change.fileUploadAjax, so the admin
+    versions would win. Its remove button posts to /dashboard/removeMedia, which requires
+    Authenticate:web + CheckAdminAuthenticated — a guest is bounced to login, so the temp
+    file is never deleted and the row never even disappears. site-upload.js instead uses
+    /upload/removeTemp (public + throttled, scoped to temp holders).
+--}}

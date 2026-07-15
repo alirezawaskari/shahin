@@ -844,9 +844,20 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/contact/desktop', 'ContactController@desktop')->name('contact.desktop');
     Route::resource('contact', 'ContactController');
 
-    //gallery
-    Route::resource('gallerycategory', 'GalleryCategoryController');
-    Route::get('/gallery/destroy/{gallery}', 'GalleryController@destroy')->name('gallery.destroy');
+    /*
+     * The standalone gallery feature (Admin\GalleryController, Admin\GalleryCategoryController,
+     * the GalleryCategory model and the public /gallery page) was deleted: it was dead in every
+     * direction — its views (Admin.gallery.*, Admin.gallerycategory.*) no longer existed and the
+     * `gallery_categories` table it queried does not exist in the database, so every route 500'd.
+     * Nothing linked to any of it.
+     *
+     * The one action that still ran was Admin\GalleryController@destroy, reached by a GET route
+     * (CSRF-exempt by nature), which deleted a legacy `galleries` row and its file — exactly the
+     * data touch-to-migrate reads.
+     *
+     * The `galleries` TABLE itself is untouched and still in use: it is the legacy source that
+     * AdoptsLegacyMedia migrates into Spatie collections.
+     */
     //content site
     Route::resource('about', 'AboutController');
     Route::resource('help', 'HelpController');
@@ -897,7 +908,12 @@ Route::get('/agencies', 'AgencyController@index')->name('agencies');
 Route::get('/articles', 'ArticleController@articles');
 Route::get('/articles/{articleSlug}', 'ArticleController@single');
 Route::get('/agencies/{service}', 'AgencyController@single');
-Route::get('/gallery', 'GalleryController@index');
+/*
+ * `/gallery` (App\Http\Controllers\GalleryController) deleted with its views: the page
+ * 500'd on every request. It called GalleryCategory::get(), but the `gallery_categories`
+ * table does not exist in this database, and site/gallerydata.blade.php read
+ * $gallery->cate_id, which is not a column on `galleries` either. Nothing linked to it.
+ */
 Route::get('/rules', 'RulesController@index');
 Route::post('/rate', 'ArticleController@rate');
 Route::get('/faq', 'HomeController@faq');

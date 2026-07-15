@@ -96,7 +96,7 @@
                                         <input name="post_image" type="file" id="post_image"
                                             class="filestyle file-upload file_upload_ajax file-up"
                                             data-buttonname="btn-white" accept=".jpg,.jpeg,.png" required>
-                                        <input type="hidden" id="post_image" class="path" name="url_post_image">
+                                        <input type="hidden" id="post_image_path" class="path" name="url_post_image">
                                     </div>
                                     @endif
                                 </div>

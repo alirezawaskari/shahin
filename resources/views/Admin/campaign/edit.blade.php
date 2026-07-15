@@ -103,7 +103,7 @@
                                                             <input name="profile_image" type="file" id="profile_image"
                                                                    class="filestyle file-upload file_upload_ajax file-up"
                                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="profile_image" class="path"
+                                                            <input type="hidden" id="profile_image_path" class="path"
                                                                    name="url_profile_image">
                                                         </div>
                                                     </div>
@@ -127,7 +127,7 @@
                                                             <input name="header_image" type="file" id="header_image"
                                                                    class="filestyle file-upload file_upload_ajax file-up"
                                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="header_image" class="path"
+                                                            <input type="hidden" id="header_image_path" class="path"
                                                                    name="url_header_image">
                                                         </div>
                                                     </div>

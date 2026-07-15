@@ -292,7 +292,15 @@
 
 @endsection
 @section('js')
-<script src="/assets/dashboard/js/site/adminJs.js"></script>
+{{--
+    No adminJs.js here — /profile is a CUSTOMER page (auth, not admin). site-upload.js
+    (site/master.blade.php, via site/profile/master.blade.php) already serves the five
+    document uploads above, and @yield('js') renders AFTER it, so adminJs.js overrode
+    it: every remove (X) posted to /dashboard/removeMedia, which requires
+    CheckAdminAuthenticated — a logged-in customer passes auth but fails that, so the
+    removes silently failed. The province -> city cascade and #uploadAvatar are in
+    site/js/app.js.
+--}}
 
 <script type="text/javascript">
     // Default Configuration

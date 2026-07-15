@@ -556,8 +556,15 @@
 @endauth
 @endsection
 @section('js')
-<script src="/assets/dashboard/js/site/adminJs.js"></script>
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+{{--
+    No dashboard bundle here (adminJs.js / layouts.js) — this page is used by
+    CUSTOMERS, not admins. site-upload.js (site/master.blade.php) already serves the
+    upload widgets, and @yield('js') renders AFTER it, so loading the dashboard bundle
+    here overrode it: the remove (X) on imgmeli / imgshenasname / imgturnover posted to
+    /dashboard/removeMedia, which requires CheckAdminAuthenticated, so a logged-in
+    customer was bounced and the remove silently failed. This page's own behaviour
+    lives in checkout.js below.
+--}}
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
 <script src="/assets/site/js/checkout.js"></script>

@@ -193,9 +193,9 @@
                                             </div>
 
                                             <div class="col-12">
-                                                <div id="addnew">
+                                                <div id="addnew" class="mt-4">
                                                     <label for='file' class="btn btn-primary custom-file-upload border border-1">
-                                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
+                                                        <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                                                     </label>
                                                     <input name="file[]" type="file" id="file"
                                                         class="d-none filestyle file-upload file_upload_ajax file-up"
@@ -250,7 +250,16 @@
 </script>
 
 @stop
-@section('js')
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-@endsection
+{{--
+    Deliberately NO dashboard bundle here (adminJs.js / layouts.js).
+
+    This is a GUEST page. site-upload.js (site/master.blade.php) already serves the
+    upload widget above, and @yield('js') renders AFTER it — so anything loaded here
+    overrides it. layouts.js redefines new_link() to emit .remove_media_btn, whose
+    adminJs.js handler posts to /dashboard/removeMedia (Authenticate:web +
+    CheckAdminAuthenticated) — a guest is bounced and the remove silently fails.
+    site-upload.js's new_link() correctly uses the public /upload/removeTemp.
+
+    The province -> city cascade this page needs is already in site/js/app.js;
+    layouts.js only duplicated it.
+--}}

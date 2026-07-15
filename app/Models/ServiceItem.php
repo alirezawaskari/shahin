@@ -27,6 +27,26 @@ class ServiceItem extends Model implements AuditableContract, HasMedia
         ];
     }
 
+    /**
+     * Touch-to-migrate: legacy `galleries` rows -> the homepage-banner slot collections.
+     *
+     * The type mapping is taken from the ORIGINAL writer, ServiceItemController::uploadSiteImages()
+     * before the Spatie migration (commit c8f540d1):
+     *     verticalImages   -> Gallery type 0
+     *     horizontalImages -> Gallery type 1
+     * Note this is NOT the mapping Category/GhorfeOnlineList use (1=desktop, 0=mobile): the
+     * legacy `type` column means different things per model, so it must never be assumed.
+     */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery_horizontal', 'type' => 1, 'slotted' => true,
+             'max' => self::GALLERY_COLLECTIONS['gallery_horizontal']],
+            ['collection' => 'gallery_vertical',   'type' => 0, 'slotted' => true,
+             'max' => self::GALLERY_COLLECTIONS['gallery_vertical']],
+        ];
+    }
+
     /** Single-file media collections owned directly by the service item (Spatie native). */
     const MEDIA_FIELDS = ['image', 'icon', 'thumb', 'image_app', 'img_box_1'];
 
