@@ -376,6 +376,7 @@
                                                     </div>
                                                 @endforeach
                                             </div>
+                                            @include('Admin.partials.legacyGalleryFallback', ['model' => $product, 'collections' => ['gallery']])
                                             <div class="row mb-4">
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     <label for="file-upload" class="btn btn-primary custom-file-upload border border-1">

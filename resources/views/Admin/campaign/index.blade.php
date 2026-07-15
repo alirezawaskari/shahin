@@ -50,14 +50,18 @@
                         <td>{{$campaign->subject}}</td>
                         <td>{{$campaign->capacity}}</td>
                         <td>
-                            <a href="{{ asset($campaign->image) }}" target="_blank">
-                                <img src="{{ asset($campaign->image) }}" width="70px" alt="{{$campaign->subject}}">
+                            @if($campaign->image)
+                            <a href="{{ $campaign->image }}" target="_blank">
+                                <img src="{{ $campaign->image }}" width="70px" alt="{{$campaign->subject}}">
                             </a>
+                            @endif
                         </td>
                         <td>
-                            <a href="{{ asset($campaign->image_header) }}" target="_blank">
-                                <img src="{{ asset($campaign->image_header) }}" width="70px" alt="{{$campaign->subject}}">
+                            @if($campaign->image_header)
+                            <a href="{{ $campaign->image_header }}" target="_blank">
+                                <img src="{{ $campaign->image_header }}" width="70px" alt="{{$campaign->subject}}">
                             </a>
+                            @endif
                         </td>
                         <td>{{verta($campaign->start_date)->format('Y/m/d')}}</td>
                         <td>{{verta($campaign->end_date)->format('Y/m/d')}}</td>

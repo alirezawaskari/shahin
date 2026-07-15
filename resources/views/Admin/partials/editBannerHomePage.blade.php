@@ -83,4 +83,10 @@
         @endfor
     </div>
 
+    {{-- Legacy galleries-table fallback (read-only) — hidden once this model has Spatie gallery media --}}
+    @include('Admin.partials.legacyGalleryFallback', [
+        'model'       => $model,
+        'collections' => ['gallery_horizontal', 'gallery_vertical'],
+    ])
+
 </div>

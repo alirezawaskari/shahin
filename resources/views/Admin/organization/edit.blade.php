@@ -108,8 +108,8 @@
                         <div class="card">
                             @if($organization->stamp)
                             <div id="stamp_src" class="show">
-                            <a href="{{ asset($organization->stamp) }}" target="_blank">
-                                <img src="{{ asset($organization->stamp) }}" class="card-img-top" height="150px">
+                            <a href="{{ $organization->stamp }}" target="_blank">
+                                <img src="{{ $organization->stamp }}" class="card-img-top" height="150px">
                             </a>
                             </div>
                             @else
@@ -131,8 +131,8 @@
                         <div class="card">
                             @if($organization->image)
                             <div id="image_src" class="show">
-                                <a href="{{ asset($organization->image) }}" target="_blank">
-                                    <img id="image_src" src="{{ asset($organization->image) }}" class="card-img-top" height="150px">
+                                <a href="{{ $organization->image }}" target="_blank">
+                                    <img id="image_src" src="{{ $organization->image }}" class="card-img-top" height="150px">
                                 </a>
                             </div>
                             @else
@@ -174,7 +174,7 @@
                     @if(isset($organization->document))
                     @foreach($organization->document as $image)
                     <div class="card col-md-3">
-                        <a href="{{ asset($image) }}" target="_blank">
+                        <a href="{{ $image }}" target="_blank">
                             <img src="{{ $image }}" class="card-img-top" height="150px">
                         </a>
                     </div>

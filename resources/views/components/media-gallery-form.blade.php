@@ -73,3 +73,9 @@
 
     </div>
 @endforeach
+
+{{-- Legacy galleries-table fallback (read-only) — hidden once this owner has Spatie gallery media --}}
+@include('Admin.partials.legacyGalleryFallback', [
+    'model'       => $owner,
+    'collections' => collect($sections)->pluck('collection')->all(),
+])

@@ -117,6 +117,7 @@
                                 </tbody>
                             </table>
                         @endif
+                        @include('Admin.partials.legacyGalleryFallback', ['model' => $agencyTypes, 'collections' => ['gallery']])
                     </div>
                     <div class="col-12 col-md-12 mb-3">
                     <label>سایر عکس ها</label>

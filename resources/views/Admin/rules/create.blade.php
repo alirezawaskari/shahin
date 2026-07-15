@@ -79,12 +79,12 @@
                     </select>
                 </div>
 
-                <div class='col-12 col-md-4 mb-3 file file--upload'>
-                    <label for='resume'>
+                <div class='col-12 col-md-4 mb-3'>
+                    <label for='resume' class="btn btn-primary custom-file-upload border border-1">
                         <i class="fa fa-cloud-upload"></i>انتخاب رزومه
                     </label>
                     <input name="resume" type="file" id="resume"
-                        class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
+                        class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
                     <div id="resume_src" class="show"></div>
                     <input type="hidden" id="resume" class="path" name="urlresume" value="">
                 </div>

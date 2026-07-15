@@ -90,6 +90,11 @@
                                                         class="btn btn-sm remove_media_btn"><i
                                                             class="fa fa-close"></i></a>
                                                 </div>
+                                                @elseif($category->image_url)
+                                                <img src="{{ $category->image_url }}" class="rounded border"
+                                                    style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                                    alt="تصویر دسته‌بندی (سیستم قبلی)">
+                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                 @else
                                                 <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
                                                     style="height:120px;background:#f8f9fa;">بدون تصویر</div>
@@ -143,6 +148,11 @@
                                                         class="btn btn-sm remove_media_btn"><i
                                                             class="fa fa-close"></i></a>
                                                 </div>
+                                                @elseif($category->icon_url)
+                                                <img src="{{ $category->icon_url }}" class="rounded border"
+                                                    style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                                    alt="آیکن دسته‌بندی (سیستم قبلی)">
+                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                 @else
                                                 <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
                                                     style="height:120px;background:#f8f9fa;">بدون تصویر</div>

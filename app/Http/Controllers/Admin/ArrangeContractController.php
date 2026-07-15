@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AgencyType;
 use App\Models\ArrangeContract;
@@ -97,12 +97,12 @@ class ArrangeContractController extends Controller
             $rec=Center::find($request->center_id);
         }
 
-        if (isset($request->file_path)) {
-            $file = Helper::moveImage($request->file_path, 'arrangeContract');
-        }
-
-        ArrangeContract::create(['no'=>$request->no,'contract_id'=>$request->contract_id, 'file'=>$file,'user_id'=>\Auth::user()->id,
+        $arrange_contract = ArrangeContract::create(['no'=>$request->no,'contract_id'=>$request->contract_id,'user_id'=>\Auth::user()->id,
         'owner_id'=>$rec->user_id]);
+
+        if ($request->file_path) {
+            MediaLibraryHelper::attachTo($arrange_contract, $request->file_path, 'file');
+        }
 
         return redirect('/dashboard/arrangeContractList/'.$request->contract_id)->with([
             'create' => 'success'
@@ -163,10 +163,8 @@ class ArrangeContractController extends Controller
 
         if($rec){  $arrange_contract->update(['no'=>$request->no, 'owner_id'=>$rec->user_id]);
 
-            if (isset($request->file_path)) {
-                $file = Helper::moveImage($request->file_path, 'arrangeContract');
-                $arrange_contract->file = $file;
-                $arrange_contract->save();
+            if ($request->file_path) {
+                MediaLibraryHelper::attachTo($arrange_contract, $request->file_path, 'file');
             }
 
         }

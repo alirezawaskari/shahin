@@ -274,15 +274,15 @@
                                         @endforeach
                                         @endif
                                         <div class="col-12 mb-3">
-                                            <div id="addnew" class='file file--upload'>
-                                                <label for="{{ $contract_form->name }}" id="up-label">
+                                            <div id="addnew">
+                                                <label for="{{ $contract_form->name }}" id="up-label" class="btn btn-primary custom-file-upload border border-1">
                                                     <i class="fa fa-cloud-upload ml-2"></i>
                                                     افزودن
                                                     سایر مدارک
                                                 </label>
                                                 <input name="item[{{ $contract_form->name }}][]" type="file"
                                                     id="{{ $contract_form->name }}"
-                                                    class="filestyle file-upload file_upload_ajax file-up"
+                                                    class="d-none filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white">
                                             </div>
                                             <div id="{{ $contract_form->name }}_newlink" class="col-12 row">
@@ -494,15 +494,15 @@
                                     @endforeach
                                     @endif
                                     <div class="col-12 mb-3">
-                                        <div id="addnew" class='file file--upload'>
-                                            <label for="{{ $contract_form->name }}" id="up-label">
+                                        <div id="addnew">
+                                            <label for="{{ $contract_form->name }}" id="up-label" class="btn btn-primary custom-file-upload border border-1">
                                                 <i class="fa fa-cloud-upload ml-2"></i>
                                                 افزودن
                                                 سایر مدارک
                                             </label>
                                             <input name="item[{{ $contract_form->name }}][]" type="file"
                                                 id="{{ $contract_form->name }}"
-                                                class="filestyle file-upload file_upload_ajax file-up"
+                                                class="d-none filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white">
                                         </div>
                                         <div id="{{ $contract_form->name }}_newlink" class="col-12 row">

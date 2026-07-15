@@ -341,6 +341,7 @@
                                             @endforeach
                                         </div>
                                         @endif
+                                        @include('Admin.partials.legacyGalleryFallback', ['model' => $product, 'collections' => ['gallery']])
 
                                         <hr />
                                         <ul class="list-inline pull-right">

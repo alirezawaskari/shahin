@@ -426,8 +426,8 @@
                                     <div class="card">
                                         @if($employee->imgaccess)
                                         <div id="imgaccess_src" class="show">
-                                            <a href="{{ asset($employee->imgaccess) }}" target="_blank">
-                                                <img src="{{ asset($employee->imgaccess) }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                            <a href="{{ $employee->imgaccess }}" target="_blank">
+                                                <img src="{{ $employee->imgaccess }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
@@ -452,8 +452,8 @@
                                     <div class="card">
                                         @if($employee->imglastcertificate)
                                         <div id="imglastcertificate_src" class="show">
-                                            <a href="{{ asset($employee->imglastcertificate) }}" target="_blank">
-                                                <img src="{{ asset($employee->imglastcertificate) }}"
+                                            <a href="{{ $employee->imglastcertificate }}" target="_blank">
+                                                <img src="{{ $employee->imglastcertificate }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>

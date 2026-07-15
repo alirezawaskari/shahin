@@ -138,24 +138,23 @@ function new_link(file_attr_id) {
     ct++;
     var div1 = document.createElement('div');
     div1.id = ct;
-    div1.className = "col-md-3";
-    // file_attr_id must be passed as a STRING literal (quoted) — otherwise delIt receives
-    // an undefined identifier and the remove button throws.
-    var delLink = '<div class="btn badge-red mt-2"><a class="text-white" href="javascript:delIt(' + ct + ' , \'' + file_attr_id + '\')"><i class="fa fa-trash" aria-hidden="true"></i></a></div>';
+    // .div_remove_btn -> the shared .remove_media_btn handler (adminJs.js) finds this row.
+    div1.className = "col-md-3 div_remove_btn text-center";
+    // Same remove control as every other model (btn btn-sm remove_media_btn + fa-close),
+    // instead of the old badge-red/fa-trash link that only dropped the row from the DOM
+    // and left the uploaded temp file orphaned on the server.
+    //
+    // No data-id here: the row is built before the upload resolves. The temp media id is
+    // written into this row's hidden .path input straight after, and the handler reads it
+    // from there — so the file is genuinely deleted server-side.
+    // data-temp="1" -> an unsaved upload drops instantly, with no confirm prompt.
+    var delLink = '<div class="mt-1"><a href="javascript:void(0)" class="btn btn-sm remove_media_btn"' +
+        ' data-temp="1" title="حذف فایل"><i class="fa fa-close" aria-hidden="true"></i></a></div>';
     div1.innerHTML = document.getElementById(file_attr_id + '_newlinktpl').innerHTML + delLink;
     document.getElementById(file_attr_id + '_newlink').appendChild(div1);
     div1.children[0].id = file_attr_id + '_src' + ct;
     div1.children[1].id = file_attr_id + ct;
     date();
-}
-
-function delIt(eleId, file_attr_id) {
-    // Remove the cloned preview row by its own id (its hidden url<name>[] input goes with
-    // it, so the dropped image is not submitted). Robust to how it's called.
-    var ele = document.getElementById(eleId);
-    if (ele && ele.parentNode) {
-        ele.parentNode.removeChild(ele);
-    }
 }
 
 $(function () {

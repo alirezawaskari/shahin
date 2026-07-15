@@ -210,12 +210,14 @@
                                                                     <td>{{$campaign_collaboration->name}}</td>
                                                                     <td>{{$campaign_collaboration->url}}</td>
                                                                     <td>
-                                                                        <a href="{{ asset($campaign_collaboration->logo) }}"
+                                                                        @if($campaign_collaboration->logo)
+                                                                        <a href="{{ $campaign_collaboration->logo }}"
                                                                            target="_blank">
                                                                             <img
-                                                                                src="{{ asset($campaign_collaboration->logo) }}"
+                                                                                src="{{ $campaign_collaboration->logo }}"
                                                                                 width="70px" alt="">
                                                                         </a>
+                                                                        @endif
                                                                     </td>
                                                                     <td>
                                                                         <a

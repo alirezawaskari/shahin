@@ -153,7 +153,7 @@ class CenterRequestController extends AdminController
         $centerRequest->update($input);
 
         if ($centerRequest->status == 1) {
-            Center::firstOrCreate(['representation_id' => $representation, 'center_request_id' => $centerRequest->id, 'status' => 1]);
+            Center::firstOrCreate(['creator_representation_id' => $representation, 'center_request_id' => $centerRequest->id, 'status' => 1]);
         }
 
         $centerRequest->histories()->create([

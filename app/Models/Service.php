@@ -13,7 +13,19 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Service extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
-    use Sluggable,SoftDeletes,InteractsWithMedia;
+    use Sluggable,SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return [
+            'image'     => 'image',
+            'icon'      => 'icon',
+            'img_box_1' => 'img_box_1',
+            'thumb'     => 'thumb',
+            'image_app' => 'image_app',
+        ];
+    }
 
     /** Media collections owned directly by the service (Spatie native). */
     const MEDIA_FIELDS = ['image', 'icon', 'img_box_1', 'thumb', 'image_app'];
@@ -57,27 +69,32 @@ class Service extends Model implements AuditableContract, HasMedia
 
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     public function getIconAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon')
+            ?: ($this->getRawOriginal('icon') ? asset($this->getRawOriginal('icon')) : '');
     }
 
     public function getImgBox1Attribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1')
+            ?: ($this->getRawOriginal('img_box_1') ? asset($this->getRawOriginal('img_box_1')) : '');
     }
 
     public function getThumbAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb')
+            ?: ($this->getRawOriginal('thumb') ? asset($this->getRawOriginal('thumb')) : '');
     }
 
     public function getImageAppAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app')
+            ?: ($this->getRawOriginal('image_app') ? asset($this->getRawOriginal('image_app')) : '');
     }
 
     /**

@@ -210,7 +210,7 @@
                     <div class="col-12 row">
                         @foreach ($galleries as $gallery)
                         <div class="card col-md-3">
-                            <a href="{{ asset($gallery->image) }}" target="_blank">
+                            <a href="{{ $gallery->image }}" target="_blank">
                                 <img src="{{ $gallery->image }}" class="card-img-top" height="150px">
                             </a>
                         </div>

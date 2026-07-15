@@ -15,6 +15,66 @@ $.ajaxSetup({
     }
 });
 
+/**
+ * Universal upload indicator (mirrors the dashboard bundle — site pages don't load adminJs.js).
+ *
+ * Hooks jQuery's GLOBAL ajax events rather than each call site, so every file upload shows
+ * feedback with no extra work from the caller. Scoped to the upload endpoints so ordinary
+ * ajax never triggers it, and it counts overlapping uploads so the bar only clears when the
+ * last one finishes.
+ */
+(function () {
+    var pending = 0;
+
+    function isUploadRequest(settings) {
+        var url = (settings && settings.url) || '';
+        return /uploadFilesTemporarily|ckeditor\/upload/i.test(url);
+    }
+
+    function ensureUi() {
+        if (document.getElementById('shahin_upload_loading')) return;
+
+        var style = document.createElement('style');
+        style.textContent =
+            '#shahin_upload_loading{position:fixed;top:0;left:0;right:0;z-index:99999;display:none;' +
+            'align-items:center;justify-content:center;gap:8px;padding:10px 14px;background:#28a745;' +
+            'color:#fff;font-size:14px;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}' +
+            '#shahin_upload_loading .sul-spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.45);' +
+            'border-top-color:#fff;border-radius:50%;display:inline-block;animation:sulspin .7s linear infinite}' +
+            '@keyframes sulspin{to{transform:rotate(360deg)}}';
+        document.head.appendChild(style);
+
+        var bar = document.createElement('div');
+        bar.id = 'shahin_upload_loading';
+        bar.setAttribute('role', 'status');
+        bar.setAttribute('aria-live', 'polite');
+        bar.innerHTML = '<span class="sul-spin"></span><span class="sul-txt">در حال بارگذاری فایل...</span>';
+        document.body.appendChild(bar);
+    }
+
+    function render() {
+        ensureUi();
+        var bar = document.getElementById('shahin_upload_loading');
+        if (!bar) return;
+        if (pending > 0) {
+            bar.querySelector('.sul-txt').textContent = pending > 1
+                ? 'در حال بارگذاری ' + pending + ' فایل...'
+                : 'در حال بارگذاری فایل...';
+            bar.style.display = 'flex';
+        } else {
+            bar.style.display = 'none';
+        }
+    }
+
+    $(document).ajaxSend(function (e, xhr, settings) {
+        if (isUploadRequest(settings)) { pending++; render(); }
+    });
+    // fires on success AND error, so the bar can never get stuck on a failed upload
+    $(document).ajaxComplete(function (e, xhr, settings) {
+        if (isUploadRequest(settings)) { pending = Math.max(0, pending - 1); render(); }
+    });
+})();
+
 var ct = 1;
 var index_add_photo = 0;
 var index_add_img = 0;

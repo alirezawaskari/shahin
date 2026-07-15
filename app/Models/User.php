@@ -23,6 +23,29 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
     use Notifiable;
     use SoftDeletes;
     use InteractsWithMedia;
+    use \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return [
+            'avatar'        => 'avatar',
+            'imgmeli'       => 'imgmeli',
+            'imgshenasname' => 'imgshenasname',
+            'imgturnover'   => 'imgturnover',
+            'imgsignature'  => 'imgsignature',
+        ];
+    }
+
+    /**
+     * boot() stamps avatar = '/img/user.png' on every create, so the column is never
+     * empty. Never adopt that shared default: it would copy one placeholder into every
+     * user's own collection and stop getAvatarAttribute() falling back to the live one.
+     */
+    protected function legacyMediaPlaceholders(): array
+    {
+        return ['/img/user.png'];
+    }
 
     /** Single-file KYC/avatar image collections (legacy path columns kept, read via accessors). */
     const IMAGE_COLLECTIONS = ['avatar', 'imgmeli', 'imgshenasname', 'imgturnover', 'imgsignature'];
@@ -37,28 +60,33 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
     /** Avatar url: Spatie media if present, else the app default (avatar must never be blank). */
     public function getAvatarAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'avatar') ?: asset('/img/user.png');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'avatar')
+            ?: ($this->getRawOriginal('avatar') ? asset($this->getRawOriginal('avatar')) : asset('/img/user.png'));
     }
 
     /** KYC image url accessors (shadow the legacy columns; disk-checked, '' when unset). */
     public function getImgmeliAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli')
+            ?: ($this->getRawOriginal('imgmeli') ? asset($this->getRawOriginal('imgmeli')) : '');
     }
 
     public function getImgshenasnameAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgshenasname');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgshenasname')
+            ?: ($this->getRawOriginal('imgshenasname') ? asset($this->getRawOriginal('imgshenasname')) : '');
     }
 
     public function getImgturnoverAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover')
+            ?: ($this->getRawOriginal('imgturnover') ? asset($this->getRawOriginal('imgturnover')) : '');
     }
 
     public function getImgsignatureAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgsignature');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgsignature')
+            ?: ($this->getRawOriginal('imgsignature') ? asset($this->getRawOriginal('imgsignature')) : '');
     }
 
     /**

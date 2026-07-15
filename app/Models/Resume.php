@@ -8,7 +8,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Resume extends Model implements HasMedia
 {
-    use InteractsWithMedia;
+    use InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['resume' => 'resume'];
+    }
 
     /**
      * @var array
@@ -35,7 +41,8 @@ class Resume extends Model implements HasMedia
 
     public function getResumeAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'resume');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'resume')
+            ?: ($this->getRawOriginal('resume') ? asset($this->getRawOriginal('resume')) : '');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

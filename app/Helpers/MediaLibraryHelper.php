@@ -234,6 +234,80 @@ class MediaLibraryHelper
         }
     }
 
+    /**
+     * Adopt an EXISTING legacy image (referenced by a stored path/URL) into $model's
+     * Spatie $collection — the "touch-to-migrate" primitive: on a plain save (no
+     * re-upload) the old file is copied into Spatie so future reads use the new system.
+     *
+     * NON-DESTRUCTIVE: the legacy file on disk and the legacy column/row are left
+     * untouched, so the accessor fallback keeps working even if this copy fails. Returns
+     * null (a no-op) whenever the legacy path can't be resolved to a real file, so a
+     * broken/dead legacy path can never break the save that triggered it.
+     *
+     * @param string|null $legacyPath value stored in the legacy column / Gallery.image
+     *                    (e.g. "/upload/2026/5/x.jpg", "uploads/gallery/x.jpg", or a full
+     *                    "http://host/upload/..." URL that asset() had produced)
+     * @return \App\Models\Media|null  the created media, or null on no-op/failure
+     */
+    public static function adoptLegacyFile(\Spatie\MediaLibrary\HasMedia $model, string $collection, ?string $legacyPath, array $customProperties = [])
+    {
+        $abs = self::resolveLegacyPath($legacyPath);
+        if ($abs === null || !is_file($abs)) {
+            return null;
+        }
+
+        $bytes = @file_get_contents($abs);
+        if ($bytes === false || $bytes === '') {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($abs, PATHINFO_EXTENSION)) ?: 'jpg';
+        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
+
+        // keep a pointer back to the legacy file this media was adopted from, so an
+        // adopted row is always traceable to (and reconcilable with) its old source.
+        $customProperties['old_file_path'] = $legacyPath;
+
+        try {
+            $media = $model->addMediaFromString($bytes)
+                ->usingFileName($filename)
+                ->withCustomProperties($customProperties)
+                ->toMediaCollection($collection);
+
+            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
+            $target = $media->getPath();
+            if (!is_file($target)) {
+                File::ensureDirectoryExists(dirname($target));
+                File::put($target, $bytes);
+            }
+            return $media;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::adoptLegacyFile failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /** Resolve a stored legacy path/URL to an absolute file path under public/, or null. */
+    private static function resolveLegacyPath(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+        // a full URL may have been stored (e.g. asset()-wrapped) — keep only the path part
+        if (preg_match('~^https?://~i', $path)) {
+            $p = parse_url($path, PHP_URL_PATH);
+            if (empty($p)) {
+                return null;
+            }
+            $path = $p;
+        }
+        $rel = ltrim(rawurldecode($path), '/');
+        if ($rel === '') {
+            return null;
+        }
+        return public_path($rel);
+    }
+
     /** Whether $collection is declared singleFile() on the model. */
     private static function isSingleFileCollection(\Spatie\MediaLibrary\HasMedia $model, string $collection): bool
     {

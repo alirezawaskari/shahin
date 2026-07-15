@@ -223,7 +223,7 @@
                             name="description">{{ $center->description }}</textarea>
                     </div>
 
-                    <div class='col-12 mb-3 file file--upload'>
+                    <div class='col-12 mb-3'>
                         <label class="d-block">فایل قرارداد :</label>
 
                         {{-- Currently saved contract file (Spatie single-file collection). It's a

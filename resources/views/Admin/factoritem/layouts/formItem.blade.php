@@ -112,12 +112,12 @@
 @case('factor-image')
 <div class="col-12 row">
     <div class="col-md-4">
-        <div id="addnew" class="file file--upload mb-5">
-            <label for="{{ $form->name }}">
+        <div id="addnew" class="mb-5">
+            <label for="{{ $form->name }}" class="btn btn-primary custom-file-upload border border-1">
                 <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن {!! $form->help !!}
             </label>
             <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
-                class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
+                class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                 accept=".jpg,.jpeg,.png">
         </div>
     </div>
@@ -148,12 +148,12 @@
 </div>
 <div class="col-12 row">
     <div class="col-md-4">
-        <div id="addnew" class="file file--upload mb-5">
+        <div id="addnew" class="mb-5">
             <label for="{{ $form->name }}" class="btn btn-primary custom-file-upload border border-1">
                 <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن تصویر
             </label>
             <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
-                class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
+                class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                 accept=".jpg,.jpeg,.png">
         </div>
     </div>

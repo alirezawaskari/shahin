@@ -92,8 +92,8 @@ class CenterRequestController extends Controller
             foreach ($files as $key => $file) {
                 if ($file) {
                     if (isset($file_center)) {
-                        $url = Helper::moveImage($file, 'document');
-                        $center_request->galleries()->create(['title' => $alt[$key], 'image' => $url]);
+                        $media = MediaLibraryHelper::attachTo($center_request, (string)$file, 'galleries');
+                        $center_request->galleries()->create(['title' => $alt[$key] ?? null, 'image' => $media ? $media->getUrl() : '']);
                     }
                 }
             }

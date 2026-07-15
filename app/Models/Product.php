@@ -17,8 +17,22 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class  Product extends Model implements HasMedia
 {
-    use Sluggable,SoftDeletes,InteractsWithMedia;
+    use Sluggable,SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
 //    use Taggable;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['image' => 'image'];
+    }
+
+    /** Touch-to-migrate: legacy gallery rows -> the flat `gallery` collection. */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery', 'type' => null, 'slotted' => false, 'max' => null],
+        ];
+    }
     /**
      *type of products
      */
@@ -51,7 +65,8 @@ class  Product extends Model implements HasMedia
     /** Main image url (shadows the legacy `image` column so reads go through Spatie). */
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     /**
@@ -705,7 +720,8 @@ class  Product extends Model implements HasMedia
 
     public function getImageUrlAttribute()
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     public function getImagesUrlAttribute()

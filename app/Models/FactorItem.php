@@ -21,6 +21,20 @@ class FactorItem extends Model implements AuditableContract, HasMedia
     use Auditable;
     use SoftDeletes;
     use InteractsWithMedia;
+    use \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /**
+     * Touch-to-migrate: legacy paths embedded in these JSON columns -> the documents
+     * collection. factor_values is nested (image arrays sit next to plain text/ids); only
+     * values resolving to a real file under public/ are adopted. The columns stay untouched.
+     */
+    protected function legacyArrayMediaMap(): array
+    {
+        return [
+            'factor_values' => self::DOCUMENTS_COLLECTION,
+            'factor_image'  => self::DOCUMENTS_COLLECTION,
+        ];
+    }
 
     /**
      * Spatie collection that permanently holds the ajax-uploaded document images for

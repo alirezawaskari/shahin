@@ -149,7 +149,7 @@ class TotalFactorItemController extends Controller
             $temp['factorItems'] = FactorItem::getFatorItemCollection($factor_item)->get();
             $temp['confirm'] = $factor_item->totalFactorItem->confirm;
             $temp['sessions'] = $factor_item->sessions->where('status', '!=', false);
-            $temp['financial_plans_type'] = FactorItem::getFnancialPlansType($factor_item);
+            $temp['financial_plans_type'] = FactorItem::getFinancialPlansType($factor_item);
             $temp['financial_plans_types_list'] = FinancialPlansType::getFinancialPlansTypeByItemAndPaymentType($factor_item->factoritemable , $factor_item->type);
             $temp['factor_histories'] = $factor_item->histories->where('reason_id' , 2);
 
@@ -593,8 +593,7 @@ class TotalFactorItemController extends Controller
                 'description_request_contract_settlement' => $request->description_request_contract_settlement,
             ]);
             if ($request->urlrequest_contract_settlement) {
-                Helper::deleteImage($total_factor_item_contract_settlement->img_request_contract_settlement);
-                $total_factor_item_contract_settlement->update(['img_request_contract_settlement' => Helper::moveImage($request->urlrequest_contract_settlement, 'document')]);
+                \App\Helpers\MediaLibraryHelper::attachTo($total_factor_item_contract_settlement, $request->urlrequest_contract_settlement, 'img_request_contract_settlement');
             }
             $total_factor_item->update(['status_mali' => 7]);
 
@@ -618,11 +617,9 @@ class TotalFactorItemController extends Controller
         if ($total_factor_item->status_mali == 9) {
             $total_factor_item->totalFactorItemContractSettlement->update([
                 'deliverer_id' => auth()->user()->id,
-                'img_warranty_delivery_receipt' => $request->img_warranty_delivery_receipt,
             ]);
             if ($request->urlimg_warranty_delivery_receipt) {
-                Helper::deleteImage($total_factor_item->totalFactorItemContractSettlement->img_warranty_delivery_receipt);
-                $total_factor_item->totalFactorItemContractSettlement->update(['img_warranty_delivery_receipt' => Helper::moveImage($request->urlimg_warranty_delivery_receipt, 'document')]);
+                \App\Helpers\MediaLibraryHelper::attachTo($total_factor_item->totalFactorItemContractSettlement, $request->urlimg_warranty_delivery_receipt, 'img_warranty_delivery_receipt');
             }
             $total_factor_item->totalFactorItemInstallments()->where('status', 0)->update(['status' => 2, 'pay_date' => now()]);
 
@@ -751,13 +748,15 @@ class TotalFactorItemController extends Controller
         foreach (ContractForm::where('value', $total_factor_item->guarantee_type)->orWhere('value', 'all')->get() as $contract_form) {
             if ($contract_form->type == 'other_document_image') {
                 if (isset($item[$contract_form->name])) {
-                    $images = isset($contract_values[$contract_form->name]) ? $contract_values[$contract_form->name] : [];
+                    $images = isset($contract_values[$contract_form->name]) && is_array($contract_values[$contract_form->name]) ? $contract_values[$contract_form->name] : [];
                     $files = $item['url' . $contract_form->name];
-                    foreach ($files as $file) {
-                        if ($file) {
-                            if (isset($images)) {
-                                $url = Helper::moveImage($file, 'document');
-                                $images[] = $url;
+                    if (is_array($files)) {
+                        foreach ($files as $file) {
+                            if ($file) {
+                                $media = \App\Helpers\MediaLibraryHelper::attachTo($total_factor_item, (string) $file, 'contract_documents');
+                                if ($media) {
+                                    $images[] = $media->getUrl();
+                                }
                             }
                         }
                     }
@@ -771,12 +770,14 @@ class TotalFactorItemController extends Controller
                 if (isset($item[$contract_form->name])) {
                     $img = $item[$contract_form->name];
                     if ($img) {
-                        $url = Helper::moveImage($item['url' . $contract_form->name], 'document');
-                        if (isset($contract_values[$contract_form->name])) {
-                            $contract_values[$contract_form->name] != $url ? Helper::deleteImage($contract_values[$contract_form->name]) : '';
-                            $contract_values[$contract_form->name] = $url;
+                        $media = \App\Helpers\MediaLibraryHelper::attachTo($total_factor_item, (string) $item['url' . $contract_form->name], 'contract_documents');
+                        if ($media) {
+                            $url = $media->getUrl();
+                            if (isset($contract_values[$contract_form->name])) {
+                                $contract_values[$contract_form->name] = $url;
+                            }
+                            $contract_values = Arr::add($contract_values, $contract_form->name, $url);
                         }
-                        $contract_values = Arr::add($contract_values, $contract_form->name, $url);
                     }
                     unset($item[$contract_form->name]);
                 }
@@ -844,7 +845,7 @@ class TotalFactorItemController extends Controller
         $factor->save();
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image, 'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
         }
         //send sms for pay factor
         if ($request->input('payment_type') == 'online') {
@@ -970,7 +971,7 @@ class TotalFactorItemController extends Controller
             $factor->save();
             //upload bill_image cash factor
             if ($request->url_bill_image) {
-                $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image, 'document')]);
+                \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
             }
             //send sms if the type of payment is online for payment factor
             if ($request->payment_type[$i] == 'online') {
@@ -1057,7 +1058,7 @@ class TotalFactorItemController extends Controller
         $factor->save();
         //upload bill_image cash factor if the type of payment is cash
         if ($request->url_bill_image) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image, 'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
         }
         //send sms if the type of payment is online for payment factor
         if ($request->payment_type == 'online') {

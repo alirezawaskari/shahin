@@ -4,9 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class CenterRequest extends Model {
-    use SoftDeletes;
+class CenterRequest extends Model implements HasMedia {
+    use SoftDeletes, InteractsWithMedia;
+
+    /**
+     * Spatie media collection for gallery images attached to this request.
+     * Multi-file (no singleFile); each media's public URL is copied into the
+     * legacy Gallery.image string column.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('galleries')->useDisk('public');
+    }
 
     /**
     * @var array

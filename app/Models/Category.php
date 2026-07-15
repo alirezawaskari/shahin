@@ -10,7 +10,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Category extends Model implements HasMedia
 {
-    use SoftDeletes,InteractsWithMedia;
+    use SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['image' => 'image', 'icon' => 'icon'];
+    }
+
+    /** Touch-to-migrate: legacy gallery rows -> slot collections (desktop=type 1, mobile=type 0). */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery_desktop', 'type' => 1, 'slotted' => true, 'max' => 5],
+            ['collection' => 'gallery_mobile',  'type' => 0, 'slotted' => true, 'max' => 5],
+        ];
+    }
 
     /**
      * @var string[]
@@ -435,12 +450,12 @@ class Category extends Model implements HasMedia
 
     public function getImageUrlAttribute(): ?string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image') ?: null;
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image') ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : null);
     }
 
     public function getIconUrlAttribute(): ?string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon') ?: null;
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon') ?: ($this->getRawOriginal('icon') ? asset($this->getRawOriginal('icon')) : null);
     }
 }
 

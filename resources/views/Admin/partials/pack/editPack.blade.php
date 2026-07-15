@@ -91,6 +91,7 @@
             </tbody>
         </table>
     @endif
+    @include('Admin.partials.legacyGalleryFallback', ['model' => $pack, 'collections' => ['gallery']])
 </div>
 
 @include('Admin.partials.multipleImages')

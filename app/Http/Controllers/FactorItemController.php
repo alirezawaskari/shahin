@@ -316,8 +316,7 @@ class FactorItemController extends Controller {
                 'description_request_contract_settlement' => $request->description_request_contract_settlement,
             ] );
             if ( $request->urlrequest_contract_settlement ) {
-                Helper::deleteImage( $total_factor_item_contract_settlement->img_request_contract_settlement );
-                $total_factor_item_contract_settlement->update( [ 'img_request_contract_settlement' => Helper::moveImage( $request->urlrequest_contract_settlement, 'document' ) ] );
+                MediaLibraryHelper::attachTo( $total_factor_item_contract_settlement, $request->urlrequest_contract_settlement, 'img_request_contract_settlement' );
             }
             $total_factor_item->update( [ 'status_mali' => 7 ] );
             return redirect()->back()->with( [
