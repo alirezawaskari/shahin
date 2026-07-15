@@ -32,6 +32,8 @@ class CategoryController extends Controller
     public function show($category_id)
     {
         $parent = Category::findOrFail($category_id);
+        $all_categories = Category::filter()->select('id', 'title')->get();
+        $all_services = Service::filter()->select('id', 'title')->get();
         $path = ($parent->path === null) ? 1 : $parent->path .'/'. $parent->id;
         $path_explode = explode('/', $path);
         $cateDepthOne = Category::filter()
@@ -46,7 +48,7 @@ class CategoryController extends Controller
             ->get();
 
         return view('Admin.site.category.create', compact(
-            'parent', 'path', 'depth', 'cateDepthOne', 'family_cat_ids_list'
+            'parent', 'path', 'depth', 'cateDepthOne', 'family_cat_ids_list' , 'all_categories' , 'all_services'
         ));
     }
 
@@ -262,8 +264,10 @@ class CategoryController extends Controller
         }
     }
     /**
-     * Display a listing of the sub Category.
-     * @return \Illuminate\Http\Response
+     * Summary of subCategory
+     * @param Request $request
+     * @param mixed $category_id
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function subCategory(Request $request,$category_id)
     {
