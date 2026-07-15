@@ -77,7 +77,7 @@ $(document).ready(function () {
 
     // 📊 Build Table
     function createTable(response) {
-
+        console.log(response)
         pagination(response.meta.last_page);
 
         $('#page_text').html(
@@ -97,33 +97,33 @@ $(document).ready(function () {
             data: response.data,
 
             columns: [
-                { data: "sort_by" },
+                { data: null },
+
                 { data: "name" },
+
                 {
                     data: "icon",
-                    render: function (data, type, row) {
+                    render: function(data){
                         return `<i class="icon ${data}"></i>`;
                     }
                 },
+
+                {
+                    data: "position",
+                    render:function(data){
+                        return data ?? 0;
+                    }
+                },
+
                 { data: "updated_at" },
 
                 {
-                    data: null,
-                    render: function (data, type, row) {
-
+                    data:null,
+                    render:function(data,type,row){
                         return `
-                            <div class="dropdown">
-                                <a href="#" data-toggle="dropdown" class="btn btn-dark btn-sm btn-icon">
-                                    <i class="fa fa-ellipsis-v"></i>
-                                </a>
-
-                                <div class="dropdown-menu">
-                                    <a href="/dashboard/menuSetting/${row.id}/edit">
-                                        <span class="dropdown-item">ویرایش</span>
-                                    </a>
-                                </div>
-                            </div>
-                        `;
+            <a href="/dashboard/menuSetting/${row.id}/edit">
+                ویرایش
+            </a>`;
                     }
                 }
             ]

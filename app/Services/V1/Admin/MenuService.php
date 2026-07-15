@@ -64,15 +64,6 @@ class MenuService
     }
 
     /**
-     * map کردن permission
-     */
-    private function mapPermission($permission, $currentRoute)
-    {
-        $permission->is_active = $this->isActive($permission->route_name, $currentRoute);
-        return $permission;
-    }
-
-    /**
      * group بندی
      */
     private function groupByCategory($permissions)
