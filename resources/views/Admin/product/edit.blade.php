@@ -423,7 +423,9 @@
                                                     <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب
                                                         کنید.
                                                     </li>
-                                                    <li>   برای حدف تصویر علامت ضربدر را بزنید
+                                                    <li>سطل زباله: اگر تصویر را به اشتباه انتخاب کرده‌اید، روی علامت
+                                                        سطل
+                                                        زباله کلیک کنید تا تصویر مورد نظر حذف شود
                                                     </li>
                                                 </ul>
                                             </div>
@@ -435,30 +437,27 @@
                                         </div>
                                         <div class="row mb-4">
                                             <h4 class="col-12 col-md-12 mb-4"> تصویر اصلی و گالری تصاویر</h4>
-                                            @php($mainImage = $product->getFirstMedia('image'))
-                                            @if($mainImage)
-                                            <div class="col-12 col-md-3 mb-3 div_remove_btn text-center" id="media_{{$mainImage->id}}">
-                                                <img src="{{$mainImage->getUrl()}}" alt="{{$mainImage->title}}"
-                                                    style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
-                                                <div class="mt-1">
-                                                    <span class="badge badge-success">تصویر اصلی</span>
-                                                    <a data-id="{{$mainImage->id}}" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
-                                                </div>
+                                            @if($product->getMedia('images')->count() > 0)
+                                            @foreach($product->getMedia('images') as $index => $image)
+                                            <div class="col-12 col-md-2 mb-2 div_remove_btn gallery_{{$image->id}}">
+                                                <img src="{{$image->getUrl()}}" alt="{{$image->title}}" width="80px"
+                                                    class="border-radius5">
                                             </div>
-                                            @endif
-                                            @foreach($product->getMedia('gallery') as $image)
-                                            <div class="col-12 col-md-3 mb-3 div_remove_btn text-center" id="media_{{$image->id}}">
-                                                <img src="{{$image->getUrl()}}" alt="{{$image->title}}"
-                                                    style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
-                                                <div class="mt-1">
-                                                    <a data-id="{{$image->id}}" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
-                                                </div>
+                                            <div class="col-12 col-md-2 gallery_{{$image->id}}">
+                                                <a id="{{$image->id}}" title="حذف عکس"
+                                                    class="btn btn-danger product_image_remove">
+                                                    <i class="fa fa-close" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                            <div class="col-12 col-md-8 gallery_{{$image->id}}">
+                                                @include('Admin.partials.products.showErrorProduct',['field'=>'gallery'.$image->id,'validationable_id'=>$image->id,'validationable_type'=>'App\Models\Gallery'])
                                             </div>
                                             @endforeach
+                                            @endif
                                         </div>
                                         <div class="row mb-4">
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <label for="file-upload" class="btn btn-primary custom-file-upload border border-1">
+                                                <label for="file-upload" class="custom-file-upload">
                                                     <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
                                                 </label>
                                                 <input id="file-upload" type="file" onchange="readURL(this);" />

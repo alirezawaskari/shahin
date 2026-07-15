@@ -27,9 +27,9 @@
                 <td>{{++$ind}}</td>
                 @if($type_id == 1)
                     <td>
-                        @if($item->getMedia('image')->first())
+                        @if($item->getMedia('images')->first())
                             <img
-                                src="{{ $item->getMedia('image')->first()->getUrl() }}"
+                                src="{{ $item->getMedia('images')->first()->getUrl() }}"
                                 alt="{{$item->title}}"
                                 width="60px"
                                 class="border-radius5"

@@ -28,12 +28,12 @@ class Brand extends Model implements HasMedia
 
     public function getLogoAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo');
+        return $this->getFirstMediaUrl('logo');
     }
 
     public function getRegistrationFormAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'registration_form');
+        return $this->getFirstMediaUrl('registration_form');
     }
 
     /**

@@ -37,7 +37,7 @@
                 <tbody>
                     @foreach($ghorfeOnlineLists as $key => $ghorfeOnline)
                     <tr class="active" id="item_{{$ghorfeOnline->id}}" style="cursor: move;">
-                        <td>@if($ghorfeOnline->logo)<img src="{{ $ghorfeOnline->logo }}" width="100px">@endif</td>
+                        <td><img src="{{ asset($ghorfeOnline->logo) }}" width="100px"></td>
                         <td>{{ $ghorfeOnline->title }}</td>
                         <td>{{ $ghorfeOnline->user ? $ghorfeOnline->user->name.' '.$ghorfeOnline->user->family : 'ثبت نشده' }}</td>
                         <td>{{ $ghorfeOnline->call }}</td>

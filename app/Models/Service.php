@@ -43,41 +43,29 @@ class Service extends Model implements AuditableContract, HasMedia
             ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
     }
 
-    /**
-     * Disk-checked URLs of a multi-image gallery collection (gallery_horizontal,
-     * gallery_vertical, portfolio) — media whose file is missing on disk is skipped,
-     * mirroring the single-image accessors. For display surfaces; edit/management
-     * views should keep iterating getMedia() so broken rows stay removable.
-     */
-    public function galleryUrls(string $collection)
-    {
-        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
-            ->map(fn ($m) => $m->getUrl());
-    }
-
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return $this->getFirstMediaUrl('image');
     }
 
     public function getIconAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon');
+        return $this->getFirstMediaUrl('icon');
     }
 
     public function getImgBox1Attribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1');
+        return $this->getFirstMediaUrl('img_box_1');
     }
 
     public function getThumbAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb');
+        return $this->getFirstMediaUrl('thumb');
     }
 
     public function getImageAppAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app');
+        return $this->getFirstMediaUrl('image_app');
     }
 
     /**

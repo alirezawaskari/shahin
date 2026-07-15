@@ -20,7 +20,7 @@ class ContractView extends Model {
 
         ContractView::create( [
             'contract' => $content,
-            'contract_type' => $item::class,
+            'contract_type' => TotalFactorItem::class,
             'contract_id' => $item->id
         ] );
     }

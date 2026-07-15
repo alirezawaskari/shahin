@@ -287,11 +287,7 @@
 @break
 @case('rules')
 <div class="col-12 bg-white">
-    @if ($factorItem->contractView)
-        {!! $factorItem->contractView->contract !!}
-    @else
-        {!! $form->help !!}
-    @endif
+    {!! $form->help !!}
 </div>
 @break
 @endswitch

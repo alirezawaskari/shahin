@@ -26,7 +26,7 @@ class Gateway extends Model implements HasMedia
 
     public function getLogoAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo');
+        return $this->getFirstMediaUrl('logo');
     }
 
     public function getStatusLabelAttribute()

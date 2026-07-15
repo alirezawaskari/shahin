@@ -224,32 +224,18 @@
                     </div>
 
                     <div class='col-12 mb-3 file file--upload'>
-                        <label class="d-block">فایل قرارداد :</label>
-
-                        {{-- Currently saved contract file (Spatie single-file collection). It's a
-                             document (pdf/doc), so shown as a "مشاهده قرارداد" link + in-place
-                             remove (✕), not the image-oriented currentMedia partial. --}}
-                        @php $__contract = $center->getFirstMedia('contract_file'); @endphp
-                        <div class="mb-2">
-                            @if($__contract)
-                                <span class="div_remove_btn d-inline-block" id="media_{{ $__contract->id }}">
-                                    <a href="{{ $__contract->getFullUrl() }}" target="_blank" rel="noopener"
-                                       class="btn btn-primary py-1 px-2">مشاهده قرارداد</a>
-                                    <a data-id="{{ $__contract->id }}" title="حذف فایل"
-                                       class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
-                                </span>
-                            @else
-                                <span class="text-muted">فایلی بارگذاری نشده است</span>
-                            @endif
-                        </div>
-
-                        <label for="contract_file" class="btn btn-primary custom-file-upload border border-1">
-                            <i class="fa fa-cloud-upload"></i> بارگذاری فایل قرارداد
+                        <label for='contract_file'>
+                            <i class="fa fa-cloud-upload"></i>بارگذاری فایل قرارداد
                         </label>
                         <input name="contract_file" type="file" id="contract_file"
-                               class="d-none file-upload file_upload_ajax">
+                            class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
                         <div id="contract_file_src" class="show"></div>
-                        <input type="hidden" id="contract_file_path" class="path" name="contract_file_path" value="">
+                        <input type="hidden" id="contract_file" class="path" name="urlcontract_file" value="">
+                        <div class="mr-3">
+                            @if($center->contract_file)
+                            <a href="{{ $center->contract_file }}" class="btn btn-primary py-1 px-2">مشاهده قرارداد</a>
+                            @endif
+                        </div>
                     </div>
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">

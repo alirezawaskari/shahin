@@ -96,6 +96,21 @@ $(".changeCategory").click(function () {
 
 //end category
 
+// removeImg in edit product
+$(document).on('click', '.remove_btn', function () {
+    var gallery_id=$(this).attr('id');
+    $.ajax({
+        type: "post",
+        url: '/dashboard/removeImgGallery',
+        data: {gallery_id: gallery_id},
+        success: function (result) {
+            if(result['status']){
+                $('#gallery_'+gallery_id).remove();
+            }
+        }
+    });
+});
+
 $(document).on('click', '.remove_work_sample', function () {
     var work_sample_id=$(this).attr('id');
     $.ajax({

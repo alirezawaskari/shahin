@@ -1275,7 +1275,7 @@ class FactorItem extends Model implements AuditableContract
      * @param FactorItem $factorItem
      * @return void
      */
-    public static function saveContractView(FactorItem $factorItem)
+    public function saveContractView(FactorItem $factorItem)
     {
         $user = $factorItem->factor->user;
         $item = self::setItem( $factorItem );
@@ -1297,19 +1297,6 @@ class FactorItem extends Model implements AuditableContract
             'item' => $item,
         ] )->render();
         ContractView::store($factorItem , $content);
-    }
-    /**
-     * Summary of saveContractFactorView
-     * @param FactorItem $factorItem
-     * @return void
-     */
-    public static function saveContractFactorView(FactorItem $factorItem)
-    {
-        $factor_rules = $factorItem->factoritemable->beforeforms->where('type', 'rules')->first();
-        if($factor_rules)
-        {
-            ContractView::store($factorItem , $factor_rules->help);
-        }
     }
 }
 

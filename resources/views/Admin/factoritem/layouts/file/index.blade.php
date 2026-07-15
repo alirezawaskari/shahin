@@ -36,7 +36,7 @@
                 <h5 class="text-center">ارسال فاکتور و پرداخت</h5>
             </li>
             @if($factorItem->factoritemable->session)
-            <li class="nav-item flex-fill {{ $factorItem['status'] == 0 ? 'ul-li-disabled' : ''}}" role="presentation">
+            <li class="nav-item flex-fill {{ $factorItem['status'] == 0 || !$factorItem['confirm'] ? 'ul-li-disabled' : ''}}" role="presentation">
                 <a class="nav-link beauty-nav-link {{ $factorItem->center && $factorItem->factoritemable->session && ($factorItem['status_factor'] == 6) ? 'active' : ''}} rounded-circle mx-auto d-flex align-items-center justify-content-center"
                     href="#step8" id="step8-tab" data-bs-toggle="tab" role="tab" aria-controls="step8"
                     aria-selected="false" title="ثبت رویدادهای جلسات">
@@ -117,7 +117,7 @@
                     ? 'disabled' : '' }}"> بعدی <i class="fas fa-angle-left"></i> </a>
                 </div>
             </div>
-            <div class="tab-pane fade {{ $factorItem->center && $factorItem->factoritemable->session && ($factorItem['status_factor'] == 6) ? 'show active' : ''}}"
+            <div class="tab-pane fade {{ $factorItem->center && $factorItem->factoritemable->session && ($factorItem['status_factor'] == 6) ? 'active show' : ''}}"
                 role="tabpanel" id="step8" aria-labelledby="step8-tab">
                 <div class="mt-5">
                     @include('Admin.factoritem.layouts.session')

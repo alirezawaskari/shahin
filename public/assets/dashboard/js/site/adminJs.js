@@ -206,6 +206,26 @@ $(document).on({
     }
 });
 
+// removeImg in edit product
+$(document).on('click', '.remove_btn', function () {
+    var gallery_id = $(this).attr('id');
+    $.ajax({
+        type: "post",
+        url: '/dashboard/removeImgGallery',
+        data: {
+            gallery_id: gallery_id
+        },
+        headers: {
+            "Authorization": localStorage.getItem('token')
+        },
+        success: function (result) {
+            if (result['status'] == 'true') {
+                $('#gallery_' + gallery_id).remove();
+                $('.gallery_' + gallery_id).remove();
+            }
+        }
+    });
+});
 
 //select2
 $(document).ready(function () {
@@ -233,7 +253,7 @@ function readURL(input) {
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
-                        url: '/dashboard/uploadFilesTemporarily',
+                        url: '/dashboard/uploadPhotosTemporarily',
                         data: fd,
                         contentType: false,
                         processData: false,
@@ -249,8 +269,8 @@ function readURL(input) {
                                 }
 
                                 var tr_images = $('<tr id="' + index_add_img + '" class="row_image">');
-                                var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="image_name_good[' + index_add_img + '][name]" value="' + result['media_id'] + '"></td>';
-                                var remove = '<td><a id="' + index_add_img + '" class="flagProduct">' + input_first_photo + '</a><a data-id="' + result['media_id'] + '" data-temp="1" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a></td>';
+                                var image = '<td><img src="' + e.target.result + '" id="' + index_add_img + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + index_add_img + '" class="image_name_good" name="image_name_good[' + index_add_img + '][name]" value="' + result['image_name']['id'] + '"></td>';
+                                var remove = '<td><a id="' + index_add_img + '" class="flagProduct">' + input_first_photo + '</a><a id="' + index_add_img + '" class="btn btn-sm btn-danger removeImageCreated"><i class="fa fa-trash"></i></a></td>';
 
                                 tr_images.append(image).append(remove);
                                 $('.imagesList').append(tr_images);
@@ -303,7 +323,7 @@ function multipleImages(input) {
             reader.onload = function (e) {
                 $.ajax({
                     type: "post",
-                    url: '/dashboard/uploadFilesTemporarily',
+                    url: '/dashboard/uploadPhotosTemporarily',
                     data: fd,
                     contentType: false,
                     processData: false,
@@ -313,7 +333,7 @@ function multipleImages(input) {
                     success: function (result) {
                         if (result['status'] === true) {
                             var tr_images = $('<tr id="' + currentIndex + '" class="row_image">');
-                            var image = '<td><img src="' + e.target.result + '" id="' + currentIndex + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + currentIndex + '" class="image_name_good" name="multiple_image[' + currentIndex + '][file]" value="' + result['media_id'] + '"></td>';
+                            var image = '<td><img src="' + e.target.result + '" id="' + currentIndex + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + currentIndex + '" class="image_name_good" name="multiple_image[' + currentIndex + '][file]" value="' + result['image_name']['id'] + '"></td>';
                             // unified remove: delete the temp media by id (removeMedia) + drop the .row_image row.
                             // data-temp marks it as not-yet-saved so it drops without a confirmation.
                             var remove = '<td><a data-id="' + (result['media_id'] || '') + '" data-temp="1" class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a></td>';
@@ -349,16 +369,6 @@ $(document).on('change', '.file_upload_ajax', function () {
     if (file) {
         var file_attr_name = $(this).attr('name');
         var file_attr_id = $(this).attr('id');
-
-        // Re-selecting a different file for a single field: drop the previously
-        // uploaded temp so it isn't orphaned on disk (the hidden *_path only ever
-        // holds a temp id, never a saved media id), then clear its hidden id.
-        var prevTemp = $('#' + file_attr_id + '_path').val();
-        if (prevTemp) {
-            $.post('/dashboard/removeMedia', { media_id: prevTemp });
-            $('#' + file_attr_id + '_path').val('');
-        }
-
         var fileType = file["type"];
         var validImageTypes = [
             "image/jpg",
@@ -393,7 +403,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
-                        url: '/dashboard/uploadFilesTemporarily',
+                        url: '/dashboard/uploadPhotosTemporarily',
                         data: fd,
                         contentType: false,
                         processData: false,
@@ -410,18 +420,13 @@ $(document).on('change', '.file_upload_ajax', function () {
                                     previewFile = '<img src="' + e.target.result + '" id="' + index_add_photo + '" ' +
                                         'class="rounded border" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">';
                                 } else {
-                                    // non-image (pdf/doc/zip...): view via the viewMedia route which streams
-                                    // the temp file inline (temp uploads live on the private disk with no
-                                    // public url). target=_blank -> pdf renders in the browser; other types
-                                    // download and open in the OS program associated with the file extension.
-                                    var viewHref = result['media_id'] ? ('/dashboard/viewMedia/' + result['media_id']) : '#';
-                                    previewFile = '<a href="' + viewHref + '" target="_blank" rel="noopener" id="' + index_add_photo + '" ' +
+                                    previewFile = '<a href="' + result['image_name']['id'] + '" id="' + index_add_photo + '" ' +
                                         'class="disInline image_create btn border border-success mr-3" >مشاهده</a>';
                                 }
                                 if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
                                     new_link(file_attr_id);
                                     $('#' + file_attr_id + '_src' + ct + '.show').append(previewFile);
-                                    $('#' + file_attr_id + ct + '.path').val(result['media_id']);
+                                    $('#' + file_attr_id + ct + '.path').val(result['image_name']['id']);
                                 } else {
                                     var $src = $('#' + file_attr_id + '_src.show');
                                     // a remove (✕) button so the user can drop the selection before saving.
@@ -430,7 +435,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                                         'class="btn btn-sm remove_media_btn" data-id="' + (result['media_id'] || '') + '" data-field="' + file_attr_id + '" ' +
                                         'title="حذف عکس"><i class="fa fa-close"></i></a></div>';
                                     $src.empty().append(previewFile).append(tempRemove);
-                                    $('#' + file_attr_id + '_path').val(result['media_id']);
+                                    $('#' + file_attr_id + '_path').val(result['image_name']['id']);
                                 }
                             } else if (result['status'] === false) {
                                 let errorMessage = result['message'];
@@ -720,6 +725,29 @@ $(document).on('click', '.remove-tr', function () {
     $(this).parents('tr').remove();
 });
 
+
+$(document).on('click', '.removeImageCreated', function () {
+    var index = $(this).attr('id');
+    var image_name_good = $("#" + index + '.image_name_good').val();
+    $.ajax({
+        type: "post",
+        url: '/dashboard/removeImageCreated',
+        data: {
+            image_name_good: image_name_good
+        },
+        success: function (result) {
+            if (result['status'] == true) {
+                $('#' + index + '.row_image').remove();
+                if (!$('.imagesList tr').html()) {
+                    $('.submitGood').css({
+                        'display': 'none'
+                    });
+                    index_add_img = 0;
+                }
+            }
+        }
+    });
+});
 
 // work_sample
 $(document).on('click', '.remove_work_sample', function () {

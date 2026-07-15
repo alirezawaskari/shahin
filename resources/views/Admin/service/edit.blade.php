@@ -8,13 +8,6 @@
             @include('Admin.layouts.errors')
         </div>
         <div class="transfer_message_box"></div>
-        <div class="d-flex justify-content-end">
-            {{-- Saves every content tab at once (basic, متن, images, rules, questions,
-            portfolio, site images). Per-tab buttons still save just their own tab. --}}
-            <button type="button" id="save-all-tabs" class="btn btn-success">
-                <i class="fa fa-save"></i> ثبت همه بخش‌ها
-            </button>
-        </div>
     </div>
     <div class="card-body">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -65,38 +58,30 @@
                     <form action="{{route('service.update' , [$service->slug ])}}" id="basic-information-form">
                         <input type="hidden" name="update_type" value="basic_information">
                         <div class="row">
-                            <div class="col-12 col-md-4 mb-3">
+                            <div class="col-12 col-md-3 mb-3">
                                 <label>عنوان</label>
                                 <input type="text" value="{{ $service->title }}" class="form-control" name="title"
                                     required>
                             </div>
-                            <div class="col-12 col-md-4 mb-3">
-                                <label>عنوان فاکتور</label>
-                                <input type="text" value="{{ $service->factor_title }}" class="form-control"
-                                    name="factor_title" required>
-                            </div>
-                            <div class="col-12 col-md-4 mb-5">
-                                <label>عنوان منو</label>
 
-                                <input id="menu_title_lbl" type="text" class="form-control" name="menu_title"
-                                    value="{{$service->menu()->exists()?$service->menu->title:''}}"
-                                    placeholder="لطفا عنوان منو را وارد کنید">
-
-                            </div>
-                            <div class="col-12 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label>عنوان لاتین (توجه داشته باشید که این عنوان در url نمایش داده میشود و حتما باید به
                                     صورت انگلیسی وارد شود.)</label>
                                 <input type="text" value="{{ $service->en_title }}" class="form-control" name="en_title"
                                     required>
                             </div>
-
+                            <div class="col-12 col-md-3 mb-3">
+                                <label>عنوان فاکتور</label>
+                                <input type="text" value="{{ $service->factor_title }}" class="form-control"
+                                    name="factor_title" required>
+                            </div>
                             <div class="col-12 col-md-12 mb-3">
                                 <label>توضیحات</label>
                                 <input type="text" value="{{ $service->description }}" class="form-control"
                                     name="description" required>
                             </div>
 
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-1 mb-3">
                                 <label>وضعیت</label>
 
                                 <select class="form-control" name="status">
@@ -109,7 +94,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-2 mb-3">
                                 <label>نمایش در سایت اصلی</label>
                                 <select class="form-control" name="isShow">
                                     <option value="1" {{ $service->isShow == true ? 'selected' : '' }}>
@@ -120,7 +105,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-2 mb-3">
                                 <label>دارای آیتم</label>
 
                                 <select class="form-control" name="items">
@@ -132,7 +117,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-1 mb-3">
                                 <label>دارای شعبه فعال</label>
 
                                 <select class="form-control" name="center">
@@ -144,7 +129,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-2 mb-3">
                                 <label>قابلیت چند بار خرید</label>
 
                                 <select class="form-control" name="multiple">
@@ -156,7 +141,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-2 mb-3">
                                 <label>پیش نیاز ها</label>
 
                                 <select class="form-control select2" name="required[]" multiple>
@@ -167,7 +152,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-2 mb-3">
                                 <label>قابلیت دعوت دوستان</label>
                                 <select class="form-control" name="ability_invite_friend">
                                     <option value="0" {{ $service->ability_invite_friend == false ? 'selected' : '' }}>
@@ -178,13 +163,13 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-4 mb-3">
                                 <label>هزینه رزرو (ریال)</label>
                                 <input type="text" value="{{ number_format($service->price) }}" class="form-control"
                                     name="price" required oninput="separatePrices(this)">
                             </div>
 
-                            <div class="col-12 col-md-3 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <label>خدمات رایگان همراه این خدمت</label>
                                 <select class="form-control select2" name="gift[]" multiple>
                                     @foreach(\App\Models\Service::filter()->whereStatus(false)->where('id' , '!=' ,
@@ -194,7 +179,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-12 col-md-3 mb-5">
+                            <div class="col-12 col-md-4 mb-5">
                                 <label>دسته بندی *</label>
                                 <select class="form-control" name="category_id" title="">
                                     <option value="">لطفا انتخاب کنید</option>
@@ -240,12 +225,19 @@
                                 @endif
 
                             </div>
-                            <div class="col-2 mt-5">
+
+                            <div class="col-12 col-md-6 mb-5">
+                                <label>عنوان منو</label>
+
+                                <input id="menu_title_lbl" type="text" class="form-control" name="menu_title"
+                                    value="{{$service->menu()->exists()?$service->menu->title:''}}"
+                                    placeholder="لطفا عنوان منو را وارد کنید">
+
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="is_menu" value="1" @if($service->menu()->exists())
                                         checked
-                                        @endif> نمایش در منو
+                                        @endif>نمایش در منو
                                     </label>
                                     @if($errors->has('is_menu'))<span
                                         class="help-block sub-error">{{$errors->first('is_menu')}}</span>@endif
@@ -359,9 +351,9 @@
                         <input type="hidden" value="first_images" name="update_type">
                         @if(ghorfe())
                         <div class="row">
-                            <div class="col-12 col-md-4 mb-3 border">
+                            <div class="col-12 col-md-3 mb-3 border">
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image'])
-                                <label>تصویر خدمت (قابل نمایش در صفحه اول)</label>
+                                <label>تصویر اصلی (قابل نمایش در صفحه خدمت)</label>
                                 <label for="image" class="btn btn-primary custom-file-upload border border-1">
                                     <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
@@ -369,13 +361,10 @@
                                     name="image" accept="image/*" />
                                 <input type="hidden" id="image_path" class="path" name="image_path" value="">
                                 <div id="image_src" class="show"></div>
-                                <small class="text-muted d-block mt-1">
-                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 283*390
-                                </small>
                             </div>
-                            <div class="col-12 col-md-4 mb-3 border">
+                            <div class="col-12 col-md-3 mb-3 border">
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'icon'])
-                                <label>تصویر آیکن (قابل نمایش در صفحه اول )</label>
+                                <label>(قابل نمایش در صفحه اول ) تصویر آیکن</label>
                                 <label for="icon" class="btn btn-primary custom-file-upload border border-1">
                                     <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
@@ -383,23 +372,6 @@
                                     name="icon" accept="image/*" />
                                 <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                 <div id="icon_src" class="show"></div>
-                                <small class="text-muted d-block mt-1">
-                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 80*80
-                                </small>
-                            </div>
-                            <div class="col-12 col-md-4 mb-3 border">
-                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'thumb'])
-                                <label>تصویر اصلی (قابل نمایش در صفحه خدمت)</label>
-                                <label for="thumb" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
-                                </label>
-                                <input id="thumb" class="d-none form-control file-upload file_upload_ajax" type="file"
-                                    name="thumb" accept="image/*" />
-                                <input type="hidden" id="thumb_path" class="path" name="thumb_path" value="">
-                                <div id="thumb_src" class="show"></div>
-                                <small class="text-muted d-block mt-1">
-                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 350*1450
-                                </small>
                             </div>
                         </div>
                         @else
@@ -410,8 +382,8 @@
                                 <label for="img_box_1" class="btn btn-primary custom-file-upload border border-1">
                                     <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="img_box_1" class="d-none form-control file-upload file_upload_ajax"
-                                    type="file" name="img_box_1" accept="image/*" />
+                                <input id="img_box_1" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="img_box_1" accept="image/*" />
                                 <input type="hidden" id="img_box_1_path" class="path" name="img_box_1_path" value="">
                                 <div id="img_box_1_src" class="show"></div>
                             </div>
@@ -446,8 +418,8 @@
                                 <label for="image_app" class="btn btn-primary custom-file-upload border border-1">
                                     <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="image_app" class="d-none form-control file-upload file_upload_ajax"
-                                    type="file" name="image_app" accept="image/*" />
+                                <input id="image_app" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="image_app" accept="image/*" />
                                 <input type="hidden" id="image_app_path" class="path" name="image_app_path" value="">
                                 <div id="image_app_src" class="show"></div>
                             </div>
@@ -511,8 +483,8 @@
                         <form action="{{route('service.update' , [$service->slug ])}}" id="portfolio-information-form">
                             <input type="hidden" name="update_type" value="portfolio_images">
 
-                            <div class="col-12 col-md-12 mb-4" id="portfolio_list_wrap" @if($service->
-                                getMedia('portfolio')->count() == 0) style="display:none" @endif>
+                            <div class="col-12 col-md-12 mb-4" id="portfolio_list_wrap"
+                                @if($service->getMedia('portfolio')->count() == 0) style="display:none" @endif>
                                 <label> نمونه کار های ذخیره شده</label>
                                 <table class="table table-striped">
                                     <tbody id="portfolio_list" data-title-name="existing_portfolio" data-box-h="80">
@@ -520,7 +492,8 @@
                                         <tr class="row_image" id="media_{{$media->id}}">
                                             <td>
                                                 <img src="{{$media->getFullUrl()}}"
-                                                    alt="{{$media->getCustomProperty('title')}}" class="rounded border"
+                                                    alt="{{$media->getCustomProperty('title')}}"
+                                                    class="rounded border"
                                                     style="height:80px;width:auto;object-fit:contain;background:#f8f9fa;">
                                             </td>
                                             <td>
@@ -530,7 +503,8 @@
                                             </td>
                                             <td>
                                                 <a data-id="{{$media->id}}" title="حذف عکس"
-                                                    class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
+                                                    class="btn btn-sm remove_media_btn"><i
+                                                        class="fa fa-close"></i></a>
                                             </td>
                                         </tr>
                                         @endforeach
@@ -627,7 +601,7 @@
 @section('js')
 <script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/serviceUpdate.js?v=2.2') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/serviceUpdate.js?v=2.1') }}"></script>
 <script>
     @if(session()->get('message'))
         toastr.success('{{ session()->get('message') }}');

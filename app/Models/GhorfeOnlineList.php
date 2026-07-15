@@ -80,62 +80,6 @@ class GhorfeOnlineList extends Model implements HasMedia
         return $this->morphMany(Gallery::class, 'galleryable');
     }
 
-    /** Slot-based data-mining homepage gallery (4 small + 1 big, desktop + mobile). */
-    const GALLERY_COLLECTIONS = ['gallery_desktop', 'gallery_mobile'];
-
-    /** Single-file settings images (legacy *_id columns kept, read through accessors). */
-    const SINGLE_IMAGE_COLLECTIONS = ['logo', 'footer_logo', 'fav', 'mohr', 'addvertisment_slider'];
-
-    public function registerMediaCollections(): void
-    {
-        foreach (self::GALLERY_COLLECTIONS as $collection) {
-            $this->addMediaCollection($collection)->useDisk('public');
-        }
-        foreach (self::SINGLE_IMAGE_COLLECTIONS as $collection) {
-            $this->addMediaCollection($collection)->useDisk('public')->singleFile();
-        }
-    }
-
-    /** The media occupying gallery slot $index in $collection, if any. */
-    public function gallerySlot(string $collection, int $index)
-    {
-        return $this->getMedia($collection)
-            ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
-    }
-
-    /** Disk-checked URLs of a gallery collection (skips media whose file is missing). */
-    public function galleryUrls(string $collection)
-    {
-        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
-            ->map(fn ($m) => $m->getUrl());
-    }
-
-    /** Settings-image url accessors (shadow the legacy *_id columns; disk-checked). */
-    public function getLogoAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo');
-    }
-
-    public function getFooterLogoAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'footer_logo');
-    }
-
-    public function getFavAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'fav');
-    }
-
-    public function getMohrAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'mohr');
-    }
-
-    public function getAddvertismentSliderAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'addvertisment_slider');
-    }
-
     public function theme()
     {
         return $this->belongsTo(Theme::class);
