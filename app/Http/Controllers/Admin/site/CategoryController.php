@@ -281,26 +281,11 @@ class CategoryController extends Controller
                 $father = Category::find($selected_cat->path);
                 $path = $father->id . '/' . $selected_cat->id;
             }
-            $categories = Category::filter()->where('parent_id', $category_id)->orderBy('id', 'DESC');
-            $columns = ['id', 'title'];
-            $queries = [];
-            foreach ($columns as $column) {
-                if ($request->has($column)) {
-                    if ($request->$column != null) {
-                        if ($column == 'id') {
-                            $categories = $categories->where($column, $request->$column);
-                            $queries[$column] = $request->$column;
-                        }
-                        if ($column == 'title') {
-                            $categories = $categories->where($column, 'like', '%' . $request->$column . '%');
-                            $queries[$column] = $request->$column;
-                        }
-                    }
-                }
-            }
+            $categories = Category::filter()->where('parent_id', $category_id)->orderBy('id', 'DESC')->get();
+            
             $categories = $categories->paginate(15);
             return view('Admin.site.category.subCategory', ['categories' => $categories,
-                'selected_cat' => $selected_cat, 'path' => $path,'queries'=>$queries]);
+                'selected_cat' => $selected_cat, 'path' => $path]);
         }
         return redirect()->back()
             ->with(['failByMessage' => 'دسته بندی مورد نظر یافت نشد']);
