@@ -12,7 +12,7 @@ class MediaLibraryHelper
 {
     /**
      * Resolve a temporary ajax upload (a MediaLibrary id produced by
-     * uploadPhotosTemporarily / the .file_upload_ajax handler) into a
+     * uploadFilesTemporarily / the .file_upload_ajax handler) into a
      * permanent path string under public/upload, mirroring the legacy
      * Helper::moveImage() output so asset()/public_path() keep working.
      *
@@ -82,7 +82,7 @@ class MediaLibraryHelper
         // smuggle a model's permanent media id in here and have it moved/deleted.
         $temp = $tempMedia->model;
         if (!($temp instanceof MediaLibrary) || $tempMedia->collection_name !== 'images') {
-            return;
+            return null;
         }
 
         $absolutePath = $tempMedia->getPath();

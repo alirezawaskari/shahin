@@ -4,7 +4,7 @@
  * Site pages do not load the dashboard bundle (adminJs.js), so this file
  * mirrors the upload helpers the .file_upload_ajax and multipleImages
  * widgets rely on. Uploads go to the (now public, throttled + validated)
- * /dashboard/uploadPhotosTemporarily endpoint and the returned MediaLibrary
+ * /dashboard/uploadFilesTemporarily endpoint and the returned MediaLibrary
  * id is written into the hidden *_path field / multiple_image[i][file] rows.
  */
 
@@ -194,19 +194,36 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
 
     var file_attr_name = $(this).attr('name') || '';
     var file_attr_id = $(this).attr('id');
+
+    // Re-selecting a different file for a single field: drop the previously uploaded
+    // temp on the server so it isn't orphaned on disk, and clear its hidden id.
+    var prevTemp = $('#' + file_attr_id + '_path').val();
+    if (prevTemp) {
+        $.post('/upload/removeTemp', { media_id: prevTemp });
+        $('#' + file_attr_id + '_path').val('');
+    }
+
+    // A widget can opt into images-only via data-images-only="1" (e.g. the centerRequest
+    // gallery form). Others keep the full whitelist (documents, archives, pdf).
+    var imagesOnly = String($(this).data('images-only')) === '1';
     var fileType = file["type"];
-    var validImageTypes = [
+    var imageTypes = [
         "image/jpg", "image/jpeg", "image/png", "image/webp", "image/svg+xml",
-        "image/psd", "image/tiff", "image/gif", "application/pdf",
+        "image/psd", "image/tiff", "image/gif"
+    ];
+    var validImageTypes = imagesOnly ? imageTypes : imageTypes.concat([
+        "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.ms-excel", "application/x-rar-compressed",
         "application/x-zip-compressed"
-    ];
+    ]);
     var size = file.size;
 
     if ($.inArray(fileType, validImageTypes) === -1) {
-        toastr.error('آپلود ناموفق : فرمت فایل مجاز نیست.');
+        toastr.error(imagesOnly
+            ? 'آپلود ناموفق : فقط تصویر مجاز است.'
+            : 'آپلود ناموفق : فرمت فایل مجاز نیست.');
         return;
     }
     if (size > 6000000) {
@@ -216,6 +233,7 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
 
     var fd = new FormData();
     fd.append('file', file);
+    if (imagesOnly) { fd.append('images_only', '1'); }
     var reader = new FileReader();
     var loading = '<div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center" id="loading' + file_attr_id + '">' +
         '<div role="status" class="spinner-border text-primary"></div><br><span>در حال بارگذاری...</span></div>';
@@ -225,7 +243,7 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
     reader.onload = function (e) {
         $.ajax({
             type: "post",
-            url: '/dashboard/uploadPhotosTemporarily',
+            url: '/dashboard/uploadFilesTemporarily',
             data: fd,
             contentType: false,
             processData: false,
@@ -237,12 +255,12 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
                     if (!((fileType == 'application/x-rar-compressed') || (fileType == 'application/x-zip-compressed') || (fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') || (fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
                         previewFile = '<img src="' + e.target.result + '" id="' + index_add_photo + '" class="card-img-top" height="150px">';
                     } else {
-                        previewFile = '<a href="' + result['image_name']['id'] + '" id="' + index_add_photo + '" class="disInline image_create btn border border-success mr-3">مشاهده</a>';
+                        previewFile = '<a href="/upload/view/' + result['media_id'] + '" target="_blank" rel="noopener" id="' + index_add_photo + '" class="disInline image_create btn border border-success mr-3">مشاهده</a>';
                     }
                     if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
                         new_link(file_attr_id);
                         $('#' + file_attr_id + '_src' + ct + '.show').append(previewFile);
-                        $('#' + file_attr_id + ct + '.path').val(result['image_name']['id']);
+                        $('#' + file_attr_id + ct + '.path').val(result['media_id']);
                     } else {
                         // single-file field: replace the whole preview (image OR مشاهده link,
                         // never both) and add a remove (✕) button that drops the temp upload.
@@ -320,7 +338,7 @@ function multipleImages(input) {
             reader.onload = function (e) {
                 $.ajax({
                     type: "post",
-                    url: '/dashboard/uploadPhotosTemporarily',
+                    url: '/dashboard/uploadFilesTemporarily',
                     data: fd,
                     contentType: false,
                     processData: false,

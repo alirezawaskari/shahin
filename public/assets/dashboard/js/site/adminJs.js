@@ -401,7 +401,7 @@ function readURL(input) {
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
-                        url: '/dashboard/uploadPhotosTemporarily',
+                        url: '/dashboard/uploadFilesTemporarily',
                         data: fd,
                         contentType: false,
                         processData: false,
@@ -471,7 +471,7 @@ function multipleImages(input) {
             reader.onload = function (e) {
                 $.ajax({
                     type: "post",
-                    url: '/dashboard/uploadPhotosTemporarily',
+                    url: '/dashboard/uploadFilesTemporarily',
                     data: fd,
                     contentType: false,
                     processData: false,
@@ -553,7 +553,7 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
-                        url: '/dashboard/uploadPhotosTemporarily',
+                        url: '/dashboard/uploadFilesTemporarily',
                         data: fd,
                         contentType: false,
                         processData: false,
