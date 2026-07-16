@@ -292,14 +292,21 @@ $(document).on('click', '.remove_temp_media', function (e) {
     var $btn = $(this);
     var media_id = $btn.data('id');
     var field = $btn.data('field');
+
+    // new_link() preview rows can't carry data-id: the row is created before the upload
+    // resolves, so the temp id is written into the row's hidden .path input afterwards.
+    if (!media_id) {
+        media_id = $btn.closest('.div_remove_btn').find('input.path').val();
+    }
+
     var done = function () {
         if (field) {
             // single-file field: clear its preview + hidden temp id
             $('#' + field + '_src').empty();
             $('#' + field + '_path').val('');
         } else {
-            // multipleImages row: drop the whole row
-            $btn.closest('tr.row_image').remove();
+            // multipleImages row (tr.row_image) or a new_link() preview row (.div_remove_btn)
+            $btn.closest('tr.row_image, .div_remove_btn').remove();
         }
     };
     if (!media_id) { done(); return; }
