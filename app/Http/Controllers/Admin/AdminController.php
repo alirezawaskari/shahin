@@ -63,12 +63,18 @@ class AdminController extends Controller
     public function uploadFilesTemporarily(Request $request)
     {
         // Public endpoint: validate strictly to prevent abuse (arbitrary/oversized uploads).
+        // A widget can opt into images-only by posting images_only=1 (e.g. the centerRequest
+        // gallery form); document-bearing widgets (resumes, factor docs) omit it and keep the
+        // wider whitelist below.
+        $mimes = $request->boolean('images_only')
+            ? 'mimes:jpg,jpeg,png,webp,svg,gif'
+            : 'mimes:jpg,jpeg,png,webp,svg,gif,pdf,doc,docx,xls,xlsx,zip,rar';
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'file' => [
                 'required',
                 'file',
                 'max:6144', // 6 MB, matches the client-side limit
-                'mimes:jpg,jpeg,png,webp,svg,gif,pdf,doc,docx,xls,xlsx,zip,rar',
+                $mimes,
             ],
         ], [
             'file.required' => 'فایلی ارسال نشده است.',
