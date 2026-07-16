@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Resume extends Model
+class Resume extends Model implements HasMedia
 {
     use InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
 

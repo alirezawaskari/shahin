@@ -963,9 +963,22 @@ Route::middleware('auth')->group(function () {
 // Public temporary upload endpoint (used by the .file_upload_ajax / multipleImages widgets on
 // both dashboard and guest-facing site forms). Throttled to mitigate abuse; the controller
 // validates file type/size server-side.
-Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily')
+Route::post('/dashboard/uploadFilesTemporarily', 'Admin\AdminController@uploadFilesTemporarily')
     ->middleware('throttle:60,1')
-    ->name('uploadPhotosTemporarily');
+    ->name('uploadFilesTemporarily');
+
+// Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard auth).
+// Scoped in the controller to temp holders only, so it can never serve a model's saved media.
+Route::get('/upload/view/{id}', 'Admin\AdminController@viewTempMedia')
+    ->middleware('throttle:120,1')
+    ->name('viewTempMedia');
+
+// Public removal of a just-uploaded TEMP file (guest site forms). Scoped in the controller
+// to temp holders only, so it can never delete a model's saved media. The dashboard's own
+// removeMedia lives behind auth:web+checkAdmin and would bounce a guest to login.
+Route::post('/upload/removeTemp', 'Admin\AdminController@removeTempMedia')
+    ->middleware('throttle:60,1')
+    ->name('removeTempMedia');
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');

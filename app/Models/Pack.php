@@ -6,8 +6,10 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Pack extends Model
+class Pack extends Model implements HasMedia
 {
     use SoftDeletes,Sluggable,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
 //        ,Taggable;
