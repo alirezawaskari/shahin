@@ -58,8 +58,8 @@
         </div>
         @endif
         <div class="col-12 row mb-4">
-            @php($savedImages = $factorItem['factor_values'][$form->name] ?? [])
-            @if(is_array($savedImages) && count($savedImages))
+            @php($savedImages = $factorItem->documentUrls($form->name))
+            @if(count($savedImages))
                 @foreach($savedImages as $image)
                 <div class="card col-md-3 mb-2">
                     <a href="{{ $image }}" target="_blank">
@@ -87,7 +87,8 @@
         @break
 
         @default
-        @include('Admin.factoritem.layouts.formItem')
+        {{-- the ثبت button only renders when $recEditable; without it nothing posts an upload --}}
+        @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => $recEditable])
         @endswitch
         @endforeach
 

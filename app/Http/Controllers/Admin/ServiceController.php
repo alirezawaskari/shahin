@@ -694,26 +694,6 @@ class ServiceController extends AdminController
         //     $this->uploadMobileSliderImage($service, $request->file('mobile_slider'));
         // }
     }
-   /**
-    * @param \App\Models\Service $service
-    * @param array|\Illuminate\Http\UploadedFile|null $file
-    * @return \Illuminate\Database\Eloquent\Model
-   */
-    private function uploadDesktopSliderImage(Service $service, array|\Illuminate\Http\UploadedFile|null $file)
-    {
-        $url_front_image = MediaLibraryHelper::uploadImage($file, 'service');
-        return $service->files()->create(['path' => $url_front_image, 'title' => 'desktop_slider']);
-    }
-    /**
-     * @param \App\Models\Service $service
-     * @param array|\Illuminate\Http\UploadedFile|null $file
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    private function uploadMobileSliderImage(Service $service, array|\Illuminate\Http\UploadedFile|null $file)
-    {
-        $url_front_image = MediaLibraryHelper::uploadImage($file, 'service');
-        return $service->files()->create(['path' => $url_front_image, 'title' => 'mobile_slider']);
-    }
     /**
      * @param \App\Models\Service $service
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory

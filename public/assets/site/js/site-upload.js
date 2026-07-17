@@ -203,19 +203,27 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
         $('#' + file_attr_id + '_path').val('');
     }
 
+    // A widget can opt into images-only via data-images-only="1" (e.g. the centerRequest
+    // gallery form). Others keep the full whitelist (documents, archives, pdf).
+    var imagesOnly = String($(this).data('images-only')) === '1';
     var fileType = file["type"];
-    var validImageTypes = [
+    var imageTypes = [
         "image/jpg", "image/jpeg", "image/png", "image/webp", "image/svg+xml",
-        "image/psd", "image/tiff", "image/gif", "application/pdf",
+        "image/psd", "image/tiff", "image/gif"
+    ];
+    var validImageTypes = imagesOnly ? imageTypes : imageTypes.concat([
+        "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.ms-excel", "application/x-rar-compressed",
         "application/x-zip-compressed"
-    ];
+    ]);
     var size = file.size;
 
     if ($.inArray(fileType, validImageTypes) === -1) {
-        toastr.error('آپلود ناموفق : فرمت فایل مجاز نیست.');
+        toastr.error(imagesOnly
+            ? 'آپلود ناموفق : فقط تصویر مجاز است.'
+            : 'آپلود ناموفق : فرمت فایل مجاز نیست.');
         return;
     }
     if (size > 6000000) {
@@ -225,6 +233,7 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
 
     var fd = new FormData();
     fd.append('file', file);
+    if (imagesOnly) { fd.append('images_only', '1'); }
     var reader = new FileReader();
     var loading = '<div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center" id="loading' + file_attr_id + '">' +
         '<div role="status" class="spinner-border text-primary"></div><br><span>در حال بارگذاری...</span></div>';
@@ -257,7 +266,7 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
                         // never both) and add a remove (✕) button that drops the temp upload.
                         var removeBtn = '<div class="mt-1"><a href="javascript:void(0)" ' +
                             'class="btn btn-sm text-danger remove_temp_media" data-id="' + result['media_id'] + '" ' +
-                            'data-field="' + file_attr_id + '"><i class="fa fa-times"></i> حذف فایل</a></div>';
+                            'data-field="' + file_attr_id + '"><i class="fa fa-times"></i></a></div>';
                         $('#' + file_attr_id + '_src.show').empty().append(previewFile).append(removeBtn);
                         $('#' + file_attr_id + '_path').val(result['media_id']);
                     }

@@ -31,7 +31,8 @@
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_print_form' , $form->data_display_level))
-            @include('Admin.factoritem.layouts.formItem')
+            {{-- print view: no form, no save --}}
+            @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
             @endif
             @endforeach
             @endif

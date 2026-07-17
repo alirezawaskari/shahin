@@ -79,13 +79,13 @@
                 <div class="m-b-10">
                     <div class="m-b-10">
                         <p> تصویر کارت ملی <i
-                                class="fa {{ isset($item['contract_values']['imgmelicardguarantor']) ? 'fa-check' : 'fa-close' }}"></i>
+                                class="fa {{ $totalFactorItem->contractDocumentUrl('imgmelicardguarantor') ? 'fa-check' : 'fa-close' }}"></i>
                         </p>
                         <p> تصویر شناسنامه <i
-                                class="fa {{ isset($item['contract_values']['imgshenasnameguarantor']) ? 'fa-check' : 'fa-close' }}"></i>
+                                class="fa {{ $totalFactorItem->contractDocumentUrl('imgshenasnameguarantor') ? 'fa-check' : 'fa-close' }}"></i>
                         </p>
                         <p> تصویر ثنا <i
-                                class="fa {{ isset($item['contract_values']['imgauthentication']) ? 'fa-check' : 'fa-close' }}"></i>
+                                class="fa {{ $totalFactorItem->contractDocumentUrl('imgauthentication') ? 'fa-check' : 'fa-close' }}"></i>
                         </p>
                     </div>
                 </div>
@@ -100,33 +100,33 @@
                 <div class="m-b-10">
                     @if ($item['guarantee_type'] == 'check')
                     <p> تصویر استعلام چک <i
-                            class="fa {{ isset($item['contract_values']['imginquiry']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imginquiry') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p> تصویر چک <i
-                            class="fa {{ isset($item['contract_values']['imgcheck']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgcheck') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p> تصویر معدل کارکرد سه ماهه <i
-                            class="fa {{ isset($item['contract_values']['imgValidation']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgValidation') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     @elseif($item['guarantee_type'] == 'certificate')
                     <p>تصویر گواهی کسر از حقوق<i
-                            class="fa {{ isset($item['contract_values']['imgcertificate']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgcertificate') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p>تصویر گواهی اشتغال به کار <i
-                            class="fa {{ isset($item['contract_values']['imgcertificateemployment']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgcertificateemployment') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p>تصویر ثنا <i
-                            class="fa {{ isset($item['contract_values']['imginquiry']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imginquiry') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     @else
                     <p>تصویر سفته<i
-                            class="fa {{ isset($item['contract_values']['imgpromissorynote']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgpromissorynote') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p> تصویر معدل کارکرد سه ماهه <i
-                            class="fa {{ isset($item['contract_values']['imgValidation']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgValidation') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p>تصویر ثنا <i
-                            class="fa {{ isset($item['contract_values']['imgauthentication']) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $totalFactorItem->contractDocumentUrl('imgauthentication') ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     @endif
                 </div>

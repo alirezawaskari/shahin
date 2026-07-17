@@ -24,7 +24,9 @@
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_determine_center' , $form->data_display_level) || in_array('panel_basic_document' , $form->data_display_level))
-            @include('Admin.factoritem.layouts.formItem')
+            {{-- the ثبت button below is only rendered at status_factor 16; anywhere else
+                 the form cannot be submitted, so the upload widgets must stay hidden --}}
+            @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => $factorItem['status_factor'] == 16])
             @endif
             @endforeach
             @endif
@@ -79,12 +81,9 @@
                             isset($factorItem['factor_values'][$form->name])&&is_array($factorItem['factor_values'][$form->name])
                             )
                             {{ implode(',', $factorItem['factor_values'][$form->name]) }}
-                            @elseif($form->type == 'file')
-                            <a href="{{ asset($factorItem['factor_values'][$form->name]) }}" class="btn btn-primary"
-                                target="_blank">مشاهده</a>
-                            @elseif($form->type == 'multi_file')
-                            @foreach($factorItem['factor_values'][$form->name] as $image)
-                            <a href="{{ asset($image) }}" class="btn btn-primary" target="_blank">مشاهده</a>
+                            @elseif($form->type == 'file' || $form->type == 'multi_file')
+                            @foreach($factorItem->documentUrls($form->name) as $image)
+                            <a href="{{ $image }}" class="btn btn-primary" target="_blank">مشاهده</a>
                             @endforeach
                             @else
                             {{-- {{ isset($factorItem['factor_values']) && isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : ''}} --}}

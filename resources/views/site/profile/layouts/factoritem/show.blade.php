@@ -129,7 +129,8 @@
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
                                 @if (in_array('show_factor_site' , $form->data_display_level))
-                                @include('Admin.factoritem.layouts.formItem')
+                                {{-- customer view: not wrapped in a form, nothing posts these --}}
+                                @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
                                 @endif
                                 @endforeach
                                 @endif

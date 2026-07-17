@@ -30,8 +30,6 @@ class CheckCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($item) {
-                $front_image = $item->files()->where('title', 'front')->first();
-                $back_image = $item->files()->where('title', 'back')->first();
                 $last_history=$item->histories->last();
                 return [
                     'sort_by' => $item->date,
@@ -60,8 +58,9 @@ class CheckCollection extends ResourceCollection
                     'description' => !is_null($last_history)?$last_history->description:'',
                     'title' => $item->title,
                     'total_factor_item_id' => $item->checkable_id,
-                    'front_image' => !is_null($front_image) ?$front_image->path: '',
-                    'back_image' => !is_null($back_image) ? $back_image->path : '',
+                    // Spatie media if present, else the legacy File row (Check::getFrontImageAttribute)
+                    'front_image' => $item->front_image,
+                    'back_image' => $item->back_image,
                     'asset_transaction'=>  $item->assetTransactions()->exists()? new AssetTransactionResource($item->assetTransactions()->latest()->first()):null,
                 ];
             }),

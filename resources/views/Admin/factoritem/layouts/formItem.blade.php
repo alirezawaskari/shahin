@@ -1,3 +1,11 @@
+{{-- $formItemUploads: may this context actually SAVE an upload?
+     Several includers render this partial outside any <form>, or inside one with no submit
+     control (print views, the "پرونده" tab, a status that suppresses the save button). There
+     the upload widget is a trap: it uploads to the temp store, shows a preview, and the file
+     is silently dropped because nothing ever posts the hidden media id. Those includers pass
+     ['formItemUploads' => false] to render read-only — saved images still show.
+     Defaults to true, so every include that does have a save button is unaffected. --}}
+@php($formItemUploads = $formItemUploads ?? true)
 @switch($form->type)
 @case('multi-select')
 <div class="col-12 col-md-4 mb-2">
@@ -110,26 +118,30 @@
 </div>
 @break
 @case('factor-image')
+{{-- sanitized DOM id (see the multi_file branch) --}}
+@php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
+@if($formItemUploads)
 <div class="col-12 row">
     <div class="col-md-4">
         <div id="addnew" class="mb-5">
-            <label for="{{ $form->name }}" class="btn btn-primary custom-file-upload border border-1">
+            <label for="{{ $domId }}" class="btn btn-primary custom-file-upload border border-1">
                 <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن {!! $form->help !!}
             </label>
-            <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
+            <input name="item[{{ $form->name }}][]" type="file" id="{{ $domId }}"
                 class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                 accept=".jpg,.jpeg,.png">
         </div>
     </div>
-    <div id="{{ $form->name }}_newlink" class="col-12 row">
+    <div id="{{ $domId }}_newlink" class="col-12 row">
         <div>
         </div>
     </div>
-    <div id="{{ $form->name }}_newlinktpl">
-        <div id="{{ $form->name }}_src" class="show"></div>
-        <input type="hidden" id="{{ $form->name }}_path" class="path" name="item[{{ 'url'.$form->name }}][]">
+    <div id="{{ $domId }}_newlinktpl">
+        <div id="{{ $domId }}_src" class="show"></div>
+        <input type="hidden" id="{{ $domId }}_path" class="path" name="item[{{ 'url'.$form->name }}][]">
     </div>
 </div>
+@endif
 <div class="col-12 row">
     @if(isset($factorItem['factor_image']))
     @foreach($factorItem['factor_image'] as $image)
@@ -146,36 +158,46 @@
 <div class="col-12">
     {!! $form->help !!}
 </div>
+{{-- DOM ids are sanitized: form names contain spaces/apostrophes ("Medical prescription",
+     "Doctor's order") and a raw name produces an id the widget's jQuery selectors cannot
+     match (#Medical prescription_src), so no preview renders. The submitted name[] keeps
+     the real form name. --}}
+@php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
+@if($formItemUploads)
 <div class="col-12 row">
     <div class="col-md-4">
         <div id="addnew" class="mb-5">
-            <label for="{{ $form->name }}" class="btn btn-primary custom-file-upload border border-1">
+            <label for="{{ $domId }}" class="btn btn-primary custom-file-upload border border-1">
                 <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن تصویر
             </label>
-            <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
+            <input name="item[{{ $form->name }}][]" type="file" id="{{ $domId }}"
                 class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                 accept=".jpg,.jpeg,.png">
         </div>
     </div>
-    <div id="{{ $form->name }}_newlink" class="col-12 row">
+    <div id="{{ $domId }}_newlink" class="col-12 row">
         <div>
         </div>
     </div>
-    <div id="{{ $form->name }}_newlinktpl">
-        <div id="{{ $form->name }}_src" class="show"></div>
-        <input type="hidden" id="{{ $form->name }}_path" class="path" name="item[{{ 'url'.$form->name }}][]">
+    <div id="{{ $domId }}_newlinktpl">
+        <div id="{{ $domId }}_src" class="show"></div>
+        <input type="hidden" id="{{ $domId }}_path" class="path" name="item[{{ 'url'.$form->name }}][]">
     </div>
 </div>
+@endif
 <div class="col-12 row">
-    @if(isset($factorItem['factor_values'][$form->name]))
-    @foreach($factorItem['factor_values'][$form->name] as $image)
+    @foreach($factorItem->documentItems($form->name) as $doc)
     <div class="card col-md-3">
-        <a href="{{ asset($image) }}" target="_blank">
-            <img src="{{ $image }}" class="card-img-top" height="150px">
+        <a href="{{ $doc['url'] }}" target="_blank">
+            {{-- object-fit:contain — height alone stretches non-4:3 uploads --}}
+            <img src="{{ $doc['url'] }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
         </a>
+        @if($doc['legacy'])
+        {{-- same hint as Admin/partials/currentMedia: still a legacy path, adopted on save --}}
+        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+        @endif
     </div>
     @endforeach
-    @endif
 </div>
 @break
 @case('number')
@@ -260,27 +282,38 @@
     </div>
 </div>
 @else
+{{-- Sanitized DOM id (see the multi_file branch). The hidden path input previously reused
+     the file input's id verbatim — two elements with the same id — so the widget could
+     never write the uploaded media id into it and the upload was dropped on save. --}}
+@php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
 <div class="card ol-12 col-md-3 mb-2">
-    @if(!isset($factorItem['factor_values'][$form->name]))
-    <div id="{{ $form->name }}_src" class="show">
-        <img class="card-img-top" height="150px">
+    @php($savedDoc = $factorItem->documentItems($form->name)[0] ?? null)
+    @if(!$savedDoc)
+    <div id="{{ $domId }}_src" class="show">
+        <img class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
     </div>
     @else
-    <div id="{{ $form->name }}_src" class="show">
-        <a href="{{ asset($factorItem['factor_values'][$form->name]) }}" target="_blank">
-            <img src="{{ asset($factorItem['factor_values'][$form->name]) }}" class="card-img-top" height="150px">
+    <div id="{{ $domId }}_src" class="show">
+        <a href="{{ $savedDoc['url'] }}" target="_blank">
+            <img src="{{ $savedDoc['url'] }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
         </a>
+        @if($savedDoc['legacy'])
+        {{-- same hint as Admin/partials/currentMedia: still a legacy path, adopted on save --}}
+        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+        @endif
     </div>
     @endif
     <div class="card-body">
         <h5 class="card-title">{!! $form->help !!}
         </h5>
-        <label for="{{ $form->name }}" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2"
+        @if($formItemUploads)
+        <label for="{{ $domId }}" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2"
                 aria-hidden="true"></i>انتخاب
             تصویر </label>
-        <input name="item[{{ $form->name }}]" id="{{ $form->name }}" type="file"
+        <input name="item[{{ $form->name }}]" id="{{ $domId }}" type="file"
             class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-        <input type="hidden" id="{{ $form->name }}" class="path" name="item[{{ 'url' . $form->name }}]" value="">
+        <input type="hidden" id="{{ $domId }}_path" class="path" name="item[{{ 'url' . $form->name }}]" value="">
+        @endif
     </div>
 </div>
 @endif

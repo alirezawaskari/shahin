@@ -140,6 +140,7 @@
                                                         <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                                                     </label>
                                                     <input name="file[]" type="file" id="file"
+                                                        accept="image/*" data-images-only="1"
                                                         class="d-none filestyle file-upload file_upload_ajax file-up"
                                                         data-buttonname="btn-white">
                                                 </div>
