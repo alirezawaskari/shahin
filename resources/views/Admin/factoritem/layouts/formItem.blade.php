@@ -6,6 +6,15 @@
      ['formItemUploads' => false] to render read-only — saved images still show.
      Defaults to true, so every include that does have a save button is unaffected. --}}
 @php($formItemUploads = $formItemUploads ?? true)
+{{-- $factorItem is a FactorItem model in some includers and the plain array built by
+     TotalFactorItemController::setFactorItemItems() in others. Every $factorItem['...']
+     read below works for both (Eloquent is ArrayAccess), but documentItems() needs the
+     model, so resolve it once here. Mappers that carry 'factor_item' cost no query; the
+     rest fall back to a lookup by id. Null when neither is available - the document
+     loops below guard for it. --}}
+@php($factorItemModel = $factorItem instanceof \App\Models\FactorItem
+        ? $factorItem
+        : ($factorItem['factor_item'] ?? \App\Models\FactorItem::find($factorItem['id'] ?? null)))
 @switch($form->type)
 @case('multi-select')
 <div class="col-12 col-md-4 mb-2">
@@ -186,7 +195,7 @@
 </div>
 @endif
 <div class="col-12 row">
-    @foreach($factorItem->documentItems($form->name) as $doc)
+    @foreach($factorItemModel ? $factorItemModel->documentItems($form->name) : [] as $doc)
     <div class="card col-md-3">
         <a href="{{ $doc['url'] }}" target="_blank">
             {{-- object-fit:contain — height alone stretches non-4:3 uploads --}}
@@ -194,7 +203,7 @@
         </a>
         @if($doc['legacy'])
         {{-- same hint as Admin/partials/currentMedia: still a legacy path, adopted on save --}}
-        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
         @endif
     </div>
     @endforeach
@@ -287,7 +296,7 @@
      never write the uploaded media id into it and the upload was dropped on save. --}}
 @php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
 <div class="card ol-12 col-md-3 mb-2">
-    @php($savedDoc = $factorItem->documentItems($form->name)[0] ?? null)
+    @php($savedDoc = $factorItemModel ? ($factorItemModel->documentItems($form->name)[0] ?? null) : null)
     @if(!$savedDoc)
     <div id="{{ $domId }}_src" class="show">
         <img class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
@@ -299,7 +308,7 @@
         </a>
         @if($savedDoc['legacy'])
         {{-- same hint as Admin/partials/currentMedia: still a legacy path, adopted on save --}}
-        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
         @endif
     </div>
     @endif

@@ -361,7 +361,9 @@
                                                     placeholder="توضیح خود را بنویسید...">{{ $totalFactorItem->totalFactorItemContractSettlement ? $totalFactorItem->totalFactorItemContractSettlement->description_request_contract_settlement : '' }}</textarea>
                                             </div>
                                             <div class="col-12 col-md-4 card-body">
-                                                @if(isset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement))
+                                                {{-- truthiness, not isset(): the accessor returns '' when there is
+                                                     no image, and isset('') is true. --}}
+                                                @if($totalFactorItem->totalFactorItemContractSettlement?->img_request_contract_settlement)
                                                 <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
                                                     target="_blank">
                                                     <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"

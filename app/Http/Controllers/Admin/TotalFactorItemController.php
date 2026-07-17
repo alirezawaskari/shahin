@@ -110,6 +110,9 @@ class TotalFactorItemController extends Controller
     {
         $items = $totalFactorItem->factorItems->map(function ($factor_item) {
             $temp = [];
+            // the model itself: Admin.factoritem.layouts.formItem needs it for the Spatie
+            // document lookups, which array access cannot serve.
+            $temp['factor_item'] = $factor_item;
             $temp['id'] = $factor_item->id;
             $temp['resnumber'] = $factor_item->resnumber;
             $temp['file_number'] = $factor_item->file_number;

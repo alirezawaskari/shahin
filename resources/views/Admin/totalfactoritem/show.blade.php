@@ -59,12 +59,15 @@
         <div class="file-box card overflow-hidden">
             <div class="card-body text-center">
                 <h5 class="title-box">مدارک هویتی وام گیرنده</h5>
+                {{-- truthiness, not isset(): these are accessors returning '' when the user has no
+                     such document, and isset('') is true - which showed fa-check for every user
+                     regardless of whether the document existed. --}}
                 <div class="m-b-10">
-                    <p>تصویر کارت ملی <i class="fa {{ isset($factor->user->imgmeli) ? 'fa-check' : 'fa-close' }}"></i>
+                    <p>تصویر کارت ملی <i class="fa {{ $factor->user->imgmeli ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                     <p>تصویر شناسنامه <i
-                            class="fa {{ isset($factor->user->imgshenasname) ? 'fa-check' : 'fa-close' }}"></i></p>
-                    <p> تصویر ثنا <i class="fa {{ isset($factor->user->imgturnover) ? 'fa-check' : 'fa-close' }}"></i>
+                            class="fa {{ $factor->user->imgshenasname ? 'fa-check' : 'fa-close' }}"></i></p>
+                    <p> تصویر ثنا <i class="fa {{ $factor->user->imgturnover ? 'fa-check' : 'fa-close' }}"></i>
                     </p>
                 </div>
             </div>

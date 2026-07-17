@@ -168,7 +168,9 @@
         @endif
         <div class="col-4">
             <div class="card border-contract p-2 text-center">
-                @if(isset($user->imgsignature))
+                {{-- truthiness, not isset(): imgsignature is an accessor returning '' when there
+                     is no image, and isset('') is true. --}}
+                @if($user->imgsignature)
                 <a href="{{ $user->imgsignature }}" target="_blank">
                     <img src="{{ $user->imgsignature }}" class="card-img-top" height="150px">
                 </a>

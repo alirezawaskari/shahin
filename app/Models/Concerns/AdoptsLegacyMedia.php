@@ -252,6 +252,20 @@ trait AdoptsLegacyMedia
     }
 
     /**
+     * Is this collection still being served from the LEGACY column rather than Spatie?
+     *
+     * True exactly when the read accessors fall back to the legacy file — i.e. there is no
+     * usable Spatie media (none at all, or its file is missing on disk) but the legacy column
+     * still holds a path. Lets a view show the "با ذخیره به سیستم جدید منتقل می‌شود" hint on
+     * precisely the images the next save would migrate, and drop it once they are adopted.
+     */
+    public function mediaIsLegacy(string $collection): bool
+    {
+        return MediaLibraryHelper::urlIfFileExists($this, $collection) === ''
+            && $this->legacyMediaUrl($collection) !== '';
+    }
+
+    /**
      * May the admin delete this collection's media outright (i.e. would a ✕ tell the truth)?
      *
      * FALSE while the legacy column still holds a path, because a delete cannot stick:

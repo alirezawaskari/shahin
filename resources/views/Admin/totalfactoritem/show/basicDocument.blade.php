@@ -270,7 +270,7 @@
                                                     <img src="{{ $doc['url'] }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                                 @if($doc['legacy'])
-                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                 @endif
                                             </div>
                                         </div>
