@@ -224,7 +224,7 @@
                                                 <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
                                                     id="{{ $domId }}"
                                                     class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                    data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                 {{-- the temp media id the ajax upload returns; formData() reads this --}}
                                                 <input type="hidden" id="{{ $domId }}_path" class="path"
                                                     name="items[{{ $key }}][{{ 'url'.$form->name }}]">
@@ -249,7 +249,7 @@
                                                 <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
                                                     id="{{ $domId }}"
                                                     class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                    data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                             </div>
                                         </div>
                                         <div id="{{ $domId }}_newlink" class="col-12 row">
@@ -363,7 +363,7 @@
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgmeli" type="file" id="imgmeli"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                             <input type="hidden" id="imgmeli_path" class="path"
                                                                 name="urlimgmeli">
                                                         </div>
@@ -392,7 +392,7 @@
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgshenasname" type="file" id="imgshenasname"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                             <input type="hidden" id="imgshenasname_path" class="path"
                                                                 name="urlimgshenasname">
                                                         </div>
@@ -421,7 +421,7 @@
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgturnover" type="file" id="imgturnover"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                             <input type="hidden" id="imgturnover_path" class="path"
                                                                 name="urlimgturnover">
                                                         </div>
@@ -463,7 +463,7 @@
                                                             <input name="item[{{ $contract_form->name }}]" type="file"
                                                                 id="{{ $cDomId }}"
                                                                 class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                             <input type="hidden" id="{{ $cDomId }}_path" class="path"
                                                                 name="item[{{ 'url'.$contract_form->name }}]">
                                                         </div>

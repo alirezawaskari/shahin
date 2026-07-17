@@ -190,7 +190,7 @@
                                                     <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
                                                         id="{{ $domId }}"
                                                         class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                        data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                        data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                     {{-- the temp media id the ajax upload returns; formData() reads this --}}
                                                     <input type="hidden" id="{{ $domId }}_path" class="path"
                                                         name="items[{{ $key }}][{{ 'url'.$form->name }}]">
@@ -199,23 +199,29 @@
                                         </div>
                                         @break
                                         @case('multi_file')
+                                        {{-- sanitized DOM id: a raw form name (spaces/apostrophes) yields ids the
+                                             widget's jQuery selectors cannot match. The submitted name keeps the
+                                             real form name. Mirrors site/checkout.blade.php. --}}
+                                        @php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
                                         <div class="col-12">
                                             <div id="addnew" class="mt-4">
-                                                <label for='{{ $form->name }}' class="btn btn-primary custom-file-upload border border-1">
+                                                <label for='{{ $domId }}' class="btn btn-primary custom-file-upload border border-1">
                                                     <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                                                 </label>
                                                 <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
-                                                    id="{{ $form->name }}"
+                                                    id="{{ $domId }}"
                                                     class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                    data-buttonname="btn-white">
+                                                    data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                             </div>
-                                            <div id="{{ $form->name }}_newlink" class="col-12 row">
+                                            <div id="{{ $domId }}_newlink" class="col-12 row">
                                                 <div>
                                                 </div>
                                             </div>
-                                            <div id="{{ $form->name }}_newlinktpl">
-                                                <div id="{{ $form->name }}_src" class="show"></div>
-                                                <input type="hidden" id="{{ $form->name }}" class="path"
+                                            <div id="{{ $domId }}_newlinktpl" class="d-none">
+                                                <div id="{{ $domId }}_src" class="show"></div>
+                                                {{-- _path, not the file input's own id: two elements sharing one id
+                                                     meant #id resolved to the wrong element --}}
+                                                <input type="hidden" id="{{ $domId }}_path" class="path"
                                                     name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
                                             </div>
                                         </div>
@@ -379,7 +385,7 @@
                                                                 <input name="item[{{ $contract_form->name }}]"
                                                                     type="file" id="{{ $cDomId }}"
                                                                     class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                                    data-buttonname="btn-white" accept="image/*" data-images-only="1">
                                                                 <input type="hidden" id="{{ $cDomId }}_path" class="path"
                                                                     name="item[{{ 'url'.$contract_form->name }}]">
                                                             </div>
