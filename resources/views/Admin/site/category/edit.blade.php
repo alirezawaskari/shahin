@@ -247,8 +247,9 @@
                 <div id="gallerySection">
                     <x-gallery-form
                             :galleries="$category->galleries"
-                            :ghorfeTemplet="$category->parent"
+                            :ghorfeTemplet="$category->parent->en_title ?? $category->en_title"
                     />
+
                 </div> @endif
 
                 <hr />

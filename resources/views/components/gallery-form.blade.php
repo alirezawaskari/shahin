@@ -15,10 +15,10 @@
     @php
         $deskImages = $galleries->where('type', 1)->values();
 
-        $numberImage = 4;
+        $numberImage = 3;
 
-        if ($ghorfeTemplet->type == 'service') {
-            $numberImage = 6;
+        if ($ghorfeTemplet == 'service') {
+            $numberImage = 5;
         }
 
         $bigDeskIndex = $numberImage;
