@@ -705,8 +705,7 @@ class FactorItemController extends Controller {
                 }
                 $factor_item_service_tariff->update( [
                     'service_tariff_id' => $request->service_tariff_id[ $i ],
-                    'user_id' => isset($request->user_id) ? $request->user_id[ $i ] : null,
-                    'treatment_duration' => $request->treatment_duration[ $i ],
+                    'user_id' => isset($request->user_id) ? $request->user_id[ $i ] : null,                    'treatment_duration' => $request->treatment_duration[ $i ],
                     'session_number' => $request->session_number[ $i ],
                     'price' => $price,
                     'discount' => $discount,
