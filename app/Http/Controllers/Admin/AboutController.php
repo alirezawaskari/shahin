@@ -55,13 +55,20 @@ class AboutController extends Controller
         );
 
         $about = About::create($request->all());
-        // Spatie: attach each box image from its temp media id ($image_*_path).
-        foreach (['image_two', 'image_three', 'image_four', 'image_five'] as $collection) {
-            $pathKey = $collection . '_path';
-            if ($request->$pathKey) {
-                \App\Helpers\MediaLibraryHelper::attachTo($about, $request->$pathKey, $collection);
-            }
+        if(isset( $request->image_two_path)) {
+            $about->image_two = Helper::moveImage($request->image_two_path,'about');
         }
+        if(isset( $request->image_three_path)) {
+            $about->image_three = Helper::moveImage($request->image_three_path,'about');
+        }
+        if(isset( $request->image_four_path)) {
+            $about->image_four = Helper::moveImage($request->image_four_path,'about');
+        }
+        if(isset( $request->image_five_path)) {
+            $about->image_five = Helper::moveImage($request->image_five_path,'about');
+        }
+
+        $about->save();
 
         return redirect('/dashboard/about')->with([
             'create' => 'success'
@@ -114,15 +121,32 @@ class AboutController extends Controller
         $about = About::find($id);
         $about->update($request->all());
 
-        // Spatie: attach any newly uploaded box image (attachTo replaces the single file
-        // in that collection, so no manual old-file deletion is needed).
-        foreach (['image_two', 'image_three', 'image_four', 'image_five'] as $collection) {
-            $pathKey = $collection . '_path';
-            if ($request->$pathKey) {
-                \App\Helpers\MediaLibraryHelper::attachTo($about, $request->$pathKey, $collection);
+        if(isset( $request->image_two_path)) {
+            if (\File::exists(public_path($about->image_two))) {
+                \File::delete(public_path($about->image_two));
             }
+            $about->image_two = Helper::moveImage($request->image_two_path,'about');
+        }
+        if(isset( $request->image_three_path)) {
+            if (\File::exists(public_path($about->image_three))) {
+                \File::delete(public_path($about->image_three));
+            }
+            $about->image_three = Helper::moveImage($request->image_three_path,'about');
+        }
+        if(isset( $request->image_four_path)) {
+            if (\File::exists(public_path($about->image_four))) {
+                \File::delete(public_path($about->image_four));
+            }
+            $about->image_four = Helper::moveImage($request->image_four_path,'about');
+        }
+        if(isset( $request->image_five_path)) {
+            if (\File::exists(public_path($about->image_five))) {
+                \File::delete(public_path($about->image_five));
+            }
+            $about->image_five = Helper::moveImage($request->image_five_path,'about');
         }
 
+        $about->save();
         Cache::forget('about');
         return redirect('/dashboard/about')->with([
             'update' => 'success'

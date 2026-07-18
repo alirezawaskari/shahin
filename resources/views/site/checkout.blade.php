@@ -195,40 +195,27 @@
                                     </div>
                                     @break
                                     @case('file')
-                                    {{-- DOM ids must be free of spaces/quotes (some form names, e.g. "Doctor's order",
-                                         contain them and break jQuery selectors). Sanitize for ids only; the submit
-                                         field names keep the real $form->name so the controller keys correctly. --}}
-                                    @php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
                                     <div class="col-12 col-md-4 mb-2 mt-3">
                                         <div class="card">
-                                            {{-- Ajax preview target: site-upload.js empties this and injects the new
-                                                 image + ✕ once the temp upload resolves. Pre-filled with the already
-                                                 saved image (spatie media, else the legacy factor_values path), so a
-                                                 re-upload visibly replaces it. --}}
-                                            @php($savedUrl = $item['factor_item']->documentUrl($form->name))
-                                            <div id="{{ $domId }}_src" class="show">
-                                                @if($savedUrl)
-                                                <a href="{{ $savedUrl }}" target="_blank" rel="noopener">
-                                                    <img src="{{ $savedUrl }}"
-                                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                </a>
-                                                @else
-                                                <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                                @endif
-                                            </div>
+                                            @if(!isset($item['factor_values'][$form->name]))
+                                            <p class="my-4 text-danger text-center">
+                                                ثبت نشده</p>
                                             <div class="card-body">
                                                 {!! $form->help !!}
-                                                <label for="{{ $domId }}" class="btn btn-primary custom-file-upload border border-1">
-                                                    <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصویر
-                                                </label>
                                                 <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
-                                                    id="{{ $domId }}"
-                                                    class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                    data-buttonname="btn-white" accept="image/*" data-images-only="1">
-                                                {{-- the temp media id the ajax upload returns; formData() reads this --}}
-                                                <input type="hidden" id="{{ $domId }}_path" class="path"
-                                                    name="items[{{ $key }}][{{ 'url'.$form->name }}]">
+                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                             </div>
+                                            @else
+                                            <a href="{{ asset($item['factor_values'][$form->name]) }}">
+                                                <img src="{{ asset($item['factor_values'][$form->name]) }}"
+                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                            </a>
+                                            <div class="card-body">
+                                                {!! $form->help !!}
+                                                <input name="items[{{ $key }}][{{ $form->name }}]" type="file"
+                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                            </div>
+                                            @endif
                                         </div>
                                     </div>
                                     @break
@@ -249,7 +236,7 @@
                                                 <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
                                                     id="{{ $domId }}"
                                                     class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                    data-buttonname="btn-white" accept="image/*" data-images-only="1">
+                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                             </div>
                                         </div>
                                         <div id="{{ $domId }}_newlink" class="col-12 row">
@@ -262,13 +249,15 @@
                                         </div>
                                     </div>
                                     <div class="col-12 row mb-3">
-                                        @foreach($item['factor_item']->documentUrls($form->name) as $image)
+                                        @if(isset($item['factor_values'][$form->name]) && is_array($item['factor_values'][$form->name]))
+                                        @foreach($item['factor_values'][$form->name] as $image)
                                         <div class="card col-md-3 mb-2">
                                             <a href="{{ $image }}" target="_blank">
                                                 <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @endforeach
+                                        @endif
                                     </div>
                                     @break
                                     @endswitch
@@ -363,7 +352,7 @@
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgmeli" type="file" id="imgmeli"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
+                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                             <input type="hidden" id="imgmeli_path" class="path"
                                                                 name="urlimgmeli">
                                                         </div>
@@ -392,7 +381,7 @@
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgshenasname" type="file" id="imgshenasname"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
+                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                             <input type="hidden" id="imgshenasname_path" class="path"
                                                                 name="urlimgshenasname">
                                                         </div>
@@ -421,7 +410,7 @@
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgturnover" type="file" id="imgturnover"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
+                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                             <input type="hidden" id="imgturnover_path" class="path"
                                                                 name="urlimgturnover">
                                                         </div>
@@ -441,32 +430,29 @@
                                                 @if($contract_form->value == $item['guarantee_type'])
                                                 @switch($contract_form->type)
                                                 @case('file')
-                                                @php($cDomId = 'cf_'.preg_replace('/[^A-Za-z0-9_]/', '_', $contract_form->name))
                                                 <div class="col-12 col-md-4 mb-2 mt-3">
                                                     <div class="card">
-                                                        @php($cSavedUrl = $item['total_factor_item'] ? $item['total_factor_item']->contractDocumentUrl($contract_form->name) : '')
-                                                        <div id="{{ $cDomId }}_src" class="show">
-                                                            @if($cSavedUrl)
-                                                            <a href="{{ $cSavedUrl }}" target="_blank" rel="noopener">
-                                                                <img src="{{ $cSavedUrl }}"
-                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                            </a>
-                                                            @else
-                                                            <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                                            @endif
-                                                        </div>
+                                                        @if(!isset($item['contract_values'][$contract_form->name]))
+                                                        <p class="my-4 text-danger text-center">
+                                                            ثبت نشده</p>
                                                         <div class="card-body">
                                                             {!! $contract_form->help !!}
-                                                            <label for="{{ $cDomId }}" class="btn btn-primary custom-file-upload border border-1">
-                                                                <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصویر
-                                                            </label>
+
                                                             <input name="item[{{ $contract_form->name }}]" type="file"
-                                                                id="{{ $cDomId }}"
-                                                                class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                                data-buttonname="btn-white" accept="image/*" data-images-only="1">
-                                                            <input type="hidden" id="{{ $cDomId }}_path" class="path"
-                                                                name="item[{{ 'url'.$contract_form->name }}]">
+                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                         </div>
+                                                        @else
+                                                        <a
+                                                            href="{{ asset($item['contract_values'][$contract_form->name]) }}">
+                                                            <img src="{{ asset($item['contract_values'][$contract_form->name]) }}"
+                                                                class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        </a>
+                                                        <div class="card-body">
+                                                            {!! $contract_form->help !!}
+                                                            <input name="item[{{ $contract_form->name }}]" type="file"
+                                                                data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                        </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 @break

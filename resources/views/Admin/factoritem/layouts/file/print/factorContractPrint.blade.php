@@ -20,8 +20,7 @@
                                         @if(!is_null($item['forms']))
                                         @foreach($item['forms'] as $form)
                                         @if (in_array('show_factor_site' , $form->data_display_level))
-                                        {{-- print view: no form, no save --}}
-                                        @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+                                        @include('Admin.factoritem.layouts.formItem')
                                         @endif
                                         @endforeach
                                         @endif
@@ -49,8 +48,7 @@
                                         @if(!is_null($item['forms']))
                                         @foreach($item['forms'] as $form)
                                         @if (in_array('show_factor_site' , $form->data_display_level))
-                                        {{-- print view: no form, no save --}}
-                                        @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+                                        @include('Admin.factoritem.layouts.formItem')
                                         @endif
                                         @endforeach
                                         @endif

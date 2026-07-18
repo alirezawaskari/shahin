@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Models\AttributeGroup;
@@ -411,7 +410,7 @@ class ProductController extends Controller
         $centers = Center::all();
         $storage_store_rooms = StorageStoreRoom::all();
         $category_store_rooms = CategoryStoreRoom::all();
-        $store_rooms = optional(ghorfe())->store_room ?? StoreRoom::all();
+        $store_rooms = ghorfe()->store_room;
         $counting_units = CountingUnit::where('type', 'packing')->get();
         $counting_units_measurement = CountingUnit::where('type', 'measurement')->get();
         $parents = Category::filter()->where('parent_id', 1)->get();
@@ -419,9 +418,7 @@ class ProductController extends Controller
         $brands = Brand::where('title','!=',null)->get();
         $category_center_id = 0;
         $ghorfe_online = ghorfe();
-        $categories = $ghorfe_online
-            ? $ghorfe_online->categories()->where('isActive', 1)->get()
-            : Category::where('parent_id', 1)->where('isActive', 1)->get();
+        $categories = $ghorfe_online->categories()->active()->get();
         if (User::checkManager() != null) {
             $center_id = User::checkManager();
             $center = Center::find($center_id);
@@ -457,7 +454,7 @@ class ProductController extends Controller
                 if (isset($request->category_id)){
                     $request['root_category_id'] = $request['category_id'][1];
                 }
-                $reference_price = !empty($request->good['reference_price']) ? str_replace(',', '', $request->good['reference_price']) : 0;
+                $reference_price = $request->good['reference_price'] ? str_replace(',', '', $request->good['reference_price']) : 0;
                 $create = [
                     'name' => $request->good['name'],
                     'en_name' => $request->good['en_name'],
@@ -474,7 +471,7 @@ class ProductController extends Controller
                     'description' => $request->good['description'],
                     'reference_price' => $reference_price,
                 ];
-                if($request->type_good_selected === 1 && ghorfe()){
+                if($request->type_good_selected === 1){
                     $create['locationable_id'] = ghorfe()->id;
                     $create['locationable_type'] = GhorfeOnlineList::class;
                 }
@@ -857,7 +854,7 @@ class ProductController extends Controller
                 'brand_id' => $brand_id,
                 'reference_price' => $request->good['reference_price'] ? str_replace(',', '', $request->good['reference_price']) : $product->reference_price,
             ];
-            if($request->type_good_selected === 1 && ghorfe()){
+            if($request->type_good_selected === 1){
                 $update['locationable_id'] = ghorfe()->id;
                 $update['locationable_type'] = GhorfeOnlineList::class;
             }
@@ -1103,9 +1100,14 @@ class ProductController extends Controller
 
                         }
                     }
-                    // media is preserved on this soft delete (Spatie's cascade purges it
-                    // only on force delete; the native App\Models\Media::delete() keeps
-                    // that cross-platform safe).
+                    if ($product->getMedia('images')) {
+                        foreach ($product->getMedia('images') as $item) {
+                            if (\File::exists($item->getUrl())) {
+                                \File::delete($item->getUrl());
+                            }
+                            $item->delete();
+                        }
+                    }
                     if($product->changeStoreRooms()){
                         $product->changeStoreRooms()->delete();
                     }
@@ -1123,13 +1125,35 @@ class ProductController extends Controller
 
     }
 
+    //remove Image product of database
+
+    /**
+     * @param Request $request
+     * @return string[]
+     */
+    public function removeImgGallery(Request $request)
+    {
+        if (isset($request->gallery_id)) {
+            $gallery = Gallery::find($request->gallery_id);
+            if ($gallery) {
+                if (\File::exists(public_path($gallery->image))) {
+                    \File::delete(public_path($gallery->image));
+                }
+                $gallery->delete();
+            }
+            return ['status' => 'true'];
+        }
+        return ['status' => 'false'];
+    }
     public function removeMedia(Request $request)
     {
-        // JS posts media_id; accept the legacy image_id too. Native delete (file + row).
-        $media = Media::find($request->media_id ?? $request->image_id);
-        if ($media) {
-            MediaLibraryHelper::deleteMedia($media);
-            return ['status' => 'true'];
+        if (isset($request['image_id'])) {
+            $media = Media::find($request['image_id']);
+            if (File::exists($media->getPath())) {
+                \File::delete($media->getPath());
+                $media->delete();
+                return ['status' => 'true'];
+            }
         }
         return ['status' => 'false'];
     }
@@ -1395,6 +1419,25 @@ class ProductController extends Controller
         return $product->message;
     }
 
+    /**
+     * @param Request $request
+     * @return string[]
+     */
+    public function removeImageProduct(Request $request)
+    {
+        if (isset($request->id)) {
+            $product = Product::filter()->find($request->id);
+            if ($product) {
+                if (\File::exists(public_path($product->image))) {
+                    \File::delete(public_path($product->image));
+                }
+                $product->image = null;
+                $product->save();
+            }
+            return ['status' => 'true'];
+        }
+        return ['status' => 'false'];
+    }
 
     /**
      * @param Request $request
@@ -1503,6 +1546,20 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return bool[]|false[]
+     */
+    public function removeImageCreated(Request $request)
+    {
+        if (isset($request->image_name_good)) {
+            if (\File::exists(public_path($request->image_name_good))) {
+                \File::delete(public_path($request->image_name_good));
+            }
+            return ['status' => true];
+        }
+        return ['status' => false];
+    }
     public function setProductItem(Request $request)
     {
         if ($request->ajax()) {
@@ -1520,7 +1577,7 @@ class ProductController extends Controller
                 ->merge($category->childs->pluck('id'))
                 ->toArray();
 
-            $products = optional(ghorfe())->products ?? collect();
+            $products = ghorfe()->products;
 
             $matchedProducts = $products->filter(function ($product) use ($allCategoryIds) {
                 return $product->categories->pluck('id')->intersect($allCategoryIds)->isNotEmpty();

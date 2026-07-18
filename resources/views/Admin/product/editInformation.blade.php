@@ -115,7 +115,7 @@
                 @foreach($product_attributes as $item)
                     <tr>
                         <td>
-                            @if($item->product->image)
+                            @if(File::exists(public_path() .$item->product->image))
                                 <img src="{{$item->product->image}}" alt="{{$item->product->title}}" width="60px"
                                      class="border-radius5">
                             @endif

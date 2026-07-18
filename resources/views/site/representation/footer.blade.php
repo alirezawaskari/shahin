@@ -5,7 +5,7 @@
                 <div class="col-12 col-md-6 col-top-right   ">
                     <a href="http://maps.google.com/maps?daddr={{$representation->lat}},{{$representation->lon}}" target="_blank"><img
                             class="img-fluid"
-                            src="{{ $representation->image }}"
+                            src="{{ asset($representation->image) }}"
                             alt=""></a>
                     <div class="location mt-3 mb-3">
                         <span>مسیر یابی: </span>

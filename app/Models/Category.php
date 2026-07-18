@@ -436,18 +436,6 @@ class Category extends Model implements HasMedia
             ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
     }
 
-    /**
-     * Disk-checked URLs of a multi-image gallery collection (gallery_desktop,
-     * gallery_mobile) — media whose file is missing on disk is skipped, mirroring
-     * the single-image accessors. For display surfaces; edit/management views
-     * should keep iterating getMedia() so broken rows stay removable.
-     */
-    public function galleryUrls(string $collection)
-    {
-        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
-            ->map(fn ($m) => $m->getUrl());
-    }
-
     public function getImageUrlAttribute(): ?string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image') ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : null);
@@ -455,7 +443,7 @@ class Category extends Model implements HasMedia
 
     public function getIconUrlAttribute(): ?string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon') ?: ($this->getRawOriginal('icon') ? asset($this->getRawOriginal('icon')) : null);
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon') ?: null;
     }
 }
 

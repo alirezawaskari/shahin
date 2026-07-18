@@ -7,6 +7,7 @@ use App\Helpers\Helper;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PromissoryCollection;
+use App\Models\File;
 use App\Models\Promissory;
 use App\Models\TotalFactorItem;
 use App\Models\User;

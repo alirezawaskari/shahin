@@ -76,28 +76,9 @@
                                         <textarea name="text" class="form-control no-resize" rows="6"
                                             placeholder="پیام خود را وارد نمایید"></textarea>
                                     </div>
-                                    {{-- Ajax multi-upload: each pick uploads immediately and adds a preview row
-                                         with a ✕. The hidden urlimages[] ids are what ContactController@savecontact
-                                         attaches to the Contact's Spatie collection. Pick one image at a time
-                                         (repeat to add more) — same widget as the centerRequest gallery. --}}
                                     <div class="col-12 mb-3">
                                         <label>تصاویر :</label>
-                                        <div id="addnew" class="mt-1">
-                                            <label for="images" class="btn btn-primary custom-file-upload border border-1">
-                                                <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
-                                            </label>
-                                            <input name="images[]" type="file" id="images"
-                                                accept="image/*" data-images-only="1"
-                                                class="d-none filestyle file-upload file_upload_ajax file-up"
-                                                data-buttonname="btn-white">
-                                        </div>
-                                        <div id="images_newlink" class="col-12 row">
-                                            <div></div>
-                                        </div>
-                                        <div id="images_newlinktpl" class="d-none">
-                                            <div id="images_src" class="show"></div>
-                                            <input type="hidden" id="images" class="path" name="urlimages[]">
-                                        </div>
+                                        <input type="file" name="images[]" class="form-control" multiple="multiple">
                                     </div>
                                     <div class="col-12 mb-3">
                                         <input type="submit" value="ثبت"

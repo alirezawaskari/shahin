@@ -129,8 +129,7 @@
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
                                 @if (in_array('show_factor_site' , $form->data_display_level))
-                                {{-- customer view: not wrapped in a form, nothing posts these --}}
-                                @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+                                @include('Admin.factoritem.layouts.formItem')
                                 @endif
                                 @endforeach
                                 @endif
@@ -361,9 +360,7 @@
                                                     placeholder="توضیح خود را بنویسید...">{{ $totalFactorItem->totalFactorItemContractSettlement ? $totalFactorItem->totalFactorItemContractSettlement->description_request_contract_settlement : '' }}</textarea>
                                             </div>
                                             <div class="col-12 col-md-4 card-body">
-                                                {{-- truthiness, not isset(): the accessor returns '' when there is
-                                                     no image, and isset('') is true. --}}
-                                                @if($totalFactorItem->totalFactorItemContractSettlement?->img_request_contract_settlement)
+                                                @if(isset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement))
                                                 <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
                                                     target="_blank">
                                                     <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"

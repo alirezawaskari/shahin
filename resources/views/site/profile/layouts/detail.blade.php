@@ -140,89 +140,61 @@
                     <div class="col-12 card profile-box bg-gray p-5 my-4 position-relative">
                         <span class="title-profile-box text-white position-absolute px-3 py-2">مدارک</span>
                         <div class="form-row my-2">
-                            {{-- Ajax widgets (mirrors profile/layouts/index). The hidden url* fields are
-                                 exactly what ProfileController@update already reads -> attachTo(), so these
-                                 land in the user's Spatie collections instead of a raw file POST. --}}
                             <div class="col-12 col-md-4">
                                 <div class="card">
-                                    <div id="imgmeli_src" class="show">
-                                        @if(empty($user->imgmeli))
+                                    @if(empty($user->imgmeli))
                                         <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                        @else
-                                        <a href="{{ $user->imgmeli }}" target="_blank" rel="noopener">
+                                        <div class="card-body">
+                                            <h5 class="card-title">کارت ملی</h5>
+                                            <input name="imgmeli" type="file" class="filestyle" data-buttonname="btn-white">
+                                        </div>
+                                    @else
+                                        <a href="{{ $user->imgmeli }}">
                                             <img src="{{ $user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                         </a>
-                                        {{-- inside _src: an ajax upload empties this div, clearing the hint --}}
-                                        @if($user->mediaIsLegacy('imgmeli'))
-                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                        @endif
-                                        @endif
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">کارت ملی</h5>
-                                        <label for="imgmeli" class="btn btn-primary custom-file-upload border border-1">
-                                            <i class="fa fa-upload ml-1" aria-hidden="true"></i>انتخاب تصویر
-                                        </label>
-                                        <input name="imgmeli" type="file" id="imgmeli"
-                                            class="d-none filestyle file-upload file_upload_ajax file-up"
-                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                        <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
-                                    </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">کارت ملی</h5>
+                                            <input name="imgmeli" type="file" class="filestyle" data-buttonname="btn-white">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-12 col-md-4">
                                 <div class="card">
-                                    <div id="imgshenasname_src" class="show">
-                                        @if(empty($user->imgshenasname))
+                                    @if(empty($user->imgshenasname))
                                         <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                        @else
-                                        <a href="{{ $user->imgshenasname }}" target="_blank" rel="noopener">
+                                        <div class="card-body">
+                                            <h5 class="card-title">شناسنامه</h5>
+                                            <input name="imgshenasname" type="file" class="filestyle" data-buttonname="btn-white">
+                                        </div>
+                                    @else
+                                        <a href="{{ $user->imgshenasname }}">
                                             <img src="{{ $user->imgshenasname }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                         </a>
-                                        @if($user->mediaIsLegacy('imgshenasname'))
-                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                        @endif
-                                        @endif
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">شناسنامه</h5>
-                                        <label for="imgshenasname" class="btn btn-primary custom-file-upload border border-1">
-                                            <i class="fa fa-upload ml-1" aria-hidden="true"></i>انتخاب تصویر
-                                        </label>
-                                        <input name="imgshenasname" type="file" id="imgshenasname"
-                                            class="d-none filestyle file-upload file_upload_ajax file-up"
-                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                        <input type="hidden" id="imgshenasname_path" class="path" name="urlimgshenasname">
-                                    </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">شناسنامه</h5>
+                                            <input name="imgshenasname" type="file" class="filestyle" data-buttonname="btn-white">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 							<div class="col-12 col-md-4">
                                 <div class="card">
-                                    {{-- avatar: the controller reads urlpersonalPicture for the ajax path
-                                         (it keeps `avatar` for the direct-file useravatar widget). --}}
-                                    <div id="personalPicture_src" class="show">
-                                        @if(empty($user->avatar))
+                                    @if(empty($user->avatar))
                                         <p class="my-4 text-danger text-center">ثبت نشده</p>
-                                        @else
-                                        <a href="{{ $user->avatar }}" target="_blank" rel="noopener">
+                                        <div class="card-body">
+                                            <h5 class="card-title">تصویر پرسنلی 3*4</h5>
+                                            <input name="avatar" type="file" class="filestyle" data-buttonname="btn-white">
+                                        </div>
+                                    @else
+                                        <a href="{{ $user->avatar }}">
                                             <img src="{{ $user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                         </a>
-                                        {{-- personalPicture is the DOM field name for the 'avatar' collection --}}
-                                        @if($user->mediaIsLegacy('avatar'))
-                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                        @endif
-                                        @endif
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">تصویر پرسنلی 3*4</h5>
-                                        <label for="personalPicture" class="btn btn-primary custom-file-upload border border-1">
-                                            <i class="fa fa-upload ml-1" aria-hidden="true"></i>انتخاب تصویر
-                                        </label>
-                                        <input name="personalPicture" type="file" id="personalPicture"
-                                            class="d-none filestyle file-upload file_upload_ajax file-up"
-                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                        <input type="hidden" id="personalPicture_path" class="path" name="urlpersonalPicture">
-                                    </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">تصویر پرسنلی 3*4</h5>
+                                            <input name="avatar" type="file" class="filestyle" data-buttonname="btn-white">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 

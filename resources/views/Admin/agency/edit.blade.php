@@ -82,8 +82,8 @@
                         <div class="card">
                             @if($agency->imgmeli)
                             <div id="imgmeli_src" class="show">
-                            <a href="{{ $agency->imgmeli }}" target="_blank" rel="noopener">
-                                <img src="{{ $agency->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                            <a href="{{ asset($agency->imgmeli) }}" target="_blank">
+                                <img src="{{ asset($agency->imgmeli) }}" class="card-img-top" height="150px">
                             </a>
                             @if($agency->mediaIsLegacy('imgmeli'))
                             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
@@ -91,7 +91,7 @@
                             </div>
                             @else
                             <div id="imgmeli_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
+                                <img class="card-img-top" height="150px">
                             </div>
                             @endif
                             <div class="card-body">
@@ -99,7 +99,7 @@
                                 <br>
                                 <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
+                                <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
                             </div>
                         </div>
                     </div>
@@ -108,16 +108,16 @@
                         <div class="card">
                             @if($agency->imgturnover)
                             <div id="imgturnover_src" class="show">
-                            <a href="{{ $agency->imgturnover }}" target="_blank" rel="noopener">
-                                <img src="{{ $agency->imgturnover }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                            <a href="{{ asset($agency->imgturnover) }}" target="_blank">
+                                <img src="{{ asset($agency->imgturnover) }}" class="card-img-top" height="150px">
                             </a>
                             @if($agency->mediaIsLegacy('imgturnover'))
                             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                             @endif
                             </div>
                             @else
-                            <div id="imgturnover_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
+                            <div id="iimgturnover_src" class="show">
+                            <img class="card-img-top" height="150px">
                             </div>
                             @endif
                             <div class="card-body">
@@ -125,7 +125,7 @@
                                 <br>
                                 <label for="imgturnover" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="imgturnover"  type="file" id="imgturnover" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="imgturnover_path" class="path" name="urlimgturnover">
+                                <input type="hidden" id="imgturnover" class="path" name="urlimgturnover">
                             </div>
                         </div>
                     </div>

@@ -95,4 +95,18 @@ $('.backSimilarProductsList').click(function () {
 $('.centerCategory').select2();
 
 
+$(document).on('click', '.remove_image_product', function () {
+    var id = $(this).attr('id');
+    $.ajax({
+        type: "post",
+        url: '/dashboard/removeImageProduct',
+        headers: {"Authorization": localStorage.getItem('token')},
+        data: {id: id},
+        success: function (result) {
+            if (result['status'] == 'true') {
+                $('.image_product').remove();
+            }
+        }
+    });
+});
 

@@ -110,9 +110,6 @@ class TotalFactorItemController extends Controller
     {
         $items = $totalFactorItem->factorItems->map(function ($factor_item) {
             $temp = [];
-            // the model itself: Admin.factoritem.layouts.formItem needs it for the Spatie
-            // document lookups, which array access cannot serve.
-            $temp['factor_item'] = $factor_item;
             $temp['id'] = $factor_item->id;
             $temp['resnumber'] = $factor_item->resnumber;
             $temp['file_number'] = $factor_item->file_number;
@@ -749,23 +746,40 @@ class TotalFactorItemController extends Controller
         $total_factor_item = TotalFactorItem::find($item['id']);
         $contract_values = $total_factor_item->contract_values ? $total_factor_item->contract_values : [];
         foreach (ContractForm::where('value', $total_factor_item->guarantee_type)->orWhere('value', 'all')->get() as $contract_form) {
-            // File fields go to Spatie only, tagged with the contract form name so
-            // TotalFactorItem::contractDocumentUrls() can resolve them. contract_values
-            // still stores the text/select answers, but never a file path; any legacy path
-            // already there stays untouched and is unioned in on read.
-            if ($contract_form->type == 'other_document_image' || $contract_form->type == 'file') {
-                // 'url'<name> holds a list for other_document_image and a single id for
-                // 'file' — (array) covers both.
-                $mediaIds = $item['url' . $contract_form->name] ?? null;
-                foreach ((array) $mediaIds as $mediaId) {
-                    if ($mediaId) {
-                        \App\Helpers\MediaLibraryHelper::attachTo(
-                            $total_factor_item,
-                            (string) $mediaId,
-                            TotalFactorItem::CONTRACT_COLLECTION,
-                            ['field' => $contract_form->name]
-                        );
+            if ($contract_form->type == 'other_document_image') {
+                if (isset($item[$contract_form->name])) {
+                    $images = isset($contract_values[$contract_form->name]) && is_array($contract_values[$contract_form->name]) ? $contract_values[$contract_form->name] : [];
+                    $files = $item['url' . $contract_form->name];
+                    if (is_array($files)) {
+                        foreach ($files as $file) {
+                            if ($file) {
+                                $media = \App\Helpers\MediaLibraryHelper::attachTo($total_factor_item, (string) $file, 'contract_documents');
+                                if ($media) {
+                                    $images[] = $media->getUrl();
+                                }
+                            }
+                        }
                     }
+                    if (isset($contract_values[$contract_form->name])) {
+                        $contract_values[$contract_form->name] = $images;
+                    }
+                    $contract_values = Arr::add($contract_values, $contract_form->name, $images);
+                }
+            }
+            if ($contract_form->type == 'file') {
+                if (isset($item[$contract_form->name])) {
+                    $img = $item[$contract_form->name];
+                    if ($img) {
+                        $media = \App\Helpers\MediaLibraryHelper::attachTo($total_factor_item, (string) $item['url' . $contract_form->name], 'contract_documents');
+                        if ($media) {
+                            $url = $media->getUrl();
+                            if (isset($contract_values[$contract_form->name])) {
+                                $contract_values[$contract_form->name] = $url;
+                            }
+                            $contract_values = Arr::add($contract_values, $contract_form->name, $url);
+                        }
+                    }
+                    unset($item[$contract_form->name]);
                 }
             }
             if ($contract_form->type == 'text' || $contract_form->type == 'select') {

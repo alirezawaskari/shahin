@@ -107,8 +107,8 @@
                         <div class="card">
                             @if($representation->stamp)
                             <div id="stamp_src" class="show">
-                            <a href="{{ $representation->stamp }}" target="_blank" rel="noopener">
-                                <img src="{{ $representation->stamp }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                            <a href="{{ asset($representation->stamp) }}" target="_blank">
+                                <img src="{{ asset($representation->stamp) }}" class="card-img-top" height="150px">
                             </a>
                             @if($representation->mediaIsLegacy('stamp'))
                             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
@@ -116,7 +116,7 @@
                             </div>
                             @else
                             <div id="stamp_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
+                            <img class="card-img-top" height="150px">
                             </div>
                             @endif
                             <div class="card-body">
@@ -124,7 +124,7 @@
                                 <br>
                                 <label for="stamp" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="stamp"  type="file" id="stamp" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="stamp_path" class="path" name="urlstamp">
+                                <input type="hidden" id="stamp" class="path" name="urlstamp">
                             </div>
                         </div>
                     </div>
@@ -133,8 +133,8 @@
                         <div class="card">
                             @if($representation->image)
                             <div id="image_src" class="show">
-                            <a href="{{ $representation->image }}" target="_blank" rel="noopener">
-                                <img src="{{ $representation->image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                            <a href="{{ asset($representation->image) }}" target="_blank">
+                                <img src="{{ asset($representation->image) }}" class="card-img-top" height="150px">
                             </a>
                             @if($representation->mediaIsLegacy('image'))
                             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
@@ -142,7 +142,7 @@
                             </div>
                             @else
                             <div id="image_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
+                            <img class="card-img-top" height="150px">
                             </div>
                             @endif
                             <div class="card-body">
@@ -150,7 +150,7 @@
                                 <br>
                                 <label for="image" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="image"  type="file" id="image" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                <input type="hidden" id="image_path" class="path" name="urlimage">
+                                <input type="hidden" id="image" class="path" name="urlimage">
                             </div>
                         </div>
                     </div>

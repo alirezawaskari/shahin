@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\CategoryStoreRoom;
 use App\Models\Center;
@@ -83,19 +82,27 @@ class PackController extends Controller
 
         $request['isShow'] = isset($request->isShow) ? 1 : 0;
 
-        // image_path / multiple_image aren't fillable, so create() ignores them; the
-        // images are stored via Spatie (attachTo below).
         $pack = Pack::create($request->all());
 
         //products
         $pack->products()->attach($request->product_id);
 
-        MediaLibraryHelper::attachTo($pack, $request->image_path, 'image');
-        foreach ($request->multiple_image ?? [] as $extra_file) {
-            if (isset($extra_file['file'])) {
-                MediaLibraryHelper::attachTo($pack, $extra_file['file'], 'gallery', [
-                    'title' => $extra_file['title'] ?? null,
-                ]);
+        if (isset($request->image_path)) {
+            if (\File::exists(public_path($pack->image))) {
+                \File::delete(public_path($pack->image));
+            }
+            $pack->image = Helper::moveImage($request->image_path, 'pack');
+            $pack->save();
+        }
+
+        $files = $request->multiple_image;
+        if ($files != '') {
+            foreach ($files as $extra_file) {
+                if (isset($extra_file['file'])) {
+                    $image = Helper::moveImage($extra_file['file'], 'pack');
+                    Gallery::create(['galleryable_id' => $pack->id,
+                        'galleryable_type' => Pack::class, 'title' => $extra_file['title'], 'image' => $image]);
+                }
             }
         }
 
@@ -173,7 +180,7 @@ class PackController extends Controller
     {
         $request->validate(
             [
-                'title' => 'required', 'image_path' => 'required', 'product_id' => 'required',
+                'title' => 'required', 'image' => 'required', 'product_id' => 'required',
                 'pack.category_store_room_id' => 'required',
                 'pack.store_room_id' => 'required',
                 'pack.storage_store_room_id' => 'required',
@@ -194,7 +201,7 @@ class PackController extends Controller
             ],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
-                'image_path.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
+                'image.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
                 'pack.category_store_room_id.required' => 'لطفا دسته بندی انبار را انتخاب کنید',
                 'pack.store_room_id.required' => 'لطفا انبار را انتخاب کنید',
                 'pack.storage_store_room_id.required' => 'لطفا محل نگهداری را انتخاب کنید',
@@ -228,13 +235,13 @@ class PackController extends Controller
         if($packByCenter == true) {
             $request->validate([
                     'title' => 'required',
-                    'image_path' => 'required',
+                    'image' => 'required',
                     'pack.price_center' => 'required',
                     'pack.stock_center' => 'required',
                 ],
                 [
                         'title.required' => 'لطفا عنوان را وارد کنید',
-                        'image_path.required' => 'لطفا عکس را وارد کنید',
+                        'image.required' => 'لطفا عکس را وارد کنید',
                         'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
                         'pack.price_center.required' => 'لطفا قیمت را وارد کنید',
                         'pack.stock_center.required' => 'لطفا موجودی را وارد کنید',
@@ -245,14 +252,14 @@ class PackController extends Controller
         if($packByCenter == false) {
             $request->validate([
                 'title' => 'required',
-                'image_path' => 'required',
+                'image' => 'required',
                 'pack.price_center' => 'required',
                 'pack.stock_center' => 'required',
                 'pack.center_id' => 'required',
             ],
                 [
                     'title.required' => 'لطفا عنوان را وارد کنید',
-                    'image_path.required' => 'لطفا عکس را وارد کنید',
+                    'image.required' => 'لطفا عکس را وارد کنید',
                     'pack.price_center.required' => 'لطفا قیمت را وارد کنید',
                     'pack.stock_center.required' => 'لطفا موجودی را وارد کنید',
                     'pack.center_id.required' => 'لطفا شعبه را انتخاب کنید',
@@ -291,9 +298,6 @@ class PackController extends Controller
 
         $pack_centers = $pack->centers()->first();
         $pack_store_rooms = Pack::find($id)->storeRooms()->first();
-
-        // default so $products is always defined when the pack has neither a center nor a store room
-        $products = collect();
 
         if($pack_centers != [])
             $products = Center::find($pack_centers->id)->products()->where('type', 1)->orderBy('id', 'DESC')->get();
@@ -360,24 +364,23 @@ class PackController extends Controller
 //                    $pack->tag(['tag_name' => $request->tag]);
 //            }
 
-            //images (stored via Spatie; attachTo replaces the old file)
-            MediaLibraryHelper::attachTo($pack, $request->image_path, 'image');
-            foreach ($request->multiple_image ?? [] as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    MediaLibraryHelper::attachTo($pack, $extra_file['file'], 'gallery', [
-                        'title' => $extra_file['title'] ?? null,
-                    ]);
+            //images
+            if (isset($request->image_path)) {
+                if (\File::exists(public_path($pack->image))) {
+                    \File::delete(public_path($pack->image));
                 }
+                $pack->image = Helper::moveImage($request->image_path, 'pack');
+                $pack->save();
             }
-            // persist edited titles of the already-saved gallery images
-            foreach ($request->gallery_title ?? [] as $mediaId => $title) {
-                $media = \App\Models\Media::where('id', $mediaId)
-                    ->where('model_type', get_class($pack))
-                    ->where('model_id', $pack->id)
-                    ->where('collection_name', 'gallery')
-                    ->first();
-                if ($media) {
-                    $media->setCustomProperty('title', $title)->save();
+
+            $files = $request->multiple_image;
+            if ($files != '') {
+                foreach ($files as $extra_file) {
+                    if (isset($extra_file['file'])) {
+                        $image = Helper::moveImage($extra_file['file'], 'pack');
+                        Gallery::create(['galleryable_id' => $pack->id,
+                            'galleryable_type' => Pack::class , 'title' => $extra_file['title'], 'image' => $image]);
+                    }
                 }
             }
 
@@ -497,7 +500,7 @@ class PackController extends Controller
             ],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
-                'image_path.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
+                'image.required' => 'لطفا عکس را وارد کنید', 'product_id.required' => 'لطفا کالا ها خود را انتخاب کنید',
                 'category_store_room_id.required' => 'لطفا دسته بندی انبار را انتخاب کنید',
                 'store_room_id.required' => 'لطفا انبار را انتخاب کنید',
                 'storage_store_room_id.required' => 'لطفا محل نگهداری را انتخاب کنید',
@@ -542,8 +545,18 @@ class PackController extends Controller
                 $pack->storeRooms()->detach();
             }
 
-            // media is preserved on this soft delete (Spatie's cascade purges it only
-            // on force delete; the native App\Models\Media::delete() keeps that safe).
+            if ($pack->galleries()) {
+                foreach ($pack->galleries()->get() as $item) {
+                    if (\File::exists(public_path($item->image))) {
+                        \File::delete(public_path($item->image));
+                    }
+                }
+            }
+
+            if (\File::exists(public_path($pack->image))) {
+                \File::delete(public_path($pack->image));
+            }
+
             $pack->delete();
             return redirect('/dashboard/pack')->with(['delete' => 'success']);
         }

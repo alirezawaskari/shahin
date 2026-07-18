@@ -77,20 +77,16 @@
                     {{--image_two--}}
                     <div class="col-12 col-md-4 mb-3">
                         <label> عکس باکس دوم ذخیره شده :</label>
-                        @if($about->image_two)
-                            <img src="{{ $about->image_two }}" class="border-radius5" width="80px">
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
+                        <img src="{{ $about->image_two }}" class="border-radius5" width="80px">
                     </div>
                     <div class="col-12 col-md-4 mb-3">
                         <label>عکس باکس دوم </label>
-                        <label for="image_two" class="btn btn-primary custom-file-upload border border-1"><i
+                        <label for="image_two" class="custom-file-upload"><i
                                     class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_two" class="d-none file-upload file_upload_ajax" type="file"
+                        <input id="image_two" class="file-upload file_upload_ajax" type="file"
                                name="image_two"/>
                         <div id="image_two_src" class="show"></div>
-                        <input type="hidden" id="image_two_path" class="path" name="image_two_path" value="">
+                        <input type="hidden" id="image_two" class="path" name="image_two_path" value="">
                         @if($errors->has('image_two_path'))
                             <span class="help-block sub-error"> {{$errors->first('image_two_path')}} </span>
                         @endif
@@ -114,20 +110,16 @@
                     {{--image_three--}}
                     <div class="col-12 col-md-6 mb-3">
                         <label> عکس باکس سوم ذخیره شده :</label>
-                        @if($about->image_three)
-                            <img src="{{ $about->image_three }}" class="border-radius5" width="80px">
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
+                        <img src="{{ $about->image_three }}" class="border-radius5" width="80px">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>عکس باکس سوم*</label>
-                        <label for="image_three" class="btn btn-primary custom-file-upload border border-1"><i
+                        <label for="image_three" class="custom-file-upload"><i
                                     class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_three" class="d-none file-upload file_upload_ajax" type="file"
+                        <input id="image_three" class="file-upload file_upload_ajax" type="file"
                                name="image_three"/>
                         <div id="image_three_src" class="show"></div>
-                        <input type="hidden" id="image_three_path" class="path" name="image_three_path" value="">
+                        <input type="hidden" id="image_three" class="path" name="image_three_path" value="">
                         @if($errors->has('image_three_path'))
                             <span class="help-block sub-error"> {{$errors->first('image_three_path')}} </span>
                         @endif
@@ -152,20 +144,16 @@
                     {{--image_four--}}
                     <div class="col-12 col-md-6 mb-3">
                         <label> عکس باکس چهارم ذخیره شده :</label>
-                        @if($about->image_four)
-                            <img src="{{ $about->image_four }}" class="border-radius5" width="80px">
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
+                        <img src="{{ $about->image_four }}" class="border-radius5" width="80px">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>عکس باکس چهارم*</label>
-                        <label for="image_four" class="btn btn-primary custom-file-upload border border-1"><i
+                        <label for="image_four" class="custom-file-upload"><i
                                     class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_four" class="d-none file-upload file_upload_ajax" type="file"
+                        <input id="image_four" class="file-upload file_upload_ajax" type="file"
                                name="image_four"/>
                         <div id="image_four_src" class="show"></div>
-                        <input type="hidden" id="image_four_path" class="path" name="image_four_path" value="">
+                        <input type="hidden" id="image_four" class="path" name="image_four_path" value="">
                         @if($errors->has('image_four_path'))
                             <span class="help-block sub-error"> {{$errors->first('image_four_path')}} </span>
                         @endif
@@ -188,20 +176,16 @@
                     {{--image_five--}}
                     <div class="col-12 col-md-6 mb-3">
                         <label> عکس باکس پنجم ذخیره شده :</label>
-                        @if($about->image_five)
-                            <img src="{{ $about->image_five }}" class="border-radius5" width="80px">
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
+                        <img src="{{ $about->image_five }}" class="border-radius5" width="80px">
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label>عکس باکس پنجم *</label>
-                        <label for="image_five" class="btn btn-primary custom-file-upload border border-1"><i
+                        <label for="image_five" class="custom-file-upload"><i
                                     class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_five" class="d-none file-upload file_upload_ajax" type="file"
+                        <input id="image_five" class="file-upload file_upload_ajax" type="file"
                                name="image_five"/>
                         <div id="image_five_src" class="show"></div>
-                        <input type="hidden" id="image_five_path" class="path" name="image_five_path" value="">
+                        <input type="hidden" id="image_five" class="path" name="image_five_path" value="">
                         @if($errors->has('image_five_path'))
                             <span class="help-block sub-error"> {{$errors->first('image_five_path')}} </span>
                         @endif

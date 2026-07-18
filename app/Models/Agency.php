@@ -9,13 +9,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Agency extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
-    protected function legacyMediaMap(): array
-    {
-        return ['imgmeli' => 'imgmeli', 'imgturnover' => 'imgturnover'];
-    }
+    use SoftDeletes, InteractsWithMedia;
 
     /** Document images owned by the agency (national-id card, turnover statement). */
     const MEDIA_FIELDS = ['imgmeli', 'imgturnover'];
@@ -41,14 +35,12 @@ class Agency extends Model implements HasMedia
 
     public function getImgmeliAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli')
-            ?: ($this->getRawOriginal('imgmeli') ? asset($this->getRawOriginal('imgmeli')) : '');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli');
     }
 
     public function getImgturnoverAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover')
-            ?: ($this->getRawOriginal('imgturnover') ? asset($this->getRawOriginal('imgturnover')) : '');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover');
     }
 
     /**

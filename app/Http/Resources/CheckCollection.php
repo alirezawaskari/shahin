@@ -30,6 +30,8 @@ class CheckCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($item) {
+                $front_image = $item->files()->where('title', 'front')->first();
+                $back_image = $item->files()->where('title', 'back')->first();
                 $last_history=$item->histories->last();
                 return [
                     'sort_by' => $item->date,

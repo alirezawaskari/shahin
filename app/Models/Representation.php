@@ -43,14 +43,12 @@ class Representation extends Model implements HasMedia
 
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
-            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
     }
 
     public function getStampAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'stamp')
-            ?: ($this->getRawOriginal('stamp') ? asset($this->getRawOriginal('stamp')) : '');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'stamp');
     }
     /**
      * Return the sluggable configuration array for this model.

@@ -7,8 +7,7 @@
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_factor' , $form->data_display_level))
-            {{-- read-only: the updateServiceTariff form wrapping this has no submit control --}}
-            @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+            @include('Admin.factoritem.layouts.formItem')
             @endif
             @endforeach
             @endif

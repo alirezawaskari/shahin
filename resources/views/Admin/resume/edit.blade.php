@@ -147,7 +147,7 @@
                     <input name="resume" type="file" id="resume"
                         class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
                     <div id="resume_src" class="show"></div>
-                    <input type="hidden" id="resume_path" class="path" name="urlresume" value="">
+                    <input type="hidden" id="resume" class="path" name="urlresume" value="">
                     <div class="mr-3">
                         @if($resume->resume)
                         <a href="{{ $resume->resume }}" target="_blank" rel="noopener" class="btn btn-primary py-1 px-2">مشاهده رزومه</a>

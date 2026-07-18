@@ -298,9 +298,7 @@
                                                 value="{{ auth()->user()->center_id }}">
                                             <div class="col-12 col-md-4 mb-2">
                                                 <div class="card">
-                                                    {{-- truthiness, not isset(): the accessor returns '' when
-                                                         there is no image, and isset('') is true. --}}
-                                                    @if ($totalFactorItem->totalFactorItemContractSettlement?->img_warranty_delivery_receipt)
+                                                    @if (isset($totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt))
                                                     <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt) }}"
                                                         target="_blank">
                                                         <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt }}"

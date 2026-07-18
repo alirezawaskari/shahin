@@ -191,17 +191,16 @@
                                         @case('file')
                                         <div class="col-12 col-md-3 mb-2 mt-3">
                                             <div class="card">
-                                                @php($cSavedUrl = $totalFactorItem->contractDocumentUrl($contract_form->name))
-                                                @if (!$cSavedUrl)
+                                                @if (!isset($item['contract_values'][$contract_form->name]))
                                                 <div id="{{ $contract_form->name }}_src" class="show">
                                                     <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                 </div>
                                                 @else
                                                 <div id="{{ $contract_form->name }}_src" class="show">
-                                                    <a href="{{ $cSavedUrl }}"
+                                                    <a href="{{ asset($item['contract_values'][$contract_form->name]) }}"
                                                         target="_blank">
                                                         <img id="{{ $contract_form->name }}_src"
-                                                            src="{{ $cSavedUrl }}"
+                                                            src="{{ asset($item['contract_values'][$contract_form->name]) }}"
                                                             class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                     </a>
                                                 </div>
@@ -263,18 +262,17 @@
                                         </div>
                                         @break
                                         @case('other_document_image')
-                                        @foreach ($totalFactorItem->contractDocumentItems($contract_form->name) as $doc)
+                                        @if (isset($item['contract_values'][$contract_form->name]))
+                                        @foreach ($item['contract_values'][$contract_form->name] as $image)
                                         <div class="col-12 col-md-3 mb-2 mt-3">
                                             <div class="card">
-                                                <a href="{{ $doc['url'] }}" target="_blank">
-                                                    <img src="{{ $doc['url'] }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                <a href="{{ asset($image) }}" target="_blank">
+                                                    <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
-                                                @if($doc['legacy'])
-                                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                                @endif
                                             </div>
                                         </div>
                                         @endforeach
+                                        @endif
                                         <div class="col-12 mb-3">
                                             <div id="addnew">
                                                 <label for="{{ $contract_form->name }}" id="up-label" class="btn btn-primary custom-file-upload border border-1">
@@ -413,17 +411,16 @@
                                     @case('file')
                                     <div class="col-12 col-md-3 mb-2 mt-3">
                                         <div class="card">
-                                            @php($cSavedUrl = $totalFactorItem->contractDocumentUrl($contract_form->name))
-                                            @if (!$cSavedUrl)
+                                            @if (!isset($item['contract_values'][$contract_form->name]))
                                             <div id="{{ $contract_form->name }}_src" class="show">
                                                 <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                             </div>
                                             @else
                                             <div id="{{ $contract_form->name }}_src" class="show">
-                                                <a href="{{ $cSavedUrl }}"
+                                                <a href="{{ asset($item['contract_values'][$contract_form->name]) }}"
                                                     target="_blank">
                                                     <img id="{{ $contract_form->name }}_src"
-                                                        src="{{ $cSavedUrl }}"
+                                                        src="{{ asset($item['contract_values'][$contract_form->name]) }}"
                                                         class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
@@ -485,15 +482,17 @@
                                     </div>
                                     @break
                                     @case('other_document_image')
-                                    @foreach ($totalFactorItem->contractDocumentUrls($contract_form->name) as $image)
+                                    @if (isset($item['contract_values'][$contract_form->name]))
+                                    @foreach ($item['contract_values'][$contract_form->name] as $image)
                                     <div class="col-12 col-md-3 mb-2 mt-3">
                                         <div class="card">
-                                            <a href="{{ $image }}" target="_blank">
+                                            <a href="{{ asset($image) }}" target="_blank">
                                                 <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                     </div>
                                     @endforeach
+                                    @endif
                                     <div class="col-12 mb-3">
                                         <div id="addnew">
                                             <label for="{{ $contract_form->name }}" id="up-label" class="btn btn-primary custom-file-upload border border-1">
@@ -610,8 +609,7 @@
                                     @if(!is_null($factor_item['forms']))
                                     @foreach($factorItem->factoritemable->beforeforms as $form)
                                     @if (in_array('panel_determine_center' , $form->data_display_level))
-                                    {{-- read-only: this block is after </form> above, so nothing posts it --}}
-                                    @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+                                    @include('Admin.factoritem.layouts.formItem')
                                     @endif
                                     @endforeach
                                     @endif

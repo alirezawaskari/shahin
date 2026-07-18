@@ -86,11 +86,6 @@ class SingleWebPageController extends Controller
             $temp = [];
 
             $temp[ 'id' ] = $item->id;
-            // the models themselves, so the view can resolve uploaded documents through
-            // Spatie ($item['factor_item']->documentUrls(<form name>)) rather than reading
-            // paths out of the factor_values/contract_values JSON.
-            $temp[ 'factor_item' ] = $item;
-            $temp[ 'total_factor_item' ] = $item->totalFactorItem;
             $temp[ 'service' ] = $item->factoritemable;
             $temp[ 'service_item' ] = !is_null( $item->service_item_id ) ? $item->serviceItem : null;
             $temp[ 'centers' ] = FactorItem::getSelectableCenters($item);

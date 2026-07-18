@@ -71,42 +71,6 @@ trait AdoptsLegacyMedia
     }
 
     /**
-     * Single-image collections fed by legacy polymorphic `files` rows rather than by a
-     * column: ['spatie_collection' => 'legacy_File_title'] (Check/Promissory store their
-     * front/back photos as File(path, title) rows on the files() morphMany).
-     *
-     * Same contract as legacyMediaMap(): the File rows are READ-ONLY — never written,
-     * never deleted — so the accessor fallback keeps serving them if adoption fails.
-     */
-    protected function legacyFileMap(): array
-    {
-        return [];
-    }
-
-    /** The legacy File row backing $collection, or null. READ-ONLY. */
-    public function legacyFileRow(string $collection)
-    {
-        $title = $this->legacyFileMap()[$collection] ?? null;
-        if (! $title || ! method_exists($this, 'files')) {
-            return null;
-        }
-
-        return $this->files()
-            ->where('title', $title)
-            ->whereNotNull('path')
-            ->where('path', '!=', '')
-            ->first();
-    }
-
-    /** The legacy (pre-Spatie) url for a File-row-backed collection, or ''. */
-    public function legacyFileUrl(string $collection): string
-    {
-        $row = $this->legacyFileRow($collection);
-
-        return $row ? asset($row->path) : '';
-    }
-
-    /**
      * Gallery collections to adopt from the legacy `galleries` morphMany. Each entry:
      *   collection: Spatie collection name
      *   type:       legacy Gallery.type to pull (null = all rows)
@@ -125,19 +89,12 @@ trait AdoptsLegacyMedia
      *
      * @param array $adopted legacy paths already in the collection; appended to as we go,
      *                       so the same path repeated in one column is only adopted once.
-     * @param string|null $field the form-field name this value sits under, stamped onto the
-     *                    adopted media as a 'field' custom property. These columns are keyed
-     *                    by form name (factor_values['Doctor's order'] => '/upload/x.jpg'),
-     *                    which is the ONLY thing tying a file to its field — so an adopted
-     *                    file must carry it, or documentUrls($field) could never find it.
-     *                    A string key names the field; a list index inherits its parent's
-     *                    (multi_file: ['other_image' => ['/a.jpg', '/b.jpg']]).
      */
-    private function adoptLegacyPathsIn($value, string $collection, array &$adopted, ?string $field = null): void
+    private function adoptLegacyPathsIn($value, string $collection, array &$adopted): void
     {
         if (is_array($value)) {
-            foreach ($value as $key => $item) {
-                $this->adoptLegacyPathsIn($item, $collection, $adopted, is_string($key) ? $key : $field);
+            foreach ($value as $item) {
+                $this->adoptLegacyPathsIn($item, $collection, $adopted);
             }
             return;
         }
@@ -151,81 +108,9 @@ trait AdoptsLegacyMedia
             return;
         }
 
-        $properties = $field !== null ? ['field' => $field] : [];
-
-        if (MediaLibraryHelper::adoptLegacyFile($this, $collection, $value, $properties)) {
+        if (MediaLibraryHelper::adoptLegacyFile($this, $collection, $value)) {
             $adopted[] = $value;
         }
-    }
-
-    /**
-     * Urls for a form field's uploaded file(s): the Spatie media tagged with this field
-     * name, PLUS any legacy path in the JSON column not already represented by one.
-     *
-     * A UNION, not a fallback, because multi_file fields are additive: with "media if any,
-     * else legacy", the first new upload would win the media branch and silently hide every
-     * previously saved image. A legacy path is dropped only once an adopted media carries it
-     * as old_file_path — i.e. only when showing it would duplicate the same file.
-     *
-     * Media come first, so documentUrl() (which takes [0]) prefers the new system.
-     * Always absolute urls — render {{ $url }} directly, never asset() (the old blades were
-     * split between asset() and raw; that inconsistency dies here). asset() passes a value
-     * that is already a full url through untouched.
-     *
-     * @param string $column the legacy JSON column to read (factor_values, contract_values)
-     * @return array<string>
-     */
-    protected function mediaUrlsForField(string $collection, string $column, string $field): array
-    {
-        return array_column($this->mediaItemsForField($collection, $column, $field), 'url');
-    }
-
-    /**
-     * Same union as mediaUrlsForField(), but each entry keeps its provenance:
-     *   ['url' => string, 'legacy' => bool, 'media_id' => string|null]
-     *
-     * 'legacy' => true means the file is still only a path in the JSON column and has not
-     * been adopted yet — the view shows the "با ذخیره به سیستم جدید منتقل می‌شود" hint and
-     * no ✕ (there is no media id to delete by, and the next save would re-adopt it anyway).
-     *
-     * @return array<array{url:string,legacy:bool,media_id:?string}>
-     */
-    protected function mediaItemsForField(string $collection, string $column, string $field): array
-    {
-        $media = MediaLibraryHelper::existingMedia($this, $collection)
-            ->filter(fn ($m) => $m->getCustomProperty('field') === $field);
-
-        $items = $media->map(fn ($m) => [
-            'url'      => $m->getUrl(),
-            'legacy'   => false,
-            'media_id' => $m->id,
-        ])->values()->all();
-
-        // legacy paths already adopted into this field's media — showing them again
-        // would render the same file twice
-        $adopted = $media->map(fn ($m) => $m->getCustomProperty('old_file_path'))
-            ->filter()
-            ->values()
-            ->all();
-
-        $legacy = $this->getAttribute($column)[$field] ?? null;
-        foreach ((is_array($legacy) ? $legacy : [$legacy]) as $path) {
-            if (! is_string($path) || $path === '' || in_array($path, $adopted, true)) {
-                continue;
-            }
-            $items[] = ['url' => asset($path), 'legacy' => true, 'media_id' => null];
-        }
-
-        // same file can't appear twice (e.g. one path repeated in the column)
-        $seen = [];
-        return array_values(array_filter($items, function ($i) use (&$seen) {
-            if (in_array($i['url'], $seen, true)) {
-                return false;
-            }
-            $seen[] = $i['url'];
-
-            return true;
-        }));
     }
 
     /**
@@ -337,8 +222,7 @@ trait AdoptsLegacyMedia
      */
     public function mediaIsRemovable(string $collection): bool
     {
-        return $this->legacyMediaUrl($collection) === ''
-            && $this->legacyFileUrl($collection) === '';
+        return $this->legacyMediaUrl($collection) === '';
     }
 
     /**
@@ -385,30 +269,12 @@ trait AdoptsLegacyMedia
         return ! $this->hasLegacyGalleryRows($collection);
     }
 
-    /**
-     * This model's media in $collection, read FRESH from the database.
-     *
-     * Every idempotency check below ("do I already have this?") must not trust the cached
-     * `media` relation. Two things stale it:
-     *   - one request can fire saved() many times (Admin\FactorItemController::formData()
-     *     updates once per beforeform — 10 saves in a row), and
-     *   - adopting a file inside this very method does not refresh the relation.
-     * With a stale relation every pass sees the pre-adoption state and adopts the same
-     * legacy file again — 10 saves produced 10 copies of every image.
-     */
-    private function freshMedia(string $collection)
-    {
-        $this->unsetRelation('media');
-
-        return $this->getMedia($collection);
-    }
-
     /** Copy any not-yet-migrated legacy images into Spatie. Safe to call repeatedly. */
     public function adoptLegacyMedia(): void
     {
         // single images: legacy column -> single-file collection
         foreach ($this->legacyMediaMap() as $collection => $column) {
-            if ($this->freshMedia($collection)->isNotEmpty()) {
+            if ($this->getMedia($collection)->isNotEmpty()) {
                 continue;
             }
             $legacy = $this->getRawOriginal($column);
@@ -416,18 +282,6 @@ trait AdoptsLegacyMedia
                 continue;
             }
             MediaLibraryHelper::adoptLegacyFile($this, $collection, $legacy);
-        }
-
-        // single images: legacy polymorphic `files` row -> single-file collection
-        foreach (array_keys($this->legacyFileMap()) as $collection) {
-            if ($this->freshMedia($collection)->isNotEmpty()) {
-                continue;
-            }
-            $row = $this->legacyFileRow($collection);
-            if (! $row) {
-                continue;
-            }
-            MediaLibraryHelper::adoptLegacyFile($this, $collection, $row->path);
         }
 
         // array/JSON columns: adopt every legacy file they reference into the collection,
@@ -439,8 +293,8 @@ trait AdoptsLegacyMedia
             }
             // Legacy paths already adopted into this collection. Because the column is
             // never rewritten, this is what keeps re-saving from adopting the same file
-            // again and again — so it MUST be read fresh (see freshMedia()).
-            $adopted = $this->freshMedia($collection)
+            // again and again.
+            $adopted = $this->getMedia($collection)
                 ->map(fn ($m) => $m->getCustomProperty('old_file_path'))
                 ->filter()
                 ->values()
@@ -455,7 +309,7 @@ trait AdoptsLegacyMedia
         }
         foreach ($this->legacyGalleryMigrations() as $migration) {
             $collection = $migration['collection'] ?? null;
-            if (! $collection || $this->freshMedia($collection)->isNotEmpty()) {
+            if (! $collection || $this->getMedia($collection)->isNotEmpty()) {
                 continue;
             }
 

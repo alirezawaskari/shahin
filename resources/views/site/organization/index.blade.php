@@ -45,7 +45,7 @@
 
                                 </div>
                                 <div class="col-12">
-                                    <img src="{{ $service->icon }}" alt="{{ $service->title }}" width="100%">
+                                    <img src="{{ asset($service->icon) }}" alt="{{ $service->title }}" width="100%">
                                 </div>
                                 <div class="col-12 my-3 mx-2">
                                     <p class="text-success font-14 text-right mb-0"><strong>{{ $service->price == 0 ? 'انتخابی' : number_format($service->price) . ' ریال' }}</strong></p>

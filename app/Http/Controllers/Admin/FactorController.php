@@ -455,10 +455,8 @@ class FactorController extends Controller
             //upload bill_image cash factor
             $imgbill = $request->file('bill_image');
             if ($imgbill) {
-                // Spatie: attach into the factor's own single-file collection. The legacy
-                // `bill_image` column is accessor-shadowed (Factor::getBillImageAttribute)
-                // and deliberately not written.
-                MediaLibraryHelper::attachUpload($factor, $imgbill, 'bill_image');
+                $url_bill_image = MediaLibraryHelper::uploadImage($imgbill , 'document');
+                $factor->update(['bill_image' => $url_bill_image]);
             }
             $message = 'با موفقیت ثبت شد.';
             $status = 'success';

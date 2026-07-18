@@ -155,11 +155,6 @@
                                     <a href="{{ $user->imgmeli }}" target="_blank">
                                         <img src="{{ $user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                     </a>
-                                    {{-- inside _src on purpose: an ajax upload empties this div, so the
-                                         hint disappears by itself once the image is no longer legacy --}}
-                                    @if($user->mediaIsLegacy('imgmeli'))
-                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                    @endif
                                     </div>
                                     @else
                                     <div id="imgmeli_src" class="show">
@@ -183,9 +178,6 @@
                                     <a href="{{ $user->imgshenasname }}" target="_blank">
                                         <img src="{{ $user->imgshenasname }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                     </a>
-                                    @if($user->mediaIsLegacy('imgshenasname'))
-                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                    @endif
                                     </div>
                                     @else
                                     <div id="imgshenasname_src" class="show">
@@ -208,9 +200,6 @@
                                     <a href="{{ $user->imgsignature }}" target="_blank">
                                         <img src="{{ $user->imgsignature }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                     </a>
-                                    @if($user->mediaIsLegacy('imgsignature'))
-                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                    @endif
                                     </div>
                                     @else
                                     <div id="imgsignature_src" class="show">
@@ -234,10 +223,6 @@
                                     <a href="{{ $user->avatar }}" target="_blank">
                                         <img src="{{ $user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                     </a>
-                                    {{-- personalPicture is the DOM field name for the 'avatar' collection --}}
-                                    @if($user->mediaIsLegacy('avatar'))
-                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                    @endif
                                     </div>
                                     @else
                                     <div id="personalPicture_src" class="show">
@@ -262,9 +247,6 @@
                                         <img src="{{ $user->imgturnover }}"
                                             class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                     </a>
-                                    @if($user->mediaIsLegacy('imgturnover'))
-                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                    @endif
                                     </div>
                                     @else
                                     <div id="imgturnover_src" class="show">

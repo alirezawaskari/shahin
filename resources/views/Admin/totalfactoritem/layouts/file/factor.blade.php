@@ -50,8 +50,7 @@
                         @if (!is_null($factor_item['forms']))
                         @foreach ($factor_item['forms'] as $form)
                         @if (in_array('panel_show_file' , $form->data_display_level))
-                        {{-- read-only: outside the <form> that opens below --}}
-                        @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+                        @include('Admin.factoritem.layouts.formItem')
                         @endif
                         @endforeach
                         @endif
