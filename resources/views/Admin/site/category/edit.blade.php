@@ -245,8 +245,12 @@
 
                 @if($category->depth == 0 || $category->depth == 1)
                 <div id="gallerySection">
-                    <x-media-gallery-form :owner="$category" />
+                    <x-gallery-form
+                            :galleries="$category->galleries"
+                            :ghorfeTemplet="$category->parent"
+                    />
                 </div> @endif
+
                 <hr />
                 <div class="row">
                     <div class="col-12 col-md-12 mb-2">
