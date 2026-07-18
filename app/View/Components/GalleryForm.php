@@ -8,10 +8,12 @@ use Illuminate\View\Component;
 class GalleryForm extends Component
 {
     public $galleries;
+    public $ghorfeTemplet;
 
-    public function __construct($galleries = [])
+    public function __construct($galleries = [], $ghorfeTemplet = null)
     {
         $this->galleries = collect($galleries);
+        $this->ghorfeTemplet = $ghorfeTemplet;
     }
 
     public function render()
