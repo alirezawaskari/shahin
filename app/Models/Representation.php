@@ -10,7 +10,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Representation extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable, InteractsWithMedia;
+    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['image' => 'image', 'stamp' => 'stamp'];
+    }
 
     /** Document images owned by the representation (logo/header image, stamp). */
     const MEDIA_FIELDS = ['image', 'stamp'];
@@ -37,12 +43,14 @@ class Representation extends Model implements HasMedia
 
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     public function getStampAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'stamp');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'stamp')
+            ?: ($this->getRawOriginal('stamp') ? asset($this->getRawOriginal('stamp')) : '');
     }
     /**
      * Return the sluggable configuration array for this model.

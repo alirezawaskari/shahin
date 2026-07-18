@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\BeforeForm;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -36,11 +36,11 @@ class BeforeFormController extends Controller
         ]);
         $inputs = $request->all();
         unset($inputs['file']);
-        if ($request->urlfile) {
-            $inputs['file'] = Helper::moveImage($request->urlfile,'service');
-        }
 		unset($inputs['urlfile']);
-        BeforeForm::create($inputs);
+        $beforeForm = BeforeForm::create($inputs);
+        if ($request->urlfile) {
+            MediaLibraryHelper::attachTo($beforeForm, $request->urlfile, 'file');
+        }
         alert()->success('','عملیات موفق');
         if ($request->beforeformable_type == Service::class){
             return redirect()->to('/dashboard/service_before_form/' . Service::find($request->beforeformable_id)->slug)->with([
@@ -86,11 +86,11 @@ class BeforeFormController extends Controller
         ]);
         $inputs = $request->all();
         unset($inputs['file']);
-        if ($request->urlfile) {
-            $inputs['file'] = Helper::moveImage($request->urlfile,'service');
-        }
 		unset($inputs['urlfile']);
         $beforeForm->update($inputs);
+        if ($request->urlfile) {
+            MediaLibraryHelper::attachTo($beforeForm, $request->urlfile, 'file');
+        }
         return redirect()->to('/dashboard/service_before_form/' . Service::find($request->input('beforeformable_id'))->slug)->with([
             'before_form_create' => 'success'
         ]);

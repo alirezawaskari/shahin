@@ -106,13 +106,7 @@
                         <div class="card-body">
                             <div class="card-body">
                                 <div class="tab-content" id="myTabContent">
-                                    @if(!is_null($item['forms']))
-                                    @foreach($item['forms'] as $form)
-                                    @if (in_array('show_recommendations_site' , $form->data_display_level))
-                                    @include('Admin.factoritem.layouts.formItem')
-                                    @endif
-                                    @endforeach
-                                    @endif
+                                    @include('site.profile.layouts.factoritem.recommendations')
                                 </div>
                             </div>
                         </div>
@@ -135,7 +129,8 @@
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
                                 @if (in_array('show_factor_site' , $form->data_display_level))
-                                @include('Admin.factoritem.layouts.formItem')
+                                {{-- customer view: not wrapped in a form, nothing posts these --}}
+                                @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
                                 @endif
                                 @endforeach
                                 @endif
@@ -199,13 +194,7 @@
                             <div class="card-body">
                                 <div class="card-body">
                                     <div class="tab-content" id="myTabContent">
-                                        @if(!is_null($item['forms']))
-                                        @foreach($item['forms'] as $form)
-                                        @if (in_array('show_recommendations_site' , $form->data_display_level))
-                                        @include('Admin.factoritem.layouts.formItem')
-                                        @endif
-                                        @endforeach
-                                        @endif
+                                        @include('site.profile.layouts.factoritem.recommendations')
                                     </div>
                                 </div>
                             </div>
@@ -372,7 +361,9 @@
                                                     placeholder="توضیح خود را بنویسید...">{{ $totalFactorItem->totalFactorItemContractSettlement ? $totalFactorItem->totalFactorItemContractSettlement->description_request_contract_settlement : '' }}</textarea>
                                             </div>
                                             <div class="col-12 col-md-4 card-body">
-                                                @if(isset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement))
+                                                {{-- truthiness, not isset(): the accessor returns '' when there is
+                                                     no image, and isset('') is true. --}}
+                                                @if($totalFactorItem->totalFactorItemContractSettlement?->img_request_contract_settlement)
                                                 <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
                                                     target="_blank">
                                                     <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
@@ -392,7 +383,7 @@
                                                         id="request_contract_settlement"
                                                         class="filestyle file-upload file_upload_ajax file-up"
                                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="request_contract_settlement" class="path"
+                                                    <input type="hidden" id="request_contract_settlement_path" class="path"
                                                         name="urlrequest_contract_settlement">
                                                 </div>
                                                 @endif
@@ -572,6 +563,11 @@
     }
     });
 </script>
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+{{--
+    No adminJs.js here — customer-facing page. site-upload.js (site/master.blade.php)
+    already serves the uploads, and @yield('js') renders AFTER it, so adminJs.js
+    overrode it: the remove (X) on the single-file request_contract_settlement posted
+    to the admin-only /dashboard/removeMedia and silently failed for customers.
+--}}
 <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
 @endsection

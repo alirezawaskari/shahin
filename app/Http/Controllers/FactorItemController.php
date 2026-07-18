@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\AuthCode;
 use App\Models\ContractForm;
 use App\Models\ContractView;
@@ -315,8 +316,7 @@ class FactorItemController extends Controller {
                 'description_request_contract_settlement' => $request->description_request_contract_settlement,
             ] );
             if ( $request->urlrequest_contract_settlement ) {
-                Helper::deleteImage( $total_factor_item_contract_settlement->img_request_contract_settlement );
-                $total_factor_item_contract_settlement->update( [ 'img_request_contract_settlement' => Helper::moveImage( $request->urlrequest_contract_settlement, 'document' ) ] );
+                MediaLibraryHelper::attachTo( $total_factor_item_contract_settlement, $request->urlrequest_contract_settlement, 'img_request_contract_settlement' );
             }
             $total_factor_item->update( [ 'status_mali' => 7 ] );
             return redirect()->back()->with( [
@@ -329,120 +329,82 @@ class FactorItemController extends Controller {
     }
 
     /**
-    * @param $item
-    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
-    */
-
-    public function formData( $item ) {
-        $factor_item = FactorItem::find( $item[ 'id' ] );
-        $values = $factor_item->factor_values ? $factor_item->factor_values : [];
-        $contract_values = $factor_item->contract_values ? $factor_item->contract_values : [];
-        foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
-            if ( $form->data_save_level == 'user' ) {
-                if ( isset( $item[ $form->name ] ) ) {
-                    User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
-                }
-                if ( $form->type == 'file' ) {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        $image = $item[ $form->name ];
-                        if ( $image ) {
-                            $urlimage = Helper::uploadImage( $image, 'document' );
-                            User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $urlimage ] );
-                        }
-                    }
-                }
-            }
-            if ( $form->data_save_level == 'factor_item_factor_values' ) {
-                if ( $form->type == 'file' ) {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        $image = $item[ $form->name ];
-                        if ( $image ) {
-                            $urlimage = Helper::uploadImage( $image, 'document' );
-                            $values[ $form->name ] = $urlimage;
-                            $values = Arr::add( $values, $form->name, $item[ $form->name ] );
-                        }
-                    }
-                } elseif ( $form->type == 'multi_file' ) {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        $images = isset( $values[ $form->name ] ) ? $values[ $form->name ] : [];
-                        $files = $item[ $form->name ];
-                        foreach ( $files as $file ) {
-                            if ( $file ) {
-                                $url = Helper::uploadImage( $file, 'document' );
-                                if ( isset( $images ) ) {
-                                    $images[] = $url;
-                                    $values[ $form->name ] = $images;
-                                }
-                            }
-                        }
-                        $values = Arr::add( $values, $form->name, $images );
-                    }
-                } else {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        if ( isset( $values[ $form->name ] ) ) {
-                            $values[ $form->name ] = $item[ $form->name ];
-                        }
-                        $values = Arr::add( $values, $form->name, $item[ $form->name ] );
-                    }
-                }
-            }
-            $factor_item->update( [
-                'factor_values' => !is_null( $values ) ? $values : null,
-            ] );
-        }
-        foreach ( ContractForm::all() as $key => $contract_form ) {
-            if ( $contract_form->type == 'other_document_image' ) {
-                if ( isset( $item[ $contract_form->name ] ) ) {
-                    $images = isset( $contract_values[ $contract_form->name ] ) ? $contract_values[ $contract_form->name ] : [];
-                    $files = $item[ $contract_form->name ];
-                    foreach ( $files as $file ) {
-                        if ( $file ) {
-                            $url = Helper::uploadImage( $file, 'document' );
-                            if ( isset( $images ) ) {
-                                $images[] = $url;
-                                $contract_values[ $contract_form->name ] = $images;
-                            }
-                        }
-                    }
-                    $contract_values = Arr::add( $contract_values, $contract_form->name, $images );
-                }
-            }
-            if ( $contract_form->type == 'file' ) {
-                if ( isset( $item[ $contract_form->name ] ) ) {
-                    $img = $item[ $contract_form->name ];
-                    if ( $img ) {
-                        $url = $item[ 'url'.$contract_form->name ];
-                        if ( isset( $contract_values[ $contract_form->name ] ) ) {
-                            $contract_values[ $contract_form->name ] != $url ? Helper::deleteImage( $contract_values[ $contract_form->name ] ) : '';
-                            $contract_values[ $contract_form->name ] = $url;
-                        }
-                        $contract_values = Arr::add( $contract_values, $contract_form->name, $url );
-                    }
-                }
-            }
-            if ( $contract_form->type == 'text' || $contract_form->type == 'select' ) {
-                if ( isset( $item[ $contract_form->name ] ) ) {
-                    if ( isset( $contract_values[ $contract_form->name ] ) ) {
-                        $contract_values[ $contract_form->name ] = $item[ $contract_form->name ];
-                    }
-                    $contract_values = Arr::add( $contract_values, $contract_form->name, $item[ $contract_form->name ] );
-                }
-            }
-            $factor_item->update( [
-                'contract_values' => !is_null( $contract_values ) ? $contract_values : null,
-            ] );
-        }
-        return response( 'true' );
+     * Whether the patient may still edit the "توصیه ها و دستورات" (doctor
+     * recommendations) section of their factor item. Mirrors the $item['complete']
+     * gate the show() view uses: the file is editable only while work is active
+     * (status_factor 6 = شروع کار, 10 = آماده اجرا); any other status is read-only.
+     */
+    public static function recommendationsEditable( FactorItem $factorItem ): bool
+    {
+        return in_array( (int) $factorItem->status_factor, [ 6, 10 ], true );
     }
 
     /**
-    * @param Request $request
-    * @return string
-    */
+     * Persist the patient's uploads/text in the recommendations section of the public
+     * /factorItem/{resnumber} page. Ajax-uploaded temp media (the media ids in the hidden
+     * item[url<name>][] fields) are moved into the factor item's Spatie collection, tagged
+     * with the form name. factor_values still stores the TEXT fields — it is the form-data
+     * store — but never a file path; readers resolve files via documentUrls(<name>).
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function saveRecommendations( Request $request ) {
+        $item = $request->item;
+        $factor_item = FactorItem::find( $item[ 'id' ] ?? null );
 
-    public function uploadSingleImage( Request $request ) {
-        return Helper::uploadImage( $request->file, 'document' );
+        if ( !$factor_item ) {
+            abort( 404 );
+        }
+
+        // Only the owner of the factor may write to it.
+        if ( (int) optional( $factor_item->factor )->user_id !== (int) auth()->id() ) {
+            abort( 403 );
+        }
+
+        // Server-side status gate — never trust the (possibly hidden) client form.
+        if ( !self::recommendationsEditable( $factor_item ) ) {
+            return redirect()->back()->with( [ 'error' => 'success' ] );
+        }
+
+        $values = $factor_item->factor_values ? $factor_item->factor_values : [];
+
+        foreach ( $factor_item->factoritemable->beforeforms as $form ) {
+            if ( !is_array( $form->data_display_level ) || !in_array( 'show_recommendations_site', $form->data_display_level ) ) {
+                continue;
+            }
+            if ( $form->data_save_level !== 'factor_item_factor_values' ) {
+                continue;
+            }
+
+            if ( $form->type === 'multi_file' ) {
+                // media ids from the hidden item[url<name>][] fields. Spatie only: tagged
+                // with the form name, and factor_values[<name>] is left alone — any legacy
+                // path there stays as the read fallback (documentUrls unions the two).
+                $mediaIds = $request->input( 'item.url' . $form->name, [] );
+                foreach ( (array) $mediaIds as $mediaId ) {
+                    if ( !$mediaId ) {
+                        continue;
+                    }
+                    MediaLibraryHelper::attachTo(
+                        $factor_item,
+                        (string) $mediaId,
+                        FactorItem::DOCUMENTS_COLLECTION,
+                        [ 'field' => $form->name ]
+                    );
+                }
+            } elseif ( in_array( $form->type, [ 'textarea', 'text' ], true ) ) {
+                if ( array_key_exists( $form->name, $item ) ) {
+                    $values[ $form->name ] = $item[ $form->name ];
+                }
+            }
+        }
+
+        $factor_item->update( [ 'factor_values' => $values ] );
+
+        return redirect()->back()->with( [ 'success' => 'success' ] );
     }
+
     /**
      * Summary of sendConfirmContractCode
      * @param Request $request

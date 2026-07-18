@@ -13,7 +13,39 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class ServiceItem extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
-    use Sluggable,SoftDeletes,InteractsWithMedia;
+    use Sluggable,SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return [
+            'image'     => 'image',
+            'icon'      => 'icon',
+            'thumb'     => 'thumb',
+            'image_app' => 'image_app',
+            'img_box_1' => 'img_box_1',
+        ];
+    }
+
+    /**
+     * Touch-to-migrate: legacy `galleries` rows -> the homepage-banner slot collections.
+     *
+     * The type mapping is taken from the ORIGINAL writer, ServiceItemController::uploadSiteImages()
+     * before the Spatie migration (commit c8f540d1):
+     *     verticalImages   -> Gallery type 0
+     *     horizontalImages -> Gallery type 1
+     * Note this is NOT the mapping Category/GhorfeOnlineList use (1=desktop, 0=mobile): the
+     * legacy `type` column means different things per model, so it must never be assumed.
+     */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery_horizontal', 'type' => 1, 'slotted' => true,
+             'max' => self::GALLERY_COLLECTIONS['gallery_horizontal']],
+            ['collection' => 'gallery_vertical',   'type' => 0, 'slotted' => true,
+             'max' => self::GALLERY_COLLECTIONS['gallery_vertical']],
+        ];
+    }
 
     /** Single-file media collections owned directly by the service item (Spatie native). */
     const MEDIA_FIELDS = ['image', 'icon', 'thumb', 'image_app', 'img_box_1'];
@@ -57,27 +89,32 @@ class ServiceItem extends Model implements AuditableContract, HasMedia
 
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     public function getIconAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon')
+            ?: ($this->getRawOriginal('icon') ? asset($this->getRawOriginal('icon')) : '');
     }
 
     public function getThumbAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb')
+            ?: ($this->getRawOriginal('thumb') ? asset($this->getRawOriginal('thumb')) : '');
     }
 
     public function getImageAppAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app')
+            ?: ($this->getRawOriginal('image_app') ? asset($this->getRawOriginal('image_app')) : '');
     }
 
     public function getImgBox1Attribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1')
+            ?: ($this->getRawOriginal('img_box_1') ? asset($this->getRawOriginal('img_box_1')) : '');
     }
 
     /**

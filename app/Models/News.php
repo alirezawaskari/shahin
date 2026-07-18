@@ -11,8 +11,15 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class News extends Model implements HasMedia
 {
-    use Sluggable , SoftDeletes, InteractsWithMedia;
+    use Sluggable , SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
 //    use Taggable ;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['image' => 'image'];
+    }
+
     /**
      * @var string[]
      */
@@ -29,7 +36,8 @@ class News extends Model implements HasMedia
 
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     /**

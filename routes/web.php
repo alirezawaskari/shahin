@@ -688,14 +688,14 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('organization', 'OrganizationController');
     Route::resource('representation', 'RepresentationController');
     //ghorfeOnlineList
-    Route::post('ghorfeOnlineList/getGallery', 'GhorfeOnlineListController@getGallery')->name('ghorfeOnlineList.getGallery');
+    // Spatie gallery save (replaces legacy getGallery + galleryUpdate).
+    Route::post('ghorfeOnlineList/gallerySave/{ghorfeOnlineList}', 'GhorfeOnlineListController@gallerySave')->name('ghorfeOnlineList.gallerySave');
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
     Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
     Route::post('ghorfeOnlineList/menuUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@menuUpdate')->name('ghorfeOnlineList.menuUpdate');
     Route::post('ghorfeOnlineList/themeUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@themeUpdate')->name('ghorfeOnlineList.themeUpdate');
-    Route::post('ghorfeOnlineList/galleryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@galleryUpdate')->name('ghorfeOnlineList.galleryUpdate');
     Route::post('ghorfeOnlineList/categoryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@categoriesGhorfe')->name('ghorfeOnlineList.categoriesGhorfe');
     Route::get('ghorfeOnlineList/users', 'GhorfeOnlineListController@showUsersList')->name('ghorfeOnlineList.users');
     Route::get('ghorfeOnlineList/users/filter', 'GhorfeOnlineListController@filterUsers')->name('ghorfeOnlineList.users.filter');
@@ -844,9 +844,20 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/contact/desktop', 'ContactController@desktop')->name('contact.desktop');
     Route::resource('contact', 'ContactController');
 
-    //gallery
-    Route::resource('gallerycategory', 'GalleryCategoryController');
-    Route::get('/gallery/destroy/{gallery}', 'GalleryController@destroy')->name('gallery.destroy');
+    /*
+     * The standalone gallery feature (Admin\GalleryController, Admin\GalleryCategoryController,
+     * the GalleryCategory model and the public /gallery page) was deleted: it was dead in every
+     * direction — its views (Admin.gallery.*, Admin.gallerycategory.*) no longer existed and the
+     * `gallery_categories` table it queried does not exist in the database, so every route 500'd.
+     * Nothing linked to any of it.
+     *
+     * The one action that still ran was Admin\GalleryController@destroy, reached by a GET route
+     * (CSRF-exempt by nature), which deleted a legacy `galleries` row and its file — exactly the
+     * data touch-to-migrate reads.
+     *
+     * The `galleries` TABLE itself is untouched and still in use: it is the legacy source that
+     * AdoptsLegacyMedia migrates into Spatie collections.
+     */
     //content site
     Route::resource('about', 'AboutController');
     Route::resource('help', 'HelpController');
@@ -897,7 +908,12 @@ Route::get('/agencies', 'AgencyController@index')->name('agencies');
 Route::get('/articles', 'ArticleController@articles');
 Route::get('/articles/{articleSlug}', 'ArticleController@single');
 Route::get('/agencies/{service}', 'AgencyController@single');
-Route::get('/gallery', 'GalleryController@index');
+/*
+ * `/gallery` (App\Http\Controllers\GalleryController) deleted with its views: the page
+ * 500'd on every request. It called GalleryCategory::get(), but the `gallery_categories`
+ * table does not exist in this database, and site/gallerydata.blade.php read
+ * $gallery->cate_id, which is not a column on `galleries` either. Nothing linked to it.
+ */
 Route::get('/rules', 'RulesController@index');
 Route::post('/rate', 'ArticleController@rate');
 Route::get('/faq', 'HomeController@faq');
@@ -924,6 +940,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', 'CheckoutController@store')->name('checkout.store');
     Route::post('/upload_document', 'CheckoutController@upload_document')->name('checkout.upload');
     Route::post('/factorItem/request-contract-settlement', 'FactorItemController@requestContractSettlement')->name('site.factorItem.requestContractSettlement');
+    Route::post('/factorItem/save-recommendations', 'FactorItemController@saveRecommendations')->name('site.factorItem.saveRecommendations');
     Route::get('/factor/create', 'FactorController@create')->name('factor.create');
     Route::get('/cart', 'CartController@index')->name('cart');
     Route::post('/addToCart', 'CartController@add');

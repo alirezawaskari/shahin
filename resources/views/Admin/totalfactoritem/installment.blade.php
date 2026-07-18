@@ -127,7 +127,7 @@
                                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image"
                                         type="file" id="bill_image_input4">
                                     <div id="bill_image_input4_src" class="show"></div>
-                                    <input type="hidden" id="bill_image_input4" class="path" name="url_bill_image"
+                                    <input type="hidden" id="bill_image_input4_path" class="path" name="url_bill_image"
                                         value="">
                                 </div>
 
@@ -298,7 +298,9 @@
                                                 value="{{ auth()->user()->center_id }}">
                                             <div class="col-12 col-md-4 mb-2">
                                                 <div class="card">
-                                                    @if (isset($totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt))
+                                                    {{-- truthiness, not isset(): the accessor returns '' when
+                                                         there is no image, and isset('') is true. --}}
+                                                    @if ($totalFactorItem->totalFactorItemContractSettlement?->img_warranty_delivery_receipt)
                                                     <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt) }}"
                                                         target="_blank">
                                                         <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt }}"
@@ -319,7 +321,7 @@
                                                             class="filestyle file-upload file_upload_ajax file-up"
                                                             data-buttonname="btn-white" accept=".jpg,.jpeg,.png"
                                                             required>
-                                                        <input type="hidden" id="img_warranty_delivery_receipt" class="path"
+                                                        <input type="hidden" id="img_warranty_delivery_receipt_path" class="path"
                                                             name="urlimg_warranty_delivery_receipt">
                                                     </div>
                                                     @endif

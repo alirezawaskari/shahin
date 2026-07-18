@@ -56,7 +56,7 @@
                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
                         id="bill_image_input1">
                     <div id="bill_image_input1_src" class="show"></div>
-                    <input type="hidden" id="bill_image_input1" class="path" name="url_bill_image" value="">
+                    <input type="hidden" id="bill_image_input1_path" class="path" name="url_bill_image" value="">
                 </div>
                 <div class="col-12 col-md-3 mb-2 d-none" id="sheba_number1">
                     <label>شماره شبا</label>

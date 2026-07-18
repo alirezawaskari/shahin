@@ -31,7 +31,7 @@
             </div>
 
             <div class="d-flex justify-content-center align-items-center">
-                {{ $articles->render() }}
+                {{ $articles->links('pagination::bootstrap-4') }}
             </div>
 
         </div>

@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Events\referralCenterNotification;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\ContractForm;
 use App\Models\Disease;
 use App\Models\Factor;
 use App\Models\FactorItem;
 use App\Models\Session;
+use App\Models\TotalFactorItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -28,6 +30,11 @@ class CheckoutController extends Controller {
             $temp = [];
 
             $temp[ 'id' ] = $item->id;
+            // the models themselves, so the view can resolve uploaded documents through
+            // Spatie ($item['factor_item']->documentUrls(<form name>)) rather than reading
+            // paths out of the factor_values/contract_values JSON.
+            $temp[ 'factor_item' ] = $item;
+            $temp[ 'total_factor_item' ] = $item->totalFactorItem;
             $temp[ 'service' ] = $item->factoritemable;
             $temp[ 'service_item' ] = !is_null( $item->service_item_id ) ? $item->serviceItem : null;
             $temp[ 'centers' ] = FactorItem::getSelectableCenters( $item );
@@ -144,19 +151,16 @@ public function upload_document( Request $request ) {
         }
 
         $user = User::find( $request->user_id );
+        // Spatie: KYC docs arrive as temp media ids; attachTo replaces the single file
+        // in each collection (native old-file cleanup, no deleteImage).
         if ( $request->urlimgmeli ) {
-            Helper::deleteImage( $user->imgmeli );
-            $user->update( [ 'imgmeli' => Helper::moveImage( $request->urlimgmeli, 'document' ) ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->urlimgmeli, 'imgmeli' );
         }
-
         if ( $request->urlimgshenasname ) {
-            Helper::deleteImage( $user->imgshenasname );
-            $user->update( [ 'imgshenasname' => Helper::moveImage( $request->urlimgshenasname, 'document' ) ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->urlimgshenasname, 'imgshenasname' );
         }
-
         if ( $request->urlimgturnover ) {
-            Helper::deleteImage( $user->imgturnover );
-            $user->update( [ 'imgturnover' => Helper::moveImage( $request->urlimgturnover, 'document' ) ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->urlimgturnover, 'imgturnover' );
         }
 
         $this->formData( $request->item );
@@ -178,33 +182,23 @@ public function upload_document( Request $request ) {
         $contract_values = $factor_item->totalFactorItem && $factor_item->totalFactorItem->contract_values ? $factor_item->totalFactorItem->contract_values : [];
         $values = $factor_item->factor_values ? $factor_item->factor_values : [];
         foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
-            if ( $form->type == 'file' ) {
-                if ( isset( $item[ $form->name ] ) && !is_null( $item[ $form->name ] ) ) {
-                    $img = $item[ $form->name ];
-                    if ( $img && file_exists( $img ) ) {
-                        $url = Helper::uploadImage( $img, 'document' );
-                        if ( isset( $values[ $form->name ] ) ) {
-                            $values[ $form->name ] = $url;
-                        }
-                        $values = Arr::add( $values, $form->name, $url );
+            if ( $form->type == 'file' || $form->type == 'multi_file' ) {
+                // Ajax temp upload: item['url'<name>] holds Spatie media id(s) — one for
+                // 'file', a list for 'multi_file'. Move each into the factor item's own
+                // collection, tagged with the form name so documentUrls(<name>) finds it.
+                // factor_values is deliberately NOT written for file fields: the upload
+                // lives in Spatie only, and any legacy path already in the column stays
+                // untouched as the read fallback.
+                $mediaIds = $item[ 'url' . $form->name ] ?? null;
+                foreach ( (array) $mediaIds as $mediaId ) {
+                    if ( $mediaId ) {
+                        MediaLibraryHelper::attachTo(
+                            $factor_item,
+                            (string) $mediaId,
+                            FactorItem::DOCUMENTS_COLLECTION,
+                            [ 'field' => $form->name ]
+                        );
                     }
-                }
-            } elseif ( $form->type == 'multi_file' ) {
-                if ( isset( $item[ $form->name ] ) ) {
-                    $images = isset( $values[ $form->name ] ) ? $values[ $form->name ] : [];
-                    $files = $item[ 'url' . $form->name ];
-                    foreach ( $files as $file ) {
-                        if ( $file ) {
-                            if ( isset( $images ) ) {
-                                $url = Helper::moveImage( $file, 'document' );
-                                $images[] = $url;
-                            }
-                        }
-                    }
-                    if ( isset( $values[ $form->name ] ) ) {
-                        $values[ $form->name ] = $images;
-                    }
-                    $values = Arr::add( $values, $form->name, $images );
                 }
             } else {
                 if ( isset( $item[ $form->name ] ) ) {
@@ -220,14 +214,21 @@ public function upload_document( Request $request ) {
         }
         foreach ( ContractForm::where( 'level', 'basic_documents' )->get() as $key => $contract_form ) {
             if ( $contract_form->type == 'file' ) {
-                if ( isset( $item[ $contract_form->name ] ) && !is_null( $item[ $contract_form->name ] ) ) {
-                    $img = $item[ $contract_form->name ];
-                    if ( $img && file_exists( $img ) ) {
-                        $url = Helper::uploadImage( $img, 'document' );
-                        if ( isset( $contract_values[ $contract_form->name ] ) ) {
-                            $contract_values[ $contract_form->name ] = $url;
+                // Ajax temp upload: item['url'<name>] holds Spatie media id(s). These attach
+                // to the TOTAL factor item — that is the model owning contract_values, and
+                // the one every contract reader looks at. contract_values is not written.
+                $totalFactorItem = $factor_item->totalFactorItem;
+                $mediaIds = $item[ 'url' . $contract_form->name ] ?? null;
+                if ( $totalFactorItem ) {
+                    foreach ( (array) $mediaIds as $mediaId ) {
+                        if ( $mediaId ) {
+                            MediaLibraryHelper::attachTo(
+                                $totalFactorItem,
+                                (string) $mediaId,
+                                TotalFactorItem::CONTRACT_COLLECTION,
+                                [ 'field' => $contract_form->name ]
+                            );
                         }
-                        $contract_values = Arr::add( $contract_values, $contract_form->name, $url );
                     }
                 }
             }

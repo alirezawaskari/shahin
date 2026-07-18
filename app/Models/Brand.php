@@ -9,7 +9,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Brand extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['logo' => 'logo', 'registration_form' => 'registration_form'];
+    }
 
     /**
      * @var string[]
@@ -28,12 +34,14 @@ class Brand extends Model implements HasMedia
 
     public function getLogoAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo')
+            ?: ($this->getRawOriginal('logo') ? asset($this->getRawOriginal('logo')) : '');
     }
 
     public function getRegistrationFormAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'registration_form');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'registration_form')
+            ?: ($this->getRawOriginal('registration_form') ? asset($this->getRawOriginal('registration_form')) : '');
     }
 
     /**

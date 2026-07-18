@@ -4,14 +4,47 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Employee extends Model
+class Employee extends Model implements HasMedia
 {
     /**
      * @var array
      */
     protected $guarded = ['id'];
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['imgaccess' => 'imgaccess', 'imglastcertificate' => 'imglastcertificate'];
+    }
+
+    /**
+     * Spatie single-file collections for the employee document images. Legacy
+     * path columns (imgaccess, imglastcertificate) are kept, but reads route
+     * through the accessors below.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('imgaccess')->useDisk('public')->singleFile();
+        $this->addMediaCollection('imglastcertificate')->useDisk('public')->singleFile();
+    }
+
+    /** Access image url: Spatie media if present, else the legacy column value (old rows). */
+    public function getImgaccessAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgaccess')
+            ?: ($this->getRawOriginal('imgaccess') ? asset($this->getRawOriginal('imgaccess')) : '');
+    }
+
+    /** Last certificate image url: Spatie media if present, else the legacy column value (old rows). */
+    public function getImglastcertificateAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imglastcertificate')
+            ?: ($this->getRawOriginal('imglastcertificate') ? asset($this->getRawOriginal('imglastcertificate')) : '');
+    }
 
     /**
      *

@@ -14,10 +14,67 @@ use Illuminate\Support\Arr;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use Illuminate\Support\Facades\View;
-class FactorItem extends Model implements AuditableContract
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class FactorItem extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
     use SoftDeletes;
+    use InteractsWithMedia;
+    use \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /**
+     * Touch-to-migrate: legacy paths embedded in these JSON columns -> the documents
+     * collection. factor_values is nested (image arrays sit next to plain text/ids); only
+     * values resolving to a real file under public/ are adopted. The columns stay untouched.
+     */
+    protected function legacyArrayMediaMap(): array
+    {
+        return [
+            'factor_values' => self::DOCUMENTS_COLLECTION,
+            'factor_image'  => self::DOCUMENTS_COLLECTION,
+        ];
+    }
+
+    /**
+     * Spatie collection that permanently holds the ajax-uploaded document images for
+     * this factor item (recommendations section, checkout file/multi_file uploads, …).
+     * Additive (NOT singleFile) — every upload is kept. One bucket for all form fields:
+     * each media carries a 'field' custom property naming the beforeform it belongs to,
+     * so separation is by that property rather than by collection.
+     */
+    const DOCUMENTS_COLLECTION = 'factor_documents';
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::DOCUMENTS_COLLECTION)->useDisk('public');
+    }
+
+    /**
+     * Urls of the file(s) uploaded for beforeform $field: Spatie media if any, else the
+     * legacy path(s) still in factor_values. Absolute urls — render {{ $url }} as-is.
+     *
+     * Use for BOTH 'file' (take the first) and 'multi_file' (loop) form types.
+     */
+    public function documentUrls(string $field): array
+    {
+        return $this->mediaUrlsForField(self::DOCUMENTS_COLLECTION, 'factor_values', $field);
+    }
+
+    /**
+     * Same as documentUrls(), but each entry carries ['url', 'legacy', 'media_id'] so a view
+     * can flag a not-yet-adopted file ("با ذخیره به سیستم جدید منتقل می‌شود").
+     */
+    public function documentItems(string $field): array
+    {
+        return $this->mediaItemsForField(self::DOCUMENTS_COLLECTION, 'factor_values', $field);
+    }
+
+    /** First url for a single-'file' beforeform field, or '' when nothing is uploaded. */
+    public function documentUrl(string $field): string
+    {
+        return $this->documentUrls($field)[0] ?? '';
+    }
 
     /**
      * @var string[]

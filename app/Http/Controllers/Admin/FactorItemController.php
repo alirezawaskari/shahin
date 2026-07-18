@@ -630,7 +630,7 @@ class FactorItemController extends Controller {
         $factor->save();
         //upload bill_image cash factor
         if ( $request->url_bill_image ) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
         }
 
         //send sms for pay factor
@@ -768,6 +768,32 @@ class FactorItemController extends Controller {
         ] );
     }
     /**
+     * Move the ajax temp upload(s) for one beforeform into the factor item's documents
+     * collection, tagged with the form name so FactorItem::documentUrls() can find them.
+     *
+     * item['url'<name>] holds a single media id for 'file' and a list for 'multi_file';
+     * (array) casting handles both. Nothing is written to factor_values — the media IS
+     * the record of the upload now.
+     *
+     * @param mixed $item
+     * @return void
+     */
+    private function attachFormMedia( FactorItem $factor_item, $item, $form ) {
+        $mediaIds = $item[ 'url' . $form->name ] ?? null;
+        foreach ( (array) $mediaIds as $mediaId ) {
+            if ( !$mediaId ) {
+                continue;
+            }
+            \App\Helpers\MediaLibraryHelper::attachTo(
+                $factor_item,
+                (string) $mediaId,
+                FactorItem::DOCUMENTS_COLLECTION,
+                [ 'field' => $form->name ]
+            );
+        }
+    }
+
+    /**
      * @param mixed $item
      * @return void
      * save the executive formItems of the factorItem
@@ -777,55 +803,34 @@ class FactorItemController extends Controller {
         if ( isset( $factor_item->factoritemable->beforeforms ) ) {
             $values = $factor_item->factor_values ? $factor_item->factor_values : [];
             foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
+                $isFileField = $form->type == 'file' || $form->type == 'multi_file';
+
                 if ( $form->data_save_level == 'user' ) {
-                    if ( isset( $item[ $form->name ] ) ) {
-                        User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
-                    }
-                    if ( $form->type == 'file' ) {
-                        if ( isset( $item[ $form->name ] ) ) {
-                            $image = $item[ $form->name ];
-                            if ( $image ) {
-                                $url = Helper::moveImage($item['url' . $form->name],'document');
-                                if ( isset( $values[ $form->name ] ) ) {
-                                      $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
-                                }
-                                $values[ $form->name ] = $url;
-                                User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $url ] );
-                            }
+                    if ( $isFileField && in_array( $form->name, \App\Models\User::IMAGE_COLLECTIONS, true ) ) {
+                        // Spatie shadowed field: attach the uploaded temp media id instead of
+                        // writing a raw path into the (now accessor-shadowed) User column.
+                        if ( !empty( $item[ 'url' . $form->name ] ) ) {
+                            \App\Helpers\MediaLibraryHelper::attachTo(
+                                User::find( $item[ 'user_id' ] ), $item[ 'url' . $form->name ], $form->name
+                            );
                         }
+                    } elseif ( $isFileField ) {
+                        // A user-level file field with no User collection of its own (CV,
+                        // company_doc, imgavatar, …). It lands in the factor item's documents
+                        // tagged with the form name — no factor_values write, and no raw path
+                        // into a users column (several of these names are not even columns).
+                        $this->attachFormMedia( $factor_item, $item, $form );
+                    } elseif ( isset( $item[ $form->name ] ) ) {
+                        // plain text/select answers still belong on the user record
+                        User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
                     }
                 }
                 if ( $form->data_save_level == 'factor_item_factor_values') {
-                    if ( $form->type == 'file' ) {
-                        if ( isset( $item[ $form->name ] ) ) {
-                            $image = $item[ $form->name ];
-                            if ( $image ) {
-                                $url = Helper::moveImage($item['url' . $form->name],'document');
-                                if ( isset( $values[ $form->name ] ) ) {
-                                    $values[ $form->name ] != $url ? Helper::deleteImage( $values[ $form->name ] ) : '';
-                                    $values[ $form->name ] = $url;
-                                }
-                                $values = Arr::add( $values, $form->name, $url );
-                            }
-                        }
-                    }
-                    elseif ( $form->type == 'multi_file' ) {
-                        if ( isset( $item[ $form->name ] ) ) {
-                            $images = isset( $values[ $form->name ] ) ? $values[ $form->name ] : [];
-                            $files = $item[ 'url' . $form->name ];
-                            foreach ( $files as $file ) {
-                                if ( $file ) {
-                                    if ( isset( $images ) ) {
-                                        $url = Helper::moveImage($file,'document');
-                                        $images[] = $url;
-                                    }
-                                }
-                            }
-                            if (isset($values[$form->name])) {
-                                $values[$form->name] = $images;
-                            }
-                            $values = Arr::add( $values, $form->name, $images );
-                        }
+                    if ( $isFileField ) {
+                        // Spatie only, tagged with the form name. factor_values keeps the
+                        // text answers but never a file path; any legacy path already there
+                        // stays put and documentUrls(<name>) unions it with the media.
+                        $this->attachFormMedia( $factor_item, $item, $form );
                     }
                     else{
                         if ( isset( $item[ $form->name ] ) ) {

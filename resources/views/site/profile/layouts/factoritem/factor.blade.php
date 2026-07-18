@@ -28,7 +28,8 @@
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
                                 @if (in_array('show_factor_site' , $form->data_display_level))
-                                @include('Admin.factoritem.layouts.formItem')
+                                {{-- print/PDF view: no form, no save --}}
+                                @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
                                 @endif
                                 @endforeach
                                 @endif
@@ -73,7 +74,8 @@
                                 @if(!is_null($item['forms']))
                                 @foreach($item['forms'] as $form)
                                 @if (in_array('show_factor_site' , $form->data_display_level))
-                                @include('Admin.factoritem.layouts.formItem')
+                                {{-- print/PDF view: no form, no save --}}
+                                @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
                                 @endif
                                 @endforeach
                                 @endif
@@ -190,6 +192,11 @@
         .save('contract.pdf');
 }
 </script>
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+{{--
+    No adminJs.js here — customer-facing page. site-upload.js (site/master.blade.php)
+    already serves any upload widget the included formItem partial renders, and
+    @yield('js') renders AFTER it, so adminJs.js overrode it and routed removes to the
+    admin-only /dashboard/removeMedia.
+--}}
 <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
 @endsection

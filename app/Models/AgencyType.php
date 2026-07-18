@@ -9,7 +9,21 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class AgencyType extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['image' => 'image'];
+    }
+
+    /** Touch-to-migrate: legacy gallery rows -> the flat `gallery` collection. */
+    protected function legacyGalleryMigrations(): array
+    {
+        return [
+            ['collection' => 'gallery', 'type' => null, 'slotted' => false, 'max' => null],
+        ];
+    }
 
     /** Spatie media: single main image + a multi-image gallery. */
     public function registerMediaCollections(): void
@@ -21,7 +35,8 @@ class AgencyType extends Model implements HasMedia
     /** Main image url (shadows the legacy `image` column; disk-checked). */
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     /** Disk-checked gallery image urls (skips media whose file is missing). */

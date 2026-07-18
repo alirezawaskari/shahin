@@ -9,6 +9,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class About extends Model implements HasMedia {
     use SoftDeletes, InteractsWithMedia;
+
+    // No AdoptsLegacyMedia: there is nothing path-shaped to adopt. image_two..image_five
+    // are collections, not columns (see below), so a legacy-column map would be dead. The
+    // only legacy data is the abandoned image_*_id -> MediaLibrary UUID FKs, which are a
+    // different shape entirely (an FK, not a path) and are documented as unused.
+
     protected $dates = [ 'deleted_at' ];
 
     // image_two..image_five are Spatie media collections (accessors below), NOT columns,
@@ -33,22 +39,26 @@ class About extends Model implements HasMedia {
     /** Box-image urls (shadow the legacy image_* names; disk-checked). */
     public function getImageTwoAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_two');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_two')
+            ?: ($this->getRawOriginal('image_two') ? asset($this->getRawOriginal('image_two')) : '');
     }
 
     public function getImageThreeAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_three');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_three')
+            ?: ($this->getRawOriginal('image_three') ? asset($this->getRawOriginal('image_three')) : '');
     }
 
     public function getImageFourAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_four');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_four')
+            ?: ($this->getRawOriginal('image_four') ? asset($this->getRawOriginal('image_four')) : '');
     }
 
     public function getImageFiveAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_five');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_five')
+            ?: ($this->getRawOriginal('image_five') ? asset($this->getRawOriginal('image_five')) : '');
     }
 
     /**
