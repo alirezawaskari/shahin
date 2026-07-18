@@ -304,6 +304,9 @@
                                                         <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt }}"
                                                             class="card-img-top" height="150px">
                                                     </a>
+                                                    @if($totalFactorItem->totalFactorItemContractSettlement?->mediaIsLegacy('img_warranty_delivery_receipt'))
+                                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                    @endif
                                                     @else
                                                     <div id="img_warranty_delivery_receipt_src" class="show">
                                                         <img class="card-img-top" height="150px">

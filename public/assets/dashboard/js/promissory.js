@@ -107,17 +107,21 @@ $(document).ready(function () {
     }
 
     function fetchData(page) {
-        document.getElementById('loading').style.display = 'block';
-        var form = $('#filter_form');
-        var formData = form.serialize();
-        // var basicUrl = document.getElementById('url').value;
+        // The datatable ajax scaffolding (#filter_form, #loading) exists only on the standalone
+        // promissory list. On the embedded totalFactorItem promissory page the rows are rendered
+        // server-side, so no-op here instead of throwing on the missing elements.
+        var form = document.getElementById('filter_form');
+        if (!form) return;
+        var loadingEl = document.getElementById('loading');
+        if (loadingEl) loadingEl.style.display = 'block';
+        var formData = $(form).serialize();
 
         $.ajax({
-            url: $('#filter_form').attr('action') + "?page=" + page,
+            url: $(form).attr('action') + "?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
-                document.getElementById('loading').style.display = 'none';
+                if (loadingEl) loadingEl.style.display = 'none';
             }
         });
     }
@@ -189,11 +193,14 @@ $(document).ready(function () {
                 {
                     "data": data,
                     "render": function (data) {
+                        // legacy image still served from the old File row -> hint that a save migrates it
+                        var legacyHint = (data.front_image_legacy || data.back_image_legacy)
+                            ? `<small class="d-block text-warning">تصویر قدیمی - با ذخیره منتقل می‌شود</small>` : '';
                         if (data.front_image != '') {
-                            return `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>`
+                            return `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>` + legacyHint
                         }
                         if (data.back_image != '') {
-                            return `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
+                            return `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>` + legacyHint
                         }
                         return '';
                     }
@@ -277,13 +284,14 @@ $(document).ready(function () {
         $('#promissory-store-error-box').empty();
         var token = $('meta[name="csrf-token"]').attr('content');
         var promissory_form_data = new FormData();
-        var front_image = $('#promissory-front-image').prop('files')[0]
-        var back_image = $('#promissory-back-image').prop('files')[0]
+        // ajax pipeline: send the temp media id from the hidden _path input (not the raw file)
+        var front_image = $('#promissory-front-image_path').val()
+        var back_image = $('#promissory-back-image_path').val()
         if (front_image) {
-            promissory_form_data.append('promissory_front_image', front_image);
+            promissory_form_data.append('url_promissory_front_image', front_image);
         }
         if (back_image) {
-            promissory_form_data.append('promissory_back_image', back_image);
+            promissory_form_data.append('url_promissory_back_image', back_image);
         }
         promissory_form_data.append('amount', $('#promissory-amount').val());
         //---exporter user data ---
@@ -351,6 +359,9 @@ $(document).ready(function () {
     //----------------------add new promissory btn -------------
     $("body").on('click', '#add-new-promissory-btn', function () {
         $('#promissory-store-error-box').empty();
+        // shared modal: clear any preview/temp id left from a previous add so it isn't re-attached
+        $('#promissory-front-image_src, #promissory-back-image_src').empty();
+        $('#promissory-front-image_path, #promissory-back-image_path').val('');
     })
     // -------------------end add new promissory btn --------------
     //----------------------status promissory btn -------------
@@ -365,6 +376,23 @@ $(document).ready(function () {
     })
     // -------------------end status promissory btn --------------
     // -------------------edit promissory btn --------------
+    // Render the current image into an ajax widget's _src preview (or "بدون تصویر"), reset its
+    // hidden _path so an unchanged image is NOT re-attached on save, and show the legacy hint
+    // when the image is still served from the old File row (the update save adopts it to Spatie).
+    function showCurrentImage(fieldId, url, isLegacy) {
+        $('#' + fieldId + '_path').val('');
+        var $src = $('#' + fieldId + '_src');
+        if (url) {
+            var html = '<a href="' + url + '" target="_blank"><img src="' + url + '" class="rounded border" ' +
+                'style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"></a>';
+            if (String(isLegacy) === '1') {
+                html += '<small class="d-block text-warning">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>';
+            }
+            $src.html(html);
+        } else {
+            $src.html('<div class="text-muted">بدون تصویر</div>');
+        }
+    }
     $("body").on('click', '#edit-promissory-btn', function () {
         $('#promissory-update-error-box').empty();
         var promissory_tag = $(this)
@@ -378,6 +406,8 @@ $(document).ready(function () {
         $('#edit-promissory-id').val(promissory_tag.data('promissory_id'))
         $('#edit-serial-code').val(promissory_tag.data('serial_code'))
         $("#edit-promissory-title").val(promissory_tag.data('title')).change();
+        showCurrentImage('edit-promissory-front-image', promissory_tag.data('front_image'), promissory_tag.data('front_legacy'));
+        showCurrentImage('edit-promissory-back-image', promissory_tag.data('back_image'), promissory_tag.data('back_legacy'));
     })
     //---------------------end edit promissory btn ---------------------
     //---------------------update promissory ---------------------
@@ -385,13 +415,14 @@ $(document).ready(function () {
         $('#promissory-store-error-box').empty();
         var token = $('meta[name="csrf-token"]').attr('content');
         var promissory_form_data = new FormData();
-        var front_image = $('#edit-promissory-front-image').prop('files')[0]
-        var back_image = $('#edit-promissory-back-image').prop('files')[0]
+        // ajax pipeline: send the temp media id from the hidden _path input (not the raw file)
+        var front_image = $('#edit-promissory-front-image_path').val()
+        var back_image = $('#edit-promissory-back-image_path').val()
         if (front_image) {
-            promissory_form_data.append('promissory_front_image', front_image);
+            promissory_form_data.append('url_promissory_front_image', front_image);
         }
         if (back_image) {
-            promissory_form_data.append('promissory_back_image', back_image);
+            promissory_form_data.append('url_promissory_back_image', back_image);
         }
         promissory_form_data.append('amount', $('#edit-promissory-amount').val());
         promissory_form_data.append('date', $('#edit-promissory-date').val());
@@ -564,9 +595,7 @@ function searchUser(search, type) {
                     //clear value of exporter_id
                     $(".pay_to_id").attr('value', '');
                     //refresh city
-                    $("#pay_to_city_id
-                        
-                        ").empty();
+                    $("#pay_to_city_id").empty();
                     $('.pay_to_error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
                 } else {
                     $('.pay_to_error_user').text('');

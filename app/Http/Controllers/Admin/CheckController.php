@@ -146,11 +146,11 @@ class CheckController extends Controller
         $this->storeCheckHistory($check, $request);
 
         //upload images
-        if ($request->file('check_front_image')) {
-            $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
+        if ($request->url_check_front_image) {
+            $this->uploadCheckFrontImage($check, $request->url_check_front_image);
         }
-        if ($request->file('check_back_image')) {
-            $this->uploadCheckBackImage($check, $request->file('check_back_image'));
+        if ($request->url_check_back_image) {
+            $this->uploadCheckBackImage($check, $request->url_check_back_image);
         }
         //return
         return response(['status' => 'success', 'data' => $check]);
@@ -202,25 +202,27 @@ class CheckController extends Controller
     /**
      * upload front image of check
      * @param Check $check
-     * @param $file
+     * @param string $tempId temp media id from the ajax upload
      * @return mixed
      */
-    private function uploadCheckFrontImage(Check $check, $file)
+    private function uploadCheckFrontImage(Check $check, $tempId)
     {
-        $url_front_image = MediaLibraryHelper::uploadImage($file, 'checks');
-        return $check->files()->create(['path' => $url_front_image, 'title' => 'front']);
+        // ajax pipeline: $tempId is the temp Spatie media row id from uploadFilesTemporarily;
+        // attachTo() moves it into the 'front' collection. The legacy File(title:'front') row
+        // is never written — it is read-only legacy that Check::legacyFileMap() adopts, and
+        // $check->front_image already prefers the media below it.
+        return MediaLibraryHelper::attachTo($check, $tempId, 'front');
     }
 
     /**
      * upload back image of check
      * @param Check $check
-     * @param $file
+     * @param string $tempId temp media id from the ajax upload
      * @return mixed
      */
-    private function uploadCheckBackImage(Check $check, $file)
+    private function uploadCheckBackImage(Check $check, $tempId)
     {
-        $url_back_image = MediaLibraryHelper::uploadImage($file, 'checks');
-        return $check->files()->create(['path' => $url_back_image, 'title' => 'back']);
+        return MediaLibraryHelper::attachTo($check, $tempId, 'back');
     }
 
     /**
@@ -349,8 +351,9 @@ class CheckController extends Controller
             'serial_code' => ['required'],
             'description' => ['nullable'],
             'total_factor_item_id' => ['required', 'integer', 'exists:total_factor_items,id'],
-            'check_front_image' => ['required', 'mimes:png,jpg,jpeg'],
-            'check_back_image' => ['mimes:png,jpg,jpeg']
+            // ajax pipeline: images arrive as temp media ids, not files
+            'url_check_front_image' => ['required'],
+            'url_check_back_image' => ['nullable'],
         ]);
     }
 
@@ -401,8 +404,9 @@ class CheckController extends Controller
             'date' => ['required'],
             'description' => ['nullable'],
             'serial_code' => ['required'],
-            'check_front_image' => ['mimes:png,jpg,jpeg'],
-            'check_back_image' => ['mimes:png,jpg,jpeg']
+            // ajax pipeline: optional temp media ids on update (blank keeps the current image)
+            'url_check_front_image' => ['nullable'],
+            'url_check_back_image' => ['nullable'],
         ]);
     }
 
@@ -537,23 +541,14 @@ class CheckController extends Controller
      */
     private function uploadCheckImages(Request $request, Check $check): void
     {
-        if ($request->file('check_front_image')) {
-            $front_image = File::where('title', 'front')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
-
-            if (!is_null($front_image)) {
-                Helper::deleteImage(public_path($front_image->path));
-                $front_image->delete();
-            }
-            $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
-
+        // No legacy row/file teardown: the old File rows stay untouched (read-only legacy)
+        // and 'front'/'back' are singleFile() collections, so a re-upload supersedes the
+        // previous media on its own and front_image/back_image read the new one.
+        if ($request->url_check_front_image) {
+            $this->uploadCheckFrontImage($check, $request->url_check_front_image);
         }
-        if ($request->file('check_back_image')) {
-            $back_image = File::where('title', 'back')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
-            if (!is_null($back_image)) {
-                Helper::deleteImage(public_path($back_image->path));
-                $back_image->delete();
-            }
-            $this->uploadCheckBackImage($check, $request->file('check_back_image'));
+        if ($request->url_check_back_image) {
+            $this->uploadCheckBackImage($check, $request->url_check_back_image);
         }
     }
 }

@@ -64,8 +64,12 @@ class PromissoryCollection extends ResourceCollection
                     'description' => !is_null($last_history)?$last_history->description:'',
                     'title' => $item->title,
                     'total_factor_item_id' => $item->promissoryable_id,
-                    'front_image' => !is_null($front_image) ?$front_image->path: '',
-                    'back_image' => !is_null($back_image) ? $back_image->path : '',
+                    // Spatie media if present, else the legacy File row (Promissory::getFrontImageAttribute)
+                    'front_image' => $item->front_image,
+                    'back_image' => $item->back_image,
+                    // still legacy? (drives the "migrates on save" hint in promissory.js)
+                    'front_image_legacy' => $item->fileMediaIsLegacy('front'),
+                    'back_image_legacy' => $item->fileMediaIsLegacy('back'),
                     'asset_transaction'=>  $item->assetTransactions()->exists()? new AssetTransactionResource($item->assetTransactions()->latest()->first()):null,
                 ];
             }),

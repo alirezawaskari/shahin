@@ -137,6 +137,75 @@ trait AdoptsLegacyMedia
     }
 
     /**
+     * Is this collection still being served from the LEGACY column rather than Spatie?
+     *
+     * True exactly when the read accessors fall back to the legacy file — i.e. there is no
+     * usable Spatie media (none at all, or its file is missing on disk) but the legacy column
+     * still holds a path. Lets a view show the "با ذخیره به سیستم جدید منتقل می‌شود" hint on
+     * precisely the images the next save would migrate, and drop it once they are adopted.
+     */
+    public function mediaIsLegacy(string $collection): bool
+    {
+        return MediaLibraryHelper::urlIfFileExists($this, $collection) === ''
+            && $this->legacyMediaUrl($collection) !== '';
+    }
+
+    /**
+     * legacyFileMap() counterpart to mediaIsLegacy(): TRUE when a collection is still served
+     * from a legacy polymorphic `files` row rather than Spatie — i.e. a save would adopt it.
+     * mediaIsLegacy() reads legacyMediaMap() (columns); this reads legacyFileMap() (File rows),
+     * used by Check/Promissory front/back. Read-only.
+     */
+    public function fileMediaIsLegacy(string $collection): bool
+    {
+        return MediaLibraryHelper::urlIfFileExists($this, $collection) === ''
+            && $this->legacyFileUrl($collection) !== '';
+    }
+
+    /**
+     * Array/JSON counterpart to mediaIsLegacy(): TRUE when a legacyArrayMediaMap() column
+     * still holds at least one file path not yet adopted into its collection — i.e. a save
+     * would migrate it. mediaIsLegacy() covers only single-file legacyMediaMap() fields, so
+     * views over array columns (contact files, ticket attachments, invoice images) use this
+     * to show the same "با ذخیره به سیستم جدید منتقل می‌شود" hint. Read-only.
+     *
+     * Mirrors adoptLegacyMedia()'s array branch: a path already adopted (its old_file_path is
+     * stamped on a media row) or already a /storage/ url is NOT pending; anything else is.
+     */
+    public function arrayMediaHasLegacy(string $column): bool
+    {
+        $collection = $this->legacyArrayMediaMap()[$column] ?? null;
+        if ($collection === null) {
+            return false;
+        }
+
+        $adopted = $this->freshMedia($collection)
+            ->map(fn ($m) => $m->getCustomProperty('old_file_path'))
+            ->filter()
+            ->all();
+
+        $pending = false;
+        $walk = function ($value) use (&$walk, &$pending, $adopted) {
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    $walk($item);
+                }
+                return;
+            }
+            if (! is_string($value) || $value === '') {
+                return;
+            }
+            if (str_contains($value, '/storage/') || in_array($value, $adopted, true)) {
+                return; // already migrated, or already adopted from this exact legacy path
+            }
+            $pending = true;
+        };
+        $walk($this->getAttribute($column));
+
+        return $pending;
+    }
+
+    /**
      * May the admin delete this collection's media outright (i.e. would a ✕ tell the truth)?
      *
      * FALSE while the legacy column still holds a path, because a delete cannot stick:
