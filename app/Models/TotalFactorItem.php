@@ -10,10 +10,37 @@ use Carbon\Carbon;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use Illuminate\Support\Facades\View;
-class TotalFactorItem extends Model implements AuditableContract
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class TotalFactorItem extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
     use SoftDeletes;
+    use InteractsWithMedia;
+    use \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /**
+     * Touch-to-migrate: legacy paths embedded in these JSON columns -> contract_documents.
+     * Both are nested structures; only values resolving to a real file under public/ are
+     * adopted, and the columns themselves stay untouched.
+     */
+    protected function legacyArrayMediaMap(): array
+    {
+        return [
+            'contract_values' => 'contract_documents',
+            'factor_values'   => 'contract_documents',
+        ];
+    }
+
+    /**
+     * Spatie collection for the contract document images. Multi-file: each
+     * upload's public URL is appended to the contract_values JSON array (same
+     * shape every existing view already reads).
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('contract_documents')->useDisk('public');
+    }
 
     /**
      * @var string[]

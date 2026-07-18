@@ -54,7 +54,7 @@
                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
                         id="bill_image_input2">
                     <div id="bill_image_input2_src" class="show"></div>
-                    <input type="hidden" id="bill_image_input2" class="path" name="url_bill_image" value="">
+                    <input type="hidden" id="bill_image_input2_path" class="path" name="url_bill_image" value="">
                 </div>
             </div>
             <div class="col-12">
@@ -118,7 +118,7 @@
                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
                         id="bill_image_input3">
                     <div id="bill_image_input3_src" class="show"></div>
-                    <input type="hidden" id="bill_image_input3" class="path" name="url_bill_image" value="">
+                    <input type="hidden" id="bill_image_input3_path" class="path" name="url_bill_image" value="">
                 </div>
             </div>
             <div class="col-12">

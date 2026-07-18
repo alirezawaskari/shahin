@@ -46,8 +46,14 @@
                                  class="rounded border"
                                  style="height:{{ $boxH }}px;width:100%;object-fit:contain;background:#f8f9fa;"
                                  alt="">
+                            {{-- No ✕ on the LAST image while the legacy `galleries` table still holds
+                                 rows for this collection: emptying it lets the next save re-adopt them
+                                 all, so the delete would undo itself. See
+                                 AdoptsLegacyMedia::galleryMediaIsRemovable(). --}}
+                            @if(! $owner || ! method_exists($owner, 'galleryMediaIsRemovable') || $owner->galleryMediaIsRemovable($collection))
                             <a data-id="{{ $media->id }}" title="حذف عکس"
                                class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
+                            @endif
                         </div>
                     @else
                         <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
@@ -73,3 +79,9 @@
 
     </div>
 @endforeach
+
+{{-- Legacy galleries-table fallback (read-only) — hidden once this owner has Spatie gallery media --}}
+@include('Admin.partials.legacyGalleryFallback', [
+    'model'       => $owner,
+    'collections' => collect($sections)->pluck('collection')->all(),
+])

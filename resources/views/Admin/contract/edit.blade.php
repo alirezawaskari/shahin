@@ -55,17 +55,37 @@
                     </div>
                     <br/> <br/> <br/> <br/>
                     <div class="col-12 col-md-6 mb-3">
-                        <label>فایل آپلود شده :</label>
-                        <a href="{{$contract->file}}">مشاهده</a>
+                        <label class="d-block">فایل آپلود شده :</label>
+
+                        {{-- Contract::getFileAttribute() is Spatie-first with a legacy-column
+                             fallback, so $contract->file resolves for both. It's a document
+                             (pdf/doc), so it's shown as a link rather than the image-oriented
+                             currentMedia partial.
+
+                             Deliberately NO remove (X) here: the file is REQUIRED (store() validates
+                             file_path), so deleting it would strand the record in a state the form
+                             can't create. The 'file' collection is singleFile(), so uploading a new
+                             one replaces it — changing the file never needs a delete. --}}
+                        @php $__file = $contract->getFirstMedia('file'); @endphp
+                        @if($__file)
+                            <a href="{{ $__file->getFullUrl() }}" target="_blank" rel="noopener"
+                               class="btn btn-primary py-1 px-2">مشاهده</a>
+                        @elseif($contract->file)
+                            <a href="{{ $contract->file }}" target="_blank" rel="noopener"
+                               class="btn btn-primary py-1 px-2">مشاهده</a>
+                            <small class="d-block text-warning mt-1">فایل قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                        @else
+                            <span class="text-muted">فایلی بارگذاری نشده است</span>
+                        @endif
                     </div>
                     <div class="col-12 col-md-6 mb-3">
-                        <label for="file_upload_file" class="custom-file-upload">
+                        <label for="image" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i> بارگذاری فایل
                         </label>
-                        <input id="file_upload_file" class="file-upload file_upload_ajax file-up" type="file"
+                        <input id="image" class="d-none file-upload file_upload_ajax file-up" type="file"
                                name="image"/>
                         <div id="image_src" class="show"></div>
-                        <input type="hidden" id="image" class="path" name="file_path" value="">
+                        <input type="hidden" id="image_path" class="path" name="file_path" value="">
                         @if($errors->has('file_path'))
                             <span class="help-block sub-error"> {{$errors->first('file_path')}} </span>
                         @endif

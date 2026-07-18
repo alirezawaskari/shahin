@@ -190,6 +190,11 @@
         .save('contract.pdf');
 }
 </script>
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+{{--
+    No adminJs.js here — customer-facing page. site-upload.js (site/master.blade.php)
+    already serves any upload widget the included formItem partial renders, and
+    @yield('js') renders AFTER it, so adminJs.js overrode it and routed removes to the
+    admin-only /dashboard/removeMedia.
+--}}
 <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
 @endsection

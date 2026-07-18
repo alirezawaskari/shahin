@@ -177,7 +177,7 @@
                                                 @else
                                                 <a href="{{ asset($item['factor_values'][$form->name]) }}">
                                                     <img src="{{ asset($item['factor_values'][$form->name]) }}"
-                                                        class="card-img-top" height="150px">
+                                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                                 <div class="card-body">
                                                     {!! $form->help !!}
@@ -190,15 +190,13 @@
                                         @break
                                         @case('multi_file')
                                         <div class="col-12">
-                                            <div id="addnew" class='file file--upload'>
-                                                <label for='{{ $form->name }}'>
-                                                    <img class="upload-file" src="{{asset('img/upload.jpg')}}"
-                                                        class="img-fluid">
-                                                    <h6>بارگذاری تصاویر</h6>
+                                            <div id="addnew" class="mt-4">
+                                                <label for='{{ $form->name }}' class="btn btn-primary custom-file-upload border border-1">
+                                                    <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
                                                 </label>
                                                 <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
                                                     id="{{ $form->name }}"
-                                                    class="filestyle file-upload file_upload_ajax file-up"
+                                                    class="d-none filestyle file-upload file_upload_ajax file-up"
                                                     data-buttonname="btn-white">
                                             </div>
                                             <div id="{{ $form->name }}_newlink" class="col-12 row">
@@ -221,7 +219,7 @@
                                             @foreach($item['factor_values'][$form->name] as $image)
                                             <div class="card col-md-3">
                                                 <a href="{{ asset($image) }}" target="_blank">
-                                                    <img src="{{ $image }}" class="card-img-top" height="150px">
+                                                    <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                 </a>
                                             </div>
                                             @endforeach
@@ -289,7 +287,7 @@
                                                 <div class="card-group">
                                                     <div class="col-12 col-md-6">
                                                         <div class="card">
-                                                            @if(is_null($factor->user->imgmeli))
+                                                            @if(empty($factor->user->imgmeli))
                                                             <p class="my-4 text-danger text-center">
                                                                 ثبت نشده</p>
                                                             <div class="card-body">
@@ -299,9 +297,9 @@
                                                                     accept=".jpg,.jpeg,.png">
                                                             </div>
                                                             @else
-                                                            <a href="{{ asset($factor->user->imgmeli) }}">
-                                                                <img src="{{ asset($factor->user->imgmeli) }}"
-                                                                    class="card-img-top" height="150px">
+                                                            <a href="{{ $factor->user->imgmeli }}">
+                                                                <img src="{{ $factor->user->imgmeli }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                             <div class="card-body">
                                                                 <h5 class="card-title">کارت ملی</h5>
@@ -314,7 +312,7 @@
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <div class="card">
-                                                            @if(is_null($factor->user->imgshenasname))
+                                                            @if(empty($factor->user->imgshenasname))
                                                             <p class="my-4 text-danger text-center">
                                                                 ثبت نشده</p>
                                                             <div class="card-body">
@@ -324,9 +322,9 @@
                                                                     required accept=".jpg,.jpeg,.png">
                                                             </div>
                                                             @else
-                                                            <a href="{{ asset($factor->user->imgshenasname) }}">
-                                                                <img src="{{ asset($factor->user->imgshenasname) }}"
-                                                                    class="card-img-top" height="150px">
+                                                            <a href="{{ $factor->user->imgshenasname }}">
+                                                                <img src="{{ $factor->user->imgshenasname }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                             <div class="card-body">
                                                                 <h5 class="card-title">شناسنامه</h5>
@@ -366,7 +364,7 @@
                                                             <a
                                                                 href="{{ asset($item['contract_values'][$contract_form->name]) }}">
                                                                 <img src="{{ asset($item['contract_values'][$contract_form->name]) }}"
-                                                                    class="card-img-top" height="150px">
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                             <div class="card-body">
                                                                 {!! $contract_form->help !!}
@@ -483,8 +481,13 @@
 <script src="/assets/site/js/checkout.js"></script>
 @endsection
 @section('js')
-<script src="/assets/dashboard/js/site/adminJs.js"></script>
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+{{--
+    No dashboard bundle here (adminJs.js / layouts.js) — customer-facing page.
+    site-upload.js (site/singleWebPage/master.blade.php) already serves the upload
+    widget, and @yield('js') renders AFTER it, so the dashboard bundle overrode it and
+    routed removes to the admin-only /dashboard/removeMedia. This page's own behaviour
+    lives in checkout.js (@section('footer') above).
+--}}
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
 <script>

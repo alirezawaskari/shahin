@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\AuthCode;
 use App\Models\ContractForm;
 use App\Models\ContractView;
@@ -315,8 +316,7 @@ class FactorItemController extends Controller {
                 'description_request_contract_settlement' => $request->description_request_contract_settlement,
             ] );
             if ( $request->urlrequest_contract_settlement ) {
-                Helper::deleteImage( $total_factor_item_contract_settlement->img_request_contract_settlement );
-                $total_factor_item_contract_settlement->update( [ 'img_request_contract_settlement' => Helper::moveImage( $request->urlrequest_contract_settlement, 'document' ) ] );
+                MediaLibraryHelper::attachTo( $total_factor_item_contract_settlement, $request->urlrequest_contract_settlement, 'img_request_contract_settlement' );
             }
             $total_factor_item->update( [ 'status_mali' => 7 ] );
             return redirect()->back()->with( [
@@ -339,15 +339,25 @@ class FactorItemController extends Controller {
         $contract_values = $factor_item->contract_values ? $factor_item->contract_values : [];
         foreach ( $factor_item->factoritemable->beforeforms as $key => $form ) {
             if ( $form->data_save_level == 'user' ) {
-                if ( isset( $item[ $form->name ] ) ) {
-                    User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
-                }
-                if ( $form->type == 'file' ) {
+                if ( $form->type == 'file' && in_array( $form->name, \App\Models\User::IMAGE_COLLECTIONS, true ) ) {
+                    // Spatie shadowed field: attach the uploaded temp media id instead of
+                    // writing a raw path into the (now accessor-shadowed) column.
+                    if ( !empty( $item[ $form->name ] ) ) {
+                        \App\Helpers\MediaLibraryHelper::attachTo(
+                            User::find( $item[ 'user_id' ] ), $item[ $form->name ], $form->name
+                        );
+                    }
+                } else {
                     if ( isset( $item[ $form->name ] ) ) {
-                        $image = $item[ $form->name ];
-                        if ( $image ) {
-                            $urlimage = Helper::uploadImage( $image, 'document' );
-                            User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $urlimage ] );
+                        User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $item[ $form->name ] ] );
+                    }
+                    if ( $form->type == 'file' ) {
+                        if ( isset( $item[ $form->name ] ) ) {
+                            $image = $item[ $form->name ];
+                            if ( $image ) {
+                                $urlimage = Helper::uploadImage( $image, 'document' );
+                                User::where( 'id', $item[ 'user_id' ] )->update( [ $form->name => $urlimage ] );
+                            }
                         }
                     }
                 }
@@ -433,6 +443,84 @@ class FactorItemController extends Controller {
             ] );
         }
         return response( 'true' );
+    }
+
+    /**
+     * Whether the patient may still edit the "توصیه ها و دستورات" (doctor
+     * recommendations) section of their factor item. Mirrors the $item['complete']
+     * gate the show() view uses: the file is editable only while work is active
+     * (status_factor 6 = شروع کار, 10 = آماده اجرا); any other status is read-only.
+     */
+    public static function recommendationsEditable( FactorItem $factorItem ): bool
+    {
+        return in_array( (int) $factorItem->status_factor, [ 6, 10 ], true );
+    }
+
+    /**
+     * Persist the patient's uploads/text in the recommendations section of the public
+     * /factorItem/{resnumber} page. Ajax-uploaded temp media (the media ids in the hidden
+     * item[url<name>][] fields) are moved into the factor item's Spatie collection and
+     * their public URLs appended to factor_values[<name>] — the same JSON shape the admin
+     * side and every existing view already read, so nothing downstream changes.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function saveRecommendations( Request $request ) {
+        $item = $request->item;
+        $factor_item = FactorItem::find( $item[ 'id' ] ?? null );
+
+        if ( !$factor_item ) {
+            abort( 404 );
+        }
+
+        // Only the owner of the factor may write to it.
+        if ( (int) optional( $factor_item->factor )->user_id !== (int) auth()->id() ) {
+            abort( 403 );
+        }
+
+        // Server-side status gate — never trust the (possibly hidden) client form.
+        if ( !self::recommendationsEditable( $factor_item ) ) {
+            return redirect()->back()->with( [ 'error' => 'success' ] );
+        }
+
+        $values = $factor_item->factor_values ? $factor_item->factor_values : [];
+
+        foreach ( $factor_item->factoritemable->beforeforms as $form ) {
+            if ( !is_array( $form->data_display_level ) || !in_array( 'show_recommendations_site', $form->data_display_level ) ) {
+                continue;
+            }
+            if ( $form->data_save_level !== 'factor_item_factor_values' ) {
+                continue;
+            }
+
+            if ( $form->type === 'multi_file' ) {
+                // media ids from the hidden item[url<name>][] fields
+                $mediaIds = $request->input( 'item.url' . $form->name, [] );
+                if ( !is_array( $mediaIds ) ) {
+                    continue;
+                }
+                $images = isset( $values[ $form->name ] ) && is_array( $values[ $form->name ] ) ? $values[ $form->name ] : [];
+                foreach ( $mediaIds as $mediaId ) {
+                    if ( !$mediaId ) {
+                        continue;
+                    }
+                    $media = MediaLibraryHelper::attachTo( $factor_item, (string) $mediaId, FactorItem::DOCUMENTS_COLLECTION );
+                    if ( $media ) {
+                        $images[] = $media->getUrl();
+                    }
+                }
+                $values[ $form->name ] = $images;
+            } elseif ( in_array( $form->type, [ 'textarea', 'text' ], true ) ) {
+                if ( array_key_exists( $form->name, $item ) ) {
+                    $values[ $form->name ] = $item[ $form->name ];
+                }
+            }
+        }
+
+        $factor_item->update( [ 'factor_values' => $values ] );
+
+        return redirect()->back()->with( [ 'success' => 'success' ] );
     }
 
     /**

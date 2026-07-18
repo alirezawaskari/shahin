@@ -319,14 +319,14 @@
                                     <div class="card">
                                         @if($employee->user->imgsignature)
                                         <div id="imgsignature_src" class="show">
-                                            <a href="{{ asset($employee->user->imgsignature) }}" target="_blank">
-                                                <img src="{{ asset($employee->user->imgsignature) }}"
-                                                    class="card-img-top" height="150px">
+                                            <a href="{{ $employee->user->imgsignature }}" target="_blank">
+                                                <img src="{{ $employee->user->imgsignature }}"
+                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
                                         <div id="imgsignature_src" class="show">
-                                            <img class="card-img-top" height="150px">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                         @endif
                                         <div class="card-body">
@@ -338,7 +338,7 @@
                                             <input name="imgsignature" type="file" id="imgsignature"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imgsignature" class="path" name="urlimgsignature">
+                                            <input type="hidden" id="imgsignature_path" class="path" name="urlimgsignature">
                                         </div>
                                     </div>
                                 </div>
@@ -346,14 +346,13 @@
                                     <div class="card">
                                         @if($employee->user->avatar)
                                         <div id="avatar_src" class="show">
-                                            <a href="{{ asset($employee->user->avatar) }}" target="_blank">
-                                                <img src="{{ asset($employee->user->avatar) }}" class="card-img-top"
-                                                    height="150px">
+                                            <a href="{{ $employee->user->avatar }}" target="_blank">
+                                                <img src="{{ $employee->user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
                                         <div id="avatar_src" class="show">
-                                            <img class="card-img-top" height="150px">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                         @endif
                                         <div class="card-body">
@@ -365,7 +364,7 @@
                                             <input name="avatar" type="file" id="avatar"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="avatar" class="path" name="urlavatar">
+                                            <input type="hidden" id="avatar_path" class="path" name="urlavatar">
                                         </div>
                                     </div>
                                 </div>
@@ -373,14 +372,13 @@
                                     <div class="card">
                                         @if($employee->user->imgmeli)
                                         <div id="imgmeli_src" class="show">
-                                            <a href="{{ asset($employee->user->imgmeli) }}" target="_blank">
-                                                <img src="{{ asset($employee->user->imgmeli) }}" class="card-img-top"
-                                                    height="150px">
+                                            <a href="{{ $employee->user->imgmeli }}" target="_blank">
+                                                <img src="{{ $employee->user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
                                         <div id="imgmeli_src" class="show">
-                                            <img class="card-img-top" height="150px">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                         @endif
                                         <div class="card-body">
@@ -392,7 +390,7 @@
                                             <input name="imgmeli" type="file" id="imgmeli"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
+                                            <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
                                         </div>
                                     </div>
                                 </div>
@@ -400,14 +398,14 @@
                                     <div class="card">
                                         @if($employee->user->imgshenasname)
                                         <div id="imgshenasname_src" class="show">
-                                            <a href="{{ asset($employee->user->imgshenasname) }}" target="_blank">
-                                                <img src="{{ asset($employee->user->imgshenasname) }}"
-                                                    class="card-img-top" height="150px">
+                                            <a href="{{ $employee->user->imgshenasname }}" target="_blank">
+                                                <img src="{{ $employee->user->imgshenasname }}"
+                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
                                         <div id="imgshenasname_src" class="show">
-                                            <img class="card-img-top" height="150px">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                         @endif
                                         <div class="card-body">
@@ -419,7 +417,7 @@
                                             <input name="imgshenasname" type="file" id="imgshenasname"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imgshenasname" class="path"
+                                            <input type="hidden" id="imgshenasname_path" class="path"
                                                 name="urlimgshenasname">
                                         </div>
                                     </div>
@@ -428,14 +426,13 @@
                                     <div class="card">
                                         @if($employee->imgaccess)
                                         <div id="imgaccess_src" class="show">
-                                            <a href="{{ asset($employee->imgaccess) }}" target="_blank">
-                                                <img src="{{ asset($employee->imgaccess) }}" class="card-img-top"
-                                                    height="150px">
+                                            <a href="{{ $employee->imgaccess }}" target="_blank">
+                                                <img src="{{ $employee->imgaccess }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
                                         <div id="imgaccess_src" class="show">
-                                            <img class="card-img-top" height="150px">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                         @endif
                                         <div class="card-body">
@@ -447,7 +444,7 @@
                                             <input name="employee[imgaccess]" type="file" id="imgaccess"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imgaccess" class="path" name="urlimgaccess">
+                                            <input type="hidden" id="imgaccess_path" class="path" name="urlimgaccess">
                                         </div>
                                     </div>
                                 </div>
@@ -455,14 +452,14 @@
                                     <div class="card">
                                         @if($employee->imglastcertificate)
                                         <div id="imglastcertificate_src" class="show">
-                                            <a href="{{ asset($employee->imglastcertificate) }}" target="_blank">
-                                                <img src="{{ asset($employee->imglastcertificate) }}"
-                                                    class="card-img-top" height="150px">
+                                            <a href="{{ $employee->imglastcertificate }}" target="_blank">
+                                                <img src="{{ $employee->imglastcertificate }}"
+                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @else
                                         <div id="imglastcertificate_src" class="show">
-                                            <img class="card-img-top" height="150px">
+                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                         </div>
                                         @endif
                                         <div class="card-body">
@@ -475,7 +472,7 @@
                                                 id="imglastcertificate"
                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                            <input type="hidden" id="imglastcertificate" class="path"
+                                            <input type="hidden" id="imglastcertificate_path" class="path"
                                                 name="urlimglastcertificate">
                                         </div>
                                     </div>

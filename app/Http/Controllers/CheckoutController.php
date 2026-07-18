@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\referralCenterNotification;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\ContractForm;
 use App\Models\Disease;
 use App\Models\Factor;
@@ -144,19 +145,16 @@ public function upload_document( Request $request ) {
         }
 
         $user = User::find( $request->user_id );
+        // Spatie: KYC docs arrive as temp media ids; attachTo replaces the single file
+        // in each collection (native old-file cleanup, no deleteImage).
         if ( $request->urlimgmeli ) {
-            Helper::deleteImage( $user->imgmeli );
-            $user->update( [ 'imgmeli' => Helper::moveImage( $request->urlimgmeli, 'document' ) ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->urlimgmeli, 'imgmeli' );
         }
-
         if ( $request->urlimgshenasname ) {
-            Helper::deleteImage( $user->imgshenasname );
-            $user->update( [ 'imgshenasname' => Helper::moveImage( $request->urlimgshenasname, 'document' ) ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->urlimgshenasname, 'imgshenasname' );
         }
-
         if ( $request->urlimgturnover ) {
-            Helper::deleteImage( $user->imgturnover );
-            $user->update( [ 'imgturnover' => Helper::moveImage( $request->urlimgturnover, 'document' ) ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->urlimgturnover, 'imgturnover' );
         }
 
         $this->formData( $request->item );
@@ -190,21 +188,21 @@ public function upload_document( Request $request ) {
                     }
                 }
             } elseif ( $form->type == 'multi_file' ) {
-                if ( isset( $item[ $form->name ] ) ) {
-                    $images = isset( $values[ $form->name ] ) ? $values[ $form->name ] : [];
-                    $files = $item[ 'url' . $form->name ];
-                    foreach ( $files as $file ) {
-                        if ( $file ) {
-                            if ( isset( $images ) ) {
-                                $url = Helper::moveImage( $file, 'document' );
-                                $images[] = $url;
+                // Ajax temp uploads: item['url'<name>][] holds Spatie media ids. Move each
+                // into the factor item's own media collection and append the public URL to
+                // factor_values[<name>] — same JSON shape every existing view already reads.
+                $mediaIds = $item[ 'url' . $form->name ] ?? null;
+                if ( is_array( $mediaIds ) ) {
+                    $images = isset( $values[ $form->name ] ) && is_array( $values[ $form->name ] ) ? $values[ $form->name ] : [];
+                    foreach ( $mediaIds as $mediaId ) {
+                        if ( $mediaId ) {
+                            $media = MediaLibraryHelper::attachTo( $factor_item, (string) $mediaId, FactorItem::DOCUMENTS_COLLECTION );
+                            if ( $media ) {
+                                $images[] = $media->getUrl();
                             }
                         }
                     }
-                    if ( isset( $values[ $form->name ] ) ) {
-                        $values[ $form->name ] = $images;
-                    }
-                    $values = Arr::add( $values, $form->name, $images );
+                    $values[ $form->name ] = $images;
                 }
             } else {
                 if ( isset( $item[ $form->name ] ) ) {

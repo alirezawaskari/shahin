@@ -76,18 +76,24 @@
 </div>
 
 <div class="col-12 col-md-12 mb-5">
-    <label> عکس های ذخیره شده</label>
-
-    @if($pack->galleries()->get())
-        @foreach($pack->galleries()->get() as $index=>$gallery)
-            <div class="div_remove_btn mrgL20" id="gallery_{{$gallery->id}}">
-                <img src="{{$gallery->image}}" alt="{{$gallery->title}}" class="border-radius5" width="80px">
-                <a id="{{$gallery->id}}" title="حذف عکس" class="btn btn-default remove_btn">
-                    <i class="fa fa-close" aria-hidden="true"></i></a>
-            </div>
-        @endforeach
+    @if($pack->getMedia('gallery')->count() > 0)
+        <label> عکس های ذخیره شده</label>
+        <table class="table table-striped">
+            <tbody>
+            @foreach($pack->getMedia('gallery') as $gallery)
+                <tr class="row_image" id="media_{{$gallery->id}}">
+                    <td><img src="{{$gallery->getUrl()}}" alt="{{$gallery->getCustomProperty('title')}}" class="border-radius5" width="80px"></td>
+                    <td><input type="text" class="form-control" placeholder="عنوان"
+                               name="gallery_title[{{$gallery->id}}]" value="{{$gallery->getCustomProperty('title')}}"></td>
+                    {{-- no ✕ on the last image while legacy `galleries` rows remain —
+                         see AdoptsLegacyMedia::galleryMediaIsRemovable() --}}
+                    <td>@if($pack->galleryMediaIsRemovable('gallery'))<a data-id="{{$gallery->id}}" title="حذف عکس"
+                           class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>@endif</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
     @endif
-
 </div>
 
 @include('Admin.partials.multipleImages')

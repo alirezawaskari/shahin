@@ -361,32 +361,35 @@
                                             </div>
                                             <div class="row mb-4">
                                                 <h4 class="col-12 col-md-12 mb-4"> تصویر اصلی و گالری تصاویر</h4>
-                                                @if($product->image != null)
-                                                    <div class="col-12 col-md-2 mb-4 image_product">
-                                                        <img src="{{$product->image}}" alt="{{$product->title}}"
-                                                             class="border-radius5" width="80px">
+                                                @php($mainImage = $product->getFirstMedia('image'))
+                                                @php($__legacyMain = (! $mainImage && method_exists($product, 'legacyMediaUrl')) ? $product->legacyMediaUrl('image') : '')
+                                                @if($mainImage)
+                                                    <div class="col-12 col-md-3 mb-3 div_remove_btn text-center" id="media_{{$mainImage->id}}">
+                                                        <img src="{{$mainImage->getUrl()}}" alt="{{$mainImage->title}}"
+                                                             style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
+                                                        <div class="mt-1">
+                                                            <span class="badge badge-success">تصویر اصلی</span>
+                                                            {{-- no ✕ while the legacy `image` column still holds a path —
+                                                                 see AdoptsLegacyMedia::mediaIsRemovable() --}}
+                                                            @if($product->mediaIsRemovable('image'))
+                                                            <a data-id="{{$mainImage->id}}" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
+                                                            @endif
+                                                        </div>
                                                     </div>
-                                                    <div class="col-12 col-md-2 mb-4 image_product">
-                                                        <i class="fa fa-lg fa-flag-o"></i>
-                                                        <a id="{{$product->id}}" title="حذف عکس" class="btn btn-danger remove_image_product">
-                                                            <i class="fa fa-close" aria-hidden="true"></i>
-                                                        </a>
-                                                    </div>
-                                                    <div class="col-12 col-md-8 mb-4 image_product">
-                                                        @include('Admin.partials.products.showErrorProduct',['field'=>'image'])
+                                                @elseif($__legacyMain)
+                                                    {{-- legacy main image, not yet adopted: read-only (no media id to delete by) --}}
+                                                    <div class="col-12 col-md-3 mb-3 text-center">
+                                                        <img src="{{ $__legacyMain }}" alt="تصویر اصلی (سیستم قبلی)"
+                                                             style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
+                                                        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                     </div>
                                                 @endif
-                                            </div>
-                                            <div class="row mb-4">
-                                                @if($product->galleries()->count() > 0)
-                                                    @foreach($product->galleries()->get() as $index=>$gallery)
-                                                        <div class="col-12 col-md-2 div_remove_btn gallery_{{$gallery->id}}">
-                                                            <img src="{{$gallery->image}}" alt="{{$gallery->title}}"
-                                                                 width="80px" class="border-radius5">
-                                                        </div>
-                                                        <div class="col-12 col-md-2 gallery_{{$gallery->id}}">
-                                                            <a id="{{$gallery->id}}" title="حذف عکس"
-                                                               class="btn btn-default remove_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
+                                                @foreach($product->getMedia('gallery') as $gallery)
+                                                    <div class="col-12 col-md-3 mb-3 div_remove_btn text-center" id="media_{{$gallery->id}}">
+                                                        <img src="{{$gallery->getUrl()}}" alt="{{$gallery->title}}"
+                                                             style="height:100px;width:100%;object-fit:contain;background:#f8f9fa;" class="border rounded">
+                                                        <div class="mt-1">
+                                                            <a data-id="{{$gallery->id}}" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>
                                                         </div>
                                                         <div class="col-12 col-md-8 gallery_{{$gallery->id}}">
                                                             @include('Admin.partials.products.showErrorProduct',['field'=>'gallery'.$gallery->id,'validationable_id'=>$gallery->id,'validationable_type'=>'App\Models\Gallery'])
@@ -394,6 +397,7 @@
                                                     @endforeach
                                                 @endif
                                             </div>
+                                            @include('Admin.partials.legacyGalleryFallback', ['model' => $product, 'collections' => ['gallery']])
                                             <div class="row mb-4">
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     <label for="file-upload" class="custom-file-upload">

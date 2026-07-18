@@ -155,7 +155,7 @@
                                             </label>
                                         </div>
 
-                                        <input type="hidden" id="image" class="path" name="image_path" value="">
+                                        <input type="hidden" id="image_path" class="path" name="image_path" value="">
                                         @if($errors->has('image'))
                                         <span class="text-danger small">{{ $errors->first('image') }}</span>
                                         @endif
@@ -187,7 +187,7 @@
                                             </label>
                                         </div>
 
-                                        <input type="hidden" id="icon" class="path" name="icon_path" value="">
+                                        <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                         @if($errors->has('icon'))
                                         <span class="text-danger small">{{ $errors->first('icon') }}</span>
                                         @endif
