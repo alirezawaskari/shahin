@@ -87,11 +87,11 @@ class PromissoryController extends Controller
         // upload promissory images. No legacy row/file teardown: the old File rows stay
         // untouched (read-only legacy) and 'front'/'back' are singleFile() collections, so
         // a re-upload supersedes the previous media on its own.
-        if ($request->file('promissory_front_image')) {
-            $this->uploadPromissoryFrontImage($promissory, $request->file('promissory_front_image'));
+        if ($request->url_promissory_front_image) {
+            $this->uploadPromissoryFrontImage($promissory, $request->url_promissory_front_image);
         }
-        if ($request->file('promissory_back_image')) {
-            $this->uploadPromissoryBackImage($promissory, $request->file('promissory_back_image'));
+        if ($request->url_promissory_back_image) {
+            $this->uploadPromissoryBackImage($promissory, $request->url_promissory_back_image);
         }
         return response(['status' => 'success', 'data' => $promissory]);
 
@@ -179,11 +179,11 @@ class PromissoryController extends Controller
         ]);
 
         //upload images
-        if ($request->file('promissory_front_image')) {
-            $this->uploadPromissoryFrontImage($promissory, $request->file('promissory_front_image'));
+        if ($request->url_promissory_front_image) {
+            $this->uploadPromissoryFrontImage($promissory, $request->url_promissory_front_image);
         }
-        if ($request->file('promissory_back_image')) {
-            $this->uploadPromissoryBackImage($promissory, $request->file('promissory_back_image'));
+        if ($request->url_promissory_back_image) {
+            $this->uploadPromissoryBackImage($promissory, $request->url_promissory_back_image);
         }
         //return
         return response(['status' => 'success', 'data' => $promissory]);
@@ -228,26 +228,27 @@ class PromissoryController extends Controller
     /**
      * upload front image of promissory
      * @param Promissory $promissory
-     * @param $file
+     * @param string $tempId temp media id from the ajax upload
      * @return mixed
      */
-    private function uploadPromissoryFrontImage(Promissory $promissory, $file)
+    private function uploadPromissoryFrontImage(Promissory $promissory, $tempId)
     {
-        // Spatie only. The legacy File(title:'front') row is never written — it is
-        // read-only legacy that Promissory::legacyFileMap() adopts, and
+        // ajax pipeline: $tempId is the temp Spatie media row id from uploadFilesTemporarily;
+        // attachTo() moves it into the 'front' collection. The legacy File(title:'front') row
+        // is never written — it is read-only legacy that Promissory::legacyFileMap() adopts, and
         // $promissory->front_image already prefers the media below it.
-        return MediaLibraryHelper::attachUpload($promissory, $file, 'front');
+        return MediaLibraryHelper::attachTo($promissory, $tempId, 'front');
     }
 
     /**
      * upload back image of promissory
      * @param Promissory $promissory
-     * @param $file
+     * @param string $tempId temp media id from the ajax upload
      * @return mixed
      */
-    private function uploadPromissoryBackImage(Promissory $promissory, $file)
+    private function uploadPromissoryBackImage(Promissory $promissory, $tempId)
     {
-        return MediaLibraryHelper::attachUpload($promissory, $file, 'back');
+        return MediaLibraryHelper::attachTo($promissory, $tempId, 'back');
     }
 
     /**
@@ -338,8 +339,9 @@ class PromissoryController extends Controller
             'serial_code' => ['required'],
             'description' => ['nullable'],
             'total_factor_item_id' => ['required', 'integer', 'exists:total_factor_items,id'],
-            'promissory_front_image' => ['required', 'mimes:png,jpg,jpeg'],
-            'promissory_back_image' => ['mimes:png,jpg,jpeg']
+            // ajax pipeline: images arrive as temp media ids, not files
+            'url_promissory_front_image' => ['required'],
+            'url_promissory_back_image' => ['nullable'],
         ]);
     }
 
@@ -377,8 +379,9 @@ class PromissoryController extends Controller
             'date' => ['required'],
             'description' => ['nullable'],
             'serial_code' => ['required'],
-            'promissory_front_image' => ['mimes:png,jpg,jpeg'],
-            'promissory_back_image' => ['mimes:png,jpg,jpeg']
+            // ajax pipeline: optional temp media ids on update (blank keeps the current image)
+            'url_promissory_front_image' => ['nullable'],
+            'url_promissory_back_image' => ['nullable'],
         ]);
     }
 

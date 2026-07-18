@@ -85,6 +85,9 @@
                             <a href="{{ $agency->imgmeli }}" target="_blank" rel="noopener">
                                 <img src="{{ $agency->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                             </a>
+                            @if($agency->mediaIsLegacy('imgmeli'))
+                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                             </div>
                             @else
                             <div id="imgmeli_src" class="show">
@@ -108,6 +111,9 @@
                             <a href="{{ $agency->imgturnover }}" target="_blank" rel="noopener">
                                 <img src="{{ $agency->imgturnover }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                             </a>
+                            @if($agency->mediaIsLegacy('imgturnover'))
+                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                             </div>
                             @else
                             <div id="imgturnover_src" class="show">

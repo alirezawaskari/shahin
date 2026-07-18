@@ -96,6 +96,9 @@
                         <div class="mr-3">
                             @if($beforeForm->file)
                             <a href="{{ $beforeForm->file }}" class="btn btn-primary py-1 px-2">مشاهده فایل</a>
+                            @if($beforeForm->mediaIsLegacy('file'))
+                            <small class="d-block text-warning mt-1">فایل قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                             @endif
                         </div>
                     </div>

@@ -110,6 +110,9 @@
                             <a href="{{ $representation->stamp }}" target="_blank" rel="noopener">
                                 <img src="{{ $representation->stamp }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                             </a>
+                            @if($representation->mediaIsLegacy('stamp'))
+                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                             </div>
                             @else
                             <div id="stamp_src" class="show">
@@ -133,6 +136,9 @@
                             <a href="{{ $representation->image }}" target="_blank" rel="noopener">
                                 <img src="{{ $representation->image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                             </a>
+                            @if($representation->mediaIsLegacy('image'))
+                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                             </div>
                             @else
                             <div id="image_src" class="show">

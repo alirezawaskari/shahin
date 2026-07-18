@@ -273,5 +273,8 @@ function openTab(evt, cityName) {
     document.getElementById(cityName).style.display = "block";
     evt.currentTarget.className += " active";
 }
-// Get the element with id="defaultOpen" and click on it
-document.getElementById("defaultOpen").click();
+// Get the element with id="defaultOpen" and click on it (absent on pages without the
+// call-details tab strip, e.g. check/promissory management — guard so it doesn't throw
+// and halt the rest of this file)
+var _defaultOpenTab = document.getElementById("defaultOpen");
+if (_defaultOpenTab) _defaultOpenTab.click();

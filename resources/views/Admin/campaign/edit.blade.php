@@ -92,6 +92,9 @@
                                                                     <img height="150px" src="{{$campaign->image}}"
                                                                          class="card-img-top">
                                                                 </div>
+                                                                @if($campaign->mediaIsLegacy('image'))
+                                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                                @endif
                                                             @endif
                                                             <label>تصویر بالا</label>
                                                             <br>
@@ -115,6 +118,9 @@
                                                                 <img height="150px" src="{{$campaign->image_header}}"
                                                                      class="card-img-top">
                                                             </div>
+                                                            @if($campaign->mediaIsLegacy('image_header'))
+                                                            <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                            @endif
                                                         @endif
                                                         <div class="card-body">
                                                             <label>تصویر نمایه</label>
