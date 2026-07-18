@@ -20816,46 +20816,11 @@ img {
     padding: 15px;
 }
 
-.file-1 {
-    height: 0;
-    overflow: hidden;
-    width: 0;
-}
 
-[type="file"] + label {
-    background: #f15d22;
-    border: none;
-    border-radius: 5px;
-    color: #fff;
-    cursor: pointer;
-    display: inline-block;
-    font-family: "Poppins", sans-serif;
-    font-size: inherit;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    outline: none;
-    padding: 1rem 50px;
-    position: relative;
-    -webkit-transition: all 0.3s;
-    transition: all 0.3s;
-    vertical-align: middle;
-}
 
-[type="file"] + label:hover {
-    background-color: #d3460d;
-}
 
-[type="file"] + label.btn-1 {
-    background-color: #f79159;
-    box-shadow: 0 6px #f57128;
-    -webkit-transition: none;
-    transition: none;
-}
 
-[type="file"] + label.btn-1:hover {
-    box-shadow: 0 4px #f57128;
-    top: 2px;
-}
+
 
 a.lightbox img {
     border: 3px solid white;

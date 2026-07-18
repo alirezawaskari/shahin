@@ -16,7 +16,7 @@
     <div class="container bg-white">
         <div class="row p-20">
             <div class="col-md-1">
-                <img src="{{asset($user->avatar)}}" alt="{{$user->name.' '.$user->family}}" style="width:100%">
+                <img src="{{$user->avatar}}" alt="{{$user->name.' '.$user->family}}" style="width:100%">
             </div>
             <div class="col-md-3  ">
                 <h4>

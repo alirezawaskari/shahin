@@ -208,7 +208,7 @@
                                             @else
                                             <a href="{{ asset($item['factor_values'][$form->name]) }}">
                                                 <img src="{{ asset($item['factor_values'][$form->name]) }}"
-                                                    class="card-img-top" height="150px">
+                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                             <div class="card-body">
                                                 {!! $form->help !!}
@@ -220,37 +220,40 @@
                                     </div>
                                     @break
                                     @case('multi_file')
-                                    <div class="col-12">
+                                    {{-- DOM ids must be free of spaces/quotes (some form names, e.g. "Doctor's order",
+                                         contain them and break jQuery selectors). Sanitize for ids only; the submit
+                                         field names keep the real $form->name so the controller keys correctly. --}}
+                                    @php($domId = preg_replace('/[^A-Za-z0-9_]/', '_', $form->name))
+                                    <div class="col-12 mb-2">
                                         {!! $form->help !!}
                                     </div>
-                                    <div class="col-12">
-                                        <div id="addnew" class='file file--upload'>
-                                            <label for='{{ $form->name }}'>
-                                                <img class="upload-file" src="{{asset('img/upload.jpg')}}"
-                                                    class="img-fluid">
-                                                <h6>بارگذاری تصاویر</h6>
-                                            </label>
-                                            <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
-                                                id="{{ $form->name }}"
-                                                class="filestyle file-upload file_upload_ajax file-up"
-                                                data-buttonname="btn-white">
-                                        </div>
-                                        <div id="{{ $form->name }}_newlink" class="col-12 row">
-                                            <div>
+                                    <div class="col-12 row">
+                                        <div class="col-md-4">
+                                            <div id="addnew" class="mb-3">
+                                                <label for="{{ $domId }}" class="btn btn-primary custom-file-upload border border-1">
+                                                    <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن تصویر
+                                                </label>
+                                                <input name="items[{{ $key }}][{{ $form->name }}][]" type="file"
+                                                    id="{{ $domId }}"
+                                                    class="d-none filestyle file-upload file_upload_ajax file-up"
+                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                             </div>
                                         </div>
-                                        <div id="{{ $form->name }}_newlinktpl">
-                                            <div id="{{ $form->name }}_src" class="show"></div>
-                                            <input type="hidden" id="{{ $form->name }}" class="path"
+                                        <div id="{{ $domId }}_newlink" class="col-12 row">
+                                            <div></div>
+                                        </div>
+                                        <div id="{{ $domId }}_newlinktpl" class="d-none">
+                                            <div id="{{ $domId }}_src" class="show"></div>
+                                            <input type="hidden" id="{{ $domId }}_path" class="path"
                                                 name="items[{{ $key }}][{{ 'url'.$form->name }}][]">
                                         </div>
                                     </div>
-                                    <div class="col-12 row">
-                                        @if(isset($item['factor_values'][$form->name]))
+                                    <div class="col-12 row mb-3">
+                                        @if(isset($item['factor_values'][$form->name]) && is_array($item['factor_values'][$form->name]))
                                         @foreach($item['factor_values'][$form->name] as $image)
-                                        <div class="card col-md-3">
-                                            <a href="{{ asset($image) }}" target="_blank">
-                                                <img src="{{ $image }}" class="card-img-top" height="150px">
+                                        <div class="card col-md-3 mb-2">
+                                            <a href="{{ $image }}" target="_blank">
+                                                <img src="{{ $image }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
                                         </div>
                                         @endforeach
@@ -330,15 +333,15 @@
                                                     <div class="card">
                                                         @if($factor->user->imgmeli)
                                                         <div id="imgmeli_src" class="show">
-                                                            <a href="{{ asset($factor->user->imgmeli) }}"
+                                                            <a href="{{ $factor->user->imgmeli }}"
                                                                 target="_blank">
-                                                                <img src="{{ asset($factor->user->imgmeli) }}"
-                                                                    class="card-img-top" height="150px">
+                                                                <img src="{{ $factor->user->imgmeli }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                         </div>
                                                         @else
                                                         <div id="imgmeli_src" class="show">
-                                                            <img class="card-img-top" height="150px">
+                                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                         </div>
                                                         @endif
                                                         <div class="card-body">
@@ -350,7 +353,7 @@
                                                             <input name="imgmeli" type="file" id="imgmeli"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="imgmeli" class="path"
+                                                            <input type="hidden" id="imgmeli_path" class="path"
                                                                 name="urlimgmeli">
                                                         </div>
                                                     </div>
@@ -359,15 +362,15 @@
                                                     <div class="card">
                                                         @if($factor->user->imgshenasname)
                                                         <div id="imgshenasname_src" class="show">
-                                                            <a href="{{ asset($factor->user->imgshenasname) }}"
+                                                            <a href="{{ $factor->user->imgshenasname }}"
                                                                 target="_blank">
-                                                                <img src="{{ asset($factor->user->imgshenasname) }}"
-                                                                    class="card-img-top" height="150px">
+                                                                <img src="{{ $factor->user->imgshenasname }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                         </div>
                                                         @else
                                                         <div id="imgshenasname_src" class="show">
-                                                            <img class="card-img-top" height="150px">
+                                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                         </div>
                                                         @endif
                                                         <div class="card-body">
@@ -379,7 +382,7 @@
                                                             <input name="imgshenasname" type="file" id="imgshenasname"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="imgshenasname" class="path"
+                                                            <input type="hidden" id="imgshenasname_path" class="path"
                                                                 name="urlimgshenasname">
                                                         </div>
                                                     </div>
@@ -388,15 +391,15 @@
                                                     <div class="card">
                                                         @if($factor->user->imgturnover)
                                                         <div id="imgturnover_src" class="show">
-                                                            <a href="{{ asset($factor->user->imgturnover) }}"
+                                                            <a href="{{ $factor->user->imgturnover }}"
                                                                 target="_blank">
-                                                                <img src="{{ asset($factor->user->imgturnover) }}"
-                                                                    class="card-img-top" height="150px">
+                                                                <img src="{{ $factor->user->imgturnover }}"
+                                                                    class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                             </a>
                                                         </div>
                                                         @else
                                                         <div id="imgturnover_src" class="show">
-                                                            <img class="card-img-top" height="150px">
+                                                            <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                         </div>
                                                         @endif
                                                         <div class="card-body">
@@ -408,7 +411,7 @@
                                                             <input name="imgturnover" type="file" id="imgturnover"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
                                                                 data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="imgturnover" class="path"
+                                                            <input type="hidden" id="imgturnover_path" class="path"
                                                                 name="urlimgturnover">
                                                         </div>
                                                     </div>
@@ -442,7 +445,7 @@
                                                         <a
                                                             href="{{ asset($item['contract_values'][$contract_form->name]) }}">
                                                             <img src="{{ asset($item['contract_values'][$contract_form->name]) }}"
-                                                                class="card-img-top" height="150px">
+                                                                class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                                         </a>
                                                         <div class="card-body">
                                                             {!! $contract_form->help !!}
@@ -553,8 +556,15 @@
 @endauth
 @endsection
 @section('js')
-<script src="/assets/dashboard/js/site/adminJs.js"></script>
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+{{--
+    No dashboard bundle here (adminJs.js / layouts.js) — this page is used by
+    CUSTOMERS, not admins. site-upload.js (site/master.blade.php) already serves the
+    upload widgets, and @yield('js') renders AFTER it, so loading the dashboard bundle
+    here overrode it: the remove (X) on imgmeli / imgshenasname / imgturnover posted to
+    /dashboard/removeMedia, which requires CheckAdminAuthenticated, so a logged-in
+    customer was bounced and the remove silently failed. This page's own behaviour
+    lives in checkout.js below.
+--}}
 <script src="/assets/site/js/fix-number.js?v=1"></script>
 <script src="/assets/site/js/get-service.js?v=1"></script>
 <script src="/assets/site/js/checkout.js"></script>

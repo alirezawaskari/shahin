@@ -41,7 +41,7 @@
                     @foreach($agencyTypes as $item)
                         <tr>
                             <td>
-                                @if(File::exists(public_path() .$item->image))
+                                @if($item->image)
                                     <img src="{{$item->image}}" class="border-radius5" width="60px">
                                 @endif
                             </td>

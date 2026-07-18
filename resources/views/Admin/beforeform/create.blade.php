@@ -75,14 +75,14 @@
                     </select>
                 </div>
 
-                <div class='col-12 mb-3 file file--upload'>
-                    <label for='file'>
+                <div class='col-12 mb-3'>
+                    <label for='file' class="btn btn-primary custom-file-upload border border-1">
                         <i class="fa fa-cloud-upload"></i>انتخاب فایل
                     </label>
                     <input name="file" type="file" id="file"
-                        class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
+                        class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
                     <div id="file_src" class="show"></div>
-                    <input type="hidden" id="file" class="path" name="urlfile" value="">
+                    <input type="hidden" id="file_path" class="path" name="urlfile" value="">
                 </div>
 
                 <div class="col-12">
