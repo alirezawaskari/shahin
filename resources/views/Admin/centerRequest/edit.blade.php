@@ -213,6 +213,10 @@
                             <a href="{{ asset($gallery->image) }}" target="_blank">
                                 <img src="{{ $gallery->image }}" class="card-img-top" height="150px">
                             </a>
+                            @if($gallery->legacy)
+                            {{-- served from a legacy `galleries` row; the next save adopts it into Spatie --}}
+                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                         </div>
                         @endforeach
                     </div>
