@@ -8,7 +8,6 @@
                 </ul>
             </li>
             @foreach($menu as $category)
-
                 <li>
                     <a href="#">
                         <i class="icon {{ $category['icon'] }}"></i>
