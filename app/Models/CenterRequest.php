@@ -42,22 +42,24 @@ class CenterRequest extends Model implements HasMedia {
 
     /**
      * Gallery images to display: Spatie media if any, else the legacy `galleries` rows (which
-     * the next save migrates). Each entry exposes ->url and ->title so callers don't need to
-     * know which system served it. Read-only — legacy rows are never modified.
+     * the next save migrates). Each entry exposes ->url, ->title and ->legacy so callers don't
+     * need to know which system served it — ->legacy drives the "migrates on save" notice.
+     * Read-only — legacy rows are never modified.
      */
     public function galleryImages(): \Illuminate\Support\Collection
     {
         $media = \App\Helpers\MediaLibraryHelper::existingMedia($this, 'galleries');
         if ($media->isNotEmpty()) {
             return $media->map(fn ($m) => (object) [
-                'url'   => $m->getUrl(),
-                'title' => $m->getCustomProperty('title'),
+                'url'    => $m->getUrl(),
+                'title'  => $m->getCustomProperty('title'),
+                'legacy' => false,
             ])->values();
         }
 
         return $this->galleries
             ->filter(fn ($g) => ! empty($g->image))
-            ->map(fn ($g) => (object) ['url' => $g->image, 'title' => $g->title])
+            ->map(fn ($g) => (object) ['url' => $g->image, 'title' => $g->title, 'legacy' => true])
             ->values();
     }
 

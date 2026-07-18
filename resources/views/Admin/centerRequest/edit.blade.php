@@ -218,6 +218,10 @@
                                      style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;"
                                      alt="{{ $gallery->title ?? 'تصویر درخواست' }}">
                             </a>
+                            @if($gallery->legacy)
+                            {{-- served from a legacy `galleries` row; the next save adopts it into Spatie --}}
+                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                         </div>
                         @empty
                         <div class="col-12"><span class="text-muted">تصویری بارگذاری نشده است</span></div>
