@@ -838,7 +838,12 @@
                                         @endforeach
                                     </select>
                                     <div id="gallerySection">
-                                        <x-gallery-form :galleries="$ghorfeOnlineList->galleries" />
+                                        <div id="gallerySection">
+                                            <x-gallery-form
+                                                    :galleries="$ghorfeOnlineList->galleries"
+                                                    :ghorfeTemplet="$ghorfeOnlineList->template"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
