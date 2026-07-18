@@ -698,10 +698,14 @@ class FactorItemController extends Controller {
                 $value = !ctype_digit($factor_item_service_tariff->value) ? 1 : (float)$factor_item_service_tariff->value;
                 $requset_service_tariff_price = $factor_item_service_tariff->factorItem->factoritemable->is_change_factor_price ? ( float ) str_replace( ',', '', $request->price[ $i ]) : $factor_item_service_tariff->price;
                 $price = $factor_item_service_tariff->service_tariff_id != $request->service_tariff_id[ $i ] ? $service_tariff->price*$value : $requset_service_tariff_price;
+                $value = isset($request->value[ $i ]) ? $request->value[ $i ] : null;
+                $value = isset( $request->dentist_position[ $i ] ) ? $request->dentist_position[ $i ] . ' - ' . $value : (int)$value;
+				if($value != null && is_int($value)){
+                    $price = $price * $value;
+                }
                 $factor_item_service_tariff->update( [
                     'service_tariff_id' => $request->service_tariff_id[ $i ],
-                    'user_id' => $request->user_id[ $i ],
-                    'treatment_duration' => $request->treatment_duration[ $i ],
+                    'user_id' => isset($request->user_id) ? $request->user_id[ $i ] : null,                    'treatment_duration' => $request->treatment_duration[ $i ],
                     'session_number' => $request->session_number[ $i ],
                     'price' => $price,
                     'discount' => $discount,
