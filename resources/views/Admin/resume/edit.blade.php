@@ -150,7 +150,11 @@
                     <input type="hidden" id="resume" class="path" name="urlresume" value="">
                     <div class="mr-3">
                         @if($resume->resume)
-                        <a href="{{ $resume->resume }}" class="btn btn-primary py-1 px-2">مشاهده رزومه</a>
+                        <a href="{{ $resume->resume }}" target="_blank" rel="noopener" class="btn btn-primary py-1 px-2">مشاهده رزومه</a>
+                        @if($resume->mediaIsLegacy('resume'))
+                        {{-- still served from the legacy column; the next save adopts it into Spatie --}}
+                        <small class="d-block text-warning mt-1">فایل قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                        @endif
                         @endif
                     </div>
                 </div>

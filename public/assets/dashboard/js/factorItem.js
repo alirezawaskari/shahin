@@ -620,7 +620,7 @@ $(document).ready(function () {
                                 return `<span class="badge badge-warning">تاییدیه پشتیبان</span>`;
                                 break;
                             case 2:
-                                return `<span class="badge badge-warning">مشاوره شد</span>`;
+                                return `<span class="badge badge-success">پیش فاکتور تایید شد</span>`;
                                 break;
                             case 3:
                                 return `<span class="badge badge-warning">تعلیق پشتیبان</span>`;

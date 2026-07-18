@@ -69,6 +69,21 @@ $.ajaxSetup({
         return Math.max(0, Math.min(100, Math.round(loaded / total * 100)));
     }
 
+    /**
+     * True once every in-flight upload has flushed all its bytes to the socket. xhr.upload
+     * progress measures bytes handed to the OS send buffer, not bytes the server has received
+     * or processed — on a fast/localhost link the body flushes almost instantly, so loaded
+     * hits total long before the server finishes writing the file + Spatie row. Past this
+     * point the wait is entirely server-side and no progress event will ever fire again.
+     */
+    function allBytesSent() {
+        if (!active.length) return false;
+        for (var i = 0; i < active.length; i++) {
+            if (active[i].total <= 0 || active[i].loaded < active[i].total) return false;
+        }
+        return true;
+    }
+
     function ensureUi() {
         if (document.getElementById('shahin_upload_loading')) return;
 
@@ -110,23 +125,37 @@ $.ajaxSetup({
             bar.style.display = 'none';
             fill.style.width = '0%';
             bar.removeAttribute('aria-valuenow');
+            bar.classList.remove('sul-indeterminate');
             return;
         }
 
+        var multi = pending > 1;
         var pct = percent();
-        var txt = pending > 1
-            ? 'در حال بارگذاری ' + pending + ' فایل...'
-            : 'در حال بارگذاری فایل...';
 
-        if (pct >= 0) {
+        if (pct >= 0 && !allBytesSent()) {
+            // real byte progress: proportional fill. Visible only while bytes are still in
+            // flight — on localhost this phase is near-instant.
+            var txt = multi ? 'در حال بارگذاری ' + pending + ' فایل...' : 'در حال بارگذاری فایل...';
             bar.classList.remove('sul-indeterminate');
             fill.style.width = pct + '%';
             bar.setAttribute('aria-valuenow', pct);
             bar.querySelector('.sul-txt').textContent = txt + ' ' + pct + '٪';
-        } else {
+        } else if (allBytesSent()) {
+            // bytes are up; now waiting on the server (file write, media row, conversions).
+            // No progress event will fire, so show an indeterminate "processing" state rather
+            // than freeze at a solid 100% that looks stuck.
             bar.classList.add('sul-indeterminate');
             bar.removeAttribute('aria-valuenow');
-            bar.querySelector('.sul-txt').textContent = txt;
+            bar.querySelector('.sul-txt').textContent = multi
+                ? 'در حال پردازش ' + pending + ' فایل روی سرور...'
+                : 'در حال پردازش فایل روی سرور...';
+        } else {
+            // size not knowable (chunked / unknown-length body) -> stay indeterminate
+            bar.classList.add('sul-indeterminate');
+            bar.removeAttribute('aria-valuenow');
+            bar.querySelector('.sul-txt').textContent = multi
+                ? 'در حال بارگذاری ' + pending + ' فایل...'
+                : 'در حال بارگذاری فایل...';
         }
         bar.style.display = 'block';
     }
