@@ -36,7 +36,7 @@ class Center extends Model {
     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
     */
 
-    public function creatorRpresentation() {
+    public function creatorRepresentation() {
         return $this->belongsTo( Representation::class, 'creator_representation_id' );
     }
     /**

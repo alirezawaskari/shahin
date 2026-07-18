@@ -978,7 +978,7 @@ class CallcenterController extends Controller
             'number_card' => $request->number_card,
             'payment_code' => $request->payment_code,
             'center_id' => auth()->user()->center_id,
-            'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
+            'representation_id' => auth()->user()->admin_representation_id ? auth()->user()->admin_representation_id : null,
             'expired_at' => now()->addMinutes(30),
         ]);
         //upload bill_image cash factor

@@ -471,7 +471,7 @@ class FactorItem extends Model implements AuditableContract
             '17' => 'منتظر مشاوره شعبه',
             '20' => 'منتظر تایید فاکتور توسط کاربر',
             '21' => 'درانتظار اصلاح فاکتور به درخواست کاربر',
-            '2' => 'مشاوره شد',
+            '2' => 'پیش فاکتور تایید شد',
             '10' => 'آماده اجرا',
             '6' => 'شروع کار',
             '7' => 'اتمام کار',
@@ -1122,7 +1122,7 @@ class FactorItem extends Model implements AuditableContract
 
         //send sms to the user
         event( new smsService( $factorItem , 'setCenter') );
-        if($factorItem->center->creatorRpresentation)
+        if($factorItem->center->creatorRepresentation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->creator_representation_id ] );
         }
