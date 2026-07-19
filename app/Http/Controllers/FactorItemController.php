@@ -243,7 +243,7 @@ class FactorItemController extends Controller {
             $temp['installments_num'] = $factor_item->installments_num;
             $temp['installments_price'] = $factor_item->installments_price;
             $temp['prepayment']['price'] = isset($factor_item->property->prepayment_price) ? $factor_item->property->prepayment_price : 0;
-            $temp['prepayment']['debt'] = isset($factor_item->property->prepayment_debt) ? $factor_item->property->prepayment_debt : 0;
+            $temp['prepayment']['debt'] = FactorItem::getPrepaymentDebt($factor_item);
             $temp['prepayment']['num'] = isset($factor_item->property->prepayment_num) ? $factor_item->property->prepayment_num : 0;
             $temp['prepayment']['count'] = isset($factor_item->property->prepayment_count) ? $factor_item->property->prepayment_count : 0;
             $temp['price_difference']['installment'] = isset($factor_item->property->price_difference_installment) ? $factor_item->property->price_difference_installment : 0;

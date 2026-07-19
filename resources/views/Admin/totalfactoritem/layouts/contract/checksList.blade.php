@@ -40,6 +40,9 @@
                 @case('guaranty')
                 <span class="badge badge-info"> ضمانت</span>
                 @break
+                @case('prepayment')
+                <span class="badge badge-purple"> پیش پرداخت</span>
+                @break
                 @default
                 <span>{{$check->title}}</span>
                 @endswitch

@@ -843,7 +843,7 @@ class TotalFactorItem extends Model implements AuditableContract, HasMedia
         $item['total_debt'] = TotalFactorItem::calculateTotalDebt($totalFactorItem);
         $item['discount'] = $totalFactorItem->factorItems->sum('discount');
         $item['prepayment']['price'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_price : 0;
-        $item['prepayment']['debt'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_debt : 0;
+        $item['prepayment']['debt'] = TotalFactorItem::getPrepaymentDebt($totalFactorItem);
         $item['prepayment']['count'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_count : 0;
         $item['prepayment']['num'] = $totalFactorItem->property()->exists() ? $totalFactorItem->property->prepayment_num : 0;
         $item['percent_fines'] = $totalFactorItem->percent_fines;
@@ -876,6 +876,16 @@ class TotalFactorItem extends Model implements AuditableContract, HasMedia
         $item['contract_histories'] = $totalFactorItem->histories->where('reason_id' , 1);
 
         return $item;
+    }
+
+    /**
+     * Summary of getPrepaymentDebt
+     * @param TotalFactorItem $totalFactorItem
+     */
+    public static function getPrepaymentDebt(TotalFactorItem $totalFactorItem)
+    {
+        $prepayment_debt = (isset($totalFactorItem->property->prepayment_debt) && $totalFactorItem->property->prepayment_debt > 0) ? $totalFactorItem->property->prepayment_debt : 0;
+        return $prepayment_debt;
     }
      /**
      * @param mixed $item

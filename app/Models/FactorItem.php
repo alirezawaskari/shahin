@@ -1282,7 +1282,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
     private static function getPrepayment($item)
     {
         $prepayment_price = $item->property ? $item->property->prepayment_price : 0;
-        $prepayment_debt = $item->property ? $item->property->prepayment_debt : 0;
+        $prepayment_debt = ($item->property && $item->property->prepayment_debt) ? $item->property->prepayment_debt : 0;
         $prepayment_count = $item->property ? $item->property->prepayment_count : 0;
         $prepayment_num = $item->property ? $item->property->prepayment_num : 0;
         $prepayment = array('price' => $prepayment_price , 'debt' => $prepayment_debt , 'count' => $prepayment_count , 'num' => $prepayment_num);
@@ -1354,6 +1354,15 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             'item' => $item,
         ] )->render();
         ContractView::store($factorItem , $content);
+    }
+    /**
+     * Summary of getPrepaymentDebt
+     * @param FactorItem $factorItem
+     */
+    public static function getPrepaymentDebt(FactorItem $factorItem)
+    {
+        $prepayment_debt = (isset($factorItem->property->prepayment_debt) && $factorItem->property->prepayment_debt > 0) ? $factorItem->property->prepayment_debt : 0;
+        return $prepayment_debt;
     }
 }
 
