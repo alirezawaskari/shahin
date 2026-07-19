@@ -202,16 +202,18 @@
                 </div>
                 <div class="col-12 col-md-4 mt-2">
                     <div class="card">
-                        <div id="logo_src" class="show"></div>
+                        <div id="logo_src" class="show">
+                            <img class="card-img-top" height="150px">
+                        </div>
                         <div class="card-body">
                             <label>لوگو</label>
                             <br>
-                            <label for="logo" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
+                            <label for="logo" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2"
                                                                                            aria-hidden="true"></i> انتخاب تصویر </label>
                             <input name="logo" type="file" id="logo"
-                                   class="d-none file-upload file_upload_ajax"
+                                   class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                                    accept=".jpg,.jpeg,.png">
-                            <input type="hidden" id="logo_path" class="path" name="logo_path">
+                            <input type="hidden" id="logo" class="path" name="urllogo">
                         </div>
                     </div>
                 </div>

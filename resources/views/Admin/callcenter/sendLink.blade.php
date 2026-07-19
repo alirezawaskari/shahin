@@ -319,7 +319,7 @@
                                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image"
                                         type="file" id="bill_image_input2">
                                     <div id="bill_image_input2_src" class="show"></div>
-                                    <input type="hidden" id="bill_image_input2_path" class="path" name="url_bill_image"
+                                    <input type="hidden" id="bill_image_input2" class="path" name="url_bill_image"
                                         value="">
                                 </div>
 

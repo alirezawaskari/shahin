@@ -5,44 +5,10 @@ namespace App\Models;
 use CreatePurchaseInvoiceFactorsTable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class PurchaseInvoice extends Model implements HasMedia
+class PurchaseInvoice extends Model
 {
     use SoftDeletes;
-    use InteractsWithMedia;
-    use \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
-    /** Touch-to-migrate: legacy paths inside the `factor_image` JSON array -> `factor_image` collection. */
-    protected function legacyArrayMediaMap(): array
-    {
-        return ['factor_image' => 'factor_image'];
-    }
-
-    protected function legacyMediaMap(): array
-    {
-        return ['post_image' => 'post_image'];
-    }
-
-    /**
-     * Spatie collections: `factor_image` (multi — its URLs are appended to the
-     * factor_image JSON array column) and `post_image` (singleFile — shadowed by
-     * the getPostImageAttribute accessor, with legacy-column fallback).
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('factor_image')->useDisk('public');
-        $this->addMediaCollection('post_image')->useDisk('public')->singleFile();
-    }
-
-    /** Postage image url (Spatie first, legacy `post_image` column as fallback). */
-    public function getPostImageAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'post_image')
-            ?: ($this->getRawOriginal('post_image') ? asset($this->getRawOriginal('post_image')) : '');
-    }
 
     /**
      * @var string[]

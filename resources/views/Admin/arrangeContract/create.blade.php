@@ -30,13 +30,13 @@
 
                     <div class="col-12 col-md-6 mb-5">
                         <label>فایل *</label><br/>
-                        <label for="image" class="btn btn-primary custom-file-upload border border-1">
+                        <label for="image" class="custom-file-upload">
                             <i class="fa fa-cloud-upload"></i> بارگذاری
                         </label>
-                        <input id="image" class="d-none file-upload file_upload_ajax file-up" type="file"
+                        <input id="image" class="file-upload file_upload_ajax file-up" type="file"
                                name="image"/>
                         <div id="image_src" class="show"></div>
-                        <input type="hidden" id="image_path" class="path" name="file_path" value="">
+                        <input type="hidden" id="image" class="path" name="file_path" value="">
                         @if($errors->has('file_path'))
                             <span class="help-block sub-error"> {{$errors->first('file_path')}} </span>
                         @endif

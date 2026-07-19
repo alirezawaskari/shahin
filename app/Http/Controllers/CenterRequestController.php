@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use App\Models\CenterCategory;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -86,28 +85,18 @@ class CenterRequestController extends Controller
      */
     public function storeFiles(Request $request, $center_request): void
     {
-        // Spatie only. This used to also mirror each media's URL into a legacy `galleries`
-        // row; that dual-write is gone, so nothing in the app creates legacy gallery rows
-        // any more. Existing legacy rows still render (CenterRequest::galleryImages()) and
-        // migrate into this same collection on save (CenterRequest::legacyGalleryMigrations()).
-        //
-        // The alt text now rides along as the media's `title` custom property — the same key
-        // the legacy-row adoption writes, so both read back identically.
-        $files = $request->urlfile;
-        if (! $files) {
-            return;
-        }
+        $file_center = $request->urlfile;
         $alt = $request->alt;
-        foreach ($files as $key => $file) {
-            if (! $file) {
-                continue;
+        if ($file_center) {
+            $files = $file_center;
+            foreach ($files as $key => $file) {
+                if ($file) {
+                    if (isset($file_center)) {
+                        $url = Helper::moveImage($file, 'document');
+                        $center_request->galleries()->create(['title' => $alt[$key], 'image' => $url]);
+                    }
+                }
             }
-            MediaLibraryHelper::attachTo(
-                $center_request,
-                (string) $file,
-                'galleries',
-                ['title' => $alt[$key] ?? null]
-            );
         }
     }
 

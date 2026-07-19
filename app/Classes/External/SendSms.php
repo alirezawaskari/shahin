@@ -24,8 +24,7 @@ class SendSms
         if($SmsTemplate){
             $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
             if($message !== false){
-                // Static method: resolve SettingsService from the container ($this is invalid here).
-                $smsService = app(SettingsService::class)->get('sms_panel') ?? 'IranSms';
+                $smsService = $this->settings->get('sms_panel') ?? 'IranSms';;
                 if ($smsService === 'NeginSms') {
                     NeginSms::sendSingleSms($phone, $message,service_type:'test');
                 } else {

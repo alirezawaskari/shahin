@@ -7,8 +7,7 @@
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_factor' , $form->data_display_level))
-            {{-- read-only: the updateServiceTariff form wrapping this has no submit control --}}
-            @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+            @include('Admin.factoritem.layouts.formItem')
             @endif
             @endforeach
             @endif
@@ -33,12 +32,12 @@
             @case('factor-image')
             <div class="col-12 row">
                 <div class="col-md-4">
-                    <div id="addnew" class="mb-5">
-                        <label for="{{ $form->name }}" class="btn btn-primary custom-file-upload border border-1">
+                    <div id="addnew" class="file file--upload mb-5">
+                        <label for="{{ $form->name }}">
                             <i class="fa fa-upload ml-1" aria-hidden="true"></i>افزودن {!! $form->help !!}
                         </label>
                         <input name="item[{{ $form->name }}][]" type="file" id="{{ $form->name }}"
-                            class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
+                            class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                             accept=".jpg,.jpeg,.png">
                     </div>
                 </div>

@@ -129,11 +129,11 @@
                 <div class="tab-pane fade p-t-20" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                     <div class="card-group">
                         <div class="card">
-                            @if(empty($user->imgmeli))
+                            @if(is_null($user->imgmeli))
                                 <p class="my-4 text-danger text-center">ثبت نشده</p>
                             @else
-                                <a href="{{ $user->imgmeli }}">
-                                    <img src="{{ $user->imgmeli }}" class="card-img-top">
+                                <a href="{{ asset($user->imgmeli) }}">
+                                    <img src="{{ asset($user->imgmeli) }}" class="card-img-top">
                                 </a>
                             @endif
                             <div class="card-body">
@@ -141,11 +141,11 @@
                             </div>
                         </div>
                         <div class="card">
-                            @if(empty($user->imgshenasname))
+                            @if(is_null($user->imgshenasname))
                                 <p class="my-4 text-danger text-center">ثبت نشده</p>
                             @else
-                                <a href="{{ $user->imgshenasname }}">
-                                    <img src="{{ $user->imgshenasname }}" class="card-img-top">
+                                <a href="{{ asset($user->imgshenasname) }}">
+                                    <img src="{{ asset($user->imgshenasname) }}" class="card-img-top">
                                 </a>
                             @endif
                             <div class="card-body">
@@ -153,11 +153,11 @@
                             </div>
                         </div>
                         <div class="card">
-                            @if(empty($user->avatar))
+                            @if(is_null($user->avatar))
                                 <p class="my-4 text-danger text-center">ثبت نشده</p>
                             @else
-                                <a href="{{ $user->avatar }}">
-                                    <img src="{{  $user->avatar }}" class="card-img-top">
+                                <a href="{{ asset($user->avatar) }}">
+                                    <img src="{{  asset($user->avatar) }}" class="card-img-top">
                                 </a>
                             @endif
                             <div class="card-body">

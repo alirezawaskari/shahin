@@ -10,60 +10,10 @@ use Carbon\Carbon;
 use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use Illuminate\Support\Facades\View;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-class TotalFactorItem extends Model implements AuditableContract, HasMedia
+class TotalFactorItem extends Model implements AuditableContract
 {
     use Auditable;
     use SoftDeletes;
-    use InteractsWithMedia;
-    use \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /**
-     * Touch-to-migrate: legacy paths embedded in these JSON columns -> contract_documents.
-     * Both are nested structures; only values resolving to a real file under public/ are
-     * adopted, and the columns themselves stay untouched.
-     */
-    protected function legacyArrayMediaMap(): array
-    {
-        return [
-            'contract_values' => self::CONTRACT_COLLECTION,
-            'factor_values'   => self::CONTRACT_COLLECTION,
-        ];
-    }
-
-    /**
-     * Spatie collection for the contract document images. Additive: every upload is kept
-     * and carries a 'field' custom property naming the ContractForm it belongs to, so one
-     * bucket serves all contract fields.
-     */
-    const CONTRACT_COLLECTION = 'contract_documents';
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection(self::CONTRACT_COLLECTION)->useDisk('public');
-    }
-
-    /**
-     * Urls of the file(s) uploaded for ContractForm $field: Spatie media if any, else the
-     * legacy path(s) still in contract_values. Absolute urls — render {{ $url }} as-is.
-     */
-    public function contractDocumentUrls(string $field): array
-    {
-        return $this->mediaUrlsForField(self::CONTRACT_COLLECTION, 'contract_values', $field);
-    }
-
-    /** Per-file provenance for contract documents — see FactorItem::documentItems(). */
-    public function contractDocumentItems(string $field): array
-    {
-        return $this->mediaItemsForField(self::CONTRACT_COLLECTION, 'contract_values', $field);
-    }
-
-    /** First url for a single-'file' contract field, or '' when nothing is uploaded. */
-    public function contractDocumentUrl(string $field): string
-    {
-        return $this->contractDocumentUrls($field)[0] ?? '';
-    }
 
     /**
      * @var string[]

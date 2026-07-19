@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\MediaLibraryHelper;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\TicketHistory;
 use Carbon\Carbon;
@@ -19,25 +19,22 @@ class TicketHistoryController extends Controller
         $inputs['user_id'] = auth()->user()->id;
         $inputs['type'] = 1;
         unset($inputs['urlfile']);
-        $inputs['file'] = [];
         $file_ticket = $request->urlfile;
-
-        $ticket_history = TicketHistory::create($inputs);
-
         $temp = [];
         if ($file_ticket) {
             $files = $file_ticket;
             foreach ($files as $file) {
                 if ($file) {
-                    $media = MediaLibraryHelper::attachTo($ticket_history, (string) $file, 'file');
-                    if ($media) {
-                        $temp[] = $media->getUrl();
+                    if (isset($file_ticket)) {
+                        $url = Helper::moveImage($file,'document');
+                        $temp[] = $url;
                     }
                 }
             }
-            $ticket_history->update(['file' => $temp]);
+            $inputs['file'] = $temp;
         }
 
+        $ticket_history = TicketHistory::create($inputs);
         $ticket = $ticket_history->ticket;
 
         $ticket->update([

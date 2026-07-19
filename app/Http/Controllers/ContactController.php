@@ -58,23 +58,18 @@ class ContactController extends Controller
         //check if user not exist -> create user
         User::createUser($request);
         $user = User::where('phone',$request->phone)->first();
-        $contact = Contact::create(["name" => $request->name.' '.$request->family,
+        $contactsImages = null;
+        if (!is_null($request->file('images'))) {
+            foreach ($request->file('images') as $image) {
+                $contactsImages[] = Helper::uploadImage($image, 'contactus');
+            }
+        }
+        Contact::create(["name" => $request->name.' '.$request->family,
             "phone" => $request->phone,
             "card_id" => $request->card_id,
-            "text" => $request->text, 'status' => '0', 'files' => null,
+            "text" => $request->text, 'status' => '0', 'files' => $contactsImages,
             "representation_id" => session()->has('representation') ? session()->get('representation')->id : null,
         ]);
-
-        // Ajax temp uploads: urlimages[] holds Spatie media ids. Move each into the
-        // contact's own collection. The legacy `files` column is left null and is never
-        // written — readers use $contact->file_urls, which prefers this media. The Contact
-        // is created first because attachTo() needs a persisted model to attach to.
-        foreach ((array) $request->urlimages as $mediaId) {
-            if (! $mediaId) {
-                continue;
-            }
-            \App\Helpers\MediaLibraryHelper::attachTo($contact, (string) $mediaId, 'files');
-        }
         //create task to follow up
         $callcenter_roles = Role::select('id')->where('card_id' , $request->card_id)->get();
         $description = 'تماس با ما ، موضوع :'.$request->text;

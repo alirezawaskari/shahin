@@ -66,7 +66,7 @@ class WalletTransactionController extends Controller
 
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
+            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
         }
 
         return redirect()->back()->with([

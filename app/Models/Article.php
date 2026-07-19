@@ -9,13 +9,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Article extends Model implements HasMedia {
-    use Sluggable, SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
-    protected function legacyMediaMap(): array
-    {
-        return ['old_image' => 'old_image'];
-    }
+    use Sluggable, SoftDeletes, InteractsWithMedia;
 
     /**
     * @var array
@@ -38,8 +32,7 @@ class Article extends Model implements HasMedia {
 
     public function getOldImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'old_image')
-            ?: ($this->getRawOriginal('old_image') ? asset($this->getRawOriginal('old_image')) : '');
+        return $this->getFirstMediaUrl('old_image');
     }
 
     /**

@@ -112,8 +112,8 @@
                             <tr>
                                 <th scope="row">رسید دریافت وجه</th>
                                 <td>
-                                    @if($factor->bill_image)
-                                    <a href="{{ $factor->bill_image }}" class="btn btn-primary"
+                                    @if(!is_null($factor->bill_image))
+                                    <a href="{{ asset($factor->bill_image) }}" class="btn btn-primary"
                                         target="_blank">مشاهده</a>
                                     @else
                                     ندارد

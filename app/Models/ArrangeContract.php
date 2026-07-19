@@ -4,34 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class ArrangeContract extends Model implements HasMedia
+class ArrangeContract extends Model
 {
-    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-file column -> Spatie single-file collection. */
-    protected function legacyMediaMap(): array
-    {
-        return ['file' => 'file'];
-    }
+    use SoftDeletes;
 
     /**
      * @var string[]
      */
     protected $dates = ['deleted_at'];
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('file')->useDisk('public')->singleFile();
-    }
-
-    public function getFileAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'file')
-            ?: ($this->getRawOriginal('file') ? asset($this->getRawOriginal('file')) : '');
-    }
 
     /**
      *

@@ -13,43 +13,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Service extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
-    use Sluggable,SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
-    protected function legacyMediaMap(): array
-    {
-        return [
-            'image'     => 'image',
-            'icon'      => 'icon',
-            'img_box_1' => 'img_box_1',
-            'thumb'     => 'thumb',
-            'image_app' => 'image_app',
-        ];
-    }
-
-    /**
-     * Touch-to-migrate: legacy `galleries` rows -> the homepage-banner slot collections.
-     *
-     * The type mapping is taken from the ORIGINAL writer, ServiceController::uploadSiteImages()
-     * before the Spatie migration (commit 08c1026c):
-     *     verticalImages   -> Gallery type 0
-     *     horizontalImages -> Gallery type 1
-     * Note this is NOT the mapping Category/GhorfeOnlineList use (1=desktop, 0=mobile): the
-     * legacy `type` column means different things per model, so it must never be assumed.
-     *
-     * Legacy type 2 rows also exist for services (20, under /upload/gallery/, all titled
-     * "تست 1"), but nothing in the codebase — past or present — ever wrote a Gallery with
-     * type 2, so there is no collection they belong to. They are deliberately NOT adopted.
-     */
-    protected function legacyGalleryMigrations(): array
-    {
-        return [
-            ['collection' => 'gallery_horizontal', 'type' => 1, 'slotted' => true,
-             'max' => self::GALLERY_COLLECTIONS['gallery_horizontal']],
-            ['collection' => 'gallery_vertical',   'type' => 0, 'slotted' => true,
-             'max' => self::GALLERY_COLLECTIONS['gallery_vertical']],
-        ];
-    }
+    use Sluggable,SoftDeletes,InteractsWithMedia;
 
     /** Media collections owned directly by the service (Spatie native). */
     const MEDIA_FIELDS = ['image', 'icon', 'img_box_1', 'thumb', 'image_app'];
@@ -79,46 +43,29 @@ class Service extends Model implements AuditableContract, HasMedia
             ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
     }
 
-    /**
-     * Disk-checked URLs of a multi-image gallery collection (gallery_horizontal,
-     * gallery_vertical, portfolio) — media whose file is missing on disk is skipped,
-     * mirroring the single-image accessors. For display surfaces; edit/management
-     * views should keep iterating getMedia() so broken rows stay removable.
-     */
-    public function galleryUrls(string $collection)
-    {
-        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
-            ->map(fn ($m) => $m->getUrl());
-    }
-
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
-            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
+        return $this->getFirstMediaUrl('image');
     }
 
     public function getIconAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon')
-            ?: ($this->getRawOriginal('icon') ? asset($this->getRawOriginal('icon')) : '');
+        return $this->getFirstMediaUrl('icon');
     }
 
     public function getImgBox1Attribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1')
-            ?: ($this->getRawOriginal('img_box_1') ? asset($this->getRawOriginal('img_box_1')) : '');
+        return $this->getFirstMediaUrl('img_box_1');
     }
 
     public function getThumbAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb')
-            ?: ($this->getRawOriginal('thumb') ? asset($this->getRawOriginal('thumb')) : '');
+        return $this->getFirstMediaUrl('thumb');
     }
 
     public function getImageAppAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app')
-            ?: ($this->getRawOriginal('image_app') ? asset($this->getRawOriginal('image_app')) : '');
+        return $this->getFirstMediaUrl('image_app');
     }
 
     /**

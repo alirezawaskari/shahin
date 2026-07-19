@@ -10,10 +10,7 @@
                 placeholder="توضیح خود را بنویسید...">{{ $totalFactorItem->totalFactorItemContractSettlement ? $totalFactorItem->totalFactorItemContractSettlement->description_request_contract_settlement : '' }}</textarea>
         </div>
         <div class="col-12 col-md-4 card-body">
-            {{-- truthiness, not isset(): img_request_contract_settlement is an accessor that
-                 returns '' when there is no image, and isset('') is true - which would render
-                 <img src=""> and hide the upload widget below. --}}
-            @if ($totalFactorItem->totalFactorItemContractSettlement?->img_request_contract_settlement)
+            @if (isset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement))
             <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
                 target="_blank">
                 <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
@@ -31,7 +28,7 @@
                 <input name="request_contract_settlement" type="file" id="request_contract_settlement"
                     class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                     accept=".jpg,.jpeg,.png">
-                <input type="hidden" id="request_contract_settlement_path" class="path"
+                <input type="hidden" id="request_contract_settlement" class="path"
                     name="urlrequest_contract_settlement">
             </div>
             @endif

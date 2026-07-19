@@ -5,7 +5,6 @@ namespace App\Services\V1\Admin;
 use App\Models\Employee;
 use App\Models\User;
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -128,21 +127,15 @@ class EmployeeService {
     * @param string $destinationPath
     */
     public function replaceImage( Request $request, $model, string $inputField, string $dbField, string $destinationPath ): void {
-        // The url* fields now carry a Spatie media id from the ajax upload (no longer a
-        // file path), so attach that media to the owning model's single-file collection
-        // instead of the legacy moveImage()+column write.
-        $mediaId = $request->$inputField;
-        if ( empty( $mediaId ) ) {
+        if ( !$request->has( $inputField ) || empty( $request->$inputField ) ) {
             return;
         }
-        // $model is already the correct owner: the User for its KYC/avatar collections,
-        // the Employee for imgaccess/imglastcertificate (verified against both callers).
-        // Guard that it's a persisted HasMedia model before attaching.
-        if ( !( $model instanceof \Spatie\MediaLibrary\HasMedia ) || !$model->exists ) {
-            return;
+        if ( !empty( $model->$dbField ) ) {
+            Helper::deleteImage( $model->$dbField );
         }
-        MediaLibraryHelper::attachTo( $model, $mediaId, $dbField );
-        // Field is a Spatie collection/accessor now — never mass-assign it as a column.
+        $inputs = $request->all();
+        $inputs[ $dbField ] = Helper::moveImage( $request->$inputField, $destinationPath );
+        $request->merge( $inputs );
     }
     /**
      * Summary of handleUserImages
@@ -152,24 +145,15 @@ class EmployeeService {
      * @return void
      */
     public function handleUserImages( Request $request, User $user, array &$inputs ): void {
-        // Spatie: attach each KYC/avatar image from its temp media id to the user's
-        // single-file collection (replaces the legacy replaceImage/moveImage writes).
-        foreach ( [
-            'urlimgshenasname' => 'imgshenasname',
-            'urlimgmeli'       => 'imgmeli',
-            'urlimgsignature'  => 'imgsignature',
-            'urlavatar'        => 'avatar',
-        ] as $inputField => $collection ) {
-            if ( !empty( $request->$inputField ) ) {
-                \App\Helpers\MediaLibraryHelper::attachTo( $user, $request->$inputField, $collection );
-            }
-        }
 
-        // Keep the image fields out of the mass-update — they're Spatie collections now.
-        unset(
-            $inputs['imgshenasname'], $inputs['imgmeli'], $inputs['imgsignature'], $inputs['avatar'],
-            $inputs['urlimgshenasname'], $inputs['urlimgmeli'], $inputs['urlimgsignature'], $inputs['urlavatar']
-        );
+        $this->replaceImage( $request, $user, 'urlimgshenasname', 'imgshenasname', 'document' );
+
+        $this->replaceImage( $request, $user, 'urlimgmeli', 'imgmeli', 'document' );
+
+        $this->replaceImage( $request, $user, 'urlimgsignature', 'imgsignature', 'document' );
+
+        $this->replaceImage( $request, $user, 'urlavatar', 'avatar', 'document' );
+
     }
     /**
      * Summary of cleanupInputs

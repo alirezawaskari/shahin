@@ -4,17 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Ticket extends Model implements HasMedia {
-    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy paths inside the `file` JSON array -> `file` collection. */
-    protected function legacyArrayMediaMap(): array
-    {
-        return ['file' => 'file'];
-    }
+class Ticket extends Model {
+    use SoftDeletes;
     /**
     * @var array
     */
@@ -26,11 +18,6 @@ class Ticket extends Model implements HasMedia {
     protected $casts = [
         'file' => 'array',
     ];
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('file')->useDisk('public');
-    }
 
     /**
     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

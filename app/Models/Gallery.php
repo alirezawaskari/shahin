@@ -17,12 +17,18 @@ class Gallery extends Model
 
     protected $dates = ['deleted_at'];
 
-    /*
-     * gallerycategory() / galleryghorfe() removed with the GalleryCategory model: both were
-     * belongsTo(GalleryCategory::class), but `gallery_categories` does not exist as a table
-     * and `galleries` has no gallery_category_id column, so neither relation could ever
-     * resolve. Nothing called them.
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+    public function gallerycategory()
+    {
+        return $this->belongsTo(GalleryCategory::class);
+    }
+
+    public function galleryghorfe()
+    {
+        return $this->belongsTo(GalleryCategory::class);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo

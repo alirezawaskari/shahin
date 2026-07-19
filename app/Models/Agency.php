@@ -4,21 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Agency extends Model implements HasMedia
+class Agency extends Model
 {
-    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
-    protected function legacyMediaMap(): array
-    {
-        return ['imgmeli' => 'imgmeli', 'imgturnover' => 'imgturnover'];
-    }
-
-    /** Document images owned by the agency (national-id card, turnover statement). */
-    const MEDIA_FIELDS = ['imgmeli', 'imgturnover'];
+    use SoftDeletes;
 
     /**
      * @var array
@@ -31,25 +20,6 @@ class Agency extends Model implements HasMedia
     protected $casts = [
         'values' => 'array'
     ];
-
-    public function registerMediaCollections(): void
-    {
-        foreach (self::MEDIA_FIELDS as $field) {
-            $this->addMediaCollection($field)->useDisk('public')->singleFile();
-        }
-    }
-
-    public function getImgmeliAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgmeli')
-            ?: ($this->getRawOriginal('imgmeli') ? asset($this->getRawOriginal('imgmeli')) : '');
-    }
-
-    public function getImgturnoverAttribute(): string
-    {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'imgturnover')
-            ?: ($this->getRawOriginal('imgturnover') ? asset($this->getRawOriginal('imgturnover')) : '');
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

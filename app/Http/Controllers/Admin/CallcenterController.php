@@ -938,7 +938,7 @@ class CallcenterController extends Controller
         ]);
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            \App\Helpers\MediaLibraryHelper::attachTo($credit_factor, $request->url_bill_image, 'bill_image');
+            $credit_factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
         }
 
         $credit_factor->totalFactorItem()->create([
@@ -978,12 +978,12 @@ class CallcenterController extends Controller
             'number_card' => $request->number_card,
             'payment_code' => $request->payment_code,
             'center_id' => auth()->user()->center_id,
-            'representation_id' => auth()->user()->admin_representation ? auth()->user()->admin_representation->id : null,
+            'representation_id' => auth()->user()->admin_representation_id ? auth()->user()->admin_representation_id : null,
             'expired_at' => now()->addMinutes(30),
         ]);
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            \App\Helpers\MediaLibraryHelper::attachTo($cash_factor, $request->url_bill_image, 'bill_image');
+            $cash_factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
         }
         return $cash_factor;
     }

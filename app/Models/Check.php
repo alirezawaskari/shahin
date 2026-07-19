@@ -2,48 +2,13 @@
 
 namespace App\Models;
 
-use App\Helpers\MediaLibraryHelper;
-use App\Models\Concerns\AdoptsLegacyMedia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Check extends Model implements AuditableContract, HasMedia {
+class Check extends Model implements AuditableContract {
     use \OwenIt\Auditing\Auditable;
     use SoftDeletes;
-    use InteractsWithMedia;
-    use AdoptsLegacyMedia;
-
-    /**
-     * Front/back photos of the cheque. singleFile() => re-uploading replaces natively.
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('front')->useDisk('public')->singleFile();
-        $this->addMediaCollection('back')->useDisk('public')->singleFile();
-    }
-
-    /**
-     * The photos used to live as File(path, title) rows on files(). Those rows are
-     * read-only now: adopted into Spatie on save, never written or deleted.
-     */
-    protected function legacyFileMap(): array
-    {
-        return ['front' => 'front', 'back' => 'back'];
-    }
-
-    /** Spatie first, else the legacy File row. No such column exists, so this is the reader. */
-    public function getFrontImageAttribute(): string
-    {
-        return MediaLibraryHelper::urlIfFileExists($this, 'front') ?: $this->legacyFileUrl('front');
-    }
-
-    public function getBackImageAttribute(): string
-    {
-        return MediaLibraryHelper::urlIfFileExists($this, 'back') ?: $this->legacyFileUrl('back');
-    }
 
     /**
     * @var string[]

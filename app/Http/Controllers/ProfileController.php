@@ -119,32 +119,35 @@ class ProfileController extends Controller
 
         $inputs = $request->all();
         $user = auth()->user();
+		$avatar = $request->file('avatar');
 
-        // Spatie: avatar may arrive as a direct file (avatar) or a temp media id
-        // (urlpersonalPicture); KYC docs arrive as temp media ids. attachTo/attachUpload
-        // replace the single file in each collection (native old-file cleanup, no deleteImage).
-        if ($request->file('avatar')) {
-            \App\Helpers\MediaLibraryHelper::attachUpload($user, $request->file('avatar'), 'avatar');
-        } elseif ($request->urlpersonalPicture) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlpersonalPicture, 'avatar');
+		if ($avatar) {
+            $urlavatar = $this->upload($avatar);
+            $user->avatar = $urlavatar;
+            $user->update(['avatar' => $urlavatar]);
+
         }
-        if ($request->urlimgshenasname) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgshenasname, 'imgshenasname');
+        if($request->urlpersonalPicture)
+        {
+            Helper::deleteImage($user->avatar);
+            $inputs['avatar'] = Helper::moveImage($request->urlpersonalPicture,'document');
         }
-        if ($request->urlimgmeli) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgmeli, 'imgmeli');
+        if($request->urlimgshenasname)
+        {
+            Helper::deleteImage($user->imgshenasname);
+            $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname,'document');
         }
-        if ($request->urlimgturnover) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgturnover, 'imgturnover');
+
+        if($request->urlimgmeli)
+        {
+            Helper::deleteImage($user->imgmeli);
+            $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli,'document');
         }
-        if ($request->urlimgsignature) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgsignature, 'imgsignature');
+        if($request->urlimgturnover)
+        {
+            Helper::deleteImage($user->imgturnover);
+            $inputs['imgturnover'] = Helper::moveImage($request->urlimgturnover,'document');
         }
-        // Keep image fields out of the mass-update — they're Spatie collections/accessors now.
-        unset(
-            $inputs['avatar'], $inputs['imgshenasname'], $inputs['imgmeli'], $inputs['imgturnover'], $inputs['imgsignature'], $inputs['personalPicture'],
-            $inputs['urlpersonalPicture'], $inputs['urlimgshenasname'], $inputs['urlimgmeli'], $inputs['urlimgturnover'], $inputs['urlimgsignature']
-        );
         unset($inputs['phone']);
         if ($inputs['password'] == '') {
             unset($inputs['password']);
@@ -168,7 +171,8 @@ class ProfileController extends Controller
         $user = auth()->user();
         $img = $request->file('image');
         if ($img) {
-            \App\Helpers\MediaLibraryHelper::attachUpload($user, $img, 'avatar');
+            $url = $this->upload($img);
+            $user->update(['avatar' => $url]);
         }
 
         return redirect()->back()->with([

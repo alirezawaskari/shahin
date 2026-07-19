@@ -84,11 +84,11 @@
                     @endif
                 </div>
 
-                @if(count($contact->file_urls))
+                @if(!is_null($contact->files) && is_array($contact->files))
                     <div class="col-12 col-md-6 mb-3">
                         <h3>تصاویر :</h3>
                         <hr>
-                        @foreach($contact->file_urls as $image_url)
+                        @foreach($contact->files as $image_url)
                             <a href="{{asset($image_url)}}"><img src="{{asset($image_url)}}" width="200px" ></a>
                         @endforeach
                         <hr>

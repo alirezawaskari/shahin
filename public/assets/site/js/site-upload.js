@@ -4,7 +4,7 @@
  * Site pages do not load the dashboard bundle (adminJs.js), so this file
  * mirrors the upload helpers the .file_upload_ajax and multipleImages
  * widgets rely on. Uploads go to the (now public, throttled + validated)
- * /dashboard/uploadFilesTemporarily endpoint and the returned MediaLibrary
+ * /dashboard/uploadPhotosTemporarily endpoint and the returned MediaLibrary
  * id is written into the hidden *_path field / multiple_image[i][file] rows.
  */
 
@@ -193,66 +193,41 @@ function new_link(file_attr_id) {
     ct++;
     var div1 = document.createElement('div');
     div1.id = ct;
-    // .div_remove_btn -> the .remove_temp_media handler below finds this row.
-    div1.className = "col-md-3 div_remove_btn text-center";
-    // Uses btn-danger (which app.css HAS) rather than the old badge-red + text-white combo:
-    // badge-red only exists in dashboard.css, so on site pages that rendered a white icon on
-    // a white background — the button was there, just invisible.
-    //
-    // No data-id here: the row is built before the upload resolves. The temp media id lands
-    // in this row's hidden .path input right after, and the handler reads it from there, so
-    // the file is really deleted from the server instead of just vanishing from the DOM.
-    // fa-times, not fa-close: this page runs Font Awesome 5 (app.css), where fa-close does
-    // not exist (FA4-only alias) and would render an empty button. fa-times is the same
-    // glyph and resolves in BOTH bundles.
-    var delLink = '<div class="mt-1"><a href="javascript:void(0)" class="btn btn-sm text-danger remove_temp_media"' +
-        ' title="حذف فایل"><i class="fa fa-times" aria-hidden="true"></i></a></div>';
+    div1.className = "col-md-3";
+    var delLink = '<div class="btn badge-red mt-2"><a class="text-white" href="javascript:delIt(' + ct + ' , \'' + file_attr_id + '\')"><i class="fa fa-trash" aria-hidden="true"></i></a></div>';
     div1.innerHTML = document.getElementById(file_attr_id + '_newlinktpl').innerHTML + delLink;
     document.getElementById(file_attr_id + '_newlink').appendChild(div1);
     div1.children[0].id = file_attr_id + '_src' + ct;
     div1.children[1].id = file_attr_id + ct;
 }
 
+function delIt(eleId, file_attr_id) {
+    var ele = document.getElementById(eleId);
+    if (ele && ele.parentNode) {
+        ele.parentNode.removeChild(ele);
+    }
+}
+
 // Single-file ajax upload.
-// Namespaced + off-before-on so that pages which load BOTH this file and the dashboard
-// adminJs.js (e.g. the site factorItem page) bind the handler only ONCE — otherwise every
-// selected file uploads and previews twice.
-$(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUploadAjax', '.file_upload_ajax', function () {
+$(document).on('change', '.file_upload_ajax', function () {
     var file = $($(this)).prop('files')[0];
     if (!file) return;
 
     var file_attr_name = $(this).attr('name') || '';
     var file_attr_id = $(this).attr('id');
-
-    // Re-selecting a different file for a single field: drop the previously uploaded
-    // temp on the server so it isn't orphaned on disk, and clear its hidden id.
-    var prevTemp = $('#' + file_attr_id + '_path').val();
-    if (prevTemp) {
-        $.post('/upload/removeTemp', { media_id: prevTemp });
-        $('#' + file_attr_id + '_path').val('');
-    }
-
-    // A widget can opt into images-only via data-images-only="1" (e.g. the centerRequest
-    // gallery form). Others keep the full whitelist (documents, archives, pdf).
-    var imagesOnly = String($(this).data('images-only')) === '1';
     var fileType = file["type"];
-    var imageTypes = [
+    var validImageTypes = [
         "image/jpg", "image/jpeg", "image/png", "image/webp", "image/svg+xml",
-        "image/psd", "image/tiff", "image/gif"
-    ];
-    var validImageTypes = imagesOnly ? imageTypes : imageTypes.concat([
-        "application/pdf",
+        "image/psd", "image/tiff", "image/gif", "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "application/vnd.ms-excel", "application/x-rar-compressed",
         "application/x-zip-compressed"
-    ]);
+    ];
     var size = file.size;
 
     if ($.inArray(fileType, validImageTypes) === -1) {
-        toastr.error(imagesOnly
-            ? 'آپلود ناموفق : فقط تصویر مجاز است.'
-            : 'آپلود ناموفق : فرمت فایل مجاز نیست.');
+        toastr.error('آپلود ناموفق : فرمت فایل مجاز نیست.');
         return;
     }
     if (size > 6000000) {
@@ -262,7 +237,6 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
 
     var fd = new FormData();
     fd.append('file', file);
-    if (imagesOnly) { fd.append('images_only', '1'); }
     var reader = new FileReader();
     var loading = '<div class="position-absolute ajax-loading align-items-center flex-column pt-5 mb-n5 d-none text-center" id="loading' + file_attr_id + '">' +
         '<div role="status" class="spinner-border text-primary"></div><br><span>در حال بارگذاری...</span></div>';
@@ -272,32 +246,27 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
     reader.onload = function (e) {
         $.ajax({
             type: "post",
-            url: '/dashboard/uploadFilesTemporarily',
+            url: '/dashboard/uploadPhotosTemporarily',
             data: fd,
             contentType: false,
             processData: false,
             success: function (result) {
                 if (result['status'] === true) {
-                    $('#loading' + file_attr_id).remove();
+                    $('#' + file_attr_id + '_src.show div').remove();
+                    $('#' + file_attr_id + '_src.show img').remove();
                     var previewFile = '';
                     if (!((fileType == 'application/x-rar-compressed') || (fileType == 'application/x-zip-compressed') || (fileType == 'application/pdf') || (fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') || (fileType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) {
-                        previewFile = '<img src="' + e.target.result + '" id="' + index_add_photo + '" class="rounded border" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">';
+                        previewFile = '<img src="' + e.target.result + '" id="' + index_add_photo + '" class="card-img-top" height="150px">';
                     } else {
-                        var viewHref = result['media_id'] ? ('/upload/view/' + result['media_id']) : '#';
-                        previewFile = '<a href="' + viewHref + '" target="_blank" rel="noopener" id="' + index_add_photo + '" class="disInline image_create btn border border-success mr-3">مشاهده</a>';
+                        previewFile = '<a href="' + result['image_name']['id'] + '" id="' + index_add_photo + '" class="disInline image_create btn border border-success mr-3">مشاهده</a>';
                     }
                     if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
                         new_link(file_attr_id);
                         $('#' + file_attr_id + '_src' + ct + '.show').append(previewFile);
-                        $('#' + file_attr_id + ct + '.path').val(result['media_id']);
+                        $('#' + file_attr_id + ct + '.path').val(result['image_name']['id']);
                     } else {
-                        // single-file field: replace the whole preview (image OR مشاهده link,
-                        // never both) and add a remove (✕) button that drops the temp upload.
-                        var removeBtn = '<div class="mt-1"><a href="javascript:void(0)" ' +
-                            'class="btn btn-sm text-danger remove_temp_media" data-id="' + result['media_id'] + '" ' +
-                            'data-field="' + file_attr_id + '"><i class="fa fa-times"></i></a></div>';
-                        $('#' + file_attr_id + '_src.show').empty().append(previewFile).append(removeBtn);
-                        $('#' + file_attr_id + '_path').val(result['media_id']);
+                        $('#' + file_attr_id + '_src.show').append(previewFile);
+                        $('#' + file_attr_id + '_path').val(result['image_name']['id']);
                     }
                 } else if (result['status'] === false) {
                     toastr.error(result['message'] || 'آپلود ناموفق');
@@ -311,41 +280,6 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
         });
     };
     reader.readAsDataURL(file);
-});
-
-// Remove a just-uploaded TEMP file on a guest site form (public, temp-scoped route).
-// Deletes the temp media server-side, then clears the preview + hidden id so the
-// form submits with no resume attached.
-$(document).on('click', '.remove_temp_media', function (e) {
-    e.preventDefault();
-    var $btn = $(this);
-    var media_id = $btn.data('id');
-    var field = $btn.data('field');
-
-    // new_link() preview rows can't carry data-id: the row is created before the upload
-    // resolves, so the temp id is written into the row's hidden .path input afterwards.
-    if (!media_id) {
-        media_id = $btn.closest('.div_remove_btn').find('input.path').val();
-    }
-
-    var done = function () {
-        if (field) {
-            // single-file field: clear its preview + hidden temp id
-            $('#' + field + '_src').empty();
-            $('#' + field + '_path').val('');
-        } else {
-            // multipleImages row (tr.row_image) or a new_link() preview row (.div_remove_btn)
-            $btn.closest('tr.row_image, .div_remove_btn').remove();
-        }
-    };
-    if (!media_id) { done(); return; }
-    $.ajax({
-        type: 'post',
-        url: '/upload/removeTemp',
-        data: { media_id: media_id },
-        success: done,
-        error: done
-    });
 });
 
 // Multiple-image ajax upload widget (mirrors the dashboard multipleImages()).
@@ -374,15 +308,15 @@ function multipleImages(input) {
             reader.onload = function (e) {
                 $.ajax({
                     type: "post",
-                    url: '/dashboard/uploadFilesTemporarily',
+                    url: '/dashboard/uploadPhotosTemporarily',
                     data: fd,
                     contentType: false,
                     processData: false,
                     success: function (result) {
                         if (result['status'] === true) {
                             var tr_images = $('<tr id="' + currentIndex + '" class="row_image">');
-                            var image = '<td><img src="' + e.target.result + '" id="' + currentIndex + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + currentIndex + '" class="image_name_good" name="multiple_image[' + currentIndex + '][file]" value="' + result['media_id'] + '"></td>';
-                            var remove = '<td><a data-id="' + result['media_id'] + '" title="حذف عکس" class="btn btn-sm text-danger remove_temp_media"><i class="fa fa-times"></i></a></td>';
+                            var image = '<td><img src="' + e.target.result + '" id="' + currentIndex + '" class="disInline image_create border-radius5" width="80px"><input type="hidden" id="' + currentIndex + '" class="image_name_good" name="multiple_image[' + currentIndex + '][file]" value="' + result['image_name']['id'] + '"></td>';
+                            var remove = '<td><a id="' + currentIndex + '" class="btn btn-sm btn-danger removeImageCreated"><i class="fa fa-trash"></i></a></td>';
                             var title = '<td><input type="text" class="form-control" placeholder="عنوان" name="multiple_image[' + currentIndex + '][title]"></td>';
                             if (multipleImagesHasLink === "1") {
                                 var link = '<td><input type="text" class="form-control" placeholder="لینک" name="multiple_image[' + currentIndex + '][link]" required></td>';
@@ -406,3 +340,7 @@ function multipleImages(input) {
     input.value = '';
 }
 
+// Remove a row added by multipleImages (temp media is throwaway; remove client-side).
+$(document).on('click', '.removeImageCreated', function () {
+    $(this).closest('tr.row_image').remove();
+});

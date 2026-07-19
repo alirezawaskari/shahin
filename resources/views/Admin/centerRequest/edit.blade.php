@@ -208,24 +208,17 @@
                 <br>
                 <div class="row">
                     <div class="col-12 row">
-                        {{-- $galleries comes from CenterRequest::galleryImages(): Spatie media if
-                             any, else the legacy `galleries` rows. Either way each entry is
-                             ->url / ->title, so this strip doesn't care which system served it. --}}
-                        @forelse ($galleries as $gallery)
-                        <div class="card col-md-3 p-2 border-0">
-                            <a href="{{ $gallery->url }}" target="_blank" rel="noopener">
-                                <img src="{{ $gallery->url }}" class="card-img-top rounded border"
-                                     style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;"
-                                     alt="{{ $gallery->title ?? 'تصویر درخواست' }}">
+                        @foreach ($galleries as $gallery)
+                        <div class="card col-md-3">
+                            <a href="{{ asset($gallery->image) }}" target="_blank">
+                                <img src="{{ $gallery->image }}" class="card-img-top" height="150px">
                             </a>
                             @if($gallery->legacy)
                             {{-- served from a legacy `galleries` row; the next save adopts it into Spatie --}}
                             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                             @endif
                         </div>
-                        @empty
-                        <div class="col-12"><span class="text-muted">تصویری بارگذاری نشده است</span></div>
-                        @endforelse
+                        @endforeach
                     </div>
                     <div class="col-12">
                         <p class="text-warning font-weight-bolder"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> توجه : همکار گرامی توجه داشته باشید درصورتی که وضعیت را به فعال تغییر دهید این درخواست به عنوان یک مرکز فعال سایت درنظر گرفته خواهد شد. </p>

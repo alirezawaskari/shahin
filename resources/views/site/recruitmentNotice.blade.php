@@ -132,7 +132,7 @@
                                             <div class="input-group mb-2">
                                                 <input id="resume_{{$recruitment_notice->id}}" class="d-none form-control file-upload file_upload_ajax" type="file" name="resume" accept=".pdf,.jpg,.jpeg"/>
                                                 <label for="resume_{{$recruitment_notice->id}}" class="btn btn-primary custom-file-upload border border-1">
-                                                    <i class="fa fa-upload ml-1" aria-hidden="true"></i>انتخاب فایل
+                                                    <i class="fa fa-cloud-upload"></i> انتخاب فایل
                                                 </label>
                                             </div>
                                             <input type="hidden" id="resume_{{$recruitment_notice->id}}_path" class="path" name="resume_path" value="">
@@ -178,12 +178,7 @@
                 });
             }
 </script>
-{{--
-    No dashboard bundle here (layouts.js) — GUEST page. site-upload.js
-    (site/master.blade.php) already serves the resume upload. layouts.js only
-    duplicated the province -> city cascade (site/js/app.js already has it, and this
-    view defines its own .province_id handler below), and redefined new_link().
---}}
+<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{asset('assets/script/ckeditor/ckeditor.js')}}"></script>
 <script>
     //to do move script to single file

@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 class CenterRequest extends Model implements HasMedia {
     use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
@@ -161,7 +159,7 @@ class CenterRequest extends Model implements HasMedia {
         if ( isset( $name ) && trim( $name ) != '' ) {
             $query->where( 'name', 'LIKE', '%' . $name . '%' );
         }
-        
+
         if (isset($representation) && trim($representation) != 'all') {
             $query->where('representation_id',$representation);
         }

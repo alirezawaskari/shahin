@@ -42,7 +42,7 @@
                     <tr>
                         <td>{{++$ind}}</td>
                         <td>
-                            @if($item->image)
+                            @if(File::exists(public_path() .$item->image))
                                 <img src="{{$item->image}}" class="border-radius5" style="width: 80px;">
                             @endif
                         </td>

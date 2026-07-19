@@ -9,7 +9,6 @@
     </thead>
     <tbody class="histories-table-body">
         @php($i=1)
-        @if($factorItem && $factorItem['factor_histories'] && $factorItem['factor_histories']->count() == 0)
         @foreach($factorItem['factor_histories'] as $contract_history)
         <tr>
             <td>{{$i++}} </td>
@@ -18,6 +17,5 @@
             <td>{{verta( $contract_history->created_at )->format( '%d %B ، %Y - H:i' )}}</td>
         </tr>
         @endforeach
-        @endif
     </tbody>
 </table>

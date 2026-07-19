@@ -10,7 +10,46 @@ use Illuminate\Support\Facades\File;
 
 class MediaLibraryHelper
 {
-   
+    /**
+     * Resolve a temporary ajax upload (a MediaLibrary id produced by
+     * uploadPhotosTemporarily / the .file_upload_ajax handler) into a
+     * permanent path string under public/upload, mirroring the legacy
+     * Helper::moveImage() output so asset()/public_path() keep working.
+     *
+     * @param string|null $mediaId  MediaLibrary id from the hidden *_path field
+     * @param string $folder        sub-folder under upload/{Y}/{m}/ (e.g. 'service')
+     * @return string               e.g. /upload/2026/07/service/20260708_120000.jpg, or '' when nothing to persist
+     */
+    public static function persist(?string $mediaId, string $folder): string
+    {
+        if (empty($mediaId)) {
+            return '';
+        }
+
+        $media = MediaLibrary::find($mediaId);
+        if (!$media) {
+            return '';
+        }
+
+        $source = $media->getFirstMediaPath('images');
+        if (!$source || !file_exists($source)) {
+            return '';
+        }
+
+        $datePath   = ($media->created_at ?? now())->format('Y/m');
+        $relativeDir = 'upload/' . $datePath . '/' . $folder;
+        $destDir     = public_path($relativeDir);
+
+        if (!is_dir($destDir)) {
+            File::makeDirectory($destDir, 0777, true, true);
+        }
+
+        $filename = basename($source);
+        File::copy($source, $destDir . '/' . $filename);
+
+        return '/' . $relativeDir . '/' . $filename;
+    }
+
     /**
      * Move a temporary ajax upload (a MediaLibrary id from the hidden *_path
      * field) into a model's own Spatie media collection.
@@ -24,30 +63,20 @@ class MediaLibraryHelper
      * @param string|null $tempId          MediaLibrary id
      * @param string $collection           target media collection on $model
      * @param array $customProperties      optional media custom properties (e.g. title, index)
-     * @return \App\Models\Media|null       the created media, or null when nothing was attached
      */
-    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): ?Media
+    public static function attachTo(\Spatie\MediaLibrary\HasMedia $model, ?string $tempId, string $collection, array $customProperties = []): void
     {
         if (empty($tempId)) {
-            return null;
+            return;
         }
 
-        // $tempId is the Spatie Media row id (the "media_id" the ajax upload returns).
-        $tempMedia = Media::find($tempId);
-        if (!$tempMedia) {
-            return null;
+        $temp = MediaLibrary::find($tempId);
+        if (!$temp) {
+            return;
         }
 
-        // The temp holder that owns this media (needed for temp cleanup). Guard that
-        // it's a genuine ajax-temp upload (MediaLibrary/'images') so a caller can never
-        // smuggle a model's permanent media id in here and have it moved/deleted.
-        $temp = $tempMedia->model;
-        if (!($temp instanceof MediaLibrary) || $tempMedia->collection_name !== 'images') {
-            return null;
-        }
-
-        $attached = null;
-        $absolutePath = $tempMedia->getPath();
+        $tempMedia = $temp->getFirstMedia('images');
+        $absolutePath = $tempMedia ? $tempMedia->getPath() : null;
 
         if ($absolutePath && is_file($absolutePath)) {
             // Optimize (cap the longest side to 2560px + recompress) so the stored file
@@ -56,7 +85,7 @@ class MediaLibraryHelper
             $bytes = self::optimizeToUnderLimit($absolutePath, $extension);
             if ($bytes === false || $bytes === '') {
                 \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo could not read temp file: ' . $absolutePath);
-                return null; // keep the temp so nothing is lost
+                return; // keep the temp so nothing is lost
             }
 
             // Physically delete the file(s) a new upload replaces, so nothing is orphaned
@@ -96,19 +125,16 @@ class MediaLibraryHelper
                     \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($target));
                     \Illuminate\Support\Facades\File::put($target, $bytes);
                 }
-                $attached = $media;
             } catch (\Throwable $e) {
                 // Keep the temp upload so the image is NOT lost — the user can retry.
                 \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachTo attach failed: ' . $e->getMessage());
-                return null;
+                return;
             }
         }
 
         // Clean up the temp with native file/DB ops (Spatie's delete() deep-lists the
         // media directory via RecursiveDirectoryIterator, which fails on Windows/Apache).
         self::forceDeleteTemp($temp, $absolutePath);
-
-        return $attached;
     }
 
     /**
@@ -153,159 +179,6 @@ class MediaLibraryHelper
             // ignore path resolution issues; still drop the row below
         }
         Media::where('id', $media->id)->delete();
-    }
-
-    /**
-     * URL of the first media in $collection, but ONLY if its file physically exists
-     * on disk — otherwise ''. Lets image accessors ($model->image, …) stay falsy for
-     * a media row whose file is missing, so `@if($model->image)` in views is a real
-     * "show the image" check (mirrors the old File::exists(public_path().$col) guards)
-     * without every view having to stat the disk itself.
-     */
-    public static function urlIfFileExists(\Spatie\MediaLibrary\HasMedia $model, string $collection): string
-    {
-        $media = $model->getFirstMedia($collection);
-        if (! $media) {
-            return '';
-        }
-        try {
-            $path = $media->getPath();
-        } catch (\Throwable $e) {
-            return '';
-        }
-        return ($path && is_file($path)) ? $media->getUrl() : '';
-    }
-
-    /**
-     * The media in $collection whose files physically exist on disk (a media row
-     * with a missing file is dropped). Use for galleries / multi-image collections
-     * so a broken file never renders. Returns a re-indexed Spatie media collection,
-     * so callers can ->map(fn($m) => $m->getUrl()) or iterate and call getUrl().
-     */
-    public static function existingMedia(\Spatie\MediaLibrary\HasMedia $model, string $collection)
-    {
-        return $model->getMedia($collection)->filter(function ($media) {
-            try {
-                $path = $media->getPath();
-            } catch (\Throwable $e) {
-                return false;
-            }
-            return $path && is_file($path);
-        })->values();
-    }
-
-    /**
-     * Optimize an uploaded image and attach it straight to $model's $collection via
-     * Spatie (with the native File::put fallback for Windows/Apache). For DIRECT
-     * uploads — e.g. CKEditor content images owned by the Ckeditor model — that don't
-     * go through the temp (uploadFilesTemporarily) flow. Runs the same optimizer as
-     * attachTo (resize + recompress, transparency-safe; svg/gif untouched).
-     *
-     * @return \App\Models\Media|null  the created media, or null on failure
-     */
-    public static function attachUpload(\Spatie\MediaLibrary\HasMedia $model, UploadedFile $file, string $collection, array $customProperties = [])
-    {
-        $extension = strtolower($file->getClientOriginalExtension()) ?: 'jpg';
-        $bytes = self::optimizeToUnderLimit($file->getRealPath(), $extension);
-        if ($bytes === false || $bytes === '') {
-            $bytes = @file_get_contents($file->getRealPath());
-        }
-        if ($bytes === false) {
-            return null;
-        }
-
-        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
-        try {
-            $media = $model->addMediaFromString($bytes)
-                ->usingFileName($filename)
-                ->withCustomProperties($customProperties)
-                ->toMediaCollection($collection);
-
-            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
-            $target = $media->getPath();
-            if (!is_file($target)) {
-                File::ensureDirectoryExists(dirname($target));
-                File::put($target, $bytes);
-            }
-            return $media;
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::attachUpload failed: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Adopt an EXISTING legacy image (referenced by a stored path/URL) into $model's
-     * Spatie $collection — the "touch-to-migrate" primitive: on a plain save (no
-     * re-upload) the old file is copied into Spatie so future reads use the new system.
-     *
-     * NON-DESTRUCTIVE: the legacy file on disk and the legacy column/row are left
-     * untouched, so the accessor fallback keeps working even if this copy fails. Returns
-     * null (a no-op) whenever the legacy path can't be resolved to a real file, so a
-     * broken/dead legacy path can never break the save that triggered it.
-     *
-     * @param string|null $legacyPath value stored in the legacy column / Gallery.image
-     *                    (e.g. "/upload/2026/5/x.jpg", "uploads/gallery/x.jpg", or a full
-     *                    "http://host/upload/..." URL that asset() had produced)
-     * @return \App\Models\Media|null  the created media, or null on no-op/failure
-     */
-    public static function adoptLegacyFile(\Spatie\MediaLibrary\HasMedia $model, string $collection, ?string $legacyPath, array $customProperties = [])
-    {
-        $abs = self::resolveLegacyPath($legacyPath);
-        if ($abs === null || !is_file($abs)) {
-            return null;
-        }
-
-        $bytes = @file_get_contents($abs);
-        if ($bytes === false || $bytes === '') {
-            return null;
-        }
-
-        $extension = strtolower(pathinfo($abs, PATHINFO_EXTENSION)) ?: 'jpg';
-        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
-
-        // keep a pointer back to the legacy file this media was adopted from, so an
-        // adopted row is always traceable to (and reconcilable with) its old source.
-        $customProperties['old_file_path'] = $legacyPath;
-
-        try {
-            $media = $model->addMediaFromString($bytes)
-                ->usingFileName($filename)
-                ->withCustomProperties($customProperties)
-                ->toMediaCollection($collection);
-
-            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
-            $target = $media->getPath();
-            if (!is_file($target)) {
-                File::ensureDirectoryExists(dirname($target));
-                File::put($target, $bytes);
-            }
-            return $media;
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::adoptLegacyFile failed: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /** Resolve a stored legacy path/URL to an absolute file path under public/, or null. */
-    private static function resolveLegacyPath(?string $path): ?string
-    {
-        if (empty($path)) {
-            return null;
-        }
-        // a full URL may have been stored (e.g. asset()-wrapped) — keep only the path part
-        if (preg_match('~^https?://~i', $path)) {
-            $p = parse_url($path, PHP_URL_PATH);
-            if (empty($p)) {
-                return null;
-            }
-            $path = $p;
-        }
-        $rel = ltrim(rawurldecode($path), '/');
-        if ($rel === '') {
-            return null;
-        }
-        return public_path($rel);
     }
 
     /** Whether $collection is declared singleFile() on the model. */

@@ -149,25 +149,28 @@ class UserController extends AdminController
         ]);
         $inputs = $request->all();
         $role_id = $request->input('role_id') || $user->roles->count() == 0 ? $request->input('role_id') : $user->roles[0]->id;
-        // Spatie: KYC/avatar images arrive as temp media ids; attachTo replaces the single
-        // file in each collection. Keep them out of the mass-assign ($inputs) below.
-        if ($request->urlimgshenasname) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgshenasname, 'imgshenasname');
+        if($request->urlimgshenasname)
+        {
+            Helper::deleteImage($user->imgshenasname);
+            $inputs['imgshenasname'] = Helper::moveImage($request->urlimgshenasname,'document');
         }
-        if ($request->urlimgmeli) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgmeli, 'imgmeli');
+
+        if($request->urlimgmeli)
+        {
+            Helper::deleteImage($user->imgmeli);
+            $inputs['imgmeli'] = Helper::moveImage($request->urlimgmeli,'document');
         }
-        if ($request->urlavatar) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlavatar, 'avatar');
+        if($request->urlavatar)
+        {
+            Helper::deleteImage($user->avatar);
+            $inputs['avatar'] = Helper::moveImage($request->urlavatar,'document');
         }
-        if ($request->urlimgturnover) {
-            \App\Helpers\MediaLibraryHelper::attachTo($user, $request->urlimgturnover, 'imgturnover');
+        if($request->urlimgturnover)
+        {
+            Helper::deleteImage($user->imgturnover);
+            $inputs['imgturnover'] = Helper::moveImage($request->urlimgturnover,'document');
         }
-        unset(
-            $inputs['role_id'],
-            $inputs['imgshenasname'], $inputs['imgmeli'], $inputs['avatar'], $inputs['imgturnover'],
-            $inputs['urlimgshenasname'], $inputs['urlimgmeli'], $inputs['urlavatar'], $inputs['urlimgturnover']
-        );
+        unset($inputs['role_id']);
 
         $inputs['wallet'] = (float) str_replace(',', '', $request->wallet);
 

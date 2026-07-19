@@ -109,7 +109,7 @@
                                     @permission('update-status-promissory')
                                     <button type="button" class="  list-promissory-status btn btn-outline-primary"
                                             data-promissory_id="{{$promissory->id}}"
-                                            data-front_image="{{$promissory->front_image}}"
+                                            data-front_image="{{$promissory->files->where('title','front')->first()->path??''}}"
                                             data-toggle="modal" data-target="#statusPromissoryModal">وضعیت
                                     </button>
                                     @endpermission

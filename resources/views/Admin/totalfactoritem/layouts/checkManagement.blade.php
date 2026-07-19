@@ -124,7 +124,7 @@
                                     <button type="button" class=" mb-1 list-check-status btn btn-outline-primary"
                                     data-check_id="{{$check->id}}"
                                     data-check_date="{{verta($check->date)->format('Y/m/d')}}"
-                                            data-front_image="{{$check->front_image}}"
+                                            data-front_image="{{$check->files->where('title','front')->first()->path??''}}"
                                             data-toggle="modal" data-target="#statusCheckModal">وضعیت
                                         </button>
                                     @endpermission

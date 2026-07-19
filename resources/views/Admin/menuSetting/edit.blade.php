@@ -40,8 +40,16 @@
                         <option value="1" {{ $menuSetting->is_active == 1 ? 'selected' : '' }}>فعال</option>
                     </select>
                 </div>
+                <div class="col-12 col-md-6 mb-2">
+                    <label>ترتیب</label>
+                    <input type="number"
+                           name="position"
+                           value="{{ $menuSetting->position }}"
+                           class="form-control">
+
+                </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-1 text-left">
                 <input type="submit" class="btn btn-success border-0" value="ثبت">
             </div>
         </form>

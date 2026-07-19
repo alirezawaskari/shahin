@@ -3,19 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class TicketHistory extends Model implements HasMedia
+class TicketHistory extends Model
 {
-    use InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy paths inside the `file` JSON array -> `file` collection. */
-    protected function legacyArrayMediaMap(): array
-    {
-        return ['file' => 'file'];
-    }
-
     protected $fillable = [
         'ticket_id',
         'user_id',
@@ -26,11 +16,6 @@ class TicketHistory extends Model implements HasMedia
     protected $casts = [
         'file' => 'array',
     ];
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('file')->useDisk('public');
-    }
     public function ticket()
     {
         return $this->belongsTo(Ticket::class);

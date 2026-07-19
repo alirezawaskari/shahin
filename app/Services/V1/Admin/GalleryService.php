@@ -26,13 +26,17 @@ class GalleryService
 
                 $file = $item['file'];
 
-                /*
-                |--------------------------------
-                | 🟡 LEGACY IMAGE (Gallery DB)
-                |--------------------------------
-                */
+                if (empty($file)) continue;
 
-                $image = $manager->read($file);
+                if (is_string($file)) {
+                    $filePath = public_path($file);
+
+                    if (!file_exists($filePath)) continue;
+
+                    $image = $manager->read($filePath);
+                } else {
+                    $image = $manager->read($file->getRealPath());
+                }
 
                 $image = $type === 'desk'
                     ? ($index === 4 ? $image->cover(900, 375) : $image->cover(300, 176))

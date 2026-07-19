@@ -7,6 +7,7 @@ use App\Helpers\Helper;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PromissoryCollection;
+use App\Models\File;
 use App\Models\Promissory;
 use App\Models\TotalFactorItem;
 use App\Models\User;
@@ -84,13 +85,23 @@ class PromissoryController extends Controller
             $promissory->histories()->create([
                 'description' => $request->description,
             ]);
-        // upload promissory images. No legacy row/file teardown: the old File rows stay
-        // untouched (read-only legacy) and 'front'/'back' are singleFile() collections, so
-        // a re-upload supersedes the previous media on its own.
+        //upload promissory images
         if ($request->file('promissory_front_image')) {
+            $front_image = File::where('title', 'front')->where('fileable_type', Promissory::class)->where('fileable_id', $promissory->id)->first();
+
+            if (!is_null($front_image)) {
+                Helper::deleteImage(public_path($front_image->path));
+                $front_image->delete();
+            }
             $this->uploadPromissoryFrontImage($promissory, $request->file('promissory_front_image'));
+
         }
         if ($request->file('promissory_back_image')) {
+            $back_image = File::where('title', 'back')->where('fileable_type', Promissory::class)->where('fileable_id', $promissory->id)->first();
+            if (!is_null($back_image)) {
+                Helper::deleteImage(public_path($back_image->path));
+                $back_image->delete();
+            }
             $this->uploadPromissoryBackImage($promissory, $request->file('promissory_back_image'));
         }
         return response(['status' => 'success', 'data' => $promissory]);
@@ -233,10 +244,8 @@ class PromissoryController extends Controller
      */
     private function uploadPromissoryFrontImage(Promissory $promissory, $file)
     {
-        // Spatie only. The legacy File(title:'front') row is never written — it is
-        // read-only legacy that Promissory::legacyFileMap() adopts, and
-        // $promissory->front_image already prefers the media below it.
-        return MediaLibraryHelper::attachUpload($promissory, $file, 'front');
+        $url_front_image = MediaLibraryHelper::uploadImage($file, 'promissories');
+        return $promissory->files()->create(['path' => $url_front_image, 'title' => 'front']);
     }
 
     /**
@@ -247,7 +256,8 @@ class PromissoryController extends Controller
      */
     private function uploadPromissoryBackImage(Promissory $promissory, $file)
     {
-        return MediaLibraryHelper::attachUpload($promissory, $file, 'back');
+        $url_back_image = MediaLibraryHelper::uploadImage($file, 'promissories');
+        return $promissory->files()->create(['path' => $url_back_image, 'title' => 'back']);
     }
 
     /**

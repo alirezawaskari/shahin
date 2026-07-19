@@ -135,13 +135,14 @@
                                             </div>
 
                                             <div class="col-12">
-                                                <div id="addnew" class="mt-4">
-                                                    <label for='file' class="btn btn-primary custom-file-upload border border-1">
-                                                        <i class="fa fa-upload ml-1" aria-hidden="true"></i>بارگذاری تصاویر
+                                                <div id="addnew" class='file file--upload'>
+                                                    <label for='file'>
+                                                        <img class="upload-file" src="{{asset('img/upload.jpg')}}"
+                                                            class="img-fluid">
+                                                        <h6>بارگذاری تصاویر</h6>
                                                     </label>
                                                     <input name="file[]" type="file" id="file"
-                                                        accept="image/*" data-images-only="1"
-                                                        class="d-none filestyle file-upload file_upload_ajax file-up"
+                                                        class="filestyle file-upload file_upload_ajax file-up"
                                                         data-buttonname="btn-white">
                                                 </div>
                                                 <div id="file_newlink" class="col-12 row">
@@ -240,17 +241,7 @@
 </script>
 
 @stop
-{{--
-    Deliberately NO dashboard bundle here (adminJs.js / layouts.js).
-
-    This is a public, guest-facing page. site.master already loads site-upload.js, which
-    provides everything this form needs (the .file_upload_ajax handler, new_link, and the
-    remove control) and posts to the PUBLIC endpoints.
-
-    The dashboard bundle would be loaded after site-upload.js (master -> @yield('js')) and
-    override it: both define new_link() and both bind change.fileUploadAjax, so the admin
-    versions would win. Its remove button posts to /dashboard/removeMedia, which requires
-    Authenticate:web + CheckAdminAuthenticated — a guest is bounced to login, so the temp
-    file is never deleted and the row never even disappears. site-upload.js instead uses
-    /upload/removeTemp (public + throttled, scoped to temp holders).
---}}
+@section('js')
+<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
+@endsection

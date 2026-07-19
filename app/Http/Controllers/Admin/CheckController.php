@@ -9,6 +9,7 @@ use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\CheckCollection;
 use App\Models\Check;
 use App\Models\Factor;
+use App\Models\File;
 use App\Models\TotalFactorItem;
 use App\Models\User;
 use Carbon\Carbon;
@@ -206,10 +207,8 @@ class CheckController extends Controller
      */
     private function uploadCheckFrontImage(Check $check, $file)
     {
-        // Spatie only. The legacy File(title:'front') row is never written — it is
-        // read-only legacy that Check::legacyFileMap() adopts, and $check->front_image
-        // already prefers the media below it.
-        return MediaLibraryHelper::attachUpload($check, $file, 'front');
+        $url_front_image = MediaLibraryHelper::uploadImage($file, 'checks');
+        return $check->files()->create(['path' => $url_front_image, 'title' => 'front']);
     }
 
     /**
@@ -220,7 +219,8 @@ class CheckController extends Controller
      */
     private function uploadCheckBackImage(Check $check, $file)
     {
-        return MediaLibraryHelper::attachUpload($check, $file, 'back');
+        $url_back_image = MediaLibraryHelper::uploadImage($file, 'checks');
+        return $check->files()->create(['path' => $url_back_image, 'title' => 'back']);
     }
 
     /**
@@ -537,13 +537,22 @@ class CheckController extends Controller
      */
     private function uploadCheckImages(Request $request, Check $check): void
     {
-        // No legacy row/file teardown: the old File rows stay untouched (read-only legacy)
-        // and 'front'/'back' are singleFile() collections, so a re-upload supersedes the
-        // previous media on its own and front_image/back_image read the new one.
         if ($request->file('check_front_image')) {
+            $front_image = File::where('title', 'front')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
+
+            if (!is_null($front_image)) {
+                Helper::deleteImage(public_path($front_image->path));
+                $front_image->delete();
+            }
             $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
+
         }
         if ($request->file('check_back_image')) {
+            $back_image = File::where('title', 'back')->where('fileable_type', Check::class)->where('fileable_id', $check->id)->first();
+            if (!is_null($back_image)) {
+                Helper::deleteImage(public_path($back_image->path));
+                $back_image->delete();
+            }
             $this->uploadCheckBackImage($check, $request->file('check_back_image'));
         }
     }

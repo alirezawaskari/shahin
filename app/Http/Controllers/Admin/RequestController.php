@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\MediaLibraryHelper;
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Card;
@@ -116,8 +116,9 @@ class RequestController extends Controller
         }
         $request_rec = \App\Models\Request::create($request->all());
 
-        if ($request->file_path) {
-            MediaLibraryHelper::attachTo($request_rec, $request->file_path, 'file');
+        if (isset($request->file_path)) {
+            $request_rec->file = Helper::moveImage($request->file_path, 'request');
+            $request_rec->save();
         }
 
         if (isset($request->products_number)) {

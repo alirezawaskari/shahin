@@ -8,7 +8,7 @@ use App\Models\TicketHistory;
 use App\Models\TicketUser;
 use App\Models\User;
 use App\Events\ticketNotification;
-use App\Helpers\MediaLibraryHelper;
+use App\Helpers\Helper;
 use App\Models\Representation;
 use App\Models\Center;
 use App\Models\Role;
@@ -139,9 +139,9 @@ class TicketController extends Controller
             $files = $file_ticket;
             foreach ($files as $file) {
                 if ($file) {
-                    $media = MediaLibraryHelper::attachTo($ticket, (string) $file, 'file');
-                    if ($media) {
-                        $temp[] = $media->getUrl();
+                    if (isset($file_ticket)) {
+                        $url = Helper::moveImage($file, 'document');
+                        $temp[] = $url;
                     }
                 }
             }
@@ -208,13 +208,12 @@ class TicketController extends Controller
 
         $file_ticket = $request->urlfile;
         if (isset($file_ticket)) {
-            $temp = [];
             $files = $file_ticket;
             foreach ($files as $file) {
                 if ($file) {
-                    $media = MediaLibraryHelper::attachTo($ticket, (string) $file, 'file');
-                    if ($media) {
-                        $temp[] = $media->getUrl();
+                    if (isset($file_ticket)) {
+                        $url = Helper::moveImage($file, 'document');
+                        $temp[] = $url;
                     }
                 }
             }

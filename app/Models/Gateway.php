@@ -8,13 +8,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Gateway extends Model implements HasMedia
 {
-    use InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
-    protected function legacyMediaMap(): array
-    {
-        return ['logo' => 'logo'];
-    }
+    use InteractsWithMedia;
 
     protected $table = 'gateways';
     protected $fillable = [
@@ -32,8 +26,7 @@ class Gateway extends Model implements HasMedia
 
     public function getLogoAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo')
-            ?: ($this->getRawOriginal('logo') ? asset($this->getRawOriginal('logo')) : '');
+        return $this->getFirstMediaUrl('logo');
     }
 
     public function getStatusLabelAttribute()

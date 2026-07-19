@@ -30,13 +30,9 @@
                         <div class="div_remove_btn d-inline-block mb-2" id="media_{{$slot->id}}">
                             <img class="rounded border" style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;"
                                  src="{{ $slot->getFullUrl() }}" alt="{{ $slot->getCustomProperty('title') }}">
-                            {{-- no ✕ on the last image while legacy `galleries` rows remain —
-                                 see AdoptsLegacyMedia::galleryMediaIsRemovable() --}}
-                            @if(! method_exists($model, 'galleryMediaIsRemovable') || $model->galleryMediaIsRemovable('gallery_horizontal'))
                             <a data-id="{{ $slot->id }}" title="حذف عکس" class="btn btn-sm remove_media_btn">
                                 <i class="fa fa-close" aria-hidden="true"></i>
                             </a>
-                            @endif
                         </div>
                     @else
                         <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
@@ -72,13 +68,9 @@
                         <div class="div_remove_btn d-inline-block mb-2" id="media_{{$slot->id}}">
                             <img class="rounded border" style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;"
                                  src="{{ $slot->getFullUrl() }}" alt="{{ $slot->getCustomProperty('title') }}">
-                            {{-- no ✕ on the last image while legacy `galleries` rows remain —
-                                 see AdoptsLegacyMedia::galleryMediaIsRemovable() --}}
-                            @if(! method_exists($model, 'galleryMediaIsRemovable') || $model->galleryMediaIsRemovable('gallery_vertical'))
                             <a data-id="{{ $slot->id }}" title="حذف عکس" class="btn btn-sm remove_media_btn">
                                 <i class="fa fa-close" aria-hidden="true"></i>
                             </a>
-                            @endif
                         </div>
                     @else
                         <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
@@ -90,11 +82,5 @@
             </div>
         @endfor
     </div>
-
-    {{-- Legacy galleries-table fallback (read-only) — hidden once this model has Spatie gallery media --}}
-    @include('Admin.partials.legacyGalleryFallback', [
-        'model'       => $model,
-        'collections' => ['gallery_horizontal', 'gallery_vertical'],
-    ])
 
 </div>

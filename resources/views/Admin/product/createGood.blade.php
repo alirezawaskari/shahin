@@ -94,15 +94,15 @@
                                             </li>
                                             <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب کنید.
                                             </li>
-                                            <li>   برای حدف تصویر علامت ضربدر را بزنید
-                                           
+                                            <li>سطل زباله: اگر تصویر را به اشتباه انتخاب کرده‌اید، روی علامت سطل
+                                                زباله کلیک کنید تا تصویر مورد نظر حذف شود
                                             </li>
                                         </ul>
                                         <br /><br />
 
                                         <div class="form-group">
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <label for="file-upload" class="btn btn-primary custom-file-upload border border-1">
+                                                <label for="file-upload" class="custom-file-upload">
                                                     <i class="fa fa-cloud-upload"></i> بارگذاری تصاویر
                                                 </label>
                                                 <input id="file-upload" type="file" onchange="readURL(this);" />

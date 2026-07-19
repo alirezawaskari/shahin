@@ -34,8 +34,7 @@
                     @if(!is_null($factorItem['forms']))
                     @foreach($factorItem['forms'] as $form)
                     @if (in_array('panel_basic_document' , $form->data_display_level))
-                    {{-- read-only: this block is after </form> above, so nothing posts it --}}
-                    @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+                    @include('Admin.factoritem.layouts.formItem')
                     @endif
                     @endforeach
                     @endif

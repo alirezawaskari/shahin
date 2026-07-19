@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
-use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\BeforeForm;
 use App\Models\Campaign;
@@ -27,7 +26,13 @@ class CampaignController extends Controller
     }
     public function store(Request $request)
     {
-        $campaign = Campaign::create([
+        if($request->url_profile_image){
+            $image = Helper::moveImage($request->url_profile_image,'campaign');
+        }
+        if ($request->url_header_image){
+            $image_header = Helper::moveImage($request->url_header_image,'campaign');
+        }
+        Campaign::create([
             'name' => $request->name,
             'subject' => $request->subject,
             'keyword' => $request->keyword,
@@ -38,13 +43,9 @@ class CampaignController extends Controller
             'end_date' => $request->end_date,
             'slug' => $request->slug,
             'form' => $request->form,
+            'image' => $image ?? null,
+            'image_header' =>  $image_header?? null,
         ]);
-        if ($request->url_profile_image) {
-            MediaLibraryHelper::attachTo($campaign, $request->url_profile_image, 'image');
-        }
-        if ($request->url_header_image) {
-            MediaLibraryHelper::attachTo($campaign, $request->url_header_image, 'image_header');
-        }
         alert()->success('', 'عملیات موفق');
         return redirect(route('campaign.index'));
     }
@@ -57,11 +58,19 @@ class CampaignController extends Controller
     public function update(Request $request,$campaign)
     {
         $campaign = Campaign::find($campaign);
-        if ($request->url_profile_image) {
-            MediaLibraryHelper::attachTo($campaign, $request->url_profile_image, 'image');
+        if($request->url_profile_image){
+            if (File::exists(public_path($campaign->image))) {
+                    File::delete(public_path($campaign->image));
+            }
+            $image = Helper::moveImage($request->url_profile_image,'campaign');
+            $campaign->image = $image;
         }
-        if ($request->url_header_image) {
-            MediaLibraryHelper::attachTo($campaign, $request->url_header_image, 'image_header');
+        if($request->url_header_image){
+            if (File::exists(public_path($campaign->image_header))) {
+                    File::delete(public_path($campaign->image_header));
+            }
+            $image_header = Helper::moveImage($request->url_header_image,'campaign');
+            $campaign->image_header = $image_header;
         }
         $campaign->update([
             'name' => $request->name,
@@ -80,19 +89,15 @@ class CampaignController extends Controller
     }
     public function createCompany(Request $request,$campaign_id)
     {
-        $campaign = Campaign::findOrFail($campaign_id);
         $names = $request->name_company;
         $urls = $request->url_company;
         $logos = $request->logo_company_url;
         foreach ($names as $i => $name) {
-            $collaboration = CampaignCollaboration::create([
+            CampaignCollaboration::create([
                 'campaign_id'     => $campaign_id,
                 'name'     => $name,
                 'url'      => $urls[$i],
-            ]);
-            $media = MediaLibraryHelper::attachTo($campaign, (string) $logos[$i], 'company_logos');
-            $collaboration->update([
-                'logo' => $media ? $media->getUrl() : '',
+                'logo' => Helper::moveImage($logos[$i], 'company'),
             ]);
         }
         return redirect(route('campaign.index'));

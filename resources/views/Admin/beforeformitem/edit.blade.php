@@ -3,7 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            <form class="form-horizontal" role="form" method="post" action="{{route('before_form_item.update', $beforeFormItem)}}">
+            <form class="form-horizontal" role="form" method="post" action="{{route('before_form_item.update',['id'=>$beforeFormItem->id])}}">
                 @csrf
                 @method('PATCH')
                 @include('Admin.layouts.errors')

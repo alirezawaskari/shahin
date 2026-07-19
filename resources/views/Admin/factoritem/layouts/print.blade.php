@@ -31,8 +31,7 @@
             @if(!is_null($factorItem['forms']))
             @foreach($factorItem['forms'] as $form)
             @if (in_array('panel_print_form' , $form->data_display_level))
-            {{-- print view: no form, no save --}}
-            @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
+            @include('Admin.factoritem.layouts.formItem')
             @endif
             @endforeach
             @endif
@@ -123,7 +122,7 @@
                     <div class="col-12 col-md-3">
                         <div class="card border-contract p-2 text-center">
                             @if($doctor->imgsignature)
-                            <a href="{{ $doctor->imgsignature }}" target="_blank">
+                            <a href="{{ asset($doctor->imgsignature) }}" target="_blank">
                                 <img src="{{ $doctor->imgsignature }}" class="card-img-top" height="150px">
                             </a>
                             <div class="card-body">
@@ -168,10 +167,8 @@
         @endif
         <div class="col-4">
             <div class="card border-contract p-2 text-center">
-                {{-- truthiness, not isset(): imgsignature is an accessor returning '' when there
-                     is no image, and isset('') is true. --}}
-                @if($user->imgsignature)
-                <a href="{{ $user->imgsignature }}" target="_blank">
+                @if(isset($user->imgsignature))
+                <a href="{{ asset($user->imgsignature) }}" target="_blank">
                     <img src="{{ $user->imgsignature }}" class="card-img-top" height="150px">
                 </a>
                 <div class="card-body">

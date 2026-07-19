@@ -8,7 +8,6 @@
                 </ul>
             </li>
             @foreach($menu as $category)
-
                 <li>
                     <a href="#">
                         <i class="icon {{ $category['icon'] }}"></i>
@@ -17,7 +16,7 @@
 
                     <ul>
                         @foreach($category['items'] as $list)
-                            @if($list->isMenu && $list->is_active)
+                            @if($list->isMenu)
                                 <li>
                                     <a href="{{ route($list->link) }}">
                                         {{ $list->display_name }}

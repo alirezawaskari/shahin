@@ -205,13 +205,13 @@
                             <div class="card">
                                 @if($user->imgmeli)
                                 <div id="imgmeli_src" class="show">
-                                <a href="{{ $user->imgmeli }}" target="_blank">
-                                    <img src="{{ $user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                <a href="{{ asset($user->imgmeli) }}" target="_blank">
+                                    <img src="{{ asset($user->imgmeli) }}" class="card-img-top" height="150px">
                                 </a>
                                 </div>
                                 @else
                                 <div id="imgmeli_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                                <img class="card-img-top" height="150px">
                                 </div>
                                 @endif
                                 <div class="card-body">
@@ -219,7 +219,7 @@
                                     <br>
                                     <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
+                                    <input type="hidden" id="imgmeli" class="path" name="urlimgmeli">
                                 </div>
                             </div>
                         </div>
@@ -228,13 +228,13 @@
                             <div class="card">
                                 @if($user->imgshenasname)
                                 <div id="imgshenasname_src" class="show">
-                                <a href="{{ $user->imgshenasname }}" target="_blank">
-                                    <img src="{{ $user->imgshenasname }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                <a href="{{ asset($user->imgshenasname) }}" target="_blank">
+                                    <img src="{{ asset($user->imgshenasname) }}" class="card-img-top" height="150px">
                                 </a>
                                 </div>
                                 @else
                                 <div id="imgshenasname_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                                <img id="imgshenasname_src" class="card-img-top" height="150px">
                                 </div>
                                 @endif
                                 <div class="card-body">
@@ -242,7 +242,7 @@
                                     <br>
                                     <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="imgshenasname_path" class="path" name="urlimgshenasname">
+                                    <input type="hidden" id="imgshenasname" class="path" name="urlimgshenasname">
                                 </div>
 
                             </div>
@@ -252,14 +252,14 @@
                             <div class="card">
                                 @if($user->avatar)
                                 <div id="avatar_src" class="show">
-                                <a href="{{ $user->avatar }}" target="_blank">
-                                    <img src="{{ $user->avatar }}"
-                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                <a href="{{ asset($user->avatar) }}" target="_blank">
+                                    <img src="{{ asset($user->avatar) }}"
+                                        class="card-img-top" height="150px">
                                 </a>
                                 </div>
                                 @else
                                 <div id="avatar_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                                <img class="card-img-top" height="150px">
                                 </div>
                                 @endif
                                 <div class="card-body">
@@ -270,7 +270,7 @@
                                     <input name="avatar" type="file" id="avatar"
                                         class="filestyle file-upload file_upload_ajax file-up"
                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="avatar_path" class="path" name="urlavatar">
+                                    <input type="hidden" id="avatar" class="path" name="urlavatar">
                                 </div>
                             </div>
                         </div>
@@ -279,14 +279,14 @@
                             <div class="card">
                                 @if($user->imgturnover)
                                 <div id="imgturnover_src" class="show">
-                                <a href="{{ $user->imgturnover }}" target="_blank">
-                                    <img src="{{ $user->imgturnover }}"
-                                        class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                <a href="{{ asset($user->imgturnover) }}" target="_blank">
+                                    <img src="{{ asset($user->imgturnover) }}"
+                                        class="card-img-top" height="150px">
                                 </a>
                                 </div>
                                 @else
                                 <div id="imgturnover_src" class="show">
-                                <div class="d-flex align-items-center justify-content-center text-muted" style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                                <img class="card-img-top" height="150px">
                                 </div>
                                 @endif
                                 <div class="card-body">
@@ -297,7 +297,7 @@
                                     <input name="imgturnover" type="file" id="imgturnover"
                                         class="filestyle file-upload file_upload_ajax file-up"
                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                    <input type="hidden" id="imgturnover_path" class="path" name="urlimgturnover">
+                                    <input type="hidden" id="imgturnover" class="path" name="urlimgturnover">
                                 </div>
                             </div>
                         </div>

@@ -58,16 +58,17 @@
 
 <div class="col-12 col-md-3 mb-5">
     <label> عکس اصلی ذخیره شده</label>
-    @include('Admin.partials.currentMedia',['owner'=>$pack,'field'=>'image','boxH'=>100])
+
+    <img src="{{$pack->image}}" class="border-radius5" alt="{{$pack->title}}" width="80px">
 </div>
 <div class="col-12 col-md-3 mb-5">
     <label>عکس اصلی *</label>
-    <label for="image" class="btn btn-primary custom-file-upload border border-1">
+    <label for="image" class="custom-file-upload">
         <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
     </label>
-    <input id="image" class="d-none file-upload file_upload_ajax" type="file" name="image"/>
+    <input id="image" class="file-upload file_upload_ajax" type="file" name="image"/>
     <div id="image_src" class="show"></div>
-    <input type="hidden" id="image_path" class="path" name="image_path" value="">
+    <input type="hidden" id="image" class="path" name="image_path" value="">
     @if($errors->has('image'))
         <span class="help-block sub-error"> {{$errors->first('image')}} </span>
     @endif
@@ -75,25 +76,18 @@
 </div>
 
 <div class="col-12 col-md-12 mb-5">
-    @if($pack->getMedia('gallery')->count() > 0)
-        <label> عکس های ذخیره شده</label>
-        <table class="table table-striped">
-            <tbody>
-            @foreach($pack->getMedia('gallery') as $gallery)
-                <tr class="row_image" id="media_{{$gallery->id}}">
-                    <td><img src="{{$gallery->getUrl()}}" alt="{{$gallery->getCustomProperty('title')}}" class="border-radius5" width="80px"></td>
-                    <td><input type="text" class="form-control" placeholder="عنوان"
-                               name="gallery_title[{{$gallery->id}}]" value="{{$gallery->getCustomProperty('title')}}"></td>
-                    {{-- no ✕ on the last image while legacy `galleries` rows remain —
-                         see AdoptsLegacyMedia::galleryMediaIsRemovable() --}}
-                    <td>@if($pack->galleryMediaIsRemovable('gallery'))<a data-id="{{$gallery->id}}" title="حذف عکس"
-                           class="btn btn-sm remove_media_btn"><i class="fa fa-close" aria-hidden="true"></i></a>@endif</td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+    <label> عکس های ذخیره شده</label>
+
+    @if($pack->galleries()->get())
+        @foreach($pack->galleries()->get() as $index=>$gallery)
+            <div class="div_remove_btn mrgL20" id="gallery_{{$gallery->id}}">
+                <img src="{{$gallery->image}}" alt="{{$gallery->title}}" class="border-radius5" width="80px">
+                <a id="{{$gallery->id}}" title="حذف عکس" class="btn btn-default remove_btn">
+                    <i class="fa fa-close" aria-hidden="true"></i></a>
+            </div>
+        @endforeach
     @endif
-    @include('Admin.partials.legacyGalleryFallback', ['model' => $pack, 'collections' => ['gallery']])
+
 </div>
 
 @include('Admin.partials.multipleImages')
