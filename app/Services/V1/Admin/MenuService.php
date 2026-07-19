@@ -25,9 +25,7 @@ class MenuService
                 ->whereHas('categoryPermissions', function ($query) use ($packagePermissions) {
                     $query->whereIn('id', $packagePermissions);
                 })
-                ->get()
-                ->sortBy('categoryPermissions.position')
-                ->values();
+                ->get();
             return $this->groupByCategory($permissions);
         });
     }
@@ -58,20 +56,20 @@ class MenuService
      */
     private function getAllMenus()
     {
-
         $permissions = Permission::query()
-            ->join(
-                'category_permissions',
-                'category_permissions.id',
-                '=',
-                'permissions.cat_id'
-            )
             ->with('categoryPermissions')
-            ->where('permissions.isMenu', true)
-            ->orderBy('category_permissions.position', 'asc')
-            ->select('permissions.*')
+            ->where('isMenu', true)
             ->get();
         return $this->groupByCategory($permissions);
+    }
+
+    /**
+     * map کردن permission
+     */
+    private function mapPermission($permission, $currentRoute)
+    {
+        $permission->is_active = $this->isActive($permission->route_name, $currentRoute);
+        return $permission;
     }
 
     /**

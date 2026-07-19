@@ -25,7 +25,8 @@
             @foreach($factorItem->factoritemable->beforeforms as $form)
             @if (in_array('panel_determine_center' , $form->data_display_level) || in_array('panel_basic_document' ,
             $form->data_display_level))
-            @include('Admin.factoritem.layouts.formItem')
+            {{-- the ثبت button below is only rendered at status_factor 16 --}}
+            @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => $factorItem->status_factor == 16])
             @endif
             @endforeach
             @endif

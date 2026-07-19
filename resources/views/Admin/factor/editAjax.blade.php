@@ -111,9 +111,6 @@
                                         @if($factor->bill_image)
                                         <a href="{{ $factor->bill_image }}" class="btn btn-primary"
                                             target="_blank">مشاهده</a>
-                                        @if($factor->mediaIsLegacy('bill_image'))
-                                        <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                        @endif
                                         @else
                                         ندارد
                                         @endif

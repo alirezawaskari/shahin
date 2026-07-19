@@ -109,12 +109,17 @@ class CenterController extends AdminController
             ]);
         }
         $item = $request->item;
+        // The category selects use a `<option selected disabled>` placeholder, so when the
+        // center's saved category matches no option (or the list is empty) the browser
+        // submits no value and the key is absent -> keep the existing category instead of
+        // crashing on an undefined array key.
+        $existingCategory = optional($center->center_request)->center_category_id;
         if ( $request->cat_type == 'category' ) {
-            $center_category_id = $item['product_category'];
+            $center_category_id = !empty($item['product_category']) ? $item['product_category'] : $existingCategory;
             $centerable_id = $request->category;
             $centerable_type = Category::class;
         } else {
-            $center_category_id = $item['service_category'];
+            $center_category_id = !empty($item['service_category']) ? $item['service_category'] : $existingCategory;
             $centerable_id = $request->service;
             $centerable_type = Service::class;
         }
@@ -123,11 +128,13 @@ class CenterController extends AdminController
         unset($item['product_category']);
         unset($item['service_category']);
         unset($item['contract_file']);
-        if ($request->urlcontract_file) {
-            $contract_file = Helper::moveImage($request->urlcontract_file,'document');
-            $center->update( ['contract_file' => $contract_file]);
+        // Spatie: the ajax upload now returns a temp media id in `contract_file_path`.
+        // Attach it to the center's single-file `contract_file` collection (replaces any
+        // previous file). The legacy `contract_file` column is left untouched.
+        if ($request->contract_file_path) {
+            \App\Helpers\MediaLibraryHelper::attachTo($center, $request->contract_file_path, 'contract_file');
         }
-		unset($item['urlcontract_file']);
+        unset($item['urlcontract_file'], $item['contract_file_path']);
         $center->center_request->update($item);
 
         $center->update( [

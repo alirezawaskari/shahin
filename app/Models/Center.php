@@ -11,6 +11,12 @@ class Center extends Model implements HasMedia {
     use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
     protected $dates = [ 'deleted_at' ];
 
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['contract_file' => 'contract_file', 'image' => 'image', 'background_image' => 'background_image'];
+    }
+
     /**
      * Spatie media collections. Legacy path columns (image, background_image,
      * contract_file) are kept, but reads route through the accessors below.
@@ -28,19 +34,22 @@ class Center extends Model implements HasMedia {
     /** Contract file url (shadows the legacy `contract_file` column; disk-checked). */
     public function getContractFileAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'contract_file');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'contract_file')
+            ?: ($this->getRawOriginal('contract_file') ? asset($this->getRawOriginal('contract_file')) : '');
     }
 
     /** Main image url (shadows the legacy `image` column; disk-checked). */
     public function getImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     /** Background image url (shadows the legacy `background_image` column; disk-checked). */
     public function getBackgroundImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'background_image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'background_image')
+            ?: ($this->getRawOriginal('background_image') ? asset($this->getRawOriginal('background_image')) : '');
     }
 
     /** Disk-checked gallery image urls (skips media whose file is missing). */
@@ -77,7 +86,7 @@ class Center extends Model implements HasMedia {
     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
     */
 
-    public function creatorRepresentation() {
+    public function creatorRpresentation() {
         return $this->belongsTo( Representation::class, 'creator_representation_id' );
     }
     /**

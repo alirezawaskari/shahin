@@ -41,7 +41,8 @@ class Resume extends Model implements HasMedia
 
     public function getResumeAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'resume');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'resume')
+            ?: ($this->getRawOriginal('resume') ? asset($this->getRawOriginal('resume')) : '');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -130,9 +130,6 @@
                                 </a>
                             </div>
                         @endforeach
-                        @if($purchaseInvoice->arrayMediaHasLegacy('factor_image'))
-                        <div class="col-12"><small class="d-block text-warning mt-1">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small></div>
-                        @endif
                     @endif
                 </div>
                 @if($purchaseInvoice->status == 0 || $purchaseInvoice->status == 1 || $purchaseInvoice->status == 2)

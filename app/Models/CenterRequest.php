@@ -161,7 +161,7 @@ class CenterRequest extends Model implements HasMedia {
         if ( isset( $name ) && trim( $name ) != '' ) {
             $query->where( 'name', 'LIKE', '%' . $name . '%' );
         }
-
+        
         if (isset($representation) && trim($representation) != 'all') {
             $query->where('representation_id',$representation);
         }

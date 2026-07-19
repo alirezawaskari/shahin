@@ -111,9 +111,6 @@
                             <a href="{{ $organization->stamp }}" target="_blank">
                                 <img src="{{ $organization->stamp }}" class="card-img-top" height="150px">
                             </a>
-                            @if($organization->mediaIsLegacy('stamp'))
-                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                            @endif
                             </div>
                             @else
                             <div id="stamp_src" class="show">
@@ -137,9 +134,6 @@
                                 <a href="{{ $organization->image }}" target="_blank">
                                     <img id="image_src" src="{{ $organization->image }}" class="card-img-top" height="150px">
                                 </a>
-                                @if($organization->mediaIsLegacy('image'))
-                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                @endif
                             </div>
                             @else
                             <div id="image_src" class="show">
@@ -185,9 +179,6 @@
                         </a>
                     </div>
                     @endforeach
-                    @if($organization->arrayMediaHasLegacy('document'))
-                    <div class="col-12"><small class="d-block text-warning mt-1">فایل‌های قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small></div>
-                    @endif
                     @endif
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">

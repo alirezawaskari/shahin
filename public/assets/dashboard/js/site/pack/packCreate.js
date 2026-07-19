@@ -16,10 +16,16 @@ $('.type_good_selected').click(function () {
 
 $('.type_good_selected').click();
 
-CKEDITOR.replace('description', {
-    filebrowserUploadUrl: "{{route('ckeditor.upload', ['_token' => csrf_token()])}}",
-    filebrowserUploadMethod: 'form'
-});
+// Guard: if ckeditor.js ever fails to load, a "CKEDITOR is not defined" error here
+// would halt the whole script (so the .productPack handler below never binds and
+// انتخاب کالا stays empty). The Blade {{route()}} below never runs in a static .js
+// file, so build the upload URL from the csrf-token meta instead.
+if (typeof CKEDITOR !== 'undefined') {
+    CKEDITOR.replace('description', {
+        filebrowserUploadUrl: '/dashboard/ckeditor/upload?_token=' + $('meta[name="csrf-token"]').attr('content'),
+        filebrowserUploadMethod: 'form'
+    });
+}
 
 $(document).ready(function () {
     $(".selectMultiTag").select2({
@@ -40,19 +46,22 @@ if (($(".expire_date").length > 0)) {
 var center_id = $('.center_id').val();
 var type = 'center';
 $(document).ready(function () {
-    if(center_id.length > 0) {
-        $(".productsPack option").remove();
+    if(center_id && center_id.length > 0) {
+        var select = $('.productsPack');
+        select.empty();
         $.ajax({
             type: "post",
             url: '/dashboard/getProductsPack',
             data: {type:type,ids: center_id},
             headers: {"Authorization": localStorage.getItem('token')},
             success: function (result) {
-                var select = $('.productsPack');
+                // .productsPack is already a select2 (adminJs inits .js-example-basic-single
+                // on load), so destroy it before rebuilding or the new options won't render.
+                if (select.hasClass('select2-hidden-accessible')) select.select2('destroy');
+                select.empty();
                 $(result['products']).each(function (index, val) {
                     select.append($("<option>").attr('value', val.id).text(val.name));
                 });
-                $('.productsPackBox').html('').html(select);
                 select.select2();
             }
         });
@@ -61,7 +70,8 @@ $(document).ready(function () {
 
 $('.productPack').change(function () {
     if($('.productPack').length > 0) {
-        $(".productsPack option").remove();
+        var select = $('.productsPack');
+        select.empty();
         var type = $(this).attr('id');
         $.ajax({
             type: "post",
@@ -69,11 +79,13 @@ $('.productPack').change(function () {
             data: {type:type,ids: $(this).val()},
             headers: {"Authorization": localStorage.getItem('token')},
             success: function (result) {
-                var select = $('.productsPack');
+                // .productsPack is already a select2 (adminJs inits .js-example-basic-single
+                // on load), so destroy it before rebuilding or the new options won't render.
+                if (select.hasClass('select2-hidden-accessible')) select.select2('destroy');
+                select.empty();
                 $(result['products']).each(function (index, val) {
                     select.append($("<option>").attr('value', val.id).text(val.name));
                 });
-                $('.productsPackBox').html('').html(select);
                 select.select2();
             }
         });

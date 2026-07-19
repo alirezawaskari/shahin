@@ -88,9 +88,12 @@ class AdminController extends Controller
 
         $media = MediaLibraryHelper::uploadImage($request->file, auth()->id());
         return [
-            'image_name' => $media,                                  // MediaLibrary id -> hidden *_path (attach on save)
-            'media_id'   => optional($media->getFirstMedia('images'))->id, // temp Spatie media id -> removeMedia (delete the ✕ before save)
-            'status'     => true,
+            // Single temp id used for everything: hidden *_path (attachTo on save),
+            // removeMedia (✕) and viewMedia (مشاهده). The whole MediaLibrary model is
+            // deliberately NOT returned — this endpoint is public and serializing it
+            // would leak internal columns (user_id, upload_location, …).
+            'media_id' => optional($media->getFirstMedia('images'))->id,
+            'status'   => true,
         ];
     }
 
@@ -118,9 +121,33 @@ class AdminController extends Controller
     }
 
     /**
-     * Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard
-     * auth). Scoped to temp holders only — MediaLibrary + the private 'images' collection —
-     * so this public route can never stream a model's saved media by id.
+     * Stream a media file inline by id. Temp ajax uploads live on the private
+     * `local` disk (no public url), so the "مشاهده" view links resolve here.
+     * response()->file() sets the Content-Type from the file, so pdf/images
+     * render in the browser and other types are offered for download.
+     */
+    public function viewMedia($id)
+    {
+        $media = \App\Models\Media::find($id);
+        if (! $media) {
+            abort(404);
+        }
+        $path = $media->getPath();
+        if (! $path || ! is_file($path)) {
+            abort(404);
+        }
+        return response()->file($path, [
+            'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+        ]);
+    }
+
+    /**
+     * Public inline view of a just-uploaded TEMP file (guest site forms, e.g. the
+     * recruitment resume upload, have no dashboard auth). Scoped to temp holders
+     * only — MediaLibrary + the private 'images' collection — so this public route
+     * can never be used to stream a model's saved media (resumes, invoices, …) by
+     * id. Temp ids are unguessable UUIDs and the file is deleted once the form is
+     * submitted, so the exposure window is tiny.
      */
     public function viewTempMedia($id)
     {
@@ -141,9 +168,11 @@ class AdminController extends Controller
     }
 
     /**
-     * Public removal of a just-uploaded TEMP file (guest site forms have no dashboard auth).
-     * Scoped to temp holders only — MediaLibrary + the private 'images' collection — so it
-     * can never delete a model's saved media by id.
+     * Public removal of a just-uploaded TEMP file (guest site forms have no dashboard
+     * auth). Scoped to temp holders only — MediaLibrary + the private 'images'
+     * collection — so it can never delete a model's saved media by id. Called when a
+     * site user removes the selection or picks a different file, so temp uploads don't
+     * pile up orphaned on disk.
      */
     public function removeTempMedia(Request $request)
     {
@@ -321,13 +350,6 @@ class AdminController extends Controller
         return $this->upload($request->image);
     }
 
-    /**
-     * @param Request $request
-     * @return string
-     */
-    public function uploadFile(Request $request ) {
-        return MediaLibraryHelper::uploadImage( $request->file, $request->path );
-    }
 
     /**
      * @param Request $request

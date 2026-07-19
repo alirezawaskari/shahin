@@ -38,17 +38,42 @@ class FactorItem extends Model implements AuditableContract, HasMedia
 
     /**
      * Spatie collection that permanently holds the ajax-uploaded document images for
-     * this factor item (recommendations section, checkout multi_file uploads, …). It is
-     * additive (NOT singleFile) — each upload is kept and its public URL is appended to
-     * the factor_values[<form name>] JSON, so all existing path-based views (admin +
-     * site) keep rendering unchanged. Logical separation is by the factor_values key,
-     * not by collection, so a single bucket is correct.
+     * this factor item (recommendations section, checkout file/multi_file uploads, …).
+     * Additive (NOT singleFile) — every upload is kept. One bucket for all form fields:
+     * each media carries a 'field' custom property naming the beforeform it belongs to,
+     * so separation is by that property rather than by collection.
      */
     const DOCUMENTS_COLLECTION = 'factor_documents';
 
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::DOCUMENTS_COLLECTION)->useDisk('public');
+    }
+
+    /**
+     * Urls of the file(s) uploaded for beforeform $field: Spatie media if any, else the
+     * legacy path(s) still in factor_values. Absolute urls — render {{ $url }} as-is.
+     *
+     * Use for BOTH 'file' (take the first) and 'multi_file' (loop) form types.
+     */
+    public function documentUrls(string $field): array
+    {
+        return $this->mediaUrlsForField(self::DOCUMENTS_COLLECTION, 'factor_values', $field);
+    }
+
+    /**
+     * Same as documentUrls(), but each entry carries ['url', 'legacy', 'media_id'] so a view
+     * can flag a not-yet-adopted file ("با ذخیره به سیستم جدید منتقل می‌شود").
+     */
+    public function documentItems(string $field): array
+    {
+        return $this->mediaItemsForField(self::DOCUMENTS_COLLECTION, 'factor_values', $field);
+    }
+
+    /** First url for a single-'file' beforeform field, or '' when nothing is uploaded. */
+    public function documentUrl(string $field): string
+    {
+        return $this->documentUrls($field)[0] ?? '';
     }
 
     /**
@@ -503,7 +528,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             '17' => 'منتظر مشاوره شعبه',
             '20' => 'منتظر تایید فاکتور توسط کاربر',
             '21' => 'درانتظار اصلاح فاکتور به درخواست کاربر',
-            '2' => 'پیش فاکتور تایید شد',
+            '2' => 'مشاوره شد',
             '10' => 'آماده اجرا',
             '6' => 'شروع کار',
             '7' => 'اتمام کار',
@@ -1154,7 +1179,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
 
         //send sms to the user
         event( new smsService( $factorItem , 'setCenter') );
-        if($factorItem->center->creatorRepresentation)
+        if($factorItem->center->creatorRpresentation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->creator_representation_id ] );
         }

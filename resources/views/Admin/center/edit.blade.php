@@ -261,14 +261,9 @@
                             <i class="fa fa-cloud-upload"></i> بارگذاری فایل قرارداد
                         </label>
                         <input name="contract_file" type="file" id="contract_file"
-                            class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
+                               class="d-none file-upload file_upload_ajax">
                         <div id="contract_file_src" class="show"></div>
-                        <input type="hidden" id="contract_file" class="path" name="urlcontract_file" value="">
-                        <div class="mr-3">
-                            @if($center->contract_file)
-                            <a href="{{ $center->contract_file }}" class="btn btn-primary py-1 px-2">مشاهده قرارداد</a>
-                            @endif
-                        </div>
+                        <input type="hidden" id="contract_file_path" class="path" name="contract_file_path" value="">
                     </div>
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">

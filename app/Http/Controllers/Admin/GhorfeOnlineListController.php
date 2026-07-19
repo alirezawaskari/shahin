@@ -108,15 +108,16 @@ class GhorfeOnlineListController extends AdminController {
             'status'
         ]);
 
-        if ($request->urllogo) {
-            $inputs['logo'] = Helper::moveImage($request->urllogo, 'document');
-        }
-
         $inputs['contract_start_date'] = Helper::vertaToMiladi($request->contract_start_date);
         $inputs['contract_expiration_date'] = Helper::vertaToMiladi($request->contract_expiration_date);
 
         $ghorfeOnlineList = GhorfeOnlineList::create($inputs);
         $ghorfeOnlineList->about()->create();
+
+        // Spatie: attach the logo from its temp media id (logo_path).
+        if ($request->logo_path) {
+            \App\Helpers\MediaLibraryHelper::attachTo($ghorfeOnlineList, $request->logo_path, 'logo');
+        }
 
         if (auth()->user()->hasPermission('ghorfe_online_list_categories')) {
             $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
@@ -192,76 +193,62 @@ class GhorfeOnlineListController extends AdminController {
             'company_info'
         ));
     }
-    public function getGallery(Request $request)
+    /**
+     * Spatie replacement for the legacy getGallery/galleryUpdate pair. Saves the ghorfe's
+     * per-ghorfe data-mining slot gallery (gallery_desktop + gallery_mobile) via attachTo.
+     * The category/service dropdowns are kept and tag the gallery through the media's
+     * parent_id custom property.
+     */
+    public function gallerySave(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
-        $category_id = $request->category_id;
-        $service_id = $request->service_id;
+        $parentId = $request->service_item ?: ($request->service ?: $request->category);
 
-        $galleries = Gallery::with('galleryable')
-            ->where(function ($q) use ($category_id, $service_id) {
+        $this->syncGallerySlots($ghorfeOnlineList, 'gallery_desktop', $request->input('deskImage', []), $parentId);
+        $this->syncGallerySlots($ghorfeOnlineList, 'gallery_mobile', $request->input('mobileImage', []), $parentId);
 
-                if ($category_id) {
-                    $q->orWhere('parent_id', $category_id);
-                }
-
-                if ($service_id) {
-                    $q->orWhere('parent_id', $service_id);
-                }
-            })
-            ->get();
-
-        return view('components.gallery-form', [
-            'galleries' => $galleries
-        ]);
-    }
-
-    public function galleryUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
-    {
-        $categoryId = $request->category;
-        $targetClass = null;
-        $targetId = null;
-
-        if ($request->service_item) {
-            $targetClass = ServiceItem::class;
-            $targetId = $request->service_item;
-        }
-
-        if (!$targetClass && $request->service) {
-            $targetClass = Service::class;
-            $targetId = $request->service;
-        }
-
-        if (!$targetClass && $categoryId) {
-            $targetClass = Category::class;
-            $targetId = $categoryId;
-        }
-
-        if (!$targetClass || !$targetId) {
-            return redirect()
-                ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
-                ->withErrors([
-                    'target' => 'حداقل باید یک سرویس، زیرسرویس یا دسته انتخاب شود'
-                ])
-                ->withInput()
-                ->with('active_tab', 'gallery_content');
-        }
-
-
-        $galleryService = new GalleryService();
-
-        $galleryService->handle(
-            $request,
-            GhorfeOnlineList::class,
-            $ghorfeOnlineList->id,
-            $ghorfeOnlineList->id,
-            $ghorfeOnlineList
-        );
         return redirect()
             ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
             ->with([
                 'update' => 'success',
                 'active_tab' => 'gallery_content'
             ]);
+    }
+
+    /**
+     * Attach/replace/rename the slot-based Spatie gallery of the ghorfe. Each slot's
+     * metadata (the former galleries-table columns) is preserved as media custom
+     * properties, so the legacy galleries table is no longer needed here.
+     */
+    private function syncGallerySlots(GhorfeOnlineList $ghorfeOnlineList, string $collection, array $items, $parentId = null): void
+    {
+        foreach ($items as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $properties = [
+                'index'      => (int) $index,
+                'title'      => $item['file_title'] ?? null,
+                'title_en'   => $item['title_en'] ?? null,
+                'title_ar'   => $item['title_ar'] ?? null,
+                'title_turk' => $item['title_turk'] ?? null,
+                'parent_id'  => $item['parent_id'] ?? $parentId,
+            ];
+
+            $existing = $ghorfeOnlineList->gallerySlot($collection, (int) $index);
+
+            if (!empty($item['file'])) {
+                // new upload for this slot -> attachTo() replaces the media in this slot
+                // (matched by the 'index' custom property) and deletes the old file natively.
+                \App\Helpers\MediaLibraryHelper::attachTo($ghorfeOnlineList, $item['file'], $collection, $properties);
+            } elseif ($existing) {
+                // metadata-only update (titles etc.) for the existing image
+                foreach ($properties as $key => $value) {
+                    $existing->setCustomProperty($key, $value);
+                }
+                $existing->save();
+            }
+        }
     }
 
     /**
@@ -347,8 +334,6 @@ class GhorfeOnlineListController extends AdminController {
             'user_id',
             'template_id',
             'title',
-            'fav_id',
-            'logo_id',
             'en_title',
             'title_ar',
             'title_turk',
@@ -369,30 +354,6 @@ class GhorfeOnlineListController extends AdminController {
             'domain_active'
         ]);
 
-        // تصاویر (فقط file واقعی، نه url/hidden)
-        if ($request->file('logo_file')) {
-            $inputs['logo_id'] = Helper::moveImage($request->file('logo_file'), 'document');
-        }
-
-        if ($request->file('footer_logo_file')) {
-            $inputs['footer_logo_id'] = Helper::moveImage($request->file('footer_logo_file'), 'document');
-        }
-
-        if ($request->file('fav_file')) {
-            $inputs['fav_id'] = Helper::moveImage($request->file('fav_file'), 'document');
-        }
-
-        if ($request->file('mohr_file')) {
-            $inputs['mohr_id'] = Helper::moveImage($request->file('mohr_file'), 'document');
-        }
-
-        if ($request->file('addvertisment_slider_file')) {
-            $inputs['addvertisment_slider_id'] = Helper::moveImage(
-                $request->file('addvertisment_slider_file'),
-                'document'
-            );
-        }
-
         // footer_tag جداگانه (بدون overwrite کل update)
         if ($request->filled('footer_tag')) {
             $codes = collect(explode(',', $request->footer_tag))
@@ -404,6 +365,15 @@ class GhorfeOnlineListController extends AdminController {
 
         // update اصلی
         $ghorfeOnlineList->update($inputs);
+
+        // Spatie: attach any newly uploaded settings image from its temp media id (*_path).
+        // Replaces the old Helper::moveImage writes into the char(36) *_id columns.
+        foreach (['logo', 'footer_logo', 'fav', 'mohr', 'addvertisment_slider'] as $collection) {
+            $pathKey = $collection . '_path';
+            if ($request->$pathKey) {
+                \App\Helpers\MediaLibraryHelper::attachTo($ghorfeOnlineList, $request->$pathKey, $collection);
+            }
+        }
 
         return redirect()
             ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
@@ -433,19 +403,12 @@ class GhorfeOnlineListController extends AdminController {
             $ids = $request->ids ?? [];
 
             foreach ($request->titles as $index => $title) {
-
-                $menu = $ghorfeOnlineList->menus()
-                    ->where('id', $request->ids[$index])
-                    ->first();
-
-                if (!$menu) continue;
-
-                $menu->title = $title;
-                $menu->link = $request->links[$index];
-
-                $menu->is_active = isset($request->actives[$index]) ? 1 : 0;
-
-                $menu->save();
+                $data = [
+                    'title' => $title,
+                    'link' => $request->links[$index],
+                    'ghorfe_online_list_id' => $ghorfeOnlineList->id,
+                ];
+                $ghorfeOnlineList->menus()->updateOrCreate($data);
             }
 
             return redirect()

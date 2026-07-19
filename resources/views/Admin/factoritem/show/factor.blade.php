@@ -37,7 +37,9 @@
                     </div>
                     @foreach ($factorItem['forms'] as $form)
                     @if (in_array('panel_show_file' , $form->data_display_level))
-                        @include('Admin.factoritem.layouts.formItem')
+                        {{-- read-only: this include sits outside the <form> below, so an
+                             upload here could never be posted --}}
+                        @include('Admin.factoritem.layouts.formItem', ['formItemUploads' => false])
                     @endif
                     @endforeach
                     @endforeach

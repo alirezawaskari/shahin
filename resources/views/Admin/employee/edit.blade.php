@@ -429,9 +429,6 @@
                                             <a href="{{ $employee->imgaccess }}" target="_blank">
                                                 <img src="{{ $employee->imgaccess }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
-                                            @if($employee->mediaIsLegacy('imgaccess'))
-                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                            @endif
                                         </div>
                                         @else
                                         <div id="imgaccess_src" class="show">
@@ -459,9 +456,6 @@
                                                 <img src="{{ $employee->imglastcertificate }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
-                                            @if($employee->mediaIsLegacy('imglastcertificate'))
-                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                            @endif
                                         </div>
                                         @else
                                         <div id="imglastcertificate_src" class="show">

@@ -27,19 +27,42 @@ class TotalFactorItem extends Model implements AuditableContract, HasMedia
     protected function legacyArrayMediaMap(): array
     {
         return [
-            'contract_values' => 'contract_documents',
-            'factor_values'   => 'contract_documents',
+            'contract_values' => self::CONTRACT_COLLECTION,
+            'factor_values'   => self::CONTRACT_COLLECTION,
         ];
     }
 
     /**
-     * Spatie collection for the contract document images. Multi-file: each
-     * upload's public URL is appended to the contract_values JSON array (same
-     * shape every existing view already reads).
+     * Spatie collection for the contract document images. Additive: every upload is kept
+     * and carries a 'field' custom property naming the ContractForm it belongs to, so one
+     * bucket serves all contract fields.
      */
+    const CONTRACT_COLLECTION = 'contract_documents';
+
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('contract_documents')->useDisk('public');
+        $this->addMediaCollection(self::CONTRACT_COLLECTION)->useDisk('public');
+    }
+
+    /**
+     * Urls of the file(s) uploaded for ContractForm $field: Spatie media if any, else the
+     * legacy path(s) still in contract_values. Absolute urls — render {{ $url }} as-is.
+     */
+    public function contractDocumentUrls(string $field): array
+    {
+        return $this->mediaUrlsForField(self::CONTRACT_COLLECTION, 'contract_values', $field);
+    }
+
+    /** Per-file provenance for contract documents — see FactorItem::documentItems(). */
+    public function contractDocumentItems(string $field): array
+    {
+        return $this->mediaItemsForField(self::CONTRACT_COLLECTION, 'contract_values', $field);
+    }
+
+    /** First url for a single-'file' contract field, or '' when nothing is uploaded. */
+    public function contractDocumentUrl(string $field): string
+    {
+        return $this->contractDocumentUrls($field)[0] ?? '';
     }
 
     /**

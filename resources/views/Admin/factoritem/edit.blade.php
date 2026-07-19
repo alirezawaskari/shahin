@@ -54,7 +54,10 @@
 @section('js')
     <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
     <script src="{{ asset('/assets/dashboard/js/layouts.js?v=1.2') }}"></script>
-    <script src="{{asset('assets/dashboard/js/fontawesome.js')}}"></script>
+    {{-- No fontawesome.js here: it is FA 5's SVG framework, and it rewrites every
+         <i class="fa fa-close"> on the page into an inline <svg>. This was the only page in
+         the app loading it, so its remove (✕) buttons rendered as SVGs while every other
+         page drew the FA 4.7 font glyph that dashboard.css already provides. --}}
     <script src="{{asset('assets/dashboard/js/bootstrap.min.js')}}"></script>
     <script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.0') }}"></script>
 
