@@ -27,20 +27,20 @@
             @include('Admin.layouts.errors')
             <div class="row">
 
-                <div class="col-12 col-md-6 mb-2">
+                <div class="col-12 col-md-4 mb-2">
                     <label>عنوان منو </label>
                     <input type="text" class="form-control" name="name" value="{{ $menuSetting->name }}"
                         required>
                 </div>
 
-                <div class="col-12 col-md-6 mb-2">
-                    <label>وضعیت</label>
+                <div class="col-12 col-md-4 mb-2">
+                    <label>وضعیت نمایش در منو</label>
                     <select class="form-control" name="is_active">
                         <option value="0" {{ $menuSetting->is_active == 0 ? 'selected' : '' }}>غیرفعال</option>
                         <option value="1" {{ $menuSetting->is_active == 1 ? 'selected' : '' }}>فعال</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-6 mb-2">
+                <div class="col-12 col-md-4 mb-2">
                     <label>ترتیب</label>
                     <input type="number"
                            name="position"
