@@ -16,6 +16,9 @@
                 <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
                     class="card-img-top" height="150px">
             </a>
+            @if($totalFactorItem->totalFactorItemContractSettlement?->mediaIsLegacy('img_request_contract_settlement'))
+            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+            @endif
             @else
             <div id="request_contract_settlement_src" class="show">
                 <img class="card-img-top" height="150px">
@@ -28,7 +31,7 @@
                 <input name="request_contract_settlement" type="file" id="request_contract_settlement"
                     class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
                     accept=".jpg,.jpeg,.png">
-                <input type="hidden" id="request_contract_settlement" class="path"
+                <input type="hidden" id="request_contract_settlement_path" class="path"
                     name="urlrequest_contract_settlement">
             </div>
             @endif

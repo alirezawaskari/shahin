@@ -81,12 +81,12 @@
                 </div>
 
                 <div class="col-12">
-                    <div id="addnew" class='file file--upload'>
-                        <label for='file'>
+                    <div id="addnew">
+                        <label for='file' class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i>بارگذاری فایل
                         </label>
                         <input name="file[]" type="file" id="file"
-                            class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
+                            class="d-none filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white">
                     </div>
                     <div id="file_newlink" class="col-12 row">
                         <div>

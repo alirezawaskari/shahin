@@ -5,12 +5,49 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class About extends Model {
-    use SoftDeletes;
+class About extends Model implements HasMedia {
+    use SoftDeletes, InteractsWithMedia;
     protected $dates = [ 'deleted_at' ];
     protected $fillable = [ 'ghorfe_online_list', 'image_two', 'image_three', 'image_four', 'image_five', 'content', 'content2',
     'content_one', 'content_two', 'content_three', 'content_four', 'content_five' ];
+
+    /**
+     * Spatie media: one single-file collection per "box" image (2..5). Replaces the
+     * abandoned image_*_id -> MediaLibrary FK / HasMediaImage-trait approach (which was
+     * incompatible with the uploadFilesTemporarily + attachTo pipeline the app uses).
+     * The legacy image_*_id columns are left in place (unused, no drops).
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image_two')->useDisk('public')->singleFile();
+        $this->addMediaCollection('image_three')->useDisk('public')->singleFile();
+        $this->addMediaCollection('image_four')->useDisk('public')->singleFile();
+        $this->addMediaCollection('image_five')->useDisk('public')->singleFile();
+    }
+
+    /** Box-image urls (shadow the legacy image_* names; disk-checked). */
+    public function getImageTwoAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_two');
+    }
+
+    public function getImageThreeAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_three');
+    }
+
+    public function getImageFourAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_four');
+    }
+
+    public function getImageFiveAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_five');
+    }
 
     /**
     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

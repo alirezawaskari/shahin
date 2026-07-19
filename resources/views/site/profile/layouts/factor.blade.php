@@ -30,13 +30,13 @@
                                     <td class="text-center">{{ number_format($factor->price) }}</td>
                                     <td class="text-center">{{ verta($factor->created_at)->format('%d %B ، %Y') }}</td>
                                     <td class="text-center">
-                                        @if($factor->status == 0 && now() < $factor->expired_at )
+                                        @if($factor->resnumber && $factor->status == 0 && now() < $factor->expired_at )
                                             <form action="{{ route('factor' , [$factor->resnumber]) }}" method="GET">
                                                 <input type="submit"
                                                     class="btn btn-primary text-white py-1 px-2 font-14" value="پرداخت">
                                             </form>
                                             @endif
-                                            @if($factor->status == 1)
+                                            @if($factor->resnumber && $factor->status == 1)
                                             <a href="{{ route('factor' , [$factor->resnumber]) }}"
                                                 class="btn btn-success py-1">مشاهده فاکتور</a>
 

@@ -104,11 +104,39 @@
 
         <div class="card col-md-6 p-2 text-center mb-3">
 
-            <input type="text"
-                   name="mobileImage[{{$i}}][file_title]"
-                   value="{{ $image->title ?? '' }}"
-                   class="form-control mb-2"
-                   placeholder="عنوان">
+                <input type="text"
+                       name="{{ $input }}[{{ $i }}][file_title]"
+                       value="{{ $media?->getCustomProperty('title') }}"
+                       class="form-control mb-2"
+                       placeholder="{{ $isBig ? 'عنوان عکس بزرگ' : 'عنوان' }}">
+
+                {{-- multilingual titles + parent_id kept as media custom properties (galleries table stays droppable) --}}
+                <input type="hidden" name="{{ $input }}[{{ $i }}][title_en]"   value="{{ $media?->getCustomProperty('title_en') }}">
+                <input type="hidden" name="{{ $input }}[{{ $i }}][title_ar]"   value="{{ $media?->getCustomProperty('title_ar') }}">
+                <input type="hidden" name="{{ $input }}[{{ $i }}][title_turk]" value="{{ $media?->getCustomProperty('title_turk') }}">
+                <input type="hidden" name="{{ $input }}[{{ $i }}][parent_id]"  value="{{ $media?->getCustomProperty('parent_id') }}">
+
+                <div id="{{ $fieldId }}_current" data-box-h="{{ $boxH }}">
+                    @if($media)
+                        <div class="div_remove_btn d-inline-block mb-2" id="media_{{ $media->id }}">
+                            <img src="{{ $media->getFullUrl() }}"
+                                 class="rounded border"
+                                 style="height:{{ $boxH }}px;width:100%;object-fit:contain;background:#f8f9fa;"
+                                 alt="">
+                            {{-- No ✕ on the LAST image while the legacy `galleries` table still holds
+                                 rows for this collection: emptying it lets the next save re-adopt them
+                                 all, so the delete would undo itself. See
+                                 AdoptsLegacyMedia::galleryMediaIsRemovable(). --}}
+                            @if(! $owner || ! method_exists($owner, 'galleryMediaIsRemovable') || $owner->galleryMediaIsRemovable($collection))
+                            <a data-id="{{ $media->id }}" title="حذف عکس"
+                               class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
+                            @endif
+                        </div>
+                    @else
+                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                             style="height:{{ $boxH }}px;background:#f8f9fa;">بدون تصویر</div>
+                    @endif
+                </div>
 
             <div class="input-group mb-2">
                 <input id="mobile_{{$i}}" name="mobile_file_{{$i}}"
@@ -157,5 +185,10 @@
         <div id="mobile_4_src" class="show disInline"></div>
 
     </div>
+@endforeach
 
-</div>
+{{-- Legacy galleries-table fallback (read-only) — hidden once this owner has Spatie gallery media --}}
+@include('Admin.partials.legacyGalleryFallback', [
+    'model'       => $owner,
+    'collections' => collect($sections)->pluck('collection')->all(),
+])

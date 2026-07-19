@@ -106,13 +106,7 @@
                         <div class="card-body">
                             <div class="card-body">
                                 <div class="tab-content" id="myTabContent">
-                                    @if(!is_null($item['forms']))
-                                    @foreach($item['forms'] as $form)
-                                    @if (in_array('show_recommendations_site' , $form->data_display_level))
-                                    @include('Admin.factoritem.layouts.formItem')
-                                    @endif
-                                    @endforeach
-                                    @endif
+                                    @include('site.profile.layouts.factoritem.recommendations')
                                 </div>
                             </div>
                         </div>
@@ -199,13 +193,7 @@
                             <div class="card-body">
                                 <div class="card-body">
                                     <div class="tab-content" id="myTabContent">
-                                        @if(!is_null($item['forms']))
-                                        @foreach($item['forms'] as $form)
-                                        @if (in_array('show_recommendations_site' , $form->data_display_level))
-                                        @include('Admin.factoritem.layouts.formItem')
-                                        @endif
-                                        @endforeach
-                                        @endif
+                                        @include('site.profile.layouts.factoritem.recommendations')
                                     </div>
                                 </div>
                             </div>
@@ -378,6 +366,9 @@
                                                     <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
                                                         class="card-img-top" height="150px">
                                                 </a>
+                                                @if($totalFactorItem->totalFactorItemContractSettlement?->mediaIsLegacy('img_request_contract_settlement'))
+                                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                @endif
                                                 @else
                                                 <div id="request_contract_settlement_src" class="show">
                                                     <img class="card-img-top" height="150px">
@@ -392,7 +383,7 @@
                                                         id="request_contract_settlement"
                                                         class="filestyle file-upload file_upload_ajax file-up"
                                                         data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                    <input type="hidden" id="request_contract_settlement" class="path"
+                                                    <input type="hidden" id="request_contract_settlement_path" class="path"
                                                         name="urlrequest_contract_settlement">
                                                 </div>
                                                 @endif
@@ -572,6 +563,11 @@
     }
     });
 </script>
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+{{--
+    No adminJs.js here — customer-facing page. site-upload.js (site/master.blade.php)
+    already serves the uploads, and @yield('js') renders AFTER it, so adminJs.js
+    overrode it: the remove (X) on the single-file request_contract_settlement posted
+    to the admin-only /dashboard/removeMedia and silently failed for customers.
+--}}
 <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=1.3') }}"></script>
 @endsection

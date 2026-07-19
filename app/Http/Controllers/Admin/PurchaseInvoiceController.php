@@ -160,12 +160,13 @@ class PurchaseInvoiceController extends Controller {
         $factor_images = isset( $purchaseInvoice->factor_image ) ? $purchaseInvoice->factor_image : [];
         $url_factor_image = $request->url_factor_image;
         $factor_images = isset( $purchaseInvoice->factor_image ) ? $purchaseInvoice->factor_image : [];
-        if ( isset( $url_factor_image ) ) {
+        if ( isset( $url_factor_image ) && is_array( $url_factor_image ) ) {
             foreach ( $url_factor_image as $file ) {
                 if ( $file ) {
-                    if ( isset( $factor_images ) ) {
-                        $url = Helper::moveImage($file,'document');
-                        $factor_images[] = $url;
+                    // temp media id -> move into the invoice's factor_image collection, keep its url
+                    $media = \App\Helpers\MediaLibraryHelper::attachTo( $purchaseInvoice, (string) $file, 'factor_image' );
+                    if ( $media ) {
+                        $factor_images[] = $media->getUrl();
                     }
                 }
             }
@@ -315,7 +316,8 @@ class PurchaseInvoiceController extends Controller {
     public function sendProduct(Request $request, PurchaseInvoice $purchaseInvoice ) {
         //upload factor post image
         if ( $request->url_post_image ) {
-            $purchaseInvoice->update( [ 'post_image' => Helper::moveImage($request->url_post_image,'document'), 'postage' => Helper::numberConverter( ( float ) str_replace( ',', '', $request->postage ) ), 'status' => 6 ] );
+            \App\Helpers\MediaLibraryHelper::attachTo( $purchaseInvoice, $request->url_post_image, 'post_image' );
+            $purchaseInvoice->update( [ 'postage' => Helper::numberConverter( ( float ) str_replace( ',', '', $request->postage ) ), 'status' => 6 ] );
         }
 
         return redirect( route( 'purchaseInvoice.index' ) )->with( [
@@ -427,7 +429,7 @@ class PurchaseInvoiceController extends Controller {
 
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
         }
         $purchaseInvoice->purchaseInvoiceFactors()->create(['factor_id' => $factor->id]);
         self::savePaidInstallments( $purchaseInvoice, $factor );
@@ -459,7 +461,7 @@ class PurchaseInvoiceController extends Controller {
 
         //upload bill_image cash factor
         if ($request->url_bill_image) {
-            $factor->update(['bill_image' => Helper::moveImage($request->url_bill_image,'document')]);
+            \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
         }
         $purchaseInvoice->purchaseInvoiceFactors()->create(['factor_id' => $factor->id]);
         self::returnPaidInstallments( $purchaseInvoice, $factor );

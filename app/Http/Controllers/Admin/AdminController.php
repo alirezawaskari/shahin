@@ -60,15 +60,21 @@ class AdminController extends Controller
      * @return array|false[]
      * @throws \Exception
      */
-    public function uploadPhotosTemporarily(Request $request)
+    public function uploadFilesTemporarily(Request $request)
     {
         // Public endpoint: validate strictly to prevent abuse (arbitrary/oversized uploads).
+        // A widget can opt into images-only by posting images_only=1 (e.g. the centerRequest
+        // gallery form); document-bearing widgets (resumes, factor docs) omit it and keep the
+        // wider whitelist below.
+        $mimes = $request->boolean('images_only')
+            ? 'mimes:jpg,jpeg,png,webp,svg,gif'
+            : 'mimes:jpg,jpeg,png,webp,svg,gif,pdf,doc,docx,xls,xlsx,zip,rar';
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'file' => [
                 'required',
                 'file',
                 'max:6144', // 6 MB, matches the client-side limit
-                'mimes:jpg,jpeg,png,webp,svg,gif,pdf,doc,docx,xls,xlsx,zip,rar',
+                $mimes,
             ],
         ], [
             'file.required' => 'فایلی ارسال نشده است.',
@@ -109,6 +115,49 @@ class AdminController extends Controller
             return ['status' => true];
         }
         return ['status' => false];
+    }
+
+    /**
+     * Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard
+     * auth). Scoped to temp holders only — MediaLibrary + the private 'images' collection —
+     * so this public route can never stream a model's saved media by id.
+     */
+    public function viewTempMedia($id)
+    {
+        $media = \App\Models\Media::where('id', $id)
+            ->where('model_type', \App\Models\MediaLibrary::class)
+            ->where('collection_name', 'images')
+            ->first();
+        if (! $media) {
+            abort(404);
+        }
+        $path = $media->getPath();
+        if (! $path || ! is_file($path)) {
+            abort(404);
+        }
+        return response()->file($path, [
+            'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+        ]);
+    }
+
+    /**
+     * Public removal of a just-uploaded TEMP file (guest site forms have no dashboard auth).
+     * Scoped to temp holders only — MediaLibrary + the private 'images' collection — so it
+     * can never delete a model's saved media by id.
+     */
+    public function removeTempMedia(Request $request)
+    {
+        $media = \App\Models\Media::where('id', $request->media_id)
+            ->where('model_type', \App\Models\MediaLibrary::class)
+            ->where('collection_name', 'images')
+            ->first();
+        if (! $media) {
+            return ['status' => false];
+        }
+        MediaLibraryHelper::deleteMedia($media);
+        // drop the now-empty temp holder too
+        \App\Models\MediaLibrary::where('id', $media->model_id)->delete();
+        return ['status' => true];
     }
 
     public function dashboard(Request $request)

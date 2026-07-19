@@ -843,9 +843,20 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/contact/desktop', 'ContactController@desktop')->name('contact.desktop');
     Route::resource('contact', 'ContactController');
 
-    //gallery
-    Route::resource('gallerycategory', 'GalleryCategoryController');
-    Route::get('/gallery/destroy/{gallery}', 'GalleryController@destroy')->name('gallery.destroy');
+    /*
+     * The standalone gallery feature (Admin\GalleryController, Admin\GalleryCategoryController,
+     * the GalleryCategory model and the public /gallery page) was deleted: it was dead in every
+     * direction — its views (Admin.gallery.*, Admin.gallerycategory.*) no longer existed and the
+     * `gallery_categories` table it queried does not exist in the database, so every route 500'd.
+     * Nothing linked to any of it.
+     *
+     * The one action that still ran was Admin\GalleryController@destroy, reached by a GET route
+     * (CSRF-exempt by nature), which deleted a legacy `galleries` row and its file — exactly the
+     * data touch-to-migrate reads.
+     *
+     * The `galleries` TABLE itself is untouched and still in use: it is the legacy source that
+     * AdoptsLegacyMedia migrates into Spatie collections.
+     */
     //content site
     Route::resource('about', 'AboutController');
     Route::resource('help', 'HelpController');
@@ -896,7 +907,12 @@ Route::get('/agencies', 'AgencyController@index')->name('agencies');
 Route::get('/articles', 'ArticleController@articles');
 Route::get('/articles/{articleSlug}', 'ArticleController@single');
 Route::get('/agencies/{service}', 'AgencyController@single');
-Route::get('/gallery', 'GalleryController@index');
+/*
+ * `/gallery` (App\Http\Controllers\GalleryController) deleted with its views: the page
+ * 500'd on every request. It called GalleryCategory::get(), but the `gallery_categories`
+ * table does not exist in this database, and site/gallerydata.blade.php read
+ * $gallery->cate_id, which is not a column on `galleries` either. Nothing linked to it.
+ */
 Route::get('/rules', 'RulesController@index');
 Route::post('/rate', 'ArticleController@rate');
 Route::get('/faq', 'HomeController@faq');
@@ -923,6 +939,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', 'CheckoutController@store')->name('checkout.store');
     Route::post('/upload_document', 'CheckoutController@upload_document')->name('checkout.upload');
     Route::post('/factorItem/request-contract-settlement', 'FactorItemController@requestContractSettlement')->name('site.factorItem.requestContractSettlement');
+    Route::post('/factorItem/save-recommendations', 'FactorItemController@saveRecommendations')->name('site.factorItem.saveRecommendations');
     Route::get('/factor/create', 'FactorController@create')->name('factor.create');
     Route::get('/cart', 'CartController@index')->name('cart');
     Route::post('/addToCart', 'CartController@add');
@@ -946,9 +963,22 @@ Route::middleware('auth')->group(function () {
 // Public temporary upload endpoint (used by the .file_upload_ajax / multipleImages widgets on
 // both dashboard and guest-facing site forms). Throttled to mitigate abuse; the controller
 // validates file type/size server-side.
-Route::post('/dashboard/uploadPhotosTemporarily', 'Admin\AdminController@uploadPhotosTemporarily')
+Route::post('/dashboard/uploadFilesTemporarily', 'Admin\AdminController@uploadFilesTemporarily')
     ->middleware('throttle:60,1')
-    ->name('uploadPhotosTemporarily');
+    ->name('uploadFilesTemporarily');
+
+// Public inline view of a just-uploaded TEMP file (guest site forms have no dashboard auth).
+// Scoped in the controller to temp holders only, so it can never serve a model's saved media.
+Route::get('/upload/view/{id}', 'Admin\AdminController@viewTempMedia')
+    ->middleware('throttle:120,1')
+    ->name('viewTempMedia');
+
+// Public removal of a just-uploaded TEMP file (guest site forms). Scoped in the controller
+// to temp holders only, so it can never delete a model's saved media. The dashboard's own
+// removeMedia lives behind auth:web+checkAdmin and would bounce a guest to login.
+Route::post('/upload/removeTemp', 'Admin\AdminController@removeTempMedia')
+    ->middleware('throttle:60,1')
+    ->name('removeTempMedia');
 
 Route::get('/factor/{factor}', 'FactorController@index')->name('factor');
 Route::get('/factorItem/{factorItem}', 'FactorItemController@show');

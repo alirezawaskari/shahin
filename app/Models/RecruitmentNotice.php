@@ -9,7 +9,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class RecruitmentNotice extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+
+    /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
+    protected function legacyMediaMap(): array
+    {
+        return ['image' => 'image'];
+    }
 
     /**
      * @var array
@@ -23,7 +29,8 @@ class RecruitmentNotice extends Model implements HasMedia
 
     public function getImageAttribute(): string
     {
-        return $this->getFirstMediaUrl('image');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
+            ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
     /**

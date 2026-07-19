@@ -83,6 +83,9 @@
                                         <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top"
                                             height="150px">
                                     </a>
+                                    @if($purchaseInvoice->mediaIsLegacy('post_image'))
+                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                    @endif
                                     @else
                                     <div id="post_image_src" class="show">
                                         <img class="card-img-top" height="150px">
@@ -96,7 +99,7 @@
                                         <input name="post_image" type="file" id="post_image"
                                             class="filestyle file-upload file_upload_ajax file-up"
                                             data-buttonname="btn-white" accept=".jpg,.jpeg,.png" required>
-                                        <input type="hidden" id="post_image" class="path" name="url_post_image">
+                                        <input type="hidden" id="post_image_path" class="path" name="url_post_image">
                                     </div>
                                     @endif
                                 </div>
@@ -127,6 +130,9 @@
                         <a href="{{ asset($purchaseInvoice->post_image) }}" target="_blank">
                             <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top" height="150px">
                         </a>
+                        @if($purchaseInvoice->mediaIsLegacy('post_image'))
+                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                        @endif
                         <div class="card-body text-center">
                             <h5>تصویر رسید ارسال کالا</h5>
                         </div>
@@ -182,7 +188,7 @@
         <div class="row">
             @foreach($purchaseInvoice->values as $key => $value)
             <div class="card col-12 col-md-3 p-2">
-                <a href="{{ asset(App\Models\User::getUser($value)->imgsignature) }}" target="_blank">
+                <a href="{{ App\Models\User::getUser($value)->imgsignature }}" target="_blank">
                     <img src="{{ App\Models\User::getUser($value)->imgsignature }}" class="card-img-top" height="150px">
                 </a>
                 <div class="card-body text-center">

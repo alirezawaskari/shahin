@@ -507,9 +507,14 @@
                                         <div class="col-12 col-md-6">
                                             <div class="card">
                                                 <div id="footer_logo_src" class="show">
-                                                    <img src={{ asset($ghorfeOnlineList->footer_logo) }}
-                                                    class="card-img-top" width="100%"
-                                                    height="200px">
+                                                    @if($ghorfeOnlineList->footer_logo)
+                                                        <img src="{{ $ghorfeOnlineList->footer_logo }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaIsLegacy('footer_logo'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
+                                                    @endif
                                                 </div>
                                                 <div class="card-body">
                                                     <label>لوگو فوتر (همراه با نام برند)</label>

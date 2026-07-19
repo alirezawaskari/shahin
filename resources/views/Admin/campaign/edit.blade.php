@@ -92,6 +92,9 @@
                                                                     <img height="150px" src="{{$campaign->image}}"
                                                                          class="card-img-top">
                                                                 </div>
+                                                                @if($campaign->mediaIsLegacy('image'))
+                                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                                @endif
                                                             @endif
                                                             <label>تصویر بالا</label>
                                                             <br>
@@ -103,7 +106,7 @@
                                                             <input name="profile_image" type="file" id="profile_image"
                                                                    class="filestyle file-upload file_upload_ajax file-up"
                                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="profile_image" class="path"
+                                                            <input type="hidden" id="profile_image_path" class="path"
                                                                    name="url_profile_image">
                                                         </div>
                                                     </div>
@@ -115,6 +118,9 @@
                                                                 <img height="150px" src="{{$campaign->image_header}}"
                                                                      class="card-img-top">
                                                             </div>
+                                                            @if($campaign->mediaIsLegacy('image_header'))
+                                                            <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                            @endif
                                                         @endif
                                                         <div class="card-body">
                                                             <label>تصویر نمایه</label>
@@ -127,7 +133,7 @@
                                                             <input name="header_image" type="file" id="header_image"
                                                                    class="filestyle file-upload file_upload_ajax file-up"
                                                                    data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
-                                                            <input type="hidden" id="header_image" class="path"
+                                                            <input type="hidden" id="header_image_path" class="path"
                                                                    name="url_header_image">
                                                         </div>
                                                     </div>
@@ -210,12 +216,14 @@
                                                                     <td>{{$campaign_collaboration->name}}</td>
                                                                     <td>{{$campaign_collaboration->url}}</td>
                                                                     <td>
-                                                                        <a href="{{ asset($campaign_collaboration->logo) }}"
+                                                                        @if($campaign_collaboration->logo)
+                                                                        <a href="{{ $campaign_collaboration->logo }}"
                                                                            target="_blank">
                                                                             <img
-                                                                                src="{{ asset($campaign_collaboration->logo) }}"
+                                                                                src="{{ $campaign_collaboration->logo }}"
                                                                                 width="70px" alt="">
                                                                         </a>
+                                                                        @endif
                                                                     </td>
                                                                     <td>
                                                                         <a

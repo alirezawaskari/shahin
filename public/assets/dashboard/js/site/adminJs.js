@@ -329,6 +329,14 @@ $(document).on('click', '.remove_media_btn .fa-close', function (e) {
     if (!$row.length) $row = $btn;
     var $current = $row.closest('[id$="_current"]');
 
+    // Multi-file ([]) preview rows can't carry data-id: the row is built by new_link()
+    // before the upload resolves, so the temp id is written into the row's hidden .path
+    // input afterwards. Read it from there so these rows delete server-side too, instead
+    // of only disappearing from the UI.
+    if (!media_id) {
+        media_id = $row.find('input.path').val();
+    }
+
     var applyUi = function () {
         if (field) {
             // temp upload preview: clear its preview + hidden temp id
@@ -422,7 +430,7 @@ function readURL(input) {
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
-                        url: '/dashboard/uploadPhotosTemporarily',
+                        url: '/dashboard/uploadFilesTemporarily',
                         data: fd,
                         contentType: false,
                         processData: false,
@@ -492,7 +500,7 @@ function multipleImages(input) {
             reader.onload = function (e) {
                 $.ajax({
                     type: "post",
-                    url: '/dashboard/uploadPhotosTemporarily',
+                    url: '/dashboard/uploadFilesTemporarily',
                     data: fd,
                     contentType: false,
                     processData: false,
@@ -533,7 +541,9 @@ function multipleImages(input) {
 ct = 1;
 //upload single image
 var index_add_photo = 0;
-$(document).on('change', '.file_upload_ajax', function () {
+// Namespaced + off-before-on so pages that load BOTH this file and the site-upload.js
+// (e.g. the site factorItem page) bind the handler only ONCE (no duplicate uploads).
+$(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUploadAjax', '.file_upload_ajax', function () {
     var file = $($(this)).prop('files')[0];
     if (file) {
         var file_attr_name = $(this).attr('name');
@@ -572,7 +582,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                 reader.onload = function (e) {
                     $.ajax({
                         type: "post",
-                        url: '/dashboard/uploadPhotosTemporarily',
+                        url: '/dashboard/uploadFilesTemporarily',
                         data: fd,
                         contentType: false,
                         processData: false,
@@ -592,7 +602,7 @@ $(document).on('change', '.file_upload_ajax', function () {
                                     previewFile = '<a href="' + result['image_name']['id'] + '" id="' + index_add_photo + '" ' +
                                         'class="disInline image_create btn border border-success mr-3" >مشاهده</a>';
                                 }
-                                if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
+                                if ((file_attr_name || '').includes("[]") && !(file_attr_name || '').includes("consent_image")) {
                                     new_link(file_attr_id);
                                     $('#' + file_attr_id + '_src' + ct + '.show').append(previewFile);
                                     $('#' + file_attr_id + ct + '.path').val(result['image_name']['id']);
