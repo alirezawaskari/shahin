@@ -35,7 +35,7 @@ class Category extends Model implements HasMedia
      * @var string[]
      */
     protected $fillable=['title','subTitle','en_title','slug','isActive','displayOrder','min_credit'
-        ,'max_credit','percent','price','tax','minimum_discount'];
+        ,'max_credit','percent','parent_id','price','tax','minimum_discount'];
 
     /**
      * @var array
