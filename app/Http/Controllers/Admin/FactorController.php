@@ -206,6 +206,24 @@ class FactorController extends Controller
         $inputs['price'] = isset($request->price) ? (float) str_replace(',', '', $inputs['price']) : $factor->price;
         unset($inputs['support_id']);
         unset($inputs['bill_image']);
+        // `url_bill_image` carries the ajax-uploaded temp media id, not a column - keep it out
+        // of the mass-assigned update() and attach it explicitly after the status branches.
+        unset($inputs['url_bill_image']);
+
+        // The payment receipt is required for card-to-card, POS (card reader) and cash payments.
+        // It is optional for every other type, and never required when the factor already carries
+        // a receipt (edit that isn't re-uploading). Enforced here server-side because the ajax
+        // upload widget's file input is display:none and cannot use HTML5 `required` (that aborts
+        // submit as "not focusable"); a client-side check gives immediate feedback but this is the gate.
+        if (in_array($request->type, ['card', 'cash', 'card_reader'], true)
+            && !$request->url_bill_image
+            && !$factor->bill_image) {
+            $receiptError = 'برای پرداخت کارت به کارت، کارتخوان و نقدی، بارگذاری رسید دریافت وجه الزامی است.';
+            if ($request->ajax()) {
+                return \response(['status' => 'error', 'message' => $receiptError], 422);
+            }
+            return redirect()->back()->withInput()->with(['failByMessage' => $receiptError]);
+        }
 
         if ( $request->input( 'payment_type' ) == 'credit' ) {
             $result = User::checkCredit( $user, $inputs['price'], $request->input( 'password' ) , $request->input('title'));
@@ -263,13 +281,31 @@ class FactorController extends Controller
             $status = 'success';
         }
 
-        return \response([
-            'status'=> $status,
-            'data'=>[
-                'bill_image_link'=>url($factor->bill_image)
-            ],
-            'message'=> $message
-        ]);
+        // Ajax pipeline: the receipt was pre-uploaded to a temp holder and its media id
+        // arrives in `url_bill_image`. Attach it into the factor's single-file collection on
+        // ANY save that carries one - not only the unpaid->paid transition - otherwise
+        // re-uploading a receipt on an already-paid factor is silently dropped. The legacy
+        // `bill_image` column is accessor-shadowed (Factor::getBillImageAttribute) and not written.
+        if ($request->url_bill_image) {
+            MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');
+            $factor->refresh();
+        }
+
+        // The ajax edit modal (/factor-update) reads this JSON; the standalone full-page
+        // edit form (resource route factor.update) is a plain PATCH and must be redirected
+        // back with a flash toast instead of being shown the raw JSON.
+        if ($request->ajax()) {
+            return \response([
+                'status'=> $status,
+                'data'=>[
+                    'bill_image_link'=>url($factor->bill_image)
+                ],
+                'message'=> $message
+            ]);
+        }
+        return redirect()->back()->with(
+            $status === 'success' ? ['successByMessage' => $message] : ['failByMessage' => $message]
+        );
     }
 
     /**
@@ -452,14 +488,6 @@ class FactorController extends Controller
         // {
             $factor->update($inputs);
             Factor::savePayment($factor);
-            //upload bill_image cash factor
-            $imgbill = $request->file('bill_image');
-            if ($imgbill) {
-                // Spatie: attach into the factor's own single-file collection. The legacy
-                // `bill_image` column is accessor-shadowed (Factor::getBillImageAttribute)
-                // and deliberately not written.
-                MediaLibraryHelper::attachUpload($factor, $imgbill, 'bill_image');
-            }
             $message = 'با موفقیت ثبت شد.';
             $status = 'success';
        // }

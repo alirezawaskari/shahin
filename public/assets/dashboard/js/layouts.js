@@ -34,53 +34,74 @@ $('#province_id').on('change', function () {
 });
 
 function paymentType(title) {
+    // The wrapper divs carry Bootstrap's `.d-none { display:none !important }`,
+    // which beats an inline `style.display = 'block'`. Toggling the class is the
+    // only way to actually reveal them - otherwise the input stays hidden while we
+    // flip it to required, and the browser aborts submit with
+    // "An invalid form control ... is not focusable".
+    var pShow = function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.classList.remove('d-none'); el.style.display = 'block'; }
+    };
+    var pHide = function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.classList.add('d-none'); el.style.display = 'none'; }
+    };
+    var pReq = function (id, value) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        // A field can opt out of being forced required (e.g. an edit page where a
+        // receipt already exists and the server accepts no new upload).
+        if (value && el.dataset && el.dataset.keepOptional) { el.required = false; return; }
+        el.required = value;
+    };
+
     payment_type = document.getElementById('payment_type' + title).value;
     if (payment_type == "card_reader" || payment_type == "card") {
-        document.getElementById('number_card' + title).style.display = 'block';
-        document.getElementById('payment_code' + title).style.display = 'block';
-        document.getElementById('number_card_input' + title).required = true;
-        document.getElementById('payment_code_input' + title).required = true;
+        pShow('number_card' + title);
+        pShow('payment_code' + title);
+        pReq('number_card_input' + title, true);
+        pReq('payment_code_input' + title, true);
     } else {
-        document.getElementById('number_card' + title).style.display = 'none';
-        document.getElementById('payment_code' + title).style.display = 'none';
-        document.getElementById('number_card_input' + title).required = false;
-        document.getElementById('payment_code_input' + title).required = false;
+        pHide('number_card' + title);
+        pHide('payment_code' + title);
+        pReq('number_card_input' + title, false);
+        pReq('payment_code_input' + title, false);
     }
     if (payment_type == "cash" || payment_type == "card_reader" || payment_type == "card" || payment_type == "check") {
-        document.getElementById('bill_image' + title).style.display = 'block';
-        document.getElementById('bill_image_input' + title).required = true;
+        pShow('bill_image' + title);
+        pReq('bill_image_input' + title, true);
     } else {
-        document.getElementById('bill_image' + title).style.display = 'none';
-        document.getElementById('bill_image_input' + title).required = false;
-
+        pHide('bill_image' + title);
+        pReq('bill_image_input' + title, false);
     }
     if (payment_type == "credit" || payment_type == "wallet") {
-        document.getElementById('password' + title).style.display = 'block';
-        document.getElementById('send_password' + title).style.display = 'block';
-        document.getElementById('password_input' + title).required = true;
+        pShow('password' + title);
+        pShow('send_password' + title);
+        pReq('password_input' + title, true);
     } else if (document.getElementById('password' + title)) {
-        document.getElementById('password' + title).style.display = 'none';
-        document.getElementById('send_password' + title).style.display = 'none';
-        document.getElementById('password_input' + title).required = false;
+        pHide('password' + title);
+        pHide('send_password' + title);
+        pReq('password_input' + title, false);
     }
     if (payment_type == "account") {
-        document.getElementById('sheba_number' + title).style.display = 'block';
-        document.getElementById('sheba_number_input' + title).required = true;
+        pShow('sheba_number' + title);
+        pReq('sheba_number_input' + title, true);
     } else if (document.getElementById('sheba_number' + title)) {
-        document.getElementById('sheba_number' + title).style.display = 'none';
-        document.getElementById('sheba_number_input' + title).required = false;
+        pHide('sheba_number' + title);
+        pReq('sheba_number_input' + title, false);
     }
     if (payment_type == "supervisor") {
-        document.getElementById('mobile_supervisor' + title).style.display = 'block';
-        document.getElementById('mobile_supervisor_input' + title).required = true;
+        pShow('mobile_supervisor' + title);
+        pReq('mobile_supervisor_input' + title, true);
     } else if (document.getElementById('mobile_supervisor' + title)) {
-        document.getElementById('mobile_supervisor' + title).style.display = 'none';
-        document.getElementById('mobile_supervisor_input' + title).required = false;
+        pHide('mobile_supervisor' + title);
+        pReq('mobile_supervisor_input' + title, false);
     }
     if (payment_type == "deduction_price_difference") {
-        $('#factor_item_price_diff' + title).css('display', 'block');
+        pShow('factor_item_price_diff' + title);
     } else {
-        $('#factor_item_price_diff' + title).css('display', 'none');
+        pHide('factor_item_price_diff' + title);
     }
 }
 

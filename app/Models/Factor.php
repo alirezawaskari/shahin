@@ -146,12 +146,15 @@ class Factor extends Model implements AuditableContract, HasMedia
         else
         {
             $supporter_users = User::getSupporterUserAdmin($factor->representation_id);
-            if(is_null($supporter_users)){
+            // getSupporterUserAdmin() returns ->get() - always a Collection, never null - so
+            // the empty case must be checked with isEmpty(), and a random pick uses the
+            // Collection's own random() (array_rand() only accepts a plain array).
+            if($supporter_users->isEmpty()){
                 $supporter_user_selected = User::find(16983);
             }
             else
             {
-                $supporter_user_selected = $supporter_users[array_rand( $supporter_users )];
+                $supporter_user_selected = $supporter_users->random();
             }
             $supporter_id = $supporter_user_selected->id;
         }

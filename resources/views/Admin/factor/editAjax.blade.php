@@ -209,10 +209,20 @@
                             <div class="col-12 col-md-2 mb-2 d-none" id="bill_image_edit_factor">
                                 <label>رسید دریافت وجه</label>
                                 <br>
-                                <label for="bill_image_input_edit_factor" id="up-label" class="btn badge-secondary"><i
-                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                                <input class="form-control file-up" name="bill_image" type="file"
-                                    id="bill_image_input_edit_factor" accept=".jpg,.jpeg,.png">
+                                <label for="bill_image_input_edit_factor" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
+                                        class="fa fa-cloud-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                {{-- Ajax upload widget: the file posts to /dashboard/uploadFilesTemporarily and its
+                                     temp media id lands in #bill_image_input_edit_factor_path (name=url_bill_image),
+                                     inside #form-status-mali so factorModal.js serializes it; the controller attaches
+                                     it via MediaLibraryHelper::attachTo. Requiredness for card/cash is enforced by
+                                     factorModal.js on submit + server-side (not HTML5 `required`, which cannot work on
+                                     this display:none input - hence data-keep-optional to silence the browser).
+                                     data-has-existing lets the client skip the check when a receipt is already on file. --}}
+                                <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
+                                    id="bill_image_input_edit_factor" accept=".jpg,.jpeg,.png" data-buttonname="btn-white"
+                                    data-keep-optional="1" data-has-existing="{{ $factor->bill_image ? '1' : '' }}">
+                                <div id="bill_image_input_edit_factor_src" class="show"></div>
+                                <input type="hidden" id="bill_image_input_edit_factor_path" class="path" name="url_bill_image">
                             </div>
                             <div class="col-12 col-md-2 mb-2 d-none" id="password_edit_factor">
                                 <label>رمز عبور کاربر</label>
