@@ -253,6 +253,11 @@ class Category extends Model implements HasMedia
         return $count;
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
     //This category has children or not - in many files
 
     /**

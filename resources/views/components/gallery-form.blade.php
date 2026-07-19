@@ -14,9 +14,17 @@
 
     @php
         $deskImages = $galleries->where('type', 1)->values();
+
+        $numberImage = 3;
+
+        if ($ghorfeTemplet == 'service') {
+            $numberImage = 5;
+        }
+
+        $bigDeskIndex = $numberImage;
     @endphp
 
-    @for($i = 0; $i < 4; $i++)
+    @for($i = 0; $i < $numberImage; $i++)
         @php
             $image = $deskImages[$i] ?? null;
         @endphp
@@ -29,10 +37,6 @@
                    class="form-control mb-2"
                    placeholder="عنوان">
 
-            <img id="preview_desk_{{$i}}"
-                 src="{{ $image ? asset($image->image) : 'https://via.placeholder.com/150x100' }}"
-                 class="img-fluid mb-2"
-                 style="height:100px;object-fit:cover">
 
             <div class="input-group mb-2">
                 <input id="desk_{{$i}}" name="desk_file_{{$i}}"
@@ -52,7 +56,7 @@
 
     {{-- ================= BIG DESKTOP IMAGE ================= --}}
     @php
-        $bigDesk = $deskImages[4] ?? null;
+        $bigDesk = $deskImages[$numberImage] ?? null;
     @endphp
 
     <div class="col-md-12 card p-3 shadow-sm text-center">
@@ -62,11 +66,6 @@
                value="{{ $bigDesk->title ?? '' }}"
                class="form-control mb-2"
                placeholder="عنوان عکس بزرگ">
-
-        <img id="preview_desk_4"
-             src="{{ $bigDesk ? asset($bigDesk->image) : 'https://via.placeholder.com/300x200' }}"
-             class="img-fluid mb-2 rounded"
-             style="height:180px;object-fit:cover">
 
         <div class="input-group mb-2">
             <input id="desk_4" name="desk_file_4"
@@ -96,7 +95,7 @@
         $mobileImages = $galleries->where('type', 0)->values();
     @endphp
 
-    @for($i = 0; $i < 4; $i++)
+    @for($i = 0; $i < $numberImage; $i++)
         @php
             $image = $mobileImages[$i] ?? null;
         @endphp
@@ -108,11 +107,6 @@
                    value="{{ $image->title ?? '' }}"
                    class="form-control mb-2"
                    placeholder="عنوان">
-
-            <img id="preview_mobile_{{$i}}"
-                 src="{{ $image ? asset($image->image) : 'https://via.placeholder.com/100x150' }}"
-                 class="img-fluid mb-2"
-                 style="height:120px;object-fit:cover">
 
             <div class="input-group mb-2">
                 <input id="mobile_{{$i}}" name="mobile_file_{{$i}}"
@@ -130,9 +124,8 @@
         </div>
     @endfor
 
-    {{-- ================= BIG MOBILE IMAGE ================= --}}
     @php
-        $bigMobile = $mobileImages[4] ?? null;
+        $bigMobile = $mobileImages[$numberImage] ?? null;
     @endphp
 
     <div class="col-md-12 card p-3 shadow-sm text-center">
