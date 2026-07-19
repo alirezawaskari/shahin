@@ -40,7 +40,8 @@ class Brand extends Model implements HasMedia
 
     public function getRegistrationFormAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'registration_form');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'registration_form')
+            ?: ($this->getRawOriginal('registration_form') ? asset($this->getRawOriginal('registration_form')) : '');
     }
 
     /**

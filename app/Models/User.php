@@ -879,10 +879,15 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
             'city_id' => $city_id,
             'representation_id' => auth()->user() ? auth()->user()->admin_representation_id : null,
         ]);
-        //set user ghorfe if exists
+        //set user ghorfe if exists.
+        // NOTE: ghorfeOnlineLists() is a hasMany (no user<->ghorfe pivot table exists),
+        // so attach() would fatal. Guard to only run against a real many-to-many so this
+        // is a safe no-op today and works automatically if a pivot is introduced later.
         $ghorfe = ghorfe();
 
-        if($ghorfe) $user->ghorfeOnlineLists()->attach([$ghorfe->id]);
+        if ($ghorfe && $user->ghorfeOnlineLists() instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
+            $user->ghorfeOnlineLists()->attach([$ghorfe->id]);
+        }
 
         return $user;
     }

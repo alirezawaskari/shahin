@@ -20,7 +20,6 @@ class MenuSettingCollection extends ResourceCollection
                     'id' => $item->id,
                     'name' => $item->name,
                     'icon' => $item->icon,
-                    'position' => $item->position,
                     'updated_at' => verta($item->updated_at)->format('Y/m/d'),
                 ];
             }),

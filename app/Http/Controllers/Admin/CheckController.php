@@ -9,7 +9,6 @@ use App\Helpers\MediaLibraryHelper;
 use App\Http\Resources\CheckCollection;
 use App\Models\Check;
 use App\Models\Factor;
-use App\Models\File;
 use App\Models\TotalFactorItem;
 use App\Models\User;
 use Carbon\Carbon;
@@ -146,11 +145,11 @@ class CheckController extends Controller
         $this->storeCheckHistory($check, $request);
 
         //upload images
-        if ($request->url_check_front_image) {
-            $this->uploadCheckFrontImage($check, $request->url_check_front_image);
+        if ($request->file('check_front_image')) {
+            $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
         }
-        if ($request->url_check_back_image) {
-            $this->uploadCheckBackImage($check, $request->url_check_back_image);
+        if ($request->file('check_back_image')) {
+            $this->uploadCheckBackImage($check, $request->file('check_back_image'));
         }
         //return
         return response(['status' => 'success', 'data' => $check]);
@@ -202,27 +201,26 @@ class CheckController extends Controller
     /**
      * upload front image of check
      * @param Check $check
-     * @param string $tempId temp media id from the ajax upload
+     * @param $file
      * @return mixed
      */
-    private function uploadCheckFrontImage(Check $check, $tempId)
+    private function uploadCheckFrontImage(Check $check, $file)
     {
-        // ajax pipeline: $tempId is the temp Spatie media row id from uploadFilesTemporarily;
-        // attachTo() moves it into the 'front' collection. The legacy File(title:'front') row
-        // is never written — it is read-only legacy that Check::legacyFileMap() adopts, and
-        // $check->front_image already prefers the media below it.
-        return MediaLibraryHelper::attachTo($check, $tempId, 'front');
+        // Spatie only. The legacy File(title:'front') row is never written — it is
+        // read-only legacy that Check::legacyFileMap() adopts, and $check->front_image
+        // already prefers the media below it.
+        return MediaLibraryHelper::attachUpload($check, $file, 'front');
     }
 
     /**
      * upload back image of check
      * @param Check $check
-     * @param string $tempId temp media id from the ajax upload
+     * @param $file
      * @return mixed
      */
-    private function uploadCheckBackImage(Check $check, $tempId)
+    private function uploadCheckBackImage(Check $check, $file)
     {
-        return MediaLibraryHelper::attachTo($check, $tempId, 'back');
+        return MediaLibraryHelper::attachUpload($check, $file, 'back');
     }
 
     /**
@@ -351,9 +349,8 @@ class CheckController extends Controller
             'serial_code' => ['required'],
             'description' => ['nullable'],
             'total_factor_item_id' => ['required', 'integer', 'exists:total_factor_items,id'],
-            // ajax pipeline: images arrive as temp media ids, not files
-            'url_check_front_image' => ['required'],
-            'url_check_back_image' => ['nullable'],
+            'check_front_image' => ['required', 'mimes:png,jpg,jpeg'],
+            'check_back_image' => ['mimes:png,jpg,jpeg']
         ]);
     }
 
@@ -404,9 +401,8 @@ class CheckController extends Controller
             'date' => ['required'],
             'description' => ['nullable'],
             'serial_code' => ['required'],
-            // ajax pipeline: optional temp media ids on update (blank keeps the current image)
-            'url_check_front_image' => ['nullable'],
-            'url_check_back_image' => ['nullable'],
+            'check_front_image' => ['mimes:png,jpg,jpeg'],
+            'check_back_image' => ['mimes:png,jpg,jpeg']
         ]);
     }
 
@@ -544,11 +540,11 @@ class CheckController extends Controller
         // No legacy row/file teardown: the old File rows stay untouched (read-only legacy)
         // and 'front'/'back' are singleFile() collections, so a re-upload supersedes the
         // previous media on its own and front_image/back_image read the new one.
-        if ($request->url_check_front_image) {
-            $this->uploadCheckFrontImage($check, $request->url_check_front_image);
+        if ($request->file('check_front_image')) {
+            $this->uploadCheckFrontImage($check, $request->file('check_front_image'));
         }
-        if ($request->url_check_back_image) {
-            $this->uploadCheckBackImage($check, $request->url_check_back_image);
+        if ($request->file('check_back_image')) {
+            $this->uploadCheckBackImage($check, $request->file('check_back_image'));
         }
     }
 }

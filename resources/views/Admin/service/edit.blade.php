@@ -8,6 +8,13 @@
             @include('Admin.layouts.errors')
         </div>
         <div class="transfer_message_box"></div>
+        <div class="d-flex justify-content-end">
+            {{-- Saves every content tab at once (basic, متن, images, rules, questions,
+                 portfolio, site images). Per-tab buttons still save just their own tab. --}}
+            <button type="button" id="save-all-tabs" class="btn btn-success">
+                <i class="fa fa-save"></i> ثبت همه بخش‌ها
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -601,7 +608,7 @@
 @section('js')
 <script src="{{ asset('/assets/script/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/serviceUpdate.js?v=2.1') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/serviceUpdate.js?v=2.2') }}"></script>
 <script>
     @if(session()->get('message'))
         toastr.success('{{ session()->get('message') }}');

@@ -41,21 +41,17 @@ $(document).ready(function () {
     }
 
     function fetchData(page) {
-        // The datatable ajax scaffolding (#filter_form, #loading) exists only on the standalone
-        // check list (Admin/check/all). On the embedded totalFactorItem checks page the rows are
-        // rendered server-side, so no-op here instead of throwing on the missing elements.
-        var form = document.getElementById('filter_form');
-        if (!form) return;
-        var loadingEl = document.getElementById('loading');
-        if (loadingEl) loadingEl.style.display = 'block';
-        var formData = $(form).serialize();
+        document.getElementById('loading').style.display = 'block';
+        var form = $('#filter_form');
+        var formData = form.serialize();
+        // var basicUrl = document.getElementById('url').value;
 
         $.ajax({
-            url: $(form).attr('action')+"?page=" + page,
+            url: $('#filter_form').attr('action')+"?page=" + page,
             data: formData,
             success: function (data) {
                 createTable(data);
-                if (loadingEl) loadingEl.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
             }
         });
     }
@@ -112,14 +108,11 @@ $(document).ready(function () {
                 },
                 {"data":data,
                     "render":function (data){
-                        // legacy image still served from the old File row -> hint that a save migrates it
-                        var legacyHint = (data.front_image_legacy || data.back_image_legacy)
-                            ? `<small class="d-block text-warning">تصویر قدیمی - با ذخیره منتقل می‌شود</small>` : '';
                         if (data.front_image!=''){
-                            return  `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>` + legacyHint
+                            return  `<a href="${data.front_image}" target="_blank"> <img src="${data.front_image}" width="70px" alt=""></a>`
                         }
                         if (data.back_image!='') {
-                            return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>` + legacyHint
+                            return  `<a href="${data.back_image}" target="_blank"> <img src="${data.back_image}" width="70px" alt=""></a>`
                         }
                         return '';
                     }
@@ -206,14 +199,13 @@ $(document).ready(function () {
         $('#check-store-error-box').empty();
         var token = $('meta[name="csrf-token"]').attr('content');
         var check_form_data = new FormData();
-        // ajax pipeline: send the temp media id from the hidden _path input (not the raw file)
-        var front_image= $('#check-front-image_path').val()
-        var back_image= $('#check-back-image_path').val()
+        var front_image= $('#check-front-image').prop('files')[0]
+        var back_image= $('#check-back-image').prop('files')[0]
         if (front_image){
-            check_form_data.append('url_check_front_image', front_image);
+            check_form_data.append('check_front_image', front_image);
         }
         if (back_image){
-            check_form_data.append('url_check_back_image', back_image);
+            check_form_data.append('check_back_image', back_image);
         }
         check_form_data.append('amount', $('#check-amount').val());
         //---exporter user data ---
@@ -274,9 +266,6 @@ $(document).ready(function () {
     //----------------------add new check btn -------------
     $("body").on('click','#add-new-check-btn',function (){
         $('#check-store-error-box').empty();
-        // shared modal: clear any preview/temp id left from a previous add so it isn't re-attached
-        $('#check-front-image_src, #check-back-image_src').empty();
-        $('#check-front-image_path, #check-back-image_path').val('');
     })
     // -------------------end add new check btn --------------
     //----------------------status check btn -------------
@@ -291,23 +280,6 @@ $(document).ready(function () {
         );
     })
     // -------------------end status check btn --------------
-    // Render the current image into an ajax widget's _src preview (or "بدون تصویر"), reset its
-    // hidden _path so an unchanged image is NOT re-attached on save, and show the legacy hint
-    // when the image is still served from the old File row (the update save adopts it to Spatie).
-    function showCurrentImage(fieldId, url, isLegacy) {
-        $('#' + fieldId + '_path').val('');
-        var $src = $('#' + fieldId + '_src');
-        if (url) {
-            var html = '<a href="' + url + '" target="_blank"><img src="' + url + '" class="rounded border" ' +
-                'style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"></a>';
-            if (String(isLegacy) === '1') {
-                html += '<small class="d-block text-warning">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>';
-            }
-            $src.html(html);
-        } else {
-            $src.html('<div class="text-muted">بدون تصویر</div>');
-        }
-    }
     // -------------------edit check btn --------------
     $("body").on('click','#edit-check-btn',function (){
         $('#check-update-error-box').empty();
@@ -321,8 +293,6 @@ $(document).ready(function () {
         $('#edit-check-id').val(check_tag.data('check_id'))
         $('#edit-serial-code').val(check_tag.data('serial_code'))
         $("#edit-check-title").val(check_tag.data('title')).change();
-        showCurrentImage('edit-check-front-image', check_tag.data('front_image'), check_tag.data('front_legacy'));
-        showCurrentImage('edit-check-back-image', check_tag.data('back_image'), check_tag.data('back_legacy'));
     })
     //---------------------end edit check btn ---------------------
     //---------------------update check ---------------------
@@ -330,14 +300,13 @@ $(document).ready(function () {
         $('#check-store-error-box').empty();
         var token = $('meta[name="csrf-token"]').attr('content');
         var check_form_data = new FormData();
-        // ajax pipeline: send the temp media id from the hidden _path input (not the raw file)
-        var front_image= $('#edit-check-front-image_path').val()
-        var back_image= $('#edit-check-back-image_path').val()
+        var front_image= $('#edit-check-front-image').prop('files')[0]
+        var back_image= $('#edit-check-back-image').prop('files')[0]
         if (front_image){
-            check_form_data.append('url_check_front_image', front_image);
+            check_form_data.append('check_front_image', front_image);
         }
         if (back_image){
-            check_form_data.append('url_check_back_image', back_image);
+            check_form_data.append('check_back_image', back_image);
         }
         check_form_data.append('amount', $('#edit-check-amount').val());
         check_form_data.append('date', $('#edit-check-date').val());

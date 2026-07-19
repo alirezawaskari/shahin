@@ -84,16 +84,13 @@
                     @endif
                 </div>
 
-                @if(!is_null($contact->files) && is_array($contact->files))
+                @if(count($contact->file_urls))
                     <div class="col-12 col-md-6 mb-3">
                         <h3>تصاویر :</h3>
                         <hr>
-                        @foreach($contact->files as $image_url)
+                        @foreach($contact->file_urls as $image_url)
                             <a href="{{asset($image_url)}}"><img src="{{asset($image_url)}}" width="200px" ></a>
                         @endforeach
-                        @if($contact->arrayMediaHasLegacy('files'))
-                        <small class="d-block text-warning mt-1">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
-                        @endif
                         <hr>
                     </div>
                 @endif

@@ -173,13 +173,14 @@ class RegisterController extends Controller
                 'agency_type_id' => 1,
             ]);
 
+            // Spatie: attach the uploaded file straight into the agency's own single-file
+            // collection. The legacy imgmeli/imgturnover columns are accessor-shadowed
+            // (Agency::getImgmeliAttribute) and deliberately not written.
             if ($request->file('imgmeli')) {
-                $imgmeli = MediaLibraryHelper::uploadImage($request->file('imgmeli'), 'agency');
-                $agency->update(['imgmeli' => $imgmeli]);
+                MediaLibraryHelper::attachUpload($agency, $request->file('imgmeli'), 'imgmeli');
             }
             if ($request->file('imgturnover')) {
-                $imgturnover = MediaLibraryHelper::uploadImage($request->file('imgturnover'), 'agency');
-                $agency->update(['imgturnover' => $imgturnover]);
+                MediaLibraryHelper::attachUpload($agency, $request->file('imgturnover'), 'imgturnover');
             }
         }
         if ($user) {

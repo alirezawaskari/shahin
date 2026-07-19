@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\AgencyType;
 use App\Models\Gallery;
@@ -45,7 +46,7 @@ class AgencyTypeController extends Controller
         $request->validate([
             'title' => 'required',
             'en_title' => 'required',
-            'image' => 'required',
+            'image_path' => 'required',
             'total_price' => 'required|integer',
             'prepayment' => 'required|integer',
         ],
@@ -56,7 +57,7 @@ class AgencyTypeController extends Controller
                 'total_price.integer' => 'لطفا قیمت کل را درست وارد کنید',
                 'prepayment.required' => 'لطفا پیش پرداخت را وارد کنید',
                 'prepayment.integer' => 'لطفا پیش پرداخت را درست وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید',
+                'image_path.required' => 'لطفا عکس را وارد کنید',
             ]
         );
 
@@ -64,26 +65,15 @@ class AgencyTypeController extends Controller
         if($request->prepayment > 0 )$request['prepayment'] = str_replace(",","",$request->prepayment);
 
         $request['is_show'] = isset($request['is_show']) ? 1 : 0;
+        // image fields are stored via Spatie (attachTo below), never as column values
         $agencyTypes = AgencyType::create($request->all());
 
-        $image_name = $request->image_path;
-        if(isset($image_name)) {
-            if (\File::exists(public_path($agencyTypes->image))) {
-                \File::delete(public_path($agencyTypes->image));
-            }
-            $agencyTypes->image = Helper::moveImage($image_name,'agencyTypes');
-            $agencyTypes->save();
-        }
-
-        //Galleries
-        $multiple_images = $request->multiple_image;
-        if ($multiple_images != '') {
-            foreach ($multiple_images as $multiple_image) {
-                if (isset($multiple_image['file'])) {
-                    Gallery::create(['galleryable_id'=>$agencyTypes->id,
-                        'galleryable_type'=> AgencyType::class,'title'=>$multiple_image['title'],
-                        'image'=> Helper::moveImage($multiple_image['file'],'agencyTypes')]);
-                }
+        MediaLibraryHelper::attachTo($agencyTypes, $request->image_path, 'image');
+        foreach ($request->multiple_image ?? [] as $multiple_image) {
+            if (isset($multiple_image['file'])) {
+                MediaLibraryHelper::attachTo($agencyTypes, $multiple_image['file'], 'gallery', [
+                    'title' => $multiple_image['title'] ?? null,
+                ]);
             }
         }
 
@@ -150,25 +140,27 @@ class AgencyTypeController extends Controller
 
         $request['is_show'] = isset($request['is_show']) ? $request['is_show'] : 0;
         $agencyTypes = AgencyType::find($id);
+        // image fields handled by Spatie (attachTo below); never column values
         $agencyTypes->update($request->all());
 
-
-        $image_name = $request->image_path;
-        if(isset($image_name)) {
-            $agencyTypes->image = Helper::moveImage($image_name,'agencyTypes');
-            $agencyTypes->save();
+        MediaLibraryHelper::attachTo($agencyTypes, $request->image_path, 'image');
+        foreach ($request->multiple_image ?? [] as $extra_file) {
+            if (isset($extra_file['file'])) {
+                MediaLibraryHelper::attachTo($agencyTypes, $extra_file['file'], 'gallery', [
+                    'title' => $extra_file['title'] ?? null,
+                ]);
+            }
         }
 
-
-        $files = $request->multiple_image;
-        if ($files) {
-            foreach ($files as $extra_file) {
-                if (isset($extra_file['file'])) {
-                    $image = Helper::moveImage($extra_file['file'],'agencyTypes');
-                    Gallery::create(['galleryable_id' => $agencyTypes->id,
-                        'galleryable_type' => AgencyType::class, 'title' => $extra_file['title'],
-                        'image' => $image]);
-                }
+        // persist edited titles of the already-saved gallery images
+        foreach ($request->gallery_title ?? [] as $mediaId => $title) {
+            $media = \App\Models\Media::where('id', $mediaId)
+                ->where('model_type', get_class($agencyTypes))
+                ->where('model_id', $agencyTypes->id)
+                ->where('collection_name', 'gallery')
+                ->first();
+            if ($media) {
+                $media->setCustomProperty('title', $title)->save();
             }
         }
 
@@ -188,15 +180,8 @@ class AgencyTypeController extends Controller
     {
         if ($id) {
             $agencyTypes= AgencyType::find($id);
-            foreach ($agencyTypes->galleries()->get() as $item) {
-                if(\File::exists(public_path($item->image))){
-                    \File::delete(public_path($item->image));
-                }
-            }
-            if(\File::exists(public_path($agencyTypes->image))){
-                \File::delete(public_path($agencyTypes->image));
-            }
-
+            // media is preserved on this soft delete (Spatie's cascade purges it only
+            // on force delete; the native App\Models\Media::delete() keeps that safe).
             $agencyTypes->delete();
             return redirect('/dashboard/agencyType')->with([ 'delete' => 'success' ]);
         }

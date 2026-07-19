@@ -7,7 +7,6 @@ use App\Helpers\Helper;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PromissoryCollection;
-use App\Models\File;
 use App\Models\Promissory;
 use App\Models\TotalFactorItem;
 use App\Models\User;
@@ -88,11 +87,11 @@ class PromissoryController extends Controller
         // upload promissory images. No legacy row/file teardown: the old File rows stay
         // untouched (read-only legacy) and 'front'/'back' are singleFile() collections, so
         // a re-upload supersedes the previous media on its own.
-        if ($request->url_promissory_front_image) {
-            $this->uploadPromissoryFrontImage($promissory, $request->url_promissory_front_image);
+        if ($request->file('promissory_front_image')) {
+            $this->uploadPromissoryFrontImage($promissory, $request->file('promissory_front_image'));
         }
-        if ($request->url_promissory_back_image) {
-            $this->uploadPromissoryBackImage($promissory, $request->url_promissory_back_image);
+        if ($request->file('promissory_back_image')) {
+            $this->uploadPromissoryBackImage($promissory, $request->file('promissory_back_image'));
         }
         return response(['status' => 'success', 'data' => $promissory]);
 
@@ -180,11 +179,11 @@ class PromissoryController extends Controller
         ]);
 
         //upload images
-        if ($request->url_promissory_front_image) {
-            $this->uploadPromissoryFrontImage($promissory, $request->url_promissory_front_image);
+        if ($request->file('promissory_front_image')) {
+            $this->uploadPromissoryFrontImage($promissory, $request->file('promissory_front_image'));
         }
-        if ($request->url_promissory_back_image) {
-            $this->uploadPromissoryBackImage($promissory, $request->url_promissory_back_image);
+        if ($request->file('promissory_back_image')) {
+            $this->uploadPromissoryBackImage($promissory, $request->file('promissory_back_image'));
         }
         //return
         return response(['status' => 'success', 'data' => $promissory]);
@@ -229,27 +228,26 @@ class PromissoryController extends Controller
     /**
      * upload front image of promissory
      * @param Promissory $promissory
-     * @param string $tempId temp media id from the ajax upload
+     * @param $file
      * @return mixed
      */
-    private function uploadPromissoryFrontImage(Promissory $promissory, $tempId)
+    private function uploadPromissoryFrontImage(Promissory $promissory, $file)
     {
-        // ajax pipeline: $tempId is the temp Spatie media row id from uploadFilesTemporarily;
-        // attachTo() moves it into the 'front' collection. The legacy File(title:'front') row
-        // is never written — it is read-only legacy that Promissory::legacyFileMap() adopts, and
+        // Spatie only. The legacy File(title:'front') row is never written — it is
+        // read-only legacy that Promissory::legacyFileMap() adopts, and
         // $promissory->front_image already prefers the media below it.
-        return MediaLibraryHelper::attachTo($promissory, $tempId, 'front');
+        return MediaLibraryHelper::attachUpload($promissory, $file, 'front');
     }
 
     /**
      * upload back image of promissory
      * @param Promissory $promissory
-     * @param string $tempId temp media id from the ajax upload
+     * @param $file
      * @return mixed
      */
-    private function uploadPromissoryBackImage(Promissory $promissory, $tempId)
+    private function uploadPromissoryBackImage(Promissory $promissory, $file)
     {
-        return MediaLibraryHelper::attachTo($promissory, $tempId, 'back');
+        return MediaLibraryHelper::attachUpload($promissory, $file, 'back');
     }
 
     /**
@@ -340,9 +338,8 @@ class PromissoryController extends Controller
             'serial_code' => ['required'],
             'description' => ['nullable'],
             'total_factor_item_id' => ['required', 'integer', 'exists:total_factor_items,id'],
-            // ajax pipeline: images arrive as temp media ids, not files
-            'url_promissory_front_image' => ['required'],
-            'url_promissory_back_image' => ['nullable'],
+            'promissory_front_image' => ['required', 'mimes:png,jpg,jpeg'],
+            'promissory_back_image' => ['mimes:png,jpg,jpeg']
         ]);
     }
 
@@ -380,9 +377,8 @@ class PromissoryController extends Controller
             'date' => ['required'],
             'description' => ['nullable'],
             'serial_code' => ['required'],
-            // ajax pipeline: optional temp media ids on update (blank keeps the current image)
-            'url_promissory_front_image' => ['nullable'],
-            'url_promissory_back_image' => ['nullable'],
+            'promissory_front_image' => ['mimes:png,jpg,jpeg'],
+            'promissory_back_image' => ['mimes:png,jpg,jpeg']
         ]);
     }
 

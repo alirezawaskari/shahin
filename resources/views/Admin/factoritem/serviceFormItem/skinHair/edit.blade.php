@@ -39,7 +39,7 @@
                 @foreach ($center_service_tariffs as $temp)
                 <option value="{{ $temp->id }}" {{ $temp->id == $service_tariff->id ? 'selected' : ''}}>
                     {{ $temp->name }} ( {{ number_format($temp->price) }} ریال -
-                    تعرفه {{  $temp->tariff ? $temp->tariff->title : '' }} )
+                    تعرفه {{ $temp->tariff->title }} )
                 </option>
                 @endforeach
             </select>

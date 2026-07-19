@@ -79,6 +79,18 @@ class Service extends Model implements AuditableContract, HasMedia
             ->first(fn ($m) => (int) $m->getCustomProperty('index') === $index);
     }
 
+    /**
+     * Disk-checked URLs of a multi-image gallery collection (gallery_horizontal,
+     * gallery_vertical, portfolio) — media whose file is missing on disk is skipped,
+     * mirroring the single-image accessors. For display surfaces; edit/management
+     * views should keep iterating getMedia() so broken rows stay removable.
+     */
+    public function galleryUrls(string $collection)
+    {
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, $collection)
+            ->map(fn ($m) => $m->getUrl());
+    }
+
     public function getImageAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image')
@@ -87,22 +99,26 @@ class Service extends Model implements AuditableContract, HasMedia
 
     public function getIconAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'icon')
+            ?: ($this->getRawOriginal('icon') ? asset($this->getRawOriginal('icon')) : '');
     }
 
     public function getImgBox1Attribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'img_box_1')
+            ?: ($this->getRawOriginal('img_box_1') ? asset($this->getRawOriginal('img_box_1')) : '');
     }
 
     public function getThumbAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'thumb')
+            ?: ($this->getRawOriginal('thumb') ? asset($this->getRawOriginal('thumb')) : '');
     }
 
     public function getImageAppAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_app')
+            ?: ($this->getRawOriginal('image_app') ? asset($this->getRawOriginal('image_app')) : '');
     }
 
     /**

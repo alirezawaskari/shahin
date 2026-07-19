@@ -30,8 +30,6 @@ class CheckCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($item) {
-                $front_image = $item->files()->where('title', 'front')->first();
-                $back_image = $item->files()->where('title', 'back')->first();
                 $last_history=$item->histories->last();
                 return [
                     'sort_by' => $item->date,
@@ -63,9 +61,6 @@ class CheckCollection extends ResourceCollection
                     // Spatie media if present, else the legacy File row (Check::getFrontImageAttribute)
                     'front_image' => $item->front_image,
                     'back_image' => $item->back_image,
-                    // still legacy? (drives the "migrates on save" hint in check.js)
-                    'front_image_legacy' => $item->fileMediaIsLegacy('front'),
-                    'back_image_legacy' => $item->fileMediaIsLegacy('back'),
                     'asset_transaction'=>  $item->assetTransactions()->exists()? new AssetTransactionResource($item->assetTransactions()->latest()->first()):null,
                 ];
             }),

@@ -78,14 +78,14 @@
                             @include('Admin.layouts.errors')
                             <div class="col-12 col-md-4 mb-2">
                                 <div class="card">
-                                    @if(isset($purchaseInvoice->post_image))
+                                    {{-- truthiness, not isset(): post_image is an accessor returning ''
+                                         when there is no image, and isset('') is true - which hid the
+                                         upload widget in the @else below. --}}
+                                    @if($purchaseInvoice->post_image)
                                     <a href="{{ asset($purchaseInvoice->post_image) }}" target="_blank">
                                         <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top"
                                             height="150px">
                                     </a>
-                                    @if($purchaseInvoice->mediaIsLegacy('post_image'))
-                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                                    @endif
                                     @else
                                     <div id="post_image_src" class="show">
                                         <img class="card-img-top" height="150px">
@@ -125,14 +125,12 @@
                 @endif
                 @include('Admin.purchaseinvoice.factor')
                 <div class="col-12 row">
-                    @if(isset($purchaseInvoice->post_image))
+                    {{-- truthiness, not isset(): see the note above. --}}
+                    @if($purchaseInvoice->post_image)
                     <div class="card col-12 col-md-3 p-2">
                         <a href="{{ asset($purchaseInvoice->post_image) }}" target="_blank">
                             <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top" height="150px">
                         </a>
-                        @if($purchaseInvoice->mediaIsLegacy('post_image'))
-                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                        @endif
                         <div class="card-body text-center">
                             <h5>تصویر رسید ارسال کالا</h5>
                         </div>
