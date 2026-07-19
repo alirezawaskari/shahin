@@ -9,6 +9,13 @@ $(document).ready(function () {
                 success: function (response) {
                     let view = response.data.view;
                     $('.modal-body-factor-show').html(view)
+                    // Reveal the payment-type-specific sections (incl. the receipt widget and its
+                    // existing-image preview) for the factor's SAVED type - paymentType() otherwise
+                    // only runs on dropdown change, leaving them hidden on modal open.
+                    if (typeof paymentType === 'function'
+                        && document.getElementById('payment_type_edit_factor')) {
+                        paymentType('_edit_factor');
+                    }
                 }
             });
     })

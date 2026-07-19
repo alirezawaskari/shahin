@@ -64,9 +64,17 @@
                                     <span>{{$promissory->title}}</span>
                                 @endswitch
                             </td>
-                            <td> @foreach( $promissory->files as $file)
-                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}" width="70px" alt=""></a>
-                                @endforeach
+                            {{-- Use the front_image/back_image accessors (Spatie first, legacy File-row
+                                 fallback) so the images keep showing after adoption too. Iterating
+                                 $promissory->files printed the raw legacy path and would show nothing once
+                                 the promissory is migrated to Spatie (no File rows left). --}}
+                            <td>
+                                @if($promissory->front_image)
+                                <a href="{{ $promissory->front_image }}" target="_blank"><img src="{{ $promissory->front_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($promissory->back_image)
+                                <a href="{{ $promissory->back_image }}" target="_blank"><img src="{{ $promissory->back_image }}" width="70px" alt=""></a>
+                                @endif
                                 @if($promissory->fileMediaIsLegacy('front') || $promissory->fileMediaIsLegacy('back'))
                                 <small class="d-block text-warning">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                 @endif

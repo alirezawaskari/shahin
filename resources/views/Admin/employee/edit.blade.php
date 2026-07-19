@@ -332,7 +332,7 @@
                                         <div class="card-body">
                                             <label>امضاء کاربر</label>
                                             <br>
-                                            <label for="imgsignature" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgsignature" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="imgsignature" type="file" id="imgsignature"
@@ -358,7 +358,7 @@
                                         <div class="card-body">
                                             <label>تصویر پرسنلی</label>
                                             <br>
-                                            <label for="avatar" id="up-label" class="btn badge-secondary"><i
+                                            <label for="avatar" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="avatar" type="file" id="avatar"
@@ -384,7 +384,7 @@
                                         <div class="card-body">
                                             <label>کارت ملی</label>
                                             <br>
-                                            <label for="imgmeli" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgmeli" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="imgmeli" type="file" id="imgmeli"
@@ -411,7 +411,7 @@
                                         <div class="card-body">
                                             <label>شناسنامه</label>
                                             <br>
-                                            <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgshenasname" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="imgshenasname" type="file" id="imgshenasname"
@@ -441,7 +441,7 @@
                                         <div class="card-body">
                                             <label>تصویر دریافت دسترسی پنل</label>
                                             <br>
-                                            <label for="imgaccess" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgaccess" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="employee[imgaccess]" type="file" id="imgaccess"
@@ -471,7 +471,7 @@
                                         <div class="card-body">
                                             <label>تصویر آخرین مدرک تحصیلی یا تخصصی</label>
                                             <br>
-                                            <label for="imglastcertificate" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imglastcertificate" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="employee[imglastcertificate]" type="file"

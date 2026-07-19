@@ -96,7 +96,7 @@
                                     <div class="card-body">
                                         <label>تصویر رسید ارسال کالا</label>
                                         <br>
-                                        <label for="post_image" id="up-label" class="btn badge-secondary"><i
+                                        <label for="post_image" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                 class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب
                                             تصویر </label>
                                         <input name="post_image" type="file" id="post_image"

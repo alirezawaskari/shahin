@@ -180,6 +180,13 @@ function new_link(file_attr_id) {
 
 $(function () {
     $(".submit_btn").click(async function () {
+        // Only show the loading overlay if the button's form passes HTML5 validation.
+        // Otherwise the browser blocks the submit (e.g. "Please fill out this field" on a
+        // required field) while #gif stays up forever, looking frozen.
+        var form = this.form || $(this).closest('form')[0];
+        if (form && typeof form.checkValidity === 'function' && !form.checkValidity()) {
+            return true; // let the browser show its validation bubble; no overlay
+        }
         $('#gif').show();
         return true;
     });

@@ -99,7 +99,7 @@
                                                             <label>تصویر بالا</label>
                                                             <br>
                                                             <label for="profile_image" id="profile_up_label"
-                                                                   class="btn badge-secondary">
+                                                                   class="btn btn-primary custom-file-upload border border-1">
                                                                 <i class="fa fa-upload ml-2" aria-hidden="true"></i>
                                                                 انتخاب تصویر
                                                             </label>
@@ -126,7 +126,7 @@
                                                             <label>تصویر نمایه</label>
                                                             <br>
                                                             <label for="header_image" id="header_up_label"
-                                                                   class="btn badge-secondary">
+                                                                   class="btn btn-primary custom-file-upload border border-1">
                                                                 <i class="fa fa-upload ml-2" aria-hidden="true"></i>
                                                                 انتخاب تصویر
                                                             </label>
@@ -255,7 +255,7 @@
                                                                 <div class="card-body">
                                                                     <label>تصویر نمایه</label>
                                                                     <label for="profile_image" id="profile_up_label"
-                                                                           class="btn badge-secondary">
+                                                                           class="btn btn-primary custom-file-upload border border-1">
                                                                         <i class="fa fa-upload ml-2"
                                                                            aria-hidden="true"></i>
                                                                         انتخاب تصویر

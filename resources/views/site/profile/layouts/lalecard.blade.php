@@ -115,7 +115,7 @@
                                     @endif
                                     <div class="card-body">
                                         <h5 class="card-title">کارت ملی</h5>
-                                        <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <label for="imgmeli" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                         <input name="imgmeli" type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
                                     </div>
@@ -139,7 +139,7 @@
                                     @endif
                                     <div class="card-body">
                                         <h5 class="card-title">شناسنامه</h5>
-                                        <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <label for="imgshenasname" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                         <input name="imgshenasname" type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="imgshenasname_path" class="path" name="urlimgshenasname">
                                     </div>
@@ -164,7 +164,7 @@
                                     @endif
                                     <div class="card-body">
                                         <h5 class="card-title">تصویر پرسنلی 3*4</h5>
-                                        <label for="personalPicture" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                        <label for="personalPicture" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                         <input name="personalPicture" type="file" id="personalPicture" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                         <input type="hidden" id="personalPicture_path" class="path" name="urlpersonalPicture">
                                     </div>

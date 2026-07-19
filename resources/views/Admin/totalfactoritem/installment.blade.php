@@ -122,7 +122,7 @@
                                 <div class="col-12 col-md-3 mb-2 d-none" id="bill_image4">
                                     <label>رسید دریافت وجه</label>
                                     <br>
-                                    <label for="bill_image_input4" id="up-label" class="btn badge-secondary"><i
+                                    <label for="bill_image_input4" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image"
                                         type="file" id="bill_image_input4">
@@ -304,26 +304,29 @@
                                                     <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt) }}"
                                                         target="_blank">
                                                         <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt }}"
-                                                            class="card-img-top" height="150px">
+                                                            style="max-height:150px;max-width:100%;object-fit:contain;background:#f8f9fa;">
                                                     </a>
                                                     @if($totalFactorItem->totalFactorItemContractSettlement?->mediaIsLegacy('img_warranty_delivery_receipt'))
                                                     <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                     @endif
                                                     @else
                                                     <div id="img_warranty_delivery_receipt_src" class="show">
-                                                        <img class="card-img-top" height="150px">
+                                                        <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
                                                     </div>
                                                     <div class="card-body">
                                                         <label>تصویر رسید تحویل ضمانت</label>
                                                         <br>
                                                         <label for="img_warranty_delivery_receipt" id="up-label"
-                                                            class="btn badge-secondary"><i class="fa fa-upload ml-2"
+                                                            class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                                                                 aria-hidden="true"></i> انتخاب تصویر </label>
+                                                        {{-- No HTML5 `required`: this is an ajax widget whose file input is
+                                                             display:none, and `required` on a hidden control aborts submit as
+                                                             "not focusable". The upload is enforced by the submit handler in
+                                                             @section('js') below (checks the hidden _path value). --}}
                                                         <input name="img_warranty_delivery_receipt" type="file"
                                                             id="img_warranty_delivery_receipt"
                                                             class="filestyle file-upload file_upload_ajax file-up"
-                                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png"
-                                                            required>
+                                                            data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                                         <input type="hidden" id="img_warranty_delivery_receipt_path" class="path"
                                                             name="urlimg_warranty_delivery_receipt">
                                                     </div>
@@ -396,4 +399,18 @@
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
 <script src="{{ asset('/assets/dashboard/js/factorItem.js') }}"></script>
+<script>
+    // The warranty-receipt upload is required to register a settlement. Its ajax widget's file
+    // input is display:none so HTML5 `required` can't be used (aborts submit as "not focusable").
+    // Enforce it here: block the submit if the widget is present (no existing receipt) and nothing
+    // has been uploaded (hidden _path empty). Hide #gif so the loading overlay doesn't stick.
+    $(document).on('submit', 'form[action*="contract-settlement"]', function (e) {
+        var pathInput = $('#img_warranty_delivery_receipt_path');
+        if (pathInput.length && !pathInput.val()) {
+            e.preventDefault();
+            $('#gif').hide();
+            toastr.error('آپلود تصویر برای تسویه حساب کاربر الزامی است.');
+        }
+    });
+</script>
 @endsection

@@ -17,19 +17,23 @@
             <a href="{{ asset($totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement) }}"
                 target="_blank">
                 <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_request_contract_settlement }}"
-                    class="card-img-top" height="150px">
+                    style="max-height:150px;max-width:100%;object-fit:contain;background:#f8f9fa;">
             </a>
             @if($totalFactorItem->totalFactorItemContractSettlement?->mediaIsLegacy('img_request_contract_settlement'))
             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
             @endif
             @else
             <div id="request_contract_settlement_src" class="show">
-                <img class="card-img-top" height="150px">
+                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>
             </div>
+            {{-- Only offer the upload when a request can still be submitted (same status gate as
+                 the submit button below). Once a settlement request is registered (status_mali in
+                 6..9) the form can't be posted, so an upload button here would do nothing. --}}
+            @if(!in_array($totalFactorItem->status_mali , [6,7,8,9]))
             <div class="card-body">
                 <label>تصویر درخواست تسویه حساب کاربر</label>
                 <br>
-                <label for="request_contract_settlement" id="up-label" class="btn badge-secondary"><i
+                <label for="request_contract_settlement" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                         class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                 <input name="request_contract_settlement" type="file" id="request_contract_settlement"
                     class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white"
@@ -37,6 +41,7 @@
                 <input type="hidden" id="request_contract_settlement_path" class="path"
                     name="urlrequest_contract_settlement">
             </div>
+            @endif
             @endif
         </div>
     </div>
