@@ -81,7 +81,7 @@
                                             @php $imgMedia = $category->getFirstMedia('image'); @endphp
                                             <div id="image_current" data-box-h="120">
                                                 @if($imgMedia)
-                                                <div class="div_remove_btn d-inline-block mb-2"
+                                                <div class="div_remove_btn d-inline-block mb-2 mt-2"
                                                     id="media_{{ $imgMedia->id }}">
                                                     <img src="{{ $imgMedia->getFullUrl() }}" class="rounded border"
                                                         style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
@@ -100,7 +100,7 @@
                                                     alt="تصویر دسته‌بندی (سیستم قبلی)">
                                                 <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                 @else
-                                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                                     style="height:120px;background:#f8f9fa;">بدون تصویر</div>
                                                 @endif
                                             </div>
@@ -143,7 +143,7 @@
                                             @php $iconMedia = $category->getFirstMedia('icon'); @endphp
                                             <div id="icon_current" data-box-h="120">
                                                 @if($iconMedia)
-                                                <div class="div_remove_btn d-inline-block mb-2"
+                                                <div class="div_remove_btn d-inline-block mb-2 mt-2"
                                                     id="media_{{ $iconMedia->id }}">
                                                     <img src="{{ $iconMedia->getFullUrl() }}" class="rounded border"
                                                         style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
@@ -162,7 +162,7 @@
                                                     alt="آیکن دسته‌بندی (سیستم قبلی)">
                                                 <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                 @else
-                                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                                     style="height:120px;background:#f8f9fa;">بدون تصویر</div>
                                                 @endif
                                             </div>

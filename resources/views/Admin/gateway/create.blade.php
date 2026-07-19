@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-12  card-body">
                         <div id="logo_src" class="show">
-                            <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                            <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                 style="height:120px;background:#f8f9fa;">بدون تصویر</div>
                         </div>
                         <label>لوگو</label>
