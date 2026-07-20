@@ -8,8 +8,8 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page"><a
-                        href="{{ route('menuSetting.index') }}">  زیر منو های مربوط به {{$menuSetting->name}}  </a></li>
+                <li class="breadcrumb-item active" aria-current="page"><a href="{{ route('menuSetting.index') }}"> زیر
+                        منو های مربوط به {{$menuSetting->name}} </a></li>
             </ol>
         </nav>
     </div>
@@ -20,8 +20,7 @@
             ویرایش منو و زیرمنو های آن
         </div>
         <form class="form-horizontal" role="form" method="post"
-            action="{{route('menuSetting.update' , [$menuSetting->id])}}"
-            enctype="multipart/form-data">
+            action="{{route('menuSetting.update' , [$menuSetting->id])}}" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
             @include('Admin.layouts.errors')
@@ -29,8 +28,7 @@
 
                 <div class="col-12 col-md-6 mb-2">
                     <label>عنوان منو </label>
-                    <input type="text" class="form-control" name="name" value="{{ $menuSetting->name }}"
-                        required>
+                    <input type="text" class="form-control" name="name" value="{{ $menuSetting->name }}" required>
                 </div>
 
                 <div class="col-12 col-md-6 mb-2">
@@ -40,8 +38,13 @@
                         <option value="1" {{ $menuSetting->is_active == 1 ? 'selected' : '' }}>فعال</option>
                     </select>
                 </div>
+                <div class="col-12 col-md-6 mb-2">
+                    <label>ترتیب</label>
+                    <input type="number" name="position" value="{{ $menuSetting->position }}" class="form-control">
+
+                </div>
             </div>
-            <div class="col-12">
+            <div class="col-12 mb-1 text-left">
                 <input type="submit" class="btn btn-success border-0" value="ثبت">
             </div>
         </form>
@@ -51,18 +54,18 @@
 
                 <table class="table table-bordered table-striped" id="datatable-json">
                     <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>نام</th>
-                        <th>عنوان نمایشی</th>
-                        <th>توضیحات</th>
-                        <th>وضعیت </th>
-                        <th></th>
-                    </tr>
+                        <tr>
+                            <th>#</th>
+                            <th>نام</th>
+                            <th>عنوان نمایشی</th>
+                            <th>توضیحات</th>
+                            <th>وضعیت </th>
+                            <th></th>
+                        </tr>
                     </thead>
 
                     <tbody>
-                    @foreach($menuSetting->permission as $key => $lalecard)
+                        @foreach($menuSetting->permission as $key => $lalecard)
                         <tr>
                             <td><input type="text" value="{{ $lalecard->name }}" class="form-control" readonly></td>
                             <td><input type="text" value="{{ $lalecard->display_name }}" class="form-control"></td>
@@ -80,7 +83,7 @@
                                 </button>
                             </td>
                         </tr>
-                    @endforeach
+                        @endforeach
                     </tbody>
                 </table>
 
@@ -91,8 +94,8 @@
 </div>
 @stop
 @section('js')
-    <script>
-        $(document).ready(function () {
+<script>
+    $(document).ready(function () {
 
             $('.btn-save').click(function () {
 
@@ -120,5 +123,5 @@
             });
 
         });
-    </script>
+</script>
 @endsection
