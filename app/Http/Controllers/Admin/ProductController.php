@@ -66,9 +66,8 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $ghorfe = ghorfe();
         $products = Product::filter()->where('type', 0)->orderBy('id', 'DESC');
-        $categories = $ghorfe->categories();
+        $categories = Category::filter()->get();
         $create_link = route('createMaterials');
         $queries = [];
         $columns = ['id', 'name','brand_id'];
