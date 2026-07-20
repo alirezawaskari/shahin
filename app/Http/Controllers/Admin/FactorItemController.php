@@ -1112,6 +1112,8 @@ class FactorItemController extends Controller {
         $factorItem->update( [
             'status_factor' => 20,
         ] );
+        FactorItem::saveContractFactorView($factorItem);
+        
         return redirect()->back()->with( [
             'update' => 'success'
         ] );
