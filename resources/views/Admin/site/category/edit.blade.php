@@ -25,7 +25,7 @@
                         @endif
                     </div>
 
-                    @if($category->depth == 1 && $parent_id != 2)
+                    {{-- @if($category->depth == 1 && $parent_id != 2)
                     <div class="col-12 col-md-4 mb-5">
                         <label> عنوان دوم</label>
                         <input type="text" class="form-control" placeholder="لطفا عنوان دوم را وارد کنید"
@@ -34,7 +34,7 @@
                         <span class="help-block sub-error  "> {{$errors->first('subTitle')}} </span>
                         @endif
                     </div>
-                    @endif
+                    @endif --}}
 
                     <div class="col-12 col-md-4 mb-5">
                         <label>عنوان انگلیسی*</label>
