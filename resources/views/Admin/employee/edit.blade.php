@@ -323,6 +323,9 @@
                                                 <img src="{{ $employee->user->imgsignature }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('imgsignature'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgsignature_src" class="show">
@@ -349,6 +352,9 @@
                                             <a href="{{ $employee->user->avatar }}" target="_blank">
                                                 <img src="{{ $employee->user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('avatar'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="avatar_src" class="show">
@@ -375,6 +381,9 @@
                                             <a href="{{ $employee->user->imgmeli }}" target="_blank">
                                                 <img src="{{ $employee->user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('imgmeli'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgmeli_src" class="show">
@@ -402,6 +411,9 @@
                                                 <img src="{{ $employee->user->imgshenasname }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('imgshenasname'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgshenasname_src" class="show">

@@ -31,24 +31,37 @@
                             <td>{{$item['role_category_fa_title']??''}}</td>
                             <td>
                                @if($item['role_category_terms_file_path']!='')
-                                    <a href=" {{$item['role_category_terms_file_path']}}">
+                                    <a href="{{$item['role_category_terms_file_path']}}" target="_blank" rel="noopener">
                                         <div class="btn btn-sm btn-outline-primary">
                                             <i class="fa fa-download" style="margin-left: 2px"></i>
-                                            <span > دانلود</span>
+                                            <span> دانلود</span>
                                         </div>
                                     </a>
-
+                                    @if($item['is_legacy'])
+                                    <small class="d-block text-warning mt-1">فایل قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                    @endif
                                 @endif
                             </td>
 
                             <td>
-                                <form action="{{ route('employee.terms.store')}}" method="POST"
-                                      enctype="multipart/form-data">
+                                {{-- ajax -> temp upload -> hidden url_terms_file (temp media id);
+                                     EmployeeTermsController@store attachTo()s it into the EmployeeTerm's
+                                     Spatie `terms_file` collection. Unique ids per row (the old shared
+                                     id="terms-file" broke the label link). --}}
+                                <form action="{{ route('employee.terms.store')}}" method="POST">
                                     @csrf
-                                    <input name="terms_file" type="file" id="terms-file" class="btn btn-outline-primary"
-                                           accept=".pdf">
+                                    <label for="terms-file-{{ $loop->index }}"
+                                           class="btn btn-primary custom-file-upload border border-1">
+                                        <i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب فایل
+                                    </label>
+                                    <input type="file" id="terms-file-{{ $loop->index }}" name="terms_file"
+                                           class="filestyle file-upload file_upload_ajax file-up"
+                                           data-buttonname="btn-white" accept=".pdf">
+                                    <div id="terms-file-{{ $loop->index }}_src" class="show"></div>
+                                    <input type="hidden" id="terms-file-{{ $loop->index }}_path" class="path"
+                                           name="url_terms_file" value="">
                                     <input type="hidden" value="{{$item['role_category_title']}}" name="role_category">
-                                    <button type="submit" class="btn btn-primary">ثبت</button>
+                                    <button type="submit" class="btn btn-success mt-1">ثبت</button>
                                 </form>
                             </td>
                         </tr>
