@@ -1179,7 +1179,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
 
         //send sms to the user
         event( new smsService( $factorItem , 'setCenter') );
-        if($factorItem->center->creatorRpresentation)
+        if($factorItem->center->creatorRepresentation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->creator_representation_id ] );
         }
