@@ -306,6 +306,9 @@
                                                         <img src="{{ $totalFactorItem->totalFactorItemContractSettlement->img_warranty_delivery_receipt }}"
                                                             style="max-height:150px;max-width:100%;object-fit:contain;background:#f8f9fa;">
                                                     </a>
+                                                    @if($totalFactorItem->totalFactorItemContractSettlement?->mediaIsLegacy('img_warranty_delivery_receipt'))
+                                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                    @endif
                                                     @else
                                                     <div id="img_warranty_delivery_receipt_src" class="show">
                                                         <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:150px;">بدون تصویر</div>

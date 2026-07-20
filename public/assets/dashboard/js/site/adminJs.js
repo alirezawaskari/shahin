@@ -597,7 +597,7 @@ $(document).off('change.fileUploadAjax', '.file_upload_ajax').on('change.fileUpl
                                     previewFile = '<a href="' + viewHref + '" target="_blank" rel="noopener" id="' + index_add_photo + '" ' +
                                         'class="disInline image_create btn border border-success mr-3" >مشاهده</a>';
                                 }
-                                if (file_attr_name.includes("[]") && !file_attr_name.includes("consent_image")) {
+                                if ((file_attr_name || '').includes("[]") && !(file_attr_name || '').includes("consent_image")) {
                                     new_link(file_attr_id);
                                     $('#' + file_attr_id + '_src' + ct + '.show').append(previewFile);
                                     $('#' + file_attr_id + ct + '.path').val(result['media_id']);

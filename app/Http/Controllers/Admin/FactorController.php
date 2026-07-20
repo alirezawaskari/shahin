@@ -11,7 +11,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AuditCollection;
 use App\Http\Resources\FactorCollection;
 use App\Models\Factor;
-use App\Models\FactorItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -176,7 +175,7 @@ class FactorController extends Controller
             $temp['total_price'] = $item->total_price;
             $temp['discount'] = $item->discount;
             $temp['prepayment']['price'] = $item->property()->exists()? $item->property->prepayment_price:null;
-            $temp['prepayment']['debt'] = FactorItem::getPrepaymentDebt($item);
+            $temp['prepayment']['debt'] = $item->property()->exists()? $item->property->prepayment_debt:null;
             $temp['prepayment']['count'] = $item->property()->exists()? $item->property->prepayment_count:null;
             $temp['prepayment']['num'] = $item->property()->exists()? $item->property->prepayment_num:null;
             $temp['installments'] = $item->installments;

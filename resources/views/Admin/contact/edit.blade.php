@@ -91,6 +91,9 @@
                         @foreach($contact->file_urls as $image_url)
                             <a href="{{asset($image_url)}}" target="_blank" rel="noopener"><img src="{{asset($image_url)}}" width="200px" ></a>
                         @endforeach
+                        @if($contact->arrayMediaHasLegacy('files'))
+                        <small class="d-block text-warning mt-1">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+                        @endif
                         <hr>
                     </div>
                 @endif

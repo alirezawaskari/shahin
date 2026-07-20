@@ -36,6 +36,9 @@
                 @foreach($ticket->file as $item)
                 <a href="{{ $item }}" class="btn btn-success py-1 px-2 mr-2 mt-3" target="_blank">مشاهده</a>
                 @endforeach
+                @if($ticket->arrayMediaHasLegacy('file'))
+                <small class="d-block text-warning mt-1">فایل‌های قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+                @endif
                 @endif
             </div>
 
