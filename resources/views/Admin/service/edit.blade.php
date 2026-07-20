@@ -387,7 +387,7 @@
                                 <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                 <div id="icon_src" class="show"></div>
                                 <small class="text-muted d-block mt-1">
-                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
+                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 80*80
                                 </small>
                             </div>
                             <div class="col-12 col-md-4 mb-3 border">
@@ -401,7 +401,7 @@
                                 <input type="hidden" id="thumb_path" class="path" name="thumb_path" value="">
                                 <div id="thumb_src" class="show"></div>
                                 <small class="text-muted d-block mt-1">
-                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
+                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 350*1450
                                 </small>
                             </div>
                         </div>
