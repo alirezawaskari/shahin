@@ -26,12 +26,12 @@
                     </div>
                     <div class="col-12  card-body">
                         <div id="logo_src" class="show">
-                            <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                            <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                 style="height:120px;background:#f8f9fa;">بدون تصویر</div>
                         </div>
                         <label>لوگو</label>
                         <br>
-                        <label for="logo" id="up-label" class="btn badge-secondary">
+                        <label for="logo" id="up-label" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-upload ml-2"></i>
                             تصویر
                         </label>

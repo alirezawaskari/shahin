@@ -29,7 +29,7 @@
 @endphp
 <div id="{{ $field }}_current" data-box-h="{{ $__h }}">
     @if($__m)
-        <div class="div_remove_btn d-inline-block mb-2" id="media_{{ $__m->id }}">
+        <div class="div_remove_btn d-inline-block mb-2 mt-2" id="media_{{ $__m->id }}">
             <img src="{{ $__m->getFullUrl() }}" class="rounded border"
                  style="height:{{ $__h }}px;width:100%;object-fit:contain;background:#f8f9fa;" alt="">
             @if($__removable)
@@ -42,7 +42,7 @@
              style="height:{{ $__h }}px;width:100%;object-fit:contain;background:#f8f9fa;" alt="">
         <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
     @else
-        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
              style="height:{{ $__h }}px;background:#f8f9fa;">بدون تصویر</div>
     @endif
 </div>

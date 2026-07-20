@@ -41,7 +41,7 @@
 
                 <div id="{{ $fieldId }}_current" data-box-h="{{ $boxH }}">
                     @if($media)
-                        <div class="div_remove_btn d-inline-block mb-2" id="media_{{ $media->id }}">
+                        <div class="div_remove_btn d-inline-block mb-2 mt-2" id="media_{{ $media->id }}">
                             <img src="{{ $media->getFullUrl() }}"
                                  class="rounded border"
                                  style="height:{{ $boxH }}px;width:100%;object-fit:contain;background:#f8f9fa;"
@@ -56,7 +56,7 @@
                             @endif
                         </div>
                     @else
-                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                              style="height:{{ $boxH }}px;background:#f8f9fa;">بدون تصویر</div>
                     @endif
                 </div>

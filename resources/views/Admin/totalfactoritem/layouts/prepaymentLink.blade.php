@@ -52,7 +52,7 @@
                 <div class="col-12 col-md-3 mb-2 d-none" id="bill_image2">
                     <label>رسید دریافت وجه</label>
                     <br>
-                    <label for="bill_image_input2" id="up-label" class="btn badge-secondary"><i
+                    <label for="bill_image_input2" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
                         id="bill_image_input2">

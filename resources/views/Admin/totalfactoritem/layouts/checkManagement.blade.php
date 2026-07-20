@@ -66,11 +66,20 @@
                                     <span>{{$check->title}}</span>
                                 @endswitch
                             </td>
-                            <td> @foreach( $check->files as $file)
-                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}"
-                                                                                        width="70px" alt=""></a>
-                                @endforeach
-
+                            {{-- Use the front_image/back_image accessors (Spatie first, legacy File-row
+                                 fallback) so the images keep showing after adoption too. Iterating
+                                 $check->files printed the raw legacy path and would show nothing once
+                                 the check is migrated to Spatie (no File rows left). --}}
+                            <td>
+                                @if($check->front_image)
+                                <a href="{{ $check->front_image }}" target="_blank"><img src="{{ $check->front_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($check->back_image)
+                                <a href="{{ $check->back_image }}" target="_blank"><img src="{{ $check->back_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($check->fileMediaIsLegacy('front') || $check->fileMediaIsLegacy('back'))
+                                <small class="d-block text-warning">تصویر قدیمی - با ذخیره منتقل می‌شود</small>
+                                @endif
                             </td>
                             <td>{{$check->histories->count()>0?$check->histories->last()->description :''}}</td>
                             <td>

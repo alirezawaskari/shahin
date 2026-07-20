@@ -47,12 +47,12 @@
                         <div class="card">
                             <div class="card-body">
                                 <div id="image_src" class="show">
-                                    <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                                    <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                         style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                 </div>
                                 <label>تصویر سایت</label>
                                 <br>
-                                <label for="image" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                <label for="image" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                 <input name="image"  type="file" id="image" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                 <input type="hidden" id="image_path" class="path" name="urlimage">
                             </div>

@@ -180,14 +180,14 @@ $.ajaxSetup({
 // Shared builders so saved & just-uploaded media render identically everywhere.
 function spatieMediaHtml(url, mediaId, boxH) {
     boxH = boxH || 120;
-    return '<div class="div_remove_btn d-inline-block mb-2" id="media_' + mediaId + '">' +
+    return '<div class="div_remove_btn d-inline-block mb-2 mt-2" id="media_' + mediaId + '">' +
         '<img src="' + url + '" class="rounded border" style="height:' + boxH + 'px;width:100%;object-fit:contain;background:#f8f9fa;" alt="">' +
         '<a data-id="' + mediaId + '" title="حذف عکس" class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>' +
         '</div>';
 }
 function spatiePlaceholderHtml(boxH) {
     boxH = boxH || 120;
-    return '<div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2" style="height:' + boxH + 'px;background:#f8f9fa;">بدون تصویر</div>';
+    return '<div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2" style="height:' + boxH + 'px;background:#f8f9fa;">بدون تصویر</div>';
 }
 
 // Confirmation dialog that works whether SweetAlert2 (Swal.fire), sweetalert v2 (swal),
