@@ -887,9 +887,8 @@
                                         @endforeach
                                     </select>
                                     <div id="gallerySection">
-                                        {{-- Spatie slot gallery (per-ghorfe). The selected category/service above
-                                        is stored as each slot's parent_id custom property on save. --}}
-                                        <x-media-gallery-form :owner="$ghorfeOnlineList" />
+                                        <x-gallery-form :galleries="$ghorfeOnlineList->galleries"
+                                            :ghorfeTemplet="$ghorfeOnlineList->template" />
                                     </div>
                                 </div>
 

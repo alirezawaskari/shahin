@@ -243,6 +243,11 @@ class Category extends Model implements HasMedia
         return $res;
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+    
     /**
      * @param $cat_id
      * @return mixed

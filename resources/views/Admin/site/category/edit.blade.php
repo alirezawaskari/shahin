@@ -87,7 +87,7 @@
                                                         style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
                                                         alt="تصویر دسته‌بندی">
                                                     {{-- no ✕ while the legacy `image` column still holds a path —
-                                                         see AdoptsLegacyMedia::mediaIsRemovable() --}}
+                                                    see AdoptsLegacyMedia::mediaIsRemovable() --}}
                                                     @if($category->mediaIsRemovable('image'))
                                                     <a data-id="{{ $imgMedia->id }}" title="حذف عکس"
                                                         class="btn btn-sm remove_media_btn"><i
@@ -98,7 +98,8 @@
                                                 <img src="{{ $category->image_url }}" class="rounded border"
                                                     style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
                                                     alt="تصویر دسته‌بندی (سیستم قبلی)">
-                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم
+                                                    جدید منتقل می‌شود</small>
                                                 @else
                                                 <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                                     style="height:120px;background:#f8f9fa;">بدون تصویر</div>
@@ -118,7 +119,8 @@
                                                 </label>
                                             </div>
 
-                                            <input type="hidden" id="image_path" class="path" name="image_path" value="">
+                                            <input type="hidden" id="image_path" class="path" name="image_path"
+                                                value="">
                                             @if($errors->has('image'))
                                             <span class="text-danger small">{{ $errors->first('image') }}</span>
                                             @endif
@@ -149,7 +151,7 @@
                                                         style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
                                                         alt="آیکن دسته‌بندی">
                                                     {{-- no ✕ while the legacy `icon` column still holds a path —
-                                                         see AdoptsLegacyMedia::mediaIsRemovable() --}}
+                                                    see AdoptsLegacyMedia::mediaIsRemovable() --}}
                                                     @if($category->mediaIsRemovable('icon'))
                                                     <a data-id="{{ $iconMedia->id }}" title="حذف عکس"
                                                         class="btn btn-sm remove_media_btn"><i
@@ -160,7 +162,8 @@
                                                 <img src="{{ $category->icon_url }}" class="rounded border"
                                                     style="height:120px;width:100%;object-fit:contain;background:#f8f9fa;"
                                                     alt="آیکن دسته‌بندی (سیستم قبلی)">
-                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم
+                                                    جدید منتقل می‌شود</small>
                                                 @else
                                                 <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                                                     style="height:120px;background:#f8f9fa;">بدون تصویر</div>
@@ -263,7 +266,10 @@
 
                 @if($category->depth == 0 || $category->depth == 1)
                 <div id="gallerySection">
-                    <x-media-gallery-form :owner="$category" />
+                    <x-gallery-form
+                        :galleries="$category->galleries"
+                        :ghorfeTemplet="$category->parent->en_title ?? $category->en_title"
+                    />
                 </div> @endif
                 <hr />
                 <div class="row">
@@ -393,5 +399,6 @@
 @stop
 @section('js')
 <script
-    src="{{ asset('assets/dashboard/js/site/category/categoryEdit.js') }}?v={{ filemtime(public_path('assets/dashboard/js/site/category/categoryEdit.js')) }}"></script>
+    src="{{ asset('assets/dashboard/js/site/category/categoryEdit.js') }}?v={{ filemtime(public_path('assets/dashboard/js/site/category/categoryEdit.js')) }}">
+</script>
 @stop
