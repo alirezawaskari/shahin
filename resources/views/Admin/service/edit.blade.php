@@ -248,7 +248,7 @@
                                     <label>
                                         <input type="checkbox" name="is_menu" value="1" @if($service->menu()->exists())
                                         checked
-                                        @endif>نمایش در منو
+                                        @endif> نمایش در منو
                                     </label>
                                     @if($errors->has('is_menu'))<span
                                         class="help-block sub-error">{{$errors->first('is_menu')}}</span>@endif
