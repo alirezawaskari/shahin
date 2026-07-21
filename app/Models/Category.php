@@ -35,7 +35,7 @@ class Category extends Model implements HasMedia
      * @var string[]
      */
     protected $fillable=['title','subTitle','en_title','slug','isActive','displayOrder','min_credit'
-        ,'max_credit','percent','price','tax','minimum_discount'];
+        ,'max_credit','percent','price','tax','minimum_discount' , 'parent_id'];
 
     /**
      * @var array
@@ -243,6 +243,11 @@ class Category extends Model implements HasMedia
         return $res;
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+    
     /**
      * @param $cat_id
      * @return mixed

@@ -36,7 +36,7 @@
                         <div class="card-body">
                             <h5 class="card-title">کارت ملی
                             </h5>
-                            <label for="imgmeli" id="up-label" class="btn badge-secondary"><i
+                            <label for="imgmeli" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                     class="fa fa-upload ml-2" aria-hidden="true"></i>انتخاب
                                 تصویر </label>
                             <input name="imgmeli" id="imgmeli" type="file"
@@ -65,7 +65,7 @@
                         <div class="card-body">
                             <h5 class="card-title">شناسنامه
                             </h5>
-                            <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i
+                            <label for="imgshenasname" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                     class="fa fa-upload ml-2" aria-hidden="true"></i>انتخاب
                                 تصویر </label>
                             <input name="imgshenasname" id="imgshenasname" type="file"
@@ -92,7 +92,7 @@
                         <div class="card-body">
                             <h5 class="card-title">تصویر ثنا
                             </h5>
-                            <label for="imgturnover" id="up-label" class="btn badge-secondary"><i
+                            <label for="imgturnover" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                             </label>
                             <input name="imgturnover" type="file" id="imgturnover"
@@ -199,7 +199,7 @@
                                     {{ $contract_form->help }}
                                 </h5>
                                 <label for="{{ $contract_form->name }}" id="up-label"
-                                    class="btn badge-secondary"><i class="fa fa-upload ml-2"
+                                    class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                                         aria-hidden="true"></i>
                                     انتخاب تصویر
                                 </label>
@@ -421,7 +421,7 @@
                                 {{ $contract_form->help }}
                             </h5>
                             <label for="{{ $contract_form->name }}" id="up-label"
-                                class="btn badge-secondary"><i class="fa fa-upload ml-2"
+                                class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                                     aria-hidden="true"></i>
                                 انتخاب تصویر
                             </label>

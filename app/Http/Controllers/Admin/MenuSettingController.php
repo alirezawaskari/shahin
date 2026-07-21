@@ -41,7 +41,7 @@ class MenuSettingController extends Controller
             'display_name' => $request->display_name,
             'description' => $request->description,
             'link' => $request->link,
-            $permission->is_active = (int) $request->is_active,
+            $permission->isMenu = (int) $request->is_active,
         ]);
 
         return response()->json(['update' => 'success']);

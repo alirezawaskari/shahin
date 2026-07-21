@@ -316,7 +316,7 @@
         <h5 class="card-title">{!! $form->help !!}
         </h5>
         @if($formItemUploads)
-        <label for="{{ $domId }}" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2"
+        <label for="{{ $domId }}" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                 aria-hidden="true"></i>انتخاب
             تصویر </label>
         <input name="item[{{ $form->name }}]" id="{{ $domId }}" type="file"
@@ -330,6 +330,11 @@
 @case('rules')
 <div class="col-12 bg-white">
     {!! $form->help !!}
+    @if ($factorItem->contractView)
+        {!! $factorItem->contractView->contract !!}
+    @else
+        {!! $form->help !!}
+    @endif
 </div>
 @break
 @endswitch

@@ -115,6 +115,9 @@
                                     @if($factor->bill_image)
                                     <a href="{{ $factor->bill_image }}" class="btn btn-primary"
                                         target="_blank">مشاهده</a>
+                                    @if($factor->mediaIsLegacy('bill_image'))
+                                    <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                    @endif
                                     @else
                                     ندارد
                                     @endif
@@ -213,10 +216,20 @@
                         <div class="col-12 col-md-3 mb-2 d-none" id="bill_image1">
                             <label>رسید دریافت وجه</label>
                             <br>
-                            <label for="bill_image_input1" id="up-label" class="btn badge-secondary"><i
-                                    class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
-                            <input class="form-control file-up" name="bill_image[]" type="file" id="bill_image_input1"
-                                accept=".jpg,.jpeg,.png" >
+                            <label for="bill_image_input1" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
+                                    class="fa fa-cloud-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                            {{-- Ajax upload widget: the file posts to /dashboard/uploadFilesTemporarily and its
+                                 temp media id lands in #bill_image_input1_path (name=url_bill_image), which the
+                                 controller attaches via MediaLibraryHelper::attachTo. The receipt is required for
+                                 card/cash, but that is enforced by the submit handler below + server-side, NOT HTML5
+                                 `required` (this input is display:none - HTML5 required aborts submit as "not
+                                 focusable"), so data-keep-optional silences paymentType()'s required flag.
+                                 data-has-existing lets the submit check skip when a receipt is already on file. --}}
+                            <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
+                                id="bill_image_input1" accept=".jpg,.jpeg,.png" data-buttonname="btn-white"
+                                data-keep-optional="1" data-has-existing="{{ $factor->bill_image ? '1' : '' }}">
+                            <div id="bill_image_input1_src" class="show"></div>
+                            <input type="hidden" id="bill_image_input1_path" class="path" name="url_bill_image">
                         </div>
                         @if(is_null(auth()->user()->id == $factor->support_id) || auth()->user()->hasRole('superadmin'))
                         <div class="col-12 col-md-4 mb-3">
@@ -323,6 +336,20 @@
     @elseif(session()->get('factor_update') == 'danger')
     toastr.success('اعتبار شما کافی نیست!');
     @endif
+
+    // The receipt is required for card-to-card, POS (card reader) and cash payments. The ajax
+    // widget's file input is display:none so HTML5 `required` can't be used (it aborts submit as
+    // "not focusable"); this submit check gives immediate feedback and the server re-validates. A
+    // receipt counts if one was just uploaded (hidden url_bill_image populated) or is already on file.
+    $('#payment_type1').closest('form').on('submit', function (e) {
+        var paymentType = $('#payment_type1').val();
+        var hasReceipt = $('#bill_image_input1_path').val()
+            || $('#bill_image_input1').data('has-existing');
+        if ((paymentType === 'card' || paymentType === 'cash' || paymentType === 'card_reader') && !hasReceipt) {
+            e.preventDefault();
+            toastr.error('برای پرداخت کارت به کارت، کارتخوان و نقدی، بارگذاری رسید دریافت وجه الزامی است.');
+        }
+    });
 
 </script>
 @endsection

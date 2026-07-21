@@ -39,8 +39,7 @@
                 @foreach ($center_service_tariffs as $temp)
                 <option value="{{ $temp->id }}" {{ $temp->id == $service_tariff->id ? 'selected' : ''}}>
                     {{ $temp->name }} ( {{ number_format($temp->price) }} ریال -
-                    تعرفه {{ $temp->tariff->title }} )
-                </option>
+                    تعرفه {{  $temp->tariff ? $temp->tariff->title : '' }} )                </option>
                 @endforeach
             </select>
             <p class="text-danger">{{ isset($message[$service_tariff->pivot->id]) ? $message[$service_tariff->pivot->id]

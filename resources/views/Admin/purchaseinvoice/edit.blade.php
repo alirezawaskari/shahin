@@ -86,6 +86,9 @@
                                         <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top"
                                             height="150px">
                                     </a>
+                                    @if($purchaseInvoice->mediaIsLegacy('post_image'))
+                                    <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                    @endif
                                     @else
                                     <div id="post_image_src" class="show">
                                         <img class="card-img-top" height="150px">
@@ -93,7 +96,7 @@
                                     <div class="card-body">
                                         <label>تصویر رسید ارسال کالا</label>
                                         <br>
-                                        <label for="post_image" id="up-label" class="btn badge-secondary"><i
+                                        <label for="post_image" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                 class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب
                                             تصویر </label>
                                         <input name="post_image" type="file" id="post_image"
@@ -131,6 +134,9 @@
                         <a href="{{ asset($purchaseInvoice->post_image) }}" target="_blank">
                             <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top" height="150px">
                         </a>
+                        @if($purchaseInvoice->mediaIsLegacy('post_image'))
+                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                        @endif
                         <div class="card-body text-center">
                             <h5>تصویر رسید ارسال کالا</h5>
                         </div>

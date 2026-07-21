@@ -66,11 +66,20 @@
                                     <span>{{$check->title}}</span>
                                 @endswitch
                             </td>
-                            <td> @foreach( $check->files as $file)
-                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}"
-                                                                                        width="70px" alt=""></a>
-                                @endforeach
-
+                            {{-- Use the front_image/back_image accessors (Spatie first, legacy File-row
+                                 fallback) so the images keep showing after adoption too. Iterating
+                                 $check->files printed the raw legacy path and would show nothing once
+                                 the check is migrated to Spatie (no File rows left). --}}
+                            <td>
+                                @if($check->front_image)
+                                <a href="{{ $check->front_image }}" target="_blank"><img src="{{ $check->front_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($check->back_image)
+                                <a href="{{ $check->back_image }}" target="_blank"><img src="{{ $check->back_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($check->fileMediaIsLegacy('front') || $check->fileMediaIsLegacy('back'))
+                                <small class="d-block text-warning">تصویر قدیمی - با ذخیره منتقل می‌شود</small>
+                                @endif
                             </td>
                             <td>{{$check->histories->count()>0?$check->histories->last()->description :''}}</td>
                             <td>
@@ -115,6 +124,8 @@
                                         data-pay_to="{{$check->paytoable ? $check->paytoable->name.' '.$check->paytoable->family : 'ثبت نشده'}}"
                                         data-title="{{$check->title}}" data-amount="{{number_format($check->amount)}}"
                                         data-jdate="{{verta($check->date)->format('Y/m/d')}}"
+                                        data-front_image="{{$check->front_image}}" data-back_image="{{$check->back_image}}"
+                                        data-front_legacy="{{$check->fileMediaIsLegacy('front') ? 1 : 0}}" data-back_legacy="{{$check->fileMediaIsLegacy('back') ? 1 : 0}}"
                                         class="btn btn-outline-primary mb-1 d-flex" data-toggle="modal"
                                         data-target="#updateCheckModal" id="edit-check-btn"> ویرایش <i
                                             class="fa fa-edit"></i></span>
@@ -399,13 +410,22 @@
                                                           rows="3"></textarea>
                                             </div>
                                             <div class="col-md-4">
+                                                {{-- ajax -> temp upload -> hidden url_* (temp media id); CheckController attachTo()s to Spatie --}}
                                                 <label>تصویر روی چک :</label>
-                                                <input class="form-control" type="file" id="check-front-image"
-                                                       name="first_image" required>
+                                                <label for="check-front-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                                <input type="file" id="check-front-image" name="check_front_image"
+                                                       class="d-none filestyle file-upload file_upload_ajax file-up"
+                                                       data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                <div id="check-front-image_src" class="show"></div>
+                                                <input type="hidden" id="check-front-image_path" class="path" name="url_check_front_image">
 
                                                 <label>تصویر پشت چک :</label>
-                                                <input class="form-control" type="file" id="check-back-image"
-                                                       name="second_image">
+                                                <label for="check-back-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                                <input type="file" id="check-back-image" name="check_back_image"
+                                                       class="d-none filestyle file-upload file_upload_ajax file-up"
+                                                       data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                <div id="check-back-image_src" class="show"></div>
+                                                <input type="hidden" id="check-back-image_path" class="path" name="url_check_back_image">
                                             </div>
                                         </div>
                                     </div>
@@ -501,13 +521,22 @@
                                                   rows="3"></textarea>
                                     </div>
                                     <div class="col-md-4">
+                                        {{-- ajax -> temp upload -> hidden url_* (temp media id); CheckController attachTo()s to Spatie --}}
                                         <label>تصویر روی چک :</label>
-                                        <input class="form-control" type="file" id="edit-check-front-image"
-                                               name="first_image" required>
+                                        <label for="edit-check-front-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                        <input type="file" id="edit-check-front-image" name="check_front_image"
+                                               class="d-none filestyle file-upload file_upload_ajax file-up"
+                                               data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <div id="edit-check-front-image_src" class="show"></div>
+                                        <input type="hidden" id="edit-check-front-image_path" class="path" name="url_check_front_image">
 
                                         <label>تصویر پشت چک :</label>
-                                        <input class="form-control" type="file" id="edit-check-back-image"
-                                               name="second_image">
+                                        <label for="edit-check-back-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                        <input type="file" id="edit-check-back-image" name="check_back_image"
+                                               class="d-none filestyle file-upload file_upload_ajax file-up"
+                                               data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <div id="edit-check-back-image_src" class="show"></div>
+                                        <input type="hidden" id="edit-check-back-image_path" class="path" name="url_check_back_image">
                                     </div>
                                     <div class="col-md-12">
                                         <span class="btn btn-success m-2" id="update-check-btn">اعمال تغییرات</span>

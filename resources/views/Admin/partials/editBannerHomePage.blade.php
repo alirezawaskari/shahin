@@ -27,7 +27,7 @@
 
                 <div id="horizontalImages_{{$i}}_current" data-box-h="80" style="width:100px" class="mx-2">
                     @if($slot)
-                        <div class="div_remove_btn d-inline-block mb-2" id="media_{{$slot->id}}">
+                        <div class="div_remove_btn d-inline-block mb-2 mt-2" id="media_{{$slot->id}}">
                             <img class="rounded border" style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;"
                                  src="{{ $slot->getFullUrl() }}" alt="{{ $slot->getCustomProperty('title') }}">
                             {{-- no ✕ on the last image while legacy `galleries` rows remain —
@@ -39,7 +39,7 @@
                             @endif
                         </div>
                     @else
-                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                              style="height:80px;background:#f8f9fa;">بدون تصویر</div>
                     @endif
                 </div>
@@ -69,7 +69,7 @@
 
                 <div id="verticalImages_{{$i}}_current" data-box-h="80" style="width:100px" class="mx-2">
                     @if($slot)
-                        <div class="div_remove_btn d-inline-block mb-2" id="media_{{$slot->id}}">
+                        <div class="div_remove_btn d-inline-block mb-2 mt-2" id="media_{{$slot->id}}">
                             <img class="rounded border" style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;"
                                  src="{{ $slot->getFullUrl() }}" alt="{{ $slot->getCustomProperty('title') }}">
                             {{-- no ✕ on the last image while legacy `galleries` rows remain —
@@ -81,7 +81,7 @@
                             @endif
                         </div>
                     @else
-                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2"
+                        <div class="rounded border d-flex align-items-center justify-content-center text-muted mb-2 mt-2"
                              style="height:80px;background:#f8f9fa;">بدون تصویر</div>
                     @endif
                 </div>

@@ -528,7 +528,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             '17' => 'منتظر مشاوره شعبه',
             '20' => 'منتظر تایید فاکتور توسط کاربر',
             '21' => 'درانتظار اصلاح فاکتور به درخواست کاربر',
-            '2' => 'مشاوره شد',
+            '2' => 'پیش فاکتور تایید شد',
             '10' => 'آماده اجرا',
             '6' => 'شروع کار',
             '7' => 'اتمام کار',
@@ -1179,7 +1179,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
 
         //send sms to the user
         event( new smsService( $factorItem , 'setCenter') );
-        if($factorItem->center->creatorRpresentation)
+        if($factorItem->center->creatorRepresentation)
         {
             $factorItem->factor->update( [ 'representation_id' => $factorItem->center->creator_representation_id ] );
         }
@@ -1332,7 +1332,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
      * @param FactorItem $factorItem
      * @return void
      */
-    public function saveContractView(FactorItem $factorItem)
+    public static function saveContractView(FactorItem $factorItem)
     {
         $user = $factorItem->factor->user;
         $item = self::setItem( $factorItem );
@@ -1354,6 +1354,19 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             'item' => $item,
         ] )->render();
         ContractView::store($factorItem , $content);
+    }
+        /**
+     * Summary of saveContractFactorView
+     * @param FactorItem $factorItem
+     * @return void
+     */
+    public static function saveContractFactorView(FactorItem $factorItem)
+    {
+        $factor_rules = $factorItem->factoritemable->beforeforms->where('type', 'rules')->first();
+        if($factor_rules)
+        {
+            ContractView::store($factorItem , $factor_rules->help);
+        }
     }
 }
 

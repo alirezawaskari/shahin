@@ -37,6 +37,14 @@ class WalletTransactionController extends Controller
      */
     public function store(Request $request)
     {
+        // Receipt is mandatory for cash / card-to-card payments (client mirrors this with a
+        // swal check; url_bill_image is the temp media id produced by the ajax upload widget).
+        if (in_array($request->input('payment_type'), ['cash', 'card']) && ! $request->filled('url_bill_image')) {
+            return redirect()->back()->with([
+                'failByMessage' => 'برای پرداخت نقدی یا کارت به کارت، بارگذاری رسید دریافت وجه الزامی است.',
+            ]);
+        }
+
         $user = Employee::find($request->input('employee_id'))->user;
         $factor = new Factor();
         $factor->title = 'employee_payment';

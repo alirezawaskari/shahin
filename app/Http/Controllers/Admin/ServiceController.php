@@ -157,12 +157,7 @@ class ServiceController extends AdminController
         $similar_services=$service->similarGroups()->where('similar_model',Service::class)->where('relation_model',Service::class)->pluck('relation_id')->toArray();
         $similar_categories=$service->similarGroupCategories()->where('similar_model',Service::class)->where('relation_model',Category::class)->pluck('relation_id')->toArray();
         $service_categories=[];
-        $category_service=Category::filter()->where('slug','service')->first();
-        if(isset($category_service) && $category_service != ''){
-            $service_categories = Category::filter()->where('parent_id',$category_service->id)->select('id','title','parent_id')
-                ->orderBy('id', 'DESC')->get();
-        }
-
+        $service_categories = Category::filter()->where('parent_id',2)->select('id','title','parent_id')->get();
         return view('Admin.service.edit',['service'=>$service,'all_categories'=>$all_categories,
             'all_services'=>$all_services,'similar_categories'=>$similar_categories,'similar_services'=>$similar_services,
             'service_categories'=>$service_categories]);

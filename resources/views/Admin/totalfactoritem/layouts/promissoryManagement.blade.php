@@ -64,10 +64,20 @@
                                     <span>{{$promissory->title}}</span>
                                 @endswitch
                             </td>
-                            <td> @foreach( $promissory->files as $file)
-                                    <a href="{{$file->path??''}}" target="_blank"> <img src="{{$file->path??''}}" width="70px" alt=""></a>
-                                @endforeach
-
+                            {{-- Use the front_image/back_image accessors (Spatie first, legacy File-row
+                                 fallback) so the images keep showing after adoption too. Iterating
+                                 $promissory->files printed the raw legacy path and would show nothing once
+                                 the promissory is migrated to Spatie (no File rows left). --}}
+                            <td>
+                                @if($promissory->front_image)
+                                <a href="{{ $promissory->front_image }}" target="_blank"><img src="{{ $promissory->front_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($promissory->back_image)
+                                <a href="{{ $promissory->back_image }}" target="_blank"><img src="{{ $promissory->back_image }}" width="70px" alt=""></a>
+                                @endif
+                                @if($promissory->fileMediaIsLegacy('front') || $promissory->fileMediaIsLegacy('back'))
+                                <small class="d-block text-warning">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                @endif
                             </td>
                             <td>{{$promissory->histories->count()>0?$promissory->histories->last()->description :''}}</td>
                             <td>
@@ -101,6 +111,8 @@
                                         data-pay_to="{{$promissory->paytoable->name.' '.$promissory->paytoable->family}}"
                                         data-title="{{$promissory->title}}" data-amount="{{number_format($promissory->amount)}}"
                                         data-jdate="{{verta($promissory->date)->format('Y/m/d')}}"
+                                        data-front_image="{{$promissory->front_image}}" data-back_image="{{$promissory->back_image}}"
+                                        data-front_legacy="{{$promissory->fileMediaIsLegacy('front') ? 1 : 0}}" data-back_legacy="{{$promissory->fileMediaIsLegacy('back') ? 1 : 0}}"
                                         class="btn btn-outline-primary" data-toggle="modal"
                                         data-target="#updatePromissoryModal" id="edit-promissory-btn"> ویرایش <i
                                             class="fa fa-edit"></i></span>
@@ -449,13 +461,22 @@
                                                           rows="3"></textarea>
                                             </div>
                                             <div class="col-md-4">
+                                                {{-- ajax -> temp upload -> hidden url_* (temp media id); PromissoryController attachTo()s to Spatie --}}
                                                 <label>تصویر روی سفته :</label>
-                                                <input class="form-control" type="file" id="promissory-front-image"
-                                                       name="first_image" required>
+                                                <label for="promissory-front-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                                <input type="file" id="promissory-front-image" name="promissory_front_image"
+                                                       class="d-none filestyle file-upload file_upload_ajax file-up"
+                                                       data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                <div id="promissory-front-image_src" class="show"></div>
+                                                <input type="hidden" id="promissory-front-image_path" class="path" name="url_promissory_front_image">
 
                                                 <label>تصویر پشت سفته :</label>
-                                                <input class="form-control" type="file" id="promissory-back-image"
-                                                       name="second_image">
+                                                <label for="promissory-back-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                                <input type="file" id="promissory-back-image" name="promissory_back_image"
+                                                       class="d-none filestyle file-upload file_upload_ajax file-up"
+                                                       data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                                <div id="promissory-back-image_src" class="show"></div>
+                                                <input type="hidden" id="promissory-back-image_path" class="path" name="url_promissory_back_image">
                                             </div>
                                         </div>
                                     </div>
@@ -547,13 +568,22 @@
                                                   rows="3"></textarea>
                                     </div>
                                     <div class="col-md-4">
+                                        {{-- ajax -> temp upload -> hidden url_* (temp media id); PromissoryController attachTo()s to Spatie --}}
                                         <label>تصویر روی سفته :</label>
-                                        <input class="form-control" type="file" id="edit-promissory-front-image"
-                                               name="first_image" required>
+                                        <label for="edit-promissory-front-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                        <input type="file" id="edit-promissory-front-image" name="promissory_front_image"
+                                               class="d-none filestyle file-upload file_upload_ajax file-up"
+                                               data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <div id="edit-promissory-front-image_src" class="show"></div>
+                                        <input type="hidden" id="edit-promissory-front-image_path" class="path" name="url_promissory_front_image">
 
                                         <label>تصویر پشت سفته :</label>
-                                        <input class="form-control" type="file" id="edit-promissory-back-image"
-                                               name="second_image">
+                                        <label for="edit-promissory-back-image" class="btn btn-primary btn-sm d-block custom-file-upload"><i class="fa fa-upload"></i> انتخاب تصویر</label>
+                                        <input type="file" id="edit-promissory-back-image" name="promissory_back_image"
+                                               class="d-none filestyle file-upload file_upload_ajax file-up"
+                                               data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
+                                        <div id="edit-promissory-back-image_src" class="show"></div>
+                                        <input type="hidden" id="edit-promissory-back-image_path" class="path" name="url_promissory_back_image">
                                     </div>
                                     <div class="col-md-12">
                                         <span class="btn btn-success m-2" id="update-promissory-btn">اعمال تغییرات</span>

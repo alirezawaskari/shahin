@@ -13,20 +13,25 @@
                         <div class="col-12 col-md-12 mb-4">
                             <h5>ایجاد خدمت جدید</h5>
                         </div>
-                        <div class="col-12 col-md-4 mb-4">
+                        <div class="col-12 col-md-6 mb-4">
                             <label>عنوان</label>
                             <input type="text" value="{{old('title')}}"
                                    class="form-control" placeholder="لطفا عنوان را وارد کنید"
                                    name="title" required>
                         </div>
+                        <div class="col-12 col-md-6 mb-5">
+                            <label>عنوان منو</label>
 
-                        <div class="col-12 col-md-8 mb-4">
+                            <input id="menu_title_lbl" type="text" class="form-control" name="menu_title"
+                                   placeholder="لطفا عنوان منو را وارد کنید">
+
+                        </div>
+                        <div class="col-12 mb-4">
                             <label>عنوان لاتین (توجه داشته باشید که این عنوان در url نمایش داده میشود و حتما باید به صورت انگلیسی وارد شود.)</label>
                             <input type="text" value="{{old('en_title')}}"
                                    class="form-control" placeholder="لطفا عنوان انگلیسی را وارد کنید"
                                    name="en_title" required>
                         </div>
-
                         <div class="col-12 col-md-12 mb-4">
                             <label>توضیحات</label>
                             <input type="text" value="{{old('description')}}"
@@ -105,7 +110,7 @@
                             </select>
                         </div>
 
-                        <div class="col-12 col-md-2 mb-4">
+                        <div class="col-12 col-md-3 mb-4">
                             <label>هزینه رزرو (ریال)</label>
                             <input type="text" value="{{old('price')}}" class="form-control"
                                    placeholder="لطفا هزینه رزرو را وارد کنید" name="price" required oninput="separatePrices(this)">
@@ -152,14 +157,8 @@
                             @endif
 
                         </div>
-                        
-                        <div class="col-12 col-md-6 mb-5">
-                            <label>عنوان منو</label>
 
-                            <input id="menu_title_lbl" type="text" class="form-control" name="menu_title"
-                                   placeholder="لطفا عنوان منو را وارد کنید">
 
-                        </div>
                         <div class="col-12">
                             <input type="submit" class="btn btn-success border-0" value="ثبت">
                         </div>
@@ -172,8 +171,7 @@
 @stop
 
 @section('js')
-    {{--<script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>--}}
-
+    <script src="{{ asset('/assets/dashboard/js/layouts.js?v=2.0') }}"></script>
     <script>
         //select2
         $(document).ready(function () {

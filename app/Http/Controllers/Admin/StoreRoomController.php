@@ -267,7 +267,14 @@ class StoreRoomController extends Controller
             ->where('productattributeable_id',$id )->where('productattributeable_type', StoreRoom::class)
             ->where('is_price', 0)->get();
 
-        $brands = Category::find($last_category_id)->brands;
+        // $last_category_id may not resolve to a Category (e.g. no category assigned yet),
+        // so guard the ->brands read — mirrors ProductController@edit.
+        $brands = Category::find($last_category_id);
+        if (!is_null($brands)) {
+            $brands = $brands->brands;
+        } else {
+            $brands = array();
+        }
         $product_validation = $product->productValidations;
         $validations = Validation::all();
 
@@ -494,12 +501,30 @@ class StoreRoomController extends Controller
                         'storage_num' => $request->storage_num
                     ]);
             }
+
+            // Persist ajax-uploaded images to Spatie. This form's uploader submits
+            // image_name_good[N][name] (+ an [index] flag on the main image) -> saveImageGood
+            // routes the flagged one to 'image' and the rest to 'gallery'. The multiple_image
+            // branch covers the other uploader variant. The type-0 branch was missing both, so
+            // new uploads here were silently dropped — mirrors the type-1 Good branch below.
+            Product::saveImageGood($request, $product);
+            if (isset($request->image_path) || isset($request->multiple_image)) {
+                Product::storeImagesProduct($request->image_path, $request->multiple_image, $product);
+            }
+
+            // This form doesn't always submit store_room_id, which made the redirect target
+            // /storeRoom{Good,Material}/ (no id) -> 404. Fall back to the submitted pivot
+            // (product_store_room_id) or the product's own store room so the id is always set.
+            $redirectStoreRoomId = $request->store_room_id
+                ?: optional(ProductStoreRoom::find($request->product_store_room_id))->store_room_id
+                ?: optional(optional($product->storeRooms()->first())->pivot)->store_room_id;
+
             if($product->internal_use  == 1){//  کالا یا مواد اولیه باشد و یا کالا با استفاده داخلی
                 $product->type=1;$product->save();
-                return redirect("/dashboard/storeRoomGood/$request->store_room_id")->with(['update' => 'success']);
+                return redirect("/dashboard/storeRoomGood/$redirectStoreRoomId")->with(['update' => 'success']);
             }
             else{
-                return redirect('/dashboard/storeRoomMaterial/'.$request->store_room_id)->with(['update' => 'success']);
+                return redirect('/dashboard/storeRoomMaterial/'.$redirectStoreRoomId)->with(['update' => 'success']);
             }
 
         }
@@ -642,7 +667,11 @@ class StoreRoomController extends Controller
                 }
             }
 
-            return redirect("/dashboard/storeRoomGood/$request->store_room_id")->with(['update' => 'success']);
+            $redirectStoreRoomId = $request->store_room_id
+                ?: optional(ProductStoreRoom::find($request->product_store_room_id))->store_room_id
+                ?: optional(optional($product->storeRooms()->first())->pivot)->store_room_id;
+
+            return redirect("/dashboard/storeRoomGood/$redirectStoreRoomId")->with(['update' => 'success']);
 
         }
 

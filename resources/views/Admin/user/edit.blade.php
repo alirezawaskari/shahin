@@ -208,6 +208,9 @@
                                 <a href="{{ $user->imgmeli }}" target="_blank">
                                     <img src="{{ $user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                 </a>
+                                @if($user->mediaIsLegacy('imgmeli'))
+                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                @endif
                                 </div>
                                 @else
                                 <div id="imgmeli_src" class="show">
@@ -217,7 +220,7 @@
                                 <div class="card-body">
                                     <label>کارت ملی</label>
                                     <br>
-                                    <label for="imgmeli" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <label for="imgmeli" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input name="imgmeli"  type="file" id="imgmeli" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                     <input type="hidden" id="imgmeli_path" class="path" name="urlimgmeli">
                                 </div>
@@ -231,6 +234,9 @@
                                 <a href="{{ $user->imgshenasname }}" target="_blank">
                                     <img src="{{ $user->imgshenasname }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                 </a>
+                                @if($user->mediaIsLegacy('imgshenasname'))
+                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                @endif
                                 </div>
                                 @else
                                 <div id="imgshenasname_src" class="show">
@@ -240,7 +246,7 @@
                                 <div class="card-body">
                                     <label>شناسنامه</label>
                                     <br>
-                                    <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                    <label for="imgshenasname" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input name="imgshenasname"  type="file" id="imgshenasname" class="filestyle file-upload file_upload_ajax file-up" data-buttonname="btn-white" accept=".jpg,.jpeg,.png">
                                     <input type="hidden" id="imgshenasname_path" class="path" name="urlimgshenasname">
                                 </div>
@@ -256,6 +262,9 @@
                                     <img src="{{ $user->avatar }}"
                                         class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                 </a>
+                                @if($user->mediaIsLegacy('avatar'))
+                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                @endif
                                 </div>
                                 @else
                                 <div id="avatar_src" class="show">
@@ -265,7 +274,7 @@
                                 <div class="card-body">
                                     <label>تصویر پرسنلی</label>
                                     <br>
-                                    <label for="avatar" id="up-label" class="btn badge-secondary"><i
+                                    <label for="avatar" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input name="avatar" type="file" id="avatar"
                                         class="filestyle file-upload file_upload_ajax file-up"
@@ -283,6 +292,9 @@
                                     <img src="{{ $user->imgturnover }}"
                                         class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                 </a>
+                                @if($user->mediaIsLegacy('imgturnover'))
+                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                @endif
                                 </div>
                                 @else
                                 <div id="imgturnover_src" class="show">
@@ -292,7 +304,7 @@
                                 <div class="card-body">
                                     <label>تصویر ثنا</label>
                                     <br>
-                                    <label for="imgturnover" id="up-label" class="btn badge-secondary"><i
+                                    <label for="imgturnover" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
                                     <input name="imgturnover" type="file" id="imgturnover"
                                         class="filestyle file-upload file_upload_ajax file-up"

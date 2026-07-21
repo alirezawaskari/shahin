@@ -359,7 +359,7 @@
                                                             <label>تصویر کارت ملی</label>
                                                             <br>
                                                             <label for="imgmeli" id="up-label"
-                                                                class="btn badge-secondary"><i class="fa fa-upload ml-2"
+                                                                class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgmeli" type="file" id="imgmeli"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
@@ -388,7 +388,7 @@
                                                             <label>تصویر شناسنامه</label>
                                                             <br>
                                                             <label for="imgshenasname" id="up-label"
-                                                                class="btn badge-secondary"><i class="fa fa-upload ml-2"
+                                                                class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgshenasname" type="file" id="imgshenasname"
                                                                 class="filestyle file-upload file_upload_ajax file-up"
@@ -417,7 +417,7 @@
                                                             <label>تصویر ثنا</label>
                                                             <br>
                                                             <label for="imgturnover" id="up-label"
-                                                                class="btn badge-secondary"><i class="fa fa-upload ml-2"
+                                                                class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2"
                                                                     aria-hidden="true"></i> انتخاب تصویر </label>
                                                             <input name="imgturnover" type="file" id="imgturnover"
                                                                 class="filestyle file-upload file_upload_ajax file-up"

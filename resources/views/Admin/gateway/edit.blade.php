@@ -30,7 +30,7 @@
                         @include('Admin.partials.currentMedia', ['owner' => $gateway, 'field' => 'logo', 'boxH' => 150, 'required' => true])
                         <label>لوگو</label>
                         <br>
-                        <label for="logo" id="up-label" class="btn badge-secondary">
+                        <label for="logo" id="up-label" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-upload ml-2"></i>
                             تصویر
                         </label>

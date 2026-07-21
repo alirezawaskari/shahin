@@ -34,6 +34,11 @@ class FilterServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Feeds the master "please accept the terms" banner (Admin.layouts.terms) on every
+        // admin page. Sourced from the EmployeeTerm model (Spatie-first, Context fallback).
+        view()->composer(['Admin.master'], function ($view) {
+            $view->with('role_categories_with_terms', \App\Models\EmployeeTerm::rolesWithTerms());
+        });
         view()->composer(['Admin.center.all','Admin.callcenter.sendLink' , 'Admin.callcenter.all','Admin.factoritem.all','Admin.factor.all','Admin.factor.desktop','Admin.totalfactoritem.all','Admin.totalfactoritem.report'], function ($view) {
             $data =$this->tasks_requires();
             $view->with($data);

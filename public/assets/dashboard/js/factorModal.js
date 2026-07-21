@@ -9,6 +9,13 @@ $(document).ready(function () {
                 success: function (response) {
                     let view = response.data.view;
                     $('.modal-body-factor-show').html(view)
+                    // Reveal the payment-type-specific sections (incl. the receipt widget and its
+                    // existing-image preview) for the factor's SAVED type - paymentType() otherwise
+                    // only runs on dropdown change, leaving them hidden on modal open.
+                    if (typeof paymentType === 'function'
+                        && document.getElementById('payment_type_edit_factor')) {
+                        paymentType('_edit_factor');
+                    }
                 }
             });
     })
@@ -57,8 +64,24 @@ $(document).ready(function () {
     /*  submit comment for factor */
     $("body").on('click', '.factor-update-submit', function () {
         var token = $('meta[name="csrf-token"]').attr('content');
-        var file= $('#bill_image_input_edit_factor').prop('files')[0];
         var url = $('#form-status-mali').attr('action');
+
+        // The receipt is uploaded by the ajax widget on file-select; its temp media id lives in
+        // the hidden #..._path input (name=url_bill_image), so it is already part of the form and
+        // no native file needs to be appended. Enforce the card/cash requirement client-side for
+        // immediate feedback (the server re-checks): a receipt must be selected now or already on file.
+        var paymentType = $('#payment_type_edit_factor').val();
+        var hasReceipt = $('#bill_image_input_edit_factor_path').val()
+            || $('#bill_image_input_edit_factor').data('has-existing');
+        if ((paymentType === 'card' || paymentType === 'cash' || paymentType === 'card_reader') && !hasReceipt) {
+            swal({
+                title: 'رسید دریافت وجه الزامی است',
+                text: 'برای پرداخت کارت به کارت، کارتخوان و نقدی، تصویر رسید را بارگذاری کنید.',
+                icon: "error",
+                button: "باشه",
+            });
+            return;
+        }
 
           var form = $('#form-status-mali');
           var formData = form.serializeArray();
@@ -66,7 +89,6 @@ $(document).ready(function () {
           $.each(formData, function( index, value ) {
               fdObject.append(value.name, value.value);
         });
-        fdObject.append('bill_image', file);
         $.ajax(
             {
                 url: "/dashboard/factor-update",
@@ -88,6 +110,12 @@ $(document).ready(function () {
                     //    <a href="${response.data.bill_image_link}" class="btn btn-primary" target="_blank">مشاهده</a>
                     // `)
                     // $('#factorShowModal').modal('hide');
+                },
+                error: function (xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message
+                        : 'خطا در ثبت اطلاعات';
+                    swal({ title: msg, icon: "error", button: "باشه" });
                 }
             });
     })

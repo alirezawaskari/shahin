@@ -323,6 +323,9 @@
                                                 <img src="{{ $employee->user->imgsignature }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('imgsignature'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgsignature_src" class="show">
@@ -332,7 +335,7 @@
                                         <div class="card-body">
                                             <label>امضاء کاربر</label>
                                             <br>
-                                            <label for="imgsignature" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgsignature" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="imgsignature" type="file" id="imgsignature"
@@ -349,6 +352,9 @@
                                             <a href="{{ $employee->user->avatar }}" target="_blank">
                                                 <img src="{{ $employee->user->avatar }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('avatar'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="avatar_src" class="show">
@@ -358,7 +364,7 @@
                                         <div class="card-body">
                                             <label>تصویر پرسنلی</label>
                                             <br>
-                                            <label for="avatar" id="up-label" class="btn badge-secondary"><i
+                                            <label for="avatar" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="avatar" type="file" id="avatar"
@@ -375,6 +381,9 @@
                                             <a href="{{ $employee->user->imgmeli }}" target="_blank">
                                                 <img src="{{ $employee->user->imgmeli }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('imgmeli'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgmeli_src" class="show">
@@ -384,7 +393,7 @@
                                         <div class="card-body">
                                             <label>کارت ملی</label>
                                             <br>
-                                            <label for="imgmeli" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgmeli" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="imgmeli" type="file" id="imgmeli"
@@ -402,6 +411,9 @@
                                                 <img src="{{ $employee->user->imgshenasname }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->user->mediaIsLegacy('imgshenasname'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgshenasname_src" class="show">
@@ -411,7 +423,7 @@
                                         <div class="card-body">
                                             <label>شناسنامه</label>
                                             <br>
-                                            <label for="imgshenasname" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgshenasname" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="imgshenasname" type="file" id="imgshenasname"
@@ -429,6 +441,9 @@
                                             <a href="{{ $employee->imgaccess }}" target="_blank">
                                                 <img src="{{ $employee->imgaccess }}" class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->mediaIsLegacy('imgaccess'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imgaccess_src" class="show">
@@ -438,7 +453,7 @@
                                         <div class="card-body">
                                             <label>تصویر دریافت دسترسی پنل</label>
                                             <br>
-                                            <label for="imgaccess" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imgaccess" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="employee[imgaccess]" type="file" id="imgaccess"
@@ -456,6 +471,9 @@
                                                 <img src="{{ $employee->imglastcertificate }}"
                                                     class="card-img-top" style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                             </a>
+                                            @if($employee->mediaIsLegacy('imglastcertificate'))
+                                            <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                            @endif
                                         </div>
                                         @else
                                         <div id="imglastcertificate_src" class="show">
@@ -465,7 +483,7 @@
                                         <div class="card-body">
                                             <label>تصویر آخرین مدرک تحصیلی یا تخصصی</label>
                                             <br>
-                                            <label for="imglastcertificate" id="up-label" class="btn badge-secondary"><i
+                                            <label for="imglastcertificate" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                                     class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
                                             </label>
                                             <input name="employee[imglastcertificate]" type="file"

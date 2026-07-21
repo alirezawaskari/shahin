@@ -42,8 +42,7 @@
                         {{implode(' | ',$item->services->pluck('title')->toArray())}}
                     </td>
                     <td>
-                        {{ $item->creatorRpresentation ? $item->creatorRpresentation->fa_name : 'نمایندگی کل' }}
-                    </td>
+                        {{ $item->creatorRepresentation ? $item->creatorRepresentation->fa_name : 'نمایندگی کل' }}                    </td>
                     <td>
                         {{ verta($item->created_at)->format('Y/m/d H:m:s') }}
                     </td>

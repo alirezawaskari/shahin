@@ -93,7 +93,8 @@
                 <div class="card border-contract p-2 text-center">
                     @if(isset($factorItem['factor_values'][$form->name]) && $factorItem['factor_values'][$form->name] !=
                     "")
-                    {{-- <a href="{{ \App\Models\User::getUser($factorItem['factor_values'][$form->name])->imgsignature }}"
+                    {{-- <a
+                        href="{{ \App\Models\User::getUser($factorItem['factor_values'][$form->name])->imgsignature }}"
                         target="_blank">
                         <img src="{{ \App\Models\User::getUser($factorItem['factor_values'][$form->name])->imgsignature }}"
                             class="card-img-top" height="150px">
@@ -152,7 +153,11 @@
             @case('rules')
             <div class="col-12">
                 <h4>مفاد قرارداد : </h4>
+                @if ($factorItem->contractView)
+                {!! $factorItem->contractView->contract !!}
+                @else
                 {!! $form->help !!}
+                @endif
                 <p>توجه : متقاضی محترم جهت بازدید و بررسی پرونده خدمات دریافتی فوق و هرگونه ارتباط با کادر {{
                     $factorItem['center'] ? $factorItem['center']->title : '' }} می توانید از طریق پیامک ارسال شده با
                     نام کاربری و
@@ -169,7 +174,7 @@
         <div class="col-4">
             <div class="card border-contract p-2 text-center">
                 {{-- truthiness, not isset(): imgsignature is an accessor returning '' when there
-                     is no image, and isset('') is true. --}}
+                is no image, and isset('') is true. --}}
                 @if($user->imgsignature)
                 <a href="{{ $user->imgsignature }}" target="_blank">
                     <img src="{{ $user->imgsignature }}" class="card-img-top" height="150px">
