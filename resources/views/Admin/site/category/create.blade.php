@@ -196,7 +196,7 @@
                                             فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
                                         </small>
                                     </div>
-                                    <div id="image_src" class="show disInline col-md-3"></div>
+                                    <div id="icon_src" class="show disInline col-md-3"></div>
                                 </div>
                             </div>
                         </div>
@@ -392,8 +392,8 @@
                 (removed) CATEGORY / SERVICE -> getGallery AJAX
                 Legacy copy-paste from the ghorfeOnlineList views: #categorySelect /
                 #serviceSelect do not exist on this page, and getGallery renders the OLD
-                non-Spatie gallery-form. The Spatie <x-media-gallery-form> above is the
-                single source of truth for the gallery now.
+                non-Spatie gallery-form. The Spatie x-media-gallery-form component above
+                is the single source of truth for the gallery now.
             ========================== */
 
             /* =========================

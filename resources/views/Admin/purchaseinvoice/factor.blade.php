@@ -102,8 +102,8 @@
 
                     <div class="col-12 row">
                         <div class="col-md-4">
-                            <div id="addnew" class="btn btn-success mb-5">
-                                <label for="factor_image" id="up-label"><i class="fa fa-upload ml-2"
+                            <div id="addnew" class="btn btn-primary custom-file-upload border border-1 mb-5">
+                                <label for="factor_image" id="up-label" class="mb-0"><i class="fa fa-upload ml-2"
                                                                            aria-hidden="true"></i> انتخاب تصویر فاکتور
                                 </label>
                                 <input name="factor_image[]" type="file" id="factor_image"
@@ -122,11 +122,13 @@
                         </div>
                     </div>
 
-                    @if(isset($purchaseInvoice->factor_image))
-                        @foreach($purchaseInvoice->factor_image as $image)
+                    @php($__factor_images = $purchaseInvoice->factorImageUrls())
+                    @if(count($__factor_images))
+                        @foreach($__factor_images as $image)
                             <div class="col-md-3 mb-2">
-                                <a href="{{ asset($image) }}" target="_blank">
-                                    <img src="{{ $image }}" class="card-img-top" height="150px">
+                                <a href="{{ $image }}" target="_blank">
+                                    <img src="{{ $image }}" class="card-img-top"
+                                         style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                 </a>
                             </div>
                         @endforeach

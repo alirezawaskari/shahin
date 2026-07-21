@@ -368,8 +368,10 @@ class Category extends Model implements HasMedia
         //all category except services
         $service_cat = Category::where('id',2)->select('id','title')->first();
         $service_childes = Category::where('parent_id',$service_cat->id)->select('id','title')->pluck('id');
-        if($center_id != null){
-            $category_id = Center::find($center_id)->centerable->id;
+        // The center's centerable may be unset (e.g. centerable_id is null), so resolve it
+        // defensively and fall back to the no-center query rather than reading ->id on null.
+        $category_id = optional(optional(Center::find($center_id))->centerable)->id;
+        if($center_id != null && $category_id !== null){
             $categories=Category::whereNotIn('id',$service_childes)->where('parent_id',$category_id)->where('depth',2)->get();
         }else{
             $categories=Category::whereNotIn('id',$service_childes)->where('depth',2)->get();

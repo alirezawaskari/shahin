@@ -151,6 +151,24 @@ class PurchaseInvoiceController extends Controller {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Request $request, PurchaseInvoice $purchaseInvoice ) {
+        // Validate the invoice total against the installment breakdown BEFORE persisting
+        // anything. Previously the row (total_price, discount, factor_image, and any adopted
+        // media) was updated first and this check ran after, so a mismatch showed the error
+        // yet left partial writes behind. Compute + validate up front, then persist.
+        $total_price = Helper::numberConverter( ( float ) str_replace( ',', '', $request->total_price ) );
+        $prepayment  = Helper::numberConverter( ( float ) str_replace( ',', '', $request->prepayment ) );
+        $inatallments_price = [];
+        foreach ( $request->payments[ 'price' ] as $price ) {
+            $inatallments_price[] = Helper::numberConverter( ( float ) str_replace( ',', '', $price ) );
+        }
+        $sum_price = array_sum( $inatallments_price ) + $purchaseInvoice->purchaseInvoiceInstallments->sum( 'price' ) + $prepayment;
+
+        if ( $total_price != $sum_price ) {
+            return redirect()->back()->withInput()->with( [
+                'failByMessage' => 'جمع فاکتور با پرداختی های ثبت شده مطابقت ندارد.'
+            ] );
+        }
+
         if ( auth()->user()->hasRole( 'supplier' || 'mali' ) ) {
             $purchaseInvoice->update( [
                 'status' => 1,
@@ -159,7 +177,6 @@ class PurchaseInvoiceController extends Controller {
         //upload image factor
         $factor_images = isset( $purchaseInvoice->factor_image ) ? $purchaseInvoice->factor_image : [];
         $url_factor_image = $request->url_factor_image;
-        $factor_images = isset( $purchaseInvoice->factor_image ) ? $purchaseInvoice->factor_image : [];
         if ( isset( $url_factor_image ) && is_array( $url_factor_image ) ) {
             foreach ( $url_factor_image as $file ) {
                 if ( $file ) {
@@ -173,25 +190,14 @@ class PurchaseInvoiceController extends Controller {
         }
 
         $inputs = $request->all();
-        $inputs[ 'total_price' ] = Helper::numberConverter( ( float ) str_replace( ',', '', $request->total_price ) );
+        $inputs[ 'total_price' ] = $total_price;
         $inputs[ 'discount' ] = Helper::numberConverter( ( float ) str_replace( ',', '', $request->discount ) );
-        $inputs[ 'prepayment' ] = Helper::numberConverter( ( float ) str_replace( ',', '', $request->prepayment ) );
-        $inatallments_price = [];
-        foreach ( $request->payments[ 'price' ] as $price ) {
-            $inatallments_price[] = Helper::numberConverter( ( float ) str_replace( ',', '', $price ) );
-        }
+        $inputs[ 'prepayment' ] = $prepayment;
         unset( $inputs[ 'payments' ] );
         unset( $inputs[ 'url_factor_image' ] );
         $purchaseInvoice->update( $inputs );
         $purchaseInvoice->update( [ 'factor_image' => $factor_images ] );
 
-        $sum_price = array_sum( $inatallments_price ) + $purchaseInvoice->purchaseInvoiceInstallments->sum( 'price' ) + $inputs[ 'prepayment' ];
-
-        if ( $inputs[ 'total_price' ] != $sum_price ) {
-            return redirect()->back()->with( [
-                'failByMessage' => 'جمع فاکتور با پرداختی های ثبت شده مطابقت ندارد.'
-            ] );
-        }
         self::createInstallments( $request->payments, $purchaseInvoice );
 
         //cache
@@ -412,7 +418,23 @@ class PurchaseInvoiceController extends Controller {
      */
     public function savePayment(Request $request, PurchaseInvoice $purchaseInvoice ) {
 
-        $user = $purchaseInvoice->supplier->user_id;
+        // Receipt is mandatory for card-to-card / POS / cash — same rule and message as the
+        // factor pages (client mirrors this with a toastr check).
+        if ( in_array( $request->payment_type, [ 'card', 'cash', 'card_reader' ], true ) && ! $request->url_bill_image ) {
+            return redirect()->back()->withInput()->with( [
+                'failByMessage' => 'برای پرداخت کارت به کارت، کارتخوان و نقدی، بارگذاری رسید دریافت وجه الزامی است.',
+            ] );
+        }
+
+        $user = optional( $purchaseInvoice->supplier )->user_id;
+
+        // factors.user_id is NOT NULL. A supplier without a linked user can't own a payment
+        // factor — block with a clear message instead of crashing on the insert.
+        if ( ! $user ) {
+            return redirect()->back()->withInput()->with( [
+                'failByMessage' => 'برای این تامین کننده کاربری تعریف نشده است؛ امکان ثبت واریزی وجود ندارد. ابتدا برای تامین کننده کاربر تعیین کنید.',
+            ] );
+        }
 
         $factor = new Factor();
         $factor->title = 'purchase_invoice_payment';
@@ -444,7 +466,23 @@ class PurchaseInvoiceController extends Controller {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function returnPayment(Request $request, PurchaseInvoice $purchaseInvoice ) {
-        $user = $purchaseInvoice->supplier->user_id;
+        // Receipt is mandatory for card-to-card / POS / cash — same rule and message as the
+        // factor pages (client mirrors this with a toastr check).
+        if ( in_array( $request->payment_type, [ 'card', 'cash', 'card_reader' ], true ) && ! $request->url_bill_image ) {
+            return redirect()->back()->withInput()->with( [
+                'failByMessage' => 'برای پرداخت کارت به کارت، کارتخوان و نقدی، بارگذاری رسید دریافت وجه الزامی است.',
+            ] );
+        }
+
+        $user = optional( $purchaseInvoice->supplier )->user_id;
+
+        // factors.user_id is NOT NULL. A supplier without a linked user can't own a payment
+        // factor — block with a clear message instead of crashing on the insert.
+        if ( ! $user ) {
+            return redirect()->back()->withInput()->with( [
+                'failByMessage' => 'برای این تامین کننده کاربری تعریف نشده است؛ امکان ثبت عودت واریزی وجود ندارد. ابتدا برای تامین کننده کاربر تعیین کنید.',
+            ] );
+        }
 
         $factor = new Factor();
         $factor->title = 'purchase_invoice_payment';

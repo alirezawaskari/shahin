@@ -229,6 +229,61 @@ trait AdoptsLegacyMedia
     }
 
     /**
+     * Flat-list counterpart to mediaUrlsForField(): the display urls for a legacyArrayMediaMap()
+     * column that is a plain array of paths (not field-keyed) — e.g. PurchaseInvoice::factor_image.
+     *
+     * Returns the UNION of this collection's Spatie media urls (adopted or newly uploaded, served
+     * from /storage) and any legacy path in the column not yet represented by an adopted media.
+     * Mirrors the single-image accessors ("Spatie first, legacy fallback"): once a save adopts the
+     * legacy files, the gallery shows the migrated /storage copies instead of the old /upload paths
+     * — otherwise the column is never rewritten and the view would keep serving the legacy files.
+     *
+     * Media come first, so a caller taking [0] prefers the new system. De-duplicated by url.
+     *
+     * @return array<string>
+     */
+    public function arrayMediaUrls(string $collection, string $column): array
+    {
+        $media = MediaLibraryHelper::existingMedia($this, $collection);
+
+        $urls = $media->map(fn ($m) => $m->getUrl())->values()->all();
+
+        // legacy paths already adopted into this collection — showing them again would
+        // render the same file twice (served once from /storage, once from /upload).
+        $adopted = $media->map(fn ($m) => $m->getCustomProperty('old_file_path'))
+            ->filter()
+            ->values()
+            ->all();
+
+        $walk = function ($value) use (&$walk, &$urls, $adopted) {
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    $walk($item);
+                }
+                return;
+            }
+            if (! is_string($value) || $value === '') {
+                return;
+            }
+            if (str_contains($value, '/storage/') || in_array($value, $adopted, true)) {
+                return; // already migrated, or already adopted from this exact legacy path
+            }
+            $urls[] = asset($value);
+        };
+        $walk($this->getAttribute($column));
+
+        $seen = [];
+        return array_values(array_filter($urls, function ($u) use (&$seen) {
+            if (in_array($u, $seen, true)) {
+                return false;
+            }
+            $seen[] = $u;
+
+            return true;
+        }));
+    }
+
+    /**
      * The legacy (pre-Spatie) url for a single-image collection, or '' if there isn't one.
      *
      * For admin previews: lets a view show the not-yet-adopted image without knowing each
