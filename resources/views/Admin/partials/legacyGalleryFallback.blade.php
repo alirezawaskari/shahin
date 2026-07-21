@@ -31,8 +31,9 @@
     <div class="col-12 col-md-12 mt-3">
         <div class="alert alert-warning py-2 mb-2">
             <i class="fa fa-info-circle"></i>
-             تصاویر قدیمی گالری (سیستم قبلی). برای انتقال به  سیستم جدید، تصاویر را دوباره از فرم بالا بارگذاری کنید یا برای انتقال تصاویر قدیمی به سیتم جدید یک بار دکمه ذخیره را کلیک کنید
-        </div>
+             تصاویر قدیمی گالری (سیستم قبلی).
+ برای انتقال تصاویر قدیمی به سیتم جدید یک بار دکمه ذخیره را کلیک کنید
+            </div>
         <div class="row">
             @foreach($legacyGalleries as $legacyImage)
                 @continue(empty($legacyImage->image))

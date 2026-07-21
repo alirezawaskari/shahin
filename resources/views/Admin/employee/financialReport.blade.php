@@ -161,7 +161,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('WalletTransaction.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('WalletTransaction.store') }}" method="POST" enctype="multipart/form-data"
+                id="employeePaymentForm">
                 @csrf
                 <input type="hidden" name="employee_id" value="{{ $user->employee->id }}">
                 <input type="hidden" name="month" id="month">
@@ -201,8 +202,12 @@
                         <br>
                         <label for="bill_image_input1" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                                 class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                        {{-- keep-optional: paymentType() would set HTML `required` on this hidden (.file-up
+                             display:none) input for cash/card, causing a "not focusable" submit block. The
+                             cash/card receipt requirement is enforced instead via a swal check on submit
+                             (below) client-side and in WalletTransactionController@store server-side. --}}
                         <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
-                            id="bill_image_input1">
+                            id="bill_image_input1" data-keep-optional="1">
                         <div id="bill_image_input1_src" class="show"></div>
                         <input type="hidden" id="bill_image_input1_path" class="path" name="url_bill_image" value="">
                     </div>
@@ -222,6 +227,25 @@
 <script>
     $(".payment").click(function () {
         $('#month').val(this.id);
+
+        // Each submit creates a NEW payment factor, so the modal starts blank every time:
+        // clear any staged temp upload / preview left over from a previous modal open.
+        $('#bill_image_input1_path').val('');
+        $('#bill_image_input1_src').empty();
+    });
+
+    // Receipt is required for پول نقد (cash) / کارت به کارت (card). The file input is
+    // hidden (.file-up), so we enforce it with a swal alert instead of HTML `required`
+    // (which would abort as "not focusable"). #bill_image_input1_path holds the uploaded
+    // temp media id; empty means no receipt was chosen for this new payment.
+    $('#employeePaymentForm').on('submit', function (e) {
+        var type = $('#payment_type1').val();
+        if ((type === 'cash' || type === 'card') && !$('#bill_image_input1_path').val()) {
+            e.preventDefault();
+            $('#gif').hide();
+            swal({ title: 'برای پرداخت نقدی یا کارت به کارت، بارگذاری رسید دریافت وجه الزامی است.', icon: 'error', button: 'باشه' });
+            return false;
+        }
     });
 </script>
 @endsection
