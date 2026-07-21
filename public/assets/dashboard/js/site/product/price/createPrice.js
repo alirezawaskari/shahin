@@ -45,7 +45,6 @@ $('.productPrice').click(function () {
     var product_store_room_id = [];
     if ($('.product_store_room_id').val()) product_store_room_id = $('.product_store_room_id').val();
 
-    if (center_id.length || product_store_room_id.length) {
         if (price !== '' && price > 0) {
             if (parseInt(price) <= parseInt(reference_price)) {
                 if (guarantee !== '' && stock !== '' && price !== '') {
@@ -136,9 +135,6 @@ $('.productPrice').click(function () {
         else {
             toastr.info(' لطفا قیمت وارد نمایید.');
         }
-    } else {
-        toastr.info(' لطفا شعبه | انبار انتخاب نمایید.');
-    }
 
 });
 

@@ -124,6 +124,7 @@ return array(
         "minute" => "دقیقه",
         "second" => "ثانیه",
         "title" => "عنوان",
+        "en_title" => "عنوان انگلیسی",
         "text" => "متن",
         "content" => "محتوا",
         "description" => "توضیحات",

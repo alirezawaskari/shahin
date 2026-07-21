@@ -53,6 +53,10 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
+        $this->validate(request(), [
+            'title' => 'required|string',
+            'en_title' => 'required|string',
+        ]);
         $create = $request->only([
             "title",
             "en_title",

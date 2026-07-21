@@ -206,7 +206,6 @@ class PriceProductController extends Controller
         $request['price'] = str_replace(',', '', $request->price);
         $product = Product::find($request->product_id);
         if ($product) {
-
             //store_manager
             if (User::checkManager() != null) {
                 $center_id = User::checkManager();
@@ -395,7 +394,7 @@ class PriceProductController extends Controller
             return view("Admin.product.price.listsWithoutAttribute", ['product_id' => $id, 'product_attributes' => $product_attributes]);
         }
 
-        if ($product && \Auth::user()->isAbleTo('product-detail')) {
+        if ($product) {
             $product_attributes = ProductAttribute::where('product_id', $id)->where('price', '!=', 0)->get();
 
             foreach ($product_attributes as $product_attribute){
