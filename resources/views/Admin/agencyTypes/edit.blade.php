@@ -73,7 +73,10 @@
                     </div>
                     <div class="col-12 col-md-6 mb-5">
                         <label> عکس ذخیره شده :</label>
-                        @include('Admin.partials.currentMedia',['owner'=>$agencyTypes,'field'=>'image','boxH'=>120])
+                        {{-- required: store() validates image_path, so the image must never be
+                             deleted to empty — it can only be replaced by uploading a new one
+                             (the ✕ deletes immediately, which would bypass that validation). --}}
+                        @include('Admin.partials.currentMedia',['owner'=>$agencyTypes,'field'=>'image','boxH'=>120,'required'=>true])
                     </div>
                     <div class="col-12 col-md-6 mb-5">
                         <label> تغییر عکس :</label>
@@ -84,8 +87,11 @@
                                name="image"/>
                         <div id="image_src" class="show"></div>
                         <input type="hidden" id="image_path" class="path" name="image_path" value="">
-                        @if($errors->has('image'))
-                            <span class="help-block sub-error"> {{$errors->first('image')}} </span>
+                        {{-- keyed on image_path (the hidden temp-media id), which is what the
+                             controller validates. On edit the image is optional: the existing
+                             one is kept and a new upload simply replaces it. --}}
+                        @if($errors->has('image_path'))
+                            <span class="help-block sub-error"> {{$errors->first('image_path')}} </span>
                         @endif
                     </div>
 

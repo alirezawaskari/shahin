@@ -100,6 +100,9 @@
                         </div>
                     </div>
 
+                    {{-- the upload widget only makes sense when a save button exists to persist it
+                         (same status gate as the submit below), otherwise it can't be saved --}}
+                    @if($purchaseInvoice->status == 0 || $purchaseInvoice->status == 1 || $purchaseInvoice->status == 2)
                     <div class="col-12 row">
                         <div class="col-md-4">
                             <div id="addnew" class="btn btn-primary custom-file-upload border border-1 mb-5">
@@ -121,6 +124,7 @@
                             <input type="hidden" id="factor_image" class="path" name="url_factor_image[]">
                         </div>
                     </div>
+                    @endif
 
                     @php($__factor_images = $purchaseInvoice->factorImageUrls())
                     @if(count($__factor_images))

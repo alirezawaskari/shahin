@@ -194,6 +194,11 @@ class ServiceItemController extends Controller
                 'image_app' => 'nullable|mimes:jpg,jpeg,png,svg,gif',
             ]);
 
+        // Touch-to-migrate: this handler never calls $serviceItem->save(), so the model's `saved`
+        // event (which normally runs adoption) does not fire here. Run it explicitly, BEFORE
+        // attaching new uploads, so a legacy image is migrated rather than silently skipped.
+        $serviceItem->adoptLegacyMedia();
+
         foreach (ServiceItem::MEDIA_FIELDS as $key) {
             // attach the temporary ajax upload into the service item's own media collection (Spatie)
             MediaLibraryHelper::attachTo($serviceItem, $request->input($key . '_path'), $key);
@@ -219,6 +224,11 @@ class ServiceItemController extends Controller
      */
     private function uploadPortfolioImages(Request $request, ServiceItem $serviceItem)
     {
+        // Touch-to-migrate: see the note in uploadFirstImages(). Run before the new uploads are
+        // attached — adoption skips a collection that already has media, so attaching first
+        // would let one new image block every pending legacy work sample from ever migrating.
+        $serviceItem->adoptLegacyMedia();
+
         // update titles of already-saved portfolio images
         foreach ($request->existing_portfolio ?? [] as $mediaId => $data) {
             $media = \App\Models\Media::find($mediaId);
@@ -254,6 +264,11 @@ class ServiceItemController extends Controller
      */
     private function uploadSiteImages(Request $request, ServiceItem $serviceItem)
     {
+        // Touch-to-migrate: see the note in uploadFirstImages(). Run before syncing the slots so
+        // the legacy `galleries` rows fill their slots first; a slot the admin re-uploaded is
+        // then replaced below by syncGallerySlots(), which only touches submitted slots.
+        $serviceItem->adoptLegacyMedia();
+
         $this->syncGallerySlots($serviceItem, 'gallery_horizontal', $request->horizontalImages ?? []);
         $this->syncGallerySlots($serviceItem, 'gallery_vertical', $request->verticalImages ?? []);
 

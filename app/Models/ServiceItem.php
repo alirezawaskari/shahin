@@ -47,6 +47,15 @@ class ServiceItem extends Model implements AuditableContract, HasMedia
         ];
     }
 
+    /**
+     * Touch-to-migrate: legacy `work_samples` rows -> the `portfolio` collection. Unlimited,
+     * no type filter (unlike galleries) — every work sample becomes a portfolio image.
+     */
+    protected function legacyWorkSampleMigrations(): array
+    {
+        return [['collection' => 'portfolio']];
+    }
+
     /** Single-file media collections owned directly by the service item (Spatie native). */
     const MEDIA_FIELDS = ['image', 'icon', 'thumb', 'image_app', 'img_box_1'];
 

@@ -320,11 +320,22 @@ class PurchaseInvoiceController extends Controller {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function sendProduct(Request $request, PurchaseInvoice $purchaseInvoice ) {
-        //upload factor post image
+        // Attach a newly uploaded post image, if the admin picked one. When the invoice
+        // already has a (legacy) post_image, no new file is posted — the image is adopted
+        // into Spatie by the model's saved event on the update below.
         if ( $request->url_post_image ) {
             \App\Helpers\MediaLibraryHelper::attachTo( $purchaseInvoice, $request->url_post_image, 'post_image' );
-            $purchaseInvoice->update( [ 'postage' => Helper::numberConverter( ( float ) str_replace( ',', '', $request->postage ) ), 'status' => 6 ] );
         }
+
+        // Always advance the invoice on submit (previously this only ran when a NEW image was
+        // uploaded, so clicking ثبت on an already-imaged invoice did nothing and never migrated
+        // the legacy post_image). Only touch postage when the field was actually submitted
+        // (it is hidden when the supplier pays postage).
+        $data = [ 'status' => 6 ];
+        if ( $request->has( 'postage' ) ) {
+            $data[ 'postage' ] = Helper::numberConverter( ( float ) str_replace( ',', '', $request->postage ) );
+        }
+        $purchaseInvoice->update( $data );
 
         return redirect( route( 'purchaseInvoice.index' ) )->with( [
             'update' => 'success'

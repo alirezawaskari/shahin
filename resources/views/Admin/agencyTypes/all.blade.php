@@ -59,7 +59,9 @@
                                         <a href="{{route('agencyType.edit',[$item->id])}}">
                                             <button type="button" class="dropdown-item pointer">ویرایش</button>
                                         </a>
-                                        <form method="post" action="{{route('agencyType.destroy',['id'=>$item->id])}}">
+                                        {{-- positional, like the edit link above: the route parameter is
+                                             {agencyType}, so an ['id'=>…] key never fills it (UrlGenerationException) --}}
+                                        <form method="post" action="{{route('agencyType.destroy',[$item->id])}}">
                                             {{ method_field('DELETE') }}  {{csrf_field()}}
                                             <button type="submit" class="dropdown-item pointer showConfirmDelete">حذف
                                             </button>

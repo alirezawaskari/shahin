@@ -57,6 +57,13 @@
                                         </div>
                                         <div class="col-12 col-md-6 mt-2">
                                             <div class="card">
+                                                {{-- the ajax widget writes the preview into #{id}_src.show; without
+                                                     this container nothing rendered and the hidden _path kept a stale
+                                                     temp id, so the next selection also fired removeMedia --}}
+                                                <div id="profile_image_src" class="show">
+                                                    <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                                         style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                                                </div>
                                                 <div class="card-body">
                                                     <label>تصویر نمایه</label>
                                                     <br>
@@ -75,6 +82,11 @@
                                         </div>
                                         <div class="col-12 col-md-6 mt-2">
                                             <div class="card">
+                                                {{-- see the note on profile_image_src above --}}
+                                                <div id="header_image_src" class="show">
+                                                    <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                                         style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                                                </div>
                                                 <div class="card-body">
                                                     <label>تصویر بالا</label>
                                                     <br>

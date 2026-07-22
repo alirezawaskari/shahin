@@ -132,20 +132,12 @@ class TicketController extends Controller
         unset($inputs['receivers']);
         unset($inputs['role']);
         $inputs['user_id'] = auth()->user()->id;
+        unset($inputs['file']); // legacy column: never written, see update()
         $ticket = Ticket::create($inputs);
-        $file_ticket = $request->urlfile;
-        $temp = [];
-        if ($file_ticket) {
-            $files = $file_ticket;
-            foreach ($files as $file) {
-                if ($file) {
-                    $media = MediaLibraryHelper::attachTo($ticket, (string) $file, 'file');
-                    if ($media) {
-                        $temp[] = $media->getUrl();
-                    }
-                }
+        foreach ((array) $request->urlfile as $file) {
+            if ($file) {
+                MediaLibraryHelper::attachTo($ticket, (string) $file, 'file');
             }
-            $ticket->update(['file' => $temp]);
         }
         foreach ($request->receivers as $receiver) {
             TicketUser::create([
@@ -204,21 +196,23 @@ class TicketController extends Controller
 
         $inputs = $request->all();
 
-        unset($inputs['urlfile']);
+        // Never write the legacy `file` column. It used to be overwritten with ONLY this
+        // request's uploads, which dropped every previously attached file and every
+        // un-adopted legacy path in a single write — and since attachTo() ran first the
+        // collection was already non-empty, so adoptLegacyMedia() skipped it and those
+        // legacy paths were erased without ever being migrated.
+        // Spatie media is the source of truth; Ticket::fileUrls() unions the column back
+        // in for display until the pending paths are adopted.
+        unset($inputs['urlfile'], $inputs['file']);
 
-        $file_ticket = $request->urlfile;
-        if (isset($file_ticket)) {
-            $temp = [];
-            $files = $file_ticket;
-            foreach ($files as $file) {
-                if ($file) {
-                    $media = MediaLibraryHelper::attachTo($ticket, (string) $file, 'file');
-                    if ($media) {
-                        $temp[] = $media->getUrl();
-                    }
-                }
+        // Adopt BEFORE attaching: adoptLegacyMedia() skips a collection that already has
+        // media, so attaching first would leave pending legacy files unmigrated.
+        $ticket->adoptLegacyMedia();
+
+        foreach ((array) $request->urlfile as $file) {
+            if ($file) {
+                MediaLibraryHelper::attachTo($ticket, (string) $file, 'file');
             }
-            $inputs['file'] = $temp;
         }
 
         $ticket->update($inputs);
@@ -260,9 +254,26 @@ class TicketController extends Controller
         $inputs['ticket_id'] = $ticket->id;
         $inputs['user_id'] = auth()->user()->id;
         $inputs['type'] = 0;
+        // `file` here is the raw UploadedFile array from $request->all() — writing it into
+        // the legacy column stored garbage, and urlfile (the temp media ids the ajax widget
+        // actually submits) was never attached at all, so files uploaded on the ارجاع tab
+        // were silently lost. Attach them to the history instead.
+        unset($inputs['file'], $inputs['urlfile']);
         $ticket_history = TicketHistory::create($inputs);
+        foreach ((array) $request->urlfile as $file) {
+            if ($file) {
+                MediaLibraryHelper::attachTo($ticket_history, (string) $file, 'file');
+            }
+        }
         $ticket = $ticket_history->ticket;
+        // fires `saved`, which adopts the TICKET's own pending legacy files
         $ticket->update(['status' => 0]);
+
+        // @see TicketHistoryController::store() — existing histories are never re-saved,
+        // so their legacy `file` paths can only be adopted from here.
+        foreach ($ticket->histories as $history) {
+            $history->adoptLegacyMedia();
+        }
 
         return redirect()->back()->with([
             'create' => 'success'

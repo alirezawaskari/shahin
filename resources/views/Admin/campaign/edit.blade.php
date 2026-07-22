@@ -86,17 +86,27 @@
                                                 </div>
                                                 <div class="col-12 col-md-6 mt-2">
                                                     <div class="card">
-                                                        <div class="card-body">
+                                                        {{-- id + .show: the ajax widget writes the new preview into
+                                                             #{id}_src.show, replacing the saved image shown here.
+                                                             object-fit:contain — card-img-top forces width:100%, so a
+                                                             bare height="150" stretched non-square images. --}}
+                                                        <div id="profile_image_src" class="show">
                                                             @if($campaign->image)
-                                                                <div>
-                                                                    <img height="150px" src="{{$campaign->image}}"
-                                                                         class="card-img-top">
-                                                                </div>
+                                                                <img src="{{$campaign->image}}" class="card-img-top"
+                                                                     style="height:150px;object-fit:contain;background:#f8f9fa;">
                                                                 @if($campaign->mediaIsLegacy('image'))
-                                                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                                 @endif
+                                                            @else
+                                                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                             @endif
-                                                            <label>تصویر بالا</label>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {{-- url_profile_image is attached to the `image` collection
+                                                                 (CampaignController), i.e. تصویر نمایه — the label was
+                                                                 swapped with the header one below --}}
+                                                            <label>تصویر نمایه</label>
                                                             <br>
                                                             <label for="profile_image" id="profile_up_label"
                                                                    class="btn btn-primary custom-file-upload border border-1">
@@ -113,17 +123,22 @@
                                                 </div>
                                                 <div class="col-12 col-md-6 mt-2">
                                                     <div class="card">
-                                                        @if($campaign->image_header)
-                                                            <div>
-                                                                <img height="150px" src="{{$campaign->image_header}}"
-                                                                     class="card-img-top">
-                                                            </div>
-                                                            @if($campaign->mediaIsLegacy('image_header'))
-                                                            <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        {{-- see the note on profile_image_src above --}}
+                                                        <div id="header_image_src" class="show">
+                                                            @if($campaign->image_header)
+                                                                <img src="{{$campaign->image_header}}" class="card-img-top"
+                                                                     style="height:150px;object-fit:contain;background:#f8f9fa;">
+                                                                @if($campaign->mediaIsLegacy('image_header'))
+                                                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                                @endif
+                                                            @else
+                                                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                                             @endif
-                                                        @endif
+                                                        </div>
                                                         <div class="card-body">
-                                                            <label>تصویر نمایه</label>
+                                                            {{-- url_header_image -> the `image_header` collection --}}
+                                                            <label>تصویر بالا</label>
                                                             <br>
                                                             <label for="header_image" id="header_up_label"
                                                                    class="btn btn-primary custom-file-upload border border-1">
@@ -216,13 +231,18 @@
                                                                     <td>{{$campaign_collaboration->name}}</td>
                                                                     <td>{{$campaign_collaboration->url}}</td>
                                                                     <td>
-                                                                        @if($campaign_collaboration->logo)
-                                                                        <a href="{{ $campaign_collaboration->logo }}"
-                                                                           target="_blank">
-                                                                            <img
-                                                                                src="{{ $campaign_collaboration->logo }}"
-                                                                                width="70px" alt="">
+                                                                        {{-- logoUrl(), not the raw `logo` column: it's a
+                                                                             denormalized copy of the media url, so a deleted
+                                                                             or moved file rendered a broken image --}}
+                                                                        @php($logo = $campaign_collaboration->logoUrl())
+                                                                        @if($logo)
+                                                                        <a href="{{ $logo }}" target="_blank">
+                                                                            <img src="{{ $logo }}" width="70px"
+                                                                                 style="height:70px;object-fit:contain;"
+                                                                                 alt="{{ $campaign_collaboration->name }}">
                                                                         </a>
+                                                                        @else
+                                                                        <span class="text-muted">بدون تصویر</span>
                                                                         @endif
                                                                     </td>
                                                                     <td>
@@ -244,35 +264,49 @@
                                                     <div class="row" id="company">
                                                         <div class="col-12 col-md-4 form-group mb-2 mt-2">
                                                             <label>نام</label>
-                                                            <input class="form-control" name="name_company[]"/>
+                                                            {{-- explicit [0], not []: the ajax widget branches on the file
+                                                                 input's name — a bare "[]" sends it down the multi-file
+                                                                 new_link() path, which needs a #<id>_newlinktpl template
+                                                                 this row doesn't have. Cloned rows get [1], [2], … --}}
+                                                            <input class="form-control" name="name_company[0]"/>
                                                         </div>
                                                         <div class="col-12 col-md-4 form-group mb-2 mt-2">
                                                             <label>وب سایت</label>
-                                                            <input class="form-control" name="url_company[]"/>
+                                                            <input class="form-control" name="url_company[0]"/>
                                                         </div>
                                                         <div class="col-12 col-md-4 mt-2">
                                                             <div class="card">
+                                                                {{-- ids were `profile_image` on BOTH inputs here, colliding
+                                                                     with the campaign's own تصویر نمایه widget above: the
+                                                                     handler wrote the logo's temp id into #profile_image_path
+                                                                     (the campaign image), and the logo itself was never
+                                                                     submitted. Renamed to company_logo / company_logo_path;
+                                                                     campaign.js suffixes them per cloned row. --}}
+                                                                <div id="company_logo_src" class="show">
+                                                                    <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                                                         style="height:120px;background:#f8f9fa;">بدون تصویر</div>
+                                                                </div>
                                                                 <div class="card-body">
                                                                     <label>تصویر نمایه</label>
-                                                                    <label for="profile_image" id="profile_up_label"
+                                                                    <label for="company_logo" id="company_up_label"
                                                                            class="btn btn-primary custom-file-upload border border-1">
                                                                         <i class="fa fa-upload ml-2"
                                                                            aria-hidden="true"></i>
                                                                         انتخاب تصویر
                                                                     </label>
                                                                     <input
-                                                                        name="logo_company[]"
+                                                                        name="logo_company[0]"
                                                                         type="file"
-                                                                        id="profile_image"
+                                                                        id="company_logo"
                                                                         class="filestyle file-upload file_upload_ajax file-up"
                                                                         data-buttonname="btn-white"
                                                                         accept=".jpg,.jpeg,.png"
                                                                     >
                                                                     <input
                                                                         type="hidden"
-                                                                        id="profile_image"
+                                                                        id="company_logo_path"
                                                                         class="path"
-                                                                        name="logo_company_url[]">
+                                                                        name="logo_company_url[0]">
                                                                 </div>
                                                             </div>
                                                         </div>

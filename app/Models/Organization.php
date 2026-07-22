@@ -55,6 +55,15 @@ class Organization extends Model implements HasMedia
             ?: ($this->getRawOriginal('image') ? asset($this->getRawOriginal('image')) : '');
     }
 
+    /**
+     * Document urls for display: Spatie media first, then any legacy `document`
+     * paths not yet adopted. Not an accessor — the trait reads the raw `document`
+     * attribute internally, so shadowing it would break adoption/detection.
+     */
+    public function documentUrls(): array
+    {
+        return $this->arrayMediaUrls('document', 'document');
+    }
 
     /**
      * @var string[]
