@@ -115,7 +115,8 @@ class ServiceController extends AdminController
         $request['ability_invite_friend'] = isset($request['ability_invite_friend']) ? 1 : 0;
 
         $ghorfe_online = ghorfe();
-        $service = Service::create($request->all());
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $service = Service::create((new Service)->exceptLegacyMediaKeys($request->all()));
 
         if ($ghorfe_online) {
             $ghorfe_online->services()->attach($service->id);

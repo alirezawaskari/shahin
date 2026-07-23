@@ -79,6 +79,10 @@
                         <label> عکس باکس دوم ذخیره شده :</label>
                         @if($about->image_two)
                             <img src="{{ $about->image_two }}" class="border-radius5" width="80px">
+                            {{-- legacy here is an image_*_id MediaLibrary FK, not a path --}}
+                            @if($about->mediaLibraryIsLegacy('image_two'))
+                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                         @else
                             <span class="text-muted">بدون تصویر</span>
                         @endif
@@ -116,6 +120,9 @@
                         <label> عکس باکس سوم ذخیره شده :</label>
                         @if($about->image_three)
                             <img src="{{ $about->image_three }}" class="border-radius5" width="80px">
+                            @if($about->mediaLibraryIsLegacy('image_three'))
+                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                         @else
                             <span class="text-muted">بدون تصویر</span>
                         @endif
@@ -154,6 +161,9 @@
                         <label> عکس باکس چهارم ذخیره شده :</label>
                         @if($about->image_four)
                             <img src="{{ $about->image_four }}" class="border-radius5" width="80px">
+                            @if($about->mediaLibraryIsLegacy('image_four'))
+                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                         @else
                             <span class="text-muted">بدون تصویر</span>
                         @endif
@@ -190,6 +200,9 @@
                         <label> عکس باکس پنجم ذخیره شده :</label>
                         @if($about->image_five)
                             <img src="{{ $about->image_five }}" class="border-radius5" width="80px">
+                            @if($about->mediaLibraryIsLegacy('image_five'))
+                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                            @endif
                         @else
                             <span class="text-muted">بدون تصویر</span>
                         @endif
@@ -209,7 +222,7 @@
 
                     <div class="ln_solid"></div>
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        <button type="submit" class="btn btn-success">ویرایش</button>
+                        <button type="submit" class="btn btn-success" id="about-submit">ویرایش</button>
                     </div>
                 </div>
 
@@ -239,6 +252,80 @@
 
         CKEDITOR.replace('content_five', ck_uploader);
 
+    </script>
+
+    <script>
+        // The box images are required (store() validates image_*_path). On EDIT a re-upload
+        // isn't required — the saved image is kept — so the real rule is "must not end up
+        // empty": a box needs either an existing image or a new upload.
+        //
+        // The HTML5 `required` attribute can't do this: #image_*_path is a hidden input, and
+        // a required hidden/display:none field aborts the submit as "not focusable" with no
+        // visible message. So the check runs on submit against the hidden temp-media id.
+        //
+        // DOMContentLoaded: this block sits in the page body and jQuery loads at the bottom.
+        document.addEventListener('DOMContentLoaded', function () {
+            var boxes = [
+                { field: 'image_two',   label: 'عکس باکس دوم',  saved: @json((bool) $about->image_two) },
+                { field: 'image_three', label: 'عکس باکس سوم',  saved: @json((bool) $about->image_three) },
+                { field: 'image_four',  label: 'عکس باکس چهارم', saved: @json((bool) $about->image_four) },
+                { field: 'image_five',  label: 'عکس باکس پنجم',  saved: @json((bool) $about->image_five) }
+            ];
+
+            // content_one..five are `required` in update(). content / content2 (the old-site
+            // boxes) are NOT, so they are deliberately left out — the client must not demand
+            // more than the server does.
+            var contents = [
+                { field: 'content_one',   label: 'متن اول' },
+                { field: 'content_two',   label: 'متن دوم' },
+                { field: 'content_three', label: 'متن سوم' },
+                { field: 'content_four',  label: 'متن چهارم' },
+                { field: 'content_five',  label: 'متن پنجم' }
+            ];
+
+            // Read from CKEditor, not the <textarea>: the textarea is only synced back on
+            // submit, and this handler may run before that — it would see the ORIGINAL text
+            // and pass a box the user just emptied.
+            function editorValue(field) {
+                var instance = (window.CKEDITOR && CKEDITOR.instances) ? CKEDITOR.instances[field] : null;
+                var raw = instance ? instance.getData() : ($('#' + field).val() || '');
+                return raw.trim();
+            }
+
+            function scrollTo($el) {
+                if (! $el.length) { return; }
+                $('html, body').animate({ scrollTop: $el.offset().top - 120 }, 400);
+            }
+
+            $('#about-submit').closest('form').on('submit', function (e) {
+                var missingImages = boxes.filter(function (b) {
+                    return !b.saved && !$('#' + b.field + '_path').val();
+                });
+                var missingContent = contents.filter(function (c) {
+                    return editorValue(c.field) === '';
+                });
+
+                if (missingImages.length || missingContent.length) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation(); // keep the .submit_btn loading overlay from showing
+                    $('#gif').hide();
+
+                    missingContent.forEach(function (c) {
+                        toastr.error('لطفا ' + c.label + ' را وارد کنید');
+                    });
+                    missingImages.forEach(function (b) {
+                        toastr.error('لطفا ' + b.label + ' را بارگذاری کنید');
+                    });
+
+                    // jump to whichever problem comes first in the page
+                    var $first = missingContent.length
+                        ? $('#' + missingContent[0].field).closest('.col-12')
+                        : $('#' + missingImages[0].field + '_path').closest('.col-12');
+                    scrollTo($first);
+                    return false;
+                }
+            });
+        });
     </script>
 
 @stop

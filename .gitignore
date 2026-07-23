@@ -3,6 +3,7 @@ storage/logs
 /storage/*.key
 /storage/logs
 /public/upload
+/public/uploads
 /vendor
 /.idea
 /.vscode

@@ -8,12 +8,29 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class About extends Model implements HasMedia {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
 
-    // No AdoptsLegacyMedia: there is nothing path-shaped to adopt. image_two..image_five
-    // are collections, not columns (see below), so a legacy-column map would be dead. The
-    // only legacy data is the abandoned image_*_id -> MediaLibrary UUID FKs, which are a
-    // different shape entirely (an FK, not a path) and are documented as unused.
+    /**
+     * Touch-to-migrate: the abandoned image_*_id -> MediaLibrary UUID FKs.
+     *
+     * There is nothing PATH-shaped to adopt here (image_two..image_five are collections,
+     * not columns), which is why this model had no legacy map at all — until
+     * legacyMediaLibraryMap() added support for the FK shape.
+     *
+     * The numbering is off by one and that is not a typo: the boxes are labelled 2..5 in
+     * the UI, but the FK columns number the same four images 1..4. The original
+     * create_abouts_table migration had exactly four box columns — image_tow (sic),
+     * image_three, image_four, image_five — which these four FKs replaced in order.
+     */
+    protected function legacyMediaLibraryMap(): array
+    {
+        return [
+            'image_two'   => 'image_one_id',
+            'image_three' => 'image_two_id',
+            'image_four'  => 'image_three_id',
+            'image_five'  => 'image_four_id',
+        ];
+    }
 
     protected $dates = [ 'deleted_at' ];
 
@@ -36,29 +53,35 @@ class About extends Model implements HasMedia {
         $this->addMediaCollection('image_five')->useDisk('public')->singleFile();
     }
 
-    /** Box-image urls (shadow the legacy image_* names; disk-checked). */
+    /**
+     * Box-image urls: Spatie first, then the legacy image_*_id MediaLibrary reference.
+     *
+     * The old getRawOriginal('image_two') fallback was dead code — image_two..image_five
+     * are collections, not columns (the original text columns were dropped), so it could
+     * never return anything and pre-Spatie box images were invisible in the admin.
+     */
     public function getImageTwoAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_two')
-            ?: ($this->getRawOriginal('image_two') ? asset($this->getRawOriginal('image_two')) : '');
+            ?: $this->legacyMediaLibraryUrl('image_two');
     }
 
     public function getImageThreeAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_three')
-            ?: ($this->getRawOriginal('image_three') ? asset($this->getRawOriginal('image_three')) : '');
+            ?: $this->legacyMediaLibraryUrl('image_three');
     }
 
     public function getImageFourAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_four')
-            ?: ($this->getRawOriginal('image_four') ? asset($this->getRawOriginal('image_four')) : '');
+            ?: $this->legacyMediaLibraryUrl('image_four');
     }
 
     public function getImageFiveAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_five')
-            ?: ($this->getRawOriginal('image_five') ? asset($this->getRawOriginal('image_five')) : '');
+            ?: $this->legacyMediaLibraryUrl('image_five');
     }
 
     /**

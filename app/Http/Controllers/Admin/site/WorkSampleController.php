@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\site;
 
+use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreWorkSampleRequest;
 use App\Http\Requests\UpdateWorkSampleRequest;
@@ -39,12 +40,13 @@ class WorkSampleController extends Controller
     public function store(StoreWorkSampleRequest $request)
     {
         $data = $request->validated();
+        // legacy `image` column is never written — Spatie media is the source of truth
+        // and WorkSample::getImageAttribute() falls back to the column for old rows.
+        unset($data['image_path'], $data['image']);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('upload/worksamples', 'public');
-        }
+        $workSample = WorkSample::create($data);
+        MediaLibraryHelper::attachTo($workSample, $request->input('image_path'), 'image');
 
-        WorkSample::create($data);
         alert()->success("موفق",'نمونه کار با موفقیت ذخیره شد');
         return redirect()->route('workSample.index');
     }
@@ -70,30 +72,32 @@ class WorkSampleController extends Controller
         $workSample = WorkSample::findOrFail($id);
 
         $data = $request->validated();
+        unset($data['image_path'], $data['image']); // see store()
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('work_samples', 'public');
-            $data['image'] = '/storage/' . $imagePath;
-        }
-
+        // update() first: it fires `saved`, which adopts a pending legacy image. Doing it
+        // after attachTo would leave the collection non-empty, and adoptLegacyMedia()
+        // skips a non-empty collection — the legacy file would never migrate.
         $workSample->update($data);
+        MediaLibraryHelper::attachTo($workSample, $request->input('image_path'), 'image');
 
         return redirect()->route('workSample.index')->with('success', 'نمونه‌کار با موفقیت بروزرسانی شد.');
     }
 
-//    public function destroy($id)
-//    {
-//        $workSample = WorkSample::findOrFail($id);
-//
-//        // حذف تصویر در صورت وجود
-//        if ($workSample->image && file_exists(public_path($workSample->image))) {
-//            unlink(public_path($workSample->image));
-//        }
-//
-//        $workSample->delete();
-//
-//        return redirect()->route('workSample.index')->with('success', 'نمونه‌کار با موفقیت حذف شد.');
-//    }
+    /**
+     * The index page has always rendered a حذف form for every row, but this action was
+     * commented out and the route excluded — so simply opening the list threw
+     * RouteNotFoundException. Implemented rather than removing the button.
+     *
+     * WorkSample uses SoftDeletes, so the image is deliberately KEPT: the old commented
+     * version unlinked the file, which would have made a "soft" delete unrecoverable.
+     */
+    public function destroy($id)
+    {
+        $workSample = WorkSample::findOrFail($id);
+        $workSample->delete();
+
+        return redirect()->route('workSample.index')->with('success', 'نمونه‌کار با موفقیت حذف شد.');
+    }
 
     public function getItemsByType(Request $request)
     {

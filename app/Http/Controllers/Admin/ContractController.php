@@ -68,7 +68,8 @@ class ContractController extends Controller
             'file_path.required' => 'لطفا فایل را وارد کنید'
         ] );
 
-        $contract = Contract::create( $request->all() );
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $contract = Contract::create( ( new Contract )->exceptLegacyMediaKeys( $request->all() ) );
 
         if ( $request->file_path ) {
             MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
@@ -123,7 +124,7 @@ class ContractController extends Controller
             'type.required' => 'لطفا نوع را انتخاب کنید',
         ] );
         $contract = Contract::find( $id );
-        $contract->update( $request->all() );
+        $contract->update( $contract->exceptLegacyMediaKeys( $request->all() ) );
 
         if ( $request->file_path ) {
             MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );

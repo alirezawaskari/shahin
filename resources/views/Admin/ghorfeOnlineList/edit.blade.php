@@ -490,6 +490,10 @@
                                                 <div id="logo_src" class="show">
                                                     @if($ghorfeOnlineList->logo)
                                                         <img src="{{ $ghorfeOnlineList->logo }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        {{-- legacy here is a media_libraries *_id reference, not a path --}}
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('logo'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
                                                     @else
                                                         <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
                                                     @endif
@@ -508,7 +512,11 @@
                                                 <div id="footer_logo_src" class="show">
                                                     @if($ghorfeOnlineList->footer_logo)
                                                         <img src="{{ $ghorfeOnlineList->footer_logo }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                        @if($ghorfeOnlineList->mediaIsLegacy('footer_logo'))
+                                                        {{-- footer_logo is the one field with BOTH legacy shapes: a
+                                                             `footer_logo` path column AND a `footer_logo_id`
+                                                             MediaLibrary FK. Either can be what's currently served,
+                                                             so both must be checked or the notice goes missing. --}}
+                                                        @if($ghorfeOnlineList->mediaIsLegacy('footer_logo') || $ghorfeOnlineList->mediaLibraryIsLegacy('footer_logo'))
                                                         <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                                         @endif
                                                     @else
@@ -529,6 +537,9 @@
                                                 <div id="fav_src" class="show">
                                                     @if($ghorfeOnlineList->fav)
                                                         <img src="{{ $ghorfeOnlineList->fav }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('fav'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
                                                     @else
                                                         <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
                                                     @endif
@@ -547,6 +558,9 @@
                                                 <div id="mohr_src" class="show">
                                                     @if($ghorfeOnlineList->mohr)
                                                         <img src="{{ $ghorfeOnlineList->mohr }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('mohr'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
                                                     @else
                                                         <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
                                                     @endif
@@ -565,6 +579,9 @@
                                                 <div id="addvertisment_slider_src" class="show">
                                                     @if($ghorfeOnlineList->addvertisment_slider)
                                                         <img src="{{ $ghorfeOnlineList->addvertisment_slider }}" class="card-img-top" style="height:88px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('addvertisment_slider'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
                                                     @else
                                                         <div class="d-flex align-items-center justify-content-center text-muted" style="height:88px;background:#f8f9fa;">بدون تصویر</div>
                                                     @endif

@@ -24,7 +24,9 @@ class StoreWorkSampleRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'status' => ['required', 'boolean'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            // ajax upload: the widget submits the temp media id in image_path, not a file.
+            // media.id is a char(36) UUID, NOT an integer.
+            'image_path' => ['nullable', 'string', 'max:36', 'exists:media,id'],
             'center_id' => ['required', 'exists:centers,id'],
             'worksampleable_type' => ['required', 'string'],
             'worksampleable_id' => ['required', 'integer'],
@@ -37,8 +39,8 @@ class StoreWorkSampleRequest extends FormRequest
             'title.max' => 'عنوان نباید بیشتر از ۲۵۵ کاراکتر باشد.',
             'status.required' => 'لطفاً وضعیت را مشخص کنید.',
             'status.boolean' => 'مقدار وضعیت نامعتبر است.',
-            'image.image' => 'فایل انتخاب شده باید یک تصویر باشد.',
-            'image.max' => 'اندازه تصویر نباید بیشتر از ۲ مگابایت باشد.',
+            'image_path.exists' => 'تصویر انتخاب شده معتبر نیست؛ لطفا دوباره بارگذاری کنید.',
+            'image_path.max' => 'تصویر انتخاب شده معتبر نیست؛ لطفا دوباره بارگذاری کنید.',
             'center_id.required' => 'لطفاً شعبه را انتخاب کنید.',
             'center_id.exists' => 'شعبه انتخاب شده معتبر نیست.',
             'worksampleable_type.required' => 'لطفاً مدل مربوطه را انتخاب کنید.',

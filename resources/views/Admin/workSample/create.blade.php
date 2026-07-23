@@ -29,7 +29,22 @@
                     <div class="form-row">
                         <div class="col-md-6 mb-3">
                             <label>تصویر نمونه‌کار</label>
-                            <input type="file" name="image" class="form-control-file">
+                            <br>
+                            <label for="image" class="btn btn-primary custom-file-upload border border-1">
+                                <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                            </label>
+                            <input id="image" class="d-none file-upload file_upload_ajax" type="file"
+                                   name="image" accept=".jpg,.jpeg,.png,.webp"/>
+                            {{-- the widget writes the preview into #image_src.show and the temp
+                                 media id into #image_path; the .show class is required --}}
+                            <div id="image_src" class="show">
+                                <div class="rounded border d-flex align-items-center justify-content-center text-muted mt-2"
+                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                            </div>
+                            <input type="hidden" id="image_path" class="path" name="image_path" value="">
+                            @if($errors->has('image_path'))
+                                <span class="help-block sub-error"> {{ $errors->first('image_path') }} </span>
+                            @endif
                         </div>
                     </div>
 
@@ -77,10 +92,23 @@
 @endsection
 @section('js')
     <script>
-        $('#worksampleable_type').on('change', function () {
-            const type = $(this).val();
-            const centerId = $('#select-center').val(); // گرفتن id شعبه
-            $('#worksampleable_id').html('<option>در حال دریافت اطلاعات...</option>');
+        // #worksampleable_id is a .selectSearch, i.e. select2-initialized (adminJs.js).
+        // Replacing its <option>s needs a 'change.select2' trigger so the rendered widget
+        // redraws — the namespace keeps it from re-entering the handlers bound below.
+        function setWorksampleableOptions(html) {
+            $('#worksampleable_id').html(html).trigger('change.select2');
+        }
+
+        function loadWorksampleableItems() {
+            const type = $('#worksampleable_type').val();
+            const centerId = $('#select-center').val();
+
+            if (!type) {
+                setWorksampleableOptions('<option value="">لطفاً ابتدا مدل مربوطه را انتخاب کنید</option>');
+                return;
+            }
+
+            setWorksampleableOptions('<option value="">در حال دریافت اطلاعات...</option>');
 
             $.ajax({
                 url: '{{ route("workSample.getItemsByType") }}',
@@ -88,19 +116,30 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     type: type,
-                    center_id: centerId // ارسال شعبه
+                    center_id: centerId
                 },
                 success: function (res) {
+                    // The endpoint scopes to the selected center and returns [] when that
+                    // center's centerable isn't a خدمت — say so instead of leaving an
+                    // empty, unselectable dropdown with no explanation.
+                    if (!res || res.length === 0) {
+                        setWorksampleableOptions('<option value="">برای این شعبه خدمتی ثبت نشده است</option>');
+                        return;
+                    }
                     let options = '<option value="">انتخاب کنید</option>';
                     res.forEach(item => {
                         options += `<option value="${item.id}">${item.title}</option>`;
                     });
-                    $('#worksampleable_id').html(options);
+                    setWorksampleableOptions(options);
                 },
                 error: function () {
-                    $('#worksampleable_id').html('<option>خطا در دریافت اطلاعات</option>');
+                    setWorksampleableOptions('<option value="">خطا در دریافت اطلاعات</option>');
                 }
             });
-        });
+        }
+
+        // BOTH selects: the list is scoped by center, so changing the شعبه after picking
+        // the model left a stale (or wrongly-scoped) list behind.
+        $('#worksampleable_type, #select-center').on('change', loadWorksampleableItems);
     </script>
 @endsection
