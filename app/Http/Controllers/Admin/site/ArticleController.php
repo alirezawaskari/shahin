@@ -81,7 +81,7 @@ class ArticleController extends Controller
         );
 
         $request['user_id'] = $request->user()->id;
-        $article = Article::create($request->all());
+        $article = Article::create(collect($request->all())->except(['old_image', 'image_path'])->all()); // see update()
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
         $article->representations()->sync($representations);
         MediaLibraryHelper::attachTo($article, $request->image_path, 'old_image');
@@ -135,7 +135,11 @@ class ArticleController extends Controller
         $request['status'] = isset($request['status']) ? $request['status'] : 0;
 
         $article = Article::find($id);
-        $article->update($request->all());
+        // Never write the legacy `old_image` column: it is BOTH a fillable column and the
+        // file input's name, so a failed ajax upload would put a raw UploadedFile straight
+        // into it. Spatie media is the source of truth; the accessor falls back to the
+        // column for rows that haven't been migrated yet.
+        $article->update(collect($request->all())->except(['old_image', 'image_path'])->all());
         !auth()->user()->admin_representation_id ? $article->representations()->sync($request->input('representation_id')) : '';
 
         MediaLibraryHelper::attachTo($article, $request->image_path, 'old_image');

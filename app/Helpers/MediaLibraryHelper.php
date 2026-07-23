@@ -287,6 +287,63 @@ class MediaLibraryHelper
         }
     }
 
+    /**
+     * Adopt an EXISTING Spatie media row into $model's $collection by copying its bytes.
+     *
+     * Counterpart to adoptLegacyFile() for legacy values that reference a media row rather
+     * than a path under public/ — e.g. the ghorfe *_id MediaLibrary UUID FKs, whose files
+     * live on the private 'local' disk and so cannot be resolved to a public path.
+     *
+     * The source media is left untouched: the legacy reference stays valid and re-running
+     * this is harmless (adoptLegacyMedia() skips a collection that already has media).
+     *
+     * @return \App\Models\Media|null
+     */
+    public static function adoptMediaFile(\Spatie\MediaLibrary\HasMedia $model, string $collection, $sourceMedia, array $customProperties = [])
+    {
+        if (! $sourceMedia) {
+            return null;
+        }
+
+        try {
+            $abs = $sourceMedia->getPath();
+        } catch (\Throwable $e) {
+            return null;
+        }
+        if (! $abs || ! is_file($abs)) {
+            return null;
+        }
+
+        $bytes = @file_get_contents($abs);
+        if ($bytes === false || $bytes === '') {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($sourceMedia->file_name, PATHINFO_EXTENSION)) ?: 'jpg';
+        $filename = now()->format('Ymd_His') . '_' . uniqid() . '.' . $extension;
+
+        // traceability, mirroring adoptLegacyFile()'s old_file_path
+        $customProperties['old_media_id'] = $sourceMedia->id;
+
+        try {
+            $media = $model->addMediaFromString($bytes)
+                ->usingFileName($filename)
+                ->withCustomProperties($customProperties)
+                ->toMediaCollection($collection);
+
+            // guarantee the file exists (Spatie's Flysystem write can no-op on Apache/Windows)
+            $target = $media->getPath();
+            if (!is_file($target)) {
+                File::ensureDirectoryExists(dirname($target));
+                File::put($target, $bytes);
+            }
+            return $media;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('MediaLibraryHelper::adoptMediaFile failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     /** Resolve a stored legacy path/URL to an absolute file path under public/, or null. */
     private static function resolveLegacyPath(?string $path): ?string
     {

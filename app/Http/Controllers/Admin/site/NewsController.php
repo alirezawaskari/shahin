@@ -66,7 +66,10 @@ class NewsController extends Controller
             ]);
 
         $request['user_id'] = $request->user()->id;
-        $news = News::create($request->all());
+        // Never mass-assign the legacy `image` column: it is BOTH a fillable column and the
+        // file input's name, so a failed ajax upload would write a raw UploadedFile into it.
+        // Spatie media is the source of truth; the accessor falls back to the column.
+        $news = News::create(collect($request->all())->except(['image', 'image_path'])->all());
 
         // move the temp ajax upload into the news image collection (Spatie, optimized)
         MediaLibraryHelper::attachTo($news, $request->image_path, 'image');
@@ -111,7 +114,7 @@ class NewsController extends Controller
         $request['status'] = isset($request['status']) ? $request['status'] : 0;
         $request['user_id'] = $request->user()->id;
         $news = News::find($id);
-        $news->update($request->all());
+        $news->update(collect($request->all())->except(['image', 'image_path'])->all()); // see store()
 
         // replace the news image via Spatie (deletes the old file, optimizes the new one)
         MediaLibraryHelper::attachTo($news, $request->image_path, 'image');

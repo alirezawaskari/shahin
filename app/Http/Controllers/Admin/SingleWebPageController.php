@@ -51,7 +51,10 @@ class SingleWebPageController extends AdminController
         $inputs['agent_id'] = auth()->user()->id;
 
         unset($inputs['service_id']);
-        unset($inputs['urlimage']);
+        // `image` too, not just urlimage: name="image" is a real file input, so a failed
+        // ajax upload leaves the raw UploadedFile in $request->all() and it would be
+        // written straight into the legacy `image` column. Spatie is the source of truth.
+        unset($inputs['urlimage'], $inputs['image']);
 
         $single_web_page = SingleWebPage::create($inputs);
         MediaLibraryHelper::attachTo($single_web_page, $request->urlimage, 'image');
@@ -96,7 +99,7 @@ class SingleWebPageController extends AdminController
         $inputs = $request->all();
 
         unset($inputs['service_id']);
-        unset($inputs['urlimage']);
+        unset($inputs['urlimage'], $inputs['image']); // see store()
 
         $singleWebPage->update($inputs);
         MediaLibraryHelper::attachTo($singleWebPage, $request->urlimage, 'image');

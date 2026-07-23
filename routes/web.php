@@ -251,7 +251,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     // نمونه کارها
     Route::post('removeImgWorkSample', [AdminController::class,'removeImgWorkSample']);
-    Route::resource('workSample',WorkSampleController::class)->except(['show','destroy']);
+    // destroy is registered: the index blade renders a حذف form per row, so excluding it
+    // made route('workSample.destroy') throw and the whole list page 500
+    Route::resource('workSample',WorkSampleController::class)->except(['show']);
     Route::post('/admin/work-sample/get-items', [WorkSampleController::class, 'getItemsByType'])
         ->name('workSample.getItemsByType');
 

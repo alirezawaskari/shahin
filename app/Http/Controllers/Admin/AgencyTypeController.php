@@ -66,7 +66,8 @@ class AgencyTypeController extends Controller
 
         $request['is_show'] = isset($request['is_show']) ? 1 : 0;
         // image fields are stored via Spatie (attachTo below), never as column values
-        $agencyTypes = AgencyType::create($request->all());
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $agencyTypes = AgencyType::create((new AgencyType)->exceptLegacyMediaKeys($request->all()));
 
         MediaLibraryHelper::attachTo($agencyTypes, $request->image_path, 'image');
         foreach ($request->multiple_image ?? [] as $multiple_image) {
@@ -141,7 +142,7 @@ class AgencyTypeController extends Controller
         $request['is_show'] = isset($request['is_show']) ? $request['is_show'] : 0;
         $agencyTypes = AgencyType::find($id);
         // image fields handled by Spatie (attachTo below); never column values
-        $agencyTypes->update($request->all());
+        $agencyTypes->update($agencyTypes->exceptLegacyMediaKeys($request->all()));
 
         MediaLibraryHelper::attachTo($agencyTypes, $request->image_path, 'image');
         foreach ($request->multiple_image ?? [] as $extra_file) {

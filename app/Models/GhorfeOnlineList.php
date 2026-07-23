@@ -27,6 +27,24 @@ class GhorfeOnlineList extends Model implements HasMedia
         ];
     }
 
+    /**
+     * Touch-to-migrate: the legacy *_id MediaLibrary UUID FKs -> single-file collections.
+     * These reference a media row on the PRIVATE disk rather than a path under public/,
+     * which is why they need their own map (see AdoptsLegacyMedia::legacyMediaLibraryMap).
+     * Without it these images were unreachable: the accessors fell back to
+     * getRawOriginal('logo'), but no such column exists — only logo_id.
+     */
+    protected function legacyMediaLibraryMap(): array
+    {
+        return [
+            'logo'                 => 'logo_id',
+            'footer_logo'          => 'footer_logo_id',
+            'fav'                  => 'fav_id',
+            'mohr'                 => 'mohr_id',
+            'addvertisment_slider' => 'addvertisment_slider_id',
+        ];
+    }
+
     /** Touch-to-migrate: legacy gallery rows -> slot collections (desktop=type 1, mobile=type 0). */
     protected function legacyGalleryMigrations(): array
     {
@@ -134,35 +152,43 @@ class GhorfeOnlineList extends Model implements HasMedia
             ->map(fn ($m) => $m->getUrl());
     }
 
-    /** Settings-image url accessors (shadow the legacy *_id columns; disk-checked). */
+    /**
+     * Settings-image url accessors: Spatie first, then the legacy path column (only
+     * footer_logo has one), then the legacy *_id MediaLibrary reference.
+     *
+     * That last fallback is what makes the pre-Spatie images visible at all — logo, fav,
+     * mohr and addvertisment_slider have NO path column, so their old getRawOriginal()
+     * fallback could never return anything and the images silently vanished from the admin.
+     */
     public function getLogoAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'logo')
-            ?: ($this->getRawOriginal('logo') ? asset($this->getRawOriginal('logo')) : '');
+            ?: $this->legacyMediaLibraryUrl('logo');
     }
 
     public function getFooterLogoAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'footer_logo')
-            ?: ($this->getRawOriginal('footer_logo') ? asset($this->getRawOriginal('footer_logo')) : '');
+            ?: ($this->getRawOriginal('footer_logo') ? asset($this->getRawOriginal('footer_logo')) : '')
+            ?: $this->legacyMediaLibraryUrl('footer_logo');
     }
 
     public function getFavAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'fav')
-            ?: ($this->getRawOriginal('fav') ? asset($this->getRawOriginal('fav')) : '');
+            ?: $this->legacyMediaLibraryUrl('fav');
     }
 
     public function getMohrAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'mohr')
-            ?: ($this->getRawOriginal('mohr') ? asset($this->getRawOriginal('mohr')) : '');
+            ?: $this->legacyMediaLibraryUrl('mohr');
     }
 
     public function getAddvertismentSliderAttribute(): string
     {
         return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'addvertisment_slider')
-            ?: ($this->getRawOriginal('addvertisment_slider') ? asset($this->getRawOriginal('addvertisment_slider')) : '');
+            ?: $this->legacyMediaLibraryUrl('addvertisment_slider');
     }
 
     public function theme()

@@ -81,7 +81,8 @@ class BrandController extends Controller
             $count=$same_brand->categories()->where('category_id',$request->category_id)->count();
         }
         if($count == 0){
-            $brand = Brand::create($request->all());
+            $brand = Brand::create(collect($request->all())
+                ->except(['logo', 'registration_form', 'logo_path', 'registration_form_path'])->all()); // see update()
 
             if($request->type == 0){
                 MediaLibraryHelper::attachTo($brand, $request->registration_form_path, 'registration_form');
@@ -150,15 +151,23 @@ class BrandController extends Controller
         if($request->type == 0) $request['link'] = $request->link_zero;
         if($request->type == 1) $request['link'] = $request->link_one;
 
-        // logo required (keep existing or upload new); registration form for Iranian brands (type 0)
-        if (!$brand->getFirstMedia('logo') && empty($request->logo_path)) {
+        // Logo required (keep existing or upload new); registration form for Iranian brands
+        // (type 0). Checked via the ACCESSOR, not getFirstMedia(): a not-yet-migrated brand
+        // has its image in the legacy column with no Spatie media, so getFirstMedia() was
+        // empty and the save was rejected with "upload a logo" — making it impossible to
+        // save (and therefore to migrate) any legacy brand.
+        if (! $brand->logo && empty($request->logo_path)) {
             return back()->withErrors(['logo' => 'لطفا لوگوی برند را بارگذاری کنید'])->withInput();
         }
-        if ($request->type == 0 && !$brand->getFirstMedia('registration_form') && empty($request->registration_form_path)) {
+        if ($request->type == 0 && ! $brand->registration_form && empty($request->registration_form_path)) {
             return back()->withErrors(['registration_form' => 'لطفا برگه ثبت برند را بارگذاری کنید'])->withInput();
         }
 
-        $brand->update($request->all());
+        // Never mass-assign the legacy columns: `logo` and `registration_form` are BOTH
+        // fillable columns and the file inputs' names, so a failed ajax upload would write
+        // a raw UploadedFile straight into them.
+        $brand->update(collect($request->all())
+            ->except(['logo', 'registration_form', 'logo_path', 'registration_form_path'])->all());
 
         if($request->type == 0){
             MediaLibraryHelper::attachTo($brand, $request->registration_form_path, 'registration_form');

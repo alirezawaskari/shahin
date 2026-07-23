@@ -527,143 +527,121 @@
                                     تصاویر</div>
 
                                 @include('Admin.layouts.errors')
-                                <div class="col-12 row mt-1">
-                                    {{-- Spatie single-file settings images. Each: display via the model
-                                    accessor (full url), blue ajax upload -> hidden {field}_path holds the
-                                    temp media id -> contentUpdate attachTo()s it into the {field} collection. --}}
-                                    <div class="col-12 col-md-6">
-                                        <div class="card">
-                                            <div id="logo_src" class="show">
-                                                @if($ghorfeOnlineList->logo)
-                                                <img src="{{ $ghorfeOnlineList->logo }}" class="card-img-top"
-                                                    style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                @else
-                                                <div class="d-flex align-items-center justify-content-center text-muted"
-                                                    style="height:200px;background:#f8f9fa;">بدون تصویر</div>
-                                                @endif
+                                    <div class="col-12 row mt-1">
+                                        {{-- Spatie single-file settings images. Each: display via the model
+                                             accessor (full url), blue ajax upload -> hidden {field}_path holds the
+                                             temp media id -> contentUpdate attachTo()s it into the {field} collection. --}}
+                                        <div class="col-12 col-md-6">
+                                            <div class="card">
+                                                <div id="logo_src" class="show">
+                                                    @if($ghorfeOnlineList->logo)
+                                                        <img src="{{ $ghorfeOnlineList->logo }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        {{-- legacy here is a media_libraries *_id reference, not a path --}}
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('logo'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
+                                                    @endif
+                                                </div>
+                                                <div class="card-body">
+                                                    <label>لوگو</label>
+                                                    <br>
+                                                    <label for="logo" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                                    <input name="logo" type="file" id="logo" class="d-none file-upload file_upload_ajax" accept=".jpg,.jpeg,.png">
+                                                    <input type="hidden" id="logo_path" class="path" name="logo_path">
+                                                </div>
                                             </div>
-                                            <div class="card-body">
-                                                <label>لوگو</label>
-                                                <br>
-                                                <label for="logo"
-                                                    class="btn btn-primary custom-file-upload border border-1"><i
-                                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
-                                                </label>
-                                                <input name="logo" type="file" id="logo"
-                                                    class="d-none file-upload file_upload_ajax"
-                                                    accept=".jpg,.jpeg,.png">
-                                                <input type="hidden" id="logo_path" class="path" name="logo_path">
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="card">
+                                                <div id="footer_logo_src" class="show">
+                                                    @if($ghorfeOnlineList->footer_logo)
+                                                        <img src="{{ $ghorfeOnlineList->footer_logo }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        {{-- footer_logo is the one field with BOTH legacy shapes: a
+                                                             `footer_logo` path column AND a `footer_logo_id`
+                                                             MediaLibrary FK. Either can be what's currently served,
+                                                             so both must be checked or the notice goes missing. --}}
+                                                        @if($ghorfeOnlineList->mediaIsLegacy('footer_logo') || $ghorfeOnlineList->mediaLibraryIsLegacy('footer_logo'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
+                                                    @endif
+                                                </div>
+                                                <div class="card-body">
+                                                    <label>لوگو فوتر (همراه با نام برند)</label>
+                                                    <br>
+                                                    <label for="footer_logo" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                                    <input name="footer_logo" type="file" id="footer_logo" class="d-none file-upload file_upload_ajax" accept=".jpg,.jpeg,.png">
+                                                    <input type="hidden" id="footer_logo_path" class="path" name="footer_logo_path">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="card">
+                                                <div id="fav_src" class="show">
+                                                    @if($ghorfeOnlineList->fav)
+                                                        <img src="{{ $ghorfeOnlineList->fav }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('fav'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
+                                                    @endif
+                                                </div>
+                                                <div class="card-body">
+                                                    <label>لوگو مرورگر (فاویکون)</label>
+                                                    <br>
+                                                    <label for="fav" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                                    <input name="fav" type="file" id="fav" class="d-none file-upload file_upload_ajax" accept=".jpg,.jpeg,.png,.ico">
+                                                    <input type="hidden" id="fav_path" class="path" name="fav_path">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="card">
+                                                <div id="mohr_src" class="show">
+                                                    @if($ghorfeOnlineList->mohr)
+                                                        <img src="{{ $ghorfeOnlineList->mohr }}" class="card-img-top" style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('mohr'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center text-muted" style="height:200px;background:#f8f9fa;">بدون تصویر</div>
+                                                    @endif
+                                                </div>
+                                                <div class="card-body">
+                                                    <label>مهر (جهت نمایش در فاکتور رسمی)</label>
+                                                    <br>
+                                                    <label for="mohr" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                                    <input name="mohr" type="file" id="mohr" class="d-none file-upload file_upload_ajax" accept=".jpg,.jpeg,.png">
+                                                    <input type="hidden" id="mohr_path" class="path" name="mohr_path">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="card">
+                                                <div id="addvertisment_slider_src" class="show">
+                                                    @if($ghorfeOnlineList->addvertisment_slider)
+                                                        <img src="{{ $ghorfeOnlineList->addvertisment_slider }}" class="card-img-top" style="height:88px;width:100%;object-fit:contain;background:#f8f9fa;">
+                                                        @if($ghorfeOnlineList->mediaLibraryIsLegacy('addvertisment_slider'))
+                                                        <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
+                                                        @endif
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center text-muted" style="height:88px;background:#f8f9fa;">بدون تصویر</div>
+                                                    @endif
+                                                </div>
+                                                <div class="card-body">
+                                                    <label>اسلایدر تبلیغات(88*1400)</label>
+                                                    <br>
+                                                    <label for="addvertisment_slider" class="btn btn-primary custom-file-upload border border-1"><i class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                                                    <input name="addvertisment_slider" type="file" id="addvertisment_slider" class="d-none file-upload file_upload_ajax" accept=".jpg,.jpeg,.png,.gif">
+                                                    <input type="hidden" id="addvertisment_slider_path" class="path" name="addvertisment_slider_path">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-6">
-                                        <div class="card">
-                                            <div id="footer_logo_src" class="show">
-                                                @if($ghorfeOnlineList->footer_logo)
-                                                <img src="{{ $ghorfeOnlineList->footer_logo }}" class="card-img-top"
-                                                    style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                @if($ghorfeOnlineList->mediaIsLegacy('footer_logo'))
-                                                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به
-                                                    سیستم جدید منتقل می‌شود</small>
-                                                @endif
-                                                @else
-                                                <div class="d-flex align-items-center justify-content-center text-muted"
-                                                    style="height:200px;background:#f8f9fa;">بدون تصویر</div>
-                                                @endif
-                                            </div>
-                                            <div class="card-body">
-                                                <label>لوگو فوتر (همراه با نام برند)</label>
-                                                <br>
-                                                <label for="footer_logo"
-                                                    class="btn btn-primary custom-file-upload border border-1"><i
-                                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
-                                                </label>
-                                                <input name="footer_logo" type="file" id="footer_logo"
-                                                    class="d-none file-upload file_upload_ajax"
-                                                    accept=".jpg,.jpeg,.png">
-                                                <input type="hidden" id="footer_logo_path" class="path"
-                                                    name="footer_logo_path">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <div class="card">
-                                            <div id="fav_src" class="show">
-                                                @if($ghorfeOnlineList->fav)
-                                                <img src="{{ $ghorfeOnlineList->fav }}" class="card-img-top"
-                                                    style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                @else
-                                                <div class="d-flex align-items-center justify-content-center text-muted"
-                                                    style="height:200px;background:#f8f9fa;">بدون تصویر</div>
-                                                @endif
-                                            </div>
-                                            <div class="card-body">
-                                                <label>لوگو مرورگر (فاویکون)</label>
-                                                <br>
-                                                <label for="fav"
-                                                    class="btn btn-primary custom-file-upload border border-1"><i
-                                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
-                                                </label>
-                                                <input name="fav" type="file" id="fav"
-                                                    class="d-none file-upload file_upload_ajax"
-                                                    accept=".jpg,.jpeg,.png,.ico">
-                                                <input type="hidden" id="fav_path" class="path" name="fav_path">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <div class="card">
-                                            <div id="mohr_src" class="show">
-                                                @if($ghorfeOnlineList->mohr)
-                                                <img src="{{ $ghorfeOnlineList->mohr }}" class="card-img-top"
-                                                    style="height:200px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                @else
-                                                <div class="d-flex align-items-center justify-content-center text-muted"
-                                                    style="height:200px;background:#f8f9fa;">بدون تصویر</div>
-                                                @endif
-                                            </div>
-                                            <div class="card-body">
-                                                <label>مهر (جهت نمایش در فاکتور رسمی)</label>
-                                                <br>
-                                                <label for="mohr"
-                                                    class="btn btn-primary custom-file-upload border border-1"><i
-                                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
-                                                </label>
-                                                <input name="mohr" type="file" id="mohr"
-                                                    class="d-none file-upload file_upload_ajax"
-                                                    accept=".jpg,.jpeg,.png">
-                                                <input type="hidden" id="mohr_path" class="path" name="mohr_path">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="card">
-                                            <div id="addvertisment_slider_src" class="show">
-                                                @if($ghorfeOnlineList->addvertisment_slider)
-                                                <img src="{{ $ghorfeOnlineList->addvertisment_slider }}"
-                                                    class="card-img-top"
-                                                    style="height:88px;width:100%;object-fit:contain;background:#f8f9fa;">
-                                                @else
-                                                <div class="d-flex align-items-center justify-content-center text-muted"
-                                                    style="height:88px;background:#f8f9fa;">بدون تصویر</div>
-                                                @endif
-                                            </div>
-                                            <div class="card-body">
-                                                <label>اسلایدر تبلیغات(88*1400)</label>
-                                                <br>
-                                                <label for="addvertisment_slider"
-                                                    class="btn btn-primary custom-file-upload border border-1"><i
-                                                        class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر
-                                                </label>
-                                                <input name="addvertisment_slider" type="file" id="addvertisment_slider"
-                                                    class="d-none file-upload file_upload_ajax"
-                                                    accept=".jpg,.jpeg,.png,.gif">
-                                                <input type="hidden" id="addvertisment_slider_path" class="path"
-                                                    name="addvertisment_slider_path">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div class="col-12 my-3 d-flex justify-content-end">
                                     <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">

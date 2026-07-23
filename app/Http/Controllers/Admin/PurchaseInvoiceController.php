@@ -375,7 +375,8 @@ class PurchaseInvoiceController extends Controller {
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function changeStatus(Request $request, PurchaseInvoice $purchaseInvoice ) {
-        $purchaseInvoice->update( $request->all() );
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $purchaseInvoice->update( $purchaseInvoice->exceptLegacyMediaKeys( $request->all() ) );
 
         return redirect( route( 'purchaseInvoice.index' ) )->with( [
             'update' => 'success'
