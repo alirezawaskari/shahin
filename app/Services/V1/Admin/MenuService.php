@@ -23,7 +23,7 @@ class MenuService
                 ->with('categoryPermissions')
                 ->where('isMenu', true)
                 ->whereHas('categoryPermissions', function ($query) use ($packagePermissions) {
-                    $query->whereIn('id', $packagePermissions);
+                    $query->whereIn('id', $packagePermissions)->where('is_active' , true);
                 })
                 ->get()
                 ->sortBy('categoryPermissions.position')
@@ -66,7 +66,9 @@ class MenuService
                 'permissions.cat_id'
             )
             ->with('categoryPermissions')
-            ->get();
+            ->where('category_permissions.is_active' , true)
+            ->get()
+            ->sortBy('categoryPermissions.position');
         return $this->groupByCategory($permissions);
     }
 

@@ -63,8 +63,180 @@ class ProductController extends Controller
     {
         return view('Admin.product.findProduct');
     }
-
+    /**
+     * *
+     * @param Request $request
+     * @return string|\Illuminate\Contracts\View\View
+     */
     public function index(Request $request)
+    {
+        $id = 1;
+        $center_id = null;
+        $ghorfe = ghorfe();
+        if ($ghorfe) {
+            $products = $ghorfe->products()
+                ->with('brand')
+                ->where('type', $id)
+                ->select('products.id', 'products.name', 'products.image', 'products.type', 'products.isShow', 'products.root_category_id', 'products.internal_use', 'products.brand_id', 'products.status')
+                ->orderBy('products.id', 'desc');
+        } elseif (User::checkManager() != null) {
+            $center_id = User::checkManager();
+            $products = Product::filter()->with('centers')->whereHas('centers', function ($query) use ($center_id) {
+                $query->where('center_id', $center_id);
+            })->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
+                ->orderBy('id', 'DESC')->where('type', $id);
+        } else {
+            $products = Product::filter()->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
+                ->orderBy('id', 'DESC')->where('type', $id);
+        }
+
+        $categories = $ghorfe->categories;
+
+        $columns = ['id', 'name', 'root_category_id', 'status', 'brand_id'];
+        $queries = [];
+
+        foreach ($columns as $column) {
+            if ($request->has($column)) {
+                if ($request->$column != null) {
+                    if ($column == 'id' || $column == 'status') {
+                        $products = $products->where($column, $request->$column);
+                        $queries[$column] = $request->$column;
+                    }
+                    if ($column == 'root_category_id' || $column == 'brand_id') {
+                        if ($request->$column != 'all') {
+                            $products = $products->where($column, $request->$column);
+                            $queries[$column] = $request->$column;
+                        } else {
+                            $queries[$column] = 'all';
+                        }
+                    }
+                    if ($column == 'name' || $column == 'en_name') {
+                        $products = $products->where($column, 'like', '%' . $request->$column . '%');
+                        $queries[$column] = $request->$column;
+                    }
+                }
+
+            }
+        }
+        $brands = [];
+        $product_brands = $products->with(['brand'])->get();
+
+        $products = $products->paginate(15)->appends($queries);
+
+        if ($center_id == null) {
+            foreach ($products as $product) {
+                $sellers = [];
+                if (($product->type == 0) && $product->storeRooms()->exists()) {
+                    $field_product_store_room = [];
+                    $product_store_rooms = $product->storeRooms()->get();
+                    foreach ($product_store_rooms as $item) {
+                        $field_product_store_room['id'] = $item->pivot->id;
+                        $field_product_store_room['seller_title'] = StoreRoom::getStoreRoom($item->pivot->store_room_id, 'name');
+                        $field_product_store_room['price'] = $item->pivot->sales_price;
+                        $field_product_store_room['stock'] = $item->pivot->stock;
+                        $product_store_room_id = $item->pivot->id;
+                        $field_product_store_room['link'] = route('getProductStoreRoom',['product_id'=>$product->id,'id'=>$product_store_room_id]);
+                        $sellers[] = $field_product_store_room;
+                    }
+                }
+
+                if (($product->type == 1) && ($product->centers()->exists() || $product->storeRooms()->exists())) {
+                    $product_attributes_list = $product->attributes();
+
+                    foreach ($product->storeRooms as $item) {
+                        $product_attributes = $product_attributes_list->where('is_price', true)
+                            ->wherePivot('productattributeable_type', ProductStoreRoom::class)
+                            ->wherePivot('productattributeable_id', $item->pivot->id)->get();
+                        $no_price = 0;
+                        if ($product_attributes_list->where('is_price', true)->count() == 0) {
+                            $product_attributes = ProductAttribute::where('product_id', $product->id)
+                                ->where('price', '!=', '')
+                                ->where('productattributeable_type', ProductStoreRoom::class)
+                                ->where('productattributeable_id', $item->pivot->id)->get();
+                            $no_price = 1;
+                        }
+
+                        foreach ($product_attributes as $attribute) {
+                            if ($no_price == 0) {
+                                $attribute = $attribute->pivot;
+                                if ($attribute->attribute_id != null) $field_product_attribute['attribute_id'] = Attribute::find($attribute->attribute_id)->title;
+                                if ($attribute->attribute_item_id != null) $field_product_attribute['attribute_item_id'] = AttributeItem::find($attribute->attribute_item_id)->title;
+                            }
+                            $field_product_attribute['price'] = $attribute->price;
+                            $field_product_attribute['stock'] = $attribute->stock;
+                            $field_product_attribute['id'] = $item->pivot->id;
+                            $field_product_attribute['seller_title'] = StoreRoom::find($item->pivot->store_room_id)->name;
+                            $attribute_product_id = $attribute->id;
+                            $field_product_attribute['link'] = "/dashboard/product/price/$attribute_product_id/edit";
+                            $sellers[] = $field_product_attribute;
+                        }
+                    }
+
+
+                    foreach ($product->centers as $item) {
+
+                        $product_attributes = $product_attributes_list->where('is_price', true)
+                            ->wherePivot('productattributeable_type', Center::class)
+                            ->wherePivot('productattributeable_id', $item->pivot->center_id)->get();
+                        $no_price = 0;
+                        if ($product_attributes_list->where('is_price', true)->count() == 0) {
+                            $product_attributes = ProductAttribute::where('product_id', $product->id)
+                                ->where('price', '!=', '')
+                                ->where('productattributeable_type', Center::class)
+                                ->where('productattributeable_id', $item->pivot->center_id)->get();
+                            $no_price = 1;
+                        }
+
+                        foreach ($product_attributes as $attribute) {
+                            if ($no_price == 0) {
+                                $attribute = $attribute->pivot;
+                                if ($attribute->attribute_id != null) $field_product_attribute['attribute_id'] = Attribute::find($attribute->attribute_id)->title;
+                                if ($attribute->attribute_item_id != null) $field_product_attribute['attribute_item_id'] = AttributeItem::find($attribute->attribute_item_id)->title;
+                            }
+                            $field_product_attribute['price'] = $attribute->price;
+                            $field_product_attribute['stock'] = $attribute->stock;
+                            $field_product_attribute['status'] = $item->pivot->status;
+                            $field_product_attribute['id'] = $item->pivot->id;
+                            $field_product_attribute['seller_title'] = Center::find($item->pivot->center_id)->title;
+                            $attribute_product_id = $attribute->id;
+                            $field_product_attribute['link'] = "/dashboard/product/price/$attribute_product_id/edit";
+                            $sellers[] = $field_product_attribute;
+                        }
+                    }
+                }
+
+                $product['sellers'] = $sellers;
+
+            }
+        }
+
+        foreach ($product_brands as $item) {
+            if (isset($item->brand->title)) $brands[$item->brand->id] = $item->brand->title;
+        }
+
+        $brands = array_unique($brands);
+
+        if ($request->ajax()) {
+            return view('Admin.product.load', ['products' => $products, 'type_id' => $id])->render();
+        }
+        $page_link = route('product.index');
+        $create_link = route('createMaterials');
+        if($id == 1){
+            $page_link = route('product.show',1);
+            $create_link = route('createGood');
+        }
+
+        return view('Admin.product.list', ['products' => $products, 'type_id' => $id
+            , 'categories' => $categories, 'queries' => $queries, 'center_id' => $center_id, 'brands' => $brands,
+            'create_link'=>$create_link,'page_link'=>$page_link]);
+    }
+    /**
+     * Summary of show
+     * @param mixed $id
+     * @param Request $request
+     * @return string|\Illuminate\Contracts\View\View
+     */
+    public function show($id, Request $request)
     {
         $products = Product::filter()->where('type', 0)->orderBy('id', 'DESC');
         $categories = Category::filter()->get();
@@ -568,177 +740,6 @@ class ProductController extends Controller
                 ->with(['failByMessage' => 'ثبت عکس  کالا ضروری می باشد.']);
         }
     }
-
-
-    /**
-     * Display the list of goods.
-     *
-     * @param  int $type_id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id, Request $request)
-    {
-
-        $center_id = null;
-        $ghorfe = ghorfe();
-        if ($ghorfe) {
-            $products = $ghorfe->products()
-                ->with('brand')
-                ->where('type', $id)
-                ->select('products.id', 'products.name', 'products.image', 'products.type', 'products.isShow', 'products.root_category_id', 'products.internal_use', 'products.brand_id', 'products.status')
-                ->orderBy('products.id', 'desc');
-        } elseif (User::checkManager() != null) {
-            $center_id = User::checkManager();
-            $products = Product::filter()->with('centers')->whereHas('centers', function ($query) use ($center_id) {
-                $query->where('center_id', $center_id);
-            })->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
-                ->orderBy('id', 'DESC')->where('type', $id);
-        } else {
-            $products = Product::filter()->select('id', 'name', 'image', 'type', 'isShow', 'root_category_id', 'internal_use', 'brand_id', 'status')
-                ->orderBy('id', 'DESC')->where('type', $id);
-        }
-
-        $categories = $ghorfe->categories;
-
-        $columns = ['id', 'name', 'root_category_id', 'status', 'brand_id'];
-        $queries = [];
-
-        foreach ($columns as $column) {
-            if ($request->has($column)) {
-                if ($request->$column != null) {
-                    if ($column == 'id' || $column == 'status') {
-                        $products = $products->where($column, $request->$column);
-                        $queries[$column] = $request->$column;
-                    }
-                    if ($column == 'root_category_id' || $column == 'brand_id') {
-                        if ($request->$column != 'all') {
-                            $products = $products->where($column, $request->$column);
-                            $queries[$column] = $request->$column;
-                        } else {
-                            $queries[$column] = 'all';
-                        }
-                    }
-                    if ($column == 'name' || $column == 'en_name') {
-                        $products = $products->where($column, 'like', '%' . $request->$column . '%');
-                        $queries[$column] = $request->$column;
-                    }
-                }
-
-            }
-        }
-        $brands = [];
-        $product_brands = $products->with(['brand'])->get();
-
-        $products = $products->paginate(15)->appends($queries);
-
-        if ($center_id == null) {
-            foreach ($products as $product) {
-                $sellers = [];
-                if (($product->type == 0) && $product->storeRooms()->exists()) {
-                    $field_product_store_room = [];
-                    $product_store_rooms = $product->storeRooms()->get();
-                    foreach ($product_store_rooms as $item) {
-                        $field_product_store_room['id'] = $item->pivot->id;
-                        $field_product_store_room['seller_title'] = StoreRoom::getStoreRoom($item->pivot->store_room_id, 'name');
-                        $field_product_store_room['price'] = $item->pivot->sales_price;
-                        $field_product_store_room['stock'] = $item->pivot->stock;
-                        $product_store_room_id = $item->pivot->id;
-                        $field_product_store_room['link'] = route('getProductStoreRoom',['product_id'=>$product->id,'id'=>$product_store_room_id]);
-                        $sellers[] = $field_product_store_room;
-                    }
-                }
-
-                if (($product->type == 1) && ($product->centers()->exists() || $product->storeRooms()->exists())) {
-                    $product_attributes_list = $product->attributes();
-
-                    foreach ($product->storeRooms as $item) {
-                        $product_attributes = $product_attributes_list->where('is_price', true)
-                            ->wherePivot('productattributeable_type', ProductStoreRoom::class)
-                            ->wherePivot('productattributeable_id', $item->pivot->id)->get();
-                        $no_price = 0;
-                        if ($product_attributes_list->where('is_price', true)->count() == 0) {
-                            $product_attributes = ProductAttribute::where('product_id', $product->id)
-                                ->where('price', '!=', '')
-                                ->where('productattributeable_type', ProductStoreRoom::class)
-                                ->where('productattributeable_id', $item->pivot->id)->get();
-                            $no_price = 1;
-                        }
-
-                        foreach ($product_attributes as $attribute) {
-                            if ($no_price == 0) {
-                                $attribute = $attribute->pivot;
-                                if ($attribute->attribute_id != null) $field_product_attribute['attribute_id'] = Attribute::find($attribute->attribute_id)->title;
-                                if ($attribute->attribute_item_id != null) $field_product_attribute['attribute_item_id'] = AttributeItem::find($attribute->attribute_item_id)->title;
-                            }
-                            $field_product_attribute['price'] = $attribute->price;
-                            $field_product_attribute['stock'] = $attribute->stock;
-                            $field_product_attribute['id'] = $item->pivot->id;
-                            $field_product_attribute['seller_title'] = StoreRoom::find($item->pivot->store_room_id)->name;
-                            $attribute_product_id = $attribute->id;
-                            $field_product_attribute['link'] = "/dashboard/product/price/$attribute_product_id/edit";
-                            $sellers[] = $field_product_attribute;
-                        }
-                    }
-
-
-                    foreach ($product->centers as $item) {
-
-                        $product_attributes = $product_attributes_list->where('is_price', true)
-                            ->wherePivot('productattributeable_type', Center::class)
-                            ->wherePivot('productattributeable_id', $item->pivot->center_id)->get();
-                        $no_price = 0;
-                        if ($product_attributes_list->where('is_price', true)->count() == 0) {
-                            $product_attributes = ProductAttribute::where('product_id', $product->id)
-                                ->where('price', '!=', '')
-                                ->where('productattributeable_type', Center::class)
-                                ->where('productattributeable_id', $item->pivot->center_id)->get();
-                            $no_price = 1;
-                        }
-
-                        foreach ($product_attributes as $attribute) {
-                            if ($no_price == 0) {
-                                $attribute = $attribute->pivot;
-                                if ($attribute->attribute_id != null) $field_product_attribute['attribute_id'] = Attribute::find($attribute->attribute_id)->title;
-                                if ($attribute->attribute_item_id != null) $field_product_attribute['attribute_item_id'] = AttributeItem::find($attribute->attribute_item_id)->title;
-                            }
-                            $field_product_attribute['price'] = $attribute->price;
-                            $field_product_attribute['stock'] = $attribute->stock;
-                            $field_product_attribute['status'] = $item->pivot->status;
-                            $field_product_attribute['id'] = $item->pivot->id;
-                            $field_product_attribute['seller_title'] = Center::find($item->pivot->center_id)->title;
-                            $attribute_product_id = $attribute->id;
-                            $field_product_attribute['link'] = "/dashboard/product/price/$attribute_product_id/edit";
-                            $sellers[] = $field_product_attribute;
-                        }
-                    }
-                }
-
-                $product['sellers'] = $sellers;
-
-            }
-        }
-
-        foreach ($product_brands as $item) {
-            if (isset($item->brand->title)) $brands[$item->brand->id] = $item->brand->title;
-        }
-
-        $brands = array_unique($brands);
-
-        if ($request->ajax()) {
-            return view('Admin.product.load', ['products' => $products, 'type_id' => $id])->render();
-        }
-        $page_link = route('product.index');
-        $create_link = route('createMaterials');
-        if($id == 1){
-            $page_link = route('product.show',1);
-            $create_link = route('createGood');
-        }
-
-        return view('Admin.product.list', ['products' => $products, 'type_id' => $id
-            , 'categories' => $categories, 'queries' => $queries, 'center_id' => $center_id, 'brands' => $brands,
-            'create_link'=>$create_link,'page_link'=>$page_link]);
-    }
-
 
     /**
      * Show the form for editing the specified resource.
