@@ -44,8 +44,7 @@
                             id="verification_factor_confirm_code" data-target="#verification_factor_confirm_code" name="verification_code"
                             placeholder="لطفا کد دریافتی را وارد کنید">
                     </div>
-                    <input type="hidden" id="total_factor_item"
-                        value="{{ $factorItem->totalFactorItem ? $factorItem->totalFactorItem->id : null}}">
+                    <input type="hidden" id="total_factor_item" value="">
                     <input type="hidden" id="factor_item" value="{{ $factorItem['id']}}">
 
                     <div class="col-12 col-md-4">
