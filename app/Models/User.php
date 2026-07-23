@@ -228,7 +228,7 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         }
         elseif($this->level == 'ghorfeAdmin')
         {
-            return AdminAuthService::checkUserGhorfe(); 
+            return AdminAuthService::checkUserGhorfe();
         }
         return false;
     }
@@ -416,7 +416,7 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
 
     /**
      * Summary of ghorfeOnlineLists
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<GhorfeOnlineList, User, \Illuminate\Database\Eloquent\Relations\Pivot>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<GhorfeOnlineList, User>
      */
     public function ghorfeOnlineLists()
     {
