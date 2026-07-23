@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Center;
 use App\Models\ChangeStoreRoom;
 use App\Models\CouponItem;
+use App\Models\GhorfeOnlineList;
 use App\Models\Product;
 use App\Models\ProductAttribute;
 use App\Models\ProductStoreRoom;
@@ -238,7 +239,37 @@ class PriceProductController extends Controller
                 }
                 return response('true');
             }
+            if (ghorfe()) {
+                $ghorfe = ghorfe();
+                $products_by_ghorfes = $product->ghorfeOnlineLists()->where('ghorfe_online_list_id', $ghorfe->id)->first();
+                if ($products_by_ghorfes != null && $products_by_ghorfes->count() > 0) {
 
+                    $has_item = $product->attributes()
+                        ->wherePivot('product_id', $request->product_id)->wherePivot('price', $request->price)
+                        ->where('productattributeable_type', GhorfeOnlineList::class)
+                        ->where('productattributeable_id', $ghorfe->id)->count();
+
+                    if ($has_item == 0 && $product->reference_price >= $request->price) {
+                        if ($request->price > 0) $request['price'] = str_replace(",", "", $request->price);
+                        ProductAttribute::create([
+                            'product_id' => $request->product_id, 'price' => $request->price,
+                            'productattributeable_id' => $ghorfe->id,
+                            'productattributeable_type' => GhorfeOnlineList::class,
+                            'initial_stock'=>$request->stock ,
+                            'stock' => $request->stock,
+                            'guarantee' => $request->guarantee,
+                            'posted_by' => $request->posted_by,
+                            'is_show' => $request->is_show,
+                            'submission_time' => $request->submission_time,
+                            'seller_code' => $request->seller_code,
+                        ]);
+                        $product->isShow = 1;
+                        $product->save();
+                    }
+
+                }
+                return response('true');
+            }
             if (\Auth::user()->isAbleTo('product-detail')) {
                 if (isset($request->center_id))
                     $products_by_centers = $product->centers()->whereIn('center_id', $request->center_id)->get();
@@ -317,10 +348,9 @@ class PriceProductController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * Summary of show
+     * @param mixed $id
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function show($id)
     {
@@ -397,9 +427,9 @@ class PriceProductController extends Controller
         if ($product) {
             $product_attributes = ProductAttribute::where('product_id', $id)->where('price', '!=', 0)->get();
 
-            foreach ($product_attributes as $product_attribute){
-                $product_attribute['store_room_name'] = StoreRoom::storeRoomName($product_attribute->pivot->productattributeable_id) ;
-            }
+            // foreach ($product_attributes as $product_attribute){
+            //     $product_attribute['store_room_name'] = StoreRoom::storeRoomName($product_attribute->pivot->productattributeable_id) ;
+            // }
 
             return view("Admin.product.price.listsWithoutAttribute", ['product_id' => $id, 'product_attributes' => $product_attributes]);
         }
