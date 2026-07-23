@@ -103,7 +103,7 @@
                                     </option>
                                 </select>
                             </div>
-                             <div class="col-12 col-md-4 mb-5">
+                            <div class="col-12 col-md-4 mb-5">
                                 <label>عنوان منو</label>
 
                                 <input id="menu_title_lbl" type="text" class="form-control mb-2" name="menu_title"
@@ -178,20 +178,66 @@
             <!--__________________________________________-->
             <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="firstImages-tab">
                 <div class="container m-top-40">
-                    <form action="{{route('serviceItem.update' , [$service->slug ])}}" id="first-images-form" method="post"
-                        enctype="multipart/form-data">
+                    <form action="{{route('serviceItem.update' , [$service->slug ])}}" id="first-images-form"
+                        method="post" enctype="multipart/form-data">
                         @csrf
                         @method('PATCH')
                         <input type="hidden" value="first_images" name="update_type">
+                        @if(ghorfe())
+                        <div class="row">
+                            <div class="col-12 col-md-4 mb-3 border">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image'])
+                                <label>تصویر خدمت (قابل نمایش در صفحه اول)</label> <label for="image"
+                                    class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                                </label>
+                                <input id="image" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="image" accept="image/*" />
+                                <input type="hidden" id="image_path" class="path" name="image_path" value="">
+                                <div id="image_src" class="show"></div>
+                                <small class="text-muted d-block mt-1">
+                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 283*390
+                                </small>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3 border">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'icon'])
+                                <label>تصویر آیکن (قابل نمایش در صفحه اول )</label> <label for="icon"
+                                    class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                                </label>
+                                <input id="icon" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="icon" accept="image/*" />
+                                <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
+                                <div id="icon_src" class="show"></div>
+                                <small class="text-muted d-block mt-1">
+                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 80*80
+                                </small>
+                            </div>
+                            <div class="col-12 col-md-4 mb-3 border">
+                                @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'thumb'])
+                                <label>تصویر اصلی (قابل نمایش در صفحه خدمت)</label>
+                                <label for="thumb" class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
+                                </label>
+                                <input id="thumb" class="d-none form-control file-upload file_upload_ajax" type="file"
+                                    name="thumb" accept="image/*" />
+                                <input type="hidden" id="thumb_path" class="path" name="thumb_path" value="">
+                                <div id="thumb_src" class="show"></div>
+                                <small class="text-muted d-block mt-1">
+                                    فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 350*1450
+                                </small>
+                            </div>
+                        </div>
+                        @else
                         <div class="row">
                             <div class="col-12 col-md-3 mb-3 border border">
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'img_box_1'])
                                 <label>تصویر بخش اول</label>
                                 <label for="img_box_1" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="img_box_1" class="d-none form-control file-upload file_upload_ajax" type="file"
-                                    name="img_box_1" accept="image/*" />
+                                <input id="img_box_1" class="d-none form-control file-upload file_upload_ajax"
+                                    type="file" name="img_box_1" accept="image/*" />
                                 <input type="hidden" id="img_box_1_path" class="path" name="img_box_1_path" value="">
                                 <div id="img_box_1_src" class="show"></div>
                             </div>
@@ -200,7 +246,7 @@
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'thumb'])
                                 <label>تصویر اسلاید زیر فرم ثبت نام</label>
                                 <label for="thumb" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
                                 <input id="thumb" class="d-none form-control file-upload file_upload_ajax" type="file"
                                     name="thumb" accept="image/*" />
@@ -212,7 +258,7 @@
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image'])
                                 <label>تصویر بخش دوم</label>
                                 <label for="image" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
                                 <input id="image" class="d-none form-control file-upload file_upload_ajax" type="file"
                                     name="image" accept="image/*" />
@@ -224,10 +270,10 @@
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'image_app'])
                                 <label>تصویر اصلی (استفاده شده درصفحه اول تک صفحه ای و فهرست خدمات)</label>
                                 <label for="image_app" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
-                                <input id="image_app" class="d-none form-control file-upload file_upload_ajax" type="file"
-                                    name="image_app" accept="image/*" />
+                                <input id="image_app" class="d-none form-control file-upload file_upload_ajax"
+                                    type="file" name="image_app" accept="image/*" />
                                 <input type="hidden" id="image_app_path" class="path" name="image_app_path" value="">
                                 <div id="image_app_src" class="show"></div>
                             </div>
@@ -235,40 +281,17 @@
                                 @include('Admin.partials.currentMedia', ['owner' => $service, 'field' => 'icon'])
                                 <label>(استفاده شده در صفحه اول سایت) تصویر آیکن</label>
                                 <label for="icon" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    <i class="fa fa-cloud-upload"></i> انتخاب تصویر
                                 </label>
                                 <input id="icon" class="d-none form-control file-upload file_upload_ajax" type="file"
                                     name="icon" accept="image/*" />
                                 <input type="hidden" id="icon_path" class="path" name="icon_path" value="">
                                 <div id="icon_src" class="show"></div>
                             </div>
-                            {{-- <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail"
-                                    src="{{asset($service->files->where('title','desktop_slider')->first()->path??'')}}"
-                                    alt="">
-                                <label>تصویر اسلایدر دسکتاپ</label>
-                                <label for="desktop_slider" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
-                                </label>
-                                <input id="desktop_slider" class="form-control btn btn-outline-info file-upload"
-                                    type="file" name="desktop_slider" />
-                                <div id="desktop_slider" class="show"></div>
-                            </div> --}}
-                            {{-- <div class="col-12 col-md-3 mb-3 border">
-                                <img class="img-thumbnail"
-                                    src="{{asset($service->files->where('title','mobile_slider')->first()->path??'')}}"
-                                    alt="">
-                                <label>تصویر اسلایدر موبایل</label>
-                                <label for="mobile_slider" class="btn btn-primary custom-file-upload border border-1">
-                                    <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
-                                </label>
-                                <input id="mobile_slider" class="form-control btn btn-outline-info file-upload"
-                                    type="file" name="mobile_slider" />
-                                <div id="mobile_slider" class="show"></div>
-                            </div> --}}
-                            <div class="col-12 col-md-12 mb-3">
-                                <span class="btn btn-success" id="first-images-submit">ثبت تغییرات</span>
-                            </div>
+                        </div>
+                        @endif
+                        <div class="col-12 col-md-12 mb-3">
+                            <span class="btn btn-success" id="first-images-submit">ثبت تغییرات</span>
                         </div>
                     </form>
                 </div>
@@ -311,11 +334,12 @@
             <div class="tab-pane fade" id="portfolio-data" role="tabpanel" aria-labelledby="portfolio-tab">
                 <div class="container m-top-40">
                     <div class="row">
-                        <form action="{{route('serviceItem.update' , [$service->slug ])}}" id="portfolio-information-form">
+                        <form action="{{route('serviceItem.update' , [$service->slug ])}}"
+                            id="portfolio-information-form">
                             <input type="hidden" name="update_type" value="portfolio_images">
 
-                            <div class="col-12 col-md-12 mb-4" id="portfolio_list_wrap"
-                                @if($service->getMedia('portfolio')->count() == 0) style="display:none" @endif>
+                            <div class="col-12 col-md-12 mb-4" id="portfolio_list_wrap" @if($service->
+                                getMedia('portfolio')->count() == 0) style="display:none" @endif>
                                 <label> نمونه کار های ذخیره شده</label>
                                 <table class="table table-striped">
                                     <tbody id="portfolio_list" data-title-name="existing_portfolio" data-box-h="80">
@@ -323,8 +347,7 @@
                                         <tr class="row_image" id="media_{{$media->id}}">
                                             <td>
                                                 <img src="{{$media->getFullUrl()}}"
-                                                    alt="{{$media->getCustomProperty('title')}}"
-                                                    class="rounded border"
+                                                    alt="{{$media->getCustomProperty('title')}}" class="rounded border"
                                                     style="height:80px;width:auto;object-fit:contain;background:#f8f9fa;">
                                             </td>
                                             <td>
@@ -334,14 +357,34 @@
                                             </td>
                                             <td>
                                                 <a data-id="{{$media->id}}" title="حذف عکس"
-                                                    class="btn btn-sm remove_media_btn"><i
-                                                        class="fa fa-close"></i></a>
+                                                    class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
                                             </td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
+
+                            @if($service->getMedia('portfolio')->count() == 0 && $service->hasLegacyWorkSampleRows('portfolio'))
+                            <div class="col-12 col-md-12 mb-4">
+                                <label> نمونه کار های ذخیره شده</label>
+                                <small class="d-block text-warning mb-2">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+                                <table class="table table-striped">
+                                    <tbody>
+                                        @foreach($service->legacyWorkSampleItems('portfolio') as $item)
+                                        <tr>
+                                            <td>
+                                                <img src="{{ $item['url'] }}" alt="{{ $item['title'] }}"
+                                                    class="rounded border"
+                                                    style="height:80px;width:auto;object-fit:contain;background:#f8f9fa;">
+                                            </td>
+                                            <td>{{ $item['title'] }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @endif
 
                             <div class="col-md-12 col-sm-12 col-xs-12 mb-5">
                                 @include('Admin.partials.multipleImages',['has_link'=>0,'listKey'=>'portfolio'])

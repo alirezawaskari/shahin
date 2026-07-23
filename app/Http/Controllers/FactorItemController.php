@@ -413,11 +413,17 @@ class FactorItemController extends Controller {
     public function sendConfirmContractCode( Request $request ) {
         if ( $request->confirm_contract_check == true ) {
             $factorItem = FactorItem::find( $request->factor_item );
-            if($factorItem)
+            if($request->total_factor_item != null)
             {
                 $contract_item = $factorItem->totalFactorItem ? $factorItem->totalFactorItem : $factorItem;
                 $user = $factorItem->factor->user;
                 $reason = 1;
+            }
+            elseif($request->factor_item)
+            {
+                $contract_item = $factorItem;
+                $user = $factorItem->factor->user;
+                $reason = 2;
             }
             else
             {

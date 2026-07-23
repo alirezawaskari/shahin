@@ -72,20 +72,21 @@ final readonly class AdminAuthService {
     public static function checkUserGhorfe() {
         $ghorfe_online_list = self::getGhorfe();
         if ( !$ghorfe_online_list )return false;
-        $ghorfe_online_list_user_exist = GhorfeOnlineListUser::where( 'user_id', auth()->user()->id )
-        ->where( 'ghorfe_online_list_id', $ghorfe_online_list->id )
-        ->exists();
+        // $ghorfe_online_list_user_exist = GhorfeOnlineListUser::where( 'user_id', auth()->user()->id )
+        // ->where( 'ghorfe_online_list_id', $ghorfe_online_list->id )
+        // ->exists();
 
-        return $ghorfe_online_list_user_exist;
+        return true;
     }
     /**
     * Summary of getGhorfe
     * @return GhorfeOnlineList|null
     */
     public static function getGhorfe() : GhorfeOnlineList| null {
-        $ghorfe_domain_active = GhorfeOnlineList::getActiveDomainName();
-        $GhorfeOnlineList = GhorfeOnlineList::where( 'domain_active', $ghorfe_domain_active )->first();
-        return $GhorfeOnlineList ?? null;
+        $ghorfe_online_list = auth()->user()->ghorfeOnlineLists()->first();
+        // $ghorfe_domain_active = GhorfeOnlineList::getActiveDomainName();
+        // $GhorfeOnlineList = GhorfeOnlineList::where( 'domain_active', $ghorfe_domain_active )->first();
+        return $ghorfe_online_list ?? null;
     }
     public function logout(): void {
         $this->guard->logout();

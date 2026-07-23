@@ -45,6 +45,19 @@ class PurchaseInvoice extends Model implements HasMedia
     }
 
     /**
+     * Gallery urls for the invoice factor images: adopted/new Spatie files (served from
+     * /storage) unioned with any legacy `factor_image` path not yet migrated. Views must
+     * render this rather than the raw `factor_image` array, so a save's adoption surfaces
+     * the /storage copies (the raw column keeps the legacy paths — see arrayMediaUrls()).
+     *
+     * @return array<string>
+     */
+    public function factorImageUrls(): array
+    {
+        return $this->arrayMediaUrls('factor_image', 'factor_image');
+    }
+
+    /**
      * @var string[]
      */
     protected $dates = ['deleted_at'];

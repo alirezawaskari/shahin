@@ -81,16 +81,19 @@ class CampaignController extends Controller
     public function createCompany(Request $request,$campaign_id)
     {
         $campaign = Campaign::findOrFail($campaign_id);
-        $names = $request->name_company;
-        $urls = $request->url_company;
-        $logos = $request->logo_company_url;
+        $names  = $request->name_company ?? [];
+        $urls   = $request->url_company ?? [];
+        $logos  = $request->logo_company_url ?? [];
         foreach ($names as $i => $name) {
             $collaboration = CampaignCollaboration::create([
                 'campaign_id'     => $campaign_id,
                 'name'     => $name,
-                'url'      => $urls[$i],
+                'url'      => $urls[$i] ?? null,
             ]);
-            $media = MediaLibraryHelper::attachTo($campaign, (string) $logos[$i], 'company_logos');
+            // a row can be submitted without a logo (or without a website): each field is
+            // its own widget now, so the arrays are no longer guaranteed to line up.
+            // attachTo() with an empty temp id is a no-op; the missing key raised a warning first.
+            $media = MediaLibraryHelper::attachTo($campaign, (string) ($logos[$i] ?? ''), 'company_logos');
             $collaboration->update([
                 'logo' => $media ? $media->getUrl() : '',
             ]);
@@ -99,7 +102,15 @@ class CampaignController extends Controller
     }
     public function deleteCompany($campaign_id)
     {
-        CampaignCollaboration::findOrFail($campaign_id)->delete();
+        $collaboration = CampaignCollaboration::findOrFail($campaign_id);
+
+        // The logo lives on the PARENT campaign's `company_logos` collection, so deleting
+        // only this row orphaned the media and its file with nothing left referencing it.
+        // Safe to delete outright: CampaignCollaboration is a hard delete (no SoftDeletes,
+        // no deleted_at), so the row is never coming back to need its logo.
+        MediaLibraryHelper::deleteMedia($collaboration->logoMedia());
+
+        $collaboration->delete();
         return redirect()->back();
     }
     public function createForm(Request $request)

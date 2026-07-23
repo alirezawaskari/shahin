@@ -109,7 +109,10 @@
                             @if($organization->stamp)
                             <div id="stamp_src" class="show">
                             <a href="{{ $organization->stamp }}" target="_blank">
-                                <img src="{{ $organization->stamp }}" class="card-img-top" height="150px">
+                                {{-- object-fit: contain — card-img-top forces width:100%, so a bare
+                                     height="150" stretched non-square images --}}
+                                <img src="{{ $organization->stamp }}" class="card-img-top"
+                                     style="height:150px;object-fit:contain;background:#f8f9fa;">
                             </a>
                             @if($organization->mediaIsLegacy('stamp'))
                             <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
@@ -117,7 +120,8 @@
                             </div>
                             @else
                             <div id="stamp_src" class="show">
-                                <img class="card-img-top" height="150px">
+                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                             </div>
                             @endif
                             <div class="card-body">
@@ -135,7 +139,11 @@
                             @if($organization->image)
                             <div id="image_src" class="show">
                                 <a href="{{ $organization->image }}" target="_blank">
-                                    <img id="image_src" src="{{ $organization->image }}" class="card-img-top" height="150px">
+                                    {{-- no id here: the wrapping div already owns #image_src, and a
+                                         duplicate id makes the widget's selector match two elements --}}
+                                    {{-- see the note on the stamp image above --}}
+                                    <img src="{{ $organization->image }}" class="card-img-top"
+                                         style="height:150px;object-fit:contain;background:#f8f9fa;">
                                 </a>
                                 @if($organization->mediaIsLegacy('image'))
                                 <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
@@ -143,7 +151,8 @@
                             </div>
                             @else
                             <div id="image_src" class="show">
-                                <img class="card-img-top" height="150px">
+                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                             </div>
                             @endif
                             <div class="card-body">
@@ -158,7 +167,7 @@
 
                     <div class="col-12 row">
                         <div class="col-md-4">
-                            <div id="addnew" class="btn btn-success mb-5">
+                            <div id="addnew" class="btn btn-primary custom-file-upload border border-1 mb-5">
                                 <label for="document" id="up-label"><i class="fa fa-upload ml-2"
                                         aria-hidden="true"></i> افزودن مدارک سازمان </label>
                                 <input name="document[]" type="file" id="document"
@@ -171,23 +180,25 @@
                             </div>
                         </div>
                         <div id="document_newlinktpl" class="d-none">
-                            <div id="document_src" class="show"></div>
-                            <input type="hidden" id="document" class="path"
+                            <div id="document_src" class="show mb-2"></div>
+                            {{-- document_path, not document: the file input above already owns
+                                 #document, and a duplicate id breaks getElementById lookups
+                                 (new_link() rewrites this id per clone anyway) --}}
+                            <input type="hidden" id="document_path" class="path"
                                 name="urldocument[]">
                         </div>
                     </div>
 
-                    @if(isset($organization->document))
-                    @foreach($organization->document as $image)
+                    @foreach($organization->documentUrls() as $image)
                     <div class="card col-md-3">
                         <a href="{{ $image }}" target="_blank">
-                            <img src="{{ $image }}" class="card-img-top" height="150px">
+                            <img src="{{ $image }}" class="card-img-top"
+                                 style="height:150px;object-fit:contain;background:#f8f9fa;">
                         </a>
                     </div>
                     @endforeach
                     @if($organization->arrayMediaHasLegacy('document'))
                     <div class="col-12"><small class="d-block text-warning mt-1">فایل‌های قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small></div>
-                    @endif
                     @endif
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">

@@ -16,6 +16,12 @@ class TicketHistory extends Model implements HasMedia
         return ['file' => 'file'];
     }
 
+    /** @see Ticket::fileUrls() — same union (Spatie media + un-adopted legacy paths). */
+    public function fileUrls(): array
+    {
+        return $this->arrayMediaUrls('file', 'file');
+    }
+
     protected $fillable = [
         'ticket_id',
         'user_id',

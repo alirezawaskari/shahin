@@ -58,7 +58,10 @@
 
 <div class="col-12 col-md-3 mb-5">
     <label> عکس اصلی ذخیره شده</label>
-    @include('Admin.partials.currentMedia',['owner'=>$pack,'field'=>'image','boxH'=>100])
+    {{-- required: the create validators (storeValidationStoreRoom/storeValidationCenter)
+         require image_path, so the image must never be deleted to empty — it can only be
+         replaced by uploading a new one (the ✕ deletes immediately, bypassing validation). --}}
+    @include('Admin.partials.currentMedia',['owner'=>$pack,'field'=>'image','boxH'=>100,'required'=>true])
 </div>
 <div class="col-12 col-md-3 mb-5">
     <label>عکس اصلی *</label>

@@ -66,7 +66,7 @@
                             <option value="1" selected>گارانتی اصالت و سلامت فیزیکی کالا</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="submission_time">بازه زمانی ارسال (روز) <span class="required">*</span>
                             :</label>
                         <select id="submission_time" class="form-control submission_time" name="submission_time">
@@ -76,12 +76,12 @@
                             @endfor
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="stock">موجودی نزد شما (عدد) <span class="required">*</span> :</label>
                         <input id="stock" type="number" class="form-control stock" name="stock"
                                value="100{{--{{old('stock')}}--}}">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label for="seller_code">کد کالا فروشنده :</label>
                         <input id="seller_code" type="text" class="form-control seller_code" name="seller_code"
                                value="{{old('seller_code')}}">
@@ -116,10 +116,10 @@
                         <label for="posted_by">ارسال توسط <span class="required">*</span> :</label>
                         <div id=posted_by class="checkbox">
                             <label>
-                                <input name="posted_by" class="posted_by" type="radio" value="1" checked>شبکه لاله
+                                <input name="posted_by" class="posted_by" type="radio" value="1">شبکه لاله
                             </label>
                             <label>
-                                <input name="posted_by" class="posted_by" type="radio" value="2">فروشنده
+                                <input name="posted_by" class="posted_by" type="radio" value="2" checked>فروشنده
                             </label>
                         </div>
                     </div>

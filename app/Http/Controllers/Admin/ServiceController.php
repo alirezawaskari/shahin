@@ -441,6 +441,11 @@ class ServiceController extends AdminController
             ]);
 
 
+        // Touch-to-migrate: this handler never calls $service->save(), so the model's `saved`
+        // event (which normally runs adoption) does not fire here. Run it explicitly, BEFORE
+        // attaching new uploads, so a legacy image is migrated rather than silently skipped.
+        $service->adoptLegacyMedia();
+
         foreach (Service::MEDIA_FIELDS as $key) {
             // attach the temporary ajax upload into the service's own media collection (Spatie)
             MediaLibraryHelper::attachTo($service, $request->input($key . '_path'), $key);
@@ -467,6 +472,11 @@ class ServiceController extends AdminController
      */
     private function uploadPortfolioImages(Request $request, Service $service)
     {
+
+        // Touch-to-migrate: see the note in uploadFirstImages(). Run before the new uploads are
+        // attached — adoption skips a collection that already has media, so attaching first
+        // would let one new image block every pending legacy work sample from ever migrating.
+        $service->adoptLegacyMedia();
 
         // update titles of already-saved portfolio images
         foreach ($request->existing_portfolio ?? [] as $mediaId => $data) {
@@ -513,6 +523,11 @@ class ServiceController extends AdminController
      */
     private function uploadSiteImages(Request $request, Service $service)
     {
+        // Touch-to-migrate: see the note in uploadFirstImages(). Run before syncing the slots so
+        // the legacy `galleries` rows fill their slots first; a slot the admin re-uploaded is
+        // then replaced below by syncGallerySlots(), which only touches submitted slots.
+        $service->adoptLegacyMedia();
+
         $this->syncGallerySlots($service, 'gallery_horizontal', $request->horizontalImages ?? []);
         $this->syncGallerySlots($service, 'gallery_vertical', $request->verticalImages ?? []);
 

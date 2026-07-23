@@ -123,8 +123,12 @@ class Factor extends Model implements AuditableContract, HasMedia
      */
     private static function makeUniqueTracking($model)
     {
+        // $model->user can be null (e.g. a supplier payment factor whose supplier has no
+        // user_id), so read the phone defensively — the resnumber stays unique via the random
+        // prefix + timestamp + the do/while collision check.
+        $phone = (string) optional($model->user)->phone;
         do {
-            $resNumber = rand(12, 99) . substr(Carbon::now()->timestamp, 6, 11) . substr($model->user->phone, 7, 11);
+            $resNumber = rand(12, 99) . substr(Carbon::now()->timestamp, 6, 11) . substr($phone, 7, 11);
             $found = self::where('resnumber', $resNumber)->first();
         } while (!is_null($found));
         return $resNumber;
