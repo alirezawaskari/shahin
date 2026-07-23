@@ -1,3 +1,16 @@
+@php
+    $deskImages = $galleries->where('type', 1)->values();
+
+    $numberImage = 3;
+
+    if ($ghorfeTemplet->type == 'service') {
+        $numberImage = 5;
+    }
+
+    $bigDeskIndex = $numberImage;
+@endphp
+
+
 <div class="col-md-12 mb-3">
     <h4>عکس های گالری *</h4>
     <span>تمامی عکس ها الزامی هستند.</span><br/>
