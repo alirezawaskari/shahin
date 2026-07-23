@@ -283,9 +283,14 @@ class CenterController extends AdminController
         $category_center_id = $center->centerable_id;
         $category_center = Category::where('parent_id', $category_center_id)->get();
         $category = Category::find($category_center_id);
+        // default so compact() below always has it, even when the category (or its parent)
+        // can't be resolved — mirrors ProductController@edit.
+        $parent_category_id = '';
         if ($category) {
             $parent_category = Category::where('id', $category->parent_id)->select('id')->first();
-            $parent_category_id = $parent_category->id;
+            if ($parent_category) {
+                $parent_category_id = $parent_category->id;
+            }
         }
 
         $reviews_strength = $product->reviews()->where('reviewable_type', Center::class)
@@ -313,7 +318,13 @@ class CenterController extends AdminController
         $product_attributes = $product->attributes()
             ->where('productattributeable_id', $center_id)->where('productattributeable_type', Center::class)
             ->where('is_price', 0)->get();
-        $brands = Category::find($last_category_id)->brands;
+        // $last_category_id may not resolve to a Category, so guard the ->brands read.
+        $brands = Category::find($last_category_id);
+        if (!is_null($brands)) {
+            $brands = $brands->brands;
+        } else {
+            $brands = array();
+        }
         $product_validation = $product->productValidations;
         $validations = Validation::all();
 

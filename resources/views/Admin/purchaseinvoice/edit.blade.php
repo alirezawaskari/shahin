@@ -84,14 +84,15 @@
                                     @if($purchaseInvoice->post_image)
                                     <a href="{{ asset($purchaseInvoice->post_image) }}" target="_blank">
                                         <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top"
-                                            height="150px">
+                                            style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                                     </a>
                                     @if($purchaseInvoice->mediaIsLegacy('post_image'))
                                     <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
                                     @endif
                                     @else
                                     <div id="post_image_src" class="show">
-                                        <img class="card-img-top" height="150px">
+                                        <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                             style="height:150px;background:#f8f9fa;">بدون تصویر</div>
                                     </div>
                                     <div class="card-body">
                                         <label>تصویر رسید ارسال کالا</label>
@@ -132,7 +133,8 @@
                     @if($purchaseInvoice->post_image)
                     <div class="card col-12 col-md-3 p-2">
                         <a href="{{ asset($purchaseInvoice->post_image) }}" target="_blank">
-                            <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top" height="150px">
+                            <img src="{{ $purchaseInvoice->post_image }}" class="card-img-top"
+                                 style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                         </a>
                         @if($purchaseInvoice->mediaIsLegacy('post_image'))
                         <small class="d-block text-warning mt-1 px-2">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
@@ -191,13 +193,25 @@
         <hr>
         <div class="row">
             @foreach($purchaseInvoice->values as $key => $value)
+            @php($__approver = App\Models\User::getUser($value))
             <div class="card col-12 col-md-3 p-2">
-                <a href="{{ App\Models\User::getUser($value)->imgsignature }}" target="_blank">
-                    <img src="{{ App\Models\User::getUser($value)->imgsignature }}" class="card-img-top" height="150px">
+                @if($__approver && $__approver->imgsignature)
+                <a href="{{ $__approver->imgsignature }}" target="_blank">
+                    <img src="{{ $__approver->imgsignature }}" class="card-img-top"
+                         style="height:150px;width:100%;object-fit:contain;background:#f8f9fa;">
                 </a>
+                {{-- imgsignature belongs to the approver User (migrated on their own edit page,
+                     not here), so this is a neutral legacy marker without an "on save" promise. --}}
+                @if($__approver->mediaIsLegacy('imgsignature'))
+                <small class="d-block text-warning mt-1 px-2">تصویر قدیمی (سیستم قبلی)</small>
+                @endif
+                @else
+                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                @endif
                 <div class="card-body text-center">
-                    <h5>{{ 'تائیدیه '.App\Models\Role::where('name' , $key)->first()->display_name.' : '.
-                        App\Models\User::getUser($value)->name.' '.App\Models\User::getUser($value)->family
+                    <h5>{{ 'تائیدیه '.optional(App\Models\Role::where('name' , $key)->first())->display_name.' : '.
+                        ($__approver ? $__approver->name.' '.$__approver->family : '')
                         }}</h5>
                 </div>
             </div>

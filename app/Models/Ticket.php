@@ -15,6 +15,18 @@ class Ticket extends Model implements HasMedia {
     {
         return ['file' => 'file'];
     }
+
+    /**
+     * File urls for display: Spatie media first, then any legacy `file` paths not yet
+     * adopted. Not an accessor — the trait reads the raw `file` attribute internally,
+     * so shadowing it would break adoption and legacy detection. The raw column holds
+     * relative paths, which render as broken links straight from a view.
+     */
+    public function fileUrls(): array
+    {
+        return $this->arrayMediaUrls('file', 'file');
+    }
+
     /**
     * @var array
     */

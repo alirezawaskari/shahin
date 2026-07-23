@@ -18,31 +18,31 @@ class TicketHistoryController extends Controller
         $inputs = $request->all();
         $inputs['user_id'] = auth()->user()->id;
         $inputs['type'] = 1;
-        unset($inputs['urlfile']);
-        $inputs['file'] = [];
-        $file_ticket = $request->urlfile;
+        // legacy column: never written. Spatie media is the source of truth and
+        // TicketHistory::fileUrls() unions the column back in for display.
+        unset($inputs['urlfile'], $inputs['file']);
 
         $ticket_history = TicketHistory::create($inputs);
 
-        $temp = [];
-        if ($file_ticket) {
-            $files = $file_ticket;
-            foreach ($files as $file) {
-                if ($file) {
-                    $media = MediaLibraryHelper::attachTo($ticket_history, (string) $file, 'file');
-                    if ($media) {
-                        $temp[] = $media->getUrl();
-                    }
-                }
+        foreach ((array) $request->urlfile as $file) {
+            if ($file) {
+                MediaLibraryHelper::attachTo($ticket_history, (string) $file, 'file');
             }
-            $ticket_history->update(['file' => $temp]);
         }
 
         $ticket = $ticket_history->ticket;
 
+        // fires `saved`, which adopts the TICKET's own pending legacy files
         $ticket->update([
             'status' => $ticket->status ? 0 : 1,
         ]);
+
+        // Existing histories are never re-saved, so nothing would ever fire their `saved`
+        // event and their legacy `file` paths could never migrate. Replying to the ticket
+        // is the save that owns this screen, so adopt them here too.
+        foreach ($ticket->histories as $history) {
+            $history->adoptLegacyMedia();
+        }
 
         return redirect()->back()->with([
             'create' => 'success'

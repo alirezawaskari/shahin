@@ -365,6 +365,27 @@
                                 </table>
                             </div>
 
+                            @if($service->getMedia('portfolio')->count() == 0 && $service->hasLegacyWorkSampleRows('portfolio'))
+                            <div class="col-12 col-md-12 mb-4">
+                                <label> نمونه کار های ذخیره شده</label>
+                                <small class="d-block text-warning mb-2">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+                                <table class="table table-striped">
+                                    <tbody>
+                                        @foreach($service->legacyWorkSampleItems('portfolio') as $item)
+                                        <tr>
+                                            <td>
+                                                <img src="{{ $item['url'] }}" alt="{{ $item['title'] }}"
+                                                    class="rounded border"
+                                                    style="height:80px;width:auto;object-fit:contain;background:#f8f9fa;">
+                                            </td>
+                                            <td>{{ $item['title'] }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @endif
+
                             <div class="col-md-12 col-sm-12 col-xs-12 mb-5">
                                 @include('Admin.partials.multipleImages',['has_link'=>0,'listKey'=>'portfolio'])
                             </div>

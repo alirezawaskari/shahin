@@ -196,7 +196,7 @@
                                             فرمت‌های مجاز: jpg, png, webp | حداکثر ۲ مگابایت | سایز 40*40
                                         </small>
                                     </div>
-                                    <div id="image_src" class="show disInline col-md-3"></div>
+                                    <div id="icon_src" class="show disInline col-md-3"></div>
                                 </div>
                             </div>
                         </div>

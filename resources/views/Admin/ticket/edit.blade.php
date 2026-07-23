@@ -30,10 +30,13 @@
             </div>
 
             <div class="col-12 mb-2">
-                @if($ticket->file !='')
+                {{-- fileUrls(), not the raw `file` column: the column stores relative legacy
+                     paths, which resolve against the current /dashboard/ticket/… url and 404 --}}
+                @php($ticket_files = $ticket->fileUrls())
+                @if(count($ticket_files))
                 <span>فایل های آپلود شده</span>
                 <br>
-                @foreach($ticket->file as $item)
+                @foreach($ticket_files as $item)
                 <a href="{{ $item }}" class="btn btn-success py-1 px-2 mr-2 mt-3" target="_blank">مشاهده</a>
                 @endforeach
                 @if($ticket->arrayMediaHasLegacy('file'))
@@ -202,12 +205,19 @@
         </div>
 
         <div class="col-12 mb-2">
-            @if($history->file !='')
+            {{-- see the note on $ticket->fileUrls() above --}}
+            @php($history_files = $history->fileUrls())
+            @if(count($history_files))
             <span>فایل های آپلود شده</span>
             <br>
-            @foreach($history->file as $item)
+            @foreach($history_files as $item)
             <a href="{{ $item }}" class="btn btn-success py-1 px-2 mr-2 mt-3" target="_blank">مشاهده</a>
             @endforeach
+            {{-- honest notice: replying/referring adopts every history of this ticket
+                 (TicketHistoryController::store), so the promise holds here --}}
+            @if($history->arrayMediaHasLegacy('file'))
+            <small class="d-block text-warning mt-1">فایل‌های قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+            @endif
             @endif
         </div>
 

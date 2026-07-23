@@ -47,8 +47,13 @@ class CategoryController extends Controller
             ->where('parent_id', $category_id)
             ->get();
 
+        // needed by the create form's "similar categories/services" multiselects when $depth == 1
+        $all_categories = Category::filter()->select('id', 'title')->get();
+        $all_services = Service::filter()->select('id', 'title')->get();
+
         return view('Admin.site.category.create', compact(
-            'parent', 'path', 'depth', 'cateDepthOne', 'family_cat_ids_list' , 'all_categories' , 'all_services'        ));
+            'parent', 'path', 'depth', 'cateDepthOne', 'family_cat_ids_list', 'all_categories', 'all_services'
+        ));
     }
 
     public function store(Request $request)

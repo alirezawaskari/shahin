@@ -60,7 +60,10 @@
 
                     <div class="col-12 col-md-6 mb-3">
                         <label> عکس ذخیره شده :</label>
-                        @include('Admin.partials.currentMedia', ['owner' => $news, 'field' => 'image'])
+                        {{-- required: store() validates image_path, so the image must never be
+                             deleted to empty — it can only be replaced by uploading a new one
+                             (the ✕ deletes immediately, which would bypass that validation). --}}
+                        @include('Admin.partials.currentMedia', ['owner' => $news, 'field' => 'image', 'required' => true])
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label> تغییر عکس :</label>

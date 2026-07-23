@@ -119,6 +119,19 @@ trait AdoptsLegacyMedia
     }
 
     /**
+     * Multi-image collections to adopt from the legacy `work_samples` morphMany (Service
+     * portfolio). Counterpart to legacyGalleryMigrations() for the workSamples() relation —
+     * unlimited, no type filter, no slot index. Each entry: ['collection' => '<name>'].
+     * Default none.
+     *
+     * @return array<int, array{collection:string}>
+     */
+    protected function legacyWorkSampleMigrations(): array
+    {
+        return [];
+    }
+
+    /**
      * Walk a (possibly nested) array-column value and adopt every string that resolves to
      * a real legacy file under public/. Non-file values (text, ids, null) resolve to
      * nothing and are skipped, so no structural knowledge of the column is needed.
@@ -223,6 +236,61 @@ trait AdoptsLegacyMedia
                 return false;
             }
             $seen[] = $i['url'];
+
+            return true;
+        }));
+    }
+
+    /**
+     * Flat-list counterpart to mediaUrlsForField(): the display urls for a legacyArrayMediaMap()
+     * column that is a plain array of paths (not field-keyed) — e.g. PurchaseInvoice::factor_image.
+     *
+     * Returns the UNION of this collection's Spatie media urls (adopted or newly uploaded, served
+     * from /storage) and any legacy path in the column not yet represented by an adopted media.
+     * Mirrors the single-image accessors ("Spatie first, legacy fallback"): once a save adopts the
+     * legacy files, the gallery shows the migrated /storage copies instead of the old /upload paths
+     * — otherwise the column is never rewritten and the view would keep serving the legacy files.
+     *
+     * Media come first, so a caller taking [0] prefers the new system. De-duplicated by url.
+     *
+     * @return array<string>
+     */
+    public function arrayMediaUrls(string $collection, string $column): array
+    {
+        $media = MediaLibraryHelper::existingMedia($this, $collection);
+
+        $urls = $media->map(fn ($m) => $m->getUrl())->values()->all();
+
+        // legacy paths already adopted into this collection — showing them again would
+        // render the same file twice (served once from /storage, once from /upload).
+        $adopted = $media->map(fn ($m) => $m->getCustomProperty('old_file_path'))
+            ->filter()
+            ->values()
+            ->all();
+
+        $walk = function ($value) use (&$walk, &$urls, $adopted) {
+            if (is_array($value)) {
+                foreach ($value as $item) {
+                    $walk($item);
+                }
+                return;
+            }
+            if (! is_string($value) || $value === '') {
+                return;
+            }
+            if (str_contains($value, '/storage/') || in_array($value, $adopted, true)) {
+                return; // already migrated, or already adopted from this exact legacy path
+            }
+            $urls[] = asset($value);
+        };
+        $walk($this->getAttribute($column));
+
+        $seen = [];
+        return array_values(array_filter($urls, function ($u) use (&$seen) {
+            if (in_array($u, $seen, true)) {
+                return false;
+            }
+            $seen[] = $u;
 
             return true;
         }));
@@ -368,6 +436,49 @@ trait AdoptsLegacyMedia
     }
 
     /**
+     * work_samples counterpart to hasLegacyGalleryRows(): TRUE when a legacyWorkSampleMigrations()
+     * collection still has legacy `work_samples` rows to adopt (used to show the migrate hint on
+     * the portfolio tab). Read-only.
+     */
+    public function hasLegacyWorkSampleRows(string $collection): bool
+    {
+        if (! method_exists($this, 'workSamples')) {
+            return false;
+        }
+
+        foreach ($this->legacyWorkSampleMigrations() as $migration) {
+            if (($migration['collection'] ?? null) !== $collection) {
+                continue;
+            }
+
+            return $this->workSamples()->whereNotNull('image')->where('image', '!=', '')->exists();
+        }
+
+        return false;
+    }
+
+    /**
+     * Display rows (title + absolute url) for the not-yet-adopted legacy work samples of a
+     * collection, so the portfolio view can show the legacy images with a migrate notice
+     * before a save adopts them. Empty once there is nothing left to migrate.
+     *
+     * @return array<int, array{title:?string, url:string}>
+     */
+    public function legacyWorkSampleItems(string $collection): array
+    {
+        if (! $this->hasLegacyWorkSampleRows($collection)) {
+            return [];
+        }
+
+        return $this->workSamples()
+            ->whereNotNull('image')->where('image', '!=', '')
+            ->orderBy('id')->get()
+            ->map(fn ($row) => ['title' => $row->title, 'url' => asset($row->image)])
+            ->values()
+            ->all();
+    }
+
+    /**
      * May the admin delete THIS media from a gallery/multi-file collection?
      *
      * Deleting one of several is fine: adoptLegacyMedia() skips a collection that still has
@@ -450,35 +561,52 @@ trait AdoptsLegacyMedia
         }
 
         // galleries: legacy `galleries` rows -> multi/slot collection
-        if (! method_exists($this, 'galleries')) {
-            return;
-        }
-        foreach ($this->legacyGalleryMigrations() as $migration) {
-            $collection = $migration['collection'] ?? null;
-            if (! $collection || $this->freshMedia($collection)->isNotEmpty()) {
-                continue;
-            }
-
-            $query = $this->galleries();
-            if (array_key_exists('type', $migration) && $migration['type'] !== null) {
-                $query->where('type', $migration['type']);
-            }
-            $rows = $query->orderBy('id')->get();
-            if (! empty($migration['max'])) {
-                $rows = $rows->take($migration['max']);
-            }
-
-            $index = 0;
-            foreach ($rows as $row) {
-                if (empty($row->image)) {
+        if (method_exists($this, 'galleries')) {
+            foreach ($this->legacyGalleryMigrations() as $migration) {
+                $collection = $migration['collection'] ?? null;
+                if (! $collection || $this->freshMedia($collection)->isNotEmpty()) {
                     continue;
                 }
-                $props = ['title' => $row->title];
-                if (! empty($migration['slotted'])) {
-                    $props['index'] = $index;
+
+                $query = $this->galleries();
+                if (array_key_exists('type', $migration) && $migration['type'] !== null) {
+                    $query->where('type', $migration['type']);
                 }
-                MediaLibraryHelper::adoptLegacyFile($this, $collection, $row->image, $props);
-                $index++;
+                $rows = $query->orderBy('id')->get();
+                if (! empty($migration['max'])) {
+                    $rows = $rows->take($migration['max']);
+                }
+
+                $index = 0;
+                foreach ($rows as $row) {
+                    if (empty($row->image)) {
+                        continue;
+                    }
+                    $props = ['title' => $row->title];
+                    if (! empty($migration['slotted'])) {
+                        $props['index'] = $index;
+                    }
+                    MediaLibraryHelper::adoptLegacyFile($this, $collection, $row->image, $props);
+                    $index++;
+                }
+            }
+        }
+
+        // work samples: legacy `work_samples` rows -> unlimited multi-image collection
+        // (Service portfolio). Same shape as galleries but the workSamples() morphMany,
+        // no type filter and no slot index.
+        if (method_exists($this, 'workSamples')) {
+            foreach ($this->legacyWorkSampleMigrations() as $migration) {
+                $collection = $migration['collection'] ?? null;
+                if (! $collection || $this->freshMedia($collection)->isNotEmpty()) {
+                    continue;
+                }
+                foreach ($this->workSamples()->orderBy('id')->get() as $row) {
+                    if (empty($row->image)) {
+                        continue;
+                    }
+                    MediaLibraryHelper::adoptLegacyFile($this, $collection, $row->image, ['title' => $row->title]);
+                }
             }
         }
     }

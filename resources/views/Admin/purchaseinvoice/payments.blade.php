@@ -51,8 +51,11 @@
                     <br>
                     <label for="bill_image_input2" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                    {{-- keep-optional: paymentType(2) sets HTML `required` on this hidden (.file-up)
+                         input, which aborts submit as "not focusable". Requiredness for card/cash/
+                         card_reader is enforced by the submit check below + the server instead. --}}
                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
-                        id="bill_image_input2">
+                        id="bill_image_input2" data-keep-optional="1">
                     <div id="bill_image_input2_src" class="show"></div>
                     <input type="hidden" id="bill_image_input2_path" class="path" name="url_bill_image" value="">
                 </div>
@@ -115,8 +118,9 @@
                     <br>
                     <label for="bill_image_input3" id="up-label" class="btn btn-primary custom-file-upload border border-1"><i
                             class="fa fa-upload ml-2" aria-hidden="true"></i> انتخاب تصویر </label>
+                    {{-- keep-optional: see the note on bill_image_input2 above. --}}
                     <input class="filestyle file-upload file_upload_ajax file-up" name="bill_image" type="file"
-                        id="bill_image_input3">
+                        id="bill_image_input3" data-keep-optional="1">
                     <div id="bill_image_input3_src" class="show"></div>
                     <input type="hidden" id="bill_image_input3_path" class="path" name="url_bill_image" value="">
                 </div>
@@ -202,3 +206,25 @@
     </div>
 </div>
 @include('Admin.factor.factorShowModal')
+
+<script>
+    // Receipt is required for card-to-card / POS (card reader) / cash — same rule and message as
+    // the factor pages. The ajax input is display:none so we enforce it here (immediate feedback)
+    // and on the server, not via HTML5 `required` (which aborts submit as "not focusable").
+    // Deferred to DOMContentLoaded: this script sits in the page content, which runs BEFORE
+    // jQuery is loaded at the bottom — binding immediately would throw ($ undefined) and skip.
+    document.addEventListener('DOMContentLoaded', function () {
+        function requireReceipt(selectId, pathId) {
+            var $select = $('#' + selectId);
+            $select.closest('form').on('submit', function (e) {
+                var pt = $select.val();
+                if ((pt === 'card' || pt === 'cash' || pt === 'card_reader') && !$('#' + pathId).val()) {
+                    e.preventDefault();
+                    toastr.error('برای پرداخت کارت به کارت، کارتخوان و نقدی، بارگذاری رسید دریافت وجه الزامی است.');
+                }
+            });
+        }
+        requireReceipt('payment_type2', 'bill_image_input2_path'); // ثبت واریزی فاکتور
+        requireReceipt('payment_type3', 'bill_image_input3_path'); // ثبت عودت واریزی
+    });
+</script>

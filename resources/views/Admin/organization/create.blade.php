@@ -152,7 +152,13 @@
 
                     <div class="col-12 col-md-4 mt-2">
                         <div class="card">
-                            <img id="stamp_src" class="card-img-top" height="150px">
+                            {{-- div.show, not an empty <img>: the ajax widget writes the preview into
+                                 #{id}_src.show, so an <img> without the class never received it (and
+                                 an empty <img> rendered as a broken icon instead of a placeholder). --}}
+                            <div id="stamp_src" class="show">
+                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                            </div>
                             <div class="card-body">
                                 <label>مهر</label>
                                 <br>
@@ -165,7 +171,11 @@
 
                     <div class="col-12 col-md-8 mt-2">
                         <div class="card">
-                            <img id="image_src" class="card-img-top" height="150px">
+                            {{-- see the note on stamp_src above --}}
+                            <div id="image_src" class="show">
+                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted"
+                                     style="height:150px;background:#f8f9fa;">بدون تصویر</div>
+                            </div>
                             <div class="card-body">
                                 <label>تصویر سایت</label>
                                 <br>
@@ -178,7 +188,7 @@
 
                     <div class="col-12 row">
                         <div class="col-md-4">
-                            <div id="addnew" class="btn btn-success mb-5">
+                            <div id="addnew" class="btn btn-primary custom-file-upload border border-1 mb-5">
                                 <label for="document" id="up-label"><i class="fa fa-upload ml-2"
                                         aria-hidden="true"></i> افزودن مدارک سازمان </label>
                                 <input name="document[]" type="file" id="document"
@@ -191,7 +201,10 @@
                             </div>
                         </div>
                         <div id="document_newlinktpl" class="d-none">
-                            <img id="document_src" class="card-img-top mb-2" height="150px">
+                            {{-- div.show (no placeholder): this template is cloned per uploaded file
+                                 and new_link() rewrites the id, but the preview is appended to
+                                 #{id}_src{n}.show — an <img> without the class got nothing. --}}
+                            <div id="document_src" class="show mb-2"></div>
                             <input type="hidden" id="document_path" class="path"
                                 name="urldocument[]">
                         </div>

@@ -71,8 +71,10 @@
                                name="image"/>
                         <div id="image_src" class="show"></div>
                         <input type="hidden" id="image_path" class="path" name="image_path" value="">
-                        @if($errors->has('image'))
-                            <span class="help-block sub-error"> {{$errors->first('image')}} </span>
+                        {{-- store() validates `image_path` (the hidden temp-media id), not `image`
+                             — keyed on 'image' the required message never rendered. --}}
+                        @if($errors->has('image_path'))
+                            <span class="help-block sub-error"> {{$errors->first('image_path')}} </span>
                         @endif
 
                     </div>
@@ -110,6 +112,23 @@
             </form>
         </div>
     </div>
+
+<script>
+    // The image is required (store() validates image_path). The ajax input is display:none, so
+    // HTML5 `required` on it would abort submit as "not focusable" — check the hidden temp-media
+    // id here instead, mirroring the server rule and its message.
+    // Deferred to DOMContentLoaded: this script sits in the page content, which runs BEFORE
+    // jQuery is loaded at the bottom.
+    document.addEventListener('DOMContentLoaded', function () {
+        var $path = $('#image_path');
+        $path.closest('form').on('submit', function (e) {
+            if (!$path.val()) {
+                e.preventDefault();
+                toastr.error('لطفا عکس را وارد کنید');
+            }
+        });
+    });
+</script>
 @stop
 
 
