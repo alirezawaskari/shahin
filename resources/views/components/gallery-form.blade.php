@@ -1,8 +1,20 @@
+@php
+    $deskImages = $galleries->where('type', 1)->values();
+
+    $numberImage = 2;
+
+    if ($ghorfeTemplet == 'service') {
+        $numberImage = 4;
+    }
+
+    $bigDeskIndex = $numberImage;
+@endphp
+
 <div class="col-md-12 mb-3">
     <h4>عکس های گالری *</h4>
     <span>تمامی عکس ها الزامی هستند.</span><br/>
     <span>نمایش در موبایل و دسکتاپ</span><br/>
-    <span>4 عکس کوچک و 1 عکس بزرگ</span>
+    <span>{{ $numberImage }} عکس کوچک و 1 عکس بزرگ</span>
 </div>
 
 {{-- ================= DESKTOP ================= --}}
@@ -12,17 +24,7 @@
         عکس های دسکتاپ
     </div>
 
-    @php
-        $deskImages = $galleries->where('type', 1)->values();
 
-        $numberImage = 3;
-
-        if ($ghorfeTemplet == 'service') {
-            $numberImage = 5;
-        }
-
-        $bigDeskIndex = $numberImage;
-    @endphp
 
     @for($i = 0; $i < $numberImage; $i++)
         @php
