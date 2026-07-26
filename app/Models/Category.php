@@ -247,7 +247,7 @@ class Category extends Model implements HasMedia
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
-    
+
     /**
      * @param $cat_id
      * @return mixed
@@ -305,8 +305,7 @@ class Category extends Model implements HasMedia
     {
         $res=[];
         //all category except services
-        $service_cat = Category::where('id',2)->select('id','title')->first();
-        $service_childes = Category::where('parent_id',$service_cat->id)->select('id','title')->pluck('id');
+        $service_childes = Category::filter()->where('parent_id',2)->select('id','title')->pluck('id');
         foreach(Category::whereNotIn('id',$service_childes)->get() as $cat){
             if(Category::hasChild($cat->id) == 0){
                 $res[]=$cat;

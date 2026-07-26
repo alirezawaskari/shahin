@@ -10,9 +10,9 @@ use Illuminate\Http\Request;
 class AttributeGroupController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of index
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\View
      */
     public function index(Request $request)
     {
@@ -31,7 +31,7 @@ class AttributeGroupController extends Controller
         }
 
         $attribute_groups = $attribute_groups->paginate(15)->appends($queries);
-        $last_categories = Category::filter()->lastCategory();
+        $last_categories = Category::lastCategory();
         return view('Admin.site.attributeGroup.list',compact('attribute_groups',
             'last_categories','queries'));
     }
@@ -43,7 +43,7 @@ class AttributeGroupController extends Controller
      */
     public function create()
     {
-        $parents = Category::where('parent_id', 0)->get();
+        $parents = Category::filter()->where('parent_id', 0)->get();
         return view('Admin.site.attributeGroup.create', ['parents' => $parents]);
     }
 
@@ -53,7 +53,7 @@ class AttributeGroupController extends Controller
      */
     public function createByCategory($category_id)
     {
-        $category = Category::where('id',$category_id)->select('id','title')->first();
+        $category = Category::filter()->where('id',$category_id)->select('id','title')->first();
         return view('Admin.site..attributeGroup.create', compact('category'));
     }
 
@@ -104,7 +104,7 @@ class AttributeGroupController extends Controller
     public function edit($id)
     {
         if ($id) {
-            $parents = Category::where('parent_id', 0)->get();
+            $parents = Category::filter()->where('parent_id', 0)->get();
             $attribute_group = AttributeGroup::find($id);
             return view('Admin.site.attributeGroup.edit', ['attribute_group' => $attribute_group, 'parents' => $parents]);
         }

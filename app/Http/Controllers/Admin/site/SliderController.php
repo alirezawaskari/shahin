@@ -68,19 +68,41 @@ class SliderController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
+    /**
+     * The temp media id must point at an IMAGE. The shared uploadFilesTemporarily endpoint
+     * also accepts pdf/doc/zip, so the `accept` attribute on the picker is only a hint —
+     * this is the enforcement behind it.
+     */
+    private function imageOnly(?string $tempId): bool
+    {
+        if (empty($tempId)) {
+            return true; // "required" is a separate rule; nothing to check here
+        }
+        $media = \App\Models\Media::find($tempId);
+
+        return $media && str_starts_with((string) $media->mime_type, 'image/');
+    }
+
     public function store(Request $request)
     {
+        // image_path, NOT image: the ajax widget clears the file input after uploading
+        // (adminJs.js sets this.value=''), so `image` is never submitted and requiring it
+        // rejected every save — even when an image had been uploaded.
         $request->validate(['title' => 'required',
-            'image' => 'required',
+            'image_path' => 'required',
             'link' => 'required',
             ],
             ['title.required' => 'لطفا عنوان را وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید',
+                'image_path.required' => 'لطفا عکس را وارد کنید',
                 'link.required' => 'لطفا لینک را وارد کنید',
             ]
         );
+        if (! $this->imageOnly($request->image_path)) {
+            return back()->withErrors(['image_path' => 'فایل انتخاب شده باید یک تصویر باشد'])->withInput();
+        }
         $request['type'] = 0;
-        $slider = Slider::create($request->all());
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $slider = Slider::create((new Slider)->exceptLegacyMediaKeys($request->all()));
         MediaLibraryHelper::attachTo($slider, $request->image_path, 'img');
         if(auth()->user()->admin_representation_id)
         {
@@ -97,23 +119,28 @@ class SliderController extends Controller
     public function storeOldSliderMobile(Request $request)
     {
         $request->validate(['title' => 'required',
-            'image' => 'required',
+            'image_path' => 'required',   // see store()
             'link' => 'required',
             ],
             ['title.required' => 'لطفا عنوان را وارد کنید',
-                'image.required' => 'لطفا عکس را وارد کنید',
+                'image_path.required' => 'لطفا عکس را وارد کنید',
                 'link.required' => 'لطفا لینک را وارد کنید',
             ]
         );
+        if (! $this->imageOnly($request->image_path)) {
+            return back()->withErrors(['image_path' => 'فایل انتخاب شده باید یک تصویر باشد'])->withInput();
+        }
         $request['type'] = 4;
-        $slider = Slider::create($request->all());
+        $slider = Slider::create((new Slider)->exceptLegacyMediaKeys($request->all()));
         MediaLibraryHelper::attachTo($slider, $request->image_path, 'img');
         if(auth()->user()->admin_representation_id)
         {
             $slider->update(['representation_id' => auth()->user()->admin_representation_id]);
         }
 
-        return redirect()->back()->with(['create' => 'success']);
+        return redirect()
+            ->route('slider.index')
+            ->with(['create' => 'success']);
     }
 
     /**
@@ -152,8 +179,14 @@ class SliderController extends Controller
             ]
         );
 
+        // on edit the saved image is kept, so image_path is optional — but if one IS
+        // uploaded it still has to be an image
+        if (! $this->imageOnly($request->image_path)) {
+            return back()->withErrors(['image_path' => 'فایل انتخاب شده باید یک تصویر باشد'])->withInput();
+        }
+
         $s = Slider::find($id);
-        $s->update($request->all());
+        $s->update($s->exceptLegacyMediaKeys($request->all()));
         MediaLibraryHelper::attachTo($s, $request->image_path, 'img');
         return redirect()->back();
         return redirect()

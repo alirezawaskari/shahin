@@ -46,12 +46,17 @@
                         <label for="image" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
                         </label>
+                        {{-- accept: the shared ajax endpoint also takes pdf/doc/zip, which makes no
+                             sense for a slider — restrict the picker to image types --}}
                         <input id="image" class="d-none file-upload file_upload_ajax" type="file"
-                               name="image"/>
+                               name="image" accept=".jpg,.jpeg,.png,.webp,.gif,.svg"/>
                         <div id="image_src" class="show"></div>
                         <input type="hidden" id="image_path" class="path" name="image_path" value="">
-                        @if($errors->has('image'))
-                            <span class="help-block sub-error  "> {{$errors->first('image')}} </span>
+                        {{-- keyed on image_path (the hidden temp-media id), which is what the
+                             controller validates — `image` is the file input and is cleared by
+                             the ajax widget, so an error was never reported under that key --}}
+                        @if($errors->has('image_path'))
+                            <span class="help-block sub-error  "> {{$errors->first('image_path')}} </span>
                         @endif
                     </div>
 
@@ -59,7 +64,7 @@
                     <div class="ln_solid"></div>
                     <div class="col-12 col-md-12 mb-3">
                         <a href="{{route('slider.index')}}" class="btn btn-warning">بازگشت</a>
-                        <button type="submit" class="btn btn-success">ارسال</button>
+                        <button type="submit" class="btn btn-success" id="slider-submit">ارسال</button>
                     </div>
                 </div>
             </form>
@@ -77,7 +82,25 @@
 
 @section('js')
 
-
+    <script>
+        // The image is required, but HTML5 `required` can't express it: #image_path is a
+        // hidden input (a required hidden field aborts the submit as "not focusable" with
+        // no message) and the visible #image file input is cleared by the ajax widget.
+        // So check the hidden temp-media id on submit. The server enforces the same rule.
+        //
+        // DOMContentLoaded: this block runs before the bottom-loaded jQuery otherwise.
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#slider-submit').closest('form').on('submit', function (e) {
+                if (! $('#image_path').val()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    $('#gif').hide();
+                    toastr.error('لطفا عکس را وارد کنید');
+                    return false;
+                }
+            });
+        });
+    </script>
 
 @stop
 

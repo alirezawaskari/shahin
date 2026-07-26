@@ -85,7 +85,8 @@ class PackController extends Controller
 
         // image_path / multiple_image aren't fillable, so create() ignores them; the
         // images are stored via Spatie (attachTo below).
-        $pack = Pack::create($request->all());
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $pack = Pack::create((new Pack)->exceptLegacyMediaKeys($request->all()));
 
         //products
         $pack->products()->attach($request->product_id);
@@ -337,7 +338,7 @@ class PackController extends Controller
                 $this->updateValidationCenter($request,$pack_by_center);
             }
 
-            $pack->update($request->all());
+            $pack->update($pack->exceptLegacyMediaKeys($request->all()));
 
             //products
             if ($pack->products()->count() > 0)

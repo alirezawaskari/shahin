@@ -114,7 +114,8 @@ class RequestController extends Controller
         if (isset($user->roles) && isset($user->roles()->pluck('card_id')[0])) {
             $request['card_id'] = $user->roles()->pluck('card_id')[0];
         }
-        $request_rec = \App\Models\Request::create($request->all());
+        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+        $request_rec = \App\Models\Request::create((new \App\Models\Request)->exceptLegacyMediaKeys($request->all()));
 
         if ($request->file_path) {
             MediaLibraryHelper::attachTo($request_rec, $request->file_path, 'file');

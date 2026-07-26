@@ -98,20 +98,37 @@ class AboutController extends Controller
     public function update(Request $request, $id)
     {
 
-        $request->validate([
+        $about = About::find($id);
+
+        // The box images are required (see store()). On edit a re-upload isn't required —
+        // the saved image is kept — so the rule is "must not end up empty": required only
+        // for a box that has no image yet. Mirrors the client-side check in the view, so
+        // the two can't disagree.
+        $imageRules = [];
+        $imageMessages = [];
+        $labels = [
+            'image_two' => 'عکس باکس دوم', 'image_three' => 'عکس باکس سوم',
+            'image_four' => 'عکس باکس چهارم', 'image_five' => 'عکس باکس پنجم',
+        ];
+        foreach ($labels as $collection => $label) {
+            if ($about && ! $about->$collection) {
+                $imageRules[$collection . '_path'] = 'required';
+                $imageMessages[$collection . '_path.required'] = 'لطفا ' . $label . ' را بارگذاری کنید';
+            }
+        }
+
+        $request->validate(array_merge([
             'content_one' => 'required', 'content_two' => 'required', 'content_three' => 'required',
             'content_four' => 'required', 'content_five' => 'required',
-        ],
-            [
+        ], $imageRules),
+            array_merge([
                 'content_one.required' => 'لطفا متن اول را وارد کنید',
                 'content_two.required' => 'لطفا متن دوم را وارد کنید',
                 'content_three.required' => 'لطفا متن سوم را وارد کنید',
                 'content_four.required' => 'لطفا متن چهارم را وارد کنید',
                 'content_five.required' => 'لطفا متن پنجم را وارد کنید',
-            ]
+            ], $imageMessages)
         );
-
-        $about = About::find($id);
         $about->update($request->all());
 
         // Spatie: attach any newly uploaded box image (attachTo replaces the single file

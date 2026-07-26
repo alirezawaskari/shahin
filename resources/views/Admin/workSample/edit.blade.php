@@ -28,11 +28,22 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="col-md-6 mb-3">
-                            <label>تصویر نمونه‌کار</label>
-                            <input type="file" name="image" class="form-control-file">
-                            @if($workSample->image)
-                                <img src="{{ asset($workSample->image) }}" alt="نمونه‌کار" class="img-thumbnail mt-2" width="100">
+                        <div class="col-md-3 mb-3">
+                            <label>تصویر ذخیره شده</label>
+                            @include('Admin.partials.currentMedia', ['owner' => $workSample, 'field' => 'image', 'boxH' => 150])
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label>تغییر تصویر</label>
+                            <br>
+                            <label for="image" class="btn btn-primary custom-file-upload border border-1">
+                                <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                            </label>
+                            <input id="image" class="d-none file-upload file_upload_ajax" type="file"
+                                   name="image" accept=".jpg,.jpeg,.png,.webp"/>
+                            <div id="image_src" class="show"></div>
+                            <input type="hidden" id="image_path" class="path" name="image_path" value="">
+                            @if($errors->has('image_path'))
+                                <span class="help-block sub-error"> {{ $errors->first('image_path') }} </span>
                             @endif
                         </div>
                     </div>
@@ -81,10 +92,22 @@
 
 @section('js')
     <script>
-        $('#worksampleable_type').on('change', function () {
-            const type = $(this).val();
+        {{-- see the note in create.blade.php: select2 redraw + center-scoped, so both
+             selects must refresh the list and an empty result must explain itself --}}
+        function setWorksampleableOptions(html) {
+            $('#worksampleable_id').html(html).trigger('change.select2');
+        }
+
+        function loadWorksampleableItems() {
+            const type = $('#worksampleable_type').val();
             const centerId = $('#select-center').val();
-            $('#worksampleable_id').html('<option>در حال دریافت اطلاعات...</option>');
+
+            if (!type) {
+                setWorksampleableOptions('<option value="">لطفاً ابتدا مدل مربوطه را انتخاب کنید</option>');
+                return;
+            }
+
+            setWorksampleableOptions('<option value="">در حال دریافت اطلاعات...</option>');
 
             $.ajax({
                 url: '{{ route("workSample.getItemsByType") }}',
@@ -95,16 +118,26 @@
                     center_id: centerId
                 },
                 success: function (res) {
+                    if (!res || res.length === 0) {
+                        setWorksampleableOptions('<option value="">برای این شعبه خدمتی ثبت نشده است</option>');
+                        return;
+                    }
+                    const current = '{{ $workSample->worksampleable_id }}';
                     let options = '<option value="">انتخاب کنید</option>';
                     res.forEach(item => {
-                        options += `<option value="${item.id}">${item.title}</option>`;
+                        // keep the saved selection selected when it's still in the list,
+                        // so merely touching the center doesn't silently clear it
+                        const sel = String(item.id) === current ? ' selected' : '';
+                        options += `<option value="${item.id}"${sel}>${item.title}</option>`;
                     });
-                    $('#worksampleable_id').html(options);
+                    setWorksampleableOptions(options);
                 },
                 error: function () {
-                    $('#worksampleable_id').html('<option>خطا در دریافت اطلاعات</option>');
+                    setWorksampleableOptions('<option value="">خطا در دریافت اطلاعات</option>');
                 }
             });
-        });
+        }
+
+        $('#worksampleable_type, #select-center').on('change', loadWorksampleableItems);
     </script>
 @endsection

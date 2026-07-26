@@ -191,6 +191,10 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
+        if(auth()->user()->level == 'ghorfeAdmin')
+        {
+            return redirect('dashboard/ghorfeOnlineList/'.ghorfe()->slug.'/edit');
+        }
         $totalMonthFactorCount = 0;
         $totalMonthFactorPaidCount = 0;
         $type = $request->type;

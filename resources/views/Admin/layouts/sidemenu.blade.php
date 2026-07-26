@@ -4,6 +4,9 @@
             <li><a class="active" href="#"><i class="icon ti-home"></i> <span>داشبورد</span> </a>
                 <ul>
                     <li><a href="/dashboard"> <span>گزارشات مالی</span> </a></li>
+                    @if(auth()->user()->level == 'ghorfeAdmin')
+                    <li><a href="/dashboard/ghorfeOnlineList/'.{{ $ghorfe->slug }}.'/edit"> <span>مدیریت مغازه</span> </a></li>
+                    @endif
                     <li><a href="/dashboard/dailyDesktop"> <span>کارتابل روزانه</span> </a></li>
                 </ul>
             </li>

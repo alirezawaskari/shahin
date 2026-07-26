@@ -416,13 +416,12 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
 
     /**
      * Summary of ghorfeOnlineLists
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<GhorfeOnlineList, User>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<GhorfeOnlineList, User, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
     public function ghorfeOnlineLists()
     {
-        return $this->hasMany(GhorfeOnlineList::class,'user_id');
+        return $this->belongsToMany(GhorfeOnlineList::class);
     }
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

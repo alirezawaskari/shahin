@@ -107,6 +107,103 @@ trait AdoptsLegacyMedia
     }
 
     /**
+     * Every legacy media COLUMN on this model, for stripping out of mass-assignment input.
+     *
+     * The upload widgets name their file input after the column ("image", "logo", "file"),
+     * and those columns are usually fillable — so `Model::update($request->all())` writes a
+     * raw UploadedFile into the legacy path column whenever an ajax upload doesn't complete
+     * (JS error, validation bounce, a client that just posts the form). That silently
+     * corrupts the very value the accessor falls back to.
+     *
+     * Use with exceptLegacyMediaKeys(): Spatie media is the source of truth, and these
+     * columns must only ever be READ.
+     *
+     * @return array<int, string>
+     */
+    public function legacyMediaColumns(): array
+    {
+        $columns = array_values($this->legacyMediaMap());          // [collection => column]
+        $columns = array_merge($columns, array_keys($this->legacyArrayMediaMap())); // [column => collection]
+        $columns = array_merge($columns, array_values($this->legacyMediaLibraryMap())); // [collection => id column]
+
+        return array_values(array_unique(array_filter($columns)));
+    }
+
+    /**
+     * $request->all() minus this model's legacy media columns (and their *_path partners,
+     * which are temp media ids, not columns). Drop-in for mass assignment:
+     *
+     *   $model->update($model->exceptLegacyMediaKeys($request->all()));
+     */
+    public function exceptLegacyMediaKeys(array $inputs): array
+    {
+        foreach ($this->legacyMediaColumns() as $column) {
+            unset($inputs[$column], $inputs[$column . '_path']);
+        }
+
+        return $inputs;
+    }
+
+    /**
+     * Single-image collections whose legacy value is a MediaLibrary UUID FK rather than a
+     * path: ['spatie_collection' => 'legacy_id_column'] (e.g. ['logo' => 'logo_id']).
+     *
+     * MediaLibrary is the ajax-upload temp holder and its 'images' collection lives on the
+     * PRIVATE local disk, so the referenced file has no public url — it is displayed through
+     * the viewMedia route and copied into the model's own public collection on adoption.
+     */
+    protected function legacyMediaLibraryMap(): array
+    {
+        return [];
+    }
+
+    /** The Spatie media referenced by a legacy *_id column, if its file still exists. */
+    private function legacyMediaLibraryMedia(string $collection)
+    {
+        $column = $this->legacyMediaLibraryMap()[$collection] ?? null;
+        if (! $column) {
+            return null;
+        }
+
+        $id = $this->getRawOriginal($column);
+        if (empty($id)) {
+            return null;
+        }
+
+        $holder = \App\Models\MediaLibrary::find($id);
+        $media = $holder ? $holder->getFirstMedia('images') : null;
+        if (! $media) {
+            return null;
+        }
+
+        try {
+            $path = $media->getPath();
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        return ($path && is_file($path)) ? $media : null;
+    }
+
+    /**
+     * Display url for a not-yet-adopted MediaLibrary-FK legacy image, or ''.
+     * Routed through viewMedia because the file sits on the private disk.
+     */
+    public function legacyMediaLibraryUrl(string $collection): string
+    {
+        $media = $this->legacyMediaLibraryMedia($collection);
+
+        return $media ? url('/dashboard/viewMedia/' . $media->id) : '';
+    }
+
+    /** TRUE when $collection is still served from a legacy *_id reference. */
+    public function mediaLibraryIsLegacy(string $collection): bool
+    {
+        return $this->freshMedia($collection)->isEmpty()
+            && $this->legacyMediaLibraryMedia($collection) !== null;
+    }
+
+    /**
      * Gallery collections to adopt from the legacy `galleries` morphMany. Each entry:
      *   collection: Spatie collection name
      *   type:       legacy Gallery.type to pull (null = all rows)
@@ -451,10 +548,32 @@ trait AdoptsLegacyMedia
                 continue;
             }
 
-            return $this->workSamples()->whereNotNull('image')->where('image', '!=', '')->exists();
+            // A work sample carries its image EITHER as a legacy `image` path (old rows)
+            // OR as Spatie media on the WorkSample itself (created via the ajax widget on
+            // /dashboard/workSample). Both still need folding into the portfolio, so both
+            // count here — checking only the column hid every newly created work sample.
+            return $this->workSamples()->get()
+                ->contains(fn ($row) => $this->workSampleImageSource($row) !== null);
         }
 
         return false;
+    }
+
+    /**
+     * Where a work sample's image can be copied from, or null if it has none:
+     * its legacy `image` path first, else its own Spatie media (a `/storage/...` url,
+     * which resolveLegacyPath() maps back to public/storage via the symlink).
+     */
+    protected function workSampleImageSource($row): ?string
+    {
+        $legacy = $row->getRawOriginal('image');
+        if (! empty($legacy)) {
+            return $legacy;
+        }
+
+        $media = method_exists($row, 'getFirstMedia') ? $row->getFirstMedia('image') : null;
+
+        return $media ? $media->getUrl() : null;
     }
 
     /**
@@ -470,9 +589,12 @@ trait AdoptsLegacyMedia
             return [];
         }
 
+        // no column filter: a work sample's image may live in Spatie media instead of the
+        // legacy column (see workSampleImageSource). $row->image is the accessor, which
+        // already resolves either one to an absolute url; asset() passes those through.
         return $this->workSamples()
-            ->whereNotNull('image')->where('image', '!=', '')
             ->orderBy('id')->get()
+            ->filter(fn ($row) => $this->workSampleImageSource($row) !== null)
             ->map(fn ($row) => ['title' => $row->title, 'url' => asset($row->image)])
             ->values()
             ->all();
@@ -527,6 +649,22 @@ trait AdoptsLegacyMedia
                 continue;
             }
             MediaLibraryHelper::adoptLegacyFile($this, $collection, $legacy);
+        }
+
+        // single images: legacy MediaLibrary UUID FK (*_id column) -> single-file collection.
+        // The source lives on the PRIVATE local disk, so it can't go through
+        // adoptLegacyFile() (which resolves a path under public/) — copy the bytes directly.
+        foreach ($this->legacyMediaLibraryMap() as $collection => $column) {
+            if ($this->freshMedia($collection)->isNotEmpty()) {
+                continue;
+            }
+            $media = $this->legacyMediaLibraryMedia($collection);
+            if (! $media) {
+                continue;
+            }
+            MediaLibraryHelper::adoptMediaFile($this, $collection, $media, [
+                'old_media_library_id' => $this->getRawOriginal($column),
+            ]);
         }
 
         // single images: legacy polymorphic `files` row -> single-file collection
@@ -602,10 +740,15 @@ trait AdoptsLegacyMedia
                     continue;
                 }
                 foreach ($this->workSamples()->orderBy('id')->get() as $row) {
-                    if (empty($row->image)) {
+                    // NOT $row->image: that accessor returns an absolute url, while
+                    // adoptLegacyFile() copies from a path. workSampleImageSource() gives
+                    // the raw legacy path, or the row's own Spatie media url for work
+                    // samples created through the ajax widget.
+                    $source = $this->workSampleImageSource($row);
+                    if ($source === null) {
                         continue;
                     }
-                    MediaLibraryHelper::adoptLegacyFile($this, $collection, $row->image, ['title' => $row->title]);
+                    MediaLibraryHelper::adoptLegacyFile($this, $collection, $source, ['title' => $row->title]);
                 }
             }
         }
