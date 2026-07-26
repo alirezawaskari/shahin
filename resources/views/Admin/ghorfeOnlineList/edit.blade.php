@@ -294,17 +294,18 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-12 col-md-4 mb-2">
-                                    <label>عدد پیامک تخصیص داده شده(اعداد را با , از هم جدا کنید)</label>
-                                    <input type="text" value="{{ implode(',' , $ghorfeOnlineList->sms_code) }}" required
-                                        class="form-control" name="sms_code">
-                                </div>
 
-                                <div class="col-12 col-md-3 mb-2">
+
+                                <div class="col-12 col-md-4 mb-2">
                                     <label>دامنه فعال</label>
                                     <input type="text" value="{{$ghorfeOnlineList->domain_active}}" class="form-control"
                                         name="domain_active">
                                     <label>مانند نمونه: 'lalecard.ir'</label>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label>عدد پیامک تخصیص داده شده(اعداد را با , از هم جدا کنید)</label>
+                                    <input type="text" value="{{ implode(',' , $ghorfeOnlineList->sms_code) }}" required
+                                        class="form-control" name="sms_code">
                                 </div>
                                 <div class="col-12 col-md-4 mb-3">
                                     <label>وضعیت</label>
@@ -351,31 +352,31 @@
 
                                 @include('Admin.layouts.errors')
 
-                                <div class="col-12 col-md-4 mb-2">
+                                <div class="col-12 col-md-3 mb-2">
                                     <label>عنوان فارسی(این عنوان در سایت نمایش داده میشود)</label>
                                     <input type="text" value="{{$ghorfeOnlineList->title}}" class="form-control"
                                         name="title" required>
                                 </div>
 
-                                <div class="col-12 col-md-4 mb-2">
+                                {{-- <div class="col-12 col-md-4 mb-2">
                                     <label>نشان اینترنتی مغازه (لطفا به انگلیسی وارد کنید)</label>
                                     <input type="text" value="{{$ghorfeOnlineList->en_title}}" class="form-control"
                                         name="en_title" required>
-                                </div>
+                                </div> --}}
 
-                                <div class="col-12 col-md-4 mb-2">
+                                <div class="col-12 col-md-3 mb-2">
                                     <label>ایمیل</label>
                                     <input type="email" value="{{$ghorfeOnlineList->email}}" class="form-control"
                                         name="email">
                                 </div>
 
-                                <div class="col-12 col-md-4 mb-2">
+                                <div class="col-12 col-md-3 mb-2">
                                     <label>عنوان مغازه(موثر در سئو سایت)</label>
                                     <input type="text" value="{{$ghorfeOnlineList->index_title}}" class="form-control"
                                         name="index_title" required>
                                 </div>
 
-                                <div class="col-12 col-md-4 mb-2">
+                                <div class="col-12 col-md-3 mb-2">
                                     <label>کد پستی</label>
                                     <input type="text" value="{{$ghorfeOnlineList->postal_code}}" class="form-control"
                                         name="postal_code">
