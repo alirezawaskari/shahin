@@ -83,9 +83,8 @@ class ServiceCallcenterSMSNotification {
         $link = match ( $service->id ) {
             104 => 'centerRequest/create',
             197 => 'Permanent-employment',
-            default => "services/{$service->slug}/{$task->user_id}/{$task->id}",
+            default => ($type == 'serviceItem' ? "serviceItem/{$service->slug}" : "services/{$service->slug}/{$task->user_id}/{$task->id}"),
         };
-
         $singleWebPage = $service->singleWebPages ? $service->singleWebPages->first() : null;
 
         if ( $singleWebPage ) {
@@ -95,7 +94,7 @@ class ServiceCallcenterSMSNotification {
         }
 
         if ( $adminRep = optional( auth()->user() )->admin_representation ) {
-            $link = $type === 'serviceItem'
+            $link = $type == 'serviceItem'
             ? "{$adminRep->slug}/serviceItem/{$service->slug}"
             : "{$adminRep->slug}/{$service->slug}";
 

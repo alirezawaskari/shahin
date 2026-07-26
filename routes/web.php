@@ -889,6 +889,7 @@ Route::post('/service/item', [\App\Http\Controllers\ServiceController::class,'ge
 Route::get('/services', 'ServiceController@index')->name('services');
 Route::get('/service-items/{id}', [ServiceController::class, 'getItems']);
 Route::get('/services/{service}', 'ServiceController@single');
+Route::get('/serviceItem/{serviceItem}', 'ServiceController@serviceItemSingle');
 Route::get('/services/{service}/{callcenter}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}/{task}', 'ServiceController@single');
 Route::get('/services/{service}/{callcenter}/{task}/{factor}', 'ServiceController@single');
