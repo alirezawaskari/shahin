@@ -236,12 +236,6 @@
             </div>
             <hr />
             @endif
-
-            @if($depth == 0 || $depth == 1)
-            <div id="gallerySection">
-                <x-media-gallery-form />
-            </div>
-            @endif
             <hr />
             <div class="row">
                 <div class="col-12 col-md-12 mb-2">
