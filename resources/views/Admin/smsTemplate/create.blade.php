@@ -42,7 +42,7 @@
                 </div>
                 <div class="col-12 mb-2">
                     <label>متن قالب</label>
-                    <textarea class="form-control" name="content"></textarea>
+                    <textarea class="form-control" rows="20" name="content"></textarea>
                 </div>
                 <div class="col-12 p-4 alert-warning mb-2">
                     <p>ملاحضات : </p>
