@@ -259,6 +259,10 @@ class GhorfeOnlineList extends Model implements HasMedia
     {
         return $this->belongsTo(User::class);
     }
+    public function askedQuestions()
+    {
+        return $this->morphMany(AskedQuestion::class, 'askedquestionable');
+    }
 
     public function menus()
     {

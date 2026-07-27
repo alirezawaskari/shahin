@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\UsersExport;
 use App\Helpers\Helper;
 use App\Http\Resources\UserCollection;
+use App\Models\AskedQuestion;
 use App\Models\Category;
 use App\Models\CategoryPermission;
 use App\Models\Employee;
@@ -20,28 +21,26 @@ use App\Models\User;
 use App\Services\Settings\SettingsService;
 use App\Services\V1\Admin\GalleryService;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 class GhorfeOnlineListController extends AdminController {
     /**
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
     protected $settings;
 
-    public function __construct(SettingsService $settings)
-    {
+    public function __construct( SettingsService $settings ) {
         $this->settings = $settings;
     }
 
-    public function getGhofeCategories($id)
-    {
-        $ghorfeOnlineList = GhorfeOnlineList::with('ghorfeCategories')->where('id', $id)->first();
+    public function getGhofeCategories( $id ) {
+        $ghorfeOnlineList = GhorfeOnlineList::with( 'ghorfeCategories' )->where( 'id', $id )->first();
 
-        return view( 'ghorfeAdmin.ghorfe.index', compact( ['ghorfeOnlineList'] ) );
+        return view( 'ghorfeAdmin.ghorfe.index', compact( [ 'ghorfeOnlineList' ] ) );
     }
 
-    public function ghofeCategoryDetail($id)
-    {
-        $categoryPermission = Permission::with('category')->where('cat_id', $id)->get();
+    public function ghofeCategoryDetail( $id ) {
+        $categoryPermission = Permission::with( 'category' )->where( 'cat_id', $id )->get();
         return view( 'ghorfeAdmin.ghorfe.categories', compact( 'categoryPermission' ) );
     }
 
@@ -60,10 +59,10 @@ class GhorfeOnlineListController extends AdminController {
     public function create() {
         if ( auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
             $categories = CategoryPermission::all();
-            $packages=ShahinPackage::with('categoryPermission')->get();
-            $templates = Template::with('menus')->get();
+            $packages = ShahinPackage::with( 'categoryPermission' )->get();
+            $templates = Template::with( 'menus' )->get();
             $employees = Employee::whereStatus( true )->get();
-            return view( 'Admin.ghorfeOnlineList.create', compact( 'templates','employees' , 'categories' ,'packages' ) );
+            return view( 'Admin.ghorfeOnlineList.create', compact( 'templates', 'employees', 'categories', 'packages' ) );
         }
 
         return abort( 401 );
@@ -75,13 +74,12 @@ class GhorfeOnlineListController extends AdminController {
     * @throws \Illuminate\Validation\ValidationException
     */
 
-    public function store(Request $request)
-    {
-        if (!auth()->user()->hasPermission('ghorfe_online_list_create')) {
-            return abort(401);
+    public function store( Request $request ) {
+        if ( !auth()->user()->hasPermission( 'ghorfe_online_list_create' ) ) {
+            return abort( 401 );
         }
 
-        $this->validate($request, [
+        $this->validate( $request, [
             'title' => 'required|string',
             'en_title' => 'required|string',
             'user_id' => 'required',
@@ -93,9 +91,9 @@ class GhorfeOnlineListController extends AdminController {
             'domain_active' => 'required',
             'shahin_package_id' => 'required|exists:shahin_packages,id',
             'template_id' => 'required|exists:templates,id',
-        ]);
+        ] );
 
-        $inputs = $request->only([
+        $inputs = $request->only( [
             'title',
             'en_title',
             'user_id',
@@ -106,83 +104,83 @@ class GhorfeOnlineListController extends AdminController {
             'shahin_package_id',
             'template_id',
             'status'
-        ]);
+        ] );
 
-        $inputs['contract_start_date'] = Helper::vertaToMiladi($request->contract_start_date);
-        $inputs['contract_expiration_date'] = Helper::vertaToMiladi($request->contract_expiration_date);
+        $inputs[ 'contract_start_date' ] = Helper::vertaToMiladi( $request->contract_start_date );
+        $inputs[ 'contract_expiration_date' ] = Helper::vertaToMiladi( $request->contract_expiration_date );
 
-        $ghorfeOnlineList = GhorfeOnlineList::create($inputs);
+        $ghorfeOnlineList = GhorfeOnlineList::create( $inputs );
         $ghorfeOnlineList->about()->create();
 
-        // Spatie: attach the logo from its temp media id (logo_path).
-        if ($request->logo_path) {
-            \App\Helpers\MediaLibraryHelper::attachTo($ghorfeOnlineList, $request->logo_path, 'logo');
+        // Spatie: attach the logo from its temp media id ( logo_path ).
+        if ( $request->logo_path ) {
+            \App\Helpers\MediaLibraryHelper::attachTo( $ghorfeOnlineList, $request->logo_path, 'logo' );
         }
 
-        if (auth()->user()->hasPermission('ghorfe_online_list_categories')) {
-            $ghorfeOnlineList->ghorfeCategories()->sync($request->categories);
+        if ( auth()->user()->hasPermission( 'ghorfe_online_list_categories' ) ) {
+            $ghorfeOnlineList->ghorfeCategories()->sync( $request->categories );
         }
 
         // sms code
-        $codes = collect(explode(',', $request->sms_code))
-            ->map(fn($item) => Helper::numberConverter(trim($item)))
-            ->toArray();
+        $codes = collect( explode( ',', $request->sms_code ) )
+        ->map( fn( $item ) => Helper::numberConverter( trim( $item ) ) )
+        ->toArray();
 
-        $ghorfeOnlineList->update([
+        $ghorfeOnlineList->update( [
             'sms_code' => $codes,
-        ]);
+        ] );
 
-        return redirect(route('ghorfeOnlineList.index'))->with([
+        return redirect( route( 'ghorfeOnlineList.index' ) )->with( [
             'create' => 'success'
-        ]);
+        ] );
     }
 
     /**
     * @param GhorfeOnlineList $ghorfeOnlineList
     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     */
-    public function edit(GhorfeOnlineList $ghorfeOnlineList)
-    {
+
+    public function edit( GhorfeOnlineList $ghorfeOnlineList ) {
         $user = auth()->user();
 
         // ✅ Check permission first
-        if (!$user->hasPermission('ghorfe_online_list_site_content') &&
-            !$user->hasPermission('ghorfe_online_list_official_info')) {
-            return abort(401);
+        if ( !$user->hasPermission( 'ghorfe_online_list_site_content' ) &&
+        !$user->hasPermission( 'ghorfe_online_list_official_info' ) ) {
+            return abort( 401 );
         }
 
         // ✅ If admin, check domain
-        if ($user->level == 'ghorfeAdmin') {
-            if (ghorfe()->id !== $ghorfeOnlineList->id) {
-                return abort(401);
+        if ( $user->level == 'ghorfeAdmin' ) {
+            if ( ghorfe()->id !== $ghorfeOnlineList->id ) {
+                return abort( 401 );
             }
         }
 
-        // ✅ Shared data (no duplication)
-        $employees = Employee::whereStatus(true)->get();
-        $packages = ShahinPackage::with('categoryPermission')->get();
-        $categories = Category::where('depth', 1)->get();
-        $themes = Theme::where('type', 'default')->get();
-        $templates = Template::with('menus')->get();
+        // ✅ Shared data ( no duplication )
+        $employees = Employee::whereStatus( true )->get();
+        $packages = ShahinPackage::with( 'categoryPermission' )->get();
+        $categories = Category::where( 'depth', 1 )->get();
+        $themes = Theme::where( 'type', 'default' )->get();
+        $templates = Template::with( 'menus' )->get();
 
         $company_info = [
-            'address' => $this->settings->get('address'),
-            'phone' => $this->settings->get('phone'),
-            'email' => $this->settings->get('email'),
-            'shaba_number' => $this->settings->get('shaba_number'),
-            'card_number' => $this->settings->get('card_number'),
-            'card_holder' => $this->settings->get('card_holder'),
-            'tax_free_shaba_number' => $this->settings->get('tax_free_shaba_number'),
-            'tax_free_card_number' => $this->settings->get('tax_free_card_number'),
-            'tax_free_card_holder' => $this->settings->get('tax_free_card_holder'),
-            'sms_panel' => $this->settings->get('sms_panel'),
-            'iranSms_linenumber' => $this->settings->get('iranSms_linenumber'),
-            'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
+            'address' => $this->settings->get( 'address' ),
+            'phone' => $this->settings->get( 'phone' ),
+            'email' => $this->settings->get( 'email' ),
+            'shaba_number' => $this->settings->get( 'shaba_number' ),
+            'card_number' => $this->settings->get( 'card_number' ),
+            'card_holder' => $this->settings->get( 'card_holder' ),
+            'tax_free_shaba_number' => $this->settings->get( 'tax_free_shaba_number' ),
+            'tax_free_card_number' => $this->settings->get( 'tax_free_card_number' ),
+            'tax_free_card_holder' => $this->settings->get( 'tax_free_card_holder' ),
+            'sms_panel' => $this->settings->get( 'sms_panel' ),
+            'iranSms_linenumber' => $this->settings->get( 'iranSms_linenumber' ),
+            'iranSms_apikey' => $this->settings->get( 'iranSms_apikey' ),
         ];
 
         $ghorfe_domain_active = ghorfe()->domain_active;
 
-        return view('Admin.ghorfeOnlineList.edit', compact(
+        return view( 'Admin.ghorfeOnlineList.edit', compact(
             'templates',
             'themes',
             'ghorfe_domain_active',
@@ -191,31 +189,31 @@ class GhorfeOnlineListController extends AdminController {
             'packages',
             'employees',
             'company_info'
-        ));
+        ) );
     }
     /**
-     * Spatie replacement for the legacy getGallery/galleryUpdate pair. Saves the ghorfe's
+    * Spatie replacement for the legacy getGallery/galleryUpdate pair. Saves the ghorfe's
      * per-ghorfe data-mining slot gallery (gallery_desktop + gallery_mobile) via attachTo.
      * The category/service dropdowns are kept and tag the gallery through the media's
-     * parent_id custom property.
-     */
-    public function gallerySave(Request $request, GhorfeOnlineList $ghorfeOnlineList)
-    {
-        $parentId = $request->service_item ?: ($request->service ?: $request->category);
+    * parent_id custom property.
+    */
 
-        $this->syncGallerySlots($ghorfeOnlineList, 'gallery_desktop', $request->input('deskImage', []), $parentId);
-        $this->syncGallerySlots($ghorfeOnlineList, 'gallery_mobile', $request->input('mobileImage', []), $parentId);
+    public function gallerySave( Request $request, GhorfeOnlineList $ghorfeOnlineList ) {
+        $parentId = $request->service_item ?: ( $request->service ?: $request->category );
+
+        $this->syncGallerySlots( $ghorfeOnlineList, 'gallery_desktop', $request->input( 'deskImage', [] ), $parentId );
+        $this->syncGallerySlots( $ghorfeOnlineList, 'gallery_mobile', $request->input( 'mobileImage', [] ), $parentId );
 
         return redirect()
-            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
-            ->with([
-                'update' => 'success',
-                'active_tab' => 'gallery_content'
-            ]);
+        ->route( 'ghorfeOnlineList.edit', $ghorfeOnlineList->slug )
+        ->with( [
+            'update' => 'success',
+            'active_tab' => 'gallery_content'
+        ] );
     }
 
     /**
-     * Attach/replace/rename the slot-based Spatie gallery of the ghorfe. Each slot's
+    * Attach/replace/rename the slot-based Spatie gallery of the ghorfe. Each slot's
      * metadata (the former galleries-table columns) is preserved as media custom
      * properties, so the legacy galleries table is no longer needed here.
      */
@@ -276,7 +274,7 @@ class GhorfeOnlineListController extends AdminController {
             $ghorfeOnlineList->update( $inputs );
 
             $codes = [];
-            $array = explode( ',', $request->input( 'sms_code' ) );
+            $array = explode( ', ', $request->input( 'sms_code' ) );
             foreach ( $array as $item ) {
                 array_push( $codes, Helper::numberConverter( $item ) );
             }
@@ -301,7 +299,7 @@ class GhorfeOnlineListController extends AdminController {
         }
 
         $request->validate([
-            'package_id' => 'required|exists:shahin_packages,id',
+            'package_id' => 'required|exists:shahin_packages, id',
         ]);
 
         $ghorfeOnlineList->update([
@@ -356,7 +354,7 @@ class GhorfeOnlineListController extends AdminController {
 
         // footer_tag جداگانه (بدون overwrite کل update)
         if ($request->filled('footer_tag')) {
-            $codes = collect(explode(',', $request->footer_tag))
+            $codes = collect(explode(', ', $request->footer_tag))
                 ->map(fn ($item) => Helper::numberConverter($item))
                 ->toArray();
 
@@ -425,6 +423,60 @@ class GhorfeOnlineListController extends AdminController {
                 ]);
         }
     }
+    public function question(Request $request,GhorfeOnlineList $ghorfeOnlineList)
+    {
+        switch ($request->update_type) {
+            case "insert_question":
+                return $this->insertQuestion($request,$ghorfeOnlineList);
+            case "update_question":
+                return $this->updateQuestion($request,$ghorfeOnlineList);
+            case "delete_question":
+                return $this->deleteQuestion($request,$ghorfeOnlineList);
+            default:
+                return response(['status'=>'error','messages'=>'']);
+        }
+    }
+    private function insertQuestion(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        $validator = Validator::make($request->all(),
+            [
+                'question'=>['required' ],
+                'answer'=>['required' ],
+            ]);
+        if ($validator->fails()) {
+            return response(['status'=>'error','messages'=>$validator->messages()->all()]);
+        }
+        $question=$ghorfeOnlineList->askedQuestions()->create([
+            'question'=>$request->question,
+            'answer'=>$request->answer
+        ]);
+        return response(['status'=>'success','data'=>['type'=>'asked_question','data'=>$question],'messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+    }
+    private function updateQuestion(Request $request, GhorfeOnlineList $ghorfeOnlineList){
+        $validator = Validator::make($request->all(),
+            [
+                'asked_question_id'=>['required',Rule::exists('asked_questions','id')],
+                'question'=>['required' ],
+                'answer'=>['required' ],
+
+            ]);
+        if ($validator->fails()) {
+            return response(['status'=>'error','messages'=>$validator->messages()->all()]);
+        }
+
+        AskedQuestion::where('id',$request->asked_question_id)->where('askedquestionable_type',GhorfeOnlineList::class)
+            ->where('askedquestionable_id',$ghorfeOnlineList->id)->update([
+                'question'=>$request->question,
+                'answer'=>$request->answer
+            ]);
+        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+    }
+    private function deleteQuestion(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        AskedQuestion::where('id',$request->asked_question_id)->where('askedquestionable_type',GhorfeOnlineList::class)
+            ->where('askedquestionable_id',$ghorfeOnlineList->id)->delete();
+        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+    }
     public function themeUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
     {
         if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
@@ -442,8 +494,16 @@ class GhorfeOnlineListController extends AdminController {
         {
             $request->validate([
                 'name'            => ['required', 'string', 'max:255'],
-                'color_primary'   => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-                'color_secondary' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+                'color_primary'   => ['required', 'regex:/^#( [ A-Fa-f0-9 ] {
+        6}
+        |[ A-Fa-f0-9 ] {
+            3}
+        )$/'],
+                'color_secondary' => ['required', 'regex:/^#( [ A-Fa-f0-9 ] {
+            6}
+            |[ A-Fa-f0-9 ] {
+                3}
+            )$/'],
             ]);
 
             $newTheme = Theme::create([
@@ -475,7 +535,7 @@ class GhorfeOnlineListController extends AdminController {
         // Validate
         $request->validate([
             'categories' => 'required|array',
-            'categories.*' => 'exists:category_permissions,id',
+            'categories.*' => 'exists:category_permissions, id',
         ]);
 
         // Sync categories
@@ -546,9 +606,9 @@ class GhorfeOnlineListController extends AdminController {
         $users = User::filter($request)->latest();
 
         if ($request->exel == 'on') {
-            return (new UsersExport($users))->download('users.xlsx');
+            return (new UsersExport($users))->download('users.xlsx' );
         }
 
-        return new UserCollection($users->paginate(20));
+        return new UserCollection( $users->paginate( 20 ) );
     }
 }
