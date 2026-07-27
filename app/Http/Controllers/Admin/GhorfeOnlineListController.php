@@ -153,7 +153,7 @@ class GhorfeOnlineListController extends AdminController {
 
         // ✅ If admin, check domain
         if ($user->level == 'ghorfeAdmin') {
-            if (ghorfe() !== $ghorfeOnlineList) {
+            if (ghorfe()->id !== $ghorfeOnlineList->id) {
                 return abort(401);
             }
         }
@@ -180,7 +180,7 @@ class GhorfeOnlineListController extends AdminController {
             'iranSms_apikey' => $this->settings->get('iranSms_apikey'),
         ];
 
-        $ghorfe_domain_active = request()->getHost() === $ghorfeOnlineList->domain_active;
+        $ghorfe_domain_active = ghorfe()->domain_active;
 
         return view('Admin.ghorfeOnlineList.edit', compact(
             'templates',
