@@ -5,6 +5,7 @@ namespace App\Classes\External;
 use App\Models\Setting;
 use App\Models\SmsTemplate;
 use App\Services\Settings\SettingsService;
+use App\Services\Sms\SmsSenderInfoResolver;
 use App\Services\V1\Engin\Sms\SmsServicer;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
@@ -22,7 +23,10 @@ class SendSms
     {
         $SmsTemplate = SmsTemplate::where('name',$template)->first();
         if($SmsTemplate){
-            $message = (new SmsServicer())->generateSms($SmsTemplate->content, $params);
+            // Inject role-based sender info ({company_name}, {phone}, {address})
+            // before the positional %param% substitution runs.
+            $content = app(SmsSenderInfoResolver::class)->applyTo($SmsTemplate->content);
+            $message = (new SmsServicer())->generateSms($content, $params);
             if($message !== false){
                 // Static method: resolve SettingsService from the container ($this is invalid here).
                 $smsService = app(SettingsService::class)->get('sms_panel') ?? 'IranSms';
