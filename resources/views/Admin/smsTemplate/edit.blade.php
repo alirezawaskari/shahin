@@ -45,7 +45,7 @@
                 </div>
                 <div class="col-12 mb-2">
                     <label>متن قالب</label>
-                    <textarea name="content" class="form-control">{{$smsTemplate->content}}</textarea>
+                    <textarea name="content" rows="20" class="form-control">{{$smsTemplate->content}}</textarea>
                 </div>
             </div>
             <div class="col-12 p-4 alert-warning mb-2">
