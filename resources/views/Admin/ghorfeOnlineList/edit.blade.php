@@ -197,7 +197,7 @@
                             </div>
                         </form>
 
-                        @if($ghorfe_domain_active)
+                        {{-- @if($ghorfe_domain_active)
                         <form action="{{route('settings.updateExpireDates')}}" method="post">
                             @csrf
                             @method('PATCH')
@@ -263,7 +263,7 @@
                                 </div>
                             </div>
                         </form>
-                        @endif
+                        @endif --}}
 
                     </div>
                     <div class="tab-pane fade  p-t-20 {{ $activeTab == 'official_info' ? 'show active' : '' }}"
@@ -813,10 +813,10 @@
                             <hr>
                         </form>
                         <div class="row">
-                        <div class="col-md-12 col-sm-12 col-xs-12 mb-5">
-                            @include('Admin.ghorfeOnlineList.layouts.editAskedQuestion')
+                            <div class="col-md-12 col-sm-12 col-xs-12 mb-5">
+                                @include('Admin.ghorfeOnlineList.layouts.editAskedQuestion')
+                            </div>
                         </div>
-                    </div> 
                     </div>
                     <div class="tab-pane fade p-t-20  {{ $activeTab == 'theme_content' ? 'show active' : '' }}"
                         id="theme_content" role="tabpanel" aria-labelledby="text-content-tab">
@@ -940,16 +940,18 @@
                                     @php
                                     $selectedService = old('service', $ghorfeOnlineList->service_id ?? null);
                                     @endphp
+                                    <div class="col-12 mb-5">
+                                        <select id="serviceSelect" name="service" class="form-control">
+                                            <option value="">انتخاب خدمات</option>
 
-                                    <select id="serviceSelect" name="service" class="form-control">
-                                        <option value="">انتخاب سرویس</option>
-
-                                        @foreach($ghorfeOnlineList->services as $service)
-                                        <option value="{{ $service->id }}" @selected($selectedService==$service->id)>
-                                            {{ $service->title }}
-                                        </option>
-                                        @endforeach
-                                    </select>
+                                            @foreach($ghorfeOnlineList->services as $service)
+                                            <option value="{{ $service->id }}" @selected($selectedService==$service->
+                                                id)>
+                                                {{ $service->title }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div id="gallerySection">
                                         <x-gallery-form :galleries="$ghorfeOnlineList->galleries"
                                             :ghorfeTemplet="$ghorfeOnlineList->template" />

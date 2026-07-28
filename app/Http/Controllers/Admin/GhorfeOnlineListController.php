@@ -159,7 +159,7 @@ class GhorfeOnlineListController extends AdminController {
         // ✅ Shared data ( no duplication )
         $employees = Employee::whereStatus( true )->get();
         $packages = ShahinPackage::with( 'categoryPermission' )->get();
-        $categories = Category::where( 'depth', 1 )->get();
+        $categories = Category::filter()->where( 'depth', 1 )->get();
         $themes = Theme::where( 'type', 'default' )->get();
         $templates = Template::with( 'menus' )->get();
 
@@ -178,12 +178,10 @@ class GhorfeOnlineListController extends AdminController {
             'iranSms_apikey' => $this->settings->get( 'iranSms_apikey' ),
         ];
 
-        $ghorfe_domain_active = ghorfe()->domain_active;
 
         return view( 'Admin.ghorfeOnlineList.edit', compact(
             'templates',
             'themes',
-            'ghorfe_domain_active',
             'categories',
             'ghorfeOnlineList',
             'packages',
