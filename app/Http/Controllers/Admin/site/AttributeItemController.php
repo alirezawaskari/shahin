@@ -19,7 +19,7 @@ class AttributeItemController extends Controller
      */
     public function createAttributeItem($attribute_id)
     {
-        $colors = Color::where('status', 1)->get();
+        $colors = Color::get();
         return view('Admin.site.attributeItem.create',
             ['attribute_id' => $attribute_id, 'colors' => $colors]);
     }
