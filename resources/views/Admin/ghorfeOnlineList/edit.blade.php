@@ -36,53 +36,63 @@
                         </a>
                     </li>
 
-                    <li class="nav-item mb-2">
+                    {{-- <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'package_content' ? 'active' : '' }}" data-toggle="pill"
                             href="#package_content">
                             <span class="step-circle">4</span>
                             <span class="step-title"> انتخاب پکیج</span>
                         </a>
-                    </li>
+                    </li> --}}
 
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'image_content' ? 'active' : '' }}" data-toggle="pill"
                             href="#image_content">
-                            <span class="step-circle">5</span>
+                            <span class="step-circle">4</span>
                             <span class="step-title"> تصاویر</span>
                         </a>
                     </li>
-
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'menu_content' ? 'active' : '' }}" data-toggle="pill"
                             href="#menu_content">
-                            <span class="step-circle">6</span>
+                            <span class="step-circle">5</span>
                             <span class="step-title"> منو سایت </span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'asked_questions' ? 'active' : '' }}" data-toggle="pill"
                             href="#asked_questions">
-                            <span class="step-circle">7</span>
+                            <span class="step-circle">6</span>
                             <span class="step-title"> سوالات متداول </span>
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'theme_content' ? 'active' : '' }}" data-toggle="pill"
                             href="#theme_content">
-                            <span class="step-circle">8</span>
+                            <span class="step-circle">7</span>
                             <span class="step-title"> تم </span>
                         </a>
                     </li>
-
-
                     <li class="nav-item mb-2">
                         <a class="nav-link {{ $activeTab == 'gallery_content' ? 'active' : '' }}" data-toggle="pill"
                             href="#gallery_content">
-                            <span class="step-circle">9</span>
-                            <span class="step-title"> گالری </span>
+                            <span class="step-circle">8</span>
+                            <span class="step-title"> اسلایدر </span>
                         </a>
                     </li>
-
+                    <li class="nav-item mb-2">
+                        <a class="nav-link {{ $activeTab == 'products_manager' ? 'active' : '' }}" data-toggle="pill"
+                            href="#products_manager">
+                            <span class="step-circle">9</span>
+                            <span class="step-title"> مدیریت محصولات </span>
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link {{ $activeTab == 'articles_manager' ? 'active' : '' }}" data-toggle="pill"
+                            href="#articles_manager">
+                            <span class="step-circle">10</span>
+                            <span class="step-title"> مدیریت مقالات </span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -701,7 +711,7 @@
                         </form>
                         @endpermission
                     </div>
-                    <div class="tab-pane fade p-t-20    {{ $activeTab == 'menu_content' ? 'show active' : '' }}"
+                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'menu_content' ? 'show active' : '' }}"
                         id="menu_content" role="tabpanel" aria-labelledby="text-content-tab">
                         <form class="form-horizontal" role="form" method="post"
                             action="{{route('ghorfeOnlineList.menuUpdate', [$ghorfeOnlineList->slug])}}"
@@ -964,6 +974,34 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'products_manager' ? 'show active' : '' }}"
+                        id="products_manager" role="tabpanel" aria-labelledby="text-content-tab">
+                        <div class="col-12 form-control mb-3">
+                            <a href="{{ route('category.index') }}"><span>دسته بندی</span></a>
+                        </div>
+                        @if($ghorfeOnlineList->type_work === 'all')
+                        <div class="col-12 form-control mb-3">
+                            <a href="{{ route('service.index') }}"><span>خدمات</span></a>
+                        </div>
+                        <div class="col-12 form-control mb-3">
+                            <a href="{{ route('products.index') }}"><span>کالاها</span></a>
+                        </div>
+                        @elseif($ghorfeOnlineList->type_work === 'product')
+                        <div class="col-12 form-control mb-3">
+                            <a href="{{ route('products.index') }}"><span>کالاها</span></a>
+                        </div>
+                        @elseif($ghorfeOnlineList->type_work === 'service')
+                        <div class="col-12 form-control mb-3">
+                            <a href="{{ route('service.index') }}"><span>خدمات</span></a>
+                        </div>
+                        @endif
+                    </div>
+                    <div class="tab-pane fade p-t-20 {{ $activeTab == 'articles_manager' ? 'show active' : '' }}"
+                        id="articles_manager" role="tabpanel" aria-labelledby="text-content-tab">
+                        <div class="col-12 form-control mb-3">
+                            <a href="{{ route('article.index') }}"><span>مدیریت مقالات</span></a>
+                        </div>
                     </div>
                     <div class="d-none d-md-flex justify-content-between mb-1">
                         <button type="button" class="btn btn-prev">
