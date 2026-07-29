@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -117,9 +118,8 @@ class Article extends Model implements HasMedia {
         $title = request('title');
         $startDate = request('startDate');
         $endDate = request('endDate');
-
-        $query->whereDoesntHave( 'articleable' );
-        if (auth()->user() && auth()->user()->admin_representation_id ) {
+        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'morphTo' , 'articleable');
+        if (auth()->user() && auth()-> user()->admin_representation_id ) {
             $articles = auth()->user()->admin_representation->articles();
         }
         if ( isset( $title ) && $$title != '' ) {
