@@ -7,81 +7,82 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+/**
+ * The "درباره ما" page of ONE business (or of a representation / the main lalecard site —
+ * see scopeFilter). One row per owner; the API reads it for the about-us frontend.
+ *
+ * The five numbered content boxes and their four images belonged to the old lalecard site
+ * and are gone from the admin: the page is now a fixed set of named sections (hero,
+ * business info, virtual tour, branches, specialists, "why us", goals, faq), each with its
+ * own column or relation. `content` / `content2` survive because the legacy
+ * site.about view still renders them.
+ */
 class About extends Model implements HasMedia {
-    use SoftDeletes, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
-
-    /**
-     * Touch-to-migrate: the abandoned image_*_id -> MediaLibrary UUID FKs.
-     *
-     * There is nothing PATH-shaped to adopt here (image_two..image_five are collections,
-     * not columns), which is why this model had no legacy map at all — until
-     * legacyMediaLibraryMap() added support for the FK shape.
-     *
-     * The numbering is off by one and that is not a typo: the boxes are labelled 2..5 in
-     * the UI, but the FK columns number the same four images 1..4. The original
-     * create_abouts_table migration had exactly four box columns — image_tow (sic),
-     * image_three, image_four, image_five — which these four FKs replaced in order.
-     */
-    protected function legacyMediaLibraryMap(): array
-    {
-        return [
-            'image_two'   => 'image_one_id',
-            'image_three' => 'image_two_id',
-            'image_four'  => 'image_three_id',
-            'image_five'  => 'image_four_id',
-        ];
-    }
+    use SoftDeletes, InteractsWithMedia;
 
     protected $dates = [ 'deleted_at' ];
 
-    // image_two..image_five are Spatie media collections (accessors below), NOT columns,
-    // so they must stay out of $fillable — mass-assigning them threw "Unknown column".
-    protected $fillable = [ 'ghorfe_online_list_id', 'title', 'content', 'content2',
-    'content_one', 'content_two', 'content_three', 'content_four', 'content_five' ];
+    /** Longest a virtual-tour caption may be (mirrored in the view and in validation). */
+    const TOUR_DESCRIPTION_LIMIT = 500;
 
     /**
-     * Spatie media: one single-file collection per "box" image (2..5). Replaces the
-     * abandoned image_*_id -> MediaLibrary FK / HasMediaImage-trait approach (which was
-     * incompatible with the uploadFilesTemporarily + attachTo pipeline the app uses).
-     * The legacy image_*_id columns are left in place (unused, no drops).
+     * Images of the page. Spatie single-file collections, NOT columns — they must stay out
+     * of $fillable, mass-assigning them throws "Unknown column".
+     */
+    const PAGE_IMAGES = ['main_image', 'tour_poster', 'goals_image'];
+
+    protected $fillable = [ 'ghorfe_online_list_id', 'representation_id', 'title', 'content', 'content2',
+    // درباره ما page — see 2026_07_30_100000_add_about_us_fields_to_abouts_table
+    'intro_text',
+    'established_year', 'contact_phone', 'address', 'working_days', 'working_hours',
+    'tour_title', 'tour_video_link', 'tour_description',
+    'branches_title', 'staff_title',
+    'why_title', 'years_experience', 'satisfied_customers', 'average_rating',
+    'stat_experience_label', 'stat_customers_label', 'stat_rating_label',
+    'goals_title', 'goals_text' ];
+
+    protected $casts = [
+        'years_experience'    => 'integer',
+        'satisfied_customers' => 'integer',
+        'average_rating'      => 'float',
+    ];
+
+    /**
+     * Hero image, virtual-tour still, goals illustration — plus the tour video.
+     *
+     * tour_video is registered apart from PAGE_IMAGES because it is a video file: the
+     * image-only upload widget and the image validation must never pick it up.
      */
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('image_two')->useDisk('public')->singleFile();
-        $this->addMediaCollection('image_three')->useDisk('public')->singleFile();
-        $this->addMediaCollection('image_four')->useDisk('public')->singleFile();
-        $this->addMediaCollection('image_five')->useDisk('public')->singleFile();
+        foreach (self::PAGE_IMAGES as $collection) {
+            $this->addMediaCollection($collection)->useDisk('public')->singleFile();
+        }
+        $this->addMediaCollection('tour_video')->useDisk('public')->singleFile();
     }
 
-    /**
-     * Box-image urls: Spatie first, then the legacy image_*_id MediaLibrary reference.
-     *
-     * The old getRawOriginal('image_two') fallback was dead code — image_two..image_five
-     * are collections, not columns (the original text columns were dropped), so it could
-     * never return anything and pre-Spatie box images were invisible in the admin.
-     */
-    public function getImageTwoAttribute(): string
+    /** Url of the page hero image, or '' when there is none / the file is missing. */
+    public function getMainImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_two')
-            ?: $this->legacyMediaLibraryUrl('image_two');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'main_image');
     }
 
-    public function getImageThreeAttribute(): string
+    /** Url of the still shown before the virtual tour plays. */
+    public function getTourPosterAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_three')
-            ?: $this->legacyMediaLibraryUrl('image_three');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'tour_poster');
     }
 
-    public function getImageFourAttribute(): string
+    /** Url of the goals / vision illustration. */
+    public function getGoalsImageAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_four')
-            ?: $this->legacyMediaLibraryUrl('image_four');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'goals_image');
     }
 
-    public function getImageFiveAttribute(): string
+    /** Url of the uploaded virtual-tour video (tour_video_link is the external alternative). */
+    public function getTourVideoAttribute(): string
     {
-        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'image_five')
-            ?: $this->legacyMediaLibraryUrl('image_five');
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'tour_video');
     }
 
     /**
@@ -92,16 +93,106 @@ class About extends Model implements HasMedia {
     }
 
     /**
-    * @param $query
-    * @return mixed
+    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+    */
+    public function representation() {
+        return $this->belongsTo( Representation::class, 'representation_id' );
+    }
+
+    /**
+     * Name of the business this page is about — the page title is derived from it, never
+     * typed ("درباره کلینیک دندانپزشکی دیجیتال"), so renaming the business renames the page.
+     */
+    public function getBusinessNameAttribute(): string
+    {
+        if ( $this->ghorfeOnline ) {
+            return (string) $this->ghorfeOnline->title;
+        }
+
+        if ( $this->representation ) {
+            return (string) $this->representation->fa_name;
+        }
+
+        return 'لاله کارت';
+    }
+
+    /** Heading of the stats block; falls back to "چرا {کسب و کار}؟". */
+    public function getWhyHeadingAttribute(): string
+    {
+        return $this->why_title ?: 'چرا ' . $this->business_name . '؟';
+    }
+
+    /**
+     * Branch list, specialist staff and FAQ hang off the BUSINESS, not off this row —
+     * they are shared with the branch and partner frontends. Null for a representation /
+     * main-site page, which has no business and therefore none of those sections.
+     */
+    public function branches()
+    {
+        return $this->ghorfeOnline ? $this->ghorfeOnline->centers : collect();
+    }
+
+    /** @see branches() */
+    public function specialists()
+    {
+        return $this->ghorfeOnline ? $this->ghorfeOnline->employees : collect();
+    }
+
+    /**
+     * FAQs of this page's owner. `faqs.ghorfe_online_list_id` is null for the main site,
+     * which is exactly the value this row carries then — so the same scope serves both.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function faqsQuery()
+    {
+        // whereNull(center_id): a branch question also has a null ghorfe_online_list_id, so
+        // without this the MAIN-SITE page would adopt (and, on save, delete) every branch faq.
+        return Faq::query()
+            ->whereNull( 'center_id' )
+            ->where( 'ghorfe_online_list_id', $this->ghorfe_online_list_id );
+    }
+
+    /**
+    * Rows the current admin is allowed to see.
+    *
+    * Ownership is exclusive: a row belongs to a ghorfe, or to a representation, or (both
+    * columns null) to the main lalecard site.
+    *
+    * - superadmin  -> everything, whoever owns it
+    * - ghorfe user -> only its own ghorfe's rows (ghorfe() reads the ghorfe_online_list_user pivot)
+    * - representation admin -> only its own representation's rows
+    * - anyone else (لاله staff) -> the main-site rows only
+    *
+    * The previous body was dead code and would have fataled if ever called: it read an
+    * undefined $ghorfeOnlineList and whereHas'd a `sliderable` relation About does not have.
+    *
+    * @param \Illuminate\Database\Eloquent\Builder $query
+    * @return \Illuminate\Database\Eloquent\Builder
     */
     public function scopeFilter( $query ) {
-        $query->where( 'ghorfe_online_list_id', null );
+        $user = auth()->user();
 
-        $query->whereHas('sliderable',function ($query) use ($ghorfeOnlineList){
-            $query->Where('sliderable_id', $ghorfeOnlineList->id)->Where('sliderable_type', 'App\Models\GhorfeOnlineList');
-        });
+        // Site-side / unauthenticated callers get the main-site rows, never a tenant's.
+        if ( !$user ) {
+            return $query->whereNull( 'ghorfe_online_list_id' )->whereNull( 'representation_id' );
+        }
 
-        return $query;
+        if ( $user->hasRole( 'superadmin' ) ) {
+            return $query;
+        }
+
+        // ghorfe() resolves the logged-in user's ghorfe via the pivot; null when they have none.
+        if ( $ghorfe = ghorfe() ) {
+            return $query->where( 'ghorfe_online_list_id', $ghorfe->id );
+        }
+
+        // admin_representation_id is the representation the user *manages* (representation_id
+        // is the one they merely belong to) — same column the slider/user lists scope on.
+        if ( $user->admin_representation_id ) {
+            return $query->where( 'representation_id', $user->admin_representation_id );
+        }
+
+        return $query->whereNull( 'ghorfe_online_list_id' )->whereNull( 'representation_id' );
     }
 }

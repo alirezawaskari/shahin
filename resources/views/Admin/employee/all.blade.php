@@ -13,6 +13,13 @@
             </ol>
         </nav>
     </div>
+    {{-- Creating an employee provisions a panel account, so only a superadmin sees this
+         (EmployeeController::authorizeEmployeeCreation enforces it server-side too). --}}
+    @if(auth()->user() && auth()->user()->hasRole('superadmin'))
+    <div>
+        <a href="{{ route('employee.create') }}" class="btn btn-success">ایجاد همکار</a>
+    </div>
+    @endif
 </div>
 
 <div class="card">

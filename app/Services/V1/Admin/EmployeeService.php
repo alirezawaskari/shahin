@@ -74,6 +74,14 @@ class EmployeeService {
 
         $employeeData[ 'parent_id' ] = $request->parent_id === 'null' ? null : $request->parent_id;
 
+        // The branch select on the اطلاعات اداری tab writes users.center_id, but
+        // Employee::center() / Center::employees() read employees.center_id — so the branch
+        // page's staff list never saw anyone assigned here. Mirror the two.
+        // Guarded by has(): the مالی and مدارک tabs post no center_id and must not null it.
+        if ( $request->has( 'center_id' ) ) {
+            $employeeData[ 'center_id' ] = $request->center_id ?: null;
+        }
+
         $this->replaceImage( $request, $employee, 'urlimgaccess', 'imgaccess', 'document' );
 
         $this->replaceImage( $request, $employee, 'urlimglastcertificate', 'imglastcertificate', 'document' );

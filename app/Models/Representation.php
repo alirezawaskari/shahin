@@ -136,6 +136,15 @@ class Representation extends Model implements HasMedia
         return $this->hasMany(Slider::class);
     }
     /**
+     * "درباره ما" rows owned by this representation (mirrors GhorfeOnlineList::about()).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function abouts()
+    {
+        return $this->hasMany(About::class);
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function centerRequests()

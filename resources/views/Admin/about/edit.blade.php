@@ -1,332 +1,588 @@
 @extends('Admin.master')
+@section('title')ویرایش درباره ما@endsection
+
+@php
+    // Which pane opens: the one the last save came back from, otherwise the first.
+    $activeTab = session('active_tab', 'identity_info');
+    // Branch list + specialist staff live on the business, so those two panes only make
+    // sense for a business-owned page (a representation / main-site page has no business).
+    $ghorfe = $about->ghorfeOnline;
+    // The main-site row is the one the legacy site.about view renders (About::first()).
+    $isMainSite = ! $about->ghorfe_online_list_id && ! $about->representation_id;
+    $tourLimit = \App\Models\About::TOUR_DESCRIPTION_LIMIT;
+
+    $tabs = array_filter([
+        'identity_info' => 'هویت صفحه',
+        'business_info' => 'اطلاعات کسب و کار',
+        'tour_info'     => 'تور مجازی',
+        'branch_info'   => $ghorfe ? 'شعبه ها' : null,
+        'staff_info'    => $ghorfe ? 'همکاران متخصص' : null,
+        'why_info'      => 'چرا ما؟',
+        'goals_info'    => 'اهداف و چشم انداز',
+        'faq_info'      => $about->representation_id ? null : 'سوالات متداول',
+        'legacy_info'   => $isMainSite ? 'سایت قدیمی' : null,
+    ]);
+@endphp
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <div class="x_title">
-                <h4>ویرایش درباره ما</h4>
-            </div>
-            @include('Admin.layouts.errors')
-            <form class="form-horizontal" method="post"
-                  action="{{route('about.update',$about->id)}}"
-                  enctype="multipart/form-data">
-                {{csrf_field()}}   {{ method_field('PATCH') }}
+<div class="page-header">
+    <div>
+        <h3>درباره {{ $about->business_name }}</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('about.index') }}">درباره ما</a></li>
+                <li class="breadcrumb-item active" aria-current="page">ویرایش</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
-                <div class="row">
-                    <div class="alert alert-primary"> سایت قدیمی</div>
-                    {{--content--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label>متن سایت قدیمی قسمت اول :</label>
+<div class="card edit-about">
+    <div class="card-body">
+        @include('Admin.layouts.errors')
 
-                        <textarea id="content" class="form-control content" name="content"
-                                  rows="5"
-                                  cols="5" placeholder="لطفا متن باکس اول را وارد کنید "
-                                  title=" متن باکس اول">{!! $about->content
- !!}</textarea>
-                        @if($errors->has('content'))
-                            <span class="help-block sub-error"> {{$errors->first('content')}} </span>
-                        @endif
+        <form class="form-horizontal" role="form" method="post"
+              action="{{ route('about.update', $about->id) }}" enctype="multipart/form-data">
+            @csrf
+            @method('PATCH')
+            {{-- filled by the tab links so the save returns to the pane the admin was on --}}
+            <input type="hidden" name="active_tab" id="active_tab" value="{{ $activeTab }}">
 
-                    </div>
-                    {{--content--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label> متن سایت قدیمی قسمت دوم :</label>
-
-                        <textarea id="content2" class="form-control content2" name="content2"
-                                  rows="5"
-                                  cols="5" placeholder="لطفا متن باکس اول را وارد کنید "
-                                  title=" متن باکس اول">{!! $about->content2
- !!}</textarea>
-                        @if($errors->has('content'))
-                            <span class="help-block sub-error"> {{$errors->first('content2')}} </span>
-                        @endif
-
-                    </div>
-                    <br/><br/>
-                 <div class="alert alert-primary"> سایت جدید</div>
-                    {{--content_one--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label>متن باکس اول *</label>
-
-                        <textarea id="content_one" class="form-control content_one" name="content_one"
-                                  rows="5"
-                                  cols="5" placeholder="لطفا متن باکس اول را وارد کنید "
-                                  title=" متن باکس اول">{!! $about->content_one !!}</textarea>
-                        @if($errors->has('content_one'))
-                            <span class="help-block sub-error"> {{$errors->first('content_one')}} </span>
-                        @endif
-
-                    </div>
-                    <br/><br/>
-
-                    {{--content_two--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label>متن باکس دوم *</label>
-                        <textarea id="content_two" class="form-control content_two" name="content_two"
-                                  rows="15"
-                                  cols="5" placeholder="لطفا متن دوم را وارد کنید"
-                                  title=" متن باکس دوم">{{$about->content_two}}</textarea>
-                        @if($errors->has('content_two'))
-                            <span class="help-block sub-error"> {{$errors->first('content_two')}} </span>
-                        @endif
-                    </div>
-
-                    <br/><br/>
-
-
-                    {{--image_two--}}
-                    <div class="col-12 col-md-4 mb-3">
-                        <label> عکس باکس دوم ذخیره شده :</label>
-                        @if($about->image_two)
-                            <img src="{{ $about->image_two }}" class="border-radius5" width="80px">
-                            {{-- legacy here is an image_*_id MediaLibrary FK, not a path --}}
-                            @if($about->mediaLibraryIsLegacy('image_two'))
-                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                            @endif
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-4 mb-3">
-                        <label>عکس باکس دوم </label>
-                        <label for="image_two" class="btn btn-primary custom-file-upload border border-1"><i
-                                    class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_two" class="d-none file-upload file_upload_ajax" type="file"
-                               name="image_two"/>
-                        <div id="image_two_src" class="show"></div>
-                        <input type="hidden" id="image_two_path" class="path" name="image_two_path" value="">
-                        @if($errors->has('image_two_path'))
-                            <span class="help-block sub-error"> {{$errors->first('image_two_path')}} </span>
-                        @endif
-                    </div>
-
-
-                    <br/><br/>
-                    {{--content_three--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label>متن باکس سوم *</label>
-                        <textarea id="content_three" class="form-control content_three" name="content_three"
-                                  rows="15" cols="5" placeholder="لطفا متن باکس سوم را وارد کنید"
-                                  title="متن  باکس سوم">{{$about->content_three}}</textarea>
-                        @if($errors->has('content_three'))
-                            <span class="help-block sub-error"> {{$errors->first('content_three')}} </span>
-                        @endif
-                    </div>
-
-
-                    <br/><br/>
-                    {{--image_three--}}
-                    <div class="col-12 col-md-6 mb-3">
-                        <label> عکس باکس سوم ذخیره شده :</label>
-                        @if($about->image_three)
-                            <img src="{{ $about->image_three }}" class="border-radius5" width="80px">
-                            @if($about->mediaLibraryIsLegacy('image_three'))
-                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                            @endif
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <label>عکس باکس سوم*</label>
-                        <label for="image_three" class="btn btn-primary custom-file-upload border border-1"><i
-                                    class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_three" class="d-none file-upload file_upload_ajax" type="file"
-                               name="image_three"/>
-                        <div id="image_three_src" class="show"></div>
-                        <input type="hidden" id="image_three_path" class="path" name="image_three_path" value="">
-                        @if($errors->has('image_three_path'))
-                            <span class="help-block sub-error"> {{$errors->first('image_three_path')}} </span>
-                        @endif
-                    </div>
-
-                    <br/><br/>
-
-
-                    {{--content_four--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label>متن باکس چهارم *</label>
-                        <textarea id="content_four" class="form-control content_four" name="content_four"
-                                  rows="15" cols="5" placeholder="لطفا متن باکس چهارم را وارد کنید"
-                                  title="متن  باکس چهارم">{{$about->content_four}}</textarea>
-                        @if($errors->has('content_four'))
-                            <span class="help-block sub-error"> {{$errors->first('content_four')}} </span>
-                        @endif
-                    </div>
-                    <br/><br/>
-
-
-                    {{--image_four--}}
-                    <div class="col-12 col-md-6 mb-3">
-                        <label> عکس باکس چهارم ذخیره شده :</label>
-                        @if($about->image_four)
-                            <img src="{{ $about->image_four }}" class="border-radius5" width="80px">
-                            @if($about->mediaLibraryIsLegacy('image_four'))
-                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                            @endif
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <label>عکس باکس چهارم*</label>
-                        <label for="image_four" class="btn btn-primary custom-file-upload border border-1"><i
-                                    class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_four" class="d-none file-upload file_upload_ajax" type="file"
-                               name="image_four"/>
-                        <div id="image_four_src" class="show"></div>
-                        <input type="hidden" id="image_four_path" class="path" name="image_four_path" value="">
-                        @if($errors->has('image_four_path'))
-                            <span class="help-block sub-error"> {{$errors->first('image_four_path')}} </span>
-                        @endif
-                    </div>
-
-                    <br/><br/>
-
-                    {{--content_five--}}
-                    <div class="col-12 col-md-12 mb-3">
-                        <label>متن باکس پنجم *</label>
-                        <textarea id="content_five" class="form-control content_five" name="content_five"
-                                  rows="15" cols="5" placeholder="لطفا متن باکس پنجم را وارد کنید"
-                                  title="متن باکس پنجم">{{$about->content_five}}</textarea>
-                        @if($errors->has('content_five'))
-                            <span class="help-block sub-error"> {{$errors->first('content_five')}} </span>
-                        @endif
-                    </div>
-                    <br/><br/>
-
-                    {{--image_five--}}
-                    <div class="col-12 col-md-6 mb-3">
-                        <label> عکس باکس پنجم ذخیره شده :</label>
-                        @if($about->image_five)
-                            <img src="{{ $about->image_five }}" class="border-radius5" width="80px">
-                            @if($about->mediaLibraryIsLegacy('image_five'))
-                                <small class="d-block text-warning mt-1">تصویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شود</small>
-                            @endif
-                        @else
-                            <span class="text-muted">بدون تصویر</span>
-                        @endif
-                    </div>
-                    <div class="col-12 col-md-6 mb-3">
-                        <label>عکس باکس پنجم *</label>
-                        <label for="image_five" class="btn btn-primary custom-file-upload border border-1"><i
-                                    class="fa fa-cloud-upload"></i> بارگذاری تصویر</label>
-                        <input id="image_five" class="d-none file-upload file_upload_ajax" type="file"
-                               name="image_five"/>
-                        <div id="image_five_src" class="show"></div>
-                        <input type="hidden" id="image_five_path" class="path" name="image_five_path" value="">
-                        @if($errors->has('image_five_path'))
-                            <span class="help-block sub-error"> {{$errors->first('image_five_path')}} </span>
-                        @endif
-                    </div>
-
-                    <div class="ln_solid"></div>
-                    <div class="col-md-12 col-sm-12 col-xs-12">
-                        <button type="submit" class="btn btn-success" id="about-submit">ویرایش</button>
-                    </div>
+            <div class="row">
+                <!-- Sidebar Menu -->
+                <div class="col-12 col-sm-2">
+                    <ul class="nav nav-pills d-block nav-justified custom-steps mb-4">
+                        @foreach($tabs as $key => $label)
+                            <li class="nav-item mb-2">
+                                <a class="nav-link about-tab {{ $activeTab == $key ? 'active' : '' }}"
+                                   data-toggle="pill" data-bs-toggle="pill" data-tab="{{ $key }}" href="#{{ $key }}">
+                                    <span class="step-circle">{{ $loop->iteration }}</span>
+                                    <span class="step-title">{{ $label }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
 
-            </form>
-        </div>
-    </div>
-@stop
-@section('css')
+                <!-- Content -->
+                <div class="col-12 col-sm-10">
+                    <div class="tab-content border justify-content-center p-3 rounded-2">
 
+                        {{-- ================= هویت صفحه ================= --}}
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'identity_info' ? 'show active' : '' }}"
+                             id="identity_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    عنوان، تصویر اصلی و متن معرفی
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>عنوان صفحه</label>
+                                    {{-- Derived from the business name, never typed: renaming the
+                                         business renames the page everywhere it is shown. --}}
+                                    <input type="text" class="form-control" value="درباره {{ $about->business_name }}" disabled>
+                                    <small class="text-muted">این عنوان از نام کسب و کار ساخته می‌شود و قابل ویرایش نیست.</small>
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>تصویر اصلی صفحه</label>
+                                    <div id="main_image_src" class="show mb-2">
+                                        @if($about->main_image)
+                                            <img src="{{ $about->main_image }}" class="border-radius5"
+                                                 style="height:120px;object-fit:cover;">
+                                        @else
+                                            <div class="d-flex align-items-center justify-content-center text-muted"
+                                                 style="height:120px;background:#f8f9fa;">بدون تصویر</div>
+                                        @endif
+                                    </div>
+                                    <label for="main_image" class="btn btn-primary custom-file-upload border border-1">
+                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    </label>
+                                    <input id="main_image" class="d-none file-upload file_upload_ajax" type="file"
+                                           name="main_image" accept=".jpg,.jpeg,.png,.webp">
+                                    <input type="hidden" id="main_image_path" class="path" name="main_image_path">
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>متن معرفی</label>
+                                    <textarea class="form-control" name="intro_text" rows="6"
+                                              placeholder="معرفی کوتاه کسب و کار که در ابتدای صفحه درباره ما نمایش داده می‌شود">{{ old('intro_text', $about->intro_text) }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ================= اطلاعات کسب و کار ================= --}}
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'business_info' ? 'show active' : '' }}"
+                             id="business_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    اطلاعات کسب و کار
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>سال تاسیس</label>
+                                    <input type="text" class="form-control" name="established_year"
+                                           value="{{ old('established_year', $about->established_year) }}" placeholder="1398">
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>شماره تماس مرکز</label>
+                                    <input type="text" class="form-control" name="contact_phone"
+                                           value="{{ old('contact_phone', $about->contact_phone) }}" placeholder="021-42568879">
+                                    @if($ghorfe && $ghorfe->call)
+                                        <small class="text-muted">شماره ثبت شده کسب و کار: {{ $ghorfe->call }}</small>
+                                    @endif
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>روزهای کاری</label>
+                                    <input type="text" class="form-control" name="working_days"
+                                           value="{{ old('working_days', $about->working_days) }}" placeholder="شنبه تا چهارشنبه">
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>ساعات کاری</label>
+                                    <input type="text" class="form-control" name="working_hours"
+                                           value="{{ old('working_hours', $about->working_hours) }}" placeholder="۱۰ صبح تا ۱۰ شب">
+                                    @if($ghorfe && $ghorfe->working_hours)
+                                        <small class="text-muted">ساعت کاری ثبت شده کسب و کار: {{ $ghorfe->working_hours }}</small>
+                                    @endif
+                                </div>
+
+                                <div class="col-12 col-md-8 mb-3">
+                                    <label>آدرس</label>
+                                    <input type="text" class="form-control" name="address"
+                                           value="{{ old('address', $about->address) }}"
+                                           placeholder="خیابان ولی‌عصر، کوچه ایران‌زمین، پلاک ۱۲">
+                                    @if($ghorfe && $ghorfe->address)
+                                        <small class="text-muted">آدرس ثبت شده کسب و کار: {{ $ghorfe->address }}</small>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ================= تور مجازی ================= --}}
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'tour_info' ? 'show active' : '' }}"
+                             id="tour_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    ویدیو / تور مجازی ۳۶۰ درجه
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    {{-- Optional on purpose: an online business has no venue to tour,
+                                         and the page has to render correctly without this section. --}}
+                                    <div class="alert alert-info mb-0">
+                                        این بخش اختیاری است. اگر ویدیویی ثبت نشود، صفحه درباره ما بدون این بخش نمایش داده می‌شود.
+                                        در فاز اول به جای تور پانوراما، یک ویدیوی جایگزین نمایش داده می‌شود.
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>عنوان بخش</label>
+                                    <input type="text" class="form-control" name="tour_title"
+                                           value="{{ old('tour_title', $about->tour_title) }}" placeholder="تور مجازی مطب">
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>لینک ویدیو (آپارات، یوتیوب یا آدرس مستقیم)</label>
+                                    <input type="text" class="form-control" name="tour_video_link"
+                                           value="{{ old('tour_video_link', $about->tour_video_link) }}"
+                                           placeholder="https://www.aparat.com/v/xxxxx">
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>تصویر پیش‌نمایش ویدیو</label>
+                                    <div id="tour_poster_src" class="show mb-2">
+                                        @if($about->tour_poster)
+                                            <img src="{{ $about->tour_poster }}" class="border-radius5"
+                                                 style="height:120px;object-fit:cover;">
+                                        @else
+                                            <div class="d-flex align-items-center justify-content-center text-muted"
+                                                 style="height:120px;background:#f8f9fa;">بدون تصویر</div>
+                                        @endif
+                                    </div>
+                                    <label for="tour_poster" class="btn btn-primary custom-file-upload border border-1">
+                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    </label>
+                                    <input id="tour_poster" class="d-none file-upload file_upload_ajax" type="file"
+                                           name="tour_poster" accept=".jpg,.jpeg,.png,.webp">
+                                    <input type="hidden" id="tour_poster_path" class="path" name="tour_poster_path">
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>بارگذاری فایل ویدیو (mp4 - حداکثر ۲۰ مگابایت)</label>
+                                    @if($about->tour_video)
+                                        <video src="{{ $about->tour_video }}" controls
+                                               style="width:100%;max-height:160px;background:#000;"></video>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" value="1"
+                                                   name="remove_tour_video" id="remove_tour_video">
+                                            <label class="form-check-label" for="remove_tour_video">حذف ویدیو ذخیره شده</label>
+                                        </div>
+                                    @endif
+                                    {{-- Not the shared ajax widget: uploadFilesTemporarily rejects video
+                                         mimes, so the file is posted with the form itself. --}}
+                                    <input type="file" class="form-control mt-2" name="tour_video_file" accept="video/mp4,video/webm">
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>متن توضیحات تور مجازی</label>
+                                    <textarea class="form-control" name="tour_description" id="tour_description" rows="4"
+                                              maxlength="{{ $tourLimit }}">{{ old('tour_description', $about->tour_description) }}</textarea>
+                                    <small class="text-muted">
+                                        <span id="tour_description_count">{{ mb_strlen((string) old('tour_description', $about->tour_description)) }}</span>
+                                        از {{ $tourLimit }} کاراکتر
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ================= شعبه ها ================= --}}
+                        @if($ghorfe)
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'branch_info' ? 'show active' : '' }}"
+                             id="branch_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    شعبه های این کسب و کار
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>عنوان بخش</label>
+                                    <input type="text" class="form-control" name="branches_title"
+                                           value="{{ old('branches_title', $about->branches_title) }}" placeholder="شعبه های ما">
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>انتخاب شعبه ها</label>
+                                    {{-- The order of the selected tags is the order of the cards
+                                         on the page — the pivot stores it as `sort`. --}}
+                                    <select class="selectMulti form-control" name="branch_ids[]" multiple>
+                                        @foreach($centers as $center)
+                                            @php
+                                                $centerLabel = collect([
+                                                    $center->title,
+                                                    \Illuminate\Support\Str::limit((string) $center->address, 60),
+                                                ])->filter()->implode(' — ');
+                                            @endphp
+                                            <option value="{{ $center->id }}"
+                                                @selected(in_array($center->id, old('branch_ids', $selectedCenters)))>
+                                                {{ $centerLabel }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">ترتیب انتخاب، ترتیب نمایش شعبه ها در صفحه درباره ما است.</small>
+                                </div>
+
+                                @if($centers->isEmpty())
+                                    <div class="col-12">
+                                        <div class="alert alert-warning">هیچ شعبه‌ای ثبت نشده است. ابتدا از بخش «مراکز» شعبه بسازید.</div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- ================= همکاران متخصص ================= --}}
+                        @if($ghorfe)
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'staff_info' ? 'show active' : '' }}"
+                             id="staff_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    همکاران متخصص
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>عنوان بخش</label>
+                                    <input type="text" class="form-control" name="staff_title"
+                                           value="{{ old('staff_title', $about->staff_title) }}" placeholder="همکاران ما را بشناسید">
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>انتخاب همکاران</label>
+                                    <select class="selectMulti form-control" name="employee_ids[]" multiple>
+                                        @foreach($employees as $employee)
+                                            @php
+                                                // built here rather than inline: two adjacent @if/@endif pairs on one
+                                                // line do not compile (the second directive is left as literal text)
+                                                $employeeLabel = collect([
+                                                    $employee->full_name,
+                                                    $employee->work_title,
+                                                    optional($employee->center)->title,
+                                                ])->filter()->implode(' — ');
+                                            @endphp
+                                            <option value="{{ $employee->id }}"
+                                                @selected(in_array($employee->id, old('employee_ids', $selectedEmployees)))>
+                                                {{ $employeeLabel }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">
+                                        نام و نام خانوادگی و سه متن توصیفی هر همکار از پروفایل همان همکار خوانده می‌شود؛
+                                        برای ویرایش آن‌ها به صفحه ویرایش همکار بروید.
+                                    </small>
+                                </div>
+
+                                {{-- Read-only mirror of what the page will actually render, so the admin
+                                     can see which of the three description lines are still empty. --}}
+                                @if($about->specialists()->isNotEmpty())
+                                <div class="col-12">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>نام و نام خانوادگی</th>
+                                            <th>عنوان شغلی</th>
+                                            <th>متن اول</th>
+                                            <th>متن دوم</th>
+                                            <th>متن سوم</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($about->specialists() as $specialist)
+                                            <tr>
+                                                <td>{{ $specialist->full_name }}</td>
+                                                <td>{{ $specialist->work_title }}</td>
+                                                <td>{{ $specialist->description_one ?: '—' }}</td>
+                                                <td>{{ $specialist->description_two ?: '—' }}</td>
+                                                <td>{{ $specialist->description_three ?: '—' }}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- ================= چرا ما ================= --}}
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'why_info' ? 'show active' : '' }}"
+                             id="why_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    {{ $about->why_heading }}
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>عنوان بخش</label>
+                                    <input type="text" class="form-control" name="why_title"
+                                           value="{{ old('why_title', $about->why_title) }}"
+                                           placeholder="چرا {{ $about->business_name }}؟">
+                                    <small class="text-muted">خالی بگذارید تا از نام کسب و کار ساخته شود.</small>
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>سابقه فعالیت (سال)</label>
+                                    <input type="text" class="form-control" name="years_experience"
+                                           value="{{ old('years_experience', $about->years_experience) }}" placeholder="12">
+                                </div>
+                                <div class="col-12 col-md-2 mb-3">
+                                    <label>برچسب</label>
+                                    <input type="text" class="form-control" name="stat_experience_label"
+                                           value="{{ old('stat_experience_label', $about->stat_experience_label) }}" placeholder="سال تجربه">
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>تعداد مشتریان راضی</label>
+                                    <input type="text" class="form-control" name="satisfied_customers"
+                                           value="{{ old('satisfied_customers', $about->satisfied_customers) }}" placeholder="8500">
+                                </div>
+                                <div class="col-12 col-md-2 mb-3">
+                                    <label>برچسب</label>
+                                    <input type="text" class="form-control" name="stat_customers_label"
+                                           value="{{ old('stat_customers_label', $about->stat_customers_label) }}" placeholder="بیمار راضی">
+                                </div>
+
+                                <div class="col-12 col-md-4 mb-3">
+                                    <label>میانگین امتیاز (۰ تا ۵)</label>
+                                    <input type="text" class="form-control" name="average_rating"
+                                           value="{{ old('average_rating', $about->average_rating) }}" placeholder="4.8">
+                                </div>
+                                <div class="col-12 col-md-2 mb-3">
+                                    <label>برچسب</label>
+                                    <input type="text" class="form-control" name="stat_rating_label"
+                                           value="{{ old('stat_rating_label', $about->stat_rating_label) }}" placeholder="میانگین امتیاز">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ================= اهداف ================= --}}
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'goals_info' ? 'show active' : '' }}"
+                             id="goals_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    اهداف و چشم انداز
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>عنوان بخش</label>
+                                    <input type="text" class="form-control" name="goals_title"
+                                           value="{{ old('goals_title', $about->goals_title) }}" placeholder="اهداف ما">
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label>تصویر مرتبط</label>
+                                    <div id="goals_image_src" class="show mb-2">
+                                        @if($about->goals_image)
+                                            <img src="{{ $about->goals_image }}" class="border-radius5"
+                                                 style="height:120px;object-fit:cover;">
+                                        @else
+                                            <div class="d-flex align-items-center justify-content-center text-muted"
+                                                 style="height:120px;background:#f8f9fa;">بدون تصویر</div>
+                                        @endif
+                                    </div>
+                                    <label for="goals_image" class="btn btn-primary custom-file-upload border border-1">
+                                        <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                                    </label>
+                                    <input id="goals_image" class="d-none file-upload file_upload_ajax" type="file"
+                                           name="goals_image" accept=".jpg,.jpeg,.png,.webp">
+                                    <input type="hidden" id="goals_image_path" class="path" name="goals_image_path">
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>متن اهداف و چشم انداز</label>
+                                    <textarea class="form-control" name="goals_text" rows="8">{{ old('goals_text', $about->goals_text) }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ================= سوالات متداول ================= --}}
+                        @unless($about->representation_id)
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'faq_info' ? 'show active' : '' }}"
+                             id="faq_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    سوالات متداول
+                                </div>
+
+                                <div class="col-12">
+                                    <table class="table table-bordered" id="faq-table">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:35%">سوال</th>
+                                            <th>پاسخ</th>
+                                            <th style="width:60px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="faq-rows">
+                                        @foreach($faqs as $faq)
+                                            <tr>
+                                                <td>
+                                                    <input type="hidden" name="faq_ids[]" value="{{ $faq->id }}">
+                                                    <input type="text" class="form-control" name="faq_titles[]"
+                                                           value="{{ $faq->title }}" placeholder="سوال">
+                                                </td>
+                                                <td>
+                                                    <textarea class="form-control" name="faq_texts[]" rows="2"
+                                                              placeholder="پاسخ">{{ $faq->text }}</textarea>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm faq-remove">
+                                                        <i class="fa fa-remove"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+
+                                    <button type="button" class="btn btn-primary btn-sm" id="faq-add">
+                                        <i class="fa fa-plus"></i> افزودن سوال
+                                    </button>
+                                    <small class="d-block text-muted mt-2">
+                                        سوالی که متن آن خالی بماند ذخیره نمی‌شود و سوال حذف شده از جدول، هنگام ثبت پاک می‌شود.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        @endunless
+
+                        {{-- ================= سایت قدیمی ================= --}}
+                        @if($isMainSite)
+                        <div class="tab-pane fade p-t-20 {{ $activeTab == 'legacy_info' ? 'show active' : '' }}"
+                             id="legacy_info" role="tabpanel">
+                            <div class="row">
+                                <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                                    محتوای صفحه درباره ما سایت قدیمی
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <div class="alert alert-secondary mb-0">
+                                        این سه فیلد فقط برای صفحه درباره ما سایت قدیمی لاله کارت استفاده می‌شود و در فرانت جدید نمایش داده نمی‌شود.
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>عنوان</label>
+                                    <input type="text" class="form-control" name="title"
+                                           value="{{ old('title', $about->title) }}">
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>متن قسمت اول</label>
+                                    <textarea id="content" class="form-control" name="content" rows="6">{!! old('content', $about->content) !!}</textarea>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label>متن قسمت دوم</label>
+                                    <textarea id="content2" class="form-control" name="content2" rows="6">{!! old('content2', $about->content2) !!}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <div class="col-12 my-3 d-flex justify-content-end">
+                            <input type="submit" class="btn btn-success border-0" value="ثبت تغییرات">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 @stop
 
 @section('js')
-    <script src="/assets/script/ckeditor/ckeditor.js"></script>
-    <script type="text/javascript">
-
-        CKEDITOR.replace('content',ck_uploader);
-
-        CKEDITOR.replace('content2',ck_uploader);
-
-        CKEDITOR.replace('content_one',ck_uploader);
-
-        CKEDITOR.replace('content_two',ck_uploader);
-
-        CKEDITOR.replace('content_three', ck_uploader);
-
-        CKEDITOR.replace('content_four', ck_uploader);
-
-        CKEDITOR.replace('content_five', ck_uploader);
-
-    </script>
+    @if($isMainSite)
+        <script src="/assets/script/ckeditor/ckeditor.js"></script>
+        <script>
+            CKEDITOR.replace('content', ck_uploader);
+            CKEDITOR.replace('content2', ck_uploader);
+        </script>
+    @endif
 
     <script>
-        // The box images are required (store() validates image_*_path). On EDIT a re-upload
-        // isn't required — the saved image is kept — so the real rule is "must not end up
-        // empty": a box needs either an existing image or a new upload.
-        //
-        // The HTML5 `required` attribute can't do this: #image_*_path is a hidden input, and
-        // a required hidden/display:none field aborts the submit as "not focusable" with no
-        // visible message. So the check runs on submit against the hidden temp-media id.
-        //
-        // DOMContentLoaded: this block sits in the page body and jQuery loads at the bottom.
-        document.addEventListener('DOMContentLoaded', function () {
-            var boxes = [
-                { field: 'image_two',   label: 'عکس باکس دوم',  saved: @json((bool) $about->image_two) },
-                { field: 'image_three', label: 'عکس باکس سوم',  saved: @json((bool) $about->image_three) },
-                { field: 'image_four',  label: 'عکس باکس چهارم', saved: @json((bool) $about->image_four) },
-                { field: 'image_five',  label: 'عکس باکس پنجم',  saved: @json((bool) $about->image_five) }
-            ];
+        $(function () {
+            // Remember the open pane so a save returns to it instead of the first tab.
+            $('.about-tab').on('click', function () {
+                $('#active_tab').val($(this).data('tab'));
+            });
 
-            // content_one..five are `required` in update(). content / content2 (the old-site
-            // boxes) are NOT, so they are deliberately left out — the client must not demand
-            // more than the server does.
-            var contents = [
-                { field: 'content_one',   label: 'متن اول' },
-                { field: 'content_two',   label: 'متن دوم' },
-                { field: 'content_three', label: 'متن سوم' },
-                { field: 'content_four',  label: 'متن چهارم' },
-                { field: 'content_five',  label: 'متن پنجم' }
-            ];
-
-            // Read from CKEditor, not the <textarea>: the textarea is only synced back on
-            // submit, and this handler may run before that — it would see the ORIGINAL text
-            // and pass a box the user just emptied.
-            function editorValue(field) {
-                var instance = (window.CKEDITOR && CKEDITOR.instances) ? CKEDITOR.instances[field] : null;
-                var raw = instance ? instance.getData() : ($('#' + field).val() || '');
-                return raw.trim();
+            // Live counter for the tour caption (the column is capped at the same length).
+            var $tour = $('#tour_description');
+            if ($tour.length) {
+                $tour.on('input', function () {
+                    $('#tour_description_count').text($(this).val().length);
+                });
             }
 
-            function scrollTo($el) {
-                if (! $el.length) { return; }
-                $('html, body').animate({ scrollTop: $el.offset().top - 120 }, 400);
-            }
+            // FAQ repeater. A new row posts an EMPTY faq_ids[] so the three arrays stay
+            // index-aligned — the controller pairs them by position.
+            $('#faq-add').on('click', function () {
+                $('#faq-rows').append(
+                    '<tr>' +
+                    '<td><input type="hidden" name="faq_ids[]" value="">' +
+                    '<input type="text" class="form-control" name="faq_titles[]" placeholder="سوال"></td>' +
+                    '<td><textarea class="form-control" name="faq_texts[]" rows="2" placeholder="پاسخ"></textarea></td>' +
+                    '<td class="text-center"><button type="button" class="btn btn-danger btn-sm faq-remove">' +
+                    '<i class="fa fa-remove"></i></button></td>' +
+                    '</tr>'
+                );
+            });
 
-            $('#about-submit').closest('form').on('submit', function (e) {
-                var missingImages = boxes.filter(function (b) {
-                    return !b.saved && !$('#' + b.field + '_path').val();
-                });
-                var missingContent = contents.filter(function (c) {
-                    return editorValue(c.field) === '';
-                });
-
-                if (missingImages.length || missingContent.length) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation(); // keep the .submit_btn loading overlay from showing
-                    $('#gif').hide();
-
-                    missingContent.forEach(function (c) {
-                        toastr.error('لطفا ' + c.label + ' را وارد کنید');
-                    });
-                    missingImages.forEach(function (b) {
-                        toastr.error('لطفا ' + b.label + ' را بارگذاری کنید');
-                    });
-
-                    // jump to whichever problem comes first in the page
-                    var $first = missingContent.length
-                        ? $('#' + missingContent[0].field).closest('.col-12')
-                        : $('#' + missingImages[0].field + '_path').closest('.col-12');
-                    scrollTo($first);
-                    return false;
-                }
+            $('#faq-rows').on('click', '.faq-remove', function () {
+                $(this).closest('tr').remove();
             });
         });
     </script>
-
 @stop
-
