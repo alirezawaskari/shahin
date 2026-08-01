@@ -457,6 +457,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::get('/employee/resume/{employee}' , 'EmployeeController@editResume')->name('employee.resume.edit');
     Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
+    Route::post('/employee/profile/{employee}' , 'EmployeeController@updateProfile')->name('employee.profile.update');
     Route::get('/employee/contract/{employee}' , 'EmployeeController@showContract')->name('employee.contract.show');
     Route::post('/employee/update/contract/{employee}' , 'EmployeeController@updateContract')->name('employee.update.contract');
     Route::post('/employee/sendConfirmContractCode', [EmployeeController::class,'sendConfirmContractCode']);

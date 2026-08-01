@@ -305,6 +305,38 @@ class GhorfeOnlineList extends Model implements HasMedia
         return $this->hasOne(About::class);
     }
     /**
+     * Branches (شعبه) of this business — the list the about-us page renders and the branch
+     * frontend links into. Ordered by the pivot `sort` so the admin controls the cards'
+     * order; rows with no sort fall to the end (MySQL puts NULL first ascending).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function centers()
+    {
+        return $this->belongsToMany(Center::class)
+            ->withPivot('sort')
+            ->orderByRaw('center_ghorfe_online_list.sort is null, center_ghorfe_online_list.sort');
+    }
+    /**
+     * Specialist staff (همکاران متخصص) this business features. A curated list — NOT every
+     * employee of every branch; see the employee_ghorfe_online_list migration.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function employees()
+    {
+        return $this->belongsToMany(Employee::class)
+            ->withPivot('sort')
+            ->orderByRaw('employee_ghorfe_online_list.sort is null, employee_ghorfe_online_list.sort');
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function faqs()
+    {
+        return $this->hasMany(Faq::class);
+    }
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function contacts()

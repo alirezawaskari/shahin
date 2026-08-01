@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\External\SendSms;
 use App\Helpers\Helper;
+use App\Helpers\MediaLibraryHelper;
 use App\Models\Representation;
 use App\Models\Employee;
+use App\Models\Rating;
 use App\Models\Role;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\UserPerformance;
 use App\Models\WalletTransaction;
@@ -90,6 +93,130 @@ class EmployeeController extends AdminController
     }
 
     /**
+     * New-employee form. Superadmin only.
+     *
+     * `Route::resource('employee', ...)` has always mapped create/store, but neither method
+     * existed — hitting /dashboard/employee/create threw BadMethodCallException. An employee
+     * could only appear by registering through the public form.
+     *
+     * Restricted to superadmin rather than the usual `user-edit` permission because creating
+     * one writes a `users` row with a panel role and a representation/branch assignment.
+     *
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function create()
+    {
+        $this->authorizeEmployeeCreation();
+
+        return view('Admin.employee.create', [
+            'representations' => Representation::whereStatus(true)->get(),
+            'centers'         => \App\Models\Center::where('status', true)->orderBy('title')->get(),
+            'roles'           => Role::orderBy('display_name')->get(),
+            'parents'         => Employee::with('user:id,name,family')->whereHas('user')->where('status', 1)->get(),
+        ]);
+    }
+
+    /**
+     * Create the user (or adopt an existing one) and its employee row, then open the edit page.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        $this->authorizeEmployeeCreation();
+
+        $request->merge(['phone' => Helper::numberConverter($request->phone)]);
+
+        $request->validate([
+            'name'                    => 'required|string|max:110',
+            'family'                  => 'required|string|max:110',
+            'phone'                   => 'required|regex:/^09[0-9]{9}$/',
+            'melicode'                => 'nullable|digits:10',
+            'sex'                     => ['nullable', Rule::in([0, 1])],
+            'password'                => 'nullable|string|min:6|confirmed',
+            'work_title'              => 'nullable|string|max:110',
+            'business_phone'          => 'nullable|string|max:30',
+            'status'                  => ['required', Rule::in([0, 1])],
+            'show_status'             => ['required', Rule::in([0, 1])],
+            'role_id'                 => 'nullable|integer|exists:roles,id',
+            'admin_representation_id' => 'nullable|integer|exists:representations,id',
+            'center_id'               => 'nullable|integer|exists:centers,id',
+            'parent_id'               => 'nullable|integer|exists:employees,id',
+        ], [
+            'phone.regex'    => 'شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد',
+            'melicode.digits'=> 'کد ملی باید ۱۰ رقم باشد',
+        ]);
+
+        $user = User::where('phone', $request->phone)->first();
+
+        // An existing customer being promoted to staff keeps their row (and their history);
+        // only a genuinely new phone number creates one. Refusing outright would strand
+        // anyone who had ever placed an order.
+        if ($user && $user->employee) {
+            return redirect()->back()->withInput()->with([
+                'failByMessage' => 'برای این شماره موبایل قبلا همکار ثبت شده است.',
+            ]);
+        }
+
+        $attributes = [
+            'name'                    => $request->name,
+            'family'                  => $request->family,
+            'phone'                   => $request->phone,
+            'melicode'                => $request->melicode,
+            'sex'                     => $request->sex,
+            'call'                    => $request->call,
+            'address'                 => $request->address,
+            'admin_representation_id' => $request->admin_representation_id,
+            'center_id'               => $request->center_id,
+            // level mirrors employee status the same way EmployeeService::updateStatusAndLevel does
+            'level'                   => $request->status == 1 ? 'admin' : 'user',
+            'active'                  => true,
+        ];
+
+        if ($user) {
+            $user->update($attributes);
+        } else {
+            // No password typed = a random one; the person signs in with the sms code flow.
+            $user = User::create($attributes + [
+                'password' => Hash::make($request->password ?: rand(12345, 99999)),
+                'status'   => true,
+            ]);
+        }
+
+        if ($request->filled('password') && $user->wasRecentlyCreated === false) {
+            $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        $employee = Employee::create([
+            'user_id'        => $user->id,
+            'status'         => $request->status,
+            'show_status'    => $request->show_status,
+            'work_title'     => $request->work_title,
+            'business_phone' => $request->business_phone,
+            'parent_id'      => $request->parent_id,
+            // kept in step with users.center_id — the branch staff list reads this one
+            'center_id'      => $request->center_id,
+        ]);
+
+        if ($request->filled('role_id')) {
+            $user->roles()->sync([$request->role_id]);
+        }
+
+        return redirect()->route('employee.edit', $employee->id)->with([
+            'create' => 'success',
+        ]);
+    }
+
+    /** Creating an employee provisions a panel account, so it is superadmin-only. */
+    private function authorizeEmployeeCreation(): void
+    {
+        if (! auth()->user() || ! auth()->user()->hasRole('superadmin')) {
+            abort(401);
+        }
+    }
+
+    /**
      * @param Employee $employee
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -106,7 +233,147 @@ class EmployeeController extends AdminController
         }
         $employee->resume_detail = json_decode($employee->resume_detail , true);
         $item['contract_histories'] = $employee->histories->where('reason_id' , 3);
-        return view('Admin.employee.edit', compact('item','employee', 'representations','employees','recruitment_notices','recruitment_notice_selected'));
+
+        // "پروفایل عمومی" tab — what the partner-profile frontend renders.
+        $profileServices = Service::filter()->orderBy('title')->get(['services.id', 'services.title']);
+        $ratings         = $employee->ratings()->latest()->get();
+
+        return view('Admin.employee.edit', compact('item','employee', 'representations','employees','recruitment_notices','recruitment_notice_selected',
+            'profileServices','ratings'));
+    }
+
+    /**
+     * Save the "پروفایل عمومی" tab: everything the partner-profile frontend reads.
+     *
+     * A dedicated endpoint rather than employee.update, mirroring the resume and contract
+     * tabs: the profile owns relations (services, portfolio, ratings) that EmployeeService
+     * knows nothing about, and folding them in would make the shared update path carry
+     * four concerns instead of one.
+     *
+     * @param Request $request
+     * @param Employee $employee
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateProfile(Request $request, Employee $employee)
+    {
+        if (! auth()->user()->isAbleTo('user-edit')) {
+            return abort(401);
+        }
+
+        $request->validate([
+            'bio'                => 'nullable|string|max:5000',
+            // CKEditor output — html, so no `string|max` character cap that would truncate
+            // legitimate markup; the column is longtext.
+            'extra_content'      => 'nullable|string',
+            'attendance_days'    => 'nullable|string|max:255',
+            'attendance_hours'   => 'nullable|string|max:255',
+            'description_one'    => 'nullable|string|max:1000',
+            'description_two'    => 'nullable|string|max:1000',
+            'description_three'  => 'nullable|string|max:1000',
+            'services_title'     => 'nullable|string|max:255',
+            'portfolio_title'    => 'nullable|string|max:255',
+            'service_ids'        => 'nullable|array',
+            'service_ids.*'      => 'integer|exists:services,id',
+            'service_subtitle'   => 'nullable|array',
+            'service_subtitle.*' => 'nullable|string|max:255',
+            'service_from_price' => 'nullable|array',
+        ]);
+
+        // Named one by one, never $request->all(): Employee is $guarded=['id'], so a
+        // wholesale update from this tab could reach pay_type / percent / contract_status.
+        $employee->update($request->only([
+            'bio', 'extra_content', 'attendance_days', 'attendance_hours',
+            'description_one', 'description_two', 'description_three',
+            'services_title', 'portfolio_title',
+        ]));
+
+        if ($request->input('profile_image_path')) {
+            MediaLibraryHelper::attachTo($employee, $request->input('profile_image_path'), 'profile_image');
+        }
+
+        $this->syncProfileServices($employee, $request);
+        $this->syncPortfolio($employee, $request);
+        $this->moderateRatings($employee, $request);
+
+        return redirect()->route('employee.edit', $employee->id)->with([
+            'update'     => 'success',
+            'active_tab' => 'public_profile',
+        ]);
+    }
+
+    /**
+     * The "خدمات" cards: which services the partner offers, and the per-partner subtitle
+     * and starting price of each.
+     *
+     * The subtitle/price arrays are keyed by SERVICE ID, not by position — unticking a
+     * service in the middle of the list would otherwise shift every later value up onto
+     * the wrong service.
+     */
+    private function syncProfileServices(Employee $employee, Request $request): void
+    {
+        $subtitles = $request->input('service_subtitle', []);
+        $prices    = $request->input('service_from_price', []);
+
+        $payload = [];
+        foreach (array_values($request->input('service_ids', [])) as $index => $serviceId) {
+            // prices are typed with thousands separators and often on a Persian keyboard
+            $price = preg_replace('/\D/', '', Helper::convert($prices[$serviceId] ?? ''));
+
+            $payload[(int) $serviceId] = [
+                'subtitle'   => $subtitles[$serviceId] ?? null,
+                'from_price' => $price === '' ? null : (int) $price,
+                'sort'       => $index,
+            ];
+        }
+
+        $employee->services()->sync($payload);
+    }
+
+    /**
+     * "نمونه کارها": retitle the saved images and attach the newly uploaded ones.
+     *
+     * Same shape as ServiceController::uploadPortfolioImages — an unlimited Spatie
+     * `portfolio` collection with the caption in the media's `title` custom property, fed
+     * by the shared multipleImages widget. Deletion is not handled here: the ✕ on each row
+     * is the widget's own removeMedia ajax call, which fires immediately.
+     */
+    private function syncPortfolio(Employee $employee, Request $request): void
+    {
+        foreach ($request->input('existing_portfolio', []) as $mediaId => $data) {
+            $media = \App\Models\Media::find($mediaId);
+
+            // ownership check: a posted media id must not retitle another model's image
+            if ($media && $media->model_type === Employee::class && (string) $media->model_id === (string) $employee->id) {
+                $media->setCustomProperty('title', $data['title'] ?? '');
+                $media->save();
+            }
+        }
+
+        foreach ($request->input('multiple_image', []) as $item) {
+            if (! empty($item['file'])) {
+                MediaLibraryHelper::attachTo($employee, $item['file'], 'portfolio', [
+                    'title' => $item['title'] ?? '',
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Approve / reject / delete the visitor ratings of this partner. Ratings are written
+     * by the public API — the admin only decides what the frontend may show.
+     */
+    private function moderateRatings(Employee $employee, Request $request): void
+    {
+        foreach ($request->input('rating_status', []) as $id => $status) {
+            if (! array_key_exists((int) $status, Rating::STATUS)) {
+                continue;
+            }
+            $employee->ratings()->where('id', $id)->update(['status' => (int) $status]);
+        }
+
+        if ($deleted = array_filter($request->input('rating_delete', []))) {
+            $employee->ratings()->whereIn('id', $deleted)->delete();
+        }
     }
 
     /**

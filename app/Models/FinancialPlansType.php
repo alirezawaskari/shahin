@@ -62,6 +62,15 @@ class FinancialPlansType extends Model
     }
 
     /**
+     * Branches this plan is offered at — the "طرح های مالی فعال" bullets on the branch page.
+     * Third subject of the same morph pivot as services() / categories().
+     */
+    public function centers()
+    {
+        return $this->morphedByMany(Center::class, 'financialplanstypeItemable', 'financial_plans_type_items');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function financialPlansTypeItems()

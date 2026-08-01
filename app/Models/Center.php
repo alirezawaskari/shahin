@@ -61,9 +61,37 @@ class Center extends Model implements HasMedia {
 
     protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
     'pay_type', 'purchase_type', 'status', 'is_show', 'lat', 'lon', 'has_subset', 'type', 'fullName',
-    'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone' ];
+    'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone',
+    // public branch page — see 2026_07_30_110000_add_branch_profile_fields_to_centers_table
+    'label_type', 'intro_text', 'email', 'map_iframe_link', 'working_hours',
+    'about_title', 'services_title', 'staff_title', 'plans_title' ];
+
+    /** $fillable wins over the (empty) $guarded below, so new columns must be listed above. */
+    protected $casts = [
+        'working_hours' => 'array',
+    ];
 
     const TYPE = [ 'seller' => 'فروشنده', 'producer' => 'تولید کننده', 'supplier' => 'تامین کننده', 'خدمات دهنده'=>'service_provider' ];
+
+    /**
+    * What this place is called in menus and headings. The customer picks the word, because
+    * a chain calls them شعبه and a single-site business calls itself مرکز.
+    */
+    const LABELS = [ 'branch' => 'شعبه', 'center' => 'مرکز' ];
+
+    /**
+    * Weekday keys of the `working_hours` json, in the order the branch page lists them.
+    * English keys so the API and the frontend never have to match Persian strings.
+    */
+    const WEEK_DAYS = [
+        'saturday'  => 'شنبه',
+        'sunday'    => 'یکشنبه',
+        'monday'    => 'دوشنبه',
+        'tuesday'   => 'سه شنبه',
+        'wednesday' => 'چهارشنبه',
+        'thursday'  => 'پنجشنبه',
+        'friday'    => 'جمعه',
+    ];
     /**
     * @var array
     */
@@ -102,6 +130,98 @@ class Center extends Model implements HasMedia {
 
     public function representations() {
         return $this->belongsToMany( Representation::class );
+    }
+
+    /**
+    * Businesses this center is a branch of. The other side of GhorfeOnlineList::centers();
+    * a shared center can serve more than one business, hence many-to-many.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    */
+    public function ghorfeOnlineLists() {
+        return $this->belongsToMany( GhorfeOnlineList::class )->withPivot( 'sort' );
+    }
+
+    /**
+    * Staff whose home branch is this center (employees.center_id).
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    */
+    public function employees() {
+        return $this->hasMany( Employee::class );
+    }
+
+    /**
+    * "طرح های مالی فعال برای این شعبه" — the installment / cash / insurance plans shown on
+    * the branch page.
+    *
+    * Reuses the existing `financial_plans_type_items` morph pivot (already carrying Service
+    * and Category), so no new table: this just adds Center as a third subject.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+    */
+    public function financialPlansTypes() {
+        return $this->morphToMany(
+            FinancialPlansType::class,
+            'financialplanstypeItemable',
+            'financial_plans_type_items'
+        );
+    }
+
+    /**
+    * Questions shown in this branch's "سوالات متداول" block.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    */
+    public function faqs() {
+        return $this->hasMany( Faq::class );
+    }
+
+    /**
+    * Visitor star ratings. Includes the un-moderated ones — the admin screen needs them;
+    * a frontend must add ->approved().
+    *
+    * Deliberately unordered: the relation is also used for moderation writes, and an
+    * `order by` riding along on an UPDATE/DELETE is needless risk. Callers that display
+    * ratings add their own ->latest().
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+    */
+    public function ratings() {
+        return $this->morphMany( Rating::class, 'rateable' );
+    }
+
+    /** "شعبه" or "مرکز" — the word the customer chose for this place. */
+    public function getLabelWordAttribute(): string {
+        return self::LABELS[ $this->label_type ] ?? self::LABELS[ 'branch' ];
+    }
+
+    /** Heading of the branch page: "شعبه تهران مرکزی". */
+    public function getDisplayTitleAttribute(): string {
+        return trim( $this->label_word . ' ' . $this->title );
+    }
+
+    /**
+    * Opening hours of one weekday, always in the same shape so a view never has to guard
+    * against a half-filled json (a day the admin never touched, or a legacy null).
+    *
+    * @return array{open: string, close: string, closed: bool}
+    */
+    public function workingHoursFor( string $day ): array {
+        $stored = $this->working_hours[ $day ] ?? [];
+
+        return [
+            'open'   => $stored[ 'open' ] ?? '',
+            'close'  => $stored[ 'close' ] ?? '',
+            'closed' => (bool) ( $stored[ 'closed' ] ?? false ),
+        ];
+    }
+
+    /** Average of the APPROVED ratings, rounded to one decimal; null when there are none. */
+    public function getAverageRatingAttribute(): ?float {
+        $average = $this->ratings()->approved()->avg( 'score' );
+
+        return $average === null ? null : round( (float) $average, 1 );
     }
 
     public function users() {

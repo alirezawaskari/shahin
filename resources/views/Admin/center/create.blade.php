@@ -187,6 +187,44 @@
                 </div>
             </div>
         </div>
+
+        {{-- The customer-facing side. Only the three fields that are awkward to leave blank
+             on day one; the rest of the branch page (ساعات کاری، طرح های مالی، تصاویر،
+             سوالات متداول) is filled in on the edit page, which opens right after saving. --}}
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <h5>4 - اطلاعات صفحه عمومی</h5>
+                    <br>
+                    <div class="form-row">
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>عنوان منو</label>
+                            <select class="form-control" name="label_type">
+                                @foreach(\App\Models\Center::LABELS as $key => $word)
+                                <option value="{{ $key }}" @selected(old('label_type', 'branch') === $key)>{{ $word }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">این عنوان در منو و سرتیتر صفحه عمومی استفاده می‌شود.</small>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>ایمیل</label>
+                            <input type="text" name="email" class="form-control" value="{{ old('email') }}"
+                                placeholder="info@example.com">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-12 mb-3">
+                            <label>متن معرفی (در صفحه عمومی نمایش داده می‌شود)</label>
+                            <textarea name="intro_text" class="form-control no-resize" rows="5"
+                                placeholder="معرفی کوتاه برای صفحه عمومی">{{ old('intro_text') }}</textarea>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        پس از ثبت، صفحه ویرایش باز می‌شود تا ساعات کاری، طرح های مالی، تصاویر و سوالات متداول را کامل کنید.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="form-group">
         <input type="submit" class="btn btn-success border-0" value="ثبت">
