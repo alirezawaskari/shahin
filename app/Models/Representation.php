@@ -138,11 +138,11 @@ class Representation extends Model implements HasMedia
     /**
      * "درباره ما" rows owned by this representation (mirrors GhorfeOnlineList::about()).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function abouts()
     {
-        return $this->hasMany(About::class);
+        return $this->morphMany(About::class, 'aboutable');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

@@ -36,7 +36,7 @@ class AboutController extends Controller
     {
         // filter() = superadmin sees every row; a ghorfe user sees only its ghorfe's rows,
         // a representation admin only its representation's, everyone else the main site's.
-        $abouts = About::filter()->with(['ghorfeOnline', 'representation'])->orderBy('id')->get();
+        $abouts = About::filter()->with('aboutable')->orderBy('id')->get();
 
         // A business created after the about rows were seeded has no page at all. Offer to
         // make one only when there is actually an owner still missing its page.
@@ -85,7 +85,7 @@ class AboutController extends Controller
             'owner.in'       => 'مالک انتخاب شده معتبر نیست یا صفحه درباره ما دارد',
         ]);
 
-        $about = About::create($this->ownershipColumns($request->input('owner')));
+        $about = About::create($this->ownershipAttributes($request->input('owner')));
 
         return redirect()->route('about.edit', $about->id)->with([
             'create' => 'success'
@@ -95,7 +95,7 @@ class AboutController extends Controller
     /**
      * Owners this admin may create a "درباره ما" page for, keyed by the form value.
      *
-     * Keys are "ghorfe:{id}" / "representation:{id}" / "main" — see ownershipColumns().
+     * Keys are "ghorfe:{id}" / "representation:{id}" / "main" — see ownershipAttributes().
      * An owner that already has a page is never listed, so one owner can never end up with
      * two pages and the frontend never has to choose between them.
      *
@@ -109,19 +109,19 @@ class AboutController extends Controller
             return collect();
         }
 
-        $mainSiteTaken = About::whereNull('ghorfe_online_list_id')->whereNull('representation_id')->exists();
+        $mainSiteTaken = About::whereNull('aboutable_type')->whereNull('aboutable_id')->exists();
 
         if (! $user->hasRole('superadmin')) {
             // A non-superadmin has exactly one owner — the same one About::scopeFilter()
             // scopes their list to — so "can they create" is just "is that one missing".
             if ($ghorfe = ghorfe()) {
-                return About::where('ghorfe_online_list_id', $ghorfe->id)->exists()
+                return $ghorfe->abouts()->exists()
                     ? collect()
                     : collect(['ghorfe:' . $ghorfe->id => $ghorfe->title]);
             }
 
             if ($user->admin_representation_id) {
-                return About::where('representation_id', $user->admin_representation_id)->exists()
+                return $user->admin_representation->abouts()->exists()
                     ? collect()
                     : collect(['representation:' . $user->admin_representation_id => optional($user->admin_representation)->fa_name]);
             }
@@ -129,7 +129,7 @@ class AboutController extends Controller
             return $mainSiteTaken ? collect() : collect(['main' => 'سایت اصلی لاله کارت']);
         }
 
-        $owners = GhorfeOnlineList::whereDoesntHave('about')
+        $owners = GhorfeOnlineList::whereDoesntHave('abouts')
             ->orderBy('title')
             ->pluck('title', 'id')
             ->mapWithKeys(fn ($title, $id) => ['ghorfe:' . $id => 'کسب و کار: ' . $title]);
@@ -145,18 +145,17 @@ class AboutController extends Controller
     }
 
     /**
-     * Turn an eligibleOwners() key into the two ownership columns.
+     * Turn an eligibleOwners() key into polymorphic ownership attributes.
      *
-     * Ownership is exclusive: ghorfe_online_list_id XOR representation_id, both null =
-     * the main lalecard site.
+     * A null type/id pair represents the main lalecard site.
      */
-    private function ownershipColumns(string $owner): array
+    private function ownershipAttributes(string $owner): array
     {
         [$type, $id] = array_pad(explode(':', $owner, 2), 2, null);
 
         return match ($type) {
-            'ghorfe'         => ['ghorfe_online_list_id' => (int) $id],
-            'representation' => ['representation_id' => (int) $id],
+            'ghorfe'         => ['aboutable_type' => (new GhorfeOnlineList())->getMorphClass(), 'aboutable_id' => (int) $id],
+            'representation' => ['aboutable_type' => (new Representation())->getMorphClass(), 'aboutable_id' => (int) $id],
             default          => [],
         };
     }
@@ -177,7 +176,7 @@ class AboutController extends Controller
     {
         // Same filter() as index(): a ghorfe/representation admin must not reach another
         // tenant's row by typing its id into the url.
-        $about = $id ? About::filter()->with(['ghorfeOnline', 'representation'])->find($id) : null;
+        $about = $id ? About::filter()->with('aboutable')->find($id) : null;
 
         if (! $about) {
             return redirect('/dashboard/about');
@@ -298,9 +297,11 @@ class AboutController extends Controller
         $this->syncBusinessRelations($about, $request);
         $this->syncFaqs($about, $request);
 
-        // site.about caches the row for an hour — without this the legacy page keeps
-        // serving the pre-edit content.
+        // Public about pages are cached for an hour, so forget the affected owner key.
         Cache::forget('about');
+        if ($about->representation) {
+            Cache::forget('about:representation:' . $about->representation->id);
+        }
 
         // Back to the same tab of the same page: this form is long and an admin editing
         // the stats does not want to be dropped on the list and have to navigate back.
@@ -372,7 +373,7 @@ class AboutController extends Controller
      */
     private function syncFaqs(About $about, Request $request): void
     {
-        if ($about->representation_id) {
+        if ($about->representation) {
             return;
         }
 
@@ -406,7 +407,7 @@ class AboutController extends Controller
                 $faq->update($attributes);
             } else {
                 $faq = $about->faqsQuery()->create($attributes + [
-                    'ghorfe_online_list_id' => $about->ghorfe_online_list_id,
+                    'ghorfe_online_list_id' => $about->ghorfeOnline?->id,
                 ]);
             }
 

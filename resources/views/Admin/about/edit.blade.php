@@ -7,8 +7,8 @@
     // Branch list + specialist staff live on the business, so those two panes only make
     // sense for a business-owned page (a representation / main-site page has no business).
     $ghorfe = $about->ghorfeOnline;
-    // The main-site row is the one the legacy site.about view renders (About::first()).
-    $isMainSite = ! $about->ghorfe_online_list_id && ! $about->representation_id;
+    // A null polymorphic owner is the main-site row rendered by the legacy site.about view.
+    $isMainSite = ! $about->aboutable;
     $tourLimit = \App\Models\About::TOUR_DESCRIPTION_LIMIT;
 
     $tabs = array_filter([
@@ -19,7 +19,7 @@
         'staff_info'    => $ghorfe ? 'همکاران متخصص' : null,
         'why_info'      => 'چرا ما؟',
         'goals_info'    => 'اهداف و چشم انداز',
-        'faq_info'      => $about->representation_id ? null : 'سوالات متداول',
+        'faq_info'      => $about->representation ? null : 'سوالات متداول',
         'legacy_info'   => $isMainSite ? 'سایت قدیمی' : null,
     ]);
 @endphp
@@ -447,7 +447,7 @@
                         </div>
 
                         {{-- ================= سوالات متداول ================= --}}
-                        @unless($about->representation_id)
+                        @unless($about->representation)
                         <div class="tab-pane fade p-t-20 {{ $activeTab == 'faq_info' ? 'show active' : '' }}"
                              id="faq_info" role="tabpanel">
                             <div class="row">
