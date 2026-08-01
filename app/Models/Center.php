@@ -129,17 +129,21 @@ class Center extends Model implements HasMedia {
     */
 
     public function representations() {
-        return $this->morphedByMany( Representation::class, 'centerable', 'center_owners' );
+        return $this->morphedByMany( Representation::class, 'owner', 'center_owners' );
     }
 
     /**
     * Businesses this center is a branch of. The other side of GhorfeOnlineList::centers();
     * a shared center can serve more than one business, hence many-to-many.
     *
+    * `owner`, not `centerable`: on THIS model `centerable` already means what the center
+    * offers (centerable() below -> Category|Service, and the `centerables` pivot), which is
+    * the opposite direction. The `center_owners` pivot answers who owns it.
+    *
     * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
     */
     public function ghorfeOnlineLists() {
-        return $this->morphedByMany( GhorfeOnlineList::class, 'centerable', 'center_owners' )->withPivot( 'sort' );
+        return $this->morphedByMany( GhorfeOnlineList::class, 'owner', 'center_owners' )->withPivot( 'sort' );
     }
 
     /**

@@ -66,43 +66,70 @@ return new class extends Migration
 
     public function down(): void
     {
+        // The morph columns are named `owner_*` once
+        // 2026_08_01_110000_rename_center_owners_morph_to_owner has run. Migrations here are
+        // normally applied one at a time with --path, so this has to survive being rolled
+        // back on its own, with that later migration still in place.
+        $typeColumn = Schema::hasColumn('center_owners', 'owner_type') ? 'owner_type' : 'centerable_type';
+        $idColumn   = Schema::hasColumn('center_owners', 'owner_id') ? 'owner_id' : 'centerable_id';
+
+        // Recreated exactly as 2026_07_30_100100_create_center_ghorfe_online_list_table left
+        // it, foreign keys included — those were real (the column types match the referenced
+        // PKs) and dropping them silently would make a rollback lose constraints.
         Schema::create('center_ghorfe_online_list', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ghorfe_online_list_id');
             $table->unsignedInteger('center_id');
             $table->unsignedSmallInteger('sort')->nullable();
+
             $table->unique(['ghorfe_online_list_id', 'center_id'], 'center_ghorfe_unique');
+
+            $table->foreign('ghorfe_online_list_id')
+                ->references('id')->on('ghorfe_online_lists')
+                ->onDelete('cascade');
+            $table->foreign('center_id')
+                ->references('id')->on('centers')
+                ->onDelete('cascade');
         });
 
         $representationType = (new Representation())->getMorphClass();
         $ghorfeType = (new GhorfeOnlineList())->getMorphClass();
 
-        DB::table('center_owners')->where('centerable_type', $ghorfeType)
-            ->orderBy('center_id')->each(function ($row) {
+        DB::table('center_owners')->where($typeColumn, $ghorfeType)
+            ->orderBy('center_id')->each(function ($row) use ($idColumn) {
                 DB::table('center_ghorfe_online_list')->insert([
-                    'ghorfe_online_list_id' => $row->centerable_id,
+                    'ghorfe_online_list_id' => $row->{$idColumn},
                     'center_id'             => $row->center_id,
                     'sort'                  => $row->sort,
                 ]);
             });
 
-        DB::table('center_owners')->where('centerable_type', $ghorfeType)->delete();
+        DB::table('center_owners')->where($typeColumn, $ghorfeType)->delete();
 
         // The legacy table can represent only Representation rows. Refuse a lossy rollback
         // if another owner type is introduced in the future.
-        if (DB::table('center_owners')->where('centerable_type', '!=', $representationType)->exists()) {
+        if (DB::table('center_owners')->where($typeColumn, '!=', $representationType)->exists()) {
             throw new RuntimeException('Cannot roll back center owners with unsupported morph types.');
         }
 
-        Schema::table('center_owners', function (Blueprint $table) {
+        Schema::table('center_owners', function (Blueprint $table) use ($typeColumn) {
             $table->dropUnique('center_owners_owner_unique');
-            $table->dropColumn(['centerable_type', 'sort']);
+            $table->dropColumn([$typeColumn, 'sort']);
         });
 
-        Schema::table('center_owners', function (Blueprint $table) {
-            $table->renameColumn('centerable_id', 'representation_id');
+        Schema::table('center_owners', function (Blueprint $table) use ($idColumn) {
+            $table->renameColumn($idColumn, 'representation_id');
         });
 
+        // Back to the bigint columns the table actually had before up() ran, and with NO
+        // foreign keys — deliberately.
+        //
+        // The 2023 create_center_representation migration declares foreignId()->constrained()
+        // on both columns, but that pairing is impossible against this schema: foreignId() is
+        // BIGINT UNSIGNED while centers.id and representations.id are INT UNSIGNED, which
+        // MySQL rejects outright (error 3780, "Referencing column and referenced column ...
+        // are incompatible"). Those constraints have therefore never existed in this database
+        // — the table came from the dump — so recreating them here would only break rollback.
         Schema::table('center_owners', function (Blueprint $table) {
             $table->unsignedBigInteger('center_id')->change();
             $table->unsignedBigInteger('representation_id')->change();

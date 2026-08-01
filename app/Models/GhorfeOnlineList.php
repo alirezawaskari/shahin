@@ -305,11 +305,14 @@ class GhorfeOnlineList extends Model implements HasMedia
      * frontend links into. Ordered by the pivot `sort` so the admin controls the cards'
      * order; rows with no sort fall to the end (MySQL puts NULL first ascending).
      *
+     * `sort` is only meaningful on THESE rows: `center_owners` is shared with
+     * Representation::centers(), whose rows leave it null and are never ordered by it.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
     public function centers()
     {
-        return $this->morphToMany(Center::class, 'centerable', 'center_owners')
+        return $this->morphToMany(Center::class, 'owner', 'center_owners')
             ->withPivot('sort')
             ->orderByRaw('center_owners.sort is null, center_owners.sort');
     }
