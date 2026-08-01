@@ -23,6 +23,9 @@ class FactorItem extends Model implements AuditableContract, HasMedia
     use InteractsWithMedia;
     use \App\Models\Concerns\AdoptsLegacyMedia;
 
+    /** Form value meaning that no specific representation owns the factor item. */
+    public const WITHOUT_REPRESENTATION = 'without_representation';
+
     /**
      * Touch-to-migrate: legacy paths embedded in these JSON columns -> the documents
      * collection. factor_values is nested (image arrays sit next to plain text/ids); only
@@ -383,7 +386,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             }
 
             if (isset($representation) && trim($representation) != 'all') {
-                if (trim($representation) == 'center_representation') {
+                if (trim($representation) === self::WITHOUT_REPRESENTATION) {
                     $query->whereDoesntHave('representation');
                 } else {
                     $query->whereHas('representation', function ($query) use ($representation) {
@@ -1116,7 +1119,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
     }
     /**
      *@param \App\Models\FactorItem $item
-     *@param int $representation
+     *@param int|string $representation
      *@return void
      */
     public static function createRepresentation(FactorItem $item, $representation)
@@ -1130,7 +1133,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             'description' => "نمایندگی این پرونده توسط {$user->family} تغییر کرده است.",
         ]);
         $item->representation()->delete();
-        if ($representation != 'center_representation') {
+        if ($representation !== self::WITHOUT_REPRESENTATION) {
             $item->representation()->updateOrCreate(
                ['representation_id' => $representation],
                ['agent_id' => $user->id]
@@ -1369,4 +1372,3 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         }
     }
 }
-

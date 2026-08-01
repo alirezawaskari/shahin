@@ -125,21 +125,21 @@ class Center extends Model implements HasMedia {
         return $this->morphMany( PercentageAllocationEmployee::class, 'percentage_allocation_employeeable' );
     }
     /**
-    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
     */
 
     public function representations() {
-        return $this->belongsToMany( Representation::class );
+        return $this->morphedByMany( Representation::class, 'centerable', 'centerables' );
     }
 
     /**
     * Businesses this center is a branch of. The other side of GhorfeOnlineList::centers();
     * a shared center can serve more than one business, hence many-to-many.
     *
-    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
     */
     public function ghorfeOnlineLists() {
-        return $this->belongsToMany( GhorfeOnlineList::class )->withPivot( 'sort' );
+        return $this->morphedByMany( GhorfeOnlineList::class, 'centerable', 'centerables' )->withPivot( 'sort' );
     }
 
     /**

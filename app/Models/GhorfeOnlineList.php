@@ -305,13 +305,13 @@ class GhorfeOnlineList extends Model implements HasMedia
      * frontend links into. Ordered by the pivot `sort` so the admin controls the cards'
      * order; rows with no sort fall to the end (MySQL puts NULL first ascending).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
     public function centers()
     {
-        return $this->belongsToMany(Center::class)
+        return $this->morphToMany(Center::class, 'centerable', 'centerables')
             ->withPivot('sort')
-            ->orderByRaw('center_ghorfe_online_list.sort is null, center_ghorfe_online_list.sort');
+            ->orderByRaw('centerables.sort is null, centerables.sort');
     }
     /**
      * Specialist staff (همکاران متخصص) this business features. A curated list — NOT every
