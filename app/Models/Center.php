@@ -129,7 +129,7 @@ class Center extends Model implements HasMedia {
     */
 
     public function representations() {
-        return $this->morphedByMany( Representation::class, 'centerable', 'centerables' );
+        return $this->morphedByMany( Representation::class, 'centerable', 'center_owners' );
     }
 
     /**
@@ -139,7 +139,7 @@ class Center extends Model implements HasMedia {
     * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
     */
     public function ghorfeOnlineLists() {
-        return $this->morphedByMany( GhorfeOnlineList::class, 'centerable', 'centerables' )->withPivot( 'sort' );
+        return $this->morphedByMany( GhorfeOnlineList::class, 'centerable', 'center_owners' )->withPivot( 'sort' );
     }
 
     /**

@@ -126,7 +126,7 @@ class Representation extends Model implements HasMedia
     */
     public function centers()
     {
-        return $this->morphToMany(Center::class, 'centerable', 'centerables');
+        return $this->morphToMany(Center::class, 'centerable', 'center_owners');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

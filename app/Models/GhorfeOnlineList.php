@@ -309,9 +309,9 @@ class GhorfeOnlineList extends Model implements HasMedia
      */
     public function centers()
     {
-        return $this->morphToMany(Center::class, 'centerable', 'centerables')
+        return $this->morphToMany(Center::class, 'centerable', 'center_owners')
             ->withPivot('sort')
-            ->orderByRaw('centerables.sort is null, centerables.sort');
+            ->orderByRaw('center_owners.sort is null, center_owners.sort');
     }
     /**
      * Specialist staff (همکاران متخصص) this business features. A curated list — NOT every
