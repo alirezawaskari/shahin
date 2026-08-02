@@ -1066,7 +1066,7 @@ class Factor extends Model implements AuditableContract, HasMedia
                 if ($factor_item->purchase_type == 0) {
                     //factor price for purchase type online
                     if ($factor_item->property()->exists()) {
-                        $$factor_item->property->update([
+                        $factor_item->property->update([
                             'prepayment_debt' => $factor_item->total_price,
                             'prepayment_price' => $factor_item->total_price,
                             'prepayment_count' => 1,
