@@ -11,6 +11,7 @@
             <th>میزان انجام کار</th>
             <th>عنوان</th>
             <th>توضیحات</th>
+            <th>مقدار(تعداد - عدد)</th>
             <th>تعداد مراجعات </th>
             <th>طول دوره اجرا(روز)</th>
             <th>تخفیف (ریال)</th>
@@ -40,6 +41,7 @@
             </td>
             <td>{{ $service_tariff->name }}</td>
             <td>{{ $service_tariff->pivot->description }}</td>
+            <td>{{ $service_tariff->pivot->value }}</td>
             <td>{{ $service_tariff->pivot->session_number }}
             </td>
             <td>{{ $service_tariff->pivot->treatment_duration }}
