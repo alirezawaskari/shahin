@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -139,8 +140,13 @@ class Employee extends Model implements HasMedia
         $status=request('status');
         $role=request('role');
 
+        // Tenancy runs through the USER, not through Employee::ghorfeOnlineLists() — that
+        // pivot is the about-us page's curated specialist list, not ownership. A business
+        // admin therefore sees the staff whose user belongs to its ghorfe, and لاله staff see
+        // the staff belonging to no business, which is all this line used to do: a ghorfeAdmin
+        // fell into the لاله branch and was shown 106 employees, none of them theirs.
         $query->whereHas('user', function ($query) {
-            $query->whereDoesntHave('ghorfeOnlineLists');
+            FilterHelper::getDataByCheckGhorfeExistOrNot($query, 'belongsToMany', null);
         });
 
         if ((!isset($status) || $status == 'all') && trim($name) == '' && trim($family) == '' && trim($phone) == '') {
@@ -253,17 +259,6 @@ class Employee extends Model implements HasMedia
     public function center()
     {
         return $this->belongsTo(Center::class);
-    }
-
-    /**
-     * Businesses that feature this employee as a specialist (همکار متخصص) on their
-     * about-us page. Distinct from center(), which is the one branch they work at.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function ghorfeOnlineLists()
-    {
-        return $this->belongsToMany(GhorfeOnlineList::class)->withPivot('sort');
     }
 
     /**

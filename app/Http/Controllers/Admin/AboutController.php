@@ -6,10 +6,6 @@ use App\Helpers\Helper;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\About;
-use App\Models\Center;
-use App\Models\Employee;
-use App\Models\GhorfeOnlineList;
-use App\Models\Representation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -34,130 +30,13 @@ class AboutController extends Controller
      */
     public function index()
     {
-        // filter() = superadmin sees every row; a ghorfe user sees only its ghorfe's rows,
-        // a representation admin only its representation's, everyone else the main site's.
+        // filter() = a ghorfe user sees only its own business's row, a representation admin
+        // only its representation's, a لاله superadmin every row, everyone else the main
+        // site's. There is no create action: a "درباره ما" row is not something an admin
+        // makes, it is the page an owner already has (see the route's ->except()).
         $abouts = About::filter()->with('aboutable')->orderBy('id')->get();
 
-        // A business created after the about rows were seeded has no page at all. Offer to
-        // make one only when there is actually an owner still missing its page.
-        return view('Admin.about.list', [
-            'abouts'    => $abouts,
-            'canCreate' => $this->eligibleOwners()->isNotEmpty(),
-        ]);
-    }
-
-    /**
-     * Pick which owner the new "درباره ما" page belongs to.
-     *
-     * The list is the admin's own scope: a business/representation admin sees at most one
-     * entry (their own owner, and only while it has no page), a superadmin sees every
-     * business, representation and the main site that is still missing one.
-     *
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
-     */
-    public function create()
-    {
-        $owners = $this->eligibleOwners();
-
-        if ($owners->isEmpty()) {
-            return redirect('/dashboard/about');
-        }
-
-        return view('Admin.about.create', ['owners' => $owners]);
-    }
-
-    /**
-     * Create the empty "درباره ما" page of the chosen owner, then open it for editing.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(Request $request)
-    {
-        $owners = $this->eligibleOwners();
-
-        // The posted key is user input: it is only accepted if it is still one of the keys
-        // THIS admin was offered, which covers both "may they" and "does it already exist".
-        $request->validate([
-            'owner' => ['required', \Illuminate\Validation\Rule::in($owners->keys()->all())],
-        ], [
-            'owner.required' => 'لطفا مالک صفحه درباره ما را انتخاب کنید',
-            'owner.in'       => 'مالک انتخاب شده معتبر نیست یا صفحه درباره ما دارد',
-        ]);
-
-        $about = About::create($this->ownershipAttributes($request->input('owner')));
-
-        return redirect()->route('about.edit', $about->id)->with([
-            'create' => 'success'
-        ]);
-    }
-
-    /**
-     * Owners this admin may create a "درباره ما" page for, keyed by the form value.
-     *
-     * Keys are "ghorfe:{id}" / "representation:{id}" / "main" — see ownershipAttributes().
-     * An owner that already has a page is never listed, so one owner can never end up with
-     * two pages and the frontend never has to choose between them.
-     *
-     * @return \Illuminate\Support\Collection<string, string>
-     */
-    private function eligibleOwners()
-    {
-        $user = auth()->user();
-
-        if (! $user) {
-            return collect();
-        }
-
-        $mainSiteTaken = About::whereNull('aboutable_type')->whereNull('aboutable_id')->exists();
-
-        if (! $user->hasRole('superadmin')) {
-            // A non-superadmin has exactly one owner — the same one About::scopeFilter()
-            // scopes their list to — so "can they create" is just "is that one missing".
-            if ($ghorfe = ghorfe()) {
-                return $ghorfe->abouts()->exists()
-                    ? collect()
-                    : collect(['ghorfe:' . $ghorfe->id => $ghorfe->title]);
-            }
-
-            if ($user->admin_representation_id) {
-                return $user->admin_representation->abouts()->exists()
-                    ? collect()
-                    : collect(['representation:' . $user->admin_representation_id => optional($user->admin_representation)->fa_name]);
-            }
-
-            return $mainSiteTaken ? collect() : collect(['main' => 'سایت اصلی لاله کارت']);
-        }
-
-        $owners = GhorfeOnlineList::whereDoesntHave('abouts')
-            ->orderBy('title')
-            ->pluck('title', 'id')
-            ->mapWithKeys(fn ($title, $id) => ['ghorfe:' . $id => 'کسب و کار: ' . $title]);
-
-        $owners = $owners->union(
-            Representation::whereDoesntHave('abouts')
-                ->orderBy('fa_name')
-                ->pluck('fa_name', 'id')
-                ->mapWithKeys(fn ($name, $id) => ['representation:' . $id => 'نمایندگی: ' . $name])
-        );
-
-        return $mainSiteTaken ? $owners : $owners->union(['main' => 'سایت اصلی لاله کارت']);
-    }
-
-    /**
-     * Turn an eligibleOwners() key into polymorphic ownership attributes.
-     *
-     * A null type/id pair represents the main lalecard site.
-     */
-    private function ownershipAttributes(string $owner): array
-    {
-        [$type, $id] = array_pad(explode(':', $owner, 2), 2, null);
-
-        return match ($type) {
-            'ghorfe'         => ['aboutable_type' => (new GhorfeOnlineList())->getMorphClass(), 'aboutable_id' => (int) $id],
-            'representation' => ['aboutable_type' => (new Representation())->getMorphClass(), 'aboutable_id' => (int) $id],
-            default          => [],
-        };
+        return view('Admin.about.list', ['abouts' => $abouts]);
     }
 
     /**
@@ -186,24 +65,27 @@ class AboutController extends Controller
 
         // Branches / specialists hang off the BUSINESS, so those two sections exist only
         // for a business-owned page — a representation or main-site page has neither.
-        $centers = $ghorfe
-            ? Center::orderBy('title')->get(['id', 'title', 'address', 'city_id'])
-            : collect();
+        //
+        // Only the business's OWN branches, in pivot order: the branch tab manages the list
+        // it already has (reorder / detach / edit / create) instead of offering every center
+        // in the panel, which let one business put another's branch on its page.
+        $branches = $ghorfe ? $ghorfe->centers : collect();
 
+        // Staff of this business's own branches, not every employee in the panel: an
+        // employee belongs to the page exactly while they work at one of its branches.
         $employees = $ghorfe
-            ? Employee::with(['user:id,name,family', 'center:id,title'])
+            ? $ghorfe->staff()
+                ->with(['user:id,name,family', 'center:id,title'])
                 ->whereHas('user')
                 ->orderBy('id')
                 ->get()
             : collect();
 
         return view('Admin.about.edit', [
-            'about'             => $about,
-            'centers'           => $centers,
-            'employees'         => $employees,
-            'selectedCenters'   => $ghorfe ? $ghorfe->centers->pluck('id')->all() : [],
-            'selectedEmployees' => $ghorfe ? $ghorfe->employees->pluck('id')->all() : [],
-            'faqs'              => $about->faqsQuery()->get(),
+            'about'     => $about,
+            'branches'  => $branches,
+            'employees' => $employees,
+            'faqs'      => $about->faqsQuery()->get(),
         ]);
     }
 
@@ -265,8 +147,8 @@ class AboutController extends Controller
             // relations
             'branch_ids'            => 'nullable|array',
             'branch_ids.*'          => 'integer|exists:centers,id',
-            'employee_ids'          => 'nullable|array',
-            'employee_ids.*'        => 'integer|exists:employees,id',
+            'staff_ids'             => 'nullable|array',
+            'staff_ids.*'           => 'integer|exists:employees,id',
             // faq repeater
             'faq_ids'               => 'nullable|array',
             'faq_titles'            => 'nullable|array',
@@ -335,15 +217,11 @@ class AboutController extends Controller
     }
 
     /**
-     * Branch list + specialist staff.
+     * Branch list + branch staff.
      *
-     * Both are attached to the BUSINESS, not to the about row, because the branch and
-     * partner frontends read the same links. A representation / main-site page has no
-     * business and therefore neither section — nothing to sync.
-     *
-     * sync() (not syncWithoutDetaching): the posted list IS the list, so unchecking a
-     * branch has to remove it. The form always submits both fields, so an empty array
-     * genuinely means "none selected" rather than "section not rendered".
+     * Both hang off the BUSINESS, not off the about row, because the branch and partner
+     * frontends read the same links. A representation / main-site page has no business and
+     * therefore neither section — nothing to sync.
      */
     private function syncBusinessRelations(About $about, Request $request): void
     {
@@ -353,14 +231,24 @@ class AboutController extends Controller
             return;
         }
 
-        // Card order = the order the admin arranged the tags in, so the pivot keeps it.
-        $withSort = fn (array $ids) => collect($ids)
+        // Row order = card order on the page, so the pivot keeps it as `sort`.
+        //
+        // sync() (not syncWithoutDetaching): the posted list IS the list, so a row the admin
+        // removed from the table has to be detached. The tab always submits the field, so an
+        // empty array genuinely means "no branches" rather than "section not rendered".
+        $branchIds = collect($request->input('branch_ids', []))
             ->values()
             ->mapWithKeys(fn ($id, $index) => [(int) $id => ['sort' => $index]])
             ->all();
 
-        $ghorfe->centers()->sync($withSort($request->input('branch_ids', [])));
-        $ghorfe->employees()->sync($withSort($request->input('employee_ids', [])));
+        $ghorfe->centers()->sync($branchIds);
+
+        // Staff are not a list of their own: an employee is on the page while they work at
+        // one of the branches. Removing their row therefore cuts that link — and only for
+        // employees of THIS business's branches, so a save can never touch anyone else's.
+        $keep = collect($request->input('staff_ids', []))->map(fn ($id) => (int) $id)->all();
+
+        $ghorfe->staff()->whereNotIn('id', $keep)->update(['center_id' => null]);
     }
 
     /**

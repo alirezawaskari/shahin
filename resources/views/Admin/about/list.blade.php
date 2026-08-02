@@ -16,14 +16,6 @@
         </div>
     </div>
 
-    {{-- A business created after its about row would have been seeded has no page at all;
-         this is the only way for its admin to make one (see AboutController::store). --}}
-    @if($canCreate)
-        <div class="mb-3">
-            <a href="{{ route('about.create') }}" class="btn btn-success">ایجاد صفحه درباره ما</a>
-        </div>
-    @endif
-
     <div class="card position-relative">
         <div class="card-body">
             <table class="table table-bordered table-striped">

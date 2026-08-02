@@ -10,6 +10,11 @@
             <div class="card-body">
                 <div class="form-row">
                     <input type="hidden" name="item[user_id]" value="{{ auth()->user()->id }}">
+                    {{-- Present only when the form was opened from a business's branch tab:
+                         it says which business the new branch belongs to. --}}
+                    @isset($ghorfeOnlineListId)
+                        <input type="hidden" name="ghorfe_online_list_id" value="{{ $ghorfeOnlineListId }}">
+                    @endisset
                     <div class="col-12 mb-3">
                         <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
                         <br>

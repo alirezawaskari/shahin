@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -257,6 +258,16 @@ class Center extends Model implements HasMedia {
         $service = request( 'service' );
         $category = request( 'category' );
         $status = request( 'status' );
+
+        // Tenancy, exactly as every other list in the panel does it (Service, Product, User,
+        // Category, Factor): a business admin sees only the branches attached to its ghorfe
+        // through center_owners, لاله staff see only the branches attached to no business.
+        // Without this a ghorfeAdmin fell through to the representation check below — which
+        // they never match — and got all 54 centers.
+        //
+        // Not assigned back: the helper mutates the builder, and it returns null for a level
+        // it does not know (siteAdmin), which would turn an unfiltered list into a fatal.
+        FilterHelper::getDataByCheckGhorfeExistOrNot( $query, 'belongsToMany', null );
 
         if(auth()->user()->admin_representation_id)
         {

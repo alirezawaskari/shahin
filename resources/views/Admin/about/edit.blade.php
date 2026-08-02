@@ -253,32 +253,57 @@
                                            value="{{ old('branches_title', $about->branches_title) }}" placeholder="شعبه های ما">
                                 </div>
 
-                                <div class="col-12 mb-3">
-                                    <label>انتخاب شعبه ها</label>
-                                    {{-- The order of the selected tags is the order of the cards
-                                         on the page — the pivot stores it as `sort`. --}}
-                                    <select class="selectMulti form-control" name="branch_ids[]" multiple>
-                                        @foreach($centers as $center)
-                                            @php
-                                                $centerLabel = collect([
-                                                    $center->title,
-                                                    \Illuminate\Support\Str::limit((string) $center->address, 60),
-                                                ])->filter()->implode(' — ');
-                                            @endphp
-                                            <option value="{{ $center->id }}"
-                                                @selected(in_array($center->id, old('branch_ids', $selectedCenters)))>
-                                                {{ $centerLabel }}
-                                            </option>
+                                <div class="col-12">
+                                    {{-- A branch is described on its own page, never here: this table only
+                                         says WHICH branches of this business the about-us page shows and in
+                                         WHAT ORDER (row order = the pivot `sort`, as the tag order used to
+                                         be). «ویرایش» and «ایجاد شعبه جدید» open the branch forms under
+                                         «مراکز», so a branch keeps exactly one form. --}}
+                                    <table class="table table-bordered" id="branch-table">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:60px">ترتیب</th>
+                                            <th>نام شعبه</th>
+                                            <th>آدرس</th>
+                                            <th style="width:150px"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="branch-rows">
+                                        @foreach($branches as $branch)
+                                            <tr>
+                                                <td class="branch-index text-center">{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <input type="hidden" name="branch_ids[]" value="{{ $branch->id }}">
+                                                    {{ $branch->display_title }}
+                                                </td>
+                                                <td>{{ \Illuminate\Support\Str::limit((string) $branch->address, 80) }}</td>
+                                                <td class="text-center">
+                                                    <a href="{{ route('center.edit', $branch->id) }}" target="_blank"
+                                                       class="btn btn-primary btn-sm">ویرایش</a>
+                                                    <button type="button" class="btn btn-danger btn-sm branch-remove">
+                                                        <i class="fa fa-remove"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
                                         @endforeach
-                                    </select>
-                                    <small class="text-muted">ترتیب انتخاب، ترتیب نمایش شعبه ها در صفحه درباره ما است.</small>
-                                </div>
+                                        </tbody>
+                                    </table>
 
-                                @if($centers->isEmpty())
-                                    <div class="col-12">
-                                        <div class="alert alert-warning">هیچ شعبه‌ای ثبت نشده است. ابتدا از بخش «مراکز» شعبه بسازید.</div>
-                                    </div>
-                                @endif
+                                    @if($branches->isEmpty())
+                                        <div class="alert alert-warning">هنوز هیچ شعبه‌ای برای این کسب و کار ثبت نشده است.</div>
+                                    @endif
+
+                                    {{-- ghorfe_online_list_id rides along so the new branch is attached to
+                                         THIS business: the branch form is shared, and a لاله admin creating
+                                         one from here has no ghorfe of their own to infer it from. --}}
+                                    <a href="{{ route('center.create', ['ghorfe_online_list_id' => $ghorfe->id]) }}"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fa fa-plus"></i> ایجاد شعبه جدید
+                                    </a>
+                                    <small class="d-block text-muted mt-2">
+                                        «حذف» فقط شعبه را از فهرست صفحه درباره ما برمی‌دارد و خود شعبه پاک نمی‌شود.
+                                    </small>
+                                </div>
                             </div>
                         </div>
                         @endif
@@ -298,59 +323,56 @@
                                            value="{{ old('staff_title', $about->staff_title) }}" placeholder="همکاران ما را بشناسید">
                                 </div>
 
-                                <div class="col-12 mb-3">
-                                    <label>انتخاب همکاران</label>
-                                    <select class="selectMulti form-control" name="employee_ids[]" multiple>
-                                        @foreach($employees as $employee)
-                                            @php
-                                                // built here rather than inline: two adjacent @if/@endif pairs on one
-                                                // line do not compile (the second directive is left as literal text)
-                                                $employeeLabel = collect([
-                                                    $employee->full_name,
-                                                    $employee->work_title,
-                                                    optional($employee->center)->title,
-                                                ])->filter()->implode(' — ');
-                                            @endphp
-                                            <option value="{{ $employee->id }}"
-                                                @selected(in_array($employee->id, old('employee_ids', $selectedEmployees)))>
-                                                {{ $employeeLabel }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">
-                                        نام و نام خانوادگی و سه متن توصیفی هر همکار از پروفایل همان همکار خوانده می‌شود؛
-                                        برای ویرایش آن‌ها به صفحه ویرایش همکار بروید.
-                                    </small>
-                                </div>
-
-                                {{-- Read-only mirror of what the page will actually render, so the admin
-                                     can see which of the three description lines are still empty. --}}
-                                @if($about->specialists()->isNotEmpty())
                                 <div class="col-12">
-                                    <table class="table table-bordered table-striped">
+                                    {{-- The staff of this business ARE the staff of its branches — there is
+                                         no second, curated list to keep in step. The three descriptive lines
+                                         belong to the employee's own profile, so they are shown read-only
+                                         here and «ویرایش» opens that profile. --}}
+                                    <table class="table table-bordered" id="staff-table">
                                         <thead>
                                         <tr>
                                             <th>نام و نام خانوادگی</th>
                                             <th>عنوان شغلی</th>
+                                            <th>شعبه</th>
                                             <th>متن اول</th>
                                             <th>متن دوم</th>
                                             <th>متن سوم</th>
+                                            <th style="width:150px"></th>
                                         </tr>
                                         </thead>
-                                        <tbody>
-                                        @foreach($about->specialists() as $specialist)
+                                        <tbody id="staff-rows">
+                                        @foreach($employees as $employee)
                                             <tr>
-                                                <td>{{ $specialist->full_name }}</td>
-                                                <td>{{ $specialist->work_title }}</td>
-                                                <td>{{ $specialist->description_one ?: '—' }}</td>
-                                                <td>{{ $specialist->description_two ?: '—' }}</td>
-                                                <td>{{ $specialist->description_three ?: '—' }}</td>
+                                                <td>
+                                                    <input type="hidden" name="staff_ids[]" value="{{ $employee->id }}">
+                                                    {{ $employee->full_name }}
+                                                </td>
+                                                <td>{{ $employee->work_title }}</td>
+                                                <td>{{ optional($employee->center)->title }}</td>
+                                                <td>{{ $employee->description_one ?: '—' }}</td>
+                                                <td>{{ $employee->description_two ?: '—' }}</td>
+                                                <td>{{ $employee->description_three ?: '—' }}</td>
+                                                <td class="text-center">
+                                                    <a href="{{ route('employee.edit', $employee->id) }}" target="_blank"
+                                                       class="btn btn-primary btn-sm">ویرایش</a>
+                                                    <button type="button" class="btn btn-danger btn-sm staff-remove">
+                                                        <i class="fa fa-remove"></i>
+                                                    </button>
+                                                </td>
                                             </tr>
                                         @endforeach
                                         </tbody>
                                     </table>
+
+                                    @if($employees->isEmpty())
+                                        <div class="alert alert-warning">هنوز همکاری به شعبه های این کسب و کار اضافه نشده است.</div>
+                                    @endif
+
+                                    <small class="d-block text-muted mt-2">
+                                        همکاران از شعبه های همین کسب و کار خوانده می‌شوند. «حذف» همکار را از شعبه جدا می‌کند
+                                        و او دیگر در صفحه درباره ما نمایش داده نمی‌شود؛ رکورد همکار پاک نمی‌شود.
+                                    </small>
                                 </div>
-                                @endif
                             </div>
                         </div>
                         @endif
@@ -565,6 +587,23 @@
                     $('#tour_description_count').text($(this).val().length);
                 });
             }
+
+            // Branch list. A removed row simply stops posting its branch_ids[], and the
+            // controller syncs the pivot to exactly what was posted — so the branch is
+            // detached from the page without the center itself being touched.
+            $('#branch-rows').on('click', '.branch-remove', function () {
+                $(this).closest('tr').remove();
+                $('#branch-rows .branch-index').each(function (i) {
+                    $(this).text(i + 1);
+                });
+            });
+
+            // Staff list. Same contract as the branch table: the row stops posting its
+            // staff_ids[], and on save the controller detaches that employee from the branch
+            // (employees.center_id = null) — the employee record itself is untouched.
+            $('#staff-rows').on('click', '.staff-remove', function () {
+                $(this).closest('tr').remove();
+            });
 
             // FAQ repeater. A new row posts an EMPTY faq_ids[] so the three arrays stay
             // index-aligned — the controller pairs them by position.
