@@ -309,25 +309,36 @@ class GhorfeOnlineList extends Model implements HasMedia
      * frontend links into. Ordered by the pivot `sort` so the admin controls the cards'
      * order; rows with no sort fall to the end (MySQL puts NULL first ascending).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * `sort` is only meaningful on THESE rows: `center_owners` is shared with
+     * Representation::centers(), whose rows leave it null and are never ordered by it.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
     public function centers()
     {
-        return $this->belongsToMany(Center::class)
+        return $this->morphToMany(Center::class, 'owner', 'center_owners')
             ->withPivot('sort')
-            ->orderByRaw('center_ghorfe_online_list.sort is null, center_ghorfe_online_list.sort');
+            ->orderByRaw('center_owners.sort is null, center_owners.sort');
     }
     /**
-     * Specialist staff (همکاران متخصص) this business features. A curated list — NOT every
-     * employee of every branch; see the employee_ghorfe_online_list migration.
+     * Staff (همکاران متخصص) of this business = the employees of its branches.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * Derived, not curated: an employee appears on the about-us page exactly while their
+     * `employees.center_id` is one of this business's centers. The separate
+     * employee_ghorfe_online_list pivot this used to read was a second list saying the same
+     * thing, and the two could disagree — it is dropped.
+     *
+     * A query builder rather than a relation: the link runs through the polymorphic
+     * center_owners pivot, which no single Eloquent relation can express.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function employees()
+    public function staff()
     {
-        return $this->belongsToMany(Employee::class)
-            ->withPivot('sort')
-            ->orderByRaw('employee_ghorfe_online_list.sort is null, employee_ghorfe_online_list.sort');
+        return Employee::query()->whereIn(
+            'center_id',
+            $this->centers()->select('centers.id')
+        );
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

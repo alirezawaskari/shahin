@@ -607,7 +607,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     });
 
-    Route::resource('/about', 'AboutController');
+    // No create/store: a "درباره ما" page belongs to an owner that already exists, it is
+    // never made from the panel. Declared twice (see the `about` resource further down);
+    // both have to carry the exclusion or the route comes back.
+    Route::resource('/about', 'AboutController')->except(['create', 'store']);
     Route::get('/userInvite', 'UserInviteController@index')->name('userInvite.index');
     Route::resource('/inviteCategory', 'InviteCategoryController');
     Route::post('/searchTitleProduct', 'InviteCategoryController@searchTitleProduct');
@@ -860,7 +863,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
      * AdoptsLegacyMedia migrates into Spatie collections.
      */
     //content site
-    Route::resource('about', 'AboutController');
+    Route::resource('about', 'AboutController')->except(['create', 'store']);
     Route::resource('help', 'HelpController');
     Route::resource('setting', 'SettingController');
     //Route::resource('coupon', 'CouponController');

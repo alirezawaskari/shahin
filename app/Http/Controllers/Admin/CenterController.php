@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Center;
 use App\Models\CenterRequest;
 use App\Models\FinancialPlansType;
+use App\Models\GhorfeOnlineList;
 use App\Models\Product;
 use App\Models\Rating;
 use App\Models\Review;
@@ -45,8 +46,13 @@ class CenterController extends AdminController
     /**
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
      */
-    public function create() {
-        return view( 'Admin.center.create');
+    public function create( Request $request ) {
+        // Set when the form was opened from a business's "درباره ما" branch tab — the new
+        // branch has to end up on THAT business, and a لاله admin arriving from there has no
+        // ghorfe of their own for createCenter() to infer it from.
+        return view( 'Admin.center.create', [
+            'ghorfeOnlineListId' => $request->input( 'ghorfe_online_list_id' ),
+        ] );
     }
     /**
      * @param \Illuminate\Http\Request $request
@@ -641,6 +647,17 @@ class CenterController extends AdminController
             'email'      => $request->email,
         ]);
         self::createRepresentationsCenter($center , $request->representation_id);
+
+        // Attach the branch to a business, or a ghorfeAdmin would never see the branch they
+        // just made: Center::scopeFilter shows them only what hangs off their own ghorfe.
+        // The posted id comes from the "درباره ما" branch tab and names the business being
+        // edited; without it, fall back to the creator's own business.
+        $ghorfeId = GhorfeOnlineList::whereKey($request->input('ghorfe_online_list_id'))->value('id')
+            ?: optional(ghorfe())->id;
+
+        if ($ghorfeId) {
+            $center->ghorfeOnlineLists()->syncWithoutDetaching([$ghorfeId]);
+        }
 
         return $center;
     }

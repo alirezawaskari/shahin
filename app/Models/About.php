@@ -143,7 +143,7 @@ class About extends Model implements HasMedia {
     /** @see branches() */
     public function specialists()
     {
-        return $this->ghorfeOnline ? $this->ghorfeOnline->employees : collect();
+        return $this->ghorfeOnline ? $this->ghorfeOnline->staff()->get() : collect();
     }
 
     /**
@@ -167,8 +167,8 @@ class About extends Model implements HasMedia {
     * Ownership is exclusive: a row morphs to a ghorfe or a representation; a null morph
     * belongs to the main lalecard site.
     *
-    * - superadmin  -> everything, whoever owns it
     * - ghorfe user -> only its own ghorfe's rows (ghorfe() reads the ghorfe_online_list_user pivot)
+    * - superadmin  -> everything, whoever owns it
     * - representation admin -> only its own representation's rows
     * - anyone else (لاله staff) -> the main-site rows only
     *
@@ -186,13 +186,17 @@ class About extends Model implements HasMedia {
             return $query->whereNull( 'aboutable_type' )->whereNull( 'aboutable_id' );
         }
 
-        if ( $user->hasRole( 'superadmin' ) ) {
-            return $query;
+        // Tenancy is checked BEFORE the role. `superadmin` is the panel's permission bundle,
+        // not a "لاله staff" flag — a business admin can hold it as well (user 63 does), and
+        // testing the role first handed them every other business's page.
+        //
+        // ghorfe() resolves the logged-in user's ghorfe via the pivot; null when they have none.
+        if ( ghorfe() ) {
+            return \App\Helpers\FilterHelper::filterWithHaveGhorfeOnline( $query, 'morphTo', 'aboutable' );
         }
 
-        // ghorfe() resolves the logged-in user's ghorfe via the pivot; null when they have none.
-        if ( $ghorfe = ghorfe() ) {
-            return $query->whereMorphedTo( 'aboutable', $ghorfe );
+        if ( $user->hasRole( 'superadmin' ) ) {
+            return $query;
         }
 
         // admin_representation_id is the representation the user *manages* (representation_id

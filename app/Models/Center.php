@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -125,21 +126,25 @@ class Center extends Model implements HasMedia {
         return $this->morphMany( PercentageAllocationEmployee::class, 'percentage_allocation_employeeable' );
     }
     /**
-    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
     */
 
     public function representations() {
-        return $this->belongsToMany( Representation::class );
+        return $this->morphedByMany( Representation::class, 'owner', 'center_owners' );
     }
 
     /**
     * Businesses this center is a branch of. The other side of GhorfeOnlineList::centers();
     * a shared center can serve more than one business, hence many-to-many.
     *
-    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    * `owner`, not `centerable`: on THIS model `centerable` already means what the center
+    * offers (centerable() below -> Category|Service, and the `centerables` pivot), which is
+    * the opposite direction. The `center_owners` pivot answers who owns it.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
     */
     public function ghorfeOnlineLists() {
-        return $this->belongsToMany( GhorfeOnlineList::class )->withPivot( 'sort' );
+        return $this->morphedByMany( GhorfeOnlineList::class, 'owner', 'center_owners' )->withPivot( 'sort' );
     }
 
     /**
@@ -253,6 +258,16 @@ class Center extends Model implements HasMedia {
         $service = request( 'service' );
         $category = request( 'category' );
         $status = request( 'status' );
+
+        // Tenancy, exactly as every other list in the panel does it (Service, Product, User,
+        // Category, Factor): a business admin sees only the branches attached to its ghorfe
+        // through center_owners, لاله staff see only the branches attached to no business.
+        // Without this a ghorfeAdmin fell through to the representation check below — which
+        // they never match — and got all 54 centers.
+        //
+        // Not assigned back: the helper mutates the builder, and it returns null for a level
+        // it does not know (siteAdmin), which would turn an unfiltered list into a fatal.
+        FilterHelper::getDataByCheckGhorfeExistOrNot( $query, 'belongsToMany', null );
 
         if(auth()->user()->admin_representation_id)
         {
