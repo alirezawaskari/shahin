@@ -65,7 +65,7 @@ class Center extends Model implements HasMedia {
     'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone',
     // public branch page — see 2026_07_30_110000_add_branch_profile_fields_to_centers_table
     'label_type', 'intro_text', 'email', 'map_iframe_link', 'working_hours',
-    'about_title', 'services_title', 'staff_title', 'plans_title' ];
+    'about_title', 'services_title', 'staff_title', 'plans_title' , 'creator_representation_id' ];
 
     /** $fillable wins over the (empty) $guarded below, so new columns must be listed above. */
     protected $casts = [
