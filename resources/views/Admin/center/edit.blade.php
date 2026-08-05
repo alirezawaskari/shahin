@@ -70,9 +70,9 @@
                                     <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
                                     <br>
                                     فروش کالا <input id="category-type" type="radio" name="cat_type" value="category"
-                                        onclick="catType(this.value)" {{ $center->centerable_type == 'App\Category' ? 'checked' : ''}}>
+                                        onclick="catType(this.value)" {{ $center->owner_type == 'App\Category' ? 'checked' : ''}}>
                                     ارائه خدمات <input id="service-type" type="radio" name="cat_type" value="service"
-                                        onclick="catType(this.value)" {{ $center->centerable_type == 'App\Models\Service' ? 'checked' :
+                                        onclick="catType(this.value)" {{ $center->owner_type == 'App\Models\Service' ? 'checked' :
                                     ''}}>
                                 </div>
                                 <div class="col-12 mb-5">
@@ -105,7 +105,7 @@
                                     <select class="form-control mb-3" name="category" id="category">
                                         <option selected disabled>انتخاب دسته بندی مربوطه</option>
                                         @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" {{ $category->id == $center->centerable_id ? 'selected' :
+                                        <option value="{{ $category->id }}" {{ $category->id == $center->owner_id ? 'selected' :
                                             '' }}>{{ $category->title }}
                                         </option>
                                         @endforeach

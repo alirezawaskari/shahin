@@ -32,7 +32,7 @@
                     <input type="text" class="form-control" name="name" required>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش شعبه به سجا (ریال)</label>
+                    <label>قیمت بهای تمام شده (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         oninput="separatePrices(this)">
                 </div>
