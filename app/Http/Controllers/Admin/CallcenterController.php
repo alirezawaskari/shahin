@@ -20,6 +20,8 @@ use App\Models\FactorItem;
 use App\Models\FinancialPlansType;
 use App\Models\History;
 use App\Models\Organization;
+use App\Models\Product;
+use App\Models\ProductAttribute;
 use App\Models\Province;
 use App\Models\Reason;
 use App\Models\RecruitmentNotice;
@@ -356,6 +358,91 @@ class CallcenterController extends Controller
         $user['sos'] = $sos;
 
         return response(['operator' => true, 'data' => ['factors'=>$factors,'user' => $user, 'histories' => $histories,'tasks'=>$tasks]]);
+    }
+
+    /**
+     * Products of one category, for the کالا tab's Category -> Product -> Variant cascade.
+     *
+     * Deliberately unfiltered by `isShow`/`status`: those flags govern the public shop, and
+     * on this data only a handful of rows carry them, which would leave the operator with an
+     * empty picker. The chosen category is what narrows the list.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function productsByCategory(Request $request)
+    {
+        $category = Category::find($request->id);
+
+        $products = $category
+            ? $category->products()->orderBy('products.name')->get(['products.id', 'products.name'])
+                ->map(fn($product) => ['id' => $product->id, 'label' => $product->name])
+                ->values()
+            : collect();
+
+        return response(['operator' => true, 'products' => $products]);
+    }
+
+    /**
+     * Variants (product attributes) of one product, each carrying the price that becomes the
+     * default registration fee for that line.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function productAttributesByProduct(Request $request)
+    {
+        $attributes = ProductAttribute::with('productattributeable')
+            ->where('product_id', $request->id)
+            ->orderByDesc('is_show')
+            ->get()
+            ->map(fn($attribute) => [
+                'id' => $attribute->id,
+                'label' => self::productAttributeLabel($attribute),
+                'price' => (int) $attribute->price,
+            ])
+            ->values();
+
+        return response(['operator' => true, 'product_attributes' => $attributes]);
+    }
+
+    /**
+     * The default registration fee of a service — `services.price`, the same figure the
+     * price math falls back on. Fetched on select so the operator can edit it before saving.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function serviceRegisterPrice(Request $request)
+    {
+        $service = Service::find($request->id);
+
+        return response([
+            'operator' => true,
+            'price' => $service ? (int) $service->price : 0,
+        ]);
+    }
+
+    /**
+     * A human label for a variant. `attribute_item_id` is 0 on most rows here, so the free
+     * text in `value` is the only reliable descriptor; the attribute title prefixes it when
+     * there is one.
+     *
+     * @param ProductAttribute $attribute
+     * @return string
+     */
+    private static function productAttributeLabel(ProductAttribute $attribute): string
+    {
+        $title = optional(\App\Models\Attribute::find($attribute->attribute_id))->title;
+        $value = $attribute->value ?: optional(\App\Models\AttributeItem::find($attribute->attribute_item_id))->title;
+
+        $label = trim(implode(' : ', array_filter([$title, $value])));
+
+        if ($label === '') {
+            $label = 'تنوع ' . $attribute->id;
+        }
+
+        return $label . ' - ' . number_format((int) $attribute->price) . ' ریال';
     }
 
     //create & send link factor
@@ -820,76 +907,66 @@ class CallcenterController extends Controller
         $credit_price = 0;
         $is_cash_factor = false;
         $is_credit_factor = false;
-        $service_financial_plans_types = $request->service_financial_plans_type;
-        $category_financial_plans_types = $request->cateory_financial_plans_type;
+        //indexes of product lines that are paid on the product page instead of on this invoice
+        $link_products = [];
 
         //sum price factor cash services or credit services
         for ($i = 0; $i < count($services); $i++) {
-            $service=Service::find($services[$i]);
-            $service_financial_plans_type = FinancialPlansType::findOrFail($service_financial_plans_types[$i]);
-            $service_pay_type = $service_financial_plans_type::getPaymentType($service_financial_plans_type->payment_type);
+            if ($services[$i] == 'all') {
+                continue;
+            }
+            $service = Service::find($services[$i]);
+            if (!$service) {
+                continue;
+            }
+            //registration fee = services.price, unless the operator edited it for this request
+            $price = self::resolveRegisterPrice($request->service_register_price, $i, $service->price);
+            $tax = ($price * $service->tax) / 100;
 
-            if ($services[$i] != 'all' && $service_pay_type == '0') {
-                //calculate factor price by financialPlansType selected
-                if (isset($request->service_financial_plans_type[$i]) && $request->service_financial_plans_type[$i] != 'all'  ){
-                    $service_financial_plans_type=FinancialPlansType::find($request->service_financial_plans_type[$i]);
-                    $cash_price = $cash_price + $service_financial_plans_type->price;
-                    $cash_price_tax = $cash_price_tax + ($service_financial_plans_type->price * $service_financial_plans_type->tax) / 100;
-                }else{
-                    $cash_price = $cash_price + $service->price;
-                    $cash_price_tax = $cash_price_tax + ($service->price * $service->tax) / 100;
-                }
+            //cash vs installment is the service's own pay_type now that plans are gone
+            if ((int) $service->pay_type === 0) {
+                $cash_price = $cash_price + $price;
+                $cash_price_tax = $cash_price_tax + $tax;
                 $is_cash_factor = true;
-            } elseif($services[$i] != 'all') {
-                //calculate factor price by financialPlansType selected
-                if (isset($request->service_financial_plans_type[$i]) && $request->service_financial_plans_type[$i] != 'all' ){
-                    $service_financial_plans_type=FinancialPlansType::find($request->service_financial_plans_type[$i]);
-                    $credit_price = $credit_price +  $service_financial_plans_type->price;
-                    $credit_price_tax = $credit_price_tax + ($service_financial_plans_type->price * $service_financial_plans_type->tax) / 100;
-                }else{
-                    $credit_price = $credit_price + $service->price;
-                    $credit_price_tax = $credit_price_tax + ($service->price * $service->tax) / 100;
-                }
+            } else {
+                $credit_price = $credit_price + $price;
+                $credit_price_tax = $credit_price_tax + $tax;
                 $is_credit_factor = true;
             }
         }
         //sum price factor cash categories or credit categories
         for ($i = 0; $i < count($categories); $i++) {
-            $category_financial_plans_type = FinancialPlansType::findOrFail($category_financial_plans_types[$i]);
-            $category_pay_type = $category_financial_plans_type::getPaymentType($category_financial_plans_type->payment_type);
+            if ($categories[$i] == 'all') {
+                continue;
+            }
+            $category = Category::find($categories[$i]);
+            $product = Product::find(self::requestItemAt($request->product, $i));
+            //registration fee = the selected variant's price, unless the operator edited it
+            $price = self::resolveRegisterPrice(
+                $request->category_register_price,
+                $i,
+                self::defaultProductRegisterPrice($request, $i, $category)
+            );
+            $tax = ($price * (optional($category)->tax ?: 0)) / 100;
+            $pay_type = $product && $product->pay_type !== null ? (int) $product->pay_type : 0;
 
-            if ($categories[$i] != 'all' && $category_pay_type == '0') {
+            if ($pay_type === 0) {
                 //pay cash
-                if($request->category_purchase_type[$i] == '0')
-                {
-                    //online cash product
-                    $category = Category::find($categories[$i])->slug;
-                    //event(new fastserviceCallcenter($user, $category , $factor ,auth()->user(), 'online'));
-                }
-                else
-                {
+                if (self::requestItemAt($request->category_purchase_type, $i) == '0') {
+                    //online cash product: not invoiced here — the customer receives the product
+                    //study & payment page link and pays on that page.
+                    $link_products[] = $i;
+                } else {
                     //person cash product
-                    if (isset($request->category_financial_plans_type[$i]) && $request->category_financial_plans_type[$i] != 'all'  ){
-                        $category_financial_plans_type=FinancialPlansType::find($request->category_financial_plans_type[$i]);
-                        $cash_price = $cash_price + $category_financial_plans_type->price;
-                        $cash_price_tax = $cash_price_tax + ($category_financial_plans_type->price * $category_financial_plans_type->tax) / 100;
-                    }else{
-                        $cash_price_tax = $cash_price_tax + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100;
-                        $cash_price = $cash_price + Category::find($categories[$i])->price;
-                        $is_cash_factor = true;
-                    }
+                    $cash_price = $cash_price + $price;
+                    $cash_price_tax = $cash_price_tax + $tax;
+                    $is_cash_factor = true;
                 }
-            } elseif($categories[$i] != 'all') {
+            } else {
                 //pay credit
-                if (isset($request->category_financial_plans_type[$i]) && $request->category_financial_plans_type[$i] != 'all' ){
-                    $category_financial_plans_type=FinancialPlansType::find($request->category_financial_plans_type[$i]);
-                    $credit_price = $credit_price +  $category_financial_plans_type->price;
-                    $credit_price_tax = $credit_price_tax + ($category_financial_plans_type->price * $category_financial_plans_type->tax) / 100;
-                }else{
-                    $credit_price_tax = $credit_price_tax + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100;
-                    $credit_price = $credit_price + Category::find($categories[$i])->price;
-                    $is_credit_factor = true;
-                }
+                $credit_price = $credit_price + $price;
+                $credit_price_tax = $credit_price_tax + $tax;
+                $is_credit_factor = true;
             }
         }
 
@@ -900,9 +977,72 @@ class CallcenterController extends Controller
             'credit_price_tax' => $credit_price_tax,
             'credit_price' => $credit_price,
             'is_credit_factor' => $is_credit_factor,
+            'link_products' => $link_products,
             'sum_price_factors' => $cash_price + $cash_price_tax + $credit_price + $credit_price_tax,
         ];
         return $result;
+    }
+
+    /**
+     * The registration fee for one line: the operator's edited value when they supplied one,
+     * otherwise the default read from the Service / product variant.
+     *
+     * The edit applies to this request only — nothing is written back to the source row.
+     *
+     * @param $overrides
+     * @param $index
+     * @param $default
+     * @return int
+     */
+    private static function resolveRegisterPrice($overrides, $index, $default): int
+    {
+        $value = self::requestItemAt($overrides, $index);
+
+        if (is_string($value)) {
+            $value = str_replace(',', '', trim(Helper::numberConverter($value)));
+        }
+
+        if ($value === null || $value === '' || !is_numeric($value) || $value < 0) {
+            return (int) $default;
+        }
+
+        return (int) $value;
+    }
+
+    /**
+     * The default registration fee of a product line: the selected variant's price, falling
+     * back to the product and then the category when the operator picked no variant.
+     *
+     * @param $request
+     * @param $index
+     * @param $category
+     * @return int
+     */
+    private static function defaultProductRegisterPrice($request, $index, $category): int
+    {
+        $attribute = ProductAttribute::find(self::requestItemAt($request->product_attribute, $index));
+        if ($attribute) {
+            return (int) $attribute->price;
+        }
+
+        $product = Product::find(self::requestItemAt($request->product, $index));
+        if ($product && $product->price) {
+            return (int) $product->price;
+        }
+
+        return (int) (optional($category)->price ?: 0);
+    }
+
+    /**
+     * One entry of a parallel `name[]` input, or null when the row did not submit that field.
+     *
+     * @param $items
+     * @param $index
+     * @return mixed
+     */
+    private static function requestItemAt($items, $index)
+    {
+        return is_array($items) && isset($items[$index]) ? $items[$index] : null;
     }
 
     /**

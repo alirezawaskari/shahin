@@ -89,6 +89,19 @@
                             </select>
                         </div>
 
+                        {{-- Read-only balances, filled by searchUser() from the fetchUser response. --}}
+                        <div class="col-6 mb-3 mt-3">
+                            <label class="mb-1">اعتبار (حواله)</label>
+                            <input class="form-control my-2 user_credit bg-light text-dark" type="text"
+                                id="user_credit" value="0 ریال" readonly>
+                        </div>
+
+                        <div class="col-6 mb-3 mt-3">
+                            <label class="mb-1">موجودی کیف پول</label>
+                            <input class="form-control my-2 user_wallet bg-light text-dark" type="text"
+                                id="user_wallet" value="0 ریال" readonly>
+                        </div>
+
                         <div class="col-md-6 mt-3 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input vipCheck" id="vipCheck" name="vip">
@@ -185,19 +198,14 @@
                                             <option selected disabled>انتخاب نوع خدمت</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 mb-3 mt-2 financial_plans_type">
-                                        <select class="form-control" name="service_financial_plans_type[]"
-                                            id="financial_plans_type_id1">
-                                            <option selected disabled>انتخاب نوع طرح</option>
-                                        </select>
+                                    {{-- Default comes from services.price; the operator may override it for this
+                                         request only. Nothing is written back to the service. --}}
+                                    <div class="col-12 mb-3 mt-2 register_price">
+                                        <label class="mb-1">هزینه ثبت نام (ریال)</label>
+                                        <input class="form-control" type="number" min="0" step="1"
+                                            name="service_register_price[]" id="service_register_price1"
+                                            placeholder="هزینه ثبت نام">
                                     </div>
-                                    {{-- <div class="col-12 mb-3 mt-2 service_pay_type">
-                                        <select class="form-control" name="service_pay_type[]" id="service_pay_type1">
-                                            <option selected disabled>انتخاب نوع پرداخت</option>
-                                            <option value="0">نوع پرداخت - نقدی</option>
-                                            <option value="1">نوع پرداخت - اقساطی</option>
-                                        </select>
-                                    </div> --}}
                                     <div class="col-12 mb-3 mt-2 service_purchase_type">
                                         <select class="form-control" name="service_purchase_type[]"
                                             id="service_purchase_type1">
@@ -229,7 +237,7 @@
                                 <div class="row d-none" id="newcategorytpl">
                                     <div class="col-12 mb-3 mt-2 product_category">
                                         <select class="form-control" name="product_category[]" id="product_category_id1"
-                                            onchange="getFinancialPlansTypeByItem(this.id , this.value , 'category')">
+                                            onchange="selectProductsByCategory(this.id , this.value)">
                                             <option selected disabled> انتخاب دسته بندی</option>
                                             @foreach ($product_categories as $category)
                                             <option value="{{ $category['id'] }}">{{
@@ -239,20 +247,29 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-12 mb-3 mt-2 financial_plans_type">
-                                        <select class="form-control" name="category_financial_plans_type[]"
-                                            id="financial_plans_type_id1">
-                                            <option selected disabled>انتخاب نوع طرح</option>
+                                    <div class="col-12 mb-3 mt-2 product">
+                                        <select class="form-control" name="product[]" id="product_id1"
+                                            onchange="selectProductAttributes(this.id , this.value)">
+                                            <option selected disabled>انتخاب کالا</option>
                                         </select>
                                     </div>
 
-                                    {{-- <div class="col-12 mb-3 mt-2 category_pay_type">
-                                        <select class="form-control" name="category_pay_type[]" id="category_pay_type1">
-                                            <option selected disabled>انتخاب نوع پرداخت</option>
-                                            <option value="0">نوع پرداخت - نقدی</option>
-                                            <option value="1">نوع پرداخت - اقساطی</option>
+                                    <div class="col-12 mb-3 mt-2 product_attribute">
+                                        <select class="form-control" name="product_attribute[]"
+                                            id="product_attribute_id1"
+                                            onchange="setRegisterPriceFromAttribute(this.id , this.value)">
+                                            <option selected disabled>انتخاب تنوع کالا</option>
                                         </select>
-                                    </div> --}}
+                                    </div>
+
+                                    {{-- Default comes from the selected variant's price (product_attributes.price);
+                                         the operator may override it for this request only. --}}
+                                    <div class="col-12 mb-3 mt-2 register_price">
+                                        <label class="mb-1">هزینه ثبت نام (ریال)</label>
+                                        <input class="form-control" type="number" min="0" step="1"
+                                            name="category_register_price[]" id="category_register_price1"
+                                            placeholder="هزینه ثبت نام">
+                                    </div>
 
                                     <div class="col-12 mb-3 mt-2 category_purchase_type">
                                         <select class="form-control" name="category_purchase_type[]"

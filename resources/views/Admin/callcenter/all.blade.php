@@ -20,6 +20,9 @@
             style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 35px, 0px);">
             @permission('callcenter-create')
             <a data-toggle="modal" href="#sendLinkModal" class="dropdown-item fast-service">ثبت خدمات سریع</a>
+            {{-- Same fast (no-invoice) mode as above, but opens on the کالا tab so the operator
+                 sends the product study & payment link instead of the service study link. --}}
+            <a data-toggle="modal" href="#sendLinkModal" class="dropdown-item fast-service fast-product">ارسال لینک بررسی و پرداخت کالا</a>
             @endpermission
             @permission('get-spread-sms')
             <a class="dropdown-item" href="/get-sms">گرفتن پیامک</a>
