@@ -357,20 +357,12 @@ class Service extends Model implements AuditableContract, HasMedia
         return $this->morphMany(BeforeForm::class, 'beforeformable');
     }
 
-//    /**
-//     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-//     */
-//    public function centers()
-//    {
-//        return $this->morphMany(Center::class, 'centerable');
-//    }
-
     /**
      * Get all of the centers for the post.
      */
     public function centers()
     {
-        return $this->morphToMany(Center::class, 'centerable');
+        return $this->morphToMany(Center::class, 'owner', 'center_owners');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany

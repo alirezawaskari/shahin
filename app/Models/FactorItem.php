@@ -1107,12 +1107,15 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         return Center::query()
             ->where('status', true)
             ->whereHas('services', fn($q) => $q->where([
-                'centerable_id'   => $item->factoritemable_id,
-                'centerable_type' => $item->factoritemable_type,
+                'owner_id'   => $item->factoritemable_id,
+                'owner_type' => $item->factoritemable_type,
             ]))
             ->when(
                 auth()->user()?->admin_representation_id,
-                fn($q) => $q->whereHas('representations', fn($q) => $q->where('id', auth()->user()->admin_representation_id))
+                fn($q) => $q->whereHas('representations', fn($q) => $q->where([
+                    'owner_id'   => auth()->user()->admin_representation_id,
+                    'owner_type' => 'App\Models\Representation',
+                ]))->orWhere('creator_representation_id' , auth()->user()->admin_representation_id)
             )
             ->get();
     }

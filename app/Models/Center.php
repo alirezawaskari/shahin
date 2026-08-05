@@ -60,7 +60,7 @@ class Center extends Model implements HasMedia {
             ->map(fn ($m) => $m->getUrl());
     }
 
-    protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
+    protected $fillable = [ 'owner_type', 'owner_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
     'pay_type', 'purchase_type', 'status', 'is_show', 'lat', 'lon', 'has_subset', 'type', 'fullName',
     'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone',
     // public branch page — see 2026_07_30_110000_add_branch_profile_fields_to_centers_table
@@ -126,23 +126,16 @@ class Center extends Model implements HasMedia {
         return $this->morphMany( PercentageAllocationEmployee::class, 'percentage_allocation_employeeable' );
     }
     /**
-    * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
-    */
-
+     * Summary of representations
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Representation, Center>
+     */
     public function representations() {
         return $this->morphedByMany( Representation::class, 'owner', 'center_owners' );
     }
-
     /**
-    * Businesses this center is a branch of. The other side of GhorfeOnlineList::centers();
-    * a shared center can serve more than one business, hence many-to-many.
-    *
-    * `owner`, not `centerable`: on THIS model `centerable` already means what the center
-    * offers (centerable() below -> Category|Service, and the `centerables` pivot), which is
-    * the opposite direction. The `center_owners` pivot answers who owns it.
-    *
-    * @return \Illuminate\Database\Eloquent\Relations\MorphedByMany
-    */
+     * Summary of ghorfeOnlineLists
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<GhorfeOnlineList, Center>
+     */
     public function ghorfeOnlineLists() {
         return $this->morphedByMany( GhorfeOnlineList::class, 'owner', 'center_owners' )->withPivot( 'sort' );
     }
@@ -245,10 +238,6 @@ class Center extends Model implements HasMedia {
         return $this->belongsTo( Province::class, 'province_id' );
     }
 
-    public function centerable() {
-        return $this->morphTo();
-    }
-
     public function purchaseInvoice() {
         return $this->hasMany( PurchaseInvoice::class );
     }
@@ -283,13 +272,13 @@ class Center extends Model implements HasMedia {
 
         if ( isset( $category ) && trim( $category ) != 'all' ) {
             $query->whereHas('categories', function ($query) use ($category) {
-                $query->where('centerable_id',$category);
+                $query->where('owner_id',$category);
             });
         }
 
         if ( isset( $service ) && trim( $service ) != 'all' ) {
             $query->whereHas('services', function ($query) use ($service) {
-                $query->where('centerable_id',$service);
+                $query->where('owner_id',$service);
             });
         }
 
@@ -327,15 +316,14 @@ class Center extends Model implements HasMedia {
     */
 
     public function categories() {
-        return $this->morphedByMany( Category::class, 'centerable' );
+        return $this->morphedByMany( Category::class, 'owner', 'center_owners' );
     }
 
     /**
     * Get all of the services that are assigned this center.
     */
-
     public function services() {
-        return $this->morphedByMany( Service::class, 'centerable', 'centerables' );
+        return $this->morphedByMany( Service::class, 'owner', 'center_owners' );
     }
     /**
     * @param \App\Models\FactorItem $factor_item
