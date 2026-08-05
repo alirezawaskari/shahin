@@ -745,7 +745,6 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         $sessions_sum_price = self::getSessionsSumPrice($item , 'all');
         $financial_plans_type_discount_price = $item->financialPlansType ? ($item->financialPlansType->discount_percent/100) * $sessions_sum_price : 0;
         $prepayment_paid = ($item->type ? TotalFactorItem::getPrepaymentPaid($item->totalFactorItem) : self::getPrepaymentPaid($item)) - $item->discount + $financial_plans_type_discount_price;
-        $sessions_sum_price = self::getSessionsSumPrice($item , 1);
         if($item->type && $item->totalFactorItem->confirm)
         {
             $temp = round($price) <= round($item->credit) ? true : false;
@@ -764,7 +763,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
      */
     public static function calculateCredit(FactorItem $item)
     {
-        $sessions_sum_price = self::getSessionsSumPrice($item , 1);
+        $sessions_sum_price = self::getSessionsSumPrice($item , 'all');
         $prepayment_paid = self::getPrepaymentPaid($item) - $item->discount;
 
         $user = $item->factor->user;

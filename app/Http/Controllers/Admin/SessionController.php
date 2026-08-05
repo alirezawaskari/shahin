@@ -492,8 +492,5 @@ class SessionController extends Controller {
                     'credit' => $supervisor_factor_item->credit - $session->price,
             ] );
         }
-        else{
-            $supervisor_factor_item->update( [ 'credit' => $supervisor_factor_item->credit - $session->price ] );
-        }
     }
 }
