@@ -224,11 +224,17 @@
                                 </div>
                                 @if(!auth()->user()->center)
                                 <div class="col-md-12">
-                                    <div id="addnew" class="btn badge-success mb-5">
-                                        <a href="javascript:newServiceLink()" class="text-white"><i class="fa fa-plus"
-                                                aria-hidden="true"></i>
-                                            افزودن خدمت </a>
-                                    </div>
+                                    {{-- btn-success rather than btn + badge-success: Bootstrap 5's .btn:hover
+                                         sets background-color from --bs-btn-hover-bg, which only a button
+                                         variant class defines. With a badge class that property is undefined,
+                                         so the hover background computed to transparent and the white-on-green
+                                         button vanished against the card. Each click adds one row, and each
+                                         row becomes one factor item. --}}
+                                    <button type="button" class="btn btn-success text-white mb-5"
+                                        onclick="newServiceLink()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        افزودن خدمت
+                                    </button>
                                 </div>
                                 @endif
                             </div>
@@ -291,11 +297,12 @@
 
                                 @if(!auth()->user()->center)
                                 <div class="col-md-12">
-                                    <div id="addnew" class="btn badge-success mb-5">
-                                        <a href="javascript:newCategoryLink()" class="text-white"><i class="fa fa-plus"
-                                                aria-hidden="true"></i>
-                                            افزودن دسته بندی</a>
-                                    </div>
+                                    {{-- see the افزودن خدمت button above for why this is btn-success --}}
+                                    <button type="button" class="btn btn-success text-white mb-5"
+                                        onclick="newCategoryLink()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        افزودن دسته بندی
+                                    </button>
                                 </div>
                                 @endif
                             </div>

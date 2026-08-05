@@ -17,7 +17,6 @@ use App\Models\Category;
 use App\Models\Center;
 use App\Models\Factor;
 use App\Models\FactorItem;
-use App\Models\FinancialPlansType;
 use App\Models\History;
 use App\Models\Organization;
 use App\Models\Product;
@@ -272,11 +271,7 @@ class CallcenterController extends Controller
             $item['type'] = $factor->type == 'online' ? 'پرداخت آنلاین' : 'کارت به کارت';
             $item['status'] = Factor::status($factor->status);
             $item['date'] = verta($factor->created_at)->format('%d %B ، %Y - H:i');
-            $item['items'] = $factor->factorItems->map(function ($factor_item) {
-                $item = [];
-                $item['service'] = $factor_item->factoritemable->title;
-                return implode(',', $item);
-            });
+            $item['items'] = $factor->factorItems->map(fn($factor_item) => self::factorItemLabel($factor_item));
             $item['representation'] = !is_null($factor->representation_id) ? $factor->representation->fa_name : 'مرکزی تهران';
             return $item;
         }) : [];
@@ -340,11 +335,7 @@ class CallcenterController extends Controller
                 $item['type'] = $factor->type == 'online' ? 'پرداخت آنلاین' : 'کارت به کارت';
                 $item['status'] = $factor->status ;
                 $item['date'] = verta($factor->created_at)->format('%d %B ، %Y - H:i');
-                $item['items'] = $factor->factorItems->map(function ($factor_item) {
-                    $item = [];
-                    $item['service'] = $factor_item->factoritemable->title;
-                    return implode(',', $item);
-                });
+                $item['items'] = $factor->factorItems->map(fn($factor_item) => self::factorItemLabel($factor_item));
                 $item['representation'] = !is_null($factor->representation_id) ? $factor->representation->fa_name : 'مرکزی تهران';
                 return $item;
             });
@@ -431,18 +422,57 @@ class CallcenterController extends Controller
      * @param ProductAttribute $attribute
      * @return string
      */
-    private static function productAttributeLabel(ProductAttribute $attribute): string
+    private static function productAttributeName(ProductAttribute $attribute): string
     {
         $title = optional(\App\Models\Attribute::find($attribute->attribute_id))->title;
         $value = $attribute->value ?: optional(\App\Models\AttributeItem::find($attribute->attribute_item_id))->title;
 
-        $label = trim(implode(' : ', array_filter([$title, $value])));
+        $name = trim(implode(' : ', array_filter([$title, $value])));
 
-        if ($label === '') {
-            $label = 'تنوع ' . $attribute->id;
+        return $name !== '' ? $name : 'تنوع ' . $attribute->id;
+    }
+
+    /**
+     * Variant label for the picker, where the price is what the operator is choosing between.
+     *
+     * @param ProductAttribute $attribute
+     * @return string
+     */
+    private static function productAttributeLabel(ProductAttribute $attribute): string
+    {
+        return self::productAttributeName($attribute) . ' - ' . number_format((int) $attribute->price) . ' ریال';
+    }
+
+    /**
+     * One invoice line described in full, for the آیتم ها column.
+     *
+     * A factor holds one line per row the operator added, so an invoice may carry several
+     * services and several products at once — including two products under the SAME
+     * category, which are told apart only by the variant recorded on each line. Without
+     * that, every product line rendered as just its category title.
+     *
+     * @param $factor_item
+     * @return string
+     */
+    private static function factorItemLabel($factor_item): string
+    {
+        $parts = [optional($factor_item->factoritemable)->title];
+
+        if ($factor_item->service_item_id) {
+            $parts[] = optional(ServiceItem::find($factor_item->service_item_id))->title;
         }
 
-        return $label . ' - ' . number_format((int) $attribute->price) . ' ریال';
+        if ($factor_item->product_attribute_id) {
+            $attribute = ProductAttribute::find($factor_item->product_attribute_id);
+            $parts[] = optional(optional($attribute)->product)->name;
+            $parts[] = $attribute ? self::productAttributeName($attribute) : null;
+        }
+
+        //the charged amount, which may differ from the variant's own price when the
+        //operator edited the registration fee for this customer
+        $parts[] = number_format((int) $factor_item->price) . ' ریال';
+
+        return implode(' - ', array_filter($parts));
     }
 
     //create & send link factor
@@ -535,9 +565,19 @@ class CallcenterController extends Controller
                     $cash_factor ? Factor::savePayment($cash_factor) : '';
                     $credit_factor ? Factor::savePayment($credit_factor) : '';
                 }
+                //product lines that are not on this invoice are paid on their own page
+                if (!empty($result_sum_price_factors['link_products'])) {
+                    self::sendSmsLinkProduct($request , $client , $task , $result_sum_price_factors['link_products']);
+                }
             }
-            elseif (is_array($services) && count($services)>0){
-                self::sendSmsLinkSite($request , $client , $task,$services);
+            else {
+                if (is_array($services) && count($services)>0){
+                    self::sendSmsLinkSite($request , $client , $task,$services);
+                }
+                //the کالا counterpart of the service study link
+                if (is_array($request->product) && count($request->product)>0){
+                    self::sendSmsLinkProduct($request , $client , $task , array_keys($request->product));
+                }
             }
             Helper::vipUser($request->vip, $client->id);
             Helper::sosUser($request->sos, $client->id);
@@ -912,7 +952,8 @@ class CallcenterController extends Controller
 
         //sum price factor cash services or credit services
         for ($i = 0; $i < count($services); $i++) {
-            if ($services[$i] == 'all') {
+            //'all', or an untouched row still holding its placeholder text
+            if ($services[$i] == 'all' || !is_numeric($services[$i])) {
                 continue;
             }
             $service = Service::find($services[$i]);
@@ -936,7 +977,8 @@ class CallcenterController extends Controller
         }
         //sum price factor cash categories or credit categories
         for ($i = 0; $i < count($categories); $i++) {
-            if ($categories[$i] == 'all') {
+            //'all', or an untouched row still holding its placeholder text
+            if ($categories[$i] == 'all' || !is_numeric($categories[$i])) {
                 continue;
             }
             $category = Category::find($categories[$i]);
@@ -999,7 +1041,8 @@ class CallcenterController extends Controller
         $value = self::requestItemAt($overrides, $index);
 
         if (is_string($value)) {
-            $value = str_replace(',', '', trim(Helper::numberConverter($value)));
+            //Persian digits, then drop grouping separators (both ',' and the Arabic '٬')
+            $value = preg_replace('/[^\d.]/u', '', Helper::numberConverter(trim($value)));
         }
 
         if ($value === null || $value === '' || !is_numeric($value) || $value < 0) {
@@ -1138,7 +1181,6 @@ class CallcenterController extends Controller
      */
     private function createServiceFactorItems($request , $services , $cash_factor , $credit_factor , $mobile_supervisor)
     {
-        $service_financial_plans_types = $request->service_financial_plans_type;
         $payment_type = $cash_factor ? $cash_factor->type : '';
         $payment_type = $credit_factor ? $credit_factor->type : '';
 
@@ -1148,22 +1190,32 @@ class CallcenterController extends Controller
         $credit_factor_result['credit_factor_status'] = $credit_factor ? $credit_factor->status : 0;
 
         for ($i = 0; $i < count($services); $i++) {
-            //create cash factorItems
-            $service_financial_plans_type = FinancialPlansType::findOrFail($service_financial_plans_types[$i]);
-            $service_pay_type = $service_financial_plans_type::getPaymentType($service_financial_plans_type->payment_type);
+            if ($services[$i] == 'all' || !is_numeric($services[$i])) {
+                continue;
+            }
             $service = Service::find($services[$i]);
-            if($services[$i] != 'all' && $service_pay_type == '0')
+            if (!$service) {
+                continue;
+            }
+            $service_pay_type = (int) $service->pay_type;
+            //same figure the factor total was built from, so line items and total agree
+            $register_price = self::resolveRegisterPrice($request->service_register_price, $i, $service->price);
+            $line_price = $payment_type == "supervisor"
+                ? 0
+                : $register_price + ($register_price * $service->tax) / 100;
+
+            //create cash factorItems
+            if($service_pay_type === 0)
             {
                 $factor_item = $cash_factor->factorItems()->create([
                     'factoritemable_id' => $services[$i],
                     'factoritemable_type' => Service::class,
-                    'service_item_id' => $request->service_item[$i],
-                    'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
+                    'service_item_id' => self::requestItemAt($request->service_item, $i),
                     'count' => 1,
-                    'price' => $payment_type == "supervisor" ? 0 : $service->price + ($service->price * $service->tax) / 100,
+                    'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
                     'type' => $service_pay_type,
-                    'purchase_type' => $request->service_purchase_type[$i],
+                    'purchase_type' => self::requestItemAt($request->service_purchase_type, $i),
                 ]);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
                 if($cash_factor && $cash_factor->type == 'supervisor')
@@ -1172,20 +1224,19 @@ class CallcenterController extends Controller
                 }
             }
             //create credit factorItems
-            elseif($services[$i] != 'all')
+            else
             {
                 $total_factor_item = $credit_factor->totalFactorItemReg;
                 $factor_item = $credit_factor->factorItems()->create([
                     'factoritemable_id' => $services[$i],
                     'factoritemable_type' => Service::class,
-                    'service_item_id' => $request->service_item[$i],
+                    'service_item_id' => self::requestItemAt($request->service_item, $i),
                     'total_factor_item_id' => $total_factor_item->id,
-                    'financial_plans_type_id' => isset($service_financial_plans_types[$i]) && $service_financial_plans_types[$i] != 'all' ? $service_financial_plans_types[$i] : null,
                     'count' => 1,
-                    'price' => $payment_type == "supervisor" ? 0 : Service::find($services[$i])->price + (Service::find($services[$i])->price * Service::find($services[$i])->tax) / 100,
+                    'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
                     'type' => $service_pay_type,
-                    'purchase_type' => $request->service_purchase_type[$i],
+                    'purchase_type' => self::requestItemAt($request->service_purchase_type, $i),
                 ]);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
 
@@ -1210,7 +1261,6 @@ class CallcenterController extends Controller
      */
     private function createCategoryFactorItems($result , $request , $categories , $cash_factor , $credit_factor , $mobile_supervisor )
     {
-        $category_financial_plans_types = $request->category_financial_plans_type;
         $payment_type = $cash_factor ? $cash_factor->type : '';
         $payment_type = $credit_factor ? $credit_factor->type : '';
         $cash_factor_result['cash_factor_price'] = $result['cash_factor_price'];
@@ -1220,23 +1270,37 @@ class CallcenterController extends Controller
 
         for ($i = 0; $i < count($categories); $i++)
         {
-            $category_financial_plans_type = FinancialPlansType::findOrFail($category_financial_plans_types[$i]);
-            $category_pay_type = $category_financial_plans_type::getPaymentType($category_financial_plans_type->payment_type);
+            if ($categories[$i] == 'all' || !is_numeric($categories[$i])) {
+                continue;
+            }
+            $category = Category::find($categories[$i]);
+            $product = Product::find(self::requestItemAt($request->product, $i));
+            $product_attribute_id = self::requestItemAt($request->product_attribute, $i);
+            $category_pay_type = $product && $product->pay_type !== null ? (int) $product->pay_type : 0;
+            //same figure the factor total was built from, so line items and total agree
+            $register_price = self::resolveRegisterPrice(
+                $request->category_register_price,
+                $i,
+                self::defaultProductRegisterPrice($request, $i, $category)
+            );
+            $line_price = $payment_type == "supervisor"
+                ? 0
+                : $register_price + ($register_price * (optional($category)->tax ?: 0)) / 100;
 
             //create credit factorItems
-            if($categories[$i] != 'all' && $category_pay_type == 1)
+            if($category_pay_type === 1)
             {
                 $total_factor_item = $credit_factor->totalFactorItemReg;
                 $factor_item = $credit_factor->factorItems()->create([
                     'factoritemable_id' => $categories[$i],
                     'factoritemable_type' => Category::class,
                     'total_factor_item_id' => $total_factor_item->id,
-                    'financial_plans_type_id' => isset($category_financial_plans_types[$i]) && $category_financial_plans_types[$i] != 'all' ? $category_financial_plans_types[$i] : null,
+                    'product_attribute_id' => $product_attribute_id,
                     'count' => 1,
-                    'price' => $payment_type == "supervisor" ? 0 : Category::find($categories[$i])->price + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100,
+                    'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
                     'type' => $category_pay_type,
-                    'purchase_type' => $request->category_purchase_type[$i],
+                    'purchase_type' => self::requestItemAt($request->category_purchase_type, $i),
                 ]);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
                 if($credit_factor && $result['credit_factor_price'] == 0 && $credit_factor->type == 'supervisor')
@@ -1244,17 +1308,19 @@ class CallcenterController extends Controller
                     $credit_factor_result = self::getCreditFactorFieldIsSupervisorType($credit_factor , $mobile_supervisor , $factor_item);
                 }
             }
-            //create cash factorItems
-            elseif($categories[$i] != 'all' && $request->category_purchase_type[$i] == 1)
+            //create cash factorItems. Non-attendance cash products are skipped on purpose:
+            //they are paid on the product study & payment page, not on this invoice.
+            elseif(self::requestItemAt($request->category_purchase_type, $i) == 1)
             {
                 $factor_item = $cash_factor->factorItems()->create([
                     'factoritemable_id' => $categories[$i],
                     'factoritemable_type' => Category::class,
+                    'product_attribute_id' => $product_attribute_id,
                     'count' => 1,
-                    'price' => $payment_type == "supervisor" ? 0 : Category::find($categories[$i])->price + (Category::find($categories[$i])->price * Category::find($categories[$i])->tax) / 100,
+                    'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
                     'type' => $category_pay_type,
-                    'purchase_type' => $request->category_purchase_type[$i],
+                    'purchase_type' => self::requestItemAt($request->category_purchase_type, $i),
                 ]);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
                 if($cash_factor && $result['cash_factor_price'] == 0 && $cash_factor->type == 'supervisor')
@@ -1321,6 +1387,35 @@ class CallcenterController extends Controller
             } elseif ($service) {
                 event(new fastserviceCallcenter($client, $service, $task, 'service'));
             }
+        }
+    }
+
+    /**
+     * Send the product study & payment page link, the کالا counterpart of sendSmsLinkSite().
+     *
+     * @param $request
+     * @param $client
+     * @param $task
+     * @param array $indexes indexes into the submitted `product[]` rows
+     */
+    private function sendSmsLinkProduct($request , $client , $task , array $indexes)
+    {
+        $products = collect($indexes)
+            ->map(fn($index) => Product::find(self::requestItemAt($request->product, $index)))
+            ->filter()
+            ->unique('id');
+
+        if ($products->isEmpty()) {
+            return;
+        }
+
+        $products_title = implode(' _ ', $products->pluck('name')->toArray());
+        //create history
+        $description = "لینک صفحه بررسی و پرداخت {$products_title} جهت مطالعه و پرداخت ارسال گردید .";
+        History::create($task , $task->user_id , null , 0 , $description);
+
+        foreach ($products as $product) {
+            event(new fastserviceCallcenter($client, $product, $task, 'product'));
         }
     }
 
@@ -1501,9 +1596,17 @@ class CallcenterController extends Controller
      */
     private function getFactorRepresentation(Factor $factor)
     {
+        $representation = null;
         $factor_items = $factor->factorItems;
         foreach($factor_items as $item)
         {
+            //A representation is a service-level concept and Service::setRepresentation() is
+            //typed to Service, so product (Category) lines are skipped rather than passed in.
+            //Without this, any invoice containing a product raises a TypeError here.
+            if (!$item->factoritemable instanceof Service)
+            {
+                continue;
+            }
             $representation = Service::setRepresentation($item->factoritemable);
             if($representation == null)
             {

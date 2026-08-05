@@ -456,7 +456,7 @@ $(document).ready(function () {
                                 ${value.date}
                             </td>
                             <td>
-                                ${value.items}
+                                ${(value.items || []).join('<br>')}
                             </td>
                         </tr>
                         `);
