@@ -165,13 +165,16 @@
                         </ul>
                         <div class="tab-content" id="myTabContent">
                             <div class="mt-3" id="validation_error">
+                                @if ($errors->has('invoice_rows'))
+                                    <p class="alert alert-danger">{{ $errors->first('invoice_rows') }}</p>
+                                @endif
                             </div>
                             <div class="tab-pane fade p-t-20 active show" id="servicesContent" role="tabpanel"
                                 aria-labelledby="services">
                                 <div class="row d-none" id="newservicetpl">
                                     <div
                                         class="col-12 mb-3 mt-2 service_category {{ auth()->user()->center ? 'd-none' : ''}}">
-                                        <select class="form-control" name="service_category[]" id="service_category_id1"
+                                        <select class="form-control" id="service_category_id1"
                                             onchange="selectByCategory(this.id , this.value)">
                                             <option selected disabled> انتخاب دسته بندی</option>
                                             @foreach ($service_categories as $category)
@@ -182,7 +185,7 @@
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3 mt-2 service">
-                                        <select class="form-control" name="service[]" id="service_id1"
+                                        <select class="form-control" id="service_id1"
                                             onchange="getRequiredDataByItem(this.id , this.value , 'service')">
                                             <option selected disabled>انتخاب خدمات</option>
                                             @foreach ($services as $service)
@@ -193,7 +196,7 @@
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3 mt-2 service_item">
-                                        <select class="form-control" name="service_item[]"
+                                        <select class="form-control"
                                             id="service_item_id1">
                                             <option selected disabled>انتخاب نوع خدمت</option>
                                         </select>
@@ -203,11 +206,11 @@
                                     <div class="col-12 mb-3 mt-2 register_price">
                                         <label class="mb-1">هزینه ثبت نام (ریال)</label>
                                         <input class="form-control" type="number" min="0" step="1"
-                                            name="service_register_price[]" id="service_register_price1"
+                                            id="service_register_price1"
                                             placeholder="هزینه ثبت نام">
                                     </div>
                                     <div class="col-12 mb-3 mt-2 service_purchase_type">
-                                        <select class="form-control" name="service_purchase_type[]"
+                                        <select class="form-control"
                                             id="service_purchase_type1">
                                             <option selected disabled>انتخاب نحوه دریافت خدمت</option>
                                             <option value="0"> نحوه دریافت خدمت - غیر حضوری</option>
@@ -242,7 +245,7 @@
                                 aria-labelledby="category-tab">
                                 <div class="row d-none" id="newcategorytpl">
                                     <div class="col-12 mb-3 mt-2 product_category">
-                                        <select class="form-control" name="product_category[]" id="product_category_id1"
+                                        <select class="form-control" id="product_category_id1"
                                             onchange="selectProductsByCategory(this.id , this.value)">
                                             <option selected disabled> انتخاب دسته بندی</option>
                                             @foreach ($product_categories as $category)
@@ -254,14 +257,14 @@
                                     </div>
 
                                     <div class="col-12 mb-3 mt-2 product">
-                                        <select class="form-control" name="product[]" id="product_id1"
+                                        <select class="form-control" id="product_id1"
                                             onchange="selectProductAttributes(this.id , this.value)">
                                             <option selected disabled>انتخاب کالا</option>
                                         </select>
                                     </div>
 
                                     <div class="col-12 mb-3 mt-2 product_attribute">
-                                        <select class="form-control" name="product_attribute[]"
+                                        <select class="form-control"
                                             id="product_attribute_id1"
                                             onchange="setRegisterPriceFromAttribute(this.id , this.value)">
                                             <option selected disabled>انتخاب تنوع کالا</option>
@@ -273,12 +276,12 @@
                                     <div class="col-12 mb-3 mt-2 register_price">
                                         <label class="mb-1">هزینه ثبت نام (ریال)</label>
                                         <input class="form-control" type="number" min="0" step="1"
-                                            name="category_register_price[]" id="category_register_price1"
+                                            id="category_register_price1"
                                             placeholder="هزینه ثبت نام">
                                     </div>
 
                                     <div class="col-12 mb-3 mt-2 category_purchase_type">
-                                        <select class="form-control" name="category_purchase_type[]"
+                                        <select class="form-control"
                                             id="category_purchase_type1">
                                             <option selected disabled>انتخاب نحوه دریافت کالا</option>
                                             <option value="1"> نحوه دریافت کالا - حضوری</option>

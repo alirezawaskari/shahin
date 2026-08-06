@@ -16,17 +16,17 @@ function newServiceLink() {
     $('#newservice').append(div1);
     div1.children().eq(5).prop('id', 'delete' + ct).html(delLink);
 
-    div1.children('.service_category').children('#service_category_id1').prop('id', 'service_category_id' + ct).off('change').on('change', function () {
+    div1.children('.service_category').children('#service_category_id1').prop('id', 'service_category_id' + ct).attr('name', 'service_category[' + ct + ']').off('change').on('change', function () {
         selectByCategory(this.id, this.value);
     });
 
-    div1.children('.service').children('#service_id1').prop('id', 'service_id' + ct).off('change').on('change', function () {
+    div1.children('.service').children('#service_id1').prop('id', 'service_id' + ct).attr('name', 'service[' + ct + ']').off('change').on('change', function () {
         getRequiredDataByItem(this.id, this.value, 'service');
     });
 
-    div1.children('.register_price').children('#service_register_price1').prop('id', 'service_register_price' + ct);
-    div1.children('.service_item').children('#service_item_id1').prop('id', 'service_item_id' + ct);
-    div1.children('.service_purchase_type').children('#service_purchase_type1').prop('id', 'service_purchase_type' + ct);
+    div1.children('.register_price').children('#service_register_price1').prop('id', 'service_register_price' + ct).attr('name', 'service_register_price[' + ct + ']');
+    div1.children('.service_item').children('#service_item_id1').prop('id', 'service_item_id' + ct).attr('name', 'service_item[' + ct + ']');
+    div1.children('.service_purchase_type').children('#service_purchase_type1').prop('id', 'service_purchase_type' + ct).attr('name', 'service_purchase_type[' + ct + ']');
 
     getDataRequired(ct);
 }
@@ -42,20 +42,20 @@ function newCategoryLink() {
     // children: 0 category, 1 product, 2 variant, 3 register price, 4 purchase type, 5 delete
     div1.children().eq(5).prop('id', 'delete' + ct).html(delLink);
 
-    div1.children('.product_category').children('#product_category_id1').prop('id', 'product_category_id' + ct).off('change').on('change', function () {
+    div1.children('.product_category').children('#product_category_id1').prop('id', 'product_category_id' + ct).attr('name', 'product_category[' + ct + ']').off('change').on('change', function () {
         selectProductsByCategory(this.id, this.value);
     });
 
-    div1.children('.product').children('#product_id1').prop('id', 'product_id' + ct).off('change').on('change', function () {
+    div1.children('.product').children('#product_id1').prop('id', 'product_id' + ct).attr('name', 'product[' + ct + ']').off('change').on('change', function () {
         selectProductAttributes(this.id, this.value);
     });
 
-    div1.children('.product_attribute').children('#product_attribute_id1').prop('id', 'product_attribute_id' + ct).off('change').on('change', function () {
+    div1.children('.product_attribute').children('#product_attribute_id1').prop('id', 'product_attribute_id' + ct).attr('name', 'product_attribute[' + ct + ']').off('change').on('change', function () {
         setRegisterPriceFromAttribute(this.id, this.value);
     });
 
-    div1.children('.register_price').children('#category_register_price1').prop('id', 'category_register_price' + ct);
-    div1.children('.category_purchase_type').children('#category_purchase_type1').prop('id', 'category_purchase_type' + ct);
+    div1.children('.register_price').children('#category_register_price1').prop('id', 'category_register_price' + ct).attr('name', 'category_register_price[' + ct + ']');
+    div1.children('.category_purchase_type').children('#category_purchase_type1').prop('id', 'category_purchase_type' + ct).attr('name', 'category_purchase_type[' + ct + ']');
 
     getDataRequired(ct);
 }
@@ -589,10 +589,15 @@ $('body').on('click', '#send_link_submit', function () {
     $('#validation_error').empty();
     var formData = $('#sendLinkForm').serializeArray();
     var valuesOf = function (name) {
-        var values = [];
+        var values = {};
+        var baseName = name.replace(/\[\]$/, '');
+        var legacyIndex = 0;
         $.each(formData, function (i, field) {
+            var match = field.name.match(new RegExp('^' + baseName + '\\[(\\d+)\\]$'));
             if (field.name == name) {
-                values.push(field.value);
+                values[legacyIndex++] = field.value;
+            } else if (match) {
+                values[match[1]] = field.value;
             }
         });
         return values;
@@ -602,7 +607,10 @@ $('body').on('click', '#send_link_submit', function () {
         var services = valuesOf('service[]');
         var service_purchase_type = valuesOf('service_purchase_type[]');
         var product_categories = valuesOf('product_category[]');
+        var products = valuesOf('product[]');
+        var product_attributes = valuesOf('product_attribute[]');
         var category_purchase_type = valuesOf('category_purchase_type[]');
+        var incomplete_product_row = false;
         var missing_service_purchase_type = false;
         var missing_category_purchase_type = false;
 
@@ -614,11 +622,17 @@ $('body').on('click', '#send_link_submit', function () {
             }
         });
         $.each(product_categories, function (i, product_category) {
+            if (isChosen(product_category) && (!isChosen(products[i]) || !isChosen(product_attributes[i]))) {
+                incomplete_product_row = true;
+            }
             if (isChosen(product_category) && !isChosen(category_purchase_type[i])) {
                 missing_category_purchase_type = true;
             }
         });
 
+        if (incomplete_product_row) {
+            $('#validation_error').append("<p class='alert alert-danger'>انتخاب کالا و تنوع کالا برای هر ردیف الزامی است.</p>");
+        }
         if (missing_service_purchase_type) {
             $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت خدمت الزامی است.</p>");
         }
