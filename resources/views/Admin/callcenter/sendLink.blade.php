@@ -205,7 +205,8 @@
                                          request only. Nothing is written back to the service. --}}
                                     <div class="col-12 mb-3 mt-2 register_price">
                                         <label class="mb-1">هزینه ثبت نام (ریال)</label>
-                                        <input class="form-control" type="number" min="0" step="1"
+                                        <input class="form-control registration-price-input" type="text"
+                                            inputmode="numeric" pattern="[0-9,]*" autocomplete="off"
                                             id="service_register_price1"
                                             placeholder="هزینه ثبت نام">
                                     </div>
@@ -275,7 +276,8 @@
                                          the operator may override it for this request only. --}}
                                     <div class="col-12 mb-3 mt-2 register_price">
                                         <label class="mb-1">هزینه ثبت نام (ریال)</label>
-                                        <input class="form-control" type="number" min="0" step="1"
+                                        <input class="form-control registration-price-input" type="text"
+                                            inputmode="numeric" pattern="[0-9,]*" autocomplete="off"
                                             id="category_register_price1"
                                             placeholder="هزینه ثبت نام">
                                     </div>

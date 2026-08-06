@@ -88,6 +88,28 @@ function csrfAjaxSetup() {
     });
 }
 
+//Display registration prices with thousands separators while keeping the submitted value
+//compatible with CallcenterController::resolveRegisterPrice(). Persian and Arabic digits
+//are normalized as the operator types.
+function formatRegistrationPrice(value) {
+    var persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+    var arabicDigits = '٠١٢٣٤٥٦٧٨٩';
+    var digits = String(value === undefined || value === null ? '' : value)
+        .replace(/[۰-۹]/g, function (digit) { return persianDigits.indexOf(digit); })
+        .replace(/[٠-٩]/g, function (digit) { return arabicDigits.indexOf(digit); })
+        .replace(/[^0-9]/g, '');
+
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function setRegistrationPrice(input, value) {
+    input.val(formatRegistrationPrice(value));
+}
+
+$('body').on('input', '.registration-price-input', function () {
+    setRegistrationPrice($(this), $(this).val());
+});
+
 function getRequiredDataByItem(id, value, type)
 {
     getServiceItemByItem(id, value, type);
@@ -112,7 +134,7 @@ function getServiceRegisterPrice(id, value) {
         dataType: 'json',
         data: {id: value},
         success: function (data) {
-            input.val(data.price);
+            setRegistrationPrice(input, data.price);
         }
     });
 }
@@ -186,7 +208,7 @@ function setRegisterPriceFromAttribute(id, value) {
     var row = rowNumber(id);
     var price = $('#product_attribute_id' + row).find('option[value="' + value + '"]').data('price');
 
-    $('#category_register_price' + row).val(price === undefined ? '' : price);
+    setRegistrationPrice($('#category_register_price' + row), price === undefined ? '' : price);
 }
 function getServiceItemByItem(id, value, type) {
     var row = rowNumber(id);
