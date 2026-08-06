@@ -554,51 +554,20 @@ $("body").on('click', '.task-status', function () {
 
 $("body").on('click', '.fast-service', function () {
     var scope = $('#sendLinkModal');
-    var form = scope.find('#sendLinkForm');
 
-    //The ordinary save in ثبت خدمات سریع is always an invoice save. The server-side
-    //force flag protects this even if the checkbox is later hidden or stale JS is cached.
+    //Every fresh quick-registration form starts in invoice mode, while leaving the
+    //checkbox visible so the operator can explicitly switch to study-link-only mode.
     scope.find('#send-factor').prop('checked', true);
-    scope.find('#checkbox-send-factor').hide();
+    scope.find('#checkbox-send-factor').show();
     scope.find('.register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type').show();
-    scope.find('.fast-product-link-container').removeClass('d-none');
-    form.find('input[name="force_factor"]').remove();
-    form.append('<input type="hidden" name="force_factor" value="1">');
-})
-
-//The dedicated action now lives inside the کالا subtab. It deliberately removes the
-//quick-invoice flag and submits the selected product as a study/payment link.
-$("body").on('click', '.send-product-study-link', function () {
-    var button = $(this);
-    var form = button.closest('form');
-    var modal = button.closest('.modal');
-    var selectedProducts = form.find('select[name^="product["]').filter(function () {
-        return isChosen($(this).val());
-    });
-
-    form.find('#validation_error').empty();
-    if (!selectedProducts.length) {
-        form.find('#validation_error').append("<p class='alert alert-danger'>انتخاب کالا الزامی است.</p>");
-        return;
-    }
-
-    form.find('input[name="force_factor"]').remove();
-    form.find('#send-factor').prop('checked', false);
-    //This button is product-only even if the operator previously selected a service in
-    //the other subtab.
-    form.find('[name]').filter(function () {
-        return String($(this).attr('name')).indexOf('service') === 0;
-    }).prop('disabled', true);
-    modal.modal('hide');
-    $('.page-loader').fadeIn(200);
-    form.submit();
 })
 
 $(document).on('change', '#send-factor', function () {
+    var form = $(this).closest('form');
     if (this.checked) {
-        $(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").show();
+        form.find(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").show();
     } else {
-        $(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
+        form.find(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
     }
 });
 
@@ -634,8 +603,11 @@ function isChosen(value) {
 }
 
 $('body').on('click', '#send_link_submit', function () {
-    $('#validation_error').empty();
-    var formData = $('#sendLinkForm').serializeArray();
+    var submitButton = $(this);
+    var form = submitButton.closest('form');
+    var validationError = form.find('#validation_error');
+    validationError.empty();
+    var formData = form.serializeArray();
     var valuesOf = function (name) {
         var values = {};
         var baseName = name.replace(/\[\]$/, '');
@@ -651,7 +623,7 @@ $('body').on('click', '#send_link_submit', function () {
         return values;
     };
 
-    if ($("#send-factor").prop("checked") == true) {
+    if (form.find("#send-factor").prop("checked") == true) {
         var services = valuesOf('service[]');
         var service_purchase_type = valuesOf('service_purchase_type[]');
         var product_categories = valuesOf('product_category[]');
@@ -679,21 +651,21 @@ $('body').on('click', '#send_link_submit', function () {
         });
 
         if (incomplete_product_row) {
-            $('#validation_error').append("<p class='alert alert-danger'>انتخاب کالا و تنوع کالا برای هر ردیف الزامی است.</p>");
+            validationError.append("<p class='alert alert-danger'>انتخاب کالا و تنوع کالا برای هر ردیف الزامی است.</p>");
         }
         if (missing_service_purchase_type) {
-            $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت خدمت الزامی است.</p>");
+            validationError.append("<p class='alert alert-danger'>انتخاب نحوه دریافت خدمت الزامی است.</p>");
         }
         if (missing_category_purchase_type) {
-            $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت کالا الزامی است.</p>");
+            validationError.append("<p class='alert alert-danger'>انتخاب نحوه دریافت کالا الزامی است.</p>");
         }
 
-        if ($('#validation_error').is(':empty')) {
-            $("#sendLinkForm").submit();
+        if (validationError.is(':empty')) {
+            form.submit();
         }
     } else {
-        $('#sendLinkModal').modal('hide');
+        submitButton.closest('.modal').modal('hide');
         $('.page-loader').fadeIn(200)
-        $("#sendLinkForm").submit();
+        form.submit();
     }
 });

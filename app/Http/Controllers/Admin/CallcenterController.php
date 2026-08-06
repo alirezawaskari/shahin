@@ -483,12 +483,6 @@ class CallcenterController extends Controller
      */
     public function registerForm(Request $request)
     {
-        //Normal saves from the ثبت خدمات سریع modal are invoices. The product subtab's
-        //dedicated study/payment-link button removes this flag before submitting.
-        if ($request->input('force_factor') == 1) {
-            $request->merge(['send_factor' => 1]);
-        }
-
         $status = self::getStatusFactorByPayType($request->payment_type);
         $price = 0;
         $cash_factor = [];

@@ -126,7 +126,7 @@
                             <hr>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="send-factor" name="send_factor"
-                                    value="1">
+                                    value="1" checked>
                                 <label class="form-check-label" for="send-factor">ارسال فاکتور</label>
                             </div>
                         </div>
@@ -310,12 +310,6 @@
                                     </button>
                                 </div>
                                 @endif
-                                <div class="col-md-12 fast-product-link-container">
-                                    <button type="button" class="btn btn-outline-primary mb-4 send-product-study-link">
-                                        <i class="fa fa-paper-plane ml-1" aria-hidden="true"></i>
-                                        ارسال لینک بررسی و پرداخت کالا
-                                    </button>
-                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-12 mb-2 factor-payment-type">
