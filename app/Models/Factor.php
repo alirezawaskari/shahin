@@ -642,6 +642,9 @@ class Factor extends Model implements AuditableContract, HasMedia
                 self::factorTaskChenge($item);
                 self::setFactorItemRepresentation($item);
                 self::refferalFactorItemToCenter($item);
+                //A callcenter invoice may contain cash and credit rows together. Keep the
+                //cash-row settlement that previously ran on its separate `factor` record.
+                self::setPayPriceFactor($item, 0);
                 $supporter_user = self::setSupporter($item);
                 if ( $supporter_user){
                     self::smsRegisterPaymentSuccess($item,$supporter_user);
@@ -767,10 +770,13 @@ class Factor extends Model implements AuditableContract, HasMedia
      * @return void
      * this function is used in pay cash factoItems factor
      */
-    private static function setPayPriceFactor(Factor $item)
+    private static function setPayPriceFactor(Factor $item, ?int $factor_item_type = null)
     {
         if ($item->factorItems->count()) {
             foreach ($item->factorItems as $factor_item) {
+                if ($factor_item_type !== null && (int) $factor_item->type !== $factor_item_type) {
+                    continue;
+                }
                 if ($factor_item->purchase_type == 0) {
                     //factor price for purchase type online
                     $factor_item->property->update([
@@ -1326,4 +1332,3 @@ class Factor extends Model implements AuditableContract, HasMedia
         return $factor_items;
     }
 }
-

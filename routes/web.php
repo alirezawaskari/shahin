@@ -277,6 +277,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/callcenter/filter', [CallcenterController::class, 'filter']);
     Route::post('/callcenter/registerForm', [CallcenterController::class, 'registerForm'])->name('callcenter.registerForm');
     Route::get('/callcenter/fetchUser', [CallcenterController::class, 'fetchUser']);
+    // Category -> Product -> Variant cascade + default registration fee for the send-invoice form.
+    Route::post('/callcenter/productsByCategory', [CallcenterController::class, 'productsByCategory']);
+    Route::post('/callcenter/productAttributes', [CallcenterController::class, 'productAttributesByProduct']);
+    Route::post('/callcenter/serviceRegisterPrice', [CallcenterController::class, 'serviceRegisterPrice']);
     Route::get('/callcenter/deleted', [CallcenterController::class, 'delete'])->name('callcenter.delete');
     Route::get('/callcenter/restore', [CallcenterController::class, 'restore'])->name('callcenter.restore');
     Route::post('/fastregister', [CallcenterController::class, 'fastregister'])->name('fastregister_callcenter');

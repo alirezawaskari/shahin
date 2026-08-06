@@ -8,23 +8,25 @@ $("#sendLink").empty();
 function newServiceLink() {
     ct++;
     var div1 = $('<div>').prop({id: ct}).addClass('row');
-    var delLink = '<a class="text-white" href="javascript:delServiceLink(' + ct + ')"><div class="btn badge-red"><i class="fa fa-trash" aria-hidden="true"></i></div></a>';
+    // btn-danger, not btn + badge-red: see the افزودن خدمت button in sendLink.blade.php —
+    // a badge class leaves --bs-btn-hover-bg undefined and the button disappears on hover.
+    var delLink = '<button type="button" class="btn btn-danger text-white" onclick="delServiceLink(' + ct + ')"><i class="fa fa-trash" aria-hidden="true"></i></button>';
 
     div1.html($('#newservicetpl').html());
     $('#newservice').append(div1);
     div1.children().eq(5).prop('id', 'delete' + ct).html(delLink);
 
-    div1.children('.service_category').children('#service_category_id1').prop('id', 'service_category_id' + ct).off('change').on('change', function () {
+    div1.children('.service_category').children('#service_category_id1').prop('id', 'service_category_id' + ct).attr('name', 'service_category[' + ct + ']').off('change').on('change', function () {
         selectByCategory(this.id, this.value);
     });
 
-    div1.children('.service').children('#service_id1').prop('id', 'service_id' + ct).off('change').on('change', function () {
+    div1.children('.service').children('#service_id1').prop('id', 'service_id' + ct).attr('name', 'service[' + ct + ']').off('change').on('change', function () {
         getRequiredDataByItem(this.id, this.value, 'service');
     });
 
-    div1.children('.financial_plans_type').children('#financial_plans_type_id1').prop('id', 'financial_plans_type_id' + ct);
-    div1.children('.service_item').children('#service_item_id1').prop('id', 'service_item_id' + ct);
-    div1.children('.service_purchase_type').children('#service_purchase_type1').prop('id', 'service_purchase_type' + ct);
+    div1.children('.register_price').children('#service_register_price1').prop('id', 'service_register_price' + ct).attr('name', 'service_register_price[' + ct + ']');
+    div1.children('.service_item').children('#service_item_id1').prop('id', 'service_item_id' + ct).attr('name', 'service_item[' + ct + ']');
+    div1.children('.service_purchase_type').children('#service_purchase_type1').prop('id', 'service_purchase_type' + ct).attr('name', 'service_purchase_type[' + ct + ']');
 
     getDataRequired(ct);
 }
@@ -33,19 +35,27 @@ function newServiceLink() {
 function newCategoryLink() {
     ct++;
     var div1 = $('<div>').prop({id: ct}).addClass('row');
-    var delLink = '<a class="text-white" href="javascript:delCategoryLink(' + ct + ')"><div class="btn badge-red"><i class="fa fa-trash" aria-hidden="true"></i></div></a>';
+    var delLink = '<button type="button" class="btn btn-danger text-white" onclick="delCategoryLink(' + ct + ')"><i class="fa fa-trash" aria-hidden="true"></i></button>';
 
     div1.html($('#newcategorytpl').html());
     $('#newcategory').append(div1);
-    div1.children().eq(3).prop('id', 'delete' + ct).html(delLink);
+    // children: 0 category, 1 product, 2 variant, 3 register price, 4 purchase type, 5 delete
+    div1.children().eq(5).prop('id', 'delete' + ct).html(delLink);
 
-    div1.children('.product_category').children('#product_category_id1').prop('id', 'product_category_id' + ct);
-
-    div1.children('.financial_plans_type').children('#financial_plans_type_id1').prop('id', 'financial_plans_type_id' + ct).off('change').on('change', function () {
-        getRequiredDataByItem(this.id, this.value, 'category');
+    div1.children('.product_category').children('#product_category_id1').prop('id', 'product_category_id' + ct).attr('name', 'product_category[' + ct + ']').off('change').on('change', function () {
+        selectProductsByCategory(this.id, this.value);
     });
 
-    div1.children('.category_purchase_type').children('#category_purchase_type1').prop('id', 'category_purchase_type' + ct);
+    div1.children('.product').children('#product_id1').prop('id', 'product_id' + ct).attr('name', 'product[' + ct + ']').off('change').on('change', function () {
+        selectProductAttributes(this.id, this.value);
+    });
+
+    div1.children('.product_attribute').children('#product_attribute_id1').prop('id', 'product_attribute_id' + ct).attr('name', 'product_attribute[' + ct + ']').off('change').on('change', function () {
+        setRegisterPriceFromAttribute(this.id, this.value);
+    });
+
+    div1.children('.register_price').children('#category_register_price1').prop('id', 'category_register_price' + ct).attr('name', 'category_register_price[' + ct + ']');
+    div1.children('.category_purchase_type').children('#category_purchase_type1').prop('id', 'category_purchase_type' + ct).attr('name', 'category_purchase_type[' + ct + ']');
 
     getDataRequired(ct);
 }
@@ -65,108 +75,186 @@ function delCategoryLink(eleId) {
     var parentEle = d.getElementById('newcategory');
     parentEle.removeChild(ele);
 }
+// The row number is the trailing digits of any of that row's element ids.
+function rowNumber(id) {
+    return String(id).replace(/^\D+/, '');
+}
+
+function csrfAjaxSetup() {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+}
+
 function getRequiredDataByItem(id, value, type)
 {
-    getFinancialPlansTypeByItem(id, value, type);
-    getServiceItemByItem(id, value, type)
+    getServiceItemByItem(id, value, type);
+    getServiceRegisterPrice(id, value);
 }
-function getFinancialPlansTypeByItem(id, value, type) {
-    if (type == 'category') {
-        id = id.slice(19);
-    } else if (type == 'service') {
-        id = id.slice(10);
+
+// Default registration fee of the chosen service (services.price). The operator can edit the
+// input afterwards; the edit applies to this request only.
+function getServiceRegisterPrice(id, value) {
+    var row = rowNumber(id);
+    var input = $('#service_register_price' + row);
+
+    if (!value || value == 0 || value == 'all') {
+        input.val('');
+        return;
     }
 
-    if (value == 0) {
-        $('#financial_plans_type_id' + id).find('option').remove();
-    }
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    csrfAjaxSetup();
+    $.ajax({
+        url: '/dashboard/callcenter/serviceRegisterPrice',
+        type: 'post',
+        dataType: 'json',
+        data: {id: value},
+        success: function (data) {
+            input.val(data.price);
         }
     });
-    if (value != 0) {
-        $.ajax({
-            url: '/dashboard/financialPlansType/setByItem',
-            type: 'post',
-            dataType: 'json',
-            data: {
-                id: value,
-                type: type,
-            },
-            success: function success(data) {
-                if (data.count == 'available') {
-                    $('#financial_plans_type_id' + id).find('option').remove();
-                    for (var i = 0; i < data.financial_plans_types.length; i++) {
-                        $(`#financial_plans_type_id${id}`).append(`<option value="${data.financial_plans_types[i].id}">${data.financial_plans_types[i].label}</option>`);
-                    }
-                }
-            }
-        });
+}
+
+// Reset a select to just its placeholder.
+// These selects carry BOTH an inline onchange (the only handler that survives the raw-HTML
+// re-injection done for the quick-action modal) and a jQuery change binding added when the
+// row is cloned, so every change fires twice. Rebuilding the list inside each success
+// handler — the same shape selectByCategory()/getServiceItemByItem() use — keeps the second
+// response from appending a duplicate set instead of replacing the first.
+function resetSelect(select, placeholder) {
+    select.find('option').remove();
+    select.append('<option selected disabled>' + placeholder + '</option>');
+}
+
+// کالا tab cascade: category -> product -> variant, the variant supplying the default fee.
+function selectProductsByCategory(id, value) {
+    var row = rowNumber(id);
+    var products = $('#product_id' + row);
+
+    resetSelect(products, 'انتخاب کالا');
+    resetSelect($('#product_attribute_id' + row), 'انتخاب تنوع کالا');
+    $('#category_register_price' + row).val('');
+
+    if (!value || value == 0) {
+        return;
     }
+
+    csrfAjaxSetup();
+    $.ajax({
+        url: '/dashboard/callcenter/productsByCategory',
+        type: 'post',
+        dataType: 'json',
+        data: {id: value},
+        success: function (data) {
+            resetSelect(products, 'انتخاب کالا');
+            for (var i = 0; i < data.products.length; i++) {
+                products.append(`<option value="${data.products[i].id}">${data.products[i].label}</option>`);
+            }
+        }
+    });
+}
+
+function selectProductAttributes(id, value) {
+    var row = rowNumber(id);
+    var attributes = $('#product_attribute_id' + row);
+
+    resetSelect(attributes, 'انتخاب تنوع کالا');
+    $('#category_register_price' + row).val('');
+
+    if (!value || value == 0) {
+        return;
+    }
+
+    csrfAjaxSetup();
+    $.ajax({
+        url: '/dashboard/callcenter/productAttributes',
+        type: 'post',
+        dataType: 'json',
+        data: {id: value},
+        success: function (data) {
+            resetSelect(attributes, 'انتخاب تنوع کالا');
+            for (var i = 0; i < data.product_attributes.length; i++) {
+                attributes.append(`<option value="${data.product_attributes[i].id}" data-price="${data.product_attributes[i].price}">${data.product_attributes[i].label}</option>`);
+            }
+        }
+    });
+}
+
+function setRegisterPriceFromAttribute(id, value) {
+    var row = rowNumber(id);
+    var price = $('#product_attribute_id' + row).find('option[value="' + value + '"]').data('price');
+
+    $('#category_register_price' + row).val(price === undefined ? '' : price);
 }
 function getServiceItemByItem(id, value, type) {
-    if (type == 'category') {
-        id = id.slice(19);
-    } else if (type == 'service') {
-        id = id.slice(10);
+    var row = rowNumber(id);
+    var items = $('#service_item_id' + row);
+
+    // Same reason as selectByCategory: a service with no items leaves the populate branch
+    // unexecuted, so the reset has to happen here too.
+    resetSelect(items, 'انتخاب نوع خدمت');
+
+    if (!value || value == 0) {
+        return;
     }
 
-    if (value == 0) {
-        $('#service_item_id' + id).find('option').remove();
-    }
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    csrfAjaxSetup();
+    $.ajax({
+        url: '/dashboard/serviceItem/setByItem',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            id: value,
+            type: type,
+        },
+        success: function success(data) {
+            resetSelect(items, 'انتخاب نوع خدمت');
+            if (!data || data.count != 'available') {
+                return;
+            }
+            for (var i = 0; i < data.service_items.length; i++) {
+                items.append('<option value="' + data.service_items[i]['id'] + '">' + data.service_items[i]['label'] + '</option>');
+            }
         }
     });
-    if (value != 0) {
-        $.ajax({
-            url: '/dashboard/serviceItem/setByItem',
-            type: 'post',
-            dataType: 'json',
-            data: {
-                id: value,
-                type: type,
-            },
-            success: function success(data) {
-                if (data.count == 'available') {
-                    $('#service_item_id' + id).find('option').remove();
-                    $('#service_item_id' + id).append('<option selected disabled>انتخاب نوع خدمت</option>');
-                    for (var i = 0; i < data.service_items.length; i++) {
-                        $('#service_item_id' + id).append('<option value="' + data.service_items[i]['id'] + '">' + data.service_items[i]['label'] + '</option>');
-                    }
-                }
-            }
-        });
-    }
 }
 
 function selectByCategory(id, value) {
-    id = id.slice(19);
-    if (value == 0) {
-        $('#service_id' + id).find('option').remove();
+    var row = rowNumber(id);
+    var services = $('#service_id' + row);
+
+    // Reset up front, not only in the success handler: /service/selectByCategory returns an
+    // empty body for a category with no services, so the handler's populate branch never
+    // runs and the PREVIOUS category's services would otherwise stay selectable.
+    resetSelect(services, 'انتخاب خدمات');
+    // the service choice is now void, so its dependants go with it
+    resetSelect($('#service_item_id' + row), 'انتخاب نوع خدمت');
+    $('#service_register_price' + row).val('');
+
+    if (!value || value == 0) {
+        return;
     }
 
-    if (value != 0) {
-        $.ajax({
-            url: '/dashboard/service/selectByCategory',
-            type: 'post',
-            dataType: 'json',
-            data: {
-                id: value
-            },
-            success: function success(data) {
-                if (data.count == 'available') {
-                    $('#service_id' + id).find('option').remove();
-                    $('#service_id' + id).append('<option selected disabled>انتخاب خدمات</option>');
-                    for (var i = 0; i < data.services.length; i++) {
-                        $('#service_id' + id).append('<option value="' + data.services[i]['id'] + '">' + data.services[i]['title'] + '</option>');
-                    }
-                }
+    csrfAjaxSetup();
+    $.ajax({
+        url: '/dashboard/service/selectByCategory',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            id: value
+        },
+        success: function success(data) {
+            resetSelect(services, 'انتخاب خدمات');
+            if (!data || data.count != 'available') {
+                return;
             }
-        });
-    }
+            for (var i = 0; i < data.services.length; i++) {
+                services.append('<option value="' + data.services[i]['id'] + '">' + data.services[i]['title'] + '</option>');
+            }
+        }
+    });
 }
 
 //fill service and category form
@@ -219,6 +307,13 @@ function getDataRequired(id) {
     });
 }
 
+// Balances are read-only display fields, so they are formatted rather than kept raw.
+function formatRial(amount) {
+    var value = Number(amount);
+
+    return (isNaN(value) ? 0 : value).toLocaleString('en-US') + ' ریال';
+}
+
 function searchUser(search) {
     if (search.length === 11) {
 
@@ -248,6 +343,8 @@ function searchUser(search) {
             $(".city_id").val(data.data.user.city_id).change();
             $(".vipCheck").prop('checked', data.data.user.vip_user);
             $(".sosCheck").prop('checked', data.data.user.sos);
+            $(".user_credit").val(formatRial(data.data.user.credit));
+            $(".user_wallet").val(formatRial(data.data.user.wallet));
             $('.loading_send_link').css('display', 'none');
             if (!data.data.user.name) {
                 $('.error_user').text('کاربری با این شماره تماس ثبت نام نشده است لطفا فیلدهای مربوط به کاربر را پر کنید.');
@@ -390,7 +487,7 @@ function generateDataTableUserFactors(data) {
         <td>${factor_status_badge}</td>
         <td>${value.date}</td>
         <td>${value.register_by}</td>
-        <td>${value.items.toString()}</td>
+        <td>${(value.items || []).join('<br>')}</td>
         </tr>
         `)
     });
@@ -434,15 +531,26 @@ $("body").on('click', '.task-status', function () {
 })
 
 $("body").on('click', '.fast-service', function () {
-    $(".financial_plans_type, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
+    $(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
     $("#register_type").val('send_link_site');
+})
+
+// "ارسال لینک بررسی و پرداخت کالا" opens the same fast form on the کالا tab.
+// The tab classes are toggled inside the modal rather than through Bootstrap's id-based
+// .tab('show'), because the sendLink partial is included twice on this page and the ids
+// are therefore not unique document-wide.
+$("body").on('click', '.fast-product', function () {
+    var scope = $('#sendLinkModal');
+
+    scope.find('#services, #servicesContent').removeClass('active show');
+    scope.find('#category, #categoryContent').addClass('active show');
 })
 
 $(document).on('change', '#send-factor', function () {
     if (this.checked) {
-        $(".financial_plans_type, .service_purchase_type, .factor-payment-type, .category_purchase_type").show();
+        $(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").show();
     } else {
-        $(".financial_plans_type, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
+        $(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
     }
 });
 
@@ -470,49 +578,68 @@ $('body').on('change', '#province', function () {
     });
 });
 
+// A row the operator never touched still submits its placeholder select, so "was something
+// actually chosen here?" is an id test, not a truthiness test. Mirrors the is_numeric()
+// guards registerForm() applies to the same arrays server-side.
+function isChosen(value) {
+    return value !== undefined && value !== null && /^\d+$/.test(String(value).trim());
+}
+
 $('body').on('click', '#send_link_submit', function () {
     $('#validation_error').empty();
-    var id = $(this).attr("id");
     var formData = $('#sendLinkForm').serializeArray();
-    var services = [];
-    var service_purchase_type = [];
-    var product_categories = [];
-    var category_purchase_type = [];
-    var services_count = 0;
-    var service_purchase_type_count = 0;
-    var product_categories_count = 0;
-    var category_purchase_type_count = 0;
-
-
-    if ($("#send-factor").prop("checked") == true) {
+    var valuesOf = function (name) {
+        var values = {};
+        var baseName = name.replace(/\[\]$/, '');
+        var legacyIndex = 0;
         $.each(formData, function (i, field) {
-            if (field.name == 'service[]') {
-                services[services_count] = field.value;
-                services_count++;
-            }
-            if (field.name == 'service_purchase_type[]') {
-                service_purchase_type[service_purchase_type_count] = field.value;
-                service_purchase_type_count++;
-            }
-            if (field.name == 'product_category[]') {
-                product_categories[product_categories_count] = field.value;
-                product_categories_count++;
-            }
-            if (field.name == 'category_purchase_type[]') {
-                category_purchase_type[category_purchase_type_count] = field.value;
-                category_purchase_type_count++;
+            var match = field.name.match(new RegExp('^' + baseName + '\\[(\\d+)\\]$'));
+            if (field.name == name) {
+                values[legacyIndex++] = field.value;
+            } else if (match) {
+                values[match[1]] = field.value;
             }
         });
+        return values;
+    };
+
+    if ($("#send-factor").prop("checked") == true) {
+        var services = valuesOf('service[]');
+        var service_purchase_type = valuesOf('service_purchase_type[]');
+        var product_categories = valuesOf('product_category[]');
+        var products = valuesOf('product[]');
+        var product_attributes = valuesOf('product_attribute[]');
+        var category_purchase_type = valuesOf('category_purchase_type[]');
+        var incomplete_product_row = false;
+        var missing_service_purchase_type = false;
+        var missing_category_purchase_type = false;
+
+        // Only a row that actually names a service/category needs a delivery method —
+        // otherwise working purely on one tab trips the other tab's validation.
         $.each(services, function (i, service) {
-            if (!service_purchase_type[i]) {
-                $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت خدمت الزامی است.</p>");
+            if (isChosen(service) && !isChosen(service_purchase_type[i])) {
+                missing_service_purchase_type = true;
             }
         });
         $.each(product_categories, function (i, product_category) {
-            if (!category_purchase_type[i]) {
-                $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت کالا الزامی است.</p>");
+            if (isChosen(product_category) && (!isChosen(products[i]) || !isChosen(product_attributes[i]))) {
+                incomplete_product_row = true;
+            }
+            if (isChosen(product_category) && !isChosen(category_purchase_type[i])) {
+                missing_category_purchase_type = true;
             }
         });
+
+        if (incomplete_product_row) {
+            $('#validation_error').append("<p class='alert alert-danger'>انتخاب کالا و تنوع کالا برای هر ردیف الزامی است.</p>");
+        }
+        if (missing_service_purchase_type) {
+            $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت خدمت الزامی است.</p>");
+        }
+        if (missing_category_purchase_type) {
+            $('#validation_error').append("<p class='alert alert-danger'>انتخاب نحوه دریافت کالا الزامی است.</p>");
+        }
+
         if ($('#validation_error').is(':empty')) {
             $("#sendLinkForm").submit();
         }
