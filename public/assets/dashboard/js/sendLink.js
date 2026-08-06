@@ -531,19 +531,45 @@ $("body").on('click', '.task-status', function () {
 })
 
 $("body").on('click', '.fast-service', function () {
-    $(".register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type").hide();
-    $("#register_type").val('send_link_site');
+    var scope = $('#sendLinkModal');
+    var form = scope.find('#sendLinkForm');
+
+    //The ordinary save in ثبت خدمات سریع is always an invoice save. The server-side
+    //force flag protects this even if the checkbox is later hidden or stale JS is cached.
+    scope.find('#send-factor').prop('checked', true);
+    scope.find('#checkbox-send-factor').hide();
+    scope.find('.register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type').show();
+    scope.find('.fast-product-link-container').removeClass('d-none');
+    form.find('input[name="force_factor"]').remove();
+    form.append('<input type="hidden" name="force_factor" value="1">');
 })
 
-// "ارسال لینک بررسی و پرداخت کالا" opens the same fast form on the کالا tab.
-// The tab classes are toggled inside the modal rather than through Bootstrap's id-based
-// .tab('show'), because the sendLink partial is included twice on this page and the ids
-// are therefore not unique document-wide.
-$("body").on('click', '.fast-product', function () {
-    var scope = $('#sendLinkModal');
+//The dedicated action now lives inside the کالا subtab. It deliberately removes the
+//quick-invoice flag and submits the selected product as a study/payment link.
+$("body").on('click', '.send-product-study-link', function () {
+    var button = $(this);
+    var form = button.closest('form');
+    var modal = button.closest('.modal');
+    var selectedProducts = form.find('select[name^="product["]').filter(function () {
+        return isChosen($(this).val());
+    });
 
-    scope.find('#services, #servicesContent').removeClass('active show');
-    scope.find('#category, #categoryContent').addClass('active show');
+    form.find('#validation_error').empty();
+    if (!selectedProducts.length) {
+        form.find('#validation_error').append("<p class='alert alert-danger'>انتخاب کالا الزامی است.</p>");
+        return;
+    }
+
+    form.find('input[name="force_factor"]').remove();
+    form.find('#send-factor').prop('checked', false);
+    //This button is product-only even if the operator previously selected a service in
+    //the other subtab.
+    form.find('[name]').filter(function () {
+        return String($(this).attr('name')).indexOf('service') === 0;
+    }).prop('disabled', true);
+    modal.modal('hide');
+    $('.page-loader').fadeIn(200);
+    form.submit();
 })
 
 $(document).on('change', '#send-factor', function () {
