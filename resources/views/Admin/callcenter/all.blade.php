@@ -626,6 +626,6 @@
 </script>
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
 <script src="{{asset('assets/dashboard/js/callcenter.js?v=1.8')}}"></script>
-<script src="{{asset('assets/dashboard/js/sendLink.js?v=1.7')}}"></script>
+<script src="{{asset('assets/dashboard/js/sendLink.js?v=1.9')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection
