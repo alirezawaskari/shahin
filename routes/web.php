@@ -228,10 +228,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/', [AdminController::class,'dashboard']);
     Route::get('/settings', [ContextController::class,'settings'])->name('settings.index');
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
-    Route::patch(
-        '/settings/update-company-info',
-        [SettingController::class, 'updateCompanyInfo']
-    )->name('settings.updateCompanyInfo');
+    Route::patch('/settings/update-company-info',[SettingController::class, 'updateCompanyInfo'])->name('settings.updateCompanyInfo');
     Route::post('/settings/sms', [SettingController::class,'updateSmsSetting'])->name('settings.update.sms.setting');
 
     Route::resource('/campaign', CampaignControllerAdmin::class);
@@ -280,6 +277,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/callcenter/filter', [CallcenterController::class, 'filter']);
     Route::post('/callcenter/registerForm', [CallcenterController::class, 'registerForm'])->name('callcenter.registerForm');
     Route::get('/callcenter/fetchUser', [CallcenterController::class, 'fetchUser']);
+    // Category -> Product -> Variant cascade + default registration fee for the send-invoice form.
+    Route::post('/callcenter/productsByCategory', [CallcenterController::class, 'productsByCategory']);
+    Route::post('/callcenter/productAttributes', [CallcenterController::class, 'productAttributesByProduct']);
+    Route::post('/callcenter/serviceRegisterPrice', [CallcenterController::class, 'serviceRegisterPrice']);
     Route::get('/callcenter/deleted', [CallcenterController::class, 'delete'])->name('callcenter.delete');
     Route::get('/callcenter/restore', [CallcenterController::class, 'restore'])->name('callcenter.restore');
     Route::post('/fastregister', [CallcenterController::class, 'fastregister'])->name('fastregister_callcenter');
@@ -460,6 +461,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/employee-wallet-filter/{user}/{key}' , 'EmployeeController@walletTransactionFilter');
     Route::get('/employee/resume/{employee}' , 'EmployeeController@editResume')->name('employee.resume.edit');
     Route::post('/employee/resume/{employee}' , 'EmployeeController@updateResume')->name('employee.resume.update');
+    Route::post('/employee/profile/{employee}' , 'EmployeeController@updateProfile')->name('employee.profile.update');
     Route::get('/employee/contract/{employee}' , 'EmployeeController@showContract')->name('employee.contract.show');
     Route::post('/employee/update/contract/{employee}' , 'EmployeeController@updateContract')->name('employee.update.contract');
     Route::post('/employee/sendConfirmContractCode', [EmployeeController::class,'sendConfirmContractCode']);
@@ -609,7 +611,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
 
     });
 
-    Route::resource('/about', 'AboutController');
+    // No create/store: a "درباره ما" page belongs to an owner that already exists, it is
+    // never made from the panel. Declared twice (see the `about` resource further down);
+    // both have to carry the exclusion or the route comes back.
+    Route::resource('/about', 'AboutController')->except(['create', 'store']);
     Route::get('/userInvite', 'UserInviteController@index')->name('userInvite.index');
     Route::resource('/inviteCategory', 'InviteCategoryController');
     Route::post('/searchTitleProduct', 'InviteCategoryController@searchTitleProduct');
@@ -697,6 +702,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
     Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
     Route::post('ghorfeOnlineList/menuUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@menuUpdate')->name('ghorfeOnlineList.menuUpdate');
+    Route::post('ghorfeOnlineList/question/{ghorfeOnlineList}', [GhorfeOnlineListController::class,'question'])->name('ghorfeOnlineList.question');
     Route::post('ghorfeOnlineList/themeUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@themeUpdate')->name('ghorfeOnlineList.themeUpdate');
     Route::post('ghorfeOnlineList/categoryUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@categoriesGhorfe')->name('ghorfeOnlineList.categoriesGhorfe');
     Route::get('ghorfeOnlineList/users', 'GhorfeOnlineListController@showUsersList')->name('ghorfeOnlineList.users');
@@ -861,7 +867,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
      * AdoptsLegacyMedia migrates into Spatie collections.
      */
     //content site
-    Route::resource('about', 'AboutController');
+    Route::resource('about', 'AboutController')->except(['create', 'store']);
     Route::resource('help', 'HelpController');
     Route::resource('setting', 'SettingController');
     //Route::resource('coupon', 'CouponController');

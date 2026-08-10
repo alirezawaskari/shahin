@@ -108,7 +108,7 @@
                     <div class="col-12 col-sm-6 col-lg-3 mb-2">
                         <select name="representation" class="custom-select select2">
                             <option value="all">انتخاب نمایندگی</option>
-                            <option value="center_representation">نمایندگی کل</option>
+                            <option value="{{ \App\Models\FactorItem::WITHOUT_REPRESENTATION }}">نمایندگی کل</option>
                             @foreach($representations as $representation)
                             <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
@@ -170,7 +170,7 @@
                     </div>
                     <div class="col-12 col-sm-6 col-lg-2 mb-2 d-none" id="representation_list_box">
                         <select class="custom-select select2" name="selected_representation">
-                            <option value="center_representation">نمایندگی کل</option>
+                            <option value="{{ \App\Models\FactorItem::WITHOUT_REPRESENTATION }}">نمایندگی کل</option>
                             @foreach($representations as $representation)
                                 <option value="{{$representation->id}}">{{$representation->fa_name}}</option>
                             @endforeach
@@ -273,10 +273,9 @@
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/factorItem.js?v=1.3')}}"></script>
-<script src="{{asset('assets/dashboard/js/sendLink.js')}}"></script>
+<script src="{{asset('assets/dashboard/js/sendLink.js?v=1.3')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 <script>
     const csrfToken = '{{ csrf_token() }}';
 </script>
 @endsection
-

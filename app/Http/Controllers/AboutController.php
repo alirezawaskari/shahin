@@ -14,16 +14,21 @@ class AboutController extends Controller
      */
     public function index()
     {
-        if(session()->has('representation'))
-        {
-            $about = Cache::remember('about', Carbon::now()->addMinute(60), function () {
-            return About::first();
-            });
+        if (session()->has('representation')) {
+            $representation = session()->get('representation');
+            $about = Cache::remember(
+                'about:representation:' . $representation->id,
+                Carbon::now()->addMinute(60),
+                fn () => $representation->abouts()->first()
+            );
+
             return view('site.representation.about' , compact('about'));
         }
+
         $about = Cache::remember('about', Carbon::now()->addMinute(60), function () {
-            return About::first();
+            return About::whereNull('aboutable_type')->whereNull('aboutable_id')->first();
         });
+
         return view('site.about' , compact('about'));
     }
 }

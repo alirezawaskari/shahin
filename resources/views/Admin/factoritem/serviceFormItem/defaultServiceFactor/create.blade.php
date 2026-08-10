@@ -6,7 +6,9 @@
     </div>
     <div class="col-12 col-md-4 mb-3">
     </div>
-    <div class="col-12 col-md-4 mb-3">
+    <div class="col-12 col-md-3 mb-3">
+        <label>مقدار(تعداد-عدد)</label>
+        <input type="number" name="value[]" class="form-control" placeholder="مقدار" min="1">
     </div>
     <div class="col-12 col-md-4 mb-3">
         <label>بازه زمانی تعرفه</label>

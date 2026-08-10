@@ -238,6 +238,6 @@
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/totalFactorItem.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/sendLink.js')}}"></script>
+<script src="{{asset('assets/dashboard/js/sendLink.js?v=1.3')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

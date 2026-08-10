@@ -14,7 +14,7 @@
         <th>تخفیف (ریال)</th>
         <th>تعرفه مصرف کننده (ریال)</th>
         @permission('view_profit_factorItem')
-        <th>تعرفه خرید سجا (ریال)</th>
+        <th>بهای تمام شده (ریال)</th>
         <th>نرخ اختلاف خرید</th>
         @endpermission
         <th>تاریخ ثبت</th>

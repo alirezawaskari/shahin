@@ -22,8 +22,8 @@
                 <thead>
                 <tr>
                     <th>شناسه</th>
-                    <th>مربوط به صفحه</th>
-                    <th>متن باکس اول</th>
+                    <th>مربوط به</th>
+                    <th>متن معرفی</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -31,12 +31,17 @@
                 @foreach($abouts as $item)
                     <tr>
                         <td>{{$item->id}}</td>
-                        <td>@if($item->id == 1)    درباره ما
-                        @elseif($item->id == 2) فروش نقدی با تخفیف
-                        @elseif($item->id == 3)فروش اقساطی
-                        @endif
+                        {{-- Owner of the row: a ghorfe, a representation, or the main site. --}}
+                        <td>
+                            @if($item->ghorfeOnline)
+                                <span class="badge badge-info">کسب و کار</span> {{ $item->ghorfeOnline->title }}
+                            @elseif($item->representation)
+                                <span class="badge badge-warning">نمایندگی</span> {{ $item->representation->fa_name }}
+                            @else
+                                <span class="badge badge-secondary">سایت اصلی</span>
+                            @endif
                         </td>
-                        <td>{!! $item->content_one !!}</td>
+                        <td>{{ \Illuminate\Support\Str::limit(strip_tags((string) $item->intro_text), 120) }}</td>
                         <td>
                             <div data-v-15965e3b="" class="dropdown">
                                 <a href="#" data-toggle="dropdown" aria-haspopup="true" 

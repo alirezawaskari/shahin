@@ -122,11 +122,11 @@ class Representation extends Model implements HasMedia
         return $this->belongsToMany(FinancialPlansType::class);
     }
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
     */
     public function centers()
     {
-        return $this->belongsToMany(Center::class);
+        return $this->morphToMany(Center::class, 'owner', 'center_owners');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -134,6 +134,15 @@ class Representation extends Model implements HasMedia
     public function sliders()
     {
         return $this->hasMany(Slider::class);
+    }
+    /**
+     * "درباره ما" rows owned by this representation (mirrors GhorfeOnlineList::about()).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function abouts()
+    {
+        return $this->morphMany(About::class, 'aboutable');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

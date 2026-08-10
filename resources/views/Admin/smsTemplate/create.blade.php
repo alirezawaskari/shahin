@@ -42,13 +42,15 @@
                 </div>
                 <div class="col-12 mb-2">
                     <label>متن قالب</label>
-                    <textarea class="form-control" name="content"></textarea>
+                    <textarea class="form-control" rows="20" name="content"></textarea>
                 </div>
                 <div class="col-12 p-4 alert-warning mb-2">
                     <p>ملاحضات : </p>
                     <p>1 - قالب ها حتما باید دارای متغیر نام مجموعه باشند.</p>
                     <p>2 - همه متغیرهارو به صورت %param1% , %param2% , .... داخل متن درج کنید.</p>
                     <p>3 - توجه داشته باشید که عبارت لغو11 حتما باید انتهای تمام قالب ها درج شود.</p>
+                    <p>4 - برای درج خودکار اطلاعات فرستنده بر اساس نقش کاربر، از این متغیرها استفاده کنید:
+                        {company_name} (نام مجموعه) ، {phone} (تلفن) ، {address} (آدرس). هر کدام لازم بود درج کنید.</p>
                 </div>
             </div>
 

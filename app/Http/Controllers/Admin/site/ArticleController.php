@@ -61,10 +61,9 @@ class ArticleController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Summary of store
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -83,6 +82,10 @@ class ArticleController extends Controller
         $request['user_id'] = $request->user()->id;
         $article = Article::create(collect($request->all())->except(['old_image', 'image_path'])->all()); // see update()
         $representations = auth()->user()->admin_representation_id ? [auth()->user()->admin_representation_id] : $request->input('representation_id');
+        if(ghorfe())
+        {
+            $article = ghorfe()->articles()->create($request->all());
+        }
         $article->representations()->sync($representations);
         MediaLibraryHelper::attachTo($article, $request->image_path, 'old_image');
 

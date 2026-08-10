@@ -259,6 +259,10 @@ class GhorfeOnlineList extends Model implements HasMedia
     {
         return $this->belongsTo(User::class);
     }
+    public function askedQuestions()
+    {
+        return $this->morphMany(AskedQuestion::class, 'askedquestionable');
+    }
 
     public function menus()
     {
@@ -299,6 +303,49 @@ class GhorfeOnlineList extends Model implements HasMedia
     public function about()
     {
         return $this->hasOne(About::class);
+    }
+    /**
+     * Branches (شعبه) of this business — the list the about-us page renders and the branch
+     * frontend links into. Ordered by the pivot `sort` so the admin controls the cards'
+     * order; rows with no sort fall to the end (MySQL puts NULL first ascending).
+     *
+     * `sort` is only meaningful on THESE rows: `center_owners` is shared with
+     * Representation::centers(), whose rows leave it null and are never ordered by it.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function centers()
+    {
+        return $this->morphToMany(Center::class, 'owner', 'center_owners')
+            ->withPivot('sort')
+            ->orderByRaw('center_owners.sort is null, center_owners.sort');
+    }
+    /**
+     * Staff (همکاران متخصص) of this business = the employees of its branches.
+     *
+     * Derived, not curated: an employee appears on the about-us page exactly while their
+     * `employees.center_id` is one of this business's centers. The separate
+     * employee_ghorfe_online_list pivot this used to read was a second list saying the same
+     * thing, and the two could disagree — it is dropped.
+     *
+     * A query builder rather than a relation: the link runs through the polymorphic
+     * center_owners pivot, which no single Eloquent relation can express.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function staff()
+    {
+        return Employee::query()->whereIn(
+            'center_id',
+            $this->centers()->select('centers.id')
+        );
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function faqs()
+    {
+        return $this->hasMany(Faq::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany

@@ -89,6 +89,19 @@
                             </select>
                         </div>
 
+                        {{-- Read-only balances, filled by searchUser() from the fetchUser response. --}}
+                        <div class="col-6 mb-3 mt-3">
+                            <label class="mb-1">اعتبار (حواله)</label>
+                            <input class="form-control my-2 user_credit bg-light text-dark" type="text"
+                                id="user_credit" value="0 ریال" readonly>
+                        </div>
+
+                        <div class="col-6 mb-3 mt-3">
+                            <label class="mb-1">موجودی کیف پول</label>
+                            <input class="form-control my-2 user_wallet bg-light text-dark" type="text"
+                                id="user_wallet" value="0 ریال" readonly>
+                        </div>
+
                         <div class="col-md-6 mt-3 mb-3">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input vipCheck" id="vipCheck" name="vip">
@@ -113,7 +126,7 @@
                             <hr>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="send-factor" name="send_factor"
-                                    value="1">
+                                    value="1" checked>
                                 <label class="form-check-label" for="send-factor">ارسال فاکتور</label>
                             </div>
                         </div>
@@ -152,13 +165,16 @@
                         </ul>
                         <div class="tab-content" id="myTabContent">
                             <div class="mt-3" id="validation_error">
+                                @if ($errors->has('invoice_rows'))
+                                    <p class="alert alert-danger">{{ $errors->first('invoice_rows') }}</p>
+                                @endif
                             </div>
                             <div class="tab-pane fade p-t-20 active show" id="servicesContent" role="tabpanel"
                                 aria-labelledby="services">
                                 <div class="row d-none" id="newservicetpl">
                                     <div
                                         class="col-12 mb-3 mt-2 service_category {{ auth()->user()->center ? 'd-none' : ''}}">
-                                        <select class="form-control" name="service_category[]" id="service_category_id1"
+                                        <select class="form-control" id="service_category_id1"
                                             onchange="selectByCategory(this.id , this.value)">
                                             <option selected disabled> انتخاب دسته بندی</option>
                                             @foreach ($service_categories as $category)
@@ -169,7 +185,7 @@
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3 mt-2 service">
-                                        <select class="form-control" name="service[]" id="service_id1"
+                                        <select class="form-control" id="service_id1"
                                             onchange="getRequiredDataByItem(this.id , this.value , 'service')">
                                             <option selected disabled>انتخاب خدمات</option>
                                             @foreach ($services as $service)
@@ -180,26 +196,22 @@
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3 mt-2 service_item">
-                                        <select class="form-control" name="service_item[]"
+                                        <select class="form-control"
                                             id="service_item_id1">
                                             <option selected disabled>انتخاب نوع خدمت</option>
                                         </select>
                                     </div>
-                                    <div class="col-12 mb-3 mt-2 financial_plans_type">
-                                        <select class="form-control" name="service_financial_plans_type[]"
-                                            id="financial_plans_type_id1">
-                                            <option selected disabled>انتخاب نوع طرح</option>
-                                        </select>
+                                    {{-- Default comes from services.price; the operator may override it for this
+                                         request only. Nothing is written back to the service. --}}
+                                    <div class="col-12 mb-3 mt-2 register_price">
+                                        <label class="mb-1">هزینه ثبت نام (ریال)</label>
+                                        <input class="form-control registration-price-input" type="text"
+                                            inputmode="numeric" pattern="[0-9,]*" autocomplete="off"
+                                            id="service_register_price1"
+                                            placeholder="هزینه ثبت نام">
                                     </div>
-                                    {{-- <div class="col-12 mb-3 mt-2 service_pay_type">
-                                        <select class="form-control" name="service_pay_type[]" id="service_pay_type1">
-                                            <option selected disabled>انتخاب نوع پرداخت</option>
-                                            <option value="0">نوع پرداخت - نقدی</option>
-                                            <option value="1">نوع پرداخت - اقساطی</option>
-                                        </select>
-                                    </div> --}}
                                     <div class="col-12 mb-3 mt-2 service_purchase_type">
-                                        <select class="form-control" name="service_purchase_type[]"
+                                        <select class="form-control"
                                             id="service_purchase_type1">
                                             <option selected disabled>انتخاب نحوه دریافت خدمت</option>
                                             <option value="0"> نحوه دریافت خدمت - غیر حضوری</option>
@@ -216,11 +228,17 @@
                                 </div>
                                 @if(!auth()->user()->center)
                                 <div class="col-md-12">
-                                    <div id="addnew" class="btn badge-success mb-5">
-                                        <a href="javascript:newServiceLink()" class="text-white"><i class="fa fa-plus"
-                                                aria-hidden="true"></i>
-                                            افزودن خدمت </a>
-                                    </div>
+                                    {{-- btn-success rather than btn + badge-success: Bootstrap 5's .btn:hover
+                                         sets background-color from --bs-btn-hover-bg, which only a button
+                                         variant class defines. With a badge class that property is undefined,
+                                         so the hover background computed to transparent and the white-on-green
+                                         button vanished against the card. Each click adds one row, and each
+                                         row becomes one factor item. --}}
+                                    <button type="button" class="btn btn-success text-white mb-5"
+                                        onclick="newServiceLink()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        افزودن خدمت
+                                    </button>
                                 </div>
                                 @endif
                             </div>
@@ -228,8 +246,8 @@
                                 aria-labelledby="category-tab">
                                 <div class="row d-none" id="newcategorytpl">
                                     <div class="col-12 mb-3 mt-2 product_category">
-                                        <select class="form-control" name="product_category[]" id="product_category_id1"
-                                            onchange="getFinancialPlansTypeByItem(this.id , this.value , 'category')">
+                                        <select class="form-control" id="product_category_id1"
+                                            onchange="selectProductsByCategory(this.id , this.value)">
                                             <option selected disabled> انتخاب دسته بندی</option>
                                             @foreach ($product_categories as $category)
                                             <option value="{{ $category['id'] }}">{{
@@ -239,23 +257,33 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-12 mb-3 mt-2 financial_plans_type">
-                                        <select class="form-control" name="category_financial_plans_type[]"
-                                            id="financial_plans_type_id1">
-                                            <option selected disabled>انتخاب نوع طرح</option>
+                                    <div class="col-12 mb-3 mt-2 product">
+                                        <select class="form-control" id="product_id1"
+                                            onchange="selectProductAttributes(this.id , this.value)">
+                                            <option selected disabled>انتخاب کالا</option>
                                         </select>
                                     </div>
 
-                                    {{-- <div class="col-12 mb-3 mt-2 category_pay_type">
-                                        <select class="form-control" name="category_pay_type[]" id="category_pay_type1">
-                                            <option selected disabled>انتخاب نوع پرداخت</option>
-                                            <option value="0">نوع پرداخت - نقدی</option>
-                                            <option value="1">نوع پرداخت - اقساطی</option>
+                                    <div class="col-12 mb-3 mt-2 product_attribute">
+                                        <select class="form-control"
+                                            id="product_attribute_id1"
+                                            onchange="setRegisterPriceFromAttribute(this.id , this.value)">
+                                            <option selected disabled>انتخاب تنوع کالا</option>
                                         </select>
-                                    </div> --}}
+                                    </div>
+
+                                    {{-- Default comes from the selected variant's price (product_attributes.price);
+                                         the operator may override it for this request only. --}}
+                                    <div class="col-12 mb-3 mt-2 register_price">
+                                        <label class="mb-1">هزینه ثبت نام (ریال)</label>
+                                        <input class="form-control registration-price-input" type="text"
+                                            inputmode="numeric" pattern="[0-9,]*" autocomplete="off"
+                                            id="category_register_price1"
+                                            placeholder="هزینه ثبت نام">
+                                    </div>
 
                                     <div class="col-12 mb-3 mt-2 category_purchase_type">
-                                        <select class="form-control" name="category_purchase_type[]"
+                                        <select class="form-control"
                                             id="category_purchase_type1">
                                             <option selected disabled>انتخاب نحوه دریافت کالا</option>
                                             <option value="1"> نحوه دریافت کالا - حضوری</option>
@@ -274,11 +302,12 @@
 
                                 @if(!auth()->user()->center)
                                 <div class="col-md-12">
-                                    <div id="addnew" class="btn badge-success mb-5">
-                                        <a href="javascript:newCategoryLink()" class="text-white"><i class="fa fa-plus"
-                                                aria-hidden="true"></i>
-                                            افزودن دسته بندی</a>
-                                    </div>
+                                    {{-- see the افزودن خدمت button above for why this is btn-success --}}
+                                    <button type="button" class="btn btn-success text-white mb-5"
+                                        onclick="newCategoryLink()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        افزودن دسته بندی
+                                    </button>
                                 </div>
                                 @endif
                             </div>

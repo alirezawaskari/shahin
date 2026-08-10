@@ -23,6 +23,9 @@ class FactorItem extends Model implements AuditableContract, HasMedia
     use InteractsWithMedia;
     use \App\Models\Concerns\AdoptsLegacyMedia;
 
+    /** Form value meaning that no specific representation owns the factor item. */
+    public const WITHOUT_REPRESENTATION = 'without_representation';
+
     /**
      * Touch-to-migrate: legacy paths embedded in these JSON columns -> the documents
      * collection. factor_values is nested (image arrays sit next to plain text/ids); only
@@ -383,7 +386,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             }
 
             if (isset($representation) && trim($representation) != 'all') {
-                if (trim($representation) == 'center_representation') {
+                if (trim($representation) === self::WITHOUT_REPRESENTATION) {
                     $query->whereDoesntHave('representation');
                 } else {
                     $query->whereHas('representation', function ($query) use ($representation) {
@@ -742,7 +745,6 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         $sessions_sum_price = self::getSessionsSumPrice($item , 'all');
         $financial_plans_type_discount_price = $item->financialPlansType ? ($item->financialPlansType->discount_percent/100) * $sessions_sum_price : 0;
         $prepayment_paid = ($item->type ? TotalFactorItem::getPrepaymentPaid($item->totalFactorItem) : self::getPrepaymentPaid($item)) - $item->discount + $financial_plans_type_discount_price;
-        $sessions_sum_price = self::getSessionsSumPrice($item , 1);
         if($item->type && $item->totalFactorItem->confirm)
         {
             $temp = round($price) <= round($item->credit) ? true : false;
@@ -761,7 +763,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
      */
     public static function calculateCredit(FactorItem $item)
     {
-        $sessions_sum_price = self::getSessionsSumPrice($item , 1);
+        $sessions_sum_price = self::getSessionsSumPrice($item , 'all');
         $prepayment_paid = self::getPrepaymentPaid($item) - $item->discount;
 
         $user = $item->factor->user;
@@ -1105,18 +1107,21 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         return Center::query()
             ->where('status', true)
             ->whereHas('services', fn($q) => $q->where([
-                'centerable_id'   => $item->factoritemable_id,
-                'centerable_type' => $item->factoritemable_type,
+                'owner_id'   => $item->factoritemable_id,
+                'owner_type' => $item->factoritemable_type,
             ]))
             ->when(
                 auth()->user()?->admin_representation_id,
-                fn($q) => $q->whereHas('representations', fn($q) => $q->where('id', auth()->user()->admin_representation_id))
+                fn($q) => $q->whereHas('representations', fn($q) => $q->where([
+                    'owner_id'   => auth()->user()->admin_representation_id,
+                    'owner_type' => 'App\Models\Representation',
+                ]))->orWhere('creator_representation_id' , auth()->user()->admin_representation_id)
             )
             ->get();
     }
     /**
      *@param \App\Models\FactorItem $item
-     *@param int $representation
+     *@param int|string $representation
      *@return void
      */
     public static function createRepresentation(FactorItem $item, $representation)
@@ -1130,7 +1135,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
             'description' => "نمایندگی این پرونده توسط {$user->family} تغییر کرده است.",
         ]);
         $item->representation()->delete();
-        if ($representation != 'center_representation') {
+        if ($representation !== self::WITHOUT_REPRESENTATION) {
             $item->representation()->updateOrCreate(
                ['representation_id' => $representation],
                ['agent_id' => $user->id]
@@ -1369,4 +1374,3 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         }
     }
 }
-

@@ -43,7 +43,7 @@
 @break
 @case('factor_service')
 @permission('factor_service_edit')
-@if (isset($center_service_tariffs))
+@if (str_contains(request()->path(), 'edit'))
 @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.edit')
 @else
 @include('Admin.factoritem.serviceFormItem.defaultServiceFactor.list')
@@ -54,28 +54,44 @@
 @break
 @case('factor_dentist')
 @permission('factor_service_edit')
+@if (str_contains(request()->path(), 'edit'))
 @include('Admin.factoritem.serviceFormItem.dentist.edit')
+@else
+@include('Admin.factoritem.serviceFormItem.dentist.list')
+@endif
 @else
 @include('Admin.factoritem.serviceFormItem.dentist.list')
 @endpermission
 @break
 @case('factor_building')
 @permission('factor_service_edit')
+@if (str_contains(request()->path(), 'edit'))
 @include('Admin.factoritem.serviceFormItem.building.edit')
+@else
+@include('Admin.factoritem.serviceFormItem.building.list')
+@endif
 @else
 @include('Admin.factoritem.serviceFormItem.building.list')
 @endpermission
 @break
 @case('factor_legal')
 @permission('factor_service_edit')
+@if (str_contains(request()->path(), 'edit'))
 @include('Admin.factoritem.serviceFormItem.legal.edit')
+@else
+@include('Admin.factoritem.serviceFormItem.legal.list')
+@endif
 @else
 @include('Admin.factoritem.serviceFormItem.legal.list')
 @endpermission
 @break
 @case('factor_skin_hair')
+@if (str_contains(request()->path(), 'edit'))
 @permission('factor_service_edit')
 @include('Admin.factoritem.serviceFormItem.skinHair.edit')
+@else
+@include('Admin.factoritem.serviceFormItem.skinHair.list')
+@endif
 @else
 @include('Admin.factoritem.serviceFormItem.skinHair.list')
 @endpermission

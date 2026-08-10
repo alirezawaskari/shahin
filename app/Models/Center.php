@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -59,11 +60,39 @@ class Center extends Model implements HasMedia {
             ->map(fn ($m) => $m->getUrl());
     }
 
-    protected $fillable = [ 'centerable_type', 'centerable_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
+    protected $fillable = [ 'owner_type', 'owner_id', 'center_request_id', 'creator_representation_id', 'title', 'address', 'contract_number', 'contract_start_date', 'contract_file',
     'pay_type', 'purchase_type', 'status', 'is_show', 'lat', 'lon', 'has_subset', 'type', 'fullName',
-    'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone' ];
+    'background_image', 'description', 'province_id', 'city_id', 'image', 'center_category_id', 'user_id' , 'phone',
+    // public branch page — see 2026_07_30_110000_add_branch_profile_fields_to_centers_table
+    'label_type', 'intro_text', 'email', 'map_iframe_link', 'working_hours',
+    'about_title', 'services_title', 'staff_title', 'plans_title' , 'creator_representation_id' ];
+
+    /** $fillable wins over the (empty) $guarded below, so new columns must be listed above. */
+    protected $casts = [
+        'working_hours' => 'array',
+    ];
 
     const TYPE = [ 'seller' => 'فروشنده', 'producer' => 'تولید کننده', 'supplier' => 'تامین کننده', 'خدمات دهنده'=>'service_provider' ];
+
+    /**
+    * What this place is called in menus and headings. The customer picks the word, because
+    * a chain calls them شعبه and a single-site business calls itself مرکز.
+    */
+    const LABELS = [ 'branch' => 'شعبه', 'center' => 'مرکز' ];
+
+    /**
+    * Weekday keys of the `working_hours` json, in the order the branch page lists them.
+    * English keys so the API and the frontend never have to match Persian strings.
+    */
+    const WEEK_DAYS = [
+        'saturday'  => 'شنبه',
+        'sunday'    => 'یکشنبه',
+        'monday'    => 'دوشنبه',
+        'tuesday'   => 'سه شنبه',
+        'wednesday' => 'چهارشنبه',
+        'thursday'  => 'پنجشنبه',
+        'friday'    => 'جمعه',
+    ];
     /**
     * @var array
     */
@@ -97,11 +126,100 @@ class Center extends Model implements HasMedia {
         return $this->morphMany( PercentageAllocationEmployee::class, 'percentage_allocation_employeeable' );
     }
     /**
-    * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    */
-
+     * Summary of representations
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<Representation, Center>
+     */
     public function representations() {
-        return $this->belongsToMany( Representation::class );
+        return $this->morphedByMany( Representation::class, 'owner', 'center_owners' );
+    }
+    /**
+     * Summary of ghorfeOnlineLists
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<GhorfeOnlineList, Center>
+     */
+    public function ghorfeOnlineLists() {
+        return $this->morphedByMany( GhorfeOnlineList::class, 'owner', 'center_owners' )->withPivot( 'sort' );
+    }
+
+    /**
+    * Staff whose home branch is this center (employees.center_id).
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    */
+    public function employees() {
+        return $this->hasMany( Employee::class );
+    }
+
+    /**
+    * "طرح های مالی فعال برای این شعبه" — the installment / cash / insurance plans shown on
+    * the branch page.
+    *
+    * Reuses the existing `financial_plans_type_items` morph pivot (already carrying Service
+    * and Category), so no new table: this just adds Center as a third subject.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+    */
+    public function financialPlansTypes() {
+        return $this->morphToMany(
+            FinancialPlansType::class,
+            'financialplanstypeItemable',
+            'financial_plans_type_items'
+        );
+    }
+
+    /**
+    * Questions shown in this branch's "سوالات متداول" block.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    */
+    public function faqs() {
+        return $this->hasMany( Faq::class );
+    }
+
+    /**
+    * Visitor star ratings. Includes the un-moderated ones — the admin screen needs them;
+    * a frontend must add ->approved().
+    *
+    * Deliberately unordered: the relation is also used for moderation writes, and an
+    * `order by` riding along on an UPDATE/DELETE is needless risk. Callers that display
+    * ratings add their own ->latest().
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+    */
+    public function ratings() {
+        return $this->morphMany( Rating::class, 'rateable' );
+    }
+
+    /** "شعبه" or "مرکز" — the word the customer chose for this place. */
+    public function getLabelWordAttribute(): string {
+        return self::LABELS[ $this->label_type ] ?? self::LABELS[ 'branch' ];
+    }
+
+    /** Heading of the branch page: "شعبه تهران مرکزی". */
+    public function getDisplayTitleAttribute(): string {
+        return trim( $this->label_word . ' ' . $this->title );
+    }
+
+    /**
+    * Opening hours of one weekday, always in the same shape so a view never has to guard
+    * against a half-filled json (a day the admin never touched, or a legacy null).
+    *
+    * @return array{open: string, close: string, closed: bool}
+    */
+    public function workingHoursFor( string $day ): array {
+        $stored = $this->working_hours[ $day ] ?? [];
+
+        return [
+            'open'   => $stored[ 'open' ] ?? '',
+            'close'  => $stored[ 'close' ] ?? '',
+            'closed' => (bool) ( $stored[ 'closed' ] ?? false ),
+        ];
+    }
+
+    /** Average of the APPROVED ratings, rounded to one decimal; null when there are none. */
+    public function getAverageRatingAttribute(): ?float {
+        $average = $this->ratings()->approved()->avg( 'score' );
+
+        return $average === null ? null : round( (float) $average, 1 );
     }
 
     public function users() {
@@ -120,10 +238,6 @@ class Center extends Model implements HasMedia {
         return $this->belongsTo( Province::class, 'province_id' );
     }
 
-    public function centerable() {
-        return $this->morphTo();
-    }
-
     public function purchaseInvoice() {
         return $this->hasMany( PurchaseInvoice::class );
     }
@@ -133,6 +247,16 @@ class Center extends Model implements HasMedia {
         $service = request( 'service' );
         $category = request( 'category' );
         $status = request( 'status' );
+
+        // Tenancy, exactly as every other list in the panel does it (Service, Product, User,
+        // Category, Factor): a business admin sees only the branches attached to its ghorfe
+        // through center_owners, لاله staff see only the branches attached to no business.
+        // Without this a ghorfeAdmin fell through to the representation check below — which
+        // they never match — and got all 54 centers.
+        //
+        // Not assigned back: the helper mutates the builder, and it returns null for a level
+        // it does not know (siteAdmin), which would turn an unfiltered list into a fatal.
+        FilterHelper::getDataByCheckGhorfeExistOrNot( $query, 'belongsToMany', null );
 
         if(auth()->user()->admin_representation_id)
         {
@@ -148,13 +272,13 @@ class Center extends Model implements HasMedia {
 
         if ( isset( $category ) && trim( $category ) != 'all' ) {
             $query->whereHas('categories', function ($query) use ($category) {
-                $query->where('centerable_id',$category);
+                $query->where('owner_id',$category);
             });
         }
 
         if ( isset( $service ) && trim( $service ) != 'all' ) {
             $query->whereHas('services', function ($query) use ($service) {
-                $query->where('centerable_id',$service);
+                $query->where('owner_id',$service);
             });
         }
 
@@ -192,15 +316,14 @@ class Center extends Model implements HasMedia {
     */
 
     public function categories() {
-        return $this->morphedByMany( Category::class, 'centerable' );
+        return $this->morphedByMany( Category::class, 'owner', 'center_owners' );
     }
 
     /**
     * Get all of the services that are assigned this center.
     */
-
     public function services() {
-        return $this->morphedByMany( Service::class, 'centerable', 'centerables' );
+        return $this->morphedByMany( Service::class, 'owner', 'center_owners' );
     }
     /**
     * @param \App\Models\FactorItem $factor_item

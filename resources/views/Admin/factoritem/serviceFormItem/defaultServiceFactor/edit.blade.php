@@ -5,12 +5,13 @@
         <th>میزان انجام کار</th>
         <th>عنوان</th>
         <th>توضیحات</th>
+        <th>مقدار(تعداد - عدد)</th>
         <th>تعداد مراجعات </th>
         <th>طول دوره اجرا(روز)</th>
         <th>تخفیف (ریال)</th>
         <th>تعرفه مصرف کننده (ریال)</th>
         @permission('view_profit_factorItem')
-        <th>تعرفه خرید سجا (ریال)</th>
+        <th>بهای تمام شده (ریال)</th>
         <th>نرخ اختلاف خرید</th>
         @endpermission
         <th>تاریخ ثبت</th>
@@ -48,6 +49,10 @@
         <td>
             <input type="text" value="{{ $service_tariff->pivot->description }}" name="description[]"
                 class="form-control" maxlength="100">
+        </td>
+        <td>
+            <input type="number" value="{{ $service_tariff->pivot->value }}" name="value[]" class="form-control"
+                min="1" />
         </td>
         <td>
             <input type="number" value="{{ $service_tariff->pivot->session_number }}" name="session_number[]"
@@ -88,6 +93,7 @@
     </tr>
     @endforeach
     <tr class="bg-secondary">
+        <th></th>
         <th></th>
         <th></th>
         <th></th>

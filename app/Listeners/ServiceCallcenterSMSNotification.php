@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Classes\External\IranSms;
 use App\Classes\External\SendSms;
 use App\Events\fastserviceCallcenter;
+use App\Models\GhorfeOnlineList;
 
 class ServiceCallcenterSMSNotification {
     /**
@@ -79,6 +80,16 @@ class ServiceCallcenterSMSNotification {
         $service = $event->service;
         $task = $event->task;
         $type = $event->type;
+
+        // Product study & payment page. It is served by the storefront, not by this app, so
+        // the link carries the active ghorfe domain and there is deliberately no route here.
+        if ( $type === 'product' ) {
+            return [
+                'link'       => GhorfeOnlineList::getActiveDomainName() . "/products/{$service->slug}/{$task->user_id}/{$task->id}",
+                'organ_name' => $organName,
+                'organ_call' => $organCall,
+            ];
+        }
 
         $link = match ( $service->id ) {
             104 => 'centerRequest/create',

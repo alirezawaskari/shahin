@@ -12,11 +12,7 @@ trait ResolvesOwner
         }
 
         if ($user->level == 'ghorfeAdmin') {
-            $host = request()->getHost();
-
-            return $user->ghorfeOnlineLists()
-                ->where('domain_active', $host)
-                ->first();
+            return ghorfe();
         } elseif ($user->representation) {
             return $user->representation;
         } else {

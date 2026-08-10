@@ -43,7 +43,7 @@
                             <td>{{ $ghorfeOnline->call }}</td>
                             <td>{{ verta($ghorfeOnline->contract_start_date)->format('Y/m/d') }}</td>
                             <td>{{ verta($ghorfeOnline->contract_expiration_date)->format('Y/m/d') }}</td>
-                            <td><a href="//{{ $ghorfeOnline->domain_active }}" target="_blank">{{ $ghorfeOnline->domain_active }}</a></td>
+                            <td><a href="http://{{ $ghorfeOnline->domain_active }}" target="_blank">{{ $ghorfeOnline->domain_active }}</a></td>
                             <td>{{ $ghorfeOnline->status ? 'فعال' : 'غیرفعال'}}</td>
                             <td>
                                 <div data-v-15965e3b="" class="dropdown dropup">

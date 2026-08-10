@@ -8,7 +8,10 @@ use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Center;
 use App\Models\CenterRequest;
+use App\Models\FinancialPlansType;
+use App\Models\GhorfeOnlineList;
 use App\Models\Product;
+use App\Models\Rating;
 use App\Models\Review;
 use App\Models\Service;
 use App\Models\Tag;
@@ -43,8 +46,13 @@ class CenterController extends AdminController
     /**
      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
      */
-    public function create() {
-        return view( 'Admin.center.create');
+    public function create( Request $request ) {
+        // Set when the form was opened from a business's "درباره ما" branch tab — the new
+        // branch has to end up on THAT business, and a لاله admin arriving from there has no
+        // ghorfe of their own for createCenter() to infer it from.
+        return view( 'Admin.center.create', [
+            'ghorfeOnlineListId' => $request->input( 'ghorfe_online_list_id' ),
+        ] );
     }
     /**
      * @param \Illuminate\Http\Request $request
@@ -73,14 +81,18 @@ class CenterController extends AdminController
         unset($item['product_category']);
         unset($item['service_category']);
 
+        $this->validateBranchProfile($request);
+
         $center_request = CenterRequest::create($item);
         //create center
-        $this->createCenter($centerable_id, $centerable_type, $request, $center_request);
+        $center = $this->createCenter($centerable_id, $centerable_type, $request, $center_request);
         //create user
 
         //create task (callCenter)
 
-        return redirect( route( 'center.index' ) )->with( [
+        // Straight on to the branch page tabs: the create form only collects the contract
+        // side, and everything the frontend renders (hours, plans, faq, images) is edited there.
+        return redirect( route( 'center.edit', $center->id ) )->with( [
             'create' => 'success',
         ] );
     }
@@ -91,8 +103,23 @@ class CenterController extends AdminController
     public function edit( Center $center ) {
         if(auth()->user()->isAbleTo('edit-center'))
         {
-        $center_request = $center->center_request;
-        return view( 'Admin.center.edit', compact( 'center' , 'center_request' ) );
+        // center_request_id is nullable and the request can be deleted independently, so
+        // the view must never dereference this blindly — a fresh model keeps every
+        // `$center_request->x` read working (and empty) instead of fataling on null.
+        $center_request = $center->center_request ?: new CenterRequest();
+
+        return view( 'Admin.center.edit', [
+            'center'                => $center,
+            'center_request'        => $center_request,
+            // "طرح های مالی فعال برای این شعبه" — offered plans and the ones already picked
+            'financial_plans'       => FinancialPlansType::where('status', 1)->orderBy('title')->get(),
+            'selectedFinancialPlans'=> $center->financialPlansTypes->pluck('id')->all(),
+            // read-only: staff belong to the branch through employees.center_id, which is
+            // set on the employee's own page, not here
+            'branchEmployees'       => $center->employees()->with('user:id,name,family')->get(),
+            'faqs'                  => $center->faqs()->get(),
+            'ratings'               => $center->ratings()->latest()->get(),
+        ] );
         }
         return abort('401');
     }
@@ -135,7 +162,13 @@ class CenterController extends AdminController
             \App\Helpers\MediaLibraryHelper::attachTo($center, $request->contract_file_path, 'contract_file');
         }
         unset($item['urlcontract_file'], $item['contract_file_path']);
-        $center->center_request->update($item);
+        // center_request_id is nullable — a center without a request must still be editable
+        // (edit() already hands the view a blank stand-in for exactly this case).
+        if ($center->center_request) {
+            $center->center_request->update($item);
+        }
+
+        $this->validateBranchProfile($request);
 
         $center->update( [
             'centerable_id' => $centerable_id,
@@ -147,16 +180,164 @@ class CenterController extends AdminController
             'address' => $request->address,
             'phone' => Helper::numberConverter($request->phone),
             'contract_number' => $request->contract_number,
-            'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
+            // vertaToMiladi() throws "Unknown datetime ''" on an empty value, and the date
+            // is optional — a center with no contract date must still be savable.
+            'contract_start_date' => filled($request->contract_start_date)
+                ? Helper::vertaToMiladi($request->contract_start_date)
+                : null,
             'is_show' => isset($request->is_show) ? $request->is_show : 0,
+            // public branch page
+            'label_type'     => in_array($request->label_type, array_keys(Center::LABELS), true) ? $request->label_type : 'branch',
+            'intro_text'     => $request->intro_text,
+            'email'          => $request->email,
+            'map_iframe_link'=> $request->map_iframe_link,
+            'lat'            => Helper::convert($request->lat) ?: null,
+            'lon'            => Helper::convert($request->lon) ?: null,
+            'working_hours'  => $this->normalizeWorkingHours($request->input('working_hours', [])),
+            'about_title'    => $request->about_title,
+            'services_title' => $request->services_title,
+            'staff_title'    => $request->staff_title,
+            'plans_title'    => $request->plans_title,
         ] );
         !auth()->user()->admin_representation_id ? $center->representations()->sync($request->input('representation_id')) : '';
 
         $center->services()->sync($request->services);
 
-        return redirect( route( 'center.index' ) )->with( [
-            'update' => 'success',
+        // Branch page images. Same ajax pipeline as contract_file: the hidden {field}_path
+        // holds a temp media id that attachTo moves into the single-file collection.
+        foreach (['image', 'background_image'] as $collection) {
+            if ($request->input($collection . '_path')) {
+                \App\Helpers\MediaLibraryHelper::attachTo($center, $request->input($collection . '_path'), $collection);
+            }
+        }
+
+        // The posted list IS the list, so unticking a plan has to detach it.
+        $center->financialPlansTypes()->sync($request->input('financial_plan_ids', []));
+
+        $this->syncCenterFaqs($center, $request);
+        $this->moderateRatings($center, $request);
+
+        return redirect( route( 'center.edit', $center->id ) )->with( [
+            'update'     => 'success',
+            'active_tab' => $request->input('active_tab', 'base_info'),
         ] );
+    }
+
+    /**
+     * Rules for the fields the branch FRONTEND reads. Kept apart from the contract-side
+     * fields above, which validate (or don't) exactly as they always have — this must not
+     * start rejecting saves that used to go through.
+     */
+    private function validateBranchProfile(Request $request): void
+    {
+        $request->validate([
+            'label_type'      => 'nullable|in:' . implode(',', array_keys(Center::LABELS)),
+            'intro_text'      => 'nullable|string|max:5000',
+            'email'           => 'nullable|email|max:191',
+            'map_iframe_link' => 'nullable|string|max:2000',
+            'lat'             => 'nullable|numeric|between:-90,90',
+            'lon'             => 'nullable|numeric|between:-180,180',
+            'about_title'     => 'nullable|string|max:255',
+            'services_title'  => 'nullable|string|max:255',
+            'staff_title'     => 'nullable|string|max:255',
+            'plans_title'     => 'nullable|string|max:255',
+            'financial_plan_ids'   => 'nullable|array',
+            'financial_plan_ids.*' => 'integer|exists:financial_plans_types,id',
+            'faq_titles'      => 'nullable|array',
+            'faq_titles.*'    => 'nullable|string|max:1000',
+            'faq_texts'       => 'nullable|array',
+            'faq_texts.*'     => 'nullable|string|max:5000',
+        ], [
+            'email.email'   => 'ایمیل شعبه معتبر نیست',
+            'lat.numeric'   => 'عرض جغرافیایی باید عدد باشد',
+            'lon.numeric'   => 'طول جغرافیایی باید عدد باشد',
+        ]);
+    }
+
+    /**
+     * Opening hours, one entry per weekday, always the same shape.
+     *
+     * A day the admin never touched still gets a row, so the frontend can render the whole
+     * week without guarding every lookup. Ticking "تعطیل" clears the two times rather than
+     * keeping stale ones behind the closed flag.
+     */
+    private function normalizeWorkingHours(array $input): array
+    {
+        $hours = [];
+
+        foreach (array_keys(Center::WEEK_DAYS) as $day) {
+            $row    = is_array($input[$day] ?? null) ? $input[$day] : [];
+            $closed = ! empty($row['closed']);
+
+            $hours[$day] = [
+                'open'   => $closed ? '' : trim(Helper::convert($row['open'] ?? '')),
+                'close'  => $closed ? '' : trim(Helper::convert($row['close'] ?? '')),
+                'closed' => $closed,
+            ];
+        }
+
+        return $hours;
+    }
+
+    /**
+     * The branch FAQ repeater: create / update / delete in one pass.
+     *
+     * Questions are keyed by center_id, which is what separates them from the business-wide
+     * ones the "درباره ما" page manages (those carry ghorfe_online_list_id instead).
+     */
+    private function syncCenterFaqs(Center $center, Request $request): void
+    {
+        $ids    = $request->input('faq_ids', []);
+        $titles = $request->input('faq_titles', []);
+        $texts  = $request->input('faq_texts', []);
+
+        $kept = [];
+
+        foreach ($titles as $index => $title) {
+            $title = trim((string) $title);
+
+            // an empty repeater row is not a question
+            if ($title === '') {
+                continue;
+            }
+
+            $attributes = ['title' => $title, 'text' => trim((string) ($texts[$index] ?? ''))];
+            $id         = $ids[$index] ?? null;
+
+            // re-fetched through the center: a posted id must not reach another branch's faq
+            $faq = $id ? $center->faqs()->find($id) : null;
+
+            if ($faq) {
+                $faq->update($attributes);
+            } else {
+                $faq = $center->faqs()->create($attributes);
+            }
+
+            $kept[] = $faq->id;
+        }
+
+        $center->faqs()->whereNotIn('id', $kept ?: [0])->delete();
+    }
+
+    /**
+     * Approve / reject / delete visitor ratings.
+     *
+     * Ratings are written by the public API, never here — the admin only decides what the
+     * frontend may show, so this handles no creation.
+     */
+    private function moderateRatings(Center $center, Request $request): void
+    {
+        foreach ($request->input('rating_status', []) as $id => $status) {
+            if (! array_key_exists((int) $status, Rating::STATUS)) {
+                continue;
+            }
+            // scoped to this center so a posted id can't flip another subject's rating
+            $center->ratings()->where('id', $id)->update(['status' => (int) $status]);
+        }
+
+        if ($deleted = array_filter($request->input('rating_delete', []))) {
+            $center->ratings()->whereIn('id', $deleted)->delete();
+        }
     }
     /**
      * @param \App\Models\Center $center
@@ -444,7 +625,7 @@ class CenterController extends AdminController
      * @param $center_request
      * @return void
      */
-    public function createCenter(mixed $centerable_id, string $centerable_type, Request $request, $center_request): void
+    public function createCenter(mixed $centerable_id, string $centerable_type, Request $request, $center_request): Center
     {
         $center = Center::create([
             'status' => $request->status,
@@ -456,9 +637,29 @@ class CenterController extends AdminController
             'address' => $request->address,
             'phone' => Helper::numberConverter($request->phone),
             'contract_number' => $request->contract_number,
-            'contract_start_date' => Helper::vertaToMiladi($request->contract_start_date),
+            // optional, and vertaToMiladi() throws on '' (see update())
+            'contract_start_date' => filled($request->contract_start_date)
+                ? Helper::vertaToMiladi($request->contract_start_date)
+                : null,
+            // public branch page — the rest (hours, plans, faq, images) is filled in on edit
+            'label_type' => in_array($request->label_type, array_keys(Center::LABELS), true) ? $request->label_type : 'branch',
+            'intro_text' => $request->intro_text,
+            'email'      => $request->email,
         ]);
         self::createRepresentationsCenter($center , $request->representation_id);
+
+        // Attach the branch to a business, or a ghorfeAdmin would never see the branch they
+        // just made: Center::scopeFilter shows them only what hangs off their own ghorfe.
+        // The posted id comes from the "درباره ما" branch tab and names the business being
+        // edited; without it, fall back to the creator's own business.
+        $ghorfeId = GhorfeOnlineList::whereKey($request->input('ghorfe_online_list_id'))->value('id')
+            ?: optional(ghorfe())->id;
+
+        if ($ghorfeId) {
+            $center->ghorfeOnlineLists()->syncWithoutDetaching([$ghorfeId]);
+        }
+
+        return $center;
     }
     /**
      * @param \App\Models\Center $center

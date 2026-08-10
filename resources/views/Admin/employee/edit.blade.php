@@ -1,6 +1,12 @@
 @extends('Admin.master')
 @section('title')ویرایش همکار@endsection
 
+@php
+    // Saving the "پروفایل عمومی" tab posts to its own endpoint, which flashes this back so
+    // the page reopens on that tab instead of dropping the admin on اطلاعات اداری.
+    $activeTab = session('active_tab', 'official_info');
+@endphp
+
 @section('content')
 <div class="col-12 card">
     <div class="card-body">
@@ -37,7 +43,8 @@
     <div class="card-body">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link show active" id="official-info-tab" data-toggle="tab" href="#official_info"
+                <a class="nav-link show {{ $activeTab == 'official_info' ? 'active' : '' }}" id="official-info-tab"
+                    data-toggle="tab" href="#official_info"
                     role="tab" aria-controls="official_info" aria-selected="false">اطلاعات اداری</a>
             </li>
             <li class="nav-item">
@@ -56,9 +63,14 @@
                 <a class="nav-link show" id="contract-tab" data-toggle="tab" href="#contract" role="tab"
                     aria-controls="contract" aria-selected="false">قرارداد کاری</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link show {{ $activeTab == 'public_profile' ? 'active' : '' }}" id="public-profile-tab"
+                    data-toggle="tab" href="#public_profile" role="tab"
+                    aria-controls="public_profile" aria-selected="false">پروفایل عمومی</a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade p-t-20 active show" id="official_info" role="tabpanel"
+            <div class="tab-pane fade p-t-20 {{ $activeTab == 'official_info' ? 'active show' : '' }}" id="official_info" role="tabpanel"
                 aria-labelledby="official-info-tab">
                 <form method="post" action="{{route('employee.update' , [ $employee->id])}}"
                     enctype="multipart/form-data">
@@ -552,6 +564,267 @@
                 </form>
                 @endpermission
             </div>
+
+            {{-- ================= پروفایل عمومی ================= --}}
+            {{-- What the partner-profile frontend renders. Its own endpoint, like the resume
+                 and contract tabs: it owns relations (services, نمونه کارها, نظرات) that the
+                 shared employee.update path knows nothing about. --}}
+            <div class="tab-pane fade p-t-20 {{ $activeTab == 'public_profile' ? 'active show' : '' }}"
+                 id="public_profile" role="tabpanel" aria-labelledby="public-profile-tab">
+                @permission('user-edit')
+                <form method="post" action="{{ route('employee.profile.update', [$employee->id]) }}"
+                      enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        <div class="col-12">
+                            @include('Admin.layouts.errors')
+                        </div>
+
+                        <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                            معرفی
+                        </div>
+
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>تصویر پروفایل (صفحه عمومی)</label>
+                            <div id="profile_image_src" class="show mb-2">
+                                @if($employee->profile_image)
+                                    <img src="{{ $employee->profile_image }}" class="border-radius5"
+                                         style="height:140px;object-fit:cover;">
+                                @else
+                                    <div class="d-flex align-items-center justify-content-center text-muted"
+                                         style="height:140px;background:#f8f9fa;">بدون تصویر</div>
+                                @endif
+                            </div>
+                            <label for="profile_image" class="btn btn-primary custom-file-upload border border-1">
+                                <i class="fa fa-cloud-upload"></i> بارگذاری تصویر
+                            </label>
+                            <input id="profile_image" class="d-none file-upload file_upload_ajax" type="file"
+                                   name="profile_image" accept=".jpg,.jpeg,.png,.webp">
+                            <input type="hidden" id="profile_image_path" class="path" name="profile_image_path">
+                            <small class="d-block text-muted mt-1">جدا از «تصویر پرسنلی» تب مدارک؛ این تصویر در سایت نمایش داده می‌شود.</small>
+                        </div>
+
+                        <div class="col-12 col-md-8 mb-3">
+                            <label>متن معرفی</label>
+                            <textarea class="form-control" name="bio" rows="7"
+                                      placeholder="معرفی کوتاه همکار که در بالای صفحه پروفایل نمایش داده می‌شود">{{ old('bio', $employee->bio) }}</textarea>
+                        </div>
+
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>متن توصیفی اول</label>
+                            <input type="text" class="form-control" name="description_one"
+                                   value="{{ old('description_one', $employee->description_one) }}"
+                                   placeholder="دکترای حرفه‌ای دندانپزشکی - دانشگاه علوم پزشکی شیراز (۱۳۸۸)">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>متن توصیفی دوم</label>
+                            <input type="text" class="form-control" name="description_two"
+                                   value="{{ old('description_two', $employee->description_two) }}"
+                                   placeholder="تخصص جراحی لثه و ایمپلنت - دانشگاه علوم پزشکی اصفهان">
+                        </div>
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>متن توصیفی سوم</label>
+                            <input type="text" class="form-control" name="description_three"
+                                   value="{{ old('description_three', $employee->description_three) }}"
+                                   placeholder="عضو انجمن پریودنتولوژی ایران">
+                        </div>
+
+                        <div class="col-12 col-md-6 mb-3">
+                            <label>روزهای حضور</label>
+                            <input type="text" class="form-control" name="attendance_days"
+                                   value="{{ old('attendance_days', $employee->attendance_days) }}"
+                                   placeholder="شنبه تا دوشنبه">
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label>ساعات حضور</label>
+                            <input type="text" class="form-control" name="attendance_hours"
+                                   value="{{ old('attendance_hours', $employee->attendance_hours) }}"
+                                   placeholder="۱۰ صبح تا ۱۰ شب">
+                            @if($employee->center)
+                                <small class="text-muted">شعبه: {{ $employee->center->title }}</small>
+                            @endif
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label>محتوای تکمیلی</label>
+                            {{-- Free-form block: a clinic puts its شماره نظام پزشکی here, a law
+                                 firm its bar number, a workshop its certifications. --}}
+                            <textarea id="extra_content" class="form-control" name="extra_content"
+                                      rows="8">{!! old('extra_content', $employee->extra_content) !!}</textarea>
+                        </div>
+
+                        {{-- ---------------- خدمات ---------------- --}}
+                        <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                            خدمات
+                        </div>
+
+                        <div class="col-12 col-md-6 mb-3">
+                            <label>عنوان بخش</label>
+                            <input type="text" class="form-control" name="services_title"
+                                   value="{{ old('services_title', $employee->services_title) }}" placeholder="خدمات">
+                        </div>
+
+                        @php $employeeServices = $employee->services->keyBy('id'); @endphp
+
+                        <div class="col-12 mb-3">
+                            <label>انتخاب خدمات</label>
+                            {{-- Picker only — it posts nothing. Choosing a service adds its row to
+                                 the table below, and that row is what carries service_ids[]. With
+                                 a hundred-plus services a checkbox per service was unusable. --}}
+                            <select id="profile_services_select" class="selectMulti form-control" multiple>
+                                @foreach($profileServices as $service)
+                                    <option value="{{ $service->id }}" @selected($employeeServices->has($service->id))>{{ $service->title }}</option>
+                                @endforeach
+                            </select>
+                            @if($profileServices->isEmpty())
+                                <small class="text-muted">خدمتی در دسترس شما ثبت نشده است.</small>
+                            @endif
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>خدمت</th>
+                                    <th style="width:35%">زیرعنوان</th>
+                                    <th style="width:20%">قیمت از (تومان)</th>
+                                    <th style="width:60px"></th>
+                                </tr>
+                                </thead>
+                                <tbody id="profile-services-rows">
+                                @foreach($employee->services as $service)
+                                    <tr data-service="{{ $service->id }}">
+                                        <td class="align-middle">
+                                            {{ $service->title }}
+                                            {{-- the row IS the selection; subtitle/price are keyed by
+                                                 service id so removing a row never shifts the others --}}
+                                            <input type="hidden" name="service_ids[]" value="{{ $service->id }}">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control"
+                                                   name="service_subtitle[{{ $service->id }}]"
+                                                   value="{{ $service->pivot->subtitle }}"
+                                                   placeholder="تک دندان، کامل، فوری">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control"
+                                                   name="service_from_price[{{ $service->id }}]"
+                                                   value="{{ $service->pivot->from_price ? number_format($service->pivot->from_price) : '' }}"
+                                                   placeholder="3,000,000">
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-danger btn-sm service-remove">
+                                                <i class="fa fa-remove"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                <tr id="profile-services-empty" class="{{ $employee->services->isEmpty() ? '' : 'd-none' }}">
+                                    <td colspan="4" class="text-muted">خدمتی انتخاب نشده است.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- ---------------- نمونه کارها ---------------- --}}
+                        <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                            نمونه کارها
+                        </div>
+
+                        <div class="col-12 col-md-6 mb-3">
+                            <label>عنوان بخش</label>
+                            <input type="text" class="form-control" name="portfolio_title"
+                                   value="{{ old('portfolio_title', $employee->portfolio_title) }}" placeholder="نمونه کارها">
+                        </div>
+
+                        {{-- Saved portfolio images. Same widget as the service edit page: an
+                             unlimited Spatie collection, caption per image, ✕ removes it via the
+                             shared removeMedia ajax. --}}
+                        <div class="col-12 mb-3" id="portfolio_list_wrap"
+                             @if($employee->getMedia('portfolio')->count() == 0) style="display:none" @endif>
+                            <label>نمونه کارهای ذخیره شده</label>
+                            <table class="table table-striped">
+                                <tbody id="portfolio_list" data-title-name="existing_portfolio" data-box-h="80">
+                                @foreach($employee->getMedia('portfolio') as $media)
+                                    <tr class="row_image" id="media_{{ $media->id }}">
+                                        <td>
+                                            <img src="{{ $media->getFullUrl() }}" alt="{{ $media->getCustomProperty('title') }}"
+                                                 class="rounded border"
+                                                 style="height:80px;width:auto;object-fit:contain;background:#f8f9fa;">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" placeholder="عنوان"
+                                                   name="existing_portfolio[{{ $media->id }}][title]"
+                                                   value="{{ $media->getCustomProperty('title') }}">
+                                        </td>
+                                        <td>
+                                            <a data-id="{{ $media->id }}" title="حذف عکس"
+                                               class="btn btn-sm remove_media_btn"><i class="fa fa-close"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            @include('Admin.partials.multipleImages',['has_link'=>0,'listKey'=>'portfolio'])
+                        </div>
+
+                        {{-- ---------------- نظرات کاربران ---------------- --}}
+                        <div class="card-header bg-dark-gradient col-md-12 border border-right-0 border-left-0">
+                            نظرات کاربران
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            {{-- Moderation only: ratings come from visitors through the API. --}}
+                            <div class="alert alert-info">
+                                نظرات از سمت کاربران سایت ثبت می‌شود. فقط نظرهای «تایید شده» در صفحه عمومی نمایش داده می‌شوند.
+                            </div>
+
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>کاربر</th>
+                                    <th>امتیاز</th>
+                                    <th>متن</th>
+                                    <th>تاریخ</th>
+                                    <th style="width:160px">وضعیت</th>
+                                    <th style="width:60px">حذف</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($ratings as $rating)
+                                    <tr>
+                                        <td>{{ $rating->full_name }}</td>
+                                        <td>{{ $rating->score }} / ۵</td>
+                                        <td>{{ $rating->text }}</td>
+                                        <td>{{ $rating->created_at }}</td>
+                                        <td>
+                                            <select class="form-control" name="rating_status[{{ $rating->id }}]">
+                                                @foreach(\App\Models\Rating::STATUS as $value => $label)
+                                                    <option value="{{ $value }}" @selected($rating->status == $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="checkbox" name="rating_delete[]" value="{{ $rating->id }}">
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="6" class="text-muted">نظری ثبت نشده است.</td></tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <button type="submit" class="btn btn-success">ثبت</button>
+                        </div>
+                    </div>
+                </form>
+                @endpermission
+            </div>
         </div>
 
     </div>
@@ -563,6 +836,58 @@
 <script>
     $(document).ready(function () {
             CKEDITOR.replace('contractContent',ck_uploader) ;
+            // free-form block of the public profile tab
+            if (document.getElementById('extra_content')) {
+                CKEDITOR.replace('extra_content', ck_uploader);
+            }
+
+            // ---- خدمات: the select2 drives the table below it ----
+            // Rows are added/removed one at a time rather than re-rendered, so a subtitle
+            // or price already typed into another row is never wiped by a later selection.
+            var $servicePicker = $('#profile_services_select');
+            var $serviceRows   = $('#profile-services-rows');
+
+            function toggleServicesEmptyRow() {
+                $('#profile-services-empty').toggleClass('d-none', $serviceRows.find('tr[data-service]').length > 0);
+            }
+
+            function addServiceRow(id, title) {
+                if ($serviceRows.find('tr[data-service="' + id + '"]').length) { return; }
+
+                $('#profile-services-empty').before(
+                    '<tr data-service="' + id + '">' +
+                    '<td class="align-middle">' + $('<div>').text(title).html() +
+                    '<input type="hidden" name="service_ids[]" value="' + id + '"></td>' +
+                    '<td><input type="text" class="form-control" name="service_subtitle[' + id + ']" placeholder="تک دندان، کامل، فوری"></td>' +
+                    '<td><input type="text" class="form-control" name="service_from_price[' + id + ']" placeholder="3,000,000"></td>' +
+                    '<td class="text-center"><button type="button" class="btn btn-danger btn-sm service-remove">' +
+                    '<i class="fa fa-remove"></i></button></td>' +
+                    '</tr>'
+                );
+                toggleServicesEmptyRow();
+            }
+
+            function removeServiceRow(id) {
+                $serviceRows.find('tr[data-service="' + id + '"]').remove();
+                toggleServicesEmptyRow();
+            }
+
+            $servicePicker.on('select2:select', function (e) {
+                addServiceRow(e.params.data.id, e.params.data.text);
+            });
+
+            $servicePicker.on('select2:unselect', function (e) {
+                removeServiceRow(e.params.data.id);
+            });
+
+            // Removing from the table must also clear the picker, or the two disagree.
+            $serviceRows.on('click', '.service-remove', function () {
+                var id = $(this).closest('tr').data('service');
+                $servicePicker.val(($servicePicker.val() || []).filter(function (v) {
+                    return String(v) !== String(id);
+                })).trigger('change');
+                removeServiceRow(id);
+            });
         })
 </script>
 @endsection

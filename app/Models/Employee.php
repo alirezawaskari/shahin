@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -25,11 +26,26 @@ class Employee extends Model implements HasMedia
      * Spatie single-file collections for the employee document images. Legacy
      * path columns (imgaccess, imglastcertificate) are kept, but reads route
      * through the accessors below.
+     *
+     * profile_image is the PUBLIC portrait on the partner profile page — deliberately not
+     * user.avatar, which is the admin-panel avatar and defaults to a shared placeholder.
+     *
+     * portfolio is "نمونه کارها": an unlimited multi-image collection, each image carrying
+     * its caption in the `title` custom property. Same shape as Service::portfolio, so the
+     * admin uses the identical multi-upload widget on both pages.
      */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('imgaccess')->useDisk('public')->singleFile();
         $this->addMediaCollection('imglastcertificate')->useDisk('public')->singleFile();
+        $this->addMediaCollection('profile_image')->useDisk('public')->singleFile();
+        $this->addMediaCollection('portfolio')->useDisk('public');
+    }
+
+    /** Public portrait url, '' when none is set (the frontend then falls back to a default). */
+    public function getProfileImageAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'profile_image');
     }
 
     /** Access image url: Spatie media if present, else the legacy column value (old rows). */
@@ -124,8 +140,13 @@ class Employee extends Model implements HasMedia
         $status=request('status');
         $role=request('role');
 
+        // Tenancy runs through the USER, not through Employee::ghorfeOnlineLists() — that
+        // pivot is the about-us page's curated specialist list, not ownership. A business
+        // admin therefore sees the staff whose user belongs to its ghorfe, and لاله staff see
+        // the staff belonging to no business, which is all this line used to do: a ghorfeAdmin
+        // fell into the لاله branch and was shown 106 employees, none of them theirs.
         $query->whereHas('user', function ($query) {
-            $query->whereDoesntHave('ghorfeOnlineLists');
+            FilterHelper::getDataByCheckGhorfeExistOrNot($query, 'belongsToMany', null);
         });
 
         if ((!isset($status) || $status == 'all') && trim($name) == '' && trim($family) == '' && trim($phone) == '') {
@@ -203,14 +224,59 @@ class Employee extends Model implements HasMedia
     {
         return $this->hasMany(Employee::class, 'parent_id')->with('childrenRecursive');
     }
+    /**
+     * @deprecated Dead relation: there is no `service_id` column on `employees`, so this
+     * has always resolved to null. Use services() — a partner offers several.
+     */
     public function service()
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * "خدمات" cards on the partner profile: the services this person offers, each with
+     * their own subtitle and starting price (pivot columns).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function services()
+    {
+        return $this->belongsToMany(Service::class)
+            ->withPivot('subtitle', 'from_price', 'sort')
+            ->orderByRaw('employee_service.sort is null, employee_service.sort');
+    }
+
+    /**
+     * "نمونه کارها" images whose file actually exists on disk, for display surfaces.
+     * Edit screens keep iterating getMedia('portfolio') so a broken row stays removable.
+     */
+    public function portfolioUrls()
+    {
+        return \App\Helpers\MediaLibraryHelper::existingMedia($this, 'portfolio')
+            ->map(fn ($media) => ['url' => $media->getUrl(), 'title' => $media->getCustomProperty('title')]);
+    }
+
     public function center()
     {
         return $this->belongsTo(Center::class);
+    }
+
+    /**
+     * Visitor star ratings of this partner. Same table as Center::ratings(); includes
+     * un-moderated rows, so a frontend must add ->approved(). Unordered for the same
+     * reason as Center::ratings() — callers that display them add ->latest().
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function ratings()
+    {
+        return $this->morphMany(Rating::class, 'rateable');
+    }
+
+    /** "نام خانوادگی" as one string, '' when the employee has no user row. */
+    public function getFullNameAttribute(): string
+    {
+        return $this->user ? trim($this->user->name . ' ' . $this->user->family) : '';
     }
     public function percentageAllocations()
     {

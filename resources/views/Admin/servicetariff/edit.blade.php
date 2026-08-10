@@ -27,7 +27,7 @@
                     <input class="form-control" value="{{$serviceTariff->tariff->title}}" readonly>
                 </div>
                 <div class="col-12 col-md-4 mb-3">
-                    <label>قیمت فروش شعبه (ریال)</label>
+                    <label>قیمت بهای تمام شده (ریال)</label>
                     <input type="text" class="form-control" name="purchase_price" required
                         value="{{number_format($serviceTariff->purchase_price)}}" oninput="separatePrices(this)">
                 </div>
