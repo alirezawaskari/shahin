@@ -200,9 +200,8 @@
                                     <label>نمایندگی های ذینفع</label>
                                     <select name="representation_id[]" class="custom-select select2" multiple>
                                         @foreach($representations as $representation)
-                                        <option value="{{$representation->id}}" {{ in_array(trim($representation->id) ,
-                                            $center->representations()->pluck('id')->toArray()) ? 'selected' : ''
-                                            }}>{{$representation->fa_name}}</option>
+                                        <option value="{{$representation->id}}" {{$center->representations->where('id',$representation->id
+                                            )->count()==1?'selected' : '' }}>{{$representation->fa_name}}</option>
                                         @endforeach
                                     </select>
                                 </div>

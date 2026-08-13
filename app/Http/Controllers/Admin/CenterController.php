@@ -703,6 +703,11 @@ class CenterController extends AdminController
             {
                 return redirect()->route('employee.financial.report', [$superadmin_center_user->employee->id]);
             }
+            else
+            {
+                alert()->error('ناموفق', 'مدیری برای این شعبه انتخاب نشده است .')->persistent('باشه');
+                return redirect()->back();
+            }
         }
         return abort(401);
     }
