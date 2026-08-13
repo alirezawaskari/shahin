@@ -51,6 +51,6 @@ $app->singleton(
 | from the actual running of the application and sending responses.
 |
 */
-app->usePublicPath($app->basePath('public1'));
+// $app->usePublicPath($app->basePath('public1'));
 
 return $app;

@@ -169,10 +169,15 @@ class Center extends Model implements HasMedia {
     /**
     * Questions shown in this branch's "سوالات متداول" block.
     *
-    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    * `asked_questions`, the same morph Service / ServiceItem / GhorfeOnlineList already use,
+    * rather than `faqs`: that table is the multilingual site-wide FAQ (title_en/ar/turk …)
+    * and a branch question needs none of it. One shape for every "question + answer" list in
+    * the panel, and the API reads them all the same way.
+    *
+    * @return \Illuminate\Database\Eloquent\Relations\MorphMany
     */
-    public function faqs() {
-        return $this->hasMany( Faq::class );
+    public function askedQuestions() {
+        return $this->morphMany( AskedQuestion::class, 'askedquestionable' );
     }
 
     /**

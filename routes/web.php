@@ -1019,3 +1019,4 @@ Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController
 Route::post('/city/select', 'HomeController@cityselect');
 
 Route::post('/dashboard/installment/calculate', 'Admin\TotalFactorItemInstallmentController@calculate');
+
