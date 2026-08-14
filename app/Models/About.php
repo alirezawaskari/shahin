@@ -154,10 +154,9 @@ class About extends Model implements HasMedia {
      */
     public function faqsQuery()
     {
-        // whereNull(center_id): a branch question also has a null ghorfe_online_list_id, so
-        // without this the MAIN-SITE page would adopt (and, on save, delete) every branch faq.
+        // No center guard needed: branch questions live in `asked_questions` under the
+        // center's own morph, so nothing in `faqs` can be mistaken for a main-site row.
         return Faq::query()
-            ->whereNull( 'center_id' )
             ->where( 'ghorfe_online_list_id', $this->ghorfeOnline?->id );
     }
 
