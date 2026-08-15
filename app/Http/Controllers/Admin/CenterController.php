@@ -112,7 +112,7 @@ class CenterController extends AdminController
             'center'                => $center,
             'center_request'        => $center_request,
             // "طرح های مالی فعال برای این شعبه" — offered plans and the ones already picked
-            'financial_plans'       => FinancialPlansType::where('status', 1)->orderBy('title')->get(),
+            'financial_plans'       => $this->offerableFinancialPlans($center),
             'selectedFinancialPlans'=> $center->financialPlansTypes->pluck('id')->all(),
             // read-only: staff belong to the branch through employees.center_id, which is
             // set on the employee's own page, not here
@@ -221,6 +221,45 @@ class CenterController extends AdminController
             'update'     => 'success',
             'active_tab' => $request->input('active_tab', 'base_info'),
         ] );
+    }
+
+    /**
+     * The financial plans this branch may be offered.
+     *
+     * A plan belongs to a business (financial_plans_type_ghorfe_online_list), so a branch is
+     * only ever offered the plans of the business it belongs to — showing all 90 let one
+     * business put another's plan on its page. The business is taken from the branch itself,
+     * falling back to the editing admin's own for a branch not attached to one yet.
+     *
+     * لاله staff editing an unattached branch still see everything, exactly as before: there
+     * is no business to narrow the list to, and the plans are the لاله-wide ones.
+     *
+     * Plans already ticked are always included even if they no longer qualify — otherwise
+     * the form would not render them and the save would silently untick them.
+     */
+    private function offerableFinancialPlans(Center $center)
+    {
+        $ghorfeIds = $center->ghorfeOnlineLists()->pluck('ghorfe_online_lists.id');
+
+        if ($ghorfeIds->isEmpty() && ($own = ghorfe())) {
+            $ghorfeIds = collect([$own->id]);
+        }
+
+        $query = FinancialPlansType::where('status', 1);
+
+        if ($ghorfeIds->isNotEmpty()) {
+            $selected = $center->financialPlansTypes->pluck('id')->all();
+
+            $query->where(function ($query) use ($ghorfeIds, $selected) {
+                $query->whereHas('ghorfeOnlineLists', fn ($q) => $q->whereKey($ghorfeIds));
+
+                if ($selected) {
+                    $query->orWhereIn('financial_plans_types.id', $selected);
+                }
+            });
+        }
+
+        return $query->orderBy('title')->get();
     }
 
     /**
