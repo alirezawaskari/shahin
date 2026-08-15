@@ -73,10 +73,13 @@ class AboutController extends Controller
 
         // Staff of this business's own branches, not every employee in the panel: an
         // employee belongs to the page exactly while they work at one of its branches.
+        // No whereHas('user'): membership is the employees table alone (center_id), so an
+        // employee whose user row is missing or soft-deleted still belongs to the branch and
+        // still has to be listed — otherwise they are invisible here yet a save would treat
+        // their absence as a removal and cut them from the branch.
         $employees = $ghorfe
             ? $ghorfe->staff()
                 ->with(['user:id,name,family', 'center:id,title'])
-                ->whereHas('user')
                 ->orderBy('id')
                 ->get()
             : collect();
