@@ -19,7 +19,7 @@ class CenterCollection extends ResourceCollection
                     'id' => $item->id,
                     'title' => $item->title,
                     'items' => implode(' | ',$item->services->pluck('title')->toArray()),
-                    'creator_rpresentation' => $item->creatorRpresentation ? $item->creatorRpresentation->fa_name : 'نمایندگی کل',
+                    'creator_rpresentation' => $item->creatorRepresentation ? $item->creatorRepresentation->fa_name : 'نمایندگی کل',
                     'created_at' => verta($item->created_at)->format('Y/m/d H:m:s'),
                     'status' => $item->status,
                     'services' => $item->services,
