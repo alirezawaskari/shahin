@@ -1011,6 +1011,7 @@ Route::get('/singleWebPage/checkout/{singleWebPage}/{factor}', 'SingleWebPageCon
 Route::get('/{representation}/serviceItem/{serviceItem}', 'RepresentationController@serviceItemSingle');
 Route::get('/{representation}/serviceItem/{serviceItem}/{callcenter}', 'RepresentationController@serviceItemSingle');Route::get('/{organization}/services/{service}', 'OrganizationController@single');
 Route::get('/organizations/{organization}', 'OrganizationController@index');
+Route::get('/{representation}/Permanent-employment', 'RecruitmentNoticeController@index');
 Route::get('/{representation}', 'RepresentationController@index');
 Route::get('/{representation}/link/{callcenter}', 'RepresentationController@index');
 Route::get('/{representation}/{service}', 'RepresentationController@single');

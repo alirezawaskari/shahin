@@ -96,6 +96,7 @@ class ServiceCallcenterSMSNotification {
             197 => 'Permanent-employment',
             default => ($type == 'serviceItem' ? "serviceItem/{$service->slug}" : "services/{$service->slug}/{$task->user_id}/{$task->id}"),
         };
+        $adminRep = optional( auth()->user() )->admin_representation;
         $singleWebPage = $service->singleWebPages ? $service->singleWebPages->first() : null;
 
         if ( $singleWebPage ) {
@@ -104,13 +105,17 @@ class ServiceCallcenterSMSNotification {
             $organCall = $singleWebPage->call;
         }
 
-        if ( $adminRep = optional( auth()->user() )->admin_representation ) {
+        if ($service->id != 197 && $adminRep){
             $link = $type == 'serviceItem'
             ? "{$adminRep->slug}/serviceItem/{$service->slug}"
             : "{$adminRep->slug}/{$service->slug}";
 
             $organName = $adminRep->fa_name;
             $organCall = $adminRep->call;
+        }
+        elseif($service->id == 197 && $adminRep)
+        {
+            $link = $adminRep->slug.'/Permanent-employment';
         }
 
         return [
