@@ -347,7 +347,8 @@ class GhorfeOnlineListController extends AdminController {
             'description',
             'keywords',
             'status',
-            'domain_active'
+            'domain_active',
+            'addvertisment_slider_link'
         ]);
 
         // footer_tag جداگانه (بدون overwrite کل update)
