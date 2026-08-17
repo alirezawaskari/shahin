@@ -252,6 +252,8 @@ class Center extends Model implements HasMedia {
         $service = request( 'service' );
         $category = request( 'category' );
         $status = request( 'status' );
+        $representation = request( 'representation' );
+        $business = request( 'business' );
 
         // Tenancy, exactly as every other list in the panel does it (Service, Product, User,
         // Category, Factor): a business admin sees only the branches attached to its ghorfe
@@ -283,7 +285,23 @@ class Center extends Model implements HasMedia {
 
         if ( isset( $service ) && trim( $service ) != 'all' ) {
             $query->whereHas('services', function ($query) use ($service) {
-                $query->where('owner_id',$service);
+                $query->where('owner_id', $service);
+            });
+        }
+
+        if ( isset( $representation ) && trim( $representation ) != 'all' ) {
+            if ( trim( $representation ) == 'none' ) {
+                $query->whereDoesntHave('representations');
+            } else {
+                $query->whereHas('representations', function ($query) use ($representation) {
+                    $query->where('owner_id', $representation);
+                });
+            }
+        }
+
+        if ( isset( $business ) && trim( $business ) != 'all' ) {
+            $query->whereHas('ghorfeOnlineLists', function ($query) use ($business) {
+                $query->where('owner_id', $business);
             });
         }
 

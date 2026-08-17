@@ -89,16 +89,19 @@ $(document).ready(function () {
                         if($('#financial_report_detail').val()==1){
                             financial_report_detail_display='block';
                         }
-                        let services = data.services;
+                        let services = data.services || [];
+                        let serviceLinks = services.map(function (element) {
+                            return '<a href="../../dashboard/center/' + data.id + '/' + element.slug + '/serviceTariff">' +
+                                '<button type="button" class="dropdown-item pointer">' + element.title + '</button></a>';
+                        }).join('');
+
                         return '<div data-v-15965e3b="" class="dropdown">' +
                             '<a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>' +
                             '<div class="dropdown-menu">' +
-                            services.forEach(element => {
-                                '<a href="../../dashboard/center/'+ data.id +'/'+element.slug+'/serviceTariff"><button type="button" class="dropdown-item pointer">'+element.title+'</button></a>'
-                            }),
-                            '<a style="display: ${edit_display}" href="../../dashboard/center/' + data.id + '/edit"><button type="button" class="dropdown-item pointer">ویرایش</button></a>' +
-                            '<a style="display: ${financial_report_detail_display}" href="../../dashboard/center/financialReport/' + data.id +'"><button type="button" class="dropdown-item pointer">عملکرد مالی</button></a>' +
-                            '<button style="display: ${delete_display}" data-id="' + data.id + '" class="center_delete dropdown-item pointer">حذف</button>' +
+                            serviceLinks +
+                            '<a style="display: ' + edit_display + '" href="../../dashboard/center/' + data.id + '/edit"><button type="button" class="dropdown-item pointer">ویرایش</button></a>' +
+                            '<a style="display: ' + financial_report_detail_display + '" href="../../dashboard/center/financialReport/' + data.id + '"><button type="button" class="dropdown-item pointer">عملکرد مالی</button></a>' +
+                            '<button style="display: ' + delete_display + '" data-id="' + data.id + '" class="center_delete dropdown-item pointer">حذف</button>' +
                             '</div>' +
                             '</div>';
                     }
