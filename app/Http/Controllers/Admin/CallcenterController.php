@@ -446,33 +446,37 @@ class CallcenterController extends Controller
     /**
      * One invoice line described in full, for the آیتم ها column.
      *
-     * A factor holds one line per row the operator added, so an invoice may carry several
-     * services and several products at once — including two products under the SAME
-     * category, which are told apart only by the variant recorded on each line. Without
-     * that, every product line rendered as just its category title.
+     * A service line is a single row. A product line is one CATEGORY, under which every کالا
+     * row the operator added is a factor_item_products record — so the category is followed
+     * by its products, each with its own variant and charged amount. Without them a product
+     * line would render as nothing but its category title.
      *
      * @param $factor_item
      * @return string
      */
     private static function factorItemLabel($factor_item): string
     {
-        $parts = [optional($factor_item->factoritemable)->title];
+        $header = [optional($factor_item->factoritemable)->title];
 
         if ($factor_item->service_item_id) {
-            $parts[] = optional(ServiceItem::find($factor_item->service_item_id))->title;
+            $header[] = optional(ServiceItem::find($factor_item->service_item_id))->title;
         }
 
-        if ($factor_item->product_attribute_id) {
-            $attribute = ProductAttribute::find($factor_item->product_attribute_id);
-            $parts[] = optional(optional($attribute)->product)->name;
-            $parts[] = $attribute ? self::productAttributeName($attribute) : null;
+        //the charged amount, which may differ from the source price when the operator
+        //edited the registration fee for this customer
+        $header[] = number_format((int) $factor_item->price) . ' ریال';
+
+        $lines = [implode(' - ', array_filter($header))];
+
+        foreach ($factor_item->products as $product_row) {
+            $lines[] = '• ' . implode(' - ', array_filter([
+                optional($product_row->product)->name,
+                $product_row->productAttribute ? self::productAttributeName($product_row->productAttribute) : null,
+                number_format((int) $product_row->price) . ' ریال',
+            ]));
         }
 
-        //the charged amount, which may differ from the variant's own price when the
-        //operator edited the registration fee for this customer
-        $parts[] = number_format((int) $factor_item->price) . ' ریال';
-
-        return implode(' - ', array_filter($parts));
+        return implode('<br>', $lines);
     }
 
     //create & send link factor
@@ -1339,70 +1343,83 @@ class CallcenterController extends Controller
      */
     private function createCategoryFactorItems($result , $request , $categories , $cash_factor , $credit_factor , $mobile_supervisor )
     {
-        $payment_type = $cash_factor ? $cash_factor->type : '';
-        $payment_type = $credit_factor ? $credit_factor->type : '';
+        //one factor per save, so both handles point at the same invoice
+        $factor = $credit_factor ?: $cash_factor;
+        $payment_type = $factor ? $factor->type : '';
+
         $cash_factor_result['cash_factor_price'] = $result['cash_factor_price'];
         $cash_factor_result['cash_factor_status'] = $result['cash_factor_status'];
         $credit_factor_result['credit_factor_price'] = $result['credit_factor_price'];
         $credit_factor_result['credit_factor_status'] = $result['credit_factor_status'];
 
-        foreach ($categories as $i => $category_id)
-        {
-            if ($category_id == 'all' || !is_numeric($category_id)) {
-                continue;
-            }
-            $category = Category::find($category_id);
-            $product = Product::find(self::requestItemAt($request->product, $i));
-            $product_attribute_id = self::requestItemAt($request->product_attribute, $i);
-            $category_pay_type = $product && $product->pay_type !== null ? (int) $product->pay_type : 0;
-            //same figure the factor total was built from, so line items and total agree
-            $register_price = self::resolveRegisterPrice(
-                $request->category_register_price,
-                $i,
-                self::defaultProductRegisterPrice($request, $i, $category)
-            );
-            $line_price = $payment_type == "supervisor"
-                ? 0
-                : $register_price + ($register_price * (optional($category)->tax ?: 0)) / 100;
+        if ($factor) {
+            foreach (self::groupProductRowsByCategory($categories) as $category_id => $indexes)
+            {
+                $category = Category::find($category_id);
+                $product_rows = [];
+                $line_price = 0;
+                $category_pay_type = 0;
 
-            //create credit factorItems
-            if($category_pay_type === 1)
-            {
-                $total_factor_item = $credit_factor->totalFactorItemReg;
-                $factor_item = $credit_factor->factorItems()->create([
-                    'factoritemable_id' => $category_id,
-                    'factoritemable_type' => Category::class,
-                    'total_factor_item_id' => $total_factor_item->id,
-                    'product_attribute_id' => $product_attribute_id,
-                    'count' => 1,
-                    'price' => $line_price,
-                    'center_id' => auth()->user()->center_id,
-                    'type' => $category_pay_type,
-                    'purchase_type' => self::requestItemAt($request->category_purchase_type, $i),
-                ]);
-                $factor_item->update(['supervisor_id' => $factor_item->id]);
-                if($credit_factor && $result['credit_factor_price'] == 0 && $credit_factor->type == 'supervisor')
+                foreach ($indexes as $i)
                 {
-                    $credit_factor_result = self::getCreditFactorFieldIsSupervisorType($credit_factor , $mobile_supervisor , $factor_item);
+                    $product = Product::find(self::requestItemAt($request->product, $i));
+                    $attribute = ProductAttribute::find(self::requestItemAt($request->product_attribute, $i));
+                    //same figure the factor total was built from, so lines and total agree
+                    $register_price = self::resolveRegisterPrice(
+                        $request->category_register_price,
+                        $i,
+                        self::defaultProductRegisterPrice($request, $i, $category)
+                    );
+                    $row_price = $payment_type == "supervisor"
+                        ? 0
+                        : $register_price + ($register_price * (optional($category)->tax ?: 0)) / 100;
+                    $row_pay_type = $product && $product->pay_type !== null ? (int) $product->pay_type : 0;
+
+                    //an installment product makes the whole category line an installment
+                    //line, because total_factor_item_id is carried by the factor item
+                    $category_pay_type = ($category_pay_type === 1 || $row_pay_type === 1) ? 1 : 0;
+                    $line_price = $line_price + $row_price;
+
+                    $product_rows[] = [
+                        'product_id' => optional($product)->id,
+                        'attribute_item_id' => optional($attribute)->attribute_item_id,
+                        'product_attribute_id' => optional($attribute)->id,
+                        'price' => $row_price,
+                        'count' => 1,
+                        'pay_type' => $row_pay_type,
+                        'purchase_type' => self::requestItemAt($request->category_purchase_type, $i),
+                        'center_id' => auth()->user()->center_id,
+                    ];
                 }
-            }
-            //Every completed product row is an invoice line, regardless of delivery method.
-            else
-            {
-                $factor_item = $cash_factor->factorItems()->create([
+
+                $attributes = [
                     'factoritemable_id' => $category_id,
                     'factoritemable_type' => Category::class,
-                    'product_attribute_id' => $product_attribute_id,
-                    'count' => 1,
+                    'count' => count($product_rows),
                     'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
                     'type' => $category_pay_type,
-                    'purchase_type' => self::requestItemAt($request->category_purchase_type, $i),
-                ]);
+                    //per-product delivery lives on each factor_item_products row; the line
+                    //keeps the first row's value so existing readers still see something
+                    'purchase_type' => $product_rows[0]['purchase_type'],
+                ];
+
+                if ($category_pay_type === 1) {
+                    $attributes['total_factor_item_id'] = $factor->totalFactorItemReg->id;
+                }
+
+                $factor_item = $factor->factorItems()->create($attributes);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
-                if($cash_factor && $result['cash_factor_price'] == 0 && $cash_factor->type == 'supervisor')
+                //product identity and variant live here, one row per کالا row submitted
+                $factor_item->products()->createMany($product_rows);
+
+                if ($factor->type == 'supervisor')
                 {
-                    $cash_factor_result = self::getCashFactorFieldIsSupervisorType($cash_factor , $mobile_supervisor , $factor_item);
+                    if ($category_pay_type === 1 && $result['credit_factor_price'] == 0) {
+                        $credit_factor_result = self::getCreditFactorFieldIsSupervisorType($factor , $mobile_supervisor , $factor_item);
+                    } elseif ($category_pay_type === 0 && $result['cash_factor_price'] == 0) {
+                        $cash_factor_result = self::getCashFactorFieldIsSupervisorType($factor , $mobile_supervisor , $factor_item);
+                    }
                 }
             }
         }
@@ -1411,10 +1428,36 @@ class CallcenterController extends Controller
     }
 
     /**
+     * The submitted کالا rows bucketed by the category they were filed under, preserving each
+     * row's index so the parallel product / variant / price inputs stay aligned.
+     *
+     * One factor item is created per bucket; the rows inside it become factor_item_products.
+     *
+     * @param $categories
+     * @return array
+     */
+    private static function groupProductRowsByCategory($categories): array
+    {
+        $grouped = [];
+
+        foreach ($categories as $i => $category_id) {
+            //'all', or an untouched row still holding its placeholder text
+            if ($category_id == 'all' || !is_numeric($category_id)) {
+                continue;
+            }
+            $grouped[(int) $category_id][] = $i;
+        }
+
+        return $grouped;
+    }
+
+    /**
      * @param $callcenter
      * @param $result_factor_items
-     * @param $cash_factor
-     * @param $credit_factor
+     * @param Factor $factor the single invoice this save produced
+     * @param $services
+     * @param $categories
+     * @param $payment_type
      */
     private function sendSmsFactor($callcenter , $result_factor_items , Factor $factor, $services, $categories, $payment_type)
     {
