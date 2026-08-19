@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\FinancialPlansTypeController;
 use App\Http\Controllers\Admin\GatewayController;
 use App\Http\Controllers\Admin\GhorfeOnlineListController;
 use App\Http\Controllers\Admin\PercentageAllocationEmployeeController;
+use App\Http\Controllers\Admin\ProductOrderController;
 use App\Http\Controllers\Admin\PromissoryController;
 use App\Http\Controllers\Admin\RecruitmentNoticeController;
 use App\Http\Controllers\Admin\ResumeController;
@@ -432,6 +433,18 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('factorItemProduct', 'FactorItemProductController');
     Route::resource('factorItemInstallment', 'FactorItemInstallmentController');
     Route::resource('factorItemServiceTariff', 'FactorItemServiceTariffController');
+
+    //product orders - {factor} binds on resnumber (Factor::getRouteKeyName), so the literal
+    //`filter` route has to be declared before it or it would be swallowed as an order number
+    Route::get('/productOrder/filter', [ProductOrderController::class, 'filter'])->name('productOrder.filter');
+    Route::get('/productOrder', [ProductOrderController::class, 'index'])->name('productOrder.index');
+    Route::get('/productOrder/{factor}', [ProductOrderController::class, 'show'])->name('productOrder.show');
+    Route::post('/productOrder/{factor}/address', [ProductOrderController::class, 'setAddress'])->name('productOrder.setAddress');
+    Route::post('/productOrder/{factor}/address/store', [ProductOrderController::class, 'storeAddress'])->name('productOrder.storeAddress');
+    Route::patch('/productOrder/{factor}/address/{address}', [ProductOrderController::class, 'updateAddress'])->name('productOrder.updateAddress');
+    Route::delete('/productOrder/{factor}/address/{address}', [ProductOrderController::class, 'destroyAddress'])->name('productOrder.destroyAddress');
+    Route::post('/productOrder/{factor}/shipping-cost', [ProductOrderController::class, 'setShippingCost'])->name('productOrder.shippingCost');
+    Route::post('/productOrder/{factor}/ship', [ProductOrderController::class, 'ship'])->name('productOrder.ship');
 
     //purchase invoice
     Route::get('/purchaseInvoice/desktop', 'PurchaseInvoiceController@desktop')->name('purchaseInvoice.desktop');

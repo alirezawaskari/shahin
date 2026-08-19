@@ -71,6 +71,21 @@ class FinancialPlansType extends Model
     }
 
     /**
+     * Businesses that own this plan — the inverse of GhorfeOnlineList::financialPlansTypes().
+     *
+     * FinancialPlansTypeController::store() has always called this to attach a new plan to
+     * the creating admin's business, but the relation itself was never declared, so that
+     * call threw BadMethodCallException for every ghorfe user. The branch page's plan list
+     * is scoped through it (CenterController::offerableFinancialPlans).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ghorfeOnlineLists()
+    {
+        return $this->belongsToMany(GhorfeOnlineList::class);
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function financialPlansTypeItems()

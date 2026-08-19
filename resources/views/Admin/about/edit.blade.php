@@ -345,7 +345,9 @@
                                             <tr>
                                                 <td>
                                                     <input type="hidden" name="staff_ids[]" value="{{ $employee->id }}">
-                                                    {{ $employee->full_name }}
+                                                    {{-- full_name is empty when the employee has no readable user row;
+                                                         the id keeps the row identifiable instead of blank. --}}
+                                                    {{ $employee->full_name ?: 'همکار #' . $employee->id }}
                                                 </td>
                                                 <td>{{ $employee->work_title }}</td>
                                                 <td>{{ optional($employee->center)->title }}</td>

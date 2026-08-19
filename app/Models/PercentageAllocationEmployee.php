@@ -89,7 +89,10 @@ class PercentageAllocationEmployee extends Model {
     public static function setUserPerformance( FactorItem $factor_item, $type, $price , $date , $factor_item_service_tariff , $payment_type) {
         $description = self::TYPE[$type];
         $percentage_allocation_employees = [];
-        if ( $type == 'register_price' ) {
+        //Allocation rules are configured per Service; a کالا line's factoritemable is a
+        //Category, which has no such rules - those lines fall through to the branch's own
+        //rules below (Center is the only other model carrying them).
+        if ( $type == 'register_price' && $factor_item->factoritemable instanceof Service ) {
             $percentage_allocation_employees = $factor_item->factoritemable->percentageAllocationEmployees->where( 'type', $type )->where( 'payment_type', $payment_type )->where( 'start_allocation_date', '<=', now() )->where( 'end_allocation_date', '>=', now() );
         }
         elseif($factor_item->center)
@@ -122,7 +125,9 @@ class PercentageAllocationEmployee extends Model {
     {
         $percentage_allocation_employees = $item->factorItems->map(function ($factor_item) use ($payment_type) {
             //set emplloyee performance from percentageAllocation employee
-            $price = $factor_item->financialPlansType->price;
+            //A کالا line carries no financial plan (createCategoryFactorItems never sets
+            //one) - its own price IS the registration figure the invoice was built from.
+            $price = $factor_item->financialPlansType?->price ?? $factor_item->price;
             return PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $price , now() , null , $payment_type);
         });
         return $percentage_allocation_employees;
