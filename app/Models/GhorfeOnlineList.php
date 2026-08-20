@@ -321,23 +321,28 @@ class GhorfeOnlineList extends Model implements HasMedia
             ->orderByRaw('center_owners.sort is null, center_owners.sort');
     }
     /**
-     * Staff (همکاران متخصص) of this business = the employees of its branches.
+     * Staff (همکاران متخصص) of this business — the people its about-us page presents.
      *
-     * Derived, not curated: an employee appears on the about-us page exactly while their
-     * `employees.center_id` is one of this business's centers. The separate
-     * employee_ghorfe_online_list pivot this used to read was a second list saying the same
-     * thing, and the two could disagree — it is dropped.
+     * Membership is `ghorfe_online_list_user`, the pivot that already says who belongs to
+     * this business, matched against `employees.user_id`. Not `employees.center_id`: a
+     * branch is a place, and someone can work for the business without being posted to one.
      *
-     * A query builder rather than a relation: the link runs through the polymorphic
-     * center_owners pivot, which no single Eloquent relation can express.
+     * The pivot is joined DIRECTLY, never through `users` — an employee whose user row is
+     * missing or soft-deleted is still on the payroll, and dropping them from this list
+     * would make a save read their absence as a removal.
+     *
+     * A query builder rather than a relation: the hop is employees -> user_id -> pivot,
+     * which no single Eloquent relation on this model can express.
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function staff()
     {
         return Employee::query()->whereIn(
-            'center_id',
-            $this->centers()->select('centers.id')
+            'user_id',
+            \Illuminate\Support\Facades\DB::table('ghorfe_online_list_user')
+                ->where('ghorfe_online_list_id', $this->id)
+                ->select('user_id')
         );
     }
     /**
