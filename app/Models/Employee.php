@@ -262,6 +262,17 @@ class Employee extends Model implements HasMedia
     }
 
     /**
+     * The business this person works for — what puts them on its "درباره ما" page.
+     * Independent of center(): the branch is where they sit, this is who they work for.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function ghorfeOnline()
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    /**
      * Visitor star ratings of this partner. Same table as Center::ratings(); includes
      * un-moderated rows, so a frontend must add ->approved(). Unordered for the same
      * reason as Center::ratings() — callers that display them add ->latest().

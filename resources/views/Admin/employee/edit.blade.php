@@ -202,6 +202,29 @@
                                 @endforeach
                             </select>
                         </div>
+                        {{-- Which business this person works for — what puts them on that
+                             business's "درباره ما" page. Separate from the branch above: the
+                             branch is where they sit, this is who they work for.
+
+                             Superadmin only. A business admin choosing here could move their
+                             own staff onto another business's page, so the control is not
+                             rendered for them and EmployeeService ignores the field. --}}
+                        @if($ghorfeOnlineLists->isNotEmpty())
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>انتخاب کسب و کار</label>
+                            <select class="form-control" name="ghorfe_online_list_id">
+                                <option value="" @selected($employee->ghorfe_online_list_id == null)>
+                                    بدون کسب و کار
+                                </option>
+                                @foreach($ghorfeOnlineLists as $ghorfeOnlineList)
+                                    <option value="{{ $ghorfeOnlineList->id }}"
+                                        @selected($employee->ghorfe_online_list_id == $ghorfeOnlineList->id)>
+                                        {{ $ghorfeOnlineList->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
                         <div class="col-12 col-md-4 mb-3">
                             <label>انتخاب سرپرست</label>
                             <select class="form-control" name="parent_id">

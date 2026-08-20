@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\About;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * The "درباره ما" page each business manages for itself.
@@ -248,21 +247,14 @@ class AboutController extends Controller
         $ghorfe->centers()->sync($branchIds);
 
         // Staff are not a list of their own: an employee is on the page while they belong to
-        // the business. Membership IS the ghorfe_online_list_user row, so removing their row
-        // deletes it — there is nothing else to unset.
+        // the business. Membership IS employees.ghorfe_online_list_id, so removing their row
+        // clears that column — nothing else about the employee changes, their branch least
+        // of all.
         //
-        // Only rows resolved through staff() are touched, so this is confined to employees of
-        // THIS business, and the customers who share the pivot are never reached.
+        // Scoped through staff(), so a save only ever reaches employees of THIS business.
         $keep = collect($request->input('staff_ids', []))->map(fn ($id) => (int) $id)->all();
 
-        $drop = $ghorfe->staff()->whereNotIn('id', $keep)->pluck('user_id')->filter();
-
-        if ($drop->isNotEmpty()) {
-            DB::table('ghorfe_online_list_user')
-                ->where('ghorfe_online_list_id', $ghorfe->id)
-                ->whereIn('user_id', $drop)
-                ->delete();
-        }
+        $ghorfe->staff()->whereNotIn('id', $keep)->update(['ghorfe_online_list_id' => null]);
     }
 
     /**

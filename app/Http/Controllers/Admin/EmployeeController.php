@@ -23,7 +23,6 @@ use App\Models\Callcenter;
 use App\Models\History;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
-use App\Services\V1\Admin\BusinessAssociateService;
 use App\Services\V1\Admin\EmployeeService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -32,8 +31,7 @@ use Illuminate\Support\Facades\Auth;
 class EmployeeController extends AdminController
 {
     public function __construct(
-        protected EmployeeService $employeeService,
-        protected BusinessAssociateService $associateService
+        protected EmployeeService $employeeService
     ) {}
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
@@ -163,13 +161,19 @@ class EmployeeController extends AdminController
         $user     = User::where('phone', Helper::numberConverter($request->phone))->first();
         $business = $this->actorBusiness();
 
+        // is_employee means "already someone's staff", which is now an employee row WITH a
+        // business on it. An employee row without one is a لاله employee, or someone a
+        // business let go — either way there is no business to take them from, so they can
+        // be adopted here and the form must not refuse them.
+        //
+        // blocked_by is always empty now and kept only so the form's JS keeps its shape: the
+        // business lives on the employee row, so there is no second business to conflict
+        // with — is_employee is the whole rule.
         $payload['data']['associate'] = [
             'exists'      => (bool) $user,
-            'is_employee' => (bool) ($user && $user->employee),
-            'business'    => $user ? optional($this->associateService->businessOf($user))->title : null,
-            'blocked_by'  => $user && $business
-                ? $this->associateService->check($user, $business)['message']
-                : '',
+            'is_employee' => (bool) optional($user)->employee?->ghorfe_online_list_id,
+            'business'    => $user ? optional(optional($user->employee)->ghorfeOnline)->title : null,
+            'blocked_by'  => '',
         ];
 
         return response($payload);
@@ -241,7 +245,12 @@ class EmployeeController extends AdminController
         // An existing customer being promoted to staff keeps their row (and their history);
         // only a genuinely new phone number creates one. Refusing outright would strand
         // anyone who had ever placed an order.
-        if ($user && $user->employee) {
+        //
+        // Only an employee who already has a BUSINESS is refused — same rule searchUser
+        // reports as `is_employee`, so the form never says "ok" to something the server then
+        // rejects. An employee row with no business belongs to لاله or was let go by one, and
+        // is adopted below instead of being duplicated.
+        if ($user && $user->employee && $user->employee->ghorfe_online_list_id) {
             return $this->rejectWith('برای این شماره موبایل قبلا همکار ثبت شده است.');
         }
 
@@ -252,24 +261,13 @@ class EmployeeController extends AdminController
             return $this->rejectWith('این کاربر هم اکنون دسترسی پنل دارد و از این فرم قابل ثبت نیست.');
         }
 
-        // Checked BEFORE anything is written: a user already tied to another business must
-        // not leave a half-made employee behind when the association is refused.
-        if ($user && $business) {
-            $allowed = $this->associateService->check($user, $business);
-
-            if (! $allowed['success']) {
-                return $this->rejectWith($allowed['message']);
-            }
-        }
-
         $user = $this->createOrAdoptUser($request, $user, $business);
 
         if (! $user) {
             return $this->rejectWith('ثبت کاربر انجام نشد. اطلاعات وارد شده را بررسی کنید.');
         }
 
-        $employee = Employee::create([
-            'user_id'        => $user->id,
+        $attributes = [
             'status'         => $request->status,
             'show_status'    => $request->show_status,
             'work_title'     => $request->work_title,
@@ -277,15 +275,20 @@ class EmployeeController extends AdminController
             'parent_id'      => $request->parent_id,
             // kept in step with users.center_id — the branch staff list reads this one
             'center_id'      => $request->center_id,
-        ]);
+            // Which business the person works for. A column on THIS row, not a
+            // ghorfe_online_list_user pivot row: the pivot is about the user account (it
+            // holds customers too), so writing it here conflated "this account belongs to
+            // the business" with "this person is its staff". GhorfeOnlineList::staff() and
+            // the "درباره ما" page read this column.
+            'ghorfe_online_list_id' => optional($business)->id,
+        ];
+
+        // updateOrCreate, because an unattached employee reaches this point: a second
+        // employees row for the same user would give them two staff records and make
+        // `$user->employee` pick one arbitrarily.
+        $employee = Employee::updateOrCreate(['user_id' => $user->id], $attributes);
 
         $this->syncRole($request, $user);
-
-        // The association is what actually grants the panel: User::isAdmin() lets a
-        // ghorfeAdmin in only while this row exists.
-        if ($business) {
-            $this->associateService->assign($user, $business);
-        }
 
         return redirect()->route('employee.edit', $employee->id)->with([
             'create' => 'success',
@@ -415,7 +418,7 @@ class EmployeeController extends AdminController
         $parents = Employee::with('user:id,name,family')->whereHas('user')->where('status', 1);
 
         if ($business) {
-            $parents->whereHas('user.ghorfeOnlineLists', fn ($query) => $query->whereKey($business->id));
+            $parents->where('ghorfe_online_list_id', $business->id);
         }
 
         return $parents->get();
@@ -472,8 +475,16 @@ class EmployeeController extends AdminController
         $profileServices = Service::filter()->orderBy('title')->get(['services.id', 'services.title']);
         $ratings         = $employee->ratings()->latest()->get();
 
+        // Business assignment is a superadmin-only control (see the view): it decides whose
+        // "درباره ما" page lists this person, so a business admin must not be able to move
+        // their staff onto someone else's page. Empty for everyone else, and updateEmployee
+        // refuses the field regardless of what is posted.
+        $ghorfeOnlineLists = auth()->user()->hasRole('superadmin')
+            ? GhorfeOnlineList::orderBy('title')->get(['id', 'title'])
+            : collect();
+
         return view('Admin.employee.edit', compact('item','employee', 'representations','employees','recruitment_notices','recruitment_notice_selected',
-            'profileServices','ratings'));
+            'profileServices','ratings','ghorfeOnlineLists'));
     }
 
     /**

@@ -323,27 +323,17 @@ class GhorfeOnlineList extends Model implements HasMedia
     /**
      * Staff (همکاران متخصص) of this business — the people its about-us page presents.
      *
-     * Membership is `ghorfe_online_list_user`, the pivot that already says who belongs to
-     * this business, matched against `employees.user_id`. Not `employees.center_id`: a
-     * branch is a place, and someone can work for the business without being posted to one.
+     * `employees.ghorfe_online_list_id`, a column on the employees table and nothing else.
+     * Not the branch (a branch is a place, and someone can work for the business without
+     * being posted to one) and not `ghorfe_online_list_user` (that pivot is about the user
+     * account, and reading it meant an employee whose user row was missing or soft-deleted
+     * dropped off the list — which a save then read as a removal).
      *
-     * The pivot is joined DIRECTLY, never through `users` — an employee whose user row is
-     * missing or soft-deleted is still on the payroll, and dropping them from this list
-     * would make a save read their absence as a removal.
-     *
-     * A query builder rather than a relation: the hop is employees -> user_id -> pivot,
-     * which no single Eloquent relation on this model can express.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function staff()
     {
-        return Employee::query()->whereIn(
-            'user_id',
-            \Illuminate\Support\Facades\DB::table('ghorfe_online_list_user')
-                ->where('ghorfe_online_list_id', $this->id)
-                ->select('user_id')
-        );
+        return $this->hasMany(Employee::class);
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

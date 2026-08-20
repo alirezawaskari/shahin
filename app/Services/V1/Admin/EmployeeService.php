@@ -82,6 +82,16 @@ class EmployeeService {
             $employeeData[ 'center_id' ] = $request->center_id ?: null;
         }
 
+        // Which business the employee works for — the key GhorfeOnlineList::staff() reads, so
+        // it decides whose "درباره ما" page lists them. Superadmin only, enforced here and not
+        // just by hiding the select: otherwise a business admin could post the field by hand
+        // and pull their staff onto another business's page.
+        if ( $request->has( 'ghorfe_online_list_id' ) && auth()->user()->hasRole( 'superadmin' ) ) {
+            $employeeData[ 'ghorfe_online_list_id' ] = $request->ghorfe_online_list_id ?: null;
+        } else {
+            unset( $employeeData[ 'ghorfe_online_list_id' ] );
+        }
+
         $this->replaceImage( $request, $employee, 'urlimgaccess', 'imgaccess', 'document' );
 
         $this->replaceImage( $request, $employee, 'urlimglastcertificate', 'imglastcertificate', 'document' );
