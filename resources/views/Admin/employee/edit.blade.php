@@ -206,9 +206,11 @@
                              business's "درباره ما" page. Separate from the branch above: the
                              branch is where they sit, this is who they work for.
 
-                             Superadmin only. A business admin choosing here could move their
-                             own staff onto another business's page, so the control is not
-                             rendered for them and EmployeeService ignores the field. --}}
+                             Open while nobody has claimed them, closed once someone has: a
+                             business admin sees only their own business in the list, and after
+                             the assignment the answer is shown but no longer editable, so
+                             staff cannot be moved between businesses from here.
+                             EmployeeService enforces both halves on the posted field. --}}
                         @if($ghorfeOnlineLists->isNotEmpty())
                         <div class="col-12 col-md-4 mb-3">
                             <label>انتخاب کسب و کار</label>
@@ -223,6 +225,21 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+                        @elseif($employee->ghorfe_online_list_id)
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>کسب و کار</label>
+                            <input type="text" class="form-control" readonly
+                                   value="{{ optional($employee->ghorfeOnline)->title }}">
+                            @if(ghorfe() && $employee->ghorfe_online_list_id == ghorfe()->id)
+                                <small class="text-muted">
+                                    هر همکار تنها به یک کسب و کار تعلق دارد؛ تغییر آن با مدیر سیستم است.
+                                </small>
+                            @else
+                                <small class="text-danger">
+                                    {{ \App\Http\Controllers\Admin\EmployeeController::BELONGS_TO_ANOTHER_BUSINESS }}
+                                </small>
+                            @endif
                         </div>
                         @endif
                         <div class="col-12 col-md-4 mb-3">

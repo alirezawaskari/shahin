@@ -30,6 +30,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 class EmployeeController extends AdminController
 {
+    /**
+     * Shown to a business admin who tries to take on somebody another shop already has.
+     * The edit form states it up front and update() repeats it if the field is posted anyway.
+     */
+    public const BELONGS_TO_ANOTHER_BUSINESS =
+        'این کاربر هم اکنون همکار کسب و کار دیگری است. برای تغییر، لطفا درخواست خود را به مدیر سیستم ارسال کنید.';
+
     public function __construct(
         protected EmployeeService $employeeService
     ) {}
@@ -161,19 +168,19 @@ class EmployeeController extends AdminController
         $user     = User::where('phone', Helper::numberConverter($request->phone))->first();
         $business = $this->actorBusiness();
 
-        // is_employee means "already someone's staff", which is now an employee row WITH a
+        // is_employee means "already someone's staff", which is an employee row WITH a
         // business on it. An employee row without one is a لاله employee, or someone a
         // business let go — either way there is no business to take them from, so they can
         // be adopted here and the form must not refuse them.
         //
-        // blocked_by is always empty now and kept only so the form's JS keeps its shape: the
-        // business lives on the employee row, so there is no second business to conflict
-        // with — is_employee is the whole rule.
+        // blocked_by carries the sentence the form shows and store() would repeat, from the
+        // one rule both share — so the search never says "ok" to something the save rejects,
+        // nor refuses مدیر سیستم a move that is theirs to make.
         $payload['data']['associate'] = [
             'exists'      => (bool) $user,
             'is_employee' => (bool) optional($user)->employee?->ghorfe_online_list_id,
             'business'    => $user ? optional(optional($user->employee)->ghorfeOnline)->title : null,
-            'blocked_by'  => '',
+            'blocked_by'  => $this->claimRefusal($user),
         ];
 
         return response($payload);
@@ -246,18 +253,23 @@ class EmployeeController extends AdminController
         // only a genuinely new phone number creates one. Refusing outright would strand
         // anyone who had ever placed an order.
         //
-        // Only an employee who already has a BUSINESS is refused — same rule searchUser
-        // reports as `is_employee`, so the form never says "ok" to something the server then
-        // rejects. An employee row with no business belongs to لاله or was let go by one, and
-        // is adopted below instead of being duplicated.
-        if ($user && $user->employee && $user->employee->ghorfe_online_list_id) {
-            return $this->rejectWith('برای این شماره موبایل قبلا همکار ثبت شده است.');
+        // Only somebody another business already has is refused, by the same rule searchUser
+        // reported while the phone number was typed — so the form never says "ok" to something
+        // the save then rejects, and never refuses مدیر سیستم a move that is theirs to make.
+        if ($refusal = $this->claimRefusal($user)) {
+            return $this->rejectWith($refusal);
         }
 
-        // ...but only a CUSTOMER may be promoted this way. A business admin adopting an
-        // account that already holds a panel level would be rewriting someone else's staff
-        // account — its level, its roles and its business — from their own form.
-        if ($user && ! $this->actorIsSuperAdmin() && in_array($user->level, ['admin', 'ghorfeAdmin', 'superAdmin'], true)) {
+        // ...but a business admin must not rewrite لاله's own staff accounts — their level,
+        // their roles and their business — from this form.
+        //
+        // لاله staff means level admin/superAdmin, the same test the edit page applies.
+        // NOT ghorfeAdmin: that level stays behind when somebody is released from a business
+        // (nothing demotes them), so counting it as "has panel access" made a released
+        // associate impossible to take on a second time — refused as staff while belonging to
+        // no one. Whoever still belongs to a business was already turned away above, by
+        // claimRefusal(), with a message that actually explains why.
+        if ($user && ! $this->actorIsSuperAdmin() && in_array($user->level, ['admin', 'superAdmin'], true)) {
             return $this->rejectWith('این کاربر هم اکنون دسترسی پنل دارد و از این فرم قابل ثبت نیست.');
         }
 
@@ -454,6 +466,68 @@ class EmployeeController extends AdminController
     }
 
     /**
+     * Why this person cannot be taken on as staff here, or '' when they can.
+     *
+     * One sentence, one rule, two callers: searchUser shows it the moment the number is
+     * looked up and store() repeats it on save, so the form cannot promise something the
+     * save refuses.
+     *
+     * Nobody has them yet → free to take. مدیر سیستم asking → also free, because moving staff
+     * between businesses is theirs to do. Otherwise it depends on whose staff they are:
+     * already yours is a plain duplicate, somebody else's is a request to مدیر سیستم.
+     */
+    private function claimRefusal(?User $user): string
+    {
+        $current = optional(optional($user)->employee)->ghorfe_online_list_id;
+
+        if (! $current || $this->actorIsSuperAdmin()) {
+            return '';
+        }
+
+        return (int) $current === (int) optional($this->actorBusiness())->id
+            ? 'برای این شماره موبایل قبلا همکار ثبت شده است.'
+            : self::BELONGS_TO_ANOTHER_BUSINESS;
+    }
+
+    /**
+     * The businesses the edit form may offer for this employee.
+     *
+     * A business admin takes staff on, but never takes them FROM anybody: they may assign
+     * only while `ghorfe_online_list_id` is still null, and only their own business. Someone
+     * who already works for another shop is a decision only مدیر سیستم can revisit — the form
+     * says so instead of offering a control that would be refused.
+     *
+     * لاله's superAdmin picks freely, before or after an assignment, and that is how an
+     * employee gets moved between businesses.
+     *
+     * EmployeeService enforces the same rule on the posted field, so which options render
+     * here is presentation, not protection.
+     *
+     * @return \Illuminate\Support\Collection<int, GhorfeOnlineList>
+     */
+    private function assignableBusinesses(Employee $employee)
+    {
+        if ($this->actorIsSuperAdmin()) {
+            return GhorfeOnlineList::orderBy('title')->get(['id', 'title']);
+        }
+
+        if ($employee->ghorfe_online_list_id) {
+            return collect();
+        }
+
+        $business = $this->actorBusiness();
+
+        // لاله's own staff have no business by definition, which would otherwise make every
+        // one of them claimable. Told apart by users.level, the same test
+        // EmployeeService::assignableBusinessId applies to the posted field.
+        if (! $business || ! $employee->user || in_array($employee->user->level, ['admin', 'superAdmin'], true)) {
+            return collect();
+        }
+
+        return GhorfeOnlineList::whereKey($business->id)->get(['id', 'title']);
+    }
+
+    /**
      * @param Employee $employee
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -475,13 +549,8 @@ class EmployeeController extends AdminController
         $profileServices = Service::filter()->orderBy('title')->get(['services.id', 'services.title']);
         $ratings         = $employee->ratings()->latest()->get();
 
-        // Business assignment is a superadmin-only control (see the view): it decides whose
-        // "درباره ما" page lists this person, so a business admin must not be able to move
-        // their staff onto someone else's page. Empty for everyone else, and updateEmployee
-        // refuses the field regardless of what is posted.
-        $ghorfeOnlineLists = auth()->user()->hasRole('superadmin')
-            ? GhorfeOnlineList::orderBy('title')->get(['id', 'title'])
-            : collect();
+        // Businesses this employee may still be assigned to — empty once they have one.
+        $ghorfeOnlineLists = $this->assignableBusinesses($employee);
 
         return view('Admin.employee.edit', compact('item','employee', 'representations','employees','recruitment_notices','recruitment_notice_selected',
             'profileServices','ratings','ghorfeOnlineLists'));
@@ -629,6 +698,16 @@ class EmployeeController extends AdminController
      */
     public function update(Request $request, Employee $employee)
     {
+        // Taking on someone who already works for another business is not a business admin's
+        // call — say so, rather than letting the save report success while the service quietly
+        // drops the field. مدیر سیستم can make the move.
+        if ($request->filled('ghorfe_online_list_id')
+            && $employee->ghorfe_online_list_id
+            && (int) $request->ghorfe_online_list_id !== (int) $employee->ghorfe_online_list_id
+            && ! $this->actorIsSuperAdmin()) {
+            return $this->rejectWith(self::BELONGS_TO_ANOTHER_BUSINESS);
+        }
+
         return $this->employeeService->update($request, $employee);
     }
     /**

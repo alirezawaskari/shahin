@@ -40,14 +40,21 @@
 
                 <div class="col-12 col-md-4 mb-3">
                     <label>موبایل *</label>
-                    <input type="text" class="form-control" name="phone" id="employee_phone"
-                           value="{{ old('phone') }}" placeholder="09121234567"
-                           oninput="searchEmployeeUser(this.value)" required>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="phone" id="employee_phone"
+                               value="{{ old('phone') }}" placeholder="09121234567" required>
+                        <div class="input-group-append">
+                            {{-- A button, not a keystroke listener: the lookup runs when the
+                                 operator says the number is complete, so a half-typed number
+                                 never fires a request or contradicts itself mid-entry. --}}
+                            <button type="button" class="btn btn-primary" id="employee_search">جستجو</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12 col-md-8 mb-3">
                     <label class="d-block">&nbsp;</label>
                     <div id="employee_user_state" class="alert alert-secondary mb-0 py-2">
-                        برای جستجو، شماره موبایل ۱۱ رقمی را وارد کنید.
+                        شماره موبایل را وارد کنید و «جستجو» را بزنید.
                     </div>
                 </div>
 
@@ -211,15 +218,18 @@
     // The quick-action user search, reused as-is: it looks the number up across ALL users
     // with no business scope, which is what lets a business associate take on someone who
     // has never dealt with their shop.
-    function searchEmployeeUser(phone) {
+    function searchEmployeeUser() {
+        var phone = $('#employee_phone').val();
         var state = $('#employee_user_state');
 
         if (String(phone).trim().length !== 11) {
-            state.attr('class', 'alert alert-secondary mb-0 py-2')
-                 .text('برای جستجو، شماره موبایل ۱۱ رقمی را وارد کنید.');
+            state.attr('class', 'alert alert-warning mb-0 py-2')
+                 .text('شماره موبایل باید ۱۱ رقم باشد.');
             $('#employee_submit').prop('disabled', false);
             return;
         }
+
+        state.attr('class', 'alert alert-secondary mb-0 py-2').text('در حال جستجو...');
 
         $.ajax({
             type: 'GET',
@@ -251,9 +261,12 @@
 
             $('#employee_submit').prop('disabled', false);
 
+            // Not blocked but already staff somewhere: only مدیر سیستم gets here, and saving
+            // moves the person to the business chosen below — so say that, don't just refuse.
             if (associate.is_employee) {
-                state.attr('class', 'alert alert-danger mb-0 py-2')
-                     .text('برای این شماره موبایل قبلا همکار ثبت شده است.');
+                state.attr('class', 'alert alert-warning mb-0 py-2')
+                     .text('این کاربر هم اکنون همکار «' + (associate.business || 'یک کسب و کار')
+                           + '» است؛ با ثبت این فرم، کسب و کار او تغییر می‌کند.');
                 return;
             }
 
@@ -287,6 +300,27 @@
 
     $('body').on('change', '#employee_province', function () {
         fillEmployeeCities($(this).val(), null);
+    });
+
+    $('body').on('click', '#employee_search', function () {
+        searchEmployeeUser();
+    });
+
+    // Enter in the phone field searches instead of submitting a form the operator has not
+    // filled in yet.
+    $('body').on('keydown', '#employee_phone', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            searchEmployeeUser();
+        }
+    });
+
+    // A number typed after a search invalidates it — the previous verdict was about a
+    // different person.
+    $('body').on('input', '#employee_phone', function () {
+        $('#employee_user_state').attr('class', 'alert alert-secondary mb-0 py-2')
+            .text('شماره موبایل را وارد کنید و «جستجو» را بزنید.');
+        $('#employee_submit').prop('disabled', false);
     });
 </script>
 @stop

@@ -49,7 +49,11 @@ class FilterHelper {
             case('morphTo'):
                 $query = $query->Where($morph_variable.'_id', $ghorfe_online_list->id)->Where($morph_variable.'_type', 'App\Models\GhorfeOnlineList');
                 break;
-
+            // the mirror of the belongsTo case above: a model that names its business in a
+            // ghorfe_online_list_id column of its own (employees)
+            case('belongsTo'):
+                $query = $query->where('ghorfe_online_list_id', $ghorfe_online_list->id);
+                break;
         }
         return $query;
     }
