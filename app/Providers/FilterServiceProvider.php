@@ -76,8 +76,11 @@ class FilterServiceProvider extends ServiceProvider
         $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where('level', 'admin')->withCount('tasks')->get();
 
         $services = Service::filter()->where('status' , 1)->get();
-        $product_categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
-        $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' ,1)->get();
+        // invoiceRows() rather than filter(): a business whose categories were never ticked
+        // into category_ghorfe_online_list still gets the categories it actually sells in,
+        // instead of an empty picker it cannot raise a single invoice from.
+        $product_categories = Category::invoiceRows(1)->get();
+        $service_categories = Category::invoiceRows(2)->get();
         $permission = false;
 
         if (auth()->user()->center_id && !auth()->user()->hasPermission('center-all-services')) {

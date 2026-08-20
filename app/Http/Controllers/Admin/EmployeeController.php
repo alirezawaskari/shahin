@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Classes\External\SendSms;
 use App\Helpers\Helper;
 use App\Helpers\MediaLibraryHelper;
+use App\Models\GhorfeOnlineList;
 use App\Models\Representation;
 use App\Models\Employee;
 use App\Models\Rating;
@@ -22,6 +23,7 @@ use App\Models\Callcenter;
 use App\Models\History;
 use App\Models\RecruitmentNotice;
 use App\Models\Resume;
+use App\Services\V1\Admin\BusinessAssociateService;
 use App\Services\V1\Admin\EmployeeService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -30,7 +32,8 @@ use Illuminate\Support\Facades\Auth;
 class EmployeeController extends AdminController
 {
     public function __construct(
-        protected EmployeeService $employeeService
+        protected EmployeeService $employeeService,
+        protected BusinessAssociateService $associateService
     ) {}
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\never
@@ -93,14 +96,20 @@ class EmployeeController extends AdminController
     }
 
     /**
-     * New-employee form. Superadmin only.
+     * New-employee form.
      *
      * `Route::resource('employee', ...)` has always mapped create/store, but neither method
      * existed — hitting /dashboard/employee/create threw BadMethodCallException. An employee
      * could only appear by registering through the public form.
      *
-     * Restricted to superadmin rather than the usual `user-edit` permission because creating
-     * one writes a `users` row with a panel role and a representation/branch assignment.
+     * Two audiences, told apart by `users.level`:
+     *
+     *  - superAdmin provisions لاله staff and may aim the new employee anywhere: role,
+     *    branch, representation and business are all theirs to pick.
+     *  - ghorfeAdmin provisions their own staff: role and branch. The branch list is their
+     *    own; the role list is every role for now, pending a decision on which roles a
+     *    business may hand out. Everything that decides WHICH business the person ends up in
+     *    is still taken from the creator and never from the form.
      *
      * @return \Illuminate\Contracts\View\View
      */
@@ -108,16 +117,67 @@ class EmployeeController extends AdminController
     {
         $this->authorizeEmployeeCreation();
 
+        $business = $this->actorBusiness();
+
         return view('Admin.employee.create', [
+            'is_super_admin'  => $this->actorIsSuperAdmin(),
+            'business'        => $business,
+            'businesses'      => $this->actorIsSuperAdmin()
+                ? GhorfeOnlineList::orderBy('title')->get()
+                : collect(),
             'representations' => Representation::whereStatus(true)->get(),
-            'centers'         => \App\Models\Center::where('status', true)->orderBy('title')->get(),
+            'centers'         => $this->selectableCenters($business)->get(),
             'roles'           => Role::orderBy('display_name')->get(),
-            'parents'         => Employee::with('user:id,name,family')->whereHas('user')->where('status', 1)->get(),
+            'parents'         => $this->selectableParents($business),
         ]);
     }
 
     /**
-     * Create the user (or adopt an existing one) and its employee row, then open the edit page.
+     * The quick-action user search, on the employee form.
+     *
+     * Deliberately the very same endpoint the "اقدام سریع" page calls
+     * (CallcenterController::fetchUser): it looks a phone number up across ALL users with no
+     * business scope at all, which is the point — a business associate must be able to find
+     * someone who has never dealt with their shop (requirement 3). Duplicating the lookup
+     * here with a scope of its own is exactly the bug this reuse avoids.
+     *
+     * What is added on top is the one thing the quick action has no reason to know: whether
+     * this person can be taken on as an associate, so the form can say so before anything is
+     * submitted rather than failing at save time (requirement 7).
+     *
+     * Named searchUser rather than fetchUser because AdminController — the parent — already
+     * has a fetchUser of its own with a different signature.
+     *
+     * @param Request $request
+     * @param CallcenterController $callcenter
+     * @return \Illuminate\Http\Response
+     */
+    public function searchUser(Request $request, CallcenterController $callcenter)
+    {
+        $this->authorizeEmployeeCreation();
+
+        $request->validate(['phone' => 'required|string|max:20']);
+
+        $payload = $callcenter->fetchUser($request)->getOriginalContent();
+
+        $user     = User::where('phone', Helper::numberConverter($request->phone))->first();
+        $business = $this->actorBusiness();
+
+        $payload['data']['associate'] = [
+            'exists'      => (bool) $user,
+            'is_employee' => (bool) ($user && $user->employee),
+            'business'    => $user ? optional($this->associateService->businessOf($user))->title : null,
+            'blocked_by'  => $user && $business
+                ? $this->associateService->check($user, $business)['message']
+                : '',
+        ];
+
+        return response($payload);
+    }
+
+    /**
+     * Create the user (or adopt an existing one), its employee row and — when the creator
+     * belongs to a business — the association that puts the new employee in that business.
      *
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
@@ -128,25 +188,53 @@ class EmployeeController extends AdminController
 
         $request->merge(['phone' => Helper::numberConverter($request->phone)]);
 
+        $is_super_admin = $this->actorIsSuperAdmin();
+
         $request->validate([
             'name'                    => 'required|string|max:110',
             'family'                  => 'required|string|max:110',
             'phone'                   => 'required|regex:/^09[0-9]{9}$/',
             'melicode'                => 'nullable|digits:10',
-            'sex'                     => ['nullable', Rule::in([0, 1])],
+            // User::createUser — the quick-action user store this form reuses — requires
+            // gender/province/city, so they are required here too rather than being posted
+            // empty and rejected deeper in.
+            'gender'                  => ['required', Rule::in([0, 1])],
+            'province'                => 'required|integer|exists:provinces,id',
+            'city'                    => 'required|integer|exists:cities,id',
             'password'                => 'nullable|string|min:6|confirmed',
             'work_title'              => 'nullable|string|max:110',
             'business_phone'          => 'nullable|string|max:30',
             'status'                  => ['required', Rule::in([0, 1])],
             'show_status'             => ['required', Rule::in([0, 1])],
             'role_id'                 => 'nullable|integer|exists:roles,id',
-            'admin_representation_id' => 'nullable|integer|exists:representations,id',
+            'admin_representation_id' => $is_super_admin ? 'nullable|integer|exists:representations,id' : 'prohibited',
+            'ghorfe_online_list_id'   => $is_super_admin ? 'nullable|integer|exists:ghorfe_online_lists,id' : 'prohibited',
             'center_id'               => 'nullable|integer|exists:centers,id',
             'parent_id'               => 'nullable|integer|exists:employees,id',
         ], [
-            'phone.regex'    => 'شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد',
-            'melicode.digits'=> 'کد ملی باید ۱۰ رقم باشد',
+            'phone.regex'     => 'شماره موبایل باید با 09 شروع شود و ۱۱ رقم باشد',
+            'melicode.digits' => 'کد ملی باید ۱۰ رقم باشد',
+            'gender.required' => 'انتخاب جنسیت الزامی است',
+            'province.required' => 'انتخاب استان الزامی است',
+            'city.required'   => 'انتخاب شهر الزامی است',
         ]);
+
+        $business = $this->targetBusiness($request);
+
+        // A ghorfeAdmin may only place staff in their own branches; a posted id from another
+        // business would otherwise walk the new employee straight out of the tenancy.
+        // Checked against what the form offered — actorBusiness(), not the target business —
+        // so a superAdmin keeps the free choice their form gives them.
+        if ($request->filled('center_id')
+            && ! $this->selectableCenters($this->actorBusiness())->where('centers.id', $request->center_id)->exists()) {
+            return $this->rejectWith('شعبه انتخاب شده متعلق به این کسب و کار نیست.');
+        }
+
+        // Same reasoning for the supervisor: only someone the form actually offered.
+        if ($request->filled('parent_id')
+            && ! $this->selectableParents($this->actorBusiness())->contains('id', (int) $request->parent_id)) {
+            return $this->rejectWith('سرپرست انتخاب شده متعلق به این کسب و کار نیست.');
+        }
 
         $user = User::where('phone', $request->phone)->first();
 
@@ -154,38 +242,30 @@ class EmployeeController extends AdminController
         // only a genuinely new phone number creates one. Refusing outright would strand
         // anyone who had ever placed an order.
         if ($user && $user->employee) {
-            return redirect()->back()->withInput()->with([
-                'failByMessage' => 'برای این شماره موبایل قبلا همکار ثبت شده است.',
-            ]);
+            return $this->rejectWith('برای این شماره موبایل قبلا همکار ثبت شده است.');
         }
 
-        $attributes = [
-            'name'                    => $request->name,
-            'family'                  => $request->family,
-            'phone'                   => $request->phone,
-            'melicode'                => $request->melicode,
-            'sex'                     => $request->sex,
-            'call'                    => $request->call,
-            'address'                 => $request->address,
-            'admin_representation_id' => $request->admin_representation_id,
-            'center_id'               => $request->center_id,
-            // level mirrors employee status the same way EmployeeService::updateStatusAndLevel does
-            'level'                   => $request->status == 1 ? 'admin' : 'user',
-            'active'                  => true,
-        ];
-
-        if ($user) {
-            $user->update($attributes);
-        } else {
-            // No password typed = a random one; the person signs in with the sms code flow.
-            $user = User::create($attributes + [
-                'password' => Hash::make($request->password ?: rand(12345, 99999)),
-                'status'   => true,
-            ]);
+        // ...but only a CUSTOMER may be promoted this way. A business admin adopting an
+        // account that already holds a panel level would be rewriting someone else's staff
+        // account — its level, its roles and its business — from their own form.
+        if ($user && ! $this->actorIsSuperAdmin() && in_array($user->level, ['admin', 'ghorfeAdmin', 'superAdmin'], true)) {
+            return $this->rejectWith('این کاربر هم اکنون دسترسی پنل دارد و از این فرم قابل ثبت نیست.');
         }
 
-        if ($request->filled('password') && $user->wasRecentlyCreated === false) {
-            $user->update(['password' => Hash::make($request->password)]);
+        // Checked BEFORE anything is written: a user already tied to another business must
+        // not leave a half-made employee behind when the association is refused.
+        if ($user && $business) {
+            $allowed = $this->associateService->check($user, $business);
+
+            if (! $allowed['success']) {
+                return $this->rejectWith($allowed['message']);
+            }
+        }
+
+        $user = $this->createOrAdoptUser($request, $user, $business);
+
+        if (! $user) {
+            return $this->rejectWith('ثبت کاربر انجام نشد. اطلاعات وارد شده را بررسی کنید.');
         }
 
         $employee = Employee::create([
@@ -199,8 +279,12 @@ class EmployeeController extends AdminController
             'center_id'      => $request->center_id,
         ]);
 
-        if ($request->filled('role_id')) {
-            $user->roles()->sync([$request->role_id]);
+        $this->syncRole($request, $user);
+
+        // The association is what actually grants the panel: User::isAdmin() lets a
+        // ghorfeAdmin in only while this row exists.
+        if ($business) {
+            $this->associateService->assign($user, $business);
         }
 
         return redirect()->route('employee.edit', $employee->id)->with([
@@ -208,12 +292,162 @@ class EmployeeController extends AdminController
         ]);
     }
 
-    /** Creating an employee provisions a panel account, so it is superadmin-only. */
+    /**
+     * Write the users row, reusing the quick-action user store.
+     *
+     * `User::createUser()` is the same call CallcenterController::registerForm makes, and it
+     * is left to decide on its own whether the phone number is new — it returns a response,
+     * not a model, so the row is read back by phone exactly as the quick action does.
+     *
+     * An existing row is updated instead: promoting a customer must not orphan their orders
+     * by creating a second account for the same number.
+     */
+    private function createOrAdoptUser(Request $request, ?User $existing, ?GhorfeOnlineList $business): ?User
+    {
+        $attributes = [
+            'name'        => $request->name,
+            'family'      => $request->family,
+            'melicode'    => $request->melicode,
+            'sex'         => $request->gender,
+            'call'        => $request->call,
+            'address'     => $request->address,
+            'province_id' => $request->province,
+            'city_id'     => $request->city,
+            'center_id'   => $request->center_id,
+            // Staff of a business are ghorfeAdmin, staff of لاله are admin: `level` is what
+            // the panel reads to tell the two apart. status 0 means the person is not staff
+            // yet, so no panel level at all.
+            'level'       => $request->status != 1 ? 'user' : ($business ? 'ghorfeAdmin' : 'admin'),
+            'active'      => true,
+        ];
+
+        if ($this->actorIsSuperAdmin()) {
+            $attributes['admin_representation_id'] = $request->admin_representation_id;
+        }
+
+        if ($existing) {
+            $existing->update($attributes);
+
+            if ($request->filled('password')) {
+                $existing->update(['password' => Hash::make($request->password)]);
+            }
+
+            return $existing;
+        }
+
+        User::createUser($request);
+
+        $user = User::where('phone', $request->phone)->first();
+
+        if (! $user) {
+            return null;
+        }
+
+        // createUser() writes the customer-shaped row (name/family/gender/province/city and a
+        // random password); the staff fields and a typed password are layered on here.
+        $user->update($attributes + [
+            'password' => Hash::make($request->password ?: rand(12345, 99999)),
+            'status'   => true,
+        ]);
+
+        return $user;
+    }
+
+    /**
+     * The role the creator picked, and nothing implied.
+     *
+     * Leaving the field empty means exactly that: the associate is created with no role and
+     * stays permission-less until someone grants one — the association is what lets them into
+     * the panel, the role is what they may then do, and the second is a deliberate act.
+     */
+    private function syncRole(Request $request, User $user): void
+    {
+        if ($request->filled('role_id')) {
+            $user->roles()->sync([$request->role_id]);
+        }
+    }
+
+    /**
+     * Which business the new employee is an associate of.
+     *
+     * For a ghorfeAdmin this is their own, taken from the session and never from the form —
+     * requirement 6: an associate of one business must not reach another one.
+     */
+    private function targetBusiness(Request $request): ?GhorfeOnlineList
+    {
+        if (! $this->actorIsSuperAdmin()) {
+            return $this->actorBusiness();
+        }
+
+        return $request->filled('ghorfe_online_list_id')
+            ? GhorfeOnlineList::find($request->ghorfe_online_list_id)
+            : null;
+    }
+
+    /** The business the signed-in user is an associate of, if any. */
+    private function actorBusiness(): ?GhorfeOnlineList
+    {
+        return $this->actorIsSuperAdmin() ? null : ghorfe();
+    }
+
+    /**
+     * Branches the form may offer: a business's own ones, or every active branch for لاله.
+     *
+     * A query rather than Center::filter() on purpose — that scope reads request('status'),
+     * which this form posts with the EMPLOYEE status and would silently narrow the list.
+     */
+    private function selectableCenters(?GhorfeOnlineList $business)
+    {
+        return $business
+            ? $business->centers()->getQuery()->orderBy('title')
+            : \App\Models\Center::where('status', true)->orderBy('title');
+    }
+
+    /**
+     * Supervisors the form may offer: a business only ever sees its own associates.
+     *
+     * The list is the staff picker, so it is scoped the same way the staff LIST is
+     * (Employee::scopeFilter) — through the user's business — rather than showing a business
+     * admin all 400 لاله employees to choose a supervisor from.
+     */
+    private function selectableParents(?GhorfeOnlineList $business)
+    {
+        $parents = Employee::with('user:id,name,family')->whereHas('user')->where('status', 1);
+
+        if ($business) {
+            $parents->whereHas('user.ghorfeOnlineLists', fn ($query) => $query->whereKey($business->id));
+        }
+
+        return $parents->get();
+    }
+
+    /** Whether the signed-in user provisions لاله staff rather than a business's staff. */
+    private function actorIsSuperAdmin(): bool
+    {
+        $user = auth()->user();
+
+        return $user && ($user->level === 'superAdmin' || $user->hasRole('superadmin'));
+    }
+
+    /**
+     * Creating an employee provisions a panel account, so it is limited to the two levels
+     * that own such accounts: لاله's superAdmin and a business's own ghorfeAdmin.
+     */
     private function authorizeEmployeeCreation(): void
     {
-        if (! auth()->user() || ! auth()->user()->hasRole('superadmin')) {
+        $user = auth()->user();
+
+        // A ghorfeAdmin with no business has nothing to add staff to — canCreateEmployee()
+        // is the same rule the "ایجاد همکار" button is drawn from.
+        if (! $user || ! $user->canCreateEmployee()) {
             abort(401);
         }
+    }
+
+    /** Back to the form with the typed values and one sentence saying what went wrong. */
+    private function rejectWith(string $message)
+    {
+        return redirect()->back()->withInput()->with(['failByMessage' => $message]);
     }
 
     /**
