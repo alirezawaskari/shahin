@@ -1,21 +1,16 @@
 @php
-    $deskImages = $galleries->where('type', 1)->values();
-
-    $numberImage = 3;
-
-    if ($ghorfeTemplet->type == 'service') {
-        $numberImage = 5;
-    }
-
-    $bigDeskIndex = $numberImage;
+$numberImage = 2;
+$ghorfeTemplet = $owner->parent->en_title ?? $owner->en_title;
+if ($ghorfeTemplet == 'service') {
+$numberImage = 4;
+}
+$bigDeskIndex = $numberImage;
 @endphp
-
-
 <div class="col-md-12 mb-3">
     <h4>عکس های گالری *</h4>
     <span>تمامی عکس ها الزامی هستند.</span><br/>
     <span>نمایش در موبایل و دسکتاپ</span><br/>
-    <span>{{ $smallCount }} عکس کوچک و 1 عکس بزرگ</span>
+    <span>{{ $numberImage }} عکس کوچک و 1 عکس بزرگ</span>
 </div>
 
 @foreach($sections as $section)
@@ -30,9 +25,9 @@
             {{ $section['label'] }}
         </div>
 
-        @for($i = 0; $i <= $smallCount; $i++)
+        @for($i = 0; $i <= $numberImage; $i++)
             @php
-                $isBig   = ($i === $smallCount);
+                $isBig   = ($i === $numberImage);
                 $media   = $mediaAt($collection, $i);
                 $fieldId = $input . '_' . $i;
                 $boxH    = $isBig ? 180 : 120;
