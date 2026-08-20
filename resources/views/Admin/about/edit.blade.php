@@ -324,10 +324,10 @@
                                 </div>
 
                                 <div class="col-12">
-                                    {{-- The staff of this business ARE the staff of its branches — there is
-                                         no second, curated list to keep in step. The three descriptive lines
-                                         belong to the employee's own profile, so they are shown read-only
-                                         here and «ویرایش» opens that profile. --}}
+                                    {{-- The staff of this business ARE the people attached to it
+                                         (ghorfe_online_list_user) — there is no second, curated list to keep
+                                         in step. The three descriptive lines belong to the employee's own
+                                         profile, so they are read-only here and «ویرایش» opens that profile. --}}
                                     <table class="table table-bordered" id="staff-table">
                                         <thead>
                                         <tr>
@@ -367,12 +367,13 @@
                                     </table>
 
                                     @if($employees->isEmpty())
-                                        <div class="alert alert-warning">هنوز همکاری به شعبه های این کسب و کار اضافه نشده است.</div>
+                                        <div class="alert alert-warning">هنوز همکاری به این کسب و کار اضافه نشده است.</div>
                                     @endif
 
                                     <small class="d-block text-muted mt-2">
-                                        همکاران از شعبه های همین کسب و کار خوانده می‌شوند. «حذف» همکار را از شعبه جدا می‌کند
-                                        و او دیگر در صفحه درباره ما نمایش داده نمی‌شود؛ رکورد همکار پاک نمی‌شود.
+                                        همکاران این کسب و کار از فهرست کاربران همان کسب و کار خوانده می‌شوند.
+                                        «حذف» همکار را از این کسب و کار جدا می‌کند و او دیگر در صفحه درباره ما
+                                        نمایش داده نمی‌شود؛ رکورد همکار پاک نمی‌شود.
                                     </small>
                                 </div>
                             </div>
