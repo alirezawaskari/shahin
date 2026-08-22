@@ -16,7 +16,7 @@ function catType(catType) {
 }
 
 $(document).ready(function () {
-   $('#service-type').click();
+    $('#service-type').click();
     fetchData(1);
 
     function pagination(totalPages) {
@@ -33,20 +33,23 @@ $(document).ready(function () {
     }
 
     function fetchData(page) {
-        document.getElementById('loading').style.display = 'block';
-        var form = $('#form');
-        var formData = form.serialize();
+    $('#loading').removeClass('d-none').addClass('d-flex');
 
-        $.ajax({
-            url: "/dashboard/center/filter/?page=" + page,
-            data: formData,
-            success: function (data) {
-                createTable(data);
-                document.getElementById('loading').style.display = 'none';
-            }
-        });
+    var form = $('#form');
+    var formData = form.serialize();
 
-    }
+    $.ajax({
+        url: "/dashboard/center/filter/?page=" + page,
+        data: formData,
+        success: function (data) {
+            createTable(data);
+        },
+        complete: function () {
+            $('#loading').removeClass('d-flex').addClass('d-none');
+        }
+    });
+}
+
 
     function createTable(data) {
         pagination(data.meta.last_page);
@@ -72,22 +75,22 @@ $(document).ready(function () {
                     "targets": 2,
                     "data": "status",
                     "render": function (data) {
-                        return data==1?'<i class="fa fa-check" aria-hidden="true"></i>':'<i class="fa fa-times" aria-hidden="true"></i>'
+                        return data == 1 ? '<i class="fa fa-check" aria-hidden="true"></i>' : '<i class="fa fa-times" aria-hidden="true"></i>'
                     }
                 },
                 {
                     "targets": 1,
                     "data": data,
                     "render": function (data) {
-                        let delete_display='none';
-                        if($('#delete').val()==1){
-                            delete_display='block';
-                        }let edit_display='none';
-                        if($('#edit').val()==1){
-                            edit_display='block';
-                        }let financial_report_detail_display='none';
-                        if($('#financial_report_detail').val()==1){
-                            financial_report_detail_display='block';
+                        let delete_display = 'none';
+                        if ($('#delete').val() == 1) {
+                            delete_display = 'block';
+                        } let edit_display = 'none';
+                        if ($('#edit').val() == 1) {
+                            edit_display = 'block';
+                        } let financial_report_detail_display = 'none';
+                        if ($('#financial_report_detail').val() == 1) {
+                            financial_report_detail_display = 'block';
                         }
                         let services = data.services || [];
                         let serviceLinks = services.map(function (element) {
