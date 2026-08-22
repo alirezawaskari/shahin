@@ -4,7 +4,7 @@
 @section('content')
 <div class="page-header">
     <div>
-        <h3>ایجاد طرح جدید</h3>
+        <h3>ویرایش قالب پیامکی</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>

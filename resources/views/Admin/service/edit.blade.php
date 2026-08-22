@@ -57,6 +57,13 @@
                     عنوان جدول مراجعات
                 </a>
             </li>
+            <li class="nav-item  flex-fill text-center nav-item-service">
+                <a class="nav-link" id="seo-contrnt-tab" data-toggle="tab" href="#seoContrnt-data" role="tab"
+                    aria-controls="seoContrnt-data" aria-selected="false"><i class="fa fa-line-chart"
+                        aria-hidden="true"></i>
+                    محتوا سئو
+                </a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
 
@@ -295,7 +302,7 @@
                 <div class="container m-top-40">
                     <form action="{{route('service.update' , [$service->slug ])}}" id="text-information-form">
                         <input type="hidden" value="text_information" name="update_type">
-                        @if (ghorfe())
+                        @if (ghorfe() || $service->is_complate_content)
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <div class="card">
@@ -345,6 +352,16 @@
                             </div>
                         </div>
                         @endif
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="is_complate_content" value="1" id="is_complate_content"
+                                    @if($service->is_complate_content)
+                                checked
+                                @endif> تکمیل متن خدمت
+                            </label>
+                            @if($errors->has('is_complate_content'))<span
+                                class="help-block sub-error">{{$errors->first('is_complate_content')}}</span>@endif
+                        </div>
                         <div class="col-12 col-md-12 mb-3">
                             <span class="btn btn-success" id="text-information-submit">ثبت تغییرات</span>
                         </div>
@@ -541,10 +558,12 @@
                                 </table>
                             </div>
 
-                            @if($service->getMedia('portfolio')->count() == 0 && $service->hasLegacyWorkSampleRows('portfolio'))
+                            @if($service->getMedia('portfolio')->count() == 0 &&
+                            $service->hasLegacyWorkSampleRows('portfolio'))
                             <div class="col-12 col-md-12 mb-4">
                                 <label> نمونه کار های ذخیره شده</label>
-                                <small class="d-block text-warning mb-2">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+                                <small class="d-block text-warning mb-2">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل
+                                    می‌شوند</small>
                                 <table class="table table-striped">
                                     <tbody>
                                         @foreach($service->legacyWorkSampleItems('portfolio') as $item)
@@ -642,6 +661,12 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+            <!--___________________________________________-->
+            <div class="tab-pane fade" id="seoContrnt-data" role="tabpanel" aria-labelledby="seoContrnt-tab">
+                <div class="container m-top-40">
+                    @include('Admin.service.seoContent')
                 </div>
             </div>
         </div>
