@@ -165,11 +165,11 @@ function updateTextInformation(){
     var content = getData('content');
     var left_content = getData('left_content');
     var txt_box_1 = getData('txt_box_1');
-    var is_complate_content = document.getElementById("is_complate_content").value;
+    var is_complete_content = document.getElementById("is_complete_content").value;
     if (content !== null) data.content = content;
     if (left_content !== null) data.left_content = left_content;
     if (txt_box_1 !== null) data.txt_box_1 = txt_box_1;
-    data.is_complate_content = is_complate_content;
+    data.is_complete_content = is_complete_content;
     return $.ajax({
         url: $('#text-information-form').attr("action"),
         data: data,

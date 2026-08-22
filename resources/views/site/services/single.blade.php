@@ -46,7 +46,7 @@
             <div class="row">
 
                 <div class="col-12 col-md-5 py-5 my-auto mr-auto">
-                    @if ($service->is_complate_content)
+                    @if ($service->is_complete_content)
                     @include('site.services.registerForm')
                     {!! $service->content !!}
                     @else

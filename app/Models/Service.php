@@ -141,7 +141,7 @@ class Service extends Model implements AuditableContract, HasMedia
         'center','multiple','percent',
         'demo','content','txt_box_1','left_content'
         ,'img_box_1','thumb','image','icon','image_app'
-        ,'background_image','gift','wage_percent','session_attributes','tax','rules','session','is_complate_content'];
+        ,'background_image','gift','wage_percent','session_attributes','tax','rules','session','is_complete_content'];
 
     /**
      * @var array

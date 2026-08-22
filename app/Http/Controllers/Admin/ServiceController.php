@@ -361,7 +361,7 @@ class ServiceController extends AdminController
           // Persist only the text fields actually submitted. The ghorfe متن form sends just
           // `content`; writing the others unconditionally would null out txt_box_1/left_content.
           $fields = [];
-          foreach (['content', 'txt_box_1', 'left_content' , 'is_complate_content'] as $f) {
+          foreach (['content', 'txt_box_1', 'left_content' , 'is_complete_content'] as $f) {
               if (!is_null($request->input($f))) {
                   $fields[$f] = $request->input($f);
               }

@@ -302,7 +302,7 @@
                 <div class="container m-top-40">
                     <form action="{{route('service.update' , [$service->slug ])}}" id="text-information-form">
                         <input type="hidden" value="text_information" name="update_type">
-                        @if (ghorfe() || $service->is_complate_content)
+                        @if (ghorfe() || $service->is_complete_content)
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <div class="card">
@@ -354,13 +354,13 @@
                         @endif
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="is_complate_content" value="1" id="is_complate_content"
-                                    @if($service->is_complate_content)
+                                <input type="checkbox" name="is_complete_content" value="1" id="is_complete_content"
+                                    @if($service->is_complete_content)
                                 checked
                                 @endif> تکمیل متن خدمت
                             </label>
-                            @if($errors->has('is_complate_content'))<span
-                                class="help-block sub-error">{{$errors->first('is_complate_content')}}</span>@endif
+                            @if($errors->has('is_complete_content'))<span
+                                class="help-block sub-error">{{$errors->first('is_complete_content')}}</span>@endif
                         </div>
                         <div class="col-12 col-md-12 mb-3">
                             <span class="btn btn-success" id="text-information-submit">ثبت تغییرات</span>
