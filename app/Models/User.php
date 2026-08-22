@@ -232,6 +232,27 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         }
         return false;
     }
+
+    /**
+     * Whether this account may provision another panel account ("ایجاد همکار").
+     *
+     * Two levels own such accounts and no others: لاله's superAdmin, and a business's own
+     * ghorfeAdmin — the latter only while they actually belong to a business, since the new
+     * employee is made an associate of it.
+     *
+     * Read by both EmployeeController::authorizeEmployeeCreation and the button that opens
+     * the form, so the two can never drift apart.
+     *
+     * @return bool
+     */
+    public function canCreateEmployee(): bool
+    {
+        if ($this->level === 'superAdmin' || $this->hasRole('superadmin')) {
+            return true;
+        }
+
+        return $this->level === 'ghorfeAdmin' && $this->ghorfeOnlineLists()->exists();
+    }
     /**
      * @return bool
      */

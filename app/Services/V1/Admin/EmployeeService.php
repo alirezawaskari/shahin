@@ -82,6 +82,20 @@ class EmployeeService {
             $employeeData[ 'center_id' ] = $request->center_id ?: null;
         }
 
+        // Which business the employee works for — the key GhorfeOnlineList::staff() reads, so
+        // it decides whose "درباره ما" page lists them.
+        //
+        // A business admin may only take on somebody nobody else has, and only for their own
+        // business; مدیر سیستم may set, move or clear it at any time. Enforced here and not
+        // just by which options the form renders, because any id can be posted by hand — a
+        // refusal keeps the value the row already had.
+        if ( $request->has( 'ghorfe_online_list_id' ) ) {
+            $employeeData[ 'ghorfe_online_list_id' ] =
+                $this->assignableBusinessId( $employee, $request->ghorfe_online_list_id );
+        } else {
+            unset( $employeeData[ 'ghorfe_online_list_id' ] );
+        }
+
         $this->replaceImage( $request, $employee, 'urlimgaccess', 'imgaccess', 'document' );
 
         $this->replaceImage( $request, $employee, 'urlimglastcertificate', 'imglastcertificate', 'document' );
@@ -91,6 +105,53 @@ class EmployeeService {
         unset( $inputs[ 'employee' ] );
 
     }
+    /**
+     * The business id this update may write, or the one the row already has when the posted
+     * value is not the caller's to give — a refusal must never look like a change.
+     *
+     * مدیر سیستم (superAdmin) sets, moves or clears it freely; moving staff between businesses
+     * is theirs alone, which is exactly what a business admin is told to ask them for.
+     *
+     * A business admin may only take on somebody NO ONE has yet, only into their own business,
+     * and only if that person is not لاله's own staff.
+     *
+     * لاله staff means `users.level` of admin/superAdmin — not "absent from
+     * ghorfe_online_list_user". That pivot records which business an ACCOUNT belongs to and
+     * holds customers as well, so "no pivot row" describes most ordinary users too; `level` is
+     * what the panel itself reads (isAdmin(), the dashboard redirect, FilterHelper's لاله
+     * branch). A `user` — a customer, or someone who registered through the public employee
+     * form — and a ghorfeAdmin with no business are both takeable.
+     *
+     * @param  Employee  $employee
+     * @param  mixed  $posted
+     * @return int|null
+     */
+    private function assignableBusinessId( Employee $employee, $posted ): ?int {
+        $posted = $posted ?: null;
+        $current = $employee->ghorfe_online_list_id;
+        $user = auth()->user();
+
+        if ( !$user ) {
+            return $current;
+        }
+
+        if ( $user->level === 'superAdmin' || $user->hasRole( 'superadmin' ) ) {
+            return $posted ? ( int ) $posted : null;
+        }
+
+        if ( is_null( $posted ) || !is_null( $current ) || $user->level !== 'ghorfeAdmin' ) {
+            return $current;
+        }
+
+        if ( !$employee->user || in_array( $employee->user->level, [ 'admin', 'superAdmin' ], true ) ) {
+            return $current;
+        }
+
+        $own = optional( ghorfe() )->id;
+
+        return $own && ( int ) $posted === ( int ) $own ? ( int ) $posted : $current;
+    }
+
     /**
      * Summary of updateStatusAndLevel
      * @param Employee $employee

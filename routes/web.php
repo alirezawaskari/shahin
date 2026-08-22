@@ -466,6 +466,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     //employee
     Route::get('/employee/financialReportEmployeeList', 'EmployeeController@financialReportEmployeeList')->name('employee.financialReport.list');
     Route::get('/employee/filter', 'EmployeeController@filter')->name('employee.filter');
+    // phone lookup behind the new-employee form; must stay above the employee resource so
+    // /employee/searchUser is not swallowed by /employee/{employee}
+    Route::get('/employee/searchUser', 'EmployeeController@searchUser')->name('employee.searchUser');
     Route::get('/seller/filter', 'EmployeeController@sellerFilter')->name('seller.filter');
     Route::get('/employee-financial-report/{employee}' , 'EmployeeController@financialReport')->name('employee.financial.report');
     Route::get('/employee-wallet/{user}/{key}' , 'EmployeeController@walletTransaction')->name('employee.wallet');

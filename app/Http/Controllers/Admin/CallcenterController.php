@@ -299,8 +299,10 @@ class CallcenterController extends Controller
             $service_categories = auth()->user()->admin_representation->services;
             $product_categories = auth()->user()->admin_representation->categories;
         }else{
-            $product_categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
-            $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' ,1)->get();
+            // Same union the modal's composer uses (FilterServiceProvider::tasks_requires):
+            // the business's own catalogue counts, not only the hand-maintained pivot.
+            $product_categories = Category::invoiceRows(1)->get();
+            $service_categories = Category::invoiceRows(2)->get();
         }
 
         if(auth()->user()->center && auth()->user()->center->centerable_type == Service::class)
@@ -1154,6 +1156,16 @@ class CallcenterController extends Controller
             'representation_id' => auth()->user()->admin_representation_id ?: null,
             'expired_at' => now()->addMinutes(30),
         ]);
+
+        // The invoice belongs to the business that raised it, not to whichever business the
+        // customer happens to be a member of — a business associate may invoice someone who
+        // has never dealt with their shop, and that invoice must still appear in their own
+        // list (Factor::scopeFilter scopes on this pivot). Same attach createTask() does for
+        // the task itself.
+        $ghorfe_online = ghorfe();
+        if ($ghorfe_online) {
+            $factor->ghorfeOnlineLists()->syncWithoutDetaching([$ghorfe_online->id]);
+        }
 
         if ($request->url_bill_image) {
             \App\Helpers\MediaLibraryHelper::attachTo($factor, $request->url_bill_image, 'bill_image');

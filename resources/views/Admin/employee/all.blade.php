@@ -13,9 +13,10 @@
             </ol>
         </nav>
     </div>
-    {{-- Creating an employee provisions a panel account, so only a superadmin sees this
-         (EmployeeController::authorizeEmployeeCreation enforces it server-side too). --}}
-    @if(auth()->user() && auth()->user()->hasRole('superadmin'))
+    {{-- Creating an employee provisions a panel account: لاله's superAdmin, and a business
+         admin for their own business (EmployeeController::authorizeEmployeeCreation enforces
+         the same rule server-side). --}}
+    @if(auth()->user() && auth()->user()->canCreateEmployee())
     <div>
         <a href="{{ route('employee.create') }}" class="btn btn-success">ایجاد همکار</a>
     </div>

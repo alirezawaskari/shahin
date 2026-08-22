@@ -246,12 +246,15 @@ class AboutController extends Controller
 
         $ghorfe->centers()->sync($branchIds);
 
-        // Staff are not a list of their own: an employee is on the page while they work at
-        // one of the branches. Removing their row therefore cuts that link — and only for
-        // employees of THIS business's branches, so a save can never touch anyone else's.
+        // Staff are not a list of their own: an employee is on the page while they belong to
+        // the business. Membership IS employees.ghorfe_online_list_id, so removing their row
+        // clears that column — nothing else about the employee changes, their branch least
+        // of all.
+        //
+        // Scoped through staff(), so a save only ever reaches employees of THIS business.
         $keep = collect($request->input('staff_ids', []))->map(fn ($id) => (int) $id)->all();
 
-        $ghorfe->staff()->whereNotIn('id', $keep)->update(['center_id' => null]);
+        $ghorfe->staff()->whereNotIn('id', $keep)->update(['ghorfe_online_list_id' => null]);
     }
 
     /**
