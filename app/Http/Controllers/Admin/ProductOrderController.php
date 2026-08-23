@@ -305,7 +305,10 @@ class ProductOrderController extends Controller
         return [
             'province_id' => 'required|integer|exists:provinces,id',
             'city_id' => 'required|integer|exists:cities,id',
-            'area_id' => 'nullable|integer',
+            //checked against the table, not just cast: `addresses` carries foreign keys onto
+            //provinces/cities/areas on server installs, where a stale id would be a 500
+            //instead of a validation message
+            'area_id' => 'nullable|integer|exists:areas,id',
             'address' => 'required|string',
             'plaque' => 'required|numeric',
             'unit' => 'nullable|numeric',
