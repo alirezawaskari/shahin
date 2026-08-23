@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Factor;
 use App\Models\ServiceItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class ServiceController extends Controller
 {
@@ -53,6 +54,9 @@ class ServiceController extends Controller
 		{
 			$user = $factor->user;
 		}
+        $registerForm = View::make('site.services.registerForm' , compact('service' , 'financial_plans_types' , 'callcenter'))->render();
+        $content = str_replace('[form]', $registerForm, $service->content);
+
         if ($user) {
             $required = null;
             $founded = [];
@@ -80,10 +84,10 @@ class ServiceController extends Controller
                 }
             }
 
-            return view('site.services.single', compact('images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
+            return view('site.services.single', compact('content' , 'images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
 
-        return view('site.services.single', compact('images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
+        return view('site.services.single', compact('content' , 'images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
     }
     /**
      * @param \Illuminate\Http\Request $request

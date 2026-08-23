@@ -4,6 +4,9 @@
 
 @section('content')
     <div class="service">
+        @if ($service->is_complete_content)
+           {!! $content !!}
+        @else
         <div class="register-section py-4" id="one-section">
             <div class="container-fluid">
                 <div class="row">
@@ -168,6 +171,7 @@
             @endforeach
         @endif
         </div>
+        @endif
     </div>
    @include('site.services.questions')
 @endsection

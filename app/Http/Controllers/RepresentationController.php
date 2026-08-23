@@ -8,6 +8,7 @@ use App\Models\Representation;
 use App\Models\Service;
 use App\Models\ServiceItem;
 use App\Models\User;
+use Illuminate\Support\Facades\View;
 
 class RepresentationController extends Controller
 {
@@ -76,6 +77,8 @@ class RepresentationController extends Controller
 		{
 			$user = $factor->user;
 		}
+        $registerForm = View::make('site.services.registerForm' , compact('service' , 'financial_plans_types' , 'callcenter'))->render();
+        $content = str_replace('[form]', $registerForm, $service->content);
         if ($user) {
             $required = null;
             $founded = [];
@@ -103,10 +106,10 @@ class RepresentationController extends Controller
                 }
             }
 
-            return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor', 'representation' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
+            return view('site.representation.single', compact('content','images' ,'questions', 'is_service' , 'factor', 'representation' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
 
-        return view('site.representation.single', compact('images' ,'questions', 'is_service' , 'factor' , 'representation' , 'callcenter','service', 'financial_plans_types' ,'task'));
+        return view('site.representation.single', compact('content' , 'images' ,'questions', 'is_service' , 'factor' , 'representation' , 'callcenter','service', 'financial_plans_types' ,'task'));
        }
 
     /**
