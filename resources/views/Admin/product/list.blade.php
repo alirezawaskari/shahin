@@ -85,6 +85,8 @@
                         </div>
                     @endif
 
+                    @include('Admin.filter.businessSelect')
+
                     <div class="col-12 col-md-3 mb-2">
                         <button type="submit" id="filter" class="btn btn-outline-primary py-2 px-4">فیلتر</button>
                         @if($type_id == 1)

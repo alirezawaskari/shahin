@@ -56,6 +56,7 @@
                 <div class="col-12 col-md-3 mb-2">
                     <date-picker placeholder="تا تاریخ" locale="fa,en" format="YYYY-M-D" name="endDate"></date-picker>
                 </div>
+                @include('Admin.filter.businessSelect')
                 <div class="col-12 col-md-3 mb-2">
                     <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
                 </div>
