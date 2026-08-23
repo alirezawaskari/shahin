@@ -113,6 +113,22 @@ class GhorfeOnlineList extends Model implements HasMedia
         return 'slug';
     }
 
+    /**
+     * The businesses that are switched on — `status`, the same فعال/غیرفعال the businesses
+     * list renders and the edit form writes.
+     *
+     * Every admin screen that OFFERS a business to pick goes through here: a business whose
+     * contract has been switched off must not be selectable any more, even though its rows
+     * stay in place and stay reachable for whoever is pinned to it.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
     public function template()
     {
         return $this->belongsTo(Template::class, 'template_id');

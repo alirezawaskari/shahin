@@ -253,7 +253,6 @@ class Center extends Model implements HasMedia {
         $category = request( 'category' );
         $status = request( 'status' );
         $representation = request( 'representation' );
-        $business = request( 'business' );
 
         // Tenancy, exactly as every other list in the panel does it (Service, Product, User,
         // Category, Factor): a business admin sees only the branches attached to its ghorfe
@@ -263,6 +262,11 @@ class Center extends Model implements HasMedia {
         //
         // Not assigned back: the helper mutates the builder, and it returns null for a level
         // it does not know (siteAdmin), which would turn an unfiltered list into a fatal.
+        //
+        // The «کسب و کار» picker of this page is read in there too, which is why there is no
+        // `business` branch below any more: it was this same filter written a second time,
+        // against every business rather than the active ones and for every level rather than
+        // لاله staff. See Admin.filter.businessSelect.
         FilterHelper::getDataByCheckGhorfeExistOrNot( $query, 'belongsToMany', null );
 
         if(auth()->user()->admin_representation_id)
@@ -297,12 +301,6 @@ class Center extends Model implements HasMedia {
                     $query->where('owner_id', $representation);
                 });
             }
-        }
-
-        if ( isset( $business ) && trim( $business ) != 'all' ) {
-            $query->whereHas('ghorfeOnlineLists', function ($query) use ($business) {
-                $query->where('owner_id', $business);
-            });
         }
 
         return $query;

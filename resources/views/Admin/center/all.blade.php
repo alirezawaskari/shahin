@@ -58,14 +58,7 @@
                 </div>
                 @endif
 
-                <div class="col-12 col-md-3 mb-2">
-                    <select class="form-control" name="business">
-                        <option value="all">کسب‌وکار</option>
-                        @foreach(\App\Models\GhorfeOnlineList::orderBy('title')->get() as $business)
-                            <option value="{{ $business->id }}">{{ $business->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @include('Admin.filter.businessSelect')
 
                 <div class="col-12 col-md-3 mb-2">
                     <button id="filter" type="submit" class="btn btn-primary">
