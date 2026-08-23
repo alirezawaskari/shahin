@@ -688,7 +688,7 @@
                                                 @endif
                                             </div>
                                             <div class="card-body">
-                                                <label>اسلایدر تبلیغات(88*1400)</label>
+                                                <label>اسلایدر تبلیغات(600*1440)</label>
                                                 <br>
                                                 <label for="addvertisment_slider"
                                                     class="btn btn-primary custom-file-upload border border-1"><i
@@ -699,6 +699,12 @@
                                                     accept=".jpg,.jpeg,.png,.gif">
                                                 <input type="hidden" id="addvertisment_slider_path" class="path"
                                                     name="addvertisment_slider_path">
+                                            </div>
+                                            <div class="col-12 mb-2">
+                                                <label>آدرس لینک شده به این اسلایدر</label>
+                                                <input type="text" value="{{$ghorfeOnlineList->addvertisment_slider_link}}"
+                                                    class="form-control" name="addvertisment_slider_link">
+                                                <label>مانند نمونه: 'https://www.lalecard.ir/categories'</label>
                                             </div>
                                         </div>
                                     </div>

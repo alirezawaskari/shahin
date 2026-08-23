@@ -411,6 +411,52 @@ class Category extends Model implements HasMedia
         return $query;
     }
     /**
+     * The categories the invoice-row pickers may offer ("ثبت خدمات سریع" / ارسال فاکتور).
+     *
+     * `filter()` alone answers this from `category_ghorfe_online_list`, a pivot only the
+     * category screens write. A business that was given services or products without anyone
+     * also ticking their category there ends up with an EMPTY picker and cannot raise an
+     * invoice at all — دیجی بیوتی has 20 services and zero categories, so its admin could not
+     * add a single row for anybody.
+     *
+     * So the business's own catalogue is unioned in: a category is offerable if it is
+     * attached to the business, OR the business actually sells something in it. Services hang
+     * off `services.category_id`; products off the `category_product` pivot — hence the two
+     * branches. لاله staff are unaffected and keep plain filter() scoping.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $parent_id  1 = کالا, 2 = خدمات
+     */
+    public function scopeInvoiceRows($query, int $parent_id)
+    {
+        $query->where('parent_id', $parent_id)->where('isActive', 1);
+
+        $ghorfe = ghorfe();
+
+        if (! $ghorfe) {
+            return $query->filter();
+        }
+
+        // "belongs to this business", applied to whatever model the builder is on
+        $of_this_business = fn ($query) => $query->whereHas(
+            'ghorfeOnlineLists',
+            fn ($q) => $q->whereKey($ghorfe->id)
+        );
+
+        return $query->where(function ($query) use ($ghorfe, $parent_id, $of_this_business) {
+            $query->whereHas('ghorfeOnlineLists', fn ($q) => $q->whereKey($ghorfe->id));
+
+            if ($parent_id === 2) {
+                $query->orWhereIn('id', Service::query()->tap($of_this_business)->select('category_id'));
+
+                return;
+            }
+
+            $query->orWhereHas('products', $of_this_business);
+        });
+    }
+
+    /**
      * Summary of scopeFilterByGhorfe
      * @param mixed $query
      * @param mixed $ghorfe

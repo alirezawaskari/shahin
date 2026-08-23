@@ -14,6 +14,7 @@ use App\Models\MediaLibrary;
 use App\Models\Menu;
 use App\Models\Service;
 use App\Models\WorkSample;
+use App\Services\V1\Admin\SeoContentService;
 use App\Services\V1\Auth\AdminAuthService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,6 +23,10 @@ use Illuminate\Validation\Rule;
 
 class ServiceController extends AdminController
 {
+    public function __construct(
+        private SeoContentService $seoService
+    ) {}
+
     /**
      * Summary of index
      * @param Request $request
@@ -196,6 +201,8 @@ class ServiceController extends AdminController
                  return $this->insertSessionTitles($request,$service);
              case "rules":
                  return $this->updateRules($request,$service);
+            case "seo_content":
+                 return $this->updateSeoContent($request,$service);
         }
     }
 
@@ -354,7 +361,7 @@ class ServiceController extends AdminController
           // Persist only the text fields actually submitted. The ghorfe متن form sends just
           // `content`; writing the others unconditionally would null out txt_box_1/left_content.
           $fields = [];
-          foreach (['content', 'txt_box_1', 'left_content'] as $f) {
+          foreach (['content', 'txt_box_1', 'left_content' , 'is_complete_content'] as $f) {
               if (!is_null($request->input($f))) {
                   $fields[$f] = $request->input($f);
               }
@@ -424,9 +431,10 @@ class ServiceController extends AdminController
 
 
     /**
+     * Summary of uploadFirstImages
      * @param Request $request
      * @param Service $service
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\Response
      */
     private function uploadFirstImages(Request $request, Service $service)
     {
@@ -675,6 +683,24 @@ class ServiceController extends AdminController
         $service->update(array(
             'rules'=>$request->rules,
         ));
+        return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
+    }
+
+    private function updateSeoContent(Request $request, Service $service)
+    {
+        $this->seoService->save($service, $request->only([
+            'seo_title',
+            'meta_description',
+            'robots',
+            'canonical_url',
+            'redirect_from',
+            'redirect_to',
+            'redirect_enabled',
+            'og_title',
+            'og_description',
+            'og_site_name',
+        ]));
+
         return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
     }
 

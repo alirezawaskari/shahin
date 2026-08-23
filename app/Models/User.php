@@ -232,6 +232,28 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         }
         return false;
     }
+
+    /**
+     * Whether this account may provision another panel account ("ایجاد همکار").
+     *
+     * The staff levels: لاله's superAdmin and admin, and a business's own ghorfeAdmin — the
+     * last only while they actually belong to a business, since the new employee is made
+     * staff of it. What each of them may then SET on the form still differs; that is
+     * EmployeeController's business, not this method's.
+     *
+     * Read by both EmployeeController::authorizeEmployeeCreation and the button that opens
+     * the form, so the two can never drift apart.
+     *
+     * @return bool
+     */
+    public function canCreateEmployee(): bool
+    {
+        if (in_array($this->level, ['superAdmin', 'admin'], true) || $this->hasRole('superadmin')) {
+            return true;
+        }
+
+        return $this->level === 'ghorfeAdmin' && $this->ghorfeOnlineLists()->exists();
+    }
     /**
      * @return bool
      */

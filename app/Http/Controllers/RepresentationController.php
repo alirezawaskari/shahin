@@ -29,7 +29,16 @@ class RepresentationController extends Controller
         }
        return abort(404);
     }
-
+    /**
+     * Summary of recruitmentNoticeList
+     * @param Representation $representation
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function recruitmentNoticeList(Representation $representation)
+    {
+        $recruitment_notices = $representation->recruitmentNotices()->get()->groupBy('province_id');
+        return view('site.recruitmentNotice', compact('recruitment_notices'));
+    }
 
     /**
      * @param Representation $representation

@@ -202,6 +202,46 @@
                                 @endforeach
                             </select>
                         </div>
+                        {{-- Which business this person works for — what puts them on that
+                             business's "درباره ما" page. Separate from the branch above: the
+                             branch is where they sit, this is who they work for.
+
+                             Open while nobody has claimed them, closed once someone has: a
+                             business admin sees only their own business in the list, and after
+                             the assignment the answer is shown but no longer editable, so
+                             staff cannot be moved between businesses from here.
+                             EmployeeService enforces both halves on the posted field. --}}
+                        @if($ghorfeOnlineLists->isNotEmpty())
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>انتخاب کسب و کار</label>
+                            <select class="form-control" name="ghorfe_online_list_id">
+                                <option value="" @selected($employee->ghorfe_online_list_id == null)>
+                                    بدون کسب و کار
+                                </option>
+                                @foreach($ghorfeOnlineLists as $ghorfeOnlineList)
+                                    <option value="{{ $ghorfeOnlineList->id }}"
+                                        @selected($employee->ghorfe_online_list_id == $ghorfeOnlineList->id)>
+                                        {{ $ghorfeOnlineList->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @elseif($employee->ghorfe_online_list_id)
+                        <div class="col-12 col-md-4 mb-3">
+                            <label>کسب و کار</label>
+                            <input type="text" class="form-control" readonly
+                                   value="{{ optional($employee->ghorfeOnline)->title }}">
+                            @if(ghorfe() && $employee->ghorfe_online_list_id == ghorfe()->id)
+                                <small class="text-muted">
+                                    هر همکار تنها به یک کسب و کار تعلق دارد؛ تغییر آن با مدیر سیستم است.
+                                </small>
+                            @else
+                                <small class="text-danger">
+                                    {{ \App\Http\Controllers\Admin\EmployeeController::BELONGS_TO_ANOTHER_BUSINESS }}
+                                </small>
+                            @endif
+                        </div>
+                        @endif
                         <div class="col-12 col-md-4 mb-3">
                             <label>انتخاب سرپرست</label>
                             <select class="form-control" name="parent_id">

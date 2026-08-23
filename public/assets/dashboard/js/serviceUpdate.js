@@ -6,6 +6,9 @@ $(document).ready(function () {
     $("body").on('click', '#text-information-submit', function () {
         updateTextInformation()
     })
+    $("body").on('click', '.seo-content-submit', function () {
+        updateSeoContent()
+    })
     $("body").on('click', '#save-all-tabs', function () {
         saveAllServiceTabs()
     })
@@ -162,12 +165,36 @@ function updateTextInformation(){
     var content = getData('content');
     var left_content = getData('left_content');
     var txt_box_1 = getData('txt_box_1');
+    var is_complete_content = document.getElementById("is_complete_content").value;
     if (content !== null) data.content = content;
     if (left_content !== null) data.left_content = left_content;
     if (txt_box_1 !== null) data.txt_box_1 = txt_box_1;
+    data.is_complete_content = is_complete_content;
     return $.ajax({
         url: $('#text-information-form').attr("action"),
         data: data,
+        type : 'PATCH',
+        success: function (response) {
+            if (response.status == 'success') {
+                if (!suppressSaveSwal) {
+                    swal(response.messages[0], {
+                        icon: "success",
+                        button: "باشه"
+                    });
+                }
+            } else {
+                $.each(response.messages, function (i, val) {
+                    $('.transfer_message_box').append(`<span class="alert alert-danger">${val}</span>`);
+                });
+            }
+        }
+    });
+}
+//update seo content
+function updateSeoContent(){
+    return $.ajax({
+        url: $('#seo-content-form').attr("action"),
+        data: $('form').serialize(),
         type : 'PATCH',
         success: function (response) {
             if (response.status == 'success') {
@@ -233,6 +260,7 @@ function saveAllServiceTabs(){
     add(document.getElementById('first-images-form'),          function(){ return updateService('first-images-form'); });
     add(document.getElementById('portfolio-information-form'), function(){ return updateService('portfolio-information-form'); });
     add(document.getElementById('site-images-form'),           function(){ return updateService('site-images-form'); });
+    add(document.getElementById('seo-content-form'),      function(){ return updateSeoContent(); });
 
     $.when.apply($, jobs).always(function () {
         suppressSaveSwal = false;

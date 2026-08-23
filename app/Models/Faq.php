@@ -26,15 +26,4 @@ class Faq extends Model
     {
         return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
     }
-
-    /**
-     * Set instead of ghorfe_online_list_id when the question belongs to one branch's own
-     * "سوالات متداول" block rather than to the business as a whole.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function center()
-    {
-        return $this->belongsTo(Center::class, 'center_id');
-    }
 }

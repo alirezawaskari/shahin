@@ -69,6 +69,7 @@
             <th></th>
             <th></th>
             <th></th>
+            <th></th>
             <th>{{
                 number_format($factorItem->serviceTariffs()->sum('factor_item_service_tariff.discount')
                 - $factorItem->discount)

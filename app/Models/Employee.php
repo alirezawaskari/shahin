@@ -140,14 +140,15 @@ class Employee extends Model implements HasMedia
         $status=request('status');
         $role=request('role');
 
-        // Tenancy runs through the USER, not through Employee::ghorfeOnlineLists() — that
-        // pivot is the about-us page's curated specialist list, not ownership. A business
-        // admin therefore sees the staff whose user belongs to its ghorfe, and لاله staff see
-        // the staff belonging to no business, which is all this line used to do: a ghorfeAdmin
-        // fell into the لاله branch and was shown 106 employees, none of them theirs.
-        $query->whereHas('user', function ($query) {
-            FilterHelper::getDataByCheckGhorfeExistOrNot($query, 'belongsToMany', null);
-        });
+        // Tenancy reads employees.ghorfe_online_list_id — the same column the edit form
+        // assigns and GhorfeOnlineList::staff() lists from. It used to run through the USER's
+        // ghorfe_online_list_user rows instead, but that pivot answers a different question
+        // (which business this ACCOUNT belongs to, customers included), so a person assigned
+        // to a business here would not have appeared in its own staff list.
+        //
+        // A business admin sees its staff; لاله staff see the employees belonging to no
+        // business, which is what the column being null means.
+        FilterHelper::getDataByCheckGhorfeExistOrNot($query, 'belongsTo', null);
 
         if ((!isset($status) || $status == 'all') && trim($name) == '' && trim($family) == '' && trim($phone) == '') {
             $query->whereHas('user', function ($query) use ($status) {
@@ -259,6 +260,17 @@ class Employee extends Model implements HasMedia
     public function center()
     {
         return $this->belongsTo(Center::class);
+    }
+
+    /**
+     * The business this person works for — what puts them on its "درباره ما" page.
+     * Independent of center(): the branch is where they sit, this is who they work for.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function ghorfeOnline()
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
     }
 
     /**

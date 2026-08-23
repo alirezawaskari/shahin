@@ -44,8 +44,32 @@ class GhorfeOnlineListController extends AdminController {
         return view( 'ghorfeAdmin.ghorfe.categories', compact( 'categoryPermission' ) );
     }
 
+    /**
+    * The businesses the signed-in user may manage.
+    *
+    * `ghorfe_online_list` is لاله's permission to see every shop, and a business admin does
+    * not hold it — so this page 401'd for them even though the dashboard sends a ghorfeAdmin
+    * straight into their own shop's edit screen. Their entitlement is the one edit() already
+    * enforces: whoever may edit a shop's content or official info may see it listed, and the
+    * list they see is their own shop and nothing else.
+    *
+    * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+    */
     public function index() {
-        if ( auth()->user()->hasPermission( 'ghorfe_online_list' ) ) {
+        $user = auth()->user();
+        $ghorfe = $user->level == 'ghorfeAdmin' ? ghorfe() : null;
+
+        if ( $ghorfe ) {
+            if ( !$user->hasPermission( 'ghorfe_online_list_site_content' ) &&
+            !$user->hasPermission( 'ghorfe_online_list_official_info' ) ) {
+                return abort( 401 );
+            }
+
+            $ghorfeOnlineLists = GhorfeOnlineList::whereKey( $ghorfe->id )->get();
+            return view( 'Admin.ghorfeOnlineList.all', compact( 'ghorfeOnlineLists' ) );
+        }
+
+        if ( $user->hasPermission( 'ghorfe_online_list' ) ) {
             $ghorfeOnlineLists = GhorfeOnlineList::latest()->get();
             return view( 'Admin.ghorfeOnlineList.all', compact( 'ghorfeOnlineLists' ) );
         }
@@ -347,7 +371,8 @@ class GhorfeOnlineListController extends AdminController {
             'description',
             'keywords',
             'status',
-            'domain_active'
+            'domain_active',
+            'addvertisment_slider_link'
         ]);
 
         // footer_tag جداگانه (بدون overwrite کل update)

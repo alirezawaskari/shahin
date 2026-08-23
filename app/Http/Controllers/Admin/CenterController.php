@@ -112,12 +112,12 @@ class CenterController extends AdminController
             'center'                => $center,
             'center_request'        => $center_request,
             // "طرح های مالی فعال برای این شعبه" — offered plans and the ones already picked
-            'financial_plans'       => FinancialPlansType::where('status', 1)->orderBy('title')->get(),
+            'financial_plans'       => $this->offerableFinancialPlans($center),
             'selectedFinancialPlans'=> $center->financialPlansTypes->pluck('id')->all(),
             // read-only: staff belong to the branch through employees.center_id, which is
             // set on the employee's own page, not here
             'branchEmployees'       => $center->employees()->with('user:id,name,family')->get(),
-            'faqs'                  => $center->faqs()->get(),
+            'askedQuestions'        => $center->askedQuestions()->get(),
             'ratings'               => $center->ratings()->latest()->get(),
         ] );
         }
@@ -214,13 +214,52 @@ class CenterController extends AdminController
         // The posted list IS the list, so unticking a plan has to detach it.
         $center->financialPlansTypes()->sync($request->input('financial_plan_ids', []));
 
-        $this->syncCenterFaqs($center, $request);
+        $this->syncAskedQuestions($center, $request);
         $this->moderateRatings($center, $request);
 
         return redirect( route( 'center.edit', $center->id ) )->with( [
             'update'     => 'success',
             'active_tab' => $request->input('active_tab', 'base_info'),
         ] );
+    }
+
+    /**
+     * The financial plans this branch may be offered.
+     *
+     * A plan belongs to a business (financial_plans_type_ghorfe_online_list), so a branch is
+     * only ever offered the plans of the business it belongs to — showing all 90 let one
+     * business put another's plan on its page. The business is taken from the branch itself,
+     * falling back to the editing admin's own for a branch not attached to one yet.
+     *
+     * لاله staff editing an unattached branch still see everything, exactly as before: there
+     * is no business to narrow the list to, and the plans are the لاله-wide ones.
+     *
+     * Plans already ticked are always included even if they no longer qualify — otherwise
+     * the form would not render them and the save would silently untick them.
+     */
+    private function offerableFinancialPlans(Center $center)
+    {
+        $ghorfeIds = $center->ghorfeOnlineLists()->pluck('ghorfe_online_lists.id');
+
+        if ($ghorfeIds->isEmpty() && ($own = ghorfe())) {
+            $ghorfeIds = collect([$own->id]);
+        }
+
+        $query = FinancialPlansType::where('status', 1);
+
+        if ($ghorfeIds->isNotEmpty()) {
+            $selected = $center->financialPlansTypes->pluck('id')->all();
+
+            $query->where(function ($query) use ($ghorfeIds, $selected) {
+                $query->whereHas('ghorfeOnlineLists', fn ($q) => $q->whereKey($ghorfeIds));
+
+                if ($selected) {
+                    $query->orWhereIn('financial_plans_types.id', $selected);
+                }
+            });
+        }
+
+        return $query->orderBy('title')->get();
     }
 
     /**
@@ -243,10 +282,10 @@ class CenterController extends AdminController
             'plans_title'     => 'nullable|string|max:255',
             'financial_plan_ids'   => 'nullable|array',
             'financial_plan_ids.*' => 'integer|exists:financial_plans_types,id',
-            'faq_titles'      => 'nullable|array',
-            'faq_titles.*'    => 'nullable|string|max:1000',
-            'faq_texts'       => 'nullable|array',
-            'faq_texts.*'     => 'nullable|string|max:5000',
+            'asked_question_questions'   => 'nullable|array',
+            'asked_question_questions.*' => 'nullable|string|max:1000',
+            'asked_question_answers'     => 'nullable|array',
+            'asked_question_answers.*'   => 'nullable|string|max:5000',
         ], [
             'email.email'   => 'ایمیل شعبه معتبر نیست',
             'lat.numeric'   => 'عرض جغرافیایی باید عدد باشد',
@@ -280,43 +319,46 @@ class CenterController extends AdminController
     }
 
     /**
-     * The branch FAQ repeater: create / update / delete in one pass.
+     * The branch "سوالات متداول" repeater: create / update / delete in one pass.
      *
-     * Questions are keyed by center_id, which is what separates them from the business-wide
-     * ones the "درباره ما" page manages (those carry ghorfe_online_list_id instead).
+     * Rows live in `asked_questions` under the center's own morph, which is what separates
+     * them from the business-wide ones the "درباره ما" page manages (those are `faqs` rows
+     * carrying ghorfe_online_list_id).
      */
-    private function syncCenterFaqs(Center $center, Request $request): void
+    private function syncAskedQuestions(Center $center, Request $request): void
     {
-        $ids    = $request->input('faq_ids', []);
-        $titles = $request->input('faq_titles', []);
-        $texts  = $request->input('faq_texts', []);
+        $ids       = $request->input('asked_question_ids', []);
+        $questions = $request->input('asked_question_questions', []);
+        $answers   = $request->input('asked_question_answers', []);
 
         $kept = [];
 
-        foreach ($titles as $index => $title) {
-            $title = trim((string) $title);
+        foreach ($questions as $index => $question) {
+            $question = trim((string) $question);
 
             // an empty repeater row is not a question
-            if ($title === '') {
+            if ($question === '') {
                 continue;
             }
 
-            $attributes = ['title' => $title, 'text' => trim((string) ($texts[$index] ?? ''))];
+            // `answer` is NOT NULL in the schema, so an unanswered row stores an empty string
+            $attributes = ['question' => $question, 'answer' => trim((string) ($answers[$index] ?? ''))];
             $id         = $ids[$index] ?? null;
 
-            // re-fetched through the center: a posted id must not reach another branch's faq
-            $faq = $id ? $center->faqs()->find($id) : null;
+            // re-fetched through the center: a posted id must not reach another branch's row
+            $asked = $id ? $center->askedQuestions()->find($id) : null;
 
-            if ($faq) {
-                $faq->update($attributes);
+            if ($asked) {
+                $asked->update($attributes);
             } else {
-                $faq = $center->faqs()->create($attributes);
+                $asked = $center->askedQuestions()->create($attributes);
             }
 
-            $kept[] = $faq->id;
+            $kept[] = $asked->id;
         }
 
-        $center->faqs()->whereNotIn('id', $kept ?: [0])->delete();
+        // soft delete — AskedQuestion uses SoftDeletes, so a removed row stays recoverable
+        $center->askedQuestions()->whereNotIn('id', $kept ?: [0])->delete();
     }
 
     /**
@@ -702,6 +744,11 @@ class CenterController extends AdminController
             if(isset($superadmin_center_user->employee))
             {
                 return redirect()->route('employee.financial.report', [$superadmin_center_user->employee->id]);
+            }
+            else
+            {
+                alert()->error('ناموفق', 'مدیری برای این شعبه انتخاب نشده است .')->persistent('باشه');
+                return redirect()->back();
             }
         }
         return abort(401);

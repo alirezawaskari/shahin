@@ -60,7 +60,23 @@ class Factor extends Model implements AuditableContract, HasMedia
      */
     protected $casts = [
         'values' => 'array',
-        'after_values' => 'array'
+        'after_values' => 'array',
+        'shipped_at' => 'datetime',
+    ];
+
+    /**
+     * Shipment state of a product order. The order is created (در انتظار ارسال) by the
+     * payment itself - the default of the column - and closed once it is shipped.
+     */
+    const SHIPPING_PENDING = 0;
+    const SHIPPING_SHIPPED = 1;
+
+    /**
+     * shipment states of product orders
+     */
+    const SHIPPING_STATUS = [
+        self::SHIPPING_PENDING => 'در انتظار ارسال',
+        self::SHIPPING_SHIPPED => 'ارسال شده',
     ];
 
     /**
@@ -324,6 +340,124 @@ class Factor extends Model implements AuditableContract, HasMedia
     public function address()
     {
         return $this->belongsTo(Address::class, 'address_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * The shipping address frozen onto this order. Independent of ->address(), which is a
+     * live pointer at the user's address book and may change or disappear after shipping.
+     */
+    public function factorAddress()
+    {
+        return $this->hasOne(FactorAddress::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * The admin who shipped the order.
+     */
+    public function shippedBy()
+    {
+        return $this->belongsTo(User::class, 'shipped_by');
+    }
+
+    /**
+     * Product orders: a paid invoice that actually carries کالا rows. Services-only
+     * invoices are not shippable and never appear in the orders screen.
+     *
+     * @param $query
+     * @return mixed
+     */
+    public function scopeProductOrder($query)
+    {
+        return $query->where('status', 1)
+            ->whereHas('factorItems', function ($query) {
+                $query->whereHas('products');
+            });
+    }
+
+    /**
+     * Filters of the product-orders screen. Deliberately narrower than scopeFilter(): an
+     * order is looked up by its own identifiers (order number, buyer, tracking code,
+     * shipment state, کالا category), not by the accounting facets of a transaction.
+     *
+     * @param $query
+     * @return mixed
+     */
+    public function scopeOrderFilter($query)
+    {
+        $resnumber = request('resnumber');
+        $name = request('name');
+        $family = request('family');
+        $phone = request('phone');
+        $shipping_status = request('shipping_status');
+        $tracking_code = request('tracking_code');
+        $product_category = request('product_category');
+        $startDate = request('startDate');
+        $endDate = request('endDate');
+
+        //same ghorfe scoping the transactions list uses, so an online shop only ever sees
+        //its own orders. Returns null for levels it does not know about - keep the
+        //untouched builder in that case rather than blowing up.
+        $scoped = FilterHelper::getDataByCheckGhorfeExistOrNot($query, 'belongsToMany', null);
+        $query = $scoped ?: $query;
+
+        if (auth()->user() && auth()->user()->admin_representation) {
+            $query->where('representation_id', auth()->user()->admin_representation->id);
+        }
+        if (isset($resnumber) && trim($resnumber) != '') {
+            $query->where('resnumber', trim($resnumber));
+        }
+        if (isset($name) && trim($name) != '') {
+            $query->whereHas('user', function ($query) use ($name) {
+                $query->where('name', 'LIKE', '%' . $name . '%');
+            });
+        }
+        if (isset($family) && trim($family) != '') {
+            $query->whereHas('user', function ($query) use ($family) {
+                $query->where('family', 'LIKE', '%' . $family . '%');
+            });
+        }
+        if (isset($phone) && trim($phone) != '') {
+            $query->whereHas('user', function ($query) use ($phone) {
+                $query->where('phone', $phone);
+            });
+        }
+        if (isset($shipping_status) && trim($shipping_status) != '' && $shipping_status != 'all') {
+            $query->where('shipping_status', (int) $shipping_status);
+        }
+        if (isset($tracking_code) && trim($tracking_code) != '') {
+            $query->where('tracking_code', 'LIKE', '%' . trim($tracking_code) . '%');
+        }
+        if (isset($product_category) && trim($product_category) != '' && $product_category != 'all') {
+            $query->whereHas('factorItems', function ($query) use ($product_category) {
+                $query->where('factoritemable_type', Category::class)
+                    ->where('factoritemable_id', $product_category);
+            });
+        }
+        if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
+            $query->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $endDate);
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsShippedAttribute(): bool
+    {
+        return (int) $this->shipping_status === self::SHIPPING_SHIPPED;
+    }
+
+    /**
+     * Amount the user paid plus the shipping fee the admin set afterwards.
+     *
+     * @return int
+     */
+    public function getOrderTotalPriceAttribute(): int
+    {
+        return (int) $this->price + (int) $this->shipping_cost;
     }
 
     /**

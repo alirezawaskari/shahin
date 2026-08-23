@@ -200,9 +200,8 @@
                                     <label>نمایندگی های ذینفع</label>
                                     <select name="representation_id[]" class="custom-select select2" multiple>
                                         @foreach($representations as $representation)
-                                        <option value="{{$representation->id}}" {{ in_array(trim($representation->id) ,
-                                            $center->representations()->pluck('id')->toArray()) ? 'selected' : ''
-                                            }}>{{$representation->fa_name}}</option>
+                                        <option value="{{$representation->id}}" {{$center->representations->where('id',$representation->id
+                                            )->count()==1?'selected' : '' }}>{{$representation->fa_name}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -544,16 +543,16 @@
                                         </tr>
                                         </thead>
                                         <tbody id="faq-rows">
-                                        @foreach($faqs as $faq)
+                                        @foreach($askedQuestions as $asked)
                                             <tr>
                                                 <td>
-                                                    <input type="hidden" name="faq_ids[]" value="{{ $faq->id }}">
-                                                    <input type="text" class="form-control" name="faq_titles[]"
-                                                           value="{{ $faq->title }}" placeholder="سوال">
+                                                    <input type="hidden" name="asked_question_ids[]" value="{{ $asked->id }}">
+                                                    <input type="text" class="form-control" name="asked_question_questions[]"
+                                                           value="{{ $asked->question }}" placeholder="سوال">
                                                 </td>
                                                 <td>
-                                                    <textarea class="form-control" name="faq_texts[]" rows="2"
-                                                              placeholder="پاسخ">{{ $faq->text }}</textarea>
+                                                    <textarea class="form-control" name="asked_question_answers[]" rows="2"
+                                                              placeholder="پاسخ">{{ $asked->answer }}</textarea>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-danger btn-sm faq-remove">
@@ -664,14 +663,14 @@
             if (this.checked) { $times.val(''); }
         });
 
-        // FAQ repeater. A new row posts an EMPTY faq_ids[] so the three arrays stay
-        // index-aligned — the controller pairs them by position.
+        // Question repeater. A new row posts an EMPTY asked_question_ids[] so the three
+        // arrays stay index-aligned — the controller pairs them by position.
         $('#faq-add').on('click', function () {
             $('#faq-rows').append(
                 '<tr>' +
-                '<td><input type="hidden" name="faq_ids[]" value="">' +
-                '<input type="text" class="form-control" name="faq_titles[]" placeholder="سوال"></td>' +
-                '<td><textarea class="form-control" name="faq_texts[]" rows="2" placeholder="پاسخ"></textarea></td>' +
+                '<td><input type="hidden" name="asked_question_ids[]" value="">' +
+                '<input type="text" class="form-control" name="asked_question_questions[]" placeholder="سوال"></td>' +
+                '<td><textarea class="form-control" name="asked_question_answers[]" rows="2" placeholder="پاسخ"></textarea></td>' +
                 '<td class="text-center"><button type="button" class="btn btn-danger btn-sm faq-remove">' +
                 '<i class="fa fa-remove"></i></button></td>' +
                 '</tr>'

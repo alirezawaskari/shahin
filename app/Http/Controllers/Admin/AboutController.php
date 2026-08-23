@@ -73,10 +73,13 @@ class AboutController extends Controller
 
         // Staff of this business's own branches, not every employee in the panel: an
         // employee belongs to the page exactly while they work at one of its branches.
+        // No whereHas('user'): membership is the employees table alone (center_id), so an
+        // employee whose user row is missing or soft-deleted still belongs to the branch and
+        // still has to be listed — otherwise they are invisible here yet a save would treat
+        // their absence as a removal and cut them from the branch.
         $employees = $ghorfe
             ? $ghorfe->staff()
                 ->with(['user:id,name,family', 'center:id,title'])
-                ->whereHas('user')
                 ->orderBy('id')
                 ->get()
             : collect();
@@ -243,12 +246,15 @@ class AboutController extends Controller
 
         $ghorfe->centers()->sync($branchIds);
 
-        // Staff are not a list of their own: an employee is on the page while they work at
-        // one of the branches. Removing their row therefore cuts that link — and only for
-        // employees of THIS business's branches, so a save can never touch anyone else's.
+        // Staff are not a list of their own: an employee is on the page while they belong to
+        // the business. Membership IS employees.ghorfe_online_list_id, so removing their row
+        // clears that column — nothing else about the employee changes, their branch least
+        // of all.
+        //
+        // Scoped through staff(), so a save only ever reaches employees of THIS business.
         $keep = collect($request->input('staff_ids', []))->map(fn ($id) => (int) $id)->all();
 
-        $ghorfe->staff()->whereNotIn('id', $keep)->update(['center_id' => null]);
+        $ghorfe->staff()->whereNotIn('id', $keep)->update(['ghorfe_online_list_id' => null]);
     }
 
     /**
