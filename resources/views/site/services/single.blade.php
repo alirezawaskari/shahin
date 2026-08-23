@@ -44,12 +44,11 @@
     <div class="register-section py-4" id="one-section">
         <div class="container-fluid">
             <div class="row">
-
+                @if ($service->is_complete_content)
+                @include('site.services.registerForm')
+                {!! $service->content !!}
+                @else
                 <div class="col-12 col-md-5 py-5 my-auto mr-auto">
-                    @if ($service->is_complete_content)
-                    @include('site.services.registerForm')
-                    {!! $service->content !!}
-                    @else
                     {!! $service->left_content !!}
                     @foreach($errors->all() as $error)
                     <div class="alert alert-danger my-3" role="alert">
@@ -172,12 +171,11 @@
                     {{-- <a href="{{ route('login') }}" class="btn btn-orange text-white px-3 mt-2 btn-block">قبلا ثبت
                         نام کرده اید؟اینجا کلیک کنید</a>--}}
                     @endif
-                    @endif
-
                 </div>
                 <div class="d-none d-md-block col-md-6 pl-0 text-left">
                     <img src="{{ $service->img_box_1 }}" class="img-fluid">
                 </div>
+                @endif
             </div>
         </div>
     </div>
