@@ -1,0 +1,420 @@
+/*!
+ * select2-admin.css — هماهنگ‌سازی ظاهر Select2 با فرم‌های پنل مدیریت
+ * -----------------------------------------------------------------------------
+ * باید بعد از dashboard.css بارگذاری شود.
+ *
+ * چهار کار انجام می‌دهد:
+ *   ۱. اندازه و رنگ کنترل را با .form-control یکی می‌کند
+ *   ۲. راست‌به‌چپ را کامل می‌کند (فلش، متن، برچسب‌های چندانتخابی)
+ *   ۳. روی موبایل هدف‌های لمسی و کادر جستجو را قابل استفاده می‌کند
+ *   ۴. حالت تیره را پوشش می‌دهد
+ *
+ * نکته‌ی مهم درباره‌ی گزینشگرها:
+ * dashboard.css قاعده‌هایی با گزینشگر «.select2.select2-container …» دارد.
+ * span ساخته‌شده توسط Select2 هر دو کلاس select2 و select2-container را با هم
+ * دارد، بنابراین اینجا هم از همان پیشوند استفاده می‌شود تا وزن گزینشگرها
+ * برابر بماند و ترتیب بارگذاری تعیین‌کننده باشد.
+ * -------------------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+ * ۰. رفع باگ: در dashboard.css این قاعده خراب نوشته شده
+ *    (box-sizing به «box-sizdirection» تبدیل شده) و border-box از دست رفته است.
+ * -------------------------------------------------------------------------- */
+.select2-container .select2-selection--multiple {
+    box-sizing: border-box;
+}
+
+/* -----------------------------------------------------------------------------
+ * ۱. تک‌انتخابی — هم‌تراز با .form-control
+ * -------------------------------------------------------------------------- */
+.select2-container {
+    max-width: 100%;
+}
+
+.select2.select2-container .select2-selection--single,
+.select2.select2-container .select2-selection--multiple {
+    height: auto;
+    min-height: calc(2.25rem + 2px);
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    background-color: #fff;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.select2.select2-container .select2-selection--single .select2-selection__rendered {
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+}
+
+.select2.select2-container .select2-selection .select2-selection__placeholder {
+    color: #adb5bd;
+    line-height: 1.5;
+}
+
+/* فلش: هم‌ارتفاعِ کنترل، و در حالت راست‌به‌چپ سمت چپ */
+.select2.select2-container .select2-selection .select2-selection__arrow {
+    height: 100%;
+    top: 0;
+    width: 2rem;
+}
+
+.select2.select2-container[dir="rtl"] .select2-selection .select2-selection__arrow {
+    left: 0;
+    right: auto;
+}
+
+.select2.select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+    padding-right: .75rem;
+    padding-left: 2rem;
+    text-align: right;
+}
+
+/* حالت فوکوس، مطابق فرم‌های بوت‌استرپ */
+.select2.select2-container--focus .select2-selection--single,
+.select2.select2-container--focus .select2-selection--multiple,
+.select2.select2-container--open .select2-selection--single,
+.select2.select2-container--open .select2-selection--multiple {
+    border-color: #9fa8da;
+    box-shadow: 0 0 0 .2rem rgba(63, 81, 181, .2);
+    outline: 0;
+}
+
+/* غیرفعال */
+.select2.select2-container--disabled .select2-selection--single,
+.select2.select2-container--disabled .select2-selection--multiple {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* اعتبارسنجی — کلاس is-invalid از روی <select> منتقل می‌شود */
+.select2.select2-container.is-invalid .select2-selection--single,
+.select2.select2-container.is-invalid .select2-selection--multiple {
+    border-color: #dc3545;
+}
+
+.select2.select2-container.is-valid .select2-selection--single,
+.select2.select2-container.is-valid .select2-selection--multiple {
+    border-color: #28a745;
+}
+
+/* اندازه‌های کوچک و بزرگ */
+.select2.select2-container.form-control-sm .select2-selection--single,
+.select2.select2-container.form-control-sm .select2-selection--multiple,
+.select2.select2-container.form-select-sm .select2-selection--single,
+.select2.select2-container.form-select-sm .select2-selection--multiple {
+    min-height: calc(1.8125rem + 2px);
+    border-radius: .2rem;
+}
+
+.select2.select2-container.form-control-sm .select2-selection--single .select2-selection__rendered,
+.select2.select2-container.form-select-sm .select2-selection--single .select2-selection__rendered {
+    padding: .25rem .5rem;
+    font-size: .875rem;
+}
+
+.select2.select2-container.form-control-lg .select2-selection--single,
+.select2.select2-container.form-control-lg .select2-selection--multiple,
+.select2.select2-container.form-select-lg .select2-selection--single,
+.select2.select2-container.form-select-lg .select2-selection--multiple {
+    min-height: calc(2.875rem + 2px);
+    border-radius: .3rem;
+}
+
+.select2.select2-container.form-control-lg .select2-selection--single .select2-selection__rendered,
+.select2.select2-container.form-select-lg .select2-selection--single .select2-selection__rendered {
+    padding: .5rem 1rem;
+    font-size: 1.25rem;
+}
+
+/* دکمه‌ی پاک کردن انتخاب (data-allow-clear) */
+.select2.select2-container .select2-selection--single .select2-selection__clear {
+    margin: 0 .25rem;
+    font-size: 1.125rem;
+    line-height: 2.25rem;
+    color: #adb5bd;
+}
+
+.select2.select2-container .select2-selection--single .select2-selection__clear:hover {
+    color: #dc3545;
+}
+
+/* -----------------------------------------------------------------------------
+ * ۲. چندانتخابی
+ * -------------------------------------------------------------------------- */
+.select2.select2-container .select2-selection--multiple {
+    padding: 0 .25rem .25rem;
+    cursor: text;
+}
+
+.select2.select2-container .select2-selection--multiple .select2-selection__rendered {
+    display: block;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
+    text-overflow: clip;
+}
+
+.select2.select2-container .select2-selection .select2-selection__choice {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    margin: .25rem .25rem 0 0;
+    padding: .0625rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    color: #303f9f;
+    background-color: #e8eaf6;
+    border: 1px solid #c5cae9;
+    border-radius: .2rem;
+}
+
+.select2.select2-container[dir="rtl"] .select2-selection .select2-selection__choice {
+    float: right;
+    margin-right: 0;
+    margin-left: .25rem;
+}
+
+.select2.select2-container .select2-selection .select2-selection__choice .select2-selection__choice__remove {
+    order: 2;
+    margin: 0 .375rem 0 0;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+    color: #7986cb;
+}
+
+.select2.select2-container[dir="rtl"] .select2-selection .select2-selection__choice .select2-selection__choice__remove {
+    margin: 0 0 0 .375rem;
+}
+
+.select2.select2-container .select2-selection .select2-selection__choice .select2-selection__choice__remove:hover {
+    color: #dc3545;
+}
+
+.select2.select2-container[dir="rtl"] .select2-search--inline {
+    float: right;
+}
+
+.select2.select2-container .select2-search--inline .select2-search__field {
+    height: 2rem;
+    margin-top: .25rem;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+}
+
+.select2.select2-container .select2-selection--multiple .select2-selection__placeholder {
+    display: inline-block;
+    float: none;
+    margin-top: .375rem;
+}
+
+/* -----------------------------------------------------------------------------
+ * ۳. فهرست بازشو
+ * -------------------------------------------------------------------------- */
+.select2-dropdown {
+    border-color: #9fa8da;
+    border-radius: .25rem;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+    /* بالاتر از مودال بوت‌استرپ ۵ (1055) */
+    z-index: 1080;
+}
+
+.select2-container--open .select2-dropdown--below {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.select2-container--open .select2-dropdown--above {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/*
+ * Select2 هنگام باز شدن، کلاس‌های span انتخاب را روی پوششِ dropdown کپی
+ * می‌کند (به‌جز کلاس select2). کلاس‌های فاصله‌ای که ما منتقل کرده‌ایم نباید
+ * جای فهرست را جابه‌جا کنند.
+ */
+.select2-container--open:not(.select2) {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    float: none !important;
+}
+
+.select2-search--dropdown {
+    padding: .5rem;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    padding: .375rem .75rem;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    text-align: right;
+    direction: rtl;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #9fa8da;
+    box-shadow: 0 0 0 .2rem rgba(63, 81, 181, .2);
+    outline: 0;
+}
+
+.select2-results__options {
+    max-height: 15rem;
+}
+
+.select2-container--default .select2-results__option {
+    padding: .4375rem .75rem;
+    text-align: right;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: #e8eaf6;
+    color: #303f9f;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #3f51b5;
+    color: #fff;
+}
+
+.select2-container--default .select2-results__option[aria-disabled="true"],
+.select2-container--default .select2-results__option[role="alert"] {
+    color: #9e9e9e;
+    font-size: .875rem;
+}
+
+.select2-container--default .select2-results__group {
+    padding: .375rem .75rem;
+    font-weight: 600;
+    color: #616161;
+    background-color: #f5f5f5;
+}
+
+/* -----------------------------------------------------------------------------
+ * ۴. مودال، جدول و گروه ورودی
+ * -------------------------------------------------------------------------- */
+/* وقتی dropdownParent خودِ مودال است، فهرست باید بالاتر از بدنه‌ی مودال بنشیند */
+.modal .select2-container--open,
+.offcanvas .select2-container--open {
+    z-index: 1081;
+}
+
+/* داخل سلول جدول، کنترل نباید ستون را بترکاند */
+table .select2.select2-container {
+    min-width: 8rem;
+}
+
+/* در input-group کنترل باید فضای باقی‌مانده را پر کند */
+.input-group > .select2.select2-container {
+    flex: 1 1 auto;
+    width: 1% !important;
+}
+
+.input-group > .select2.select2-container:not(:last-child) .select2-selection {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.input-group > .select2.select2-container:not(:first-child) .select2-selection {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * ۵. موبایل و تبلت
+ * -------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+    /* font-size کمتر از ۱۶px باعث زوم خودکار سافاری روی iOS می‌شود */
+    .select2-container--default .select2-search--dropdown .select2-search__field,
+    .select2.select2-container .select2-search--inline .select2-search__field {
+        font-size: 16px;
+    }
+
+    /* هدف‌های لمسی بزرگ‌تر */
+    .select2.select2-container .select2-selection--single,
+    .select2.select2-container .select2-selection--multiple {
+        min-height: 2.75rem;
+    }
+
+    .select2.select2-container .select2-selection--single .select2-selection__rendered {
+        line-height: 2rem;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: .75rem;
+        line-height: 1.5;
+    }
+
+    .select2.select2-container .select2-selection .select2-selection__choice {
+        padding: .25rem .625rem;
+        font-size: .9375rem;
+    }
+
+    .select2.select2-container .select2-selection .select2-selection__choice .select2-selection__choice__remove {
+        font-size: 1.25rem;
+        padding: 0 .25rem;
+    }
+
+    /* فهرست نباید بلندتر از نیمی از صفحه شود تا زیر صفحه‌کلید گم نشود */
+    .select2-results__options {
+        max-height: 45vh;
+    }
+
+    /* فلش پهن‌تر تا با انگشت هم قابل تشخیص باشد */
+    .select2.select2-container .select2-selection .select2-selection__arrow {
+        width: 2.5rem;
+    }
+
+    .select2.select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+        padding-left: 2.5rem;
+    }
+}
+
+/* -----------------------------------------------------------------------------
+ * ۶. حالت تیره
+ * -------------------------------------------------------------------------- */
+body.dark .select2.select2-container .select2-selection--single,
+body.dark .select2.select2-container .select2-selection--multiple {
+    background-color: #2c2f42;
+    border-color: #54576a;
+}
+
+body.dark .select2.select2-container .select2-selection--single .select2-selection__rendered,
+body.dark .select2.select2-container .select2-search--inline .select2-search__field {
+    color: #c3c3c3;
+}
+
+body.dark .select2.select2-container .select2-selection .select2-selection__choice {
+    color: #c3c3c3;
+    background-color: #404356;
+    border-color: #54576a;
+}
+
+body.dark .select2.select2-container .select2-selection .select2-selection__choice .select2-selection__choice__remove {
+    color: #9fa8da;
+}
+
+body.dark .select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: #181b2e;
+    color: inherit;
+}
+
+body.dark .select2-container--default .select2-results__group {
+    color: #9e9e9e;
+    background-color: #23263a;
+}
+
+body.dark .select2.select2-container--disabled .select2-selection--single,
+body.dark .select2.select2-container--disabled .select2-selection--multiple {
+    background-color: #23263a;
+}

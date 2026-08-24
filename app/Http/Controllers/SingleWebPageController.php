@@ -11,6 +11,7 @@ use App\Models\ContractForm;
 use App\Models\Disease;
 use App\Models\Factor;
 use App\Models\FactorItem;
+use Illuminate\Support\Facades\View;
 
 class SingleWebPageController extends Controller
 {
@@ -38,6 +39,8 @@ class SingleWebPageController extends Controller
     {
         $user = auth()->user();
         $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
+        $registerForm = View::make('site.services.registerForm' , compact('service' , 'financial_plans_types' , 'callcenter'))->render();
+        $content = str_replace('[form]', $registerForm, $service->content);
 
         if ($user) {
             $required = null;
@@ -71,12 +74,12 @@ class SingleWebPageController extends Controller
                 })->first();
             }
 
-            return view('site.singleWebPage.single', compact('singleWebPage','financial_plans_types' ,'service', 'required', 'requireServices' , 'check','factor'));
+            return view('site.singleWebPage.single', compact('content' , 'singleWebPage','financial_plans_types' ,'service', 'required', 'requireServices' , 'check','factor'));
         }
 
         $provinces = Province::get();
         $citys = City::get();
-        return view('site.singleWebPage.single' , compact('singleWebPage','financial_plans_types' , 'service' , 'provinces' , 'citys'));
+        return view('site.singleWebPage.single' , compact('content' , 'singleWebPage','financial_plans_types' , 'service' , 'provinces' , 'citys'));
     }
 
     public function checkout(SingleWebPage $singleWebPage , Factor $factor ) {

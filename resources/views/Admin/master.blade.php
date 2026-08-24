@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.css')}}">
     <link rel="stylesheet" href="{{ asset('assets/bootstrap-5.3.8-dist/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/dashboard/css/dashboard.css?v=2.1') }}">
+    <link rel="stylesheet" href="{{ asset('assets/dashboard/css/select2-admin.css?v=1.0') }}">
 
     <script src="{{asset('assets/dashboard/js/sweetalert.min.js')}}"></script>
      <!-- begin::favicon -->
@@ -39,6 +40,9 @@
     </div>
 </main>
 <script src="{{asset('assets/dashboard/js/dashboard.js?v=2.6') }}"></script>
+{{-- Select2 را روی هر select با فهرست بلند فعال می‌کند؛ باید بلافاصله بعد از
+     dashboard.js (jQuery + Select2) و پیش از اسکریپت‌های صفحه بارگذاری شود. --}}
+<script src="{{asset('assets/dashboard/js/select2-init.js?v=1.1')}}"></script>
 <script src="{{asset('assets/dashboard/js/persian-date.min.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/persian-datepicker.min.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/datatables.min.js')}}"></script>
