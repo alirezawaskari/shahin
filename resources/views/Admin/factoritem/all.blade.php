@@ -196,6 +196,20 @@
                     <div class="col-12 col-sm-6 col-lg-2 mb-2">
                         <button id="do_transfer" type="button" class="btn btn-outline-primary btn-block py-2">انتقال</button>
                     </div>
+                    <div class="col-12 col-sm-6 col-lg-2 mb-2">
+                        @include('Admin.businessTransfer.bulkAction', [
+                            'entity' => 'factor_item',
+                            'recordSelector' => '.factor-item-business-transfer-record',
+                            'class' => 'btn-block py-2'
+                        ])
+                    </div>
+                    @permission('transfer_to_business')
+                        <div class="col-12">
+                            <small class="text-muted">
+                                اگر چند پرونده به یک فاکتور وابسته‌اند، برای انتقال امن باید همه آن پرونده‌ها انتخاب شوند.
+                            </small>
+                        </div>
+                    @endpermission
                 </div>
             </div>
         </div>
@@ -206,7 +220,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th><input type="checkbox" id="transfer_checkbox"></th>
+                            <th><input type="checkbox" id="transfer_checkbox" class="business-transfer-select-all"></th>
                             <th>نام</th>
                             <th>موبایل</th>
                             <th>تاریخ ثبت</th>
@@ -273,7 +287,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.3')}}"></script>
+<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.5')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.3')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 <script>

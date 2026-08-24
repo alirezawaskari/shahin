@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Factor;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 /**
@@ -34,8 +35,14 @@ class ProductOrderCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $canTransferToBusiness = auth()->user()?->hasPermission('transfer_to_business') === true;
+        if ($canTransferToBusiness) {
+            (new EloquentCollection($this->collection->all()))
+                ->loadMissing('ghorfeOnlineLists:id');
+        }
+
         return [
-            'data' => $this->collection->map(function (Factor $item) {
+            'data' => $this->collection->map(function (Factor $item) use ($canTransferToBusiness) {
                 $address = $item->factorAddress;
 
                 return [
@@ -57,6 +64,9 @@ class ProductOrderCollection extends ResourceCollection
                     'tracking_code' => $item->tracking_code ?: '-',
                     'shipped_at' => $item->shipped_at ? verta($item->shipped_at)->format('Y/m/d H:i') : '-',
                     'show_url' => route('productOrder.show', [$item->resnumber]),
+                    'current_business_ids' => $canTransferToBusiness
+                        ? $item->ghorfeOnlineLists->modelKeys()
+                        : [],
                 ];
             }),
             'meta' => [

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\Admin\Auth\AdminOtpController;
+use App\Http\Controllers\Admin\BusinessTransferController;
 use App\Http\Controllers\Admin\CallcenterController;
 use App\Http\Controllers\Admin\CampaignController as CampaignControllerAdmin;
 use App\Http\Controllers\Admin\CategoryController;
@@ -211,6 +212,9 @@ Route::middleware('guest')->prefix('/admin')->name('admin.')->group(function () 
 
 //Admin Routes
 Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => ['auth:web', 'checkActive', 'checkAdmin']], function () {
+    Route::post('/business-transfer', [BusinessTransferController::class, 'store'])
+        ->name('businessTransfer.store');
+
     //dashboard
     Route::get('/run-query', function () {
         Artisan::call('command:query');
@@ -1036,4 +1040,3 @@ Route::get('/{representation}/{service}/{callcenter}', 'RepresentationController
 Route::post('/city/select', 'HomeController@cityselect');
 
 Route::post('/dashboard/installment/calculate', 'Admin\TotalFactorItemInstallmentController@calculate');
-

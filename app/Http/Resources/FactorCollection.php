@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use App\Models\Factor;
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use App\Models\TotalFactorItem;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class FactorCollection extends ResourceCollection
 {
@@ -32,8 +33,14 @@ class FactorCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $canTransferToBusiness = auth()->user()?->hasPermission('transfer_to_business') === true;
+        if ($canTransferToBusiness) {
+            (new EloquentCollection($this->collection->all()))
+                ->loadMissing('ghorfeOnlineLists:id');
+        }
+
         return [
-            'data' => $this->collection->map(function ($item) {
+            'data' => $this->collection->map(function ($item) use ($canTransferToBusiness) {
                 return [
                     'sort_by' => "date",
                     'id' => $item->id,
@@ -57,6 +64,9 @@ class FactorCollection extends ResourceCollection
                     'payment_type' => $item::TYPE[$item->type],
                     'per_detail' => $this->setPerDetail(),
                     'per_delete' => $this->setPerDelete(),
+                    'current_business_ids' => $canTransferToBusiness
+                        ? $item->ghorfeOnlineLists->modelKeys()
+                        : [],
                     'type' => $item->type
                 ];
             }),
@@ -144,4 +154,3 @@ class FactorCollection extends ResourceCollection
         return $delete_user;
     }
 }
-

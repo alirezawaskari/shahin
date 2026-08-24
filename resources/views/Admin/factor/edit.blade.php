@@ -3,6 +3,11 @@
 @section('content')
 <div class="page-header">
     <a href="{{ url()->previous() }}" class="btn btn-primary">بازگشت</a>
+    @include('Admin.businessTransfer.individualAction', [
+        'entity' => 'factor',
+        'recordId' => $factor->id,
+        'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys()
+    ])
 </div>
 <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">

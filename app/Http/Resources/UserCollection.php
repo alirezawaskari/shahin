@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Callcenter;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class UserCollection extends ResourceCollection
@@ -16,8 +17,14 @@ class UserCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $canTransferToBusiness = auth()->user()?->hasPermission('transfer_to_business') === true;
+        if ($canTransferToBusiness) {
+            (new EloquentCollection($this->collection->all()))
+                ->loadMissing('ghorfeOnlineLists:id');
+        }
+
          return [
-            'data' => $this->collection->map(function ($item) {
+            'data' => $this->collection->map(function ($item) use ($canTransferToBusiness) {
                 return [
                     'sort_by' => "created_at",
                     'id' => $item->id,
@@ -34,6 +41,9 @@ class UserCollection extends ResourceCollection
                     'date' => verta($item->created_at)->format('Y/m/d'),
                     'per_delete' => $this->setDeletePermission(),
                     'task_count' => Callcenter::where('user_id', $item->id)->count(),
+                    'current_business_ids' => $canTransferToBusiness
+                        ? $item->ghorfeOnlineLists->modelKeys()
+                        : [],
                     'conduct' => $item->conduct
                 ];
             })

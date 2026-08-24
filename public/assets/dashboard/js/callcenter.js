@@ -195,7 +195,9 @@ $(document).ready(function () {
                     "targets": 1,
                     "data": data,
                     "render": function (data) {
-                        return `<input type="checkbox" name="id[]" value="${data.id}">`
+                        return `<input type="checkbox" name="id[]" value="${data.id}"
+                            class="business-transfer-record callcenter-business-transfer-record"
+                            data-current-business-ids="${(data.current_business_ids || []).join(',')}">`
                     }
                 },
                 {
@@ -256,12 +258,23 @@ $(document).ready(function () {
                         if ($('#delete').val() == 1) {
                             display = 'block'
                         }
+                        let businessTransferAction = '';
+                        if (document.getElementById('business-transfer-modal')) {
+                            businessTransferAction = `<button type="button" class="dropdown-item pointer"
+                                data-business-transfer-single data-transfer-entity="callcenter"
+                                data-record-id="${data.id}"
+                                data-current-business-ids="${(data.current_business_ids || []).join(',')}">
+                                انتقال به کسب و کار
+                            </button>`;
+                        }
                         return `<div data-v-15965e3b="" class="dropdown" id="taskDetailModal">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                             <span class="dropdown-item pointer task-status" data-id="${data.id}" data-name="${data.name.name}"  data-gender="${data.name.sex}"  data-family="${data.name.family}" data-province="${data.name.province_id}" data-city="${data.name.city_id}" data-phone="${data.phone}" data-sos="${data.name.sos}"
+                            data-current-business-ids="${(data.current_business_ids || []).join(',')}"
                             data-vip="${data.name.vip}" data-conduct="${data.name.conduct}" data-agent="${data.agent}" data-status="${data.status}"  data-toggle="modal" data-target=".bd-example-modal-lg">وضعیت</span>
+                            ${businessTransferAction}
                             <span style="display: ${display}"  data-id="${data.id}" class="task-delete dropdown-item pointer">حذف</span>
                         </div></div>`
                     }
@@ -324,6 +337,11 @@ $(document).ready(function () {
     });
     /*      MODAL PART (STATUS BTN)     */
     $("body").on('click', '.task-status', function () {
+        $('#callcenter-business-transfer-detail')
+            .attr('data-record-id', $(this).data('id'))
+            .attr('data-current-business-ids', $(this).attr('data-current-business-ids') || '')
+            .prop('disabled', false);
+
         //set send link form data
         $('#send-factor').prop('checked', true);
         $('#remember-description').val('');
@@ -856,5 +874,3 @@ function getBadgeOfCallCenterStatus(status) {
 }
 // Get the element with id="changeStatusTaskDefaultOpen" and click on it
 document.getElementById("changeStatusTaskDefaultOpen").click();
-
-

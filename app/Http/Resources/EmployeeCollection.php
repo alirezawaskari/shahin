@@ -12,8 +12,10 @@ class EmployeeCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $canTransferToBusiness = auth()->user()?->hasPermission('transfer_to_business') === true;
+
         return [
-            'data' => $this->collection->map(function ($item) {
+            'data' => $this->collection->map(function ($item) use ($canTransferToBusiness) {
                 return [
                     'id' => $item->id,
                     'user_id' => $item->user->id,
@@ -27,10 +29,12 @@ class EmployeeCollection extends ResourceCollection
                     'wallet' => $item->user->wallet > 0 ? number_format($item->user->wallet) : 0,
                     'role_title' => $item->user->roles->first() ? $item->user->roles->first()->display_name : 'بدون نقش',
                     'parent_fullname'=>$item->parent()->exists()?$item->parent->user->name.' '.$item->parent->user->family:'ندارد',
+                    'current_business_ids' => $canTransferToBusiness && $item->ghorfe_online_list_id
+                        ? [(int) $item->ghorfe_online_list_id]
+                        : [],
                     'created_at' => verta($item->created_at)->format('Y/m/d'),
                 ];
             })
         ];
     }
 }
-

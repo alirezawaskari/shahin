@@ -582,7 +582,9 @@ $(document).ready(function () {
                     "targets": 1,
                     "data": data,
                     "render": function (data) {
-                        return `<input type="checkbox" name="id[]" value="${data.id}">`
+                        return `<input type="checkbox" name="id[]" value="${data.id}"
+                            class="business-transfer-record factor-item-business-transfer-record"
+                            data-current-business-ids="${(data.current_business_ids || []).join(',')}">`
                     }
                 },
                 {
