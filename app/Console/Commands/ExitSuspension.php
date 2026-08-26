@@ -41,15 +41,15 @@ class ExitSuspension extends Command
     public function handle()
     {
         //change status totalFactorItems at the expired_at
-        TotalFactorItem::where('total_factor_item_status_id', 3)->where(DB::raw("(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))"), '<=', now())->update(['total_factor_item_status_id' => 14]);
+        TotalFactorItem::where('total_factor_item_status_id', 3)->where(DB::raw("(DATE_FORMAT(expired_at,'%Y-%m-%d %H:%i:%s'))"), '<=', now())->update(['total_factor_item_status_id' => 14]);
 
         //change status_factor factorItems at the expired_at
-        FactorItem::where( 'status_factor', 3 )->where( DB::raw("(DATE_FORMAT(expired_at,'%Y-%m-%d %h:%m:%s'))"), '<=', now() )->take(100)->update( [ 'status_factor' => 14 ] );
+        FactorItem::where( 'status_factor', 3 )->where( DB::raw("(DATE_FORMAT(expired_at,'%Y-%m-%d %H:%i:%s'))"), '<=', now() )->take(100)->update( [ 'status_factor' => 14 ] );
 
         //change status callcenters at the expired_at
-        Callcenter::where('status' , 2)->where(DB::raw("(DATE_FORMAT(date_expire,'%Y-%m-%d %h:%m:%s'))"),'<=', now())->take(100)->update(['status' => 4]);
+        Callcenter::where('status' , 2)->where(DB::raw("(DATE_FORMAT(date_expire,'%Y-%m-%d %H:%i:%s'))"),'<=', now())->take(100)->update(['status' => 4]);
 
         //archive callcenters
-        Callcenter::where('status' , 2)->where(DB::raw("(DATE_FORMAT(date_expire,'%Y-%m-%d %h:%m:%s'))") , '>' , now()->addMonths(11))->take(100)->update(['status' => 8]);
+        Callcenter::where('status' , 2)->where(DB::raw("(DATE_FORMAT(date_expire,'%Y-%m-%d %H:%i:%s'))") , '>' , now()->addMonths(11))->take(100)->update(['status' => 8]);
     }
 }
