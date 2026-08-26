@@ -517,16 +517,8 @@ class GhorfeOnlineListController extends AdminController {
         {
             $request->validate([
                 'name'            => ['required', 'string', 'max:255'],
-                'color_primary'   => ['required', 'regex:/^#( [ A-Fa-f0-9 ] {
-        6}
-        |[ A-Fa-f0-9 ] {
-            3}
-        )$/'],
-                'color_secondary' => ['required', 'regex:/^#( [ A-Fa-f0-9 ] {
-            6}
-            |[ A-Fa-f0-9 ] {
-                3}
-            )$/'],
+                'color_primary'   => ['required', 'hex_color'],
+                'color_secondary' => ['required', 'hex_color'],
             ]);
 
             $newTheme = Theme::create([
