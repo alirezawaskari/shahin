@@ -75,10 +75,16 @@
                 <span lang="FA" style="line-height: 150%;font-weight: 700;">
                     ماده 4) مدت اجاره :
                 </span>
-                مدت اجاره ، از تاریخ {{ $user->employee ?
-                (verta($user->employee->contract_start_date)->format('Y/m/d').' تا
-                '.verta($user->employee->contract_expiration_date)->format('Y/m/d')) : 'این بخش را از قسمت همکاران کامل
-                کنید' }} می باشد.
+                {{-- The two columns are NOT NULL timestamps, so an employee whose contract dates were
+                     never entered holds '0000-00-00 00:00:00' rather than null — verta() dies on those.
+                     Treat them as "not filled in", which is what the fallback below already says. --}}
+                @php
+                    $contractStart = $user->employee ? \App\Helpers\Helper::jalaliDate($user->employee->contract_start_date) : null;
+                    $contractEnd = $user->employee ? \App\Helpers\Helper::jalaliDate($user->employee->contract_expiration_date) : null;
+                @endphp
+                مدت اجاره ، از تاریخ {{ $contractStart && $contractEnd
+                ? $contractStart.' تا '.$contractEnd
+                : 'این بخش را از قسمت همکاران کامل کنید' }} می باشد.
                 تمدید مدت قرارداد حداکثر یک ماه قبل از انقضای مدت با ارسال درخواست رسمی و سپس با توافق کتبی موجر
                 امکان‌پذیر است.
                 <br>

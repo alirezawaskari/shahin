@@ -181,17 +181,7 @@ function new_payment_div() {
     div1.children[0].children[0].children[1].children[2].id = "delete" + ct;
     div1.children[0].children[0].children[1].children[1].children[0].id = "payment_date" + ct;
     document.getElementById('delete' + ct).innerHTML = delLink;
-    $("#payment_date" + ct).pDatepicker({
-        initialValueType: "gregorian",
-        format: "YYYY/MM/DD H:m:s",
-        onSelect: "year",
-        timePicker: {
-            enabled: true,
-            meridiem: {
-                enabled: true
-            }
-        }
-    });
+    if (window.initJalaliDatePickers) window.initJalaliDatePickers(div1);
 }
 
 function delPayment(eleId) {

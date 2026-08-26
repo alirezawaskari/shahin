@@ -32,7 +32,7 @@
                 </div>
                 <div class="col-12 col-md-3 mb-2" id="payment_date">
                     <label>تاریخ پرداخت</label>
-                    <date-picker value="{{ now() }}" format="YYYY/M/D HH:mm"
+                    <date-picker value="{{ verta()->format('Y/m/d H:i') }}" format="jYYYY/jMM/jDD HH:mm"
                             name="payment_date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
                     </date-picker>
                 </div>

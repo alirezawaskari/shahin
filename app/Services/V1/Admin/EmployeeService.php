@@ -60,6 +60,15 @@ class EmployeeService {
 
         }
 
+        // The three تب مالی dates all come off the panel's Jalali picker. data_access_date
+        // was the odd one out — it went into the timestamp column verbatim, so MySQL
+        // rejected it and the field never kept what was chosen.
+        if ( !empty( $employeeData[ 'data_access_date' ] ) ) {
+
+            $employeeData[ 'data_access_date' ] = Helper::vertaToMiladi( $employeeData[ 'data_access_date' ] );
+
+        }
+
         if ( !empty( $employeeData[ 'contract_start_date' ] ) ) {
 
             $employeeData[ 'contract_start_date' ] = Helper::vertaToMiladi( $employeeData[ 'contract_start_date' ] );

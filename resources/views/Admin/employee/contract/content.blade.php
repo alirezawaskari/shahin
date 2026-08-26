@@ -17,7 +17,7 @@
             <div class="border-contract pr-1 pr-md-5 pb-4 mb-4">
                 <div class="row text-center">
                     <div class="col-12 col-md-3 mt-4">
-                        <p> تاریخ : {{ verta($employee->contract_start_date)->format('Y/m/d') }} </p>
+                        <p> تاریخ : {{ \App\Helpers\Helper::jalaliDate($employee->contract_start_date) ?? 'ثبت نشده' }} </p>
                         <p> شماره قرارداد : {{ $employee->contract_number }} </p>
                     </div>
                     <div class="col-12 col-md-6 mt-4 text-center">

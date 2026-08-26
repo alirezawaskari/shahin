@@ -6,16 +6,6 @@ $(document).ready(function () {
     })
 });
 
-if (($(".expire_date").length > 0)) {
-    $('.expire_date').persianDatepicker({
-        observer: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        timePicker: {
-            enabled: true, meridiem: {enabled: true}
-        }
-    });
-}
-
 $(document).on('click', '.insertValidation', function () {
     var field = $(this).attr('id');
     var product_validation_id = $('#' + field + '.product_validation_id').children("option:selected").val();

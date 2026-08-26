@@ -69,14 +69,14 @@
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ آغاز</label>
-                    <date-picker value="{{ $financialPlansType->start_date }}" format="YYYY/M/D HH:mm:ss"
+                    <date-picker value="{{ $financialPlansType->start_date ? verta($financialPlansType->start_date)->format('Y/m/d H:i:s') : '' }}" format="jYYYY/jMM/jDD HH:mm:ss"
                         name="start_date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date">
                     </date-picker>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ پایان</label>
-                    <date-picker value="{{ $financialPlansType->end_date }}" format="YYYY/M/D HH:mm:ss" name="end_date"
+                    <date-picker value="{{ $financialPlansType->end_date ? verta($financialPlansType->end_date)->format('Y/m/d H:i:s') : '' }}" format="jYYYY/jMM/jDD HH:mm:ss" name="end_date"
                         type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date">
                     </date-picker>
                 </div>

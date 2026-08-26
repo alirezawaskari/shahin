@@ -34,15 +34,6 @@ $(document).ready(function () {
     })
 });
 
-if (($(".expire_date").length > 0)) {
-    $('.expire_date').persianDatepicker({
-        observer: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        timePicker: {enabled: true, meridiem: {enabled: true}
-        }
-    });
-}
-
 var center_id = $('.center_id').val();
 var type = 'center';
 $(document).ready(function () {

@@ -42,14 +42,14 @@
                     </div>
                     <div class="col-12 col-md-3 mb-3"><label>تاریخ آغاز</label>
                         <input id="date" type="text" name="start_at" value=""
-                               class="form-control start_at pwt-datepicker-input-element">
+                               class="form-control start_at">
                         @if($errors->has('start_at'))
                             <span class="help-block sub-error  "> {{$errors->first('start_at')}} </span>
                         @endif
                     </div>
                     <div class="col-12 col-md-3 mb-3"><label>تاریخ پایان</label>
                         <input id="date" type="text" name="end_at" value=""
-                               class="form-control end_at pwt-datepicker-input-element">
+                               class="form-control end_at">
                         @if($errors->has('end_at'))
                             <span class="help-block sub-error  "> {{$errors->first('end_at')}} </span>
                         @endif
