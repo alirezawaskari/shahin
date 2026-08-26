@@ -75,20 +75,5 @@ $(document).on('click', '.periodicUpdate', function () {
         }
     });
 });
-var date = new Date();
-var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
-$(".date").pDatepicker({
-    initialValueType: "gregorian",
-    format: 'YYYY-MM-DD',
-    startDate: tomorrow,
-    calendar: {
-        'persian': {
-            'locale': 'fa',
-            'showHint': false
-        },
-        'gregorian': {
-            'locale': 'en',
-            'showHint': false
-        }
-    }
-});
+// The two date fields are built by jalaliDatePicker.js; their format and the
+// "not before tomorrow" bound come from the data-jdp-* attributes in the view.

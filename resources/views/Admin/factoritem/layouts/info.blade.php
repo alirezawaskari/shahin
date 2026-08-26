@@ -170,7 +170,7 @@
                                         <div class="row">
                                             <div class="col-12 col-md-6 mb-2">
                                                 <label>تاریخ یادآوری</label>
-                                                <date-picker placeholder="انتخاب تاریخ" format="YYYY/M/D HH:mm"
+                                                <date-picker placeholder="انتخاب تاریخ" format="jYYYY/jMM/jDD HH:mm"
                                                     name="date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
                                                 </date-picker>
                                             </div>

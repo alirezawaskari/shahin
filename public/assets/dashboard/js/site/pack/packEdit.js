@@ -33,14 +33,3 @@ $(document).ready(function () {
         tokenSeparators: [',', ' ']
     })
 });
-
-
-if (($(".expire_date").length > 0)) {
-    $('.expire_date').persianDatepicker({
-        observer: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        timePicker: {
-            enabled: true, meridiem: {enabled: true}
-        }
-    });
-}

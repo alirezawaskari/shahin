@@ -41,8 +41,8 @@
                             <td>{{ $ghorfeOnline->title }}</td>
                             <td>{{ $ghorfeOnline->user ? $ghorfeOnline->user->name.' '.$ghorfeOnline->user->family : 'ثبت نشده' }}</td>
                             <td>{{ $ghorfeOnline->call }}</td>
-                            <td>{{ verta($ghorfeOnline->contract_start_date)->format('Y/m/d') }}</td>
-                            <td>{{ verta($ghorfeOnline->contract_expiration_date)->format('Y/m/d') }}</td>
+                            <td>{{ \App\Helpers\Helper::jalaliDate($ghorfeOnline->contract_start_date) ?? 'ثبت نشده' }}</td>
+                            <td>{{ \App\Helpers\Helper::jalaliDate($ghorfeOnline->contract_expiration_date) ?? 'ثبت نشده' }}</td>
                             <td><a href="http://{{ $ghorfeOnline->domain_active }}" target="_blank">{{ $ghorfeOnline->domain_active }}</a></td>
                             <td>{{ $ghorfeOnline->status ? 'فعال' : 'غیرفعال'}}</td>
                             <td>

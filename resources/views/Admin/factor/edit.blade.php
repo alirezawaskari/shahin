@@ -328,14 +328,7 @@
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 
 <script>
-    $('.date').persianDatepicker({
-        timePicker: {
-            enabled: true,
-            meridiem: {
-                enabled: true
-            }
-        }
-    });
+    // .date fields are built by jalaliDatePicker.js.
     @if(session()->get('factor_update') == 'success')
     toastr.success('با موفقیت انجام شد!');
     @elseif(session()->get('factor_update') == 'danger')

@@ -177,6 +177,7 @@
                                                             <div class="col-md-4">
 
                                                                 <input id="date" type="text" class="form-control"
+                                                                       data-jdp data-jdp-type="date" data-jdp-format="jYYYY/jMM/jD"
                                                                        name="date"
                                                                        value="{{ $groupsm->send_at }}"/>
 
@@ -345,6 +346,7 @@
                                                             <div class="col-md-4">
 
                                                                 <input id="date" type="text" class="form-control"
+                                                                       data-jdp data-jdp-type="date" data-jdp-format="jYYYY/jMM/jD"
                                                                        name="date"
                                                                        value="{{ $groupsm->send_at }}"/>
 
@@ -411,13 +413,11 @@
             });
         });
 
-        $('#date').persianDatepicker({
-            format: 'YYYY/MM/D',
-
-            onSelect: function (unix) {
-                $("#send_at").val(unix);
-            },
-
+        // The field is built by jalaliDatePicker.js. It publishes the unix timestamp that
+        // pwt-datepicker's onSelect used to hand over on the element itself, as
+        // data-jdp-unix, so the hidden #send_at keeps the same value.
+        $(document).on('change', '#date', function () {
+            $("#send_at").val(this.dataset.jdpUnix || '');
         });
 
     </script>

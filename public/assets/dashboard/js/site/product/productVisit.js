@@ -6,16 +6,6 @@ $(document).ready(function () {
     })
 });
 
-if (($(".expire_date").length > 0)) {
-    $('.expire_date').persianDatepicker({
-        observer: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        timePicker: {
-            enabled: true, meridiem: {enabled: true}
-        }
-    });
-}
-
 //insert an validation error of field
 $(document).on('click', '.insertValidation', function () {
     var field = $(this).attr('id');

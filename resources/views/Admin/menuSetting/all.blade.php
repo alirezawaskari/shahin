@@ -19,7 +19,10 @@
         </div>
 
         <div>
-            @permission('menu_setting_create')
+            {{-- Gated on menu_setting_edit rather than menu_setting_create: the latter is
+                 referenced nowhere else and has never existed as a permission row, so it
+                 would hide this button from everyone, exactly as it used to. --}}
+            @permission('menu_setting_edit')
             <a class="btn btn-primary" href="{{ route('menuSetting.create') }}">
                 ایجاد منو جدید
             </a>
@@ -60,9 +63,11 @@
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>نام</th>
+                    <th>نام منو</th>
                     <th>ایکون</th>
                     <th>ترتیب</th>
+                    <th>زیرمنو (نمایشی / کل)</th>
+                    <th>وضعیت</th>
                     <th>تاریخ ویرایش</th>
                     <th>اقدام</th>
                 </tr>
@@ -96,5 +101,5 @@
 
 
 @section('js')
-    <script src="/assets/dashboard/js/menuSetting.js?v=1.0"></script>
+    <script src="/assets/dashboard/js/menuSetting.js?v=1.2"></script>
 @endsection

@@ -139,14 +139,16 @@
                                                    onkeydown="return false"
                                                    value="{{$item->start_at}}"
                                                    data-title="{{$item->product_id}}" title="start_date"
-                                                   class="form-control date mb-2 pwt-datepicker-input-element disInline width85">
+                                                   data-jdp-type="date" data-jdp-format="jYYYY-jMM-jDD" data-jdp-min="tomorrow"
+                                                   class="form-control date mb-2 disInline width85">
                                             <br/>
                                             <span class="disInline">تا</span>
                                             <input type="text" name="periodic[{{$item->id}}][end_date]"
                                                    onkeydown="return false"
                                                    value="{{$item->end_at}}"
                                                    data-title="{{$item->product_id}}" title="end_date"
-                                                   class="form-control date mb-2 pwt-datepicker-input-element disInline width85">
+                                                   data-jdp-type="date" data-jdp-format="jYYYY-jMM-jDD" data-jdp-min="tomorrow"
+                                                   class="form-control date mb-2 disInline width85">
                                             <br/>
                                             @if($errors->has("periodic.$item->id.start_date"))
                                                 <span class="help-block sub-error"> {{$errors->first("periodic.$item->id.start_date")}} </span>

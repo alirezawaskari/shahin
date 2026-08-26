@@ -8,17 +8,7 @@ $(document).ready(function () {
                 success: function (response) {
                     let view = response.data.view;
                     $('.modal-body-registration-initial-consultation').html(view);
-                    $(".date").pDatepicker({
-                        initialValueType: "gregorian",
-                        format: "YYYY/MM/DD H:m:s",
-                        onSelect: "year",
-                        timePicker: {
-                            enabled: true,
-                            meridiem: {
-                                enabled: true
-                            }
-                        }
-                    });
+                    if (window.initJalaliDatePickers) window.initJalaliDatePickers(document);
                 }
             });
     });

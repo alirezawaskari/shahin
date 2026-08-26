@@ -75,6 +75,7 @@
                         <label>تاریخ ارسال</label>
                         <input type="text"
                                class="form-control date"
+                               data-jdp-type="date" data-jdp-format="jYYYY/jMM/jD"
                                name="date">
                     </div>
 
@@ -93,13 +94,11 @@
     <script>
         $(document).ready(function () {
 
-            $('.date').pDatepicker({
-                format: 'YYYY/MM/D',
-                autoClose:true,
-                onSelect: function (unix) {
-                    $('.send_at').val(unix);
-                },
-
+            // The field is built by jalaliDatePicker.js. It publishes the unix timestamp
+            // that pwt-datepicker's onSelect used to hand over on the element itself, as
+            // data-jdp-unix, so the hidden .send_at keeps the same value.
+            $(document).on('change', 'input.date[name="date"]', function () {
+                $('.send_at').val(this.dataset.jdpUnix || '');
             });
         });
 

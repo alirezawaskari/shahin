@@ -15,15 +15,15 @@
                         <span>{{ $category['name'] }}</span>
                     </a>
 
+                    {{-- MenuService has already dropped anything that is not in the menu or has no
+                         usable route name, and returns the items in their ترتیب order. --}}
                     <ul>
                         @foreach($category['items'] as $list)
-                            @if($list->isMenu)
-                                <li>
-                                    <a href="{{ route($list->link) }}">
-                                        {{ $list->display_name }}
-                                    </a>
-                                </li>
-                            @endif
+                            <li>
+                                <a href="{{ $list->menu_url }}">
+                                    {{ $list->display_name ?: $list->name }}
+                                </a>
+                            </li>
                         @endforeach
                     </ul>
                 </li>

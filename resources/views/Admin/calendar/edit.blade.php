@@ -100,13 +100,7 @@
 @section('js')
     <script type="text/javascript">
 
-        $('.start_time').persianDatepicker({
-            format: 'HH:mm:ss', onlyTimePicker: true
-        });
-
-        $('.end_time').persianDatepicker({
-            format: 'HH:mm:ss', onlyTimePicker: true
-        });
+        // .start_time / .end_time are built by jalaliDatePicker.js.
 
 
     </script>
