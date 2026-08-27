@@ -18,13 +18,10 @@
             </nav>
         </div>
 
-        <div>
-            @permission('menu_setting_create')
-            <a class="btn btn-primary" href="{{ route('menuSetting.create') }}">
-                ایجاد منو جدید
-            </a>
-            @endpermission
-        </div>
+        {{-- The "ایجاد منو جدید" button used to sit here pointing at menuSetting.create.
+             MenuSettingController has no create()/store() — the resource route exists but the
+             methods never did — so the button could only ever produce a BadMethodCallException.
+             Menu groups come from the permission seeders, not from this screen. --}}
     </div>
 
 
@@ -60,9 +57,11 @@
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>نام</th>
+                    <th>نام منو</th>
                     <th>ایکون</th>
                     <th>ترتیب</th>
+                    <th>زیرمنو (نمایشی / کل)</th>
+                    <th>وضعیت</th>
                     <th>تاریخ ویرایش</th>
                     <th>اقدام</th>
                 </tr>
@@ -96,5 +95,5 @@
 
 
 @section('js')
-    <script src="/assets/dashboard/js/menuSetting.js?v=1.0"></script>
+    <script src="/assets/dashboard/js/menuSetting.js?v=1.2"></script>
 @endsection
