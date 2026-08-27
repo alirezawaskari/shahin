@@ -351,8 +351,12 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/smsTemplate/filter', [SmsTemplateController::class, 'filter']);
     Route::get('/menuSetting/filter', [MenuSettingController::class, 'filter']);
     Route::post('/permissions/updateSubMenu', [MenuSettingController::class, 'updateSubMenu'])->name('permissions.updateSubMenu');
+    Route::post('/menuSetting/{menuSetting}/subMenu', [MenuSettingController::class, 'storeSubMenu'])->name('menuSetting.subMenu.store');
     Route::resource('/smsTemplate', SmsTemplateController::class);
-    Route::resource('/menuSetting', menuSettingController::class);
+    // show/destroy are left out on purpose: the controller implements neither, so the
+    // resource default registered two endpoints that could only throw BadMethodCallException.
+    Route::resource('/menuSetting', MenuSettingController::class)
+        ->only(['index', 'create', 'store', 'edit', 'update']);
 
     //total factor item
     Route::post('/totalFactorItem/suspension', [TotalFactorItemController::class, 'suspension'])->name('totalFactorItem.suspension');

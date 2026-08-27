@@ -18,10 +18,16 @@
             </nav>
         </div>
 
-        {{-- The "ایجاد منو جدید" button used to sit here pointing at menuSetting.create.
-             MenuSettingController has no create()/store() — the resource route exists but the
-             methods never did — so the button could only ever produce a BadMethodCallException.
-             Menu groups come from the permission seeders, not from this screen. --}}
+        <div>
+            {{-- Gated on menu_setting_edit rather than menu_setting_create: the latter is
+                 referenced nowhere else and has never existed as a permission row, so it
+                 would hide this button from everyone, exactly as it used to. --}}
+            @permission('menu_setting_edit')
+            <a class="btn btn-primary" href="{{ route('menuSetting.create') }}">
+                ایجاد منو جدید
+            </a>
+            @endpermission
+        </div>
     </div>
 
 

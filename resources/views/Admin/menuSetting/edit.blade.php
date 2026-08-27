@@ -238,6 +238,65 @@
             </div>
         </div>
 
+        <div class="card">
+            <div class="card-header bg-dark-gradient col-12 border border-right-0 border-left-0">
+                افزودن زیرمنوی جدید به «{{ $menuSetting->name }}»
+            </div>
+
+            <div class="card-body">
+                <form method="post" action="{{ route('menuSetting.subMenu.store', [$menuSetting->id]) }}">
+                    @csrf
+
+                    <div class="row">
+                        <div class="col-12 col-md-6 col-lg-4 mb-2">
+                            <label>نام انگلیسی <span class="text-danger">*</span></label>
+                            {{-- This becomes the Laratrust permission key. It can be chosen now, but
+                                 never edited afterwards. --}}
+                            <input type="text" class="form-control" name="name" value="{{ old('name') }}"
+                                placeholder="مثال: report_index" required>
+                            <small class="text-muted">فقط حروف انگلیسی، عدد، _ ، . و - . بعداً قابل تغییر نیست.</small>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-lg-4 mb-2">
+                            <label>عنوان نمایشی <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="display_name"
+                                value="{{ old('display_name') }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-lg-4 mb-2">
+                            <label>توضیحات</label>
+                            <input type="text" class="form-control" name="description" value="{{ old('description') }}">
+                        </div>
+
+                        <div class="col-12 col-md-6 col-lg-4 mb-2">
+                            <label>لینک</label>
+                            <input type="text" class="form-control" name="link" list="route-names"
+                                value="{{ old('link') }}" placeholder="نام مسیر، مثال: user.index">
+                            <small class="text-muted">اگر «نمایش در منو» فعال باشد، الزامی است.</small>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-lg-4 mb-2">
+                            <label>ترتیب</label>
+                            <input type="number" min="0" class="form-control" name="position"
+                                value="{{ old('position') }}" placeholder="خالی بگذارید تا انتهای فهرست اضافه شود">
+                        </div>
+
+                        <div class="col-12 col-md-6 col-lg-4 mb-2">
+                            <label>نمایش در منو</label>
+                            <select class="form-control" name="is_active">
+                                <option value="1" {{ old('is_active', 0) == 1 ? 'selected' : '' }}>فعال</option>
+                                <option value="0" {{ old('is_active', 0) == 0 ? 'selected' : '' }}>غیرفعال</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mb-2 text-left px-0">
+                        <input type="submit" class="btn btn-primary border-0" value="افزودن زیرمنو">
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 @stop
