@@ -1,15 +1,3 @@
-$(".date").pDatepicker({
-    initialValueType: "gregorian",
-    format: "YYYY/MM/DD H:m:s",
-    onSelect: "year",
-    timePicker: {
-        enabled: true,
-        meridiem: {
-            enabled: true
-        }
-    }
-});
-
 //select province
 $('#province_id').on('change', function () {
     var token = $('meta[name="csrf-token"]').attr('content');
@@ -107,18 +95,10 @@ function paymentType(title) {
 
 var ct = 1;
 
+// Kept for the callers that add rows to a form. jalaliDatePicker.js already watches the
+// DOM for new date fields, so this only has to hand it the ones that are there now.
 function date() {
-    $(".date").pDatepicker({
-        initialValueType: "gregorian",
-        format: "YYYY/MM/DD H:m:s",
-        onSelect: "year",
-        timePicker: {
-            enabled: true,
-            meridiem: {
-                enabled: true
-            }
-        }
-    });
+    if (window.initJalaliDatePickers) window.initJalaliDatePickers(document);
 }
 var
     persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g],

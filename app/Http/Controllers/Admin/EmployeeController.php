@@ -975,7 +975,9 @@ class EmployeeController extends AdminController
         if($request->contract_status == 2 && $employee->contract_status != 1)
         {
             $employee->update(['contract_status' => 2]);
-            $contract_start_date = verta($employee->contract_start_date)->format('Y/m/d');
+            // NOT NULL timestamp: an employee with no contract date holds '0000-00-00 00:00:00',
+            // which verta() cannot format — sending the contract link must not die on that.
+            $contract_start_date = Helper::jalaliDate($employee->contract_start_date) ?? '-';
             $link = 'https://lalecard.ir/dashboard/employee/contract/' . $employee->id;
             SendSms::sendSingleSms('sendUserContractConfirmLink', $user_phone_number, ['param1' => $employee->contract_number, 'param2' => $contract_start_date, 'param3' => $link]);
             $description = 'قرارداد جهت تایید همکار ارسال شد.';

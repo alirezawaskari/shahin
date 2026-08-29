@@ -47,61 +47,28 @@ $(document).on('click', '.removeProductAttribute', function () {
     });
 });
 
-var date = new Date();
-var tomorrow = new Date(date.getFullYear(), date.getMonth(), (date.getDate() + 1));
+// The two fields are built by jalaliDatePicker.js (their format and the "not before
+// tomorrow" bound come from the data-jdp-* attributes in the view), so the overlap check
+// that used to hang off pwt-datepicker's `onSelect` now listens for `change` instead.
+$(document).on('change', '.start_date, .end_date', function () {
+    var start_date = $('.start_date').val();
+    var end_date = $('.end_date').val();
+    var id = $(this).attr('data-title');
 
-$('.start_date').persianDatepicker({
-    observer: true,
-    format: 'YYYY-MM-DD',
-    startDate: tomorrow,
-    timePicker: {enabled: true, meridiem: {enabled: true}},
-    onSelect: function () {
-        var id = $(this).attr('data-title');
-        var start_date = $('.start_date').val();
-        var end_date = $('.end_date').val();
-        console.log(start_date,end_date);
-        $.ajax({
-            type: "post",
-            url: '/dashboard/periodicPrices/checkDate',
-            headers: {"Authorization": localStorage.getItem('token')},
-            data: {start_date:start_date,end_date:end_date,id:id},
-            success: function (result) {
-                if(result['status'] == '400'){
-                    $('#'+result['id']+'.alert_date_message').css({'display':'block'}).html(result['message']);
-                }
-                if(result['status'] == '200'){
-                    $('#'+result['id']+'.alert_date_message').css({'display':'none'}).html(' ');
-                }
+    $.ajax({
+        type: "post",
+        url: '/dashboard/periodicPrices/checkDate',
+        headers: {"Authorization": localStorage.getItem('token')},
+        data: {start_date:start_date,end_date:end_date,id:id},
+        success: function (result) {
+            if(result['status'] == '400'){
+                $('#'+result['id']+'.alert_date_message').css({'display':'block'}).html(result['message']);
             }
-        });
-    }
-});
-
-$('.end_date').persianDatepicker({
-    observer: true,
-    format: 'YYYY-MM-DD',
-    startDate: tomorrow,
-    timePicker: {enabled: true, meridiem: {enabled: true}},
-    onSelect: function () {
-        var start_date = $('.start_date').val();
-        var end_date = $('.end_date').val();
-        var id = $('.end_date').attr('data-title');
-        console.log(start_date,end_date);
-        $.ajax({
-            type: "post",
-            url: '/dashboard/periodicPrices/checkDate',
-            headers: {"Authorization": localStorage.getItem('token')},
-            data: {start_date:start_date,end_date:end_date,id:id},
-            success: function (result) {
-                if(result['status'] == '400'){
-                    $('#'+result['id']+'.alert_date_message').css({'display':'block'}).html(result['message']);
-                }
-                if(result['status'] == '200'){
-                    $('#'+result['id']+'.alert_date_message').css({'display':'none'}).html(' ');
-                }
+            if(result['status'] == '200'){
+                $('#'+result['id']+'.alert_date_message').css({'display':'none'}).html(' ');
             }
-        });
-    }
+        }
+    });
 });
 
 

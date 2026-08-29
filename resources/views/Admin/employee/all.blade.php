@@ -77,12 +77,28 @@
     </div>
 </div>
 
+@permission('transfer_to_business')
+<div class="card">
+    <div class="card-body d-flex align-items-center">
+        <span class="ml-3">عملیات گروهی:</span>
+        @include('Admin.businessTransfer.bulkAction', [
+            'entity' => 'employee',
+            'recordSelector' => '.employee-business-transfer-record'
+        ])
+    </div>
+</div>
+@endpermission
+
 <div class="card position-relative">
     <div class="card-body table-responsive">
-        <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
+        <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json"
+               data-business-transfer-enabled="{{ auth()->user()->hasPermission('transfer_to_business') ? 1 : 0 }}">
             <thead class="text-center">
                 <tr>
                     <th>#</th>
+                    @permission('transfer_to_business')
+                        <th><input type="checkbox" class="business-transfer-select-all" aria-label="انتخاب همه"></th>
+                    @endpermission
                     <th>تصویر پرسنلی</th>
                     <th>نام و نام خانوادگی</th>
                     <th>موبایل</th>
@@ -116,5 +132,5 @@
 @stop
 
 @section('js')
-<script src="/assets/dashboard/js/employee.js?v=1.2"></script>
+<script src="/assets/dashboard/js/employee.js?v=1.4"></script>
 @endsection

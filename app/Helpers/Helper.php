@@ -129,6 +129,39 @@ class Helper {
     }
 
     /**
+     * Format a stored Gregorian date as Jalali, tolerating the values that are not really
+     * dates.
+     *
+     * employees.contract_start_date and its siblings are NOT NULL timestamps, so a row
+     * nobody ever filled in holds '0000-00-00 00:00:00'. Carbon reads that as year -1,
+     * whose 'Y-m-d-w' starts with a '-'; the Jalali package explodes on that dash and
+     * hands GregorianToJalali() an empty string, dying with a TypeError. Callers that
+     * only want to print a date should not have to know any of that.
+     *
+     * @param $date
+     * @param string $format
+     * @return string|null null when there is no usable date to show
+     */
+    public static function jalaliDate($date, string $format = 'Y/m/d' ): ?string {
+        if ( empty( $date ) ) {
+            return null;
+        }
+
+        try {
+            $carbon = $date instanceof \DateTimeInterface ? Carbon::instance( $date ) : Carbon::parse( $date );
+        } catch ( \Throwable $e ) {
+            return null;
+        }
+
+        // Zero dates land on year -1; anything before the Jalali epoch is not a real value.
+        if ( $carbon->year < 1000 ) {
+            return null;
+        }
+
+        return verta( $carbon )->format( $format );
+    }
+
+    /**
      * @param $number
      * @return array|string|string[]
      */

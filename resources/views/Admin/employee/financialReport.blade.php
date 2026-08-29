@@ -78,8 +78,10 @@
                     ریال</h5>
             </div>
             <div class="col-12 col-md-5">
-                <h5> تاریخ شروع همکاری : {{ verta($employee->contract_start_date)->format('Y/m/d') }}</h5>
-                <h5> تاریخ انقضاء قرارداد : {{ $employee->contract_expiration_date ? verta($employee->contract_expiration_date)->format('Y/m/d') : 'ثبت نشده' }}</h5>
+                {{-- NOT NULL timestamps: an unset contract date is '0000-00-00 00:00:00', which is
+                     truthy but blows verta() up — so the check has to be on the formatted result. --}}
+                <h5> تاریخ شروع همکاری : {{ \App\Helpers\Helper::jalaliDate($employee->contract_start_date) ?? 'ثبت نشده' }}</h5>
+                <h5> تاریخ انقضاء قرارداد : {{ \App\Helpers\Helper::jalaliDate($employee->contract_expiration_date) ?? 'ثبت نشده' }}</h5>
                 <h5> درصد مالیات : {{ $employee->tax ? $employee->tax.'درصد' : 'ندارد'}}
                 </h5>
                 <h5> درصد حسن انجام کار : {{ $employee->blocked_percentage ? $employee->blocked_percentage.'درصد' :
@@ -181,7 +183,7 @@
                     </div>
                     <div class="col-12 mb-2" id="payment_date">
                         <label>تاریخ پرداخت</label>
-                        <date-picker value="{{ now() }}" format="YYYY/M/D HH:mm"
+                        <date-picker value="{{ verta()->format('Y/m/d H:i') }}" format="jYYYY/jMM/jDD HH:mm"
                                 name="payment_date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
                         </date-picker>
                     </div>

@@ -271,7 +271,7 @@
     {!! $form->help !!}
     <date-picker
         value="{{ isset($factorItem['factor_values'][$form->name]) ? $factorItem['factor_values'][$form->name] : $user[$form->name] }}"
-        format="YYYY/M/D" name="item[{{ $form->name }}]" type="date" display-format="YYYY/MM/DD">
+        format="YYYY/MM/DD" name="item[{{ $form->name }}]" type="date" display-format="YYYY/MM/DD">
     </date-picker>
 </div>
 @break

@@ -1,11 +1,4 @@
 
-$('.start_time').persianDatepicker({
-    format: 'HH:mm:ss', onlyTimePicker: true
-});
-
-$('.end_time').persianDatepicker({
-    format: 'HH:mm:ss', onlyTimePicker: true
-});
 
 
 var center_id_calendar = $('.center_id').val();

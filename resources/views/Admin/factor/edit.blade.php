@@ -3,6 +3,11 @@
 @section('content')
 <div class="page-header">
     <a href="{{ url()->previous() }}" class="btn btn-primary">بازگشت</a>
+    @include('Admin.businessTransfer.individualAction', [
+        'entity' => 'factor',
+        'recordId' => $factor->id,
+        'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys()
+    ])
 </div>
 <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -323,14 +328,7 @@
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 
 <script>
-    $('.date').persianDatepicker({
-        timePicker: {
-            enabled: true,
-            meridiem: {
-                enabled: true
-            }
-        }
-    });
+    // .date fields are built by jalaliDatePicker.js.
     @if(session()->get('factor_update') == 'success')
     toastr.success('با موفقیت انجام شد!');
     @elseif(session()->get('factor_update') == 'danger')

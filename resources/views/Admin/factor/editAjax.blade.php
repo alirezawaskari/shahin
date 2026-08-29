@@ -1,4 +1,11 @@
 <div class="">
+    <div class="mb-3">
+        @include('Admin.businessTransfer.individualAction', [
+            'entity' => 'factor',
+            'recordId' => $factor->id,
+            'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys()
+        ])
+    </div>
     <div class="modal fade" id="commentModalFactor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">

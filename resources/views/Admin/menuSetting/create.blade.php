@@ -1,65 +1,67 @@
 @extends('Admin.master')
-@section('title')ایجاد قالب پیامک@endsection
+@section('title')ایجاد منو جدید @endsection
 
 @section('content')
 <div class="page-header">
     <div>
-        <h3>ایجاد قالب پیامک جدید</h3>
+        <h3>ایجاد منو جدید</h3>
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
+            <ol class="breadcrumb flex-wrap">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page"><a href="{{ route('smsTemplate.index') }}">فهرست
-                        قالب های پیامکی</a></li>
-                <li class="breadcrumb-item active" aria-current="page">ایجاد قالب پیامک جدید</li>
+                <li class="breadcrumb-item"><a href="{{ route('menuSetting.index') }}">فهرست منو ها</a></li>
+                <li class="breadcrumb-item active" aria-current="page">ایجاد منو جدید</li>
             </ol>
         </nav>
     </div>
-    <div>
-        <a class="btn btn-primary" href="{{ route('smsTemplate.index') }}">فهرست قالب های پیامکی</a>
-    </div>
 </div>
+
 <div class="card">
     <div class="card-body">
-        <form class="form-horizontal" role="form" method="post" action="{{route('smsTemplate.store')}}"
-            enctype="multipart/form-data">
+        <div class="card-header bg-dark-gradient col-12 border border-right-0 border-left-0">
+            مشخصات منو
+        </div>
+
+        <form class="form-horizontal" role="form" method="post" action="{{ route('menuSetting.store') }}">
             @csrf
             @include('Admin.layouts.errors')
-            <div class="row">
-                <div class="col-12 col-md-6 mb-2">
-                    <label>نام قالب</label>
-                    <input type="text" class="form-control" name="fa_name" required>
+
+            <div class="row mt-3">
+                <div class="col-12 col-md-6 col-lg-3 mb-2">
+                    <label>عنوان منو <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="name" value="{{ old('name') }}" required>
                 </div>
-                <div class="col-12 col-md-6 mb-2">
-                    <label>کلمه کلیدی قالب</label>
-                    <input type="text" class="form-control" name="name" required>
+
+                <div class="col-12 col-md-6 col-lg-3 mb-2">
+                    <label>ایکون</label>
+                    <input type="text" class="form-control" name="icon" value="{{ old('icon') }}"
+                        placeholder="مثال: ti-home">
                 </div>
-                <div class="col-12 col-md-6 mb-2">
-                    <label>وضعیت</label>
-                    <select class="form-control" name="status">
-                        <option value="0">غیرفعال</option>
-                        <option value="1">فعال</option>
+
+                <div class="col-12 col-md-6 col-lg-3 mb-2">
+                    <label>وضعیت نمایش در منو</label>
+                    <select class="form-control" name="is_active">
+                        <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>فعال</option>
+                        <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>غیرفعال</option>
                     </select>
                 </div>
-                <div class="col-12 mb-2">
-                    <label>متن قالب</label>
-                    <textarea class="form-control" name="content"></textarea>
-                </div>
-                <div class="col-12 p-4 alert-warning mb-2">
-                    <p>ملاحضات : </p>
-                    <p>1 - قالب ها حتما باید دارای متغیر نام مجموعه باشند.</p>
-                    <p>2 - همه متغیرهارو به صورت %param1% , %param2% , .... داخل متن درج کنید.</p>
-                    <p>3 - توجه داشته باشید که عبارت لغو11 حتما باید انتهای تمام قالب ها درج شود.</p>
+
+                <div class="col-12 col-md-6 col-lg-3 mb-2">
+                    <label>ترتیب نمایش</label>
+                    <input type="number" min="0" class="form-control" name="position" value="{{ old('position', 0) }}">
                 </div>
             </div>
 
-            <div class="col-12">
+            <div class="alert alert-info mt-2">
+                منو تا زمانی که حداقل یک زیرمنوی فعال با لینک معتبر نداشته باشد در منوی کناری نمایش داده نمی‌شود.
+                پس از ثبت، به صفحه ویرایش همین منو هدایت می‌شوید تا زیرمنوها را اضافه کنید.
+            </div>
+
+            <div class="col-12 mb-3 text-left px-0">
+                <a href="{{ route('menuSetting.index') }}" class="btn btn-secondary">انصراف</a>
                 <input type="submit" class="btn btn-success border-0" value="ثبت">
             </div>
         </form>
+
     </div>
 </div>
 @stop
-@section('js')
-<script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/smsTemplate.js') }}"></script>
-@endsection

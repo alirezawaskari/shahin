@@ -1,11 +1,5 @@
 $(document).ready(function () {
 
-    $('.promissory-date').persianDatepicker({
-        observer: true,
-        format: 'YYYY/MM/DD',
-        initialValueType: 'gregorian'
-    });
-
     fetchData(1);
     var first_load = true;
     var do_filter_command = false;

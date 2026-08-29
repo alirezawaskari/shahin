@@ -43,12 +43,14 @@
                     <div class="col-12 col-md-6 mb-3">
                         <label>تاریخ آغاز</label>
                         <input id="date" type="text" class="form-control start" name="date"
+                               data-jdp data-jdp-type="date" data-jdp-format="jYYYY/jMM/jD"
                                value=""/>
                     </div>
 
                     <div class="col-12 col-md-6 mb-3">
                         <label>تاریخ پایان</label>
                         <input id="date" type="text" class="form-control end" name="date"
+                               data-jdp data-jdp-type="date" data-jdp-format="jYYYY/jMM/jD"
                                value=""/>
                     </div>
 
@@ -79,22 +81,15 @@
 
 @section('js')
     <script>
-        $('.start').pDatepicker({
-            format: 'YYYY/MM/D',
-            autoClose:true,
-            onSelect: function (unix) {
-                $('.start-val').val(unix);
-            },
-
+        // The two fields are built by jalaliDatePicker.js. It publishes the unix
+        // timestamp that pwt-datepicker's onSelect used to hand over on the element
+        // itself, as data-jdp-unix, so the hidden start_at/end_at keep the same value.
+        $(document).on('change', '.start', function () {
+            $('.start-val').val(this.dataset.jdpUnix || '');
         });
 
-        $('.end').pDatepicker({
-            format: 'YYYY/MM/D',
-            autoClose:true,
-            onSelect: function (unix) {
-                $('.end-val').val(unix);
-            },
-
+        $(document).on('change', '.end', function () {
+            $('.end-val').val(this.dataset.jdpUnix || '');
         });
     </script>
 @endsection

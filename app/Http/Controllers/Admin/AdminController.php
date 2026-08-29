@@ -235,7 +235,7 @@ class AdminController extends Controller
         }
         else
         {
-            $link = "lalecard.ir/".($service == 'all' ? 'mobile/link' : 'services/'.$service)."/".auth()->user()->id;
+            $link = "lalecard.ir/".($service == 'all' ? 'link' : 'services/'.$service)."/".auth()->user()->id;
         }
 
         $message = 'لینک با موفقیت بروزرسانی شد.';

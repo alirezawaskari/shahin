@@ -121,11 +121,11 @@
                                             <span class="disInline">از</span>
                                             <input id="date" data-title="{{$item->product_id}}" type="text" title="start_date" name="periodic[{{$item->id}}][start_date]"
                                                    value="{{old("periodic.$item->id.start_date")}}"
-                                                   class="form-control start_date pwt-datepicker-input-element disInline width65"><br/>
+                                                   data-jdp-min="tomorrow" class="form-control start_date disInline width65"><br/>
                                             <span class="disInline">تا</span>
                                             <input id="date" data-title="{{$item->product_id}}" type="text" title="end_date" name="periodic[{{$item->id}}][end_date]"
                                                    value="{{old("periodic.$item->id.end_date")}}"
-                                                   class="form-control end_date pwt-datepicker-input-element disInline width65">
+                                                   data-jdp-min="tomorrow" class="form-control end_date disInline width65">
                                             <br/>
                                             @if($errors->has("periodic.$item->id.start_date"))
                                                 <span class="help-block sub-error"> {{$errors->first("periodic.$item->id.start_date")}} </span>

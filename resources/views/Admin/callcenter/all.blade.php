@@ -190,6 +190,12 @@
                     <button id="do_transfer" type="button" class="btn btn-outline-primary py-2 px-4">انتقال</button>
                 </div>
                 <div class="col-12 col-md-2 mb-2">
+                    @include('Admin.businessTransfer.bulkAction', [
+                        'entity' => 'callcenter',
+                        'recordSelector' => '.callcenter-business-transfer-record'
+                    ])
+                </div>
+                <div class="col-12 col-md-2 mb-2">
                     <button class="btn btn-danger" id="multi_delete">
                         حذف
                         (<span id="checkboxCount"></span>)
@@ -205,7 +211,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th><input type="checkbox" id="transfer_checkbox"></th>
+                        <th><input type="checkbox" id="transfer_checkbox" class="business-transfer-select-all"></th>
                         <th>نام</th>
                         <th>استان</th>
                         <th>شهر</th>
@@ -368,6 +374,15 @@
                                 <input value="ثبت" id="submit-transfer" class="btn btn-success border-0 btn-block">
                             </div>
                         </form>
+                        @permission('transfer_to_business')
+                            <hr>
+                            <button type="button" id="callcenter-business-transfer-detail"
+                                    class="btn btn-outline-primary btn-block"
+                                    data-business-transfer-single data-transfer-entity="callcenter"
+                                    data-record-id="" data-current-business-ids="" disabled>
+                                انتقال به کسب و کار
+                            </button>
+                        @endpermission
                     </div>
                     <div id="detail" role="tabpanel" aria-labelledby="detail-tab" class="tab-pane fade p-t-20">
                         <p class="mb-3 text-dark">تاریخچه</p>
@@ -626,7 +641,7 @@
     var csrfToken = '{{ csrf_token() }}';
 </script>
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
-<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.8')}}"></script>
+<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.9')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.9')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

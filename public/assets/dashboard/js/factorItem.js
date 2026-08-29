@@ -112,17 +112,7 @@ function new_payment() {
     div1.classList.add("row");
     document.getElementById('newpayment').appendChild(div1);
 
-    $("div#" + count).children("div#payment_date").children("input.date").pDatepicker({
-        initialValueType: "gregorian",
-        format: "YYYY/MM/DD H:m:s",
-        onSelect: "year",
-        timePicker: {
-            enabled: true,
-            meridiem: {
-                enabled: true
-            }
-        }
-    });
+    if (window.initJalaliDatePickers) window.initJalaliDatePickers(div1);
 
     $("div#" + count).children("div.payment").children("select#payment_type3")[0].id = "payment_type" + count;
     document.getElementById('payment_type' + count).onchange = undefined;
@@ -582,7 +572,9 @@ $(document).ready(function () {
                     "targets": 1,
                     "data": data,
                     "render": function (data) {
-                        return `<input type="checkbox" name="id[]" value="${data.id}">`
+                        return `<input type="checkbox" name="id[]" value="${data.id}"
+                            class="business-transfer-record factor-item-business-transfer-record"
+                            data-current-business-ids="${(data.current_business_ids || []).join(',')}">`
                     }
                 },
                 {
@@ -840,7 +832,7 @@ function updatePadding() {
 }
 
 $(window).on('resize', updatePadding);
-updatePadding();s
+updatePadding();
 
 //guarantor checked
 $("body").on('click', '.guarantor_checked', function () {

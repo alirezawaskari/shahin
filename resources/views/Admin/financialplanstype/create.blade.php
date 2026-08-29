@@ -59,15 +59,15 @@
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ آغاز</label>
-                    <date-picker format="YYYY/M/D HH:mm:ss" name="start_date" type="datetime"
-                        display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date" value="{{ now() }}">
+                    <date-picker format="jYYYY/jMM/jDD HH:mm:ss" name="start_date" type="datetime"
+                        display-format="jYYYY/jMM/jDD HH:mm:ss" id="start_date" value="{{ verta()->format('Y/m/d H:i:s') }}">
                     </date-picker>
                 </div>
 
                 <div class="col-12 col-md-3 mb-3">
                     <label>تاریخ پایان</label>
-                    <date-picker format="YYYY/M/D HH:mm:ss" name="end_date" type="datetime"
-                        display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date" value="{{ now() }}">
+                    <date-picker format="jYYYY/jMM/jDD HH:mm:ss" name="end_date" type="datetime"
+                        display-format="jYYYY/jMM/jDD HH:mm:ss" id="end_date" value="{{ verta()->format('Y/m/d H:i:s') }}">
                     </date-picker>
                 </div>
                 <div class="col-12 col-md-3 mb-2" id="guarantee_type">

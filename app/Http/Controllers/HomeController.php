@@ -59,14 +59,13 @@ class HomeController extends Controller
     }
 
     /**
+     * Summary of mobile
      * @param User $callcenter
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function mobile(User $callcenter)
     {
-        $sliders = Slider::filter()->whereStatus(true)->where('type' , null)->orderBy('id', 'desc')->get();
-        $services = Service::filter()->whereStatus(1)->where('isShow' , true)->orderBy('created_at', 'desc')->get();
-        return view('site.mobile', compact('callcenter' ,'sliders', 'services'));
+        return redirect(route('index'));
     }
 
     /**

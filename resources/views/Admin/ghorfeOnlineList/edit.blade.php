@@ -886,8 +886,7 @@
                                             oninput="document.getElementById('primaryText').value = this.value">
 
                                         <input type="text" id="primaryText" class="form-control mt-2 font-mono"
-                                            value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}"
-                                            readonly>
+                                            value="{{ old('color_primary', $ghorfeOnlineList->theme->color_primary ?? '#ff2d20') }}">
                                     </div>
 
                                     <div class="col-12 col-md-4 mb-3">
@@ -899,8 +898,7 @@
                                             oninput="document.getElementById('secondaryText').value = this.value">
 
                                         <input type="text" id="secondaryText" class="form-control mt-2 font-mono"
-                                            value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}"
-                                            readonly>
+                                            value="{{ old('color_secondary', $ghorfeOnlineList->theme->color_secondary ?? '#6c757d') }}">
                                     </div>
 
                                     <div class="col-12 my-3 d-flex justify-content-end">

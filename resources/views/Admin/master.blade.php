@@ -8,7 +8,6 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 {{--    <link href="{{asset('assets/dashboard/css/bootstrap.min.css')}}" rel="stylesheet">--}}
-    <link rel="stylesheet" href="{{asset('assets/dashboard/css/persian-datepicker.min.css')}}">
  {{--    <link rel="stylesheet" href="{{asset('assets/dashboard/css/adminCss.css')}}">--}}
     <link rel="stylesheet" href="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.css')}}">
     <link rel="stylesheet" href="{{ asset('assets/bootstrap-5.3.8-dist/css/bootstrap.min.css') }}">
@@ -36,20 +35,45 @@
     @include('Admin.layouts.terms')
 <main class="main-content" id="app">
     <div class="container-fluid">
+        @if(session('business_transfer_success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('business_transfer_success') }}
+                <button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="بستن">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+        @if(old('_business_transfer') && $errors->any())
+            <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         @yield('content')
     </div>
 </main>
-<script src="{{asset('assets/dashboard/js/dashboard.js?v=2.6') }}"></script>
+@permission('transfer_to_business')
+    @include('Admin.businessTransfer.modal')
+@endpermission
+<script src="{{asset('assets/dashboard/js/dashboard.js?v=2.7') }}"></script>
 {{-- Select2 را روی هر select با فهرست بلند فعال می‌کند؛ باید بلافاصله بعد از
      dashboard.js (jQuery + Select2) و پیش از اسکریپت‌های صفحه بارگذاری شود. --}}
 <script src="{{asset('assets/dashboard/js/select2-init.js?v=1.1')}}"></script>
-<script src="{{asset('assets/dashboard/js/persian-date.min.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/persian-datepicker.min.js')}}"></script>
+{{-- تقویم واحد پنل: هر فیلد تاریخی که قبلا با pwt-datepicker ساخته می‌شد را به همان
+     کامپوننت <date-picker> فیلترهای درخواست‌ها وصل می‌کند. باید بعد از dashboard.js
+     (Vue و کامپوننت date-picker) بارگذاری شود. --}}
+<script src="{{asset('assets/dashboard/js/jalaliDatePicker.js?v=1.0')}}"></script>
 <script src="{{asset('assets/dashboard/js/datatables.min.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/jquery.twbsPagination.min.js')}}"></script>
 <script src="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.js')}}"></script>
 <script src="{{asset('assets/bootstrap-5.3.8-dist/js/bootstrap.min.js')}}"></script>
+@permission('transfer_to_business')
+    <script src="{{ asset('assets/dashboard/js/businessTransfer.js?v=1.2') }}"></script>
+@endpermission
 
 <script>
   ck_uploader=  {

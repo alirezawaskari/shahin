@@ -215,7 +215,10 @@ class Check extends Model implements AuditableContract, HasMedia {
         }
 
         if (isset($start_date) && trim($start_date) != '' && isset($end_date) && trim($end_date) != '') {
-            $query->whereDate('date', ' >= ', $start_date)->whereDate('date', ' <= ', $end_date);
+            // The operators must not be padded: whereDate() rejects ' >= ' as invalid and
+            // silently rewrites the clause to date(`date`) = ' >= ', which never matches,
+            // so picking any date range emptied the list.
+            $query->whereDate('date', '>=', $start_date)->whereDate('date', '<=', $end_date);
         }
         if (isset($status) && trim($status) != '' && $status != 'all') {
             $query->whereStatus($status);

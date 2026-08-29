@@ -206,7 +206,7 @@
                         </div>
                         <div class="col-12 col-md-3 mb-2">
                             <label>تاریخ تشکیل پرونده(شروع اقساط از ماه بعد)</label>
-                            <date-picker value="{{ $item['approval_date'] }}" format="YYYY/M/D HH:mm:ss"
+                            <date-picker value="{{ $item['approval_date'] ? verta($item['approval_date'])->format('Y/m/d H:i:s') : '' }}" format="jYYYY/jMM/jDD HH:mm:ss"
                                 name="created_at" type="datetime" display-format="jYYYY/jMM/jDD HH:mm:ss" id="new_date">
                             </date-picker>
                         </div>

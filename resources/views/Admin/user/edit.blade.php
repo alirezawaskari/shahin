@@ -3,6 +3,11 @@
 @section('content')
 <div class="page-header">
     <a href="{{ url()->previous() }}" class="btn btn-primary">بازگشت</a>
+    @include('Admin.businessTransfer.individualAction', [
+        'entity' => 'user',
+        'recordId' => $user->id,
+        'currentBusinessIds' => $user->ghorfeOnlineLists->modelKeys()
+    ])
 </div>
 <div class="card">
     <div class="card-body">

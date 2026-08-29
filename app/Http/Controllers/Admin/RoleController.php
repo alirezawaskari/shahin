@@ -66,6 +66,8 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        abort_unless($request->user()?->hasPermission('role') === true, 403);
+
         $this->validate(request(), [
             'name' => 'required|string',
             'display_name' => 'required|string',
@@ -128,6 +130,8 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        abort_unless($request->user()?->hasPermission('role') === true, 403);
+
         $this->validate(request(), [
             'name' => 'required|string',
             'display_name' => 'required|string',

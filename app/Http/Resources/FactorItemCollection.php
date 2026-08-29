@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
 use App\Models\FactorItem;
 use App\Models\TotalFactorItem;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class FactorItemCollection extends ResourceCollection
 {
@@ -14,10 +15,16 @@ class FactorItemCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $canTransferToBusiness = auth()->user()?->hasPermission('transfer_to_business') === true;
+        if ($canTransferToBusiness) {
+            (new EloquentCollection($this->collection->all()))
+                ->loadMissing('factor.ghorfeOnlineLists:id');
+        }
+
         return [
             'user_permission' => auth()->user()->hasPermission('manual-login-user') ? 1 : 0 ,
             'delete_permission' => auth()->user()->hasPermission('delete-factor-item') ? 1 : 0 ,
-            'data' => $this->collection->map(function ($item) {
+            'data' => $this->collection->map(function ($item) use ($canTransferToBusiness) {
                 return [
                     'sort_by' => "created_at",
                     'id' => $item->id,
@@ -49,6 +56,9 @@ class FactorItemCollection extends ResourceCollection
                     'per_show' => $this->setPerShow(),
                     'has_payment' => FactorItem::checkPayment($item),
                     'credit_debt' => $item->supervisor ? number_format($item->supervisor->type ? TotalFactorItem::calculateCredit($item->supervisor->totalFactorItem) : FactorItem::calculateCredit($item->supervisor)) : '',
+                    'current_business_ids' => $canTransferToBusiness && $item->factor
+                        ? $item->factor->ghorfeOnlineLists->modelKeys()
+                        : [],
                 ];
             }),
 			'meta' =>  [

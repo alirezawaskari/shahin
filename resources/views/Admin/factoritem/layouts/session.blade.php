@@ -12,7 +12,7 @@
                 <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
                 <div class="col-12 col-md-4">
                     <label>انتخاب تاریخ و ساعت نوبت درمان</label>
-                    <date-picker value="{{ now() }}" format="YYYY/M/D HH:mm"
+                    <date-picker value="{{ verta()->format('Y/m/d H:i') }}" format="jYYYY/jMM/jDD HH:mm"
                             name="date" type="datetime" display-format="jYYYY/jMM/jDD HH:mm">
                     </date-picker>
                 </div>

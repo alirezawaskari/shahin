@@ -136,14 +136,29 @@
             </div>
         </div>
     </form>
+    @permission('transfer_to_business')
+        <div class="card">
+            <div class="card-body d-flex align-items-center">
+                <span class="ml-3">عملیات گروهی:</span>
+                @include('Admin.businessTransfer.bulkAction', [
+                    'entity' => 'factor',
+                    'recordSelector' => '.factor-business-transfer-record'
+                ])
+            </div>
+        </div>
+    @endpermission
     <form id="form-factor-action">
         <div class="card position-relative">
 
             <div class="card-body table-responsive">
-                <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json">
+                <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json"
+                       data-business-transfer-enabled="{{ auth()->user()->hasPermission('transfer_to_business') ? 1 : 0 }}">
                     <thead>
                     <tr>
                         <th>#</th>
+                        @permission('transfer_to_business')
+                            <th><input type="checkbox" class="business-transfer-select-all" aria-label="انتخاب همه"></th>
+                        @endpermission
                         <th>نام</th>
                         <th>موبایل</th>
                         <th>فروشنده</th>
@@ -200,6 +215,6 @@
 @stop
 @section('js')
     <script src="/assets/dashboard/js/layouts.js"></script>
-    <script src="/assets/dashboard/js/factor.js"></script>
+    <script src="/assets/dashboard/js/factor.js?v=2.1"></script>
     <script src="/assets/dashboard/js/layout/productServiceFilterInputs.js"></script>
 @endsection
