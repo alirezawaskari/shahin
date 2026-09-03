@@ -268,12 +268,21 @@ class GhorfeOnlineList extends Model implements HasMedia
     {
         return $this->belongsToMany(Factor::class);
     }
-     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    /**
+     * Summary of user
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TRelatedModel, GhorfeOnlineList>
      */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    /**
+     * Summary of users
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<TRelatedModel, GhorfeOnlineList, \Illuminate\Database\Eloquent\Relations\Pivot>
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
     public function askedQuestions()
     {

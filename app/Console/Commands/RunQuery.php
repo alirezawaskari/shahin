@@ -9,6 +9,8 @@ use App\Models\BeforeFormItem;
 use App\Models\FactorItem;
 use Illuminate\Console\Command;
 use App\Models\Callcenter;
+use App\Models\GhorfeOnlineList;
+use App\Models\Representation;
 use App\Models\ServiceTariff;
 
 class RunQuery extends Command {
@@ -43,6 +45,31 @@ class RunQuery extends Command {
     */
 
     public function handle() {
+
+        $representation = Representation::find(56);
+        $users = $representation->users;
+        $factors = $representation->factors;
+        $callcenters = $representation->callcenters;
+        $services = $representation->services;
+        $financialPlansTypes = $representation->financialPlansTypes;
+        $centers = $representation->centers;
+        $articles = $representation->articles;
+        $abouts = $representation->abouts;
+        $tickets = $representation->tickets;
+        $employees = $representation->admins;
+        $ghorfeOnlineList = GhorfeOnlineList::find(16);
+        $ghorfeOnlineList->users()->attach($users);
+        $ghorfeOnlineList->factors()->attach($factors);
+        $ghorfeOnlineList->callcenters()->attach($callcenters);
+        $ghorfeOnlineList->services()->attach($services);
+        $ghorfeOnlineList->financialPlansTypes()->attach($financialPlansTypes);
+        $ghorfeOnlineList->centers()->attach($centers);
+        $ghorfeOnlineList->articles()->attach($articles);
+        $ghorfeOnlineList->tickets()->attach($tickets);
+        $ghorfeOnlineList->staff()->attach($employees);
+        $ghorfeOnlineList->abouts()->attach($abouts);
+        dd('success');
+        ///////////////////////////////////////////
         $service_tariffs = ServiceTariff::where( 'service_id', 211 )->get();
         foreach ($service_tariffs as $item) {
             $inputs[ 'selling_price' ] = $inputs[ 'selling_price' ] ? ( float ) str_replace( ',', '', $inputs[ 'selling_price' ] ) : 0;

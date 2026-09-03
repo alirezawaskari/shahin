@@ -125,6 +125,7 @@ class FactorItem extends Model implements AuditableContract, HasMedia
     const TYPE = [
         '0' => 'نقدی',
         '1' => 'اقساطی',
+        '2' => 'تعیین نشده'
     ];
 
 

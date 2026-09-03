@@ -37,7 +37,7 @@
                                             <a href="#step4" data-toggle="tab" aria-controls="step4" role="tab"><i>قدم
                                                     چهارم</i><small>بارگذاری تصاویر</small></a>
                                         </li>
-                                        @if($center_id =='')
+                                        @if($center_id == '')
                                         <li role="presentation" class="disabled">
                                             <a href="#step5" data-toggle="tab" aria-controls="step5" role="tab"><i>قدم
                                                     پنجم</i><small>لوکیشن کالا</small></a>
@@ -95,7 +95,7 @@
                                             <li>پرچم: برای مشخص کردن تصویر اصلی کالا، علامت پرچم را انتخاب کنید.
                                             </li>
                                             <li>   برای حدف تصویر علامت ضربدر را بزنید
-                                           
+
                                             </li>
                                         </ul>
                                         <br /><br />

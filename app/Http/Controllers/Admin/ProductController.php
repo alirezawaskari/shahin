@@ -90,7 +90,7 @@ class ProductController extends Controller
                 ->orderBy('id', 'DESC')->where('type', $id);
         }
 
-        $categories = $ghorfe->categories;
+        $categories = Category::filter()->get();
 
         $columns = ['id', 'name', 'root_category_id', 'status', 'brand_id'];
         $queries = [];

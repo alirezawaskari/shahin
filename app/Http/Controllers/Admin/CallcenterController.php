@@ -1308,7 +1308,7 @@ class CallcenterController extends Controller
                     'count' => 1,
                     'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
-                    'type' => $service_pay_type,
+                    'type' => 0,
                     'purchase_type' => self::requestItemAt($request->service_purchase_type, $i),
                 ]);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
@@ -1329,7 +1329,7 @@ class CallcenterController extends Controller
                     'count' => 1,
                     'price' => $line_price,
                     'center_id' => auth()->user()->center_id,
-                    'type' => $service_pay_type,
+                    'type' => 1,
                     'purchase_type' => self::requestItemAt($request->service_purchase_type, $i),
                 ]);
                 $factor_item->update(['supervisor_id' => $factor_item->id]);
