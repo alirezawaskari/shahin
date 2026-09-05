@@ -191,7 +191,8 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
-        if(auth()->user()->level == 'ghorfeAdmin')
+        $user = auth()->user();
+        if($user->level == 'ghorfeAdmin' && $user->hasPermission( 'ghorfe_online_list_site_content' ) && $user->hasPermission( 'ghorfe_online_list_official_info' ))
         {
             return redirect('dashboard/ghorfeOnlineList/'.ghorfe()->slug.'/edit');
         }
