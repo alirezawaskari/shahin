@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FilterHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -79,5 +80,26 @@ class Brand extends Model implements HasMedia
             ]);
         }
     }
+    /**
+     * @param $query
+     * @return mixed
+     */
+    public function scopeFilter($query)
+    {
+        $category = request('category_id');
+        $status = request('status');
 
+        $query->whereHas('categories', function ($query) {
+            $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
+        });
+        if (isset($category) && $category != "all"){
+            $query->whereHas('categories', function ($query) use ($category)  {
+                $query->where('id',$category);
+            });
+        }
+        if (isset($status) && $status != "all"){
+            $query->where('status',$status);
+        }
+        return $query;
+    }
 }

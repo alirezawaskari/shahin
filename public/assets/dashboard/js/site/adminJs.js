@@ -838,10 +838,8 @@ $(document).on('click', '.brandStore', function () {
     var description = $('.description').val();
     var link_zero = $('#link_zero').val();
     var link_one = $('#link_one').val();
-    var registration_form = $('.registration_form_path').val();
     var logo = $('.logo_path').val();
-
-    var valid = title && title_en && description && (type !== null) && logo && (type !== '0' || registration_form);
+    var valid = category_id && title && title_en && description && (type !== null) && logo;
     if (valid) {
         $.ajax({
             type: "post",
@@ -856,7 +854,6 @@ $(document).on('click', '.brandStore', function () {
                 title_en: title_en,
                 description: description,
                 type: type,
-                registration_form_path: registration_form,
                 link_zero: link_zero,
                 link_one: link_one,
                 logo_path: logo
@@ -867,13 +864,11 @@ $(document).on('click', '.brandStore', function () {
                     $('#brandRequestModal').modal('toggle');
                     $('.type').prop('checked', false);
                     $('.request_by').val('');
-                    $('#registration_form').html('');
                     $('#logo').html('');
                     $('.title').val('');
                     $('.title_en').val('');
                     $('.description').val('');
                     $('.link').val('');
-                    $('.registration_form_path').val('');
                     $('.logo_path').val('');
                     // go to the brand list after a successful create
                     setTimeout(function () { window.location.href = '/dashboard/site/brand'; }, 800);
@@ -883,8 +878,6 @@ $(document).on('click', '.brandStore', function () {
         });
     } else if (!logo) {
         toastr.warning('لطفا لوگوی برند را بارگذاری کنید');
-    } else if (type === '0' && !registration_form) {
-        toastr.warning('لطفا برگه ثبت برند را بارگذاری کنید');
     } else {
         toastr.warning('لطفا تمامی موارد ستاره دار را پر کنید');
     }

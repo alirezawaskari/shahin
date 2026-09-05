@@ -56,7 +56,7 @@
 
                 </div>
 
-                <div class="row type_zero_box mb-5" style="display: none;">
+                {{-- <div class="row type_zero_box mb-5" style="display: none;">
                     <div class="col-12 col-md-6 disInline mb-5">
                         <label>برگه ثبت برند ذخیره شده :</label>
                         @include('Admin.partials.currentMedia', ['owner' => $brand, 'field' => 'registration_form', 'required' => true])
@@ -86,9 +86,9 @@
                         @endif
                     </div>
 
-                </div>
+                </div> --}}
 
-                <div class="row type_one_box mb-5" style="display: none;">
+                {{-- <div class="row type_one_box mb-5" style="display: none;">
                     <div class="col-12 col-md-6 disInline mb-5">
                         <label for="link_lbl">لینک سایت معتبر خارجی :</label>
                         <input id="link_one" type="text" class="form-control" name="link_one"
@@ -98,7 +98,7 @@
                             <span class="help-block sub-error  "> {{$errors->first('link')}} </span>
                         @endif
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="row">
                     <div class="col-12 col-md-6 disInline mb-5">

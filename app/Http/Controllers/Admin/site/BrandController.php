@@ -13,13 +13,13 @@ use Illuminate\Http\Request;
 class BrandController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of index
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\View
      */
     public function index(Request $request)
     {
-        $last_categories = Category::lastCategory();
+        $last_categories = Category::filter()->get();
         return view('Admin.site.brand.list', compact('last_categories'));
     }
 
@@ -30,26 +30,18 @@ class BrandController extends Controller
      */
     public function filter(Request $request)
     {
-        $brands=Brand::query();
-            if (isset($request->category_id) && $request->category_id!= "all"){
-                $brands=Brand::whereHas('categories', function ($query) use ($request)  {
-                    $query->where('id',$request->category_id);
-                })->where('status',$request->status);
-            }
-            if (isset($request->status) && $request->status!= "all"){
-                $brands=$brands->where('status',$request->status);
-            }
+        $brands=Brand::filter();
         return new BrandCollection($brands->paginate(20));
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of create
+     * @return \Illuminate\Contracts\View\View
      */
     public function create()
     {
-        return view('Admin.site.brand.create');
+        $last_categories = Category::filter()->get();
+        return view('Admin.site.brand.create' , compact('last_categories') );
     }
 
 
@@ -71,9 +63,6 @@ class BrandController extends Controller
         if (empty($request->logo_path)) {
             return response(['status' => 'warning', 'message' => 'لطفا لوگوی برند را بارگذاری کنید']);
         }
-        if ($request->type == 0 && empty($request->registration_form_path)) {
-            return response(['status' => 'warning', 'message' => 'لطفا برگه ثبت برند را بارگذاری کنید']);
-        }
 
         $same_brands = Brand::where('title',$request->title)->get();
         $count=0;
@@ -83,7 +72,6 @@ class BrandController extends Controller
         if($count == 0){
             $brand = Brand::create(collect($request->all())
                 ->except(['logo', 'registration_form', 'logo_path', 'registration_form_path'])->all()); // see update()
-
             if($request->type == 0){
                 MediaLibraryHelper::attachTo($brand, $request->registration_form_path, 'registration_form');
             }
@@ -101,10 +89,9 @@ class BrandController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Summary of show
+     * @param mixed $id
+     * @return \Illuminate\Contracts\View\View
      */
     public function show($id)
     {
@@ -124,10 +111,9 @@ class BrandController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Summary of edit
+     * @param mixed $id
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
      */
     public function edit($id){
         if ($id) {
@@ -138,11 +124,10 @@ class BrandController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Summary of update
+     * @param Request $request
+     * @param mixed $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id){
         $request->validate(['title' => 'required'], ['title.required' => 'لطفا عنوان را وارد کنید',]);
@@ -158,9 +143,6 @@ class BrandController extends Controller
         // save (and therefore to migrate) any legacy brand.
         if (! $brand->logo && empty($request->logo_path)) {
             return back()->withErrors(['logo' => 'لطفا لوگوی برند را بارگذاری کنید'])->withInput();
-        }
-        if ($request->type == 0 && ! $brand->registration_form && empty($request->registration_form_path)) {
-            return back()->withErrors(['registration_form' => 'لطفا برگه ثبت برند را بارگذاری کنید'])->withInput();
         }
 
         // Never mass-assign the legacy columns: `logo` and `registration_form` are BOTH
