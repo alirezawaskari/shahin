@@ -5,7 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
+use App\Models\ContractFolder;
 use App\Models\ContractHistory;
+use App\Models\ContractUsage;
+use App\Models\Employee;
+use App\Models\Factor;
+use App\Models\FactorItem;
 use Illuminate\Http\Request;
 
 class ContractController extends Controller
@@ -18,7 +23,7 @@ class ContractController extends Controller
 
     public function index( Request $request )
  {
-        $contracts = Contract::orderBy( 'id', 'DESC' );
+        $contracts = Contract::with( 'folder' )->withCount( 'usages' )->orderBy( 'id', 'DESC' );
         $queries = [];
         $columns = [ 'status', 'type' ];
         foreach ( $columns as $column ) {
@@ -32,14 +37,28 @@ class ContractController extends Controller
                 }
             }
         }
+
+        // 'none' is «دسته‌بندی نشده» — contracts that sit outside every folder.
+        if ( $request->has( 'contract_folder_id' ) && $request->contract_folder_id != 'all' ) {
+            if ( $request->contract_folder_id === 'none' ) {
+                $contracts = $contracts->whereNull( 'contract_folder_id' );
+            } else {
+                $contracts = $contracts->where( 'contract_folder_id', $request->contract_folder_id );
+            }
+            $queries[ 'contract_folder_id' ] = $request->contract_folder_id;
+        } elseif ( $request->has( 'contract_folder_id' ) ) {
+            $queries[ 'contract_folder_id' ] = 'all';
+        }
+
         $contracts = $contracts->paginate( 15 )->appends( $queries );
+        $folders = ContractFolder::options();
 
         $statuses = [
             '1' => 'منتظر تایید وکیل', '2' => 'منتظر تایید مدیر مالی', '3' => 'منتظر تایید مدیر عامل'
         ];
         $type = [ '1' => 'خرید', '2' => 'فروش', '3' => 'واگذاری' ];
 
-        return view( 'Admin.contract.lists', compact( 'statuses', 'contracts', 'type', 'queries' ) );
+        return view( 'Admin.contract.lists', compact( 'statuses', 'contracts', 'type', 'queries', 'folders' ) );
     }
 
     /**
@@ -50,7 +69,7 @@ class ContractController extends Controller
 
     public function create()
  {
-        return view( 'Admin.contract.create' );
+        return view( 'Admin.contract.create', [ 'folders' => ContractFolder::options() ] );
     }
 
     /**
@@ -62,10 +81,12 @@ class ContractController extends Controller
 
     public function store( Request $request )
     {
-        $request->validate( [ 'title' => 'required', 'type'=>'required', 'file_path'=> 'required' ], [
+        // The Word file is optional: a contract may be text-only, and the original
+        // file is only offered for download when one was actually attached.
+        $request->validate( [ 'title' => 'required', 'type'=>'required', 'contract_folder_id' => 'nullable|integer|exists:contract_folders,id' ], [
             'title.required' => 'لطفا عنوان را وارد کنید',
             'type.required' => 'لطفا نوع را انتخاب کنید',
-            'file_path.required' => 'لطفا فایل را وارد کنید'
+            'contract_folder_id.exists' => 'پوشه انتخاب شده معتبر نیست',
         ] );
 
         // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
@@ -103,8 +124,11 @@ class ContractController extends Controller
     public function edit( $id )
     {
         if ( $id ) {
-            $contract = Contract::find( $id );
-            return view( 'Admin.contract.edit', [ 'contract' => $contract ] );
+            $contract = Contract::with( [ 'usages.usable', 'folder' ] )->find( $id );
+            return view( 'Admin.contract.edit', [
+                'contract' => $contract,
+                'folders' => ContractFolder::options(),
+            ] );
         }
         return redirect()->back();
     }
@@ -149,5 +173,72 @@ class ContractController extends Controller
             $contract->delete();
         }
         return redirect()->back();
+    }
+
+    /**
+     * خروجی قرارداد — the printable/PDF export.
+     *
+     * The contract text and the parties are always rendered; the service, invoice
+     * and employee blocks appear only when the caller supplies that context, which
+     * is what «if applicable» in the spec means. Context arrives as query params so
+     * the same export serves all three display points.
+     */
+    public function export( Request $request, $id, $usage = null )
+    {
+        $contract = Contract::with( 'folder' )->findOrFail( $id );
+
+        $contractUsage = $usage
+            ? ContractUsage::with( 'usable' )->where( 'contract_id', $contract->id )->find( $usage )
+            : null;
+
+        $factorItem = $request->filled( 'factor_item_id' )
+            ? FactorItem::with( [ 'factor.user', 'factoritemable' ] )->find( $request->factor_item_id )
+            : null;
+
+        $factor = $request->filled( 'factor_id' )
+            ? Factor::with( 'user' )->find( $request->factor_id )
+            : optional( $factorItem )->factor;
+
+        $employee = $request->filled( 'employee_id' )
+            ? Employee::with( 'user' )->find( $request->employee_id )
+            : null;
+
+        // The service the contract is about: the usage owner when it is a service,
+        // otherwise the service the invoice line was registered for.
+        $service = $contractUsage && $contractUsage->usable_type === \App\Models\Service::class
+            ? $contractUsage->usable
+            : ( $factorItem && $factorItem->factoritemable_type === \App\Models\Service::class
+                ? $factorItem->factoritemable
+                : null );
+
+        // The counterparty (طرف دوم قرارداد): the employee's user, else the invoice owner.
+        $counterparty = optional( $employee )->user ?: optional( $factor )->user;
+
+        return view( 'Admin.contract.export', compact(
+            'contract', 'contractUsage', 'factor', 'factorItem', 'employee', 'service', 'counterparty'
+        ) );
+    }
+
+    /**
+     * Streams the original contract file (Word/PDF) when one is attached.
+     */
+    public function download( $id )
+    {
+        $contract = Contract::findOrFail( $id );
+
+        $media = $contract->getFirstMedia( 'file' );
+
+        if ( $media ) {
+            return response()->download( $media->getPath(), $media->file_name );
+        }
+
+        // Legacy contracts still point at a public path in the `file` column.
+        $legacy = $contract->getRawOriginal( 'file' );
+
+        if ( $legacy && file_exists( public_path( $legacy ) ) ) {
+            return response()->download( public_path( $legacy ) );
+        }
+
+        return redirect()->back()->withErrors( [ 'file' => 'فایلی برای این قرارداد بارگذاری نشده است' ] );
     }
 }

@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Factor;
 use App\Models\FactorAddress;
 use App\Models\Province;
+use App\Services\V1\Admin\ContractResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -85,7 +86,11 @@ class ProductOrderController extends Controller
         $provinces = Province::orderBy('name')->get();
         $areas = Area::orderBy('number')->get();
 
-        return view('Admin.productOrder.show', compact('factor', 'addresses', 'provinces', 'areas'));
+        // فاکتور خرید: the contract attached to this order, resolved through the
+        // ContractUsage relation rather than copied onto the factor.
+        $contractUsage = app(ContractResolver::class)->forFactor($factor);
+
+        return view('Admin.productOrder.show', compact('factor', 'addresses', 'provinces', 'areas', 'contractUsage'));
     }
 
     /**

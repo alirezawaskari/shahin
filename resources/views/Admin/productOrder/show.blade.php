@@ -193,6 +193,16 @@
     </div>
 </div>
 
+{{-- ------------------------------ قرارداد ------------------------------ --}}
+{{-- Resolved through ContractUsage: the service attached to a line wins, then the
+     product, then the contract set for purchase invoices as a whole. Nothing is
+     shown when no contract is attached anywhere. --}}
+@include('Admin.contract.partials.show', [
+    'usage' => $contractUsage,
+    'contract' => optional($contractUsage)->contract,
+    'exportParams' => ['factor_id' => $factor->id],
+])
+
 {{-- ------------------------------ آدرس ارسال سفارش ------------------------------ --}}
 <div class="card mb-3">
     <div class="card-body">

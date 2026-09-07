@@ -36,7 +36,7 @@ class Contract extends Model implements HasMedia
     /**
      * @var string[]
      */
-    protected $fillable=['type','title','content','file','status'];
+    protected $fillable=['contract_folder_id','type','title','content','file','status'];
 
     /**
      * list of status of contract
@@ -70,6 +70,35 @@ class Contract extends Model implements HasMedia
     public function arrangeContracts()
     {
         return $this->hasMany(ArrangeContract::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function folder()
+    {
+        return $this->belongsTo(ContractFolder::class, 'contract_folder_id');
+    }
+
+    /**
+     * Every place this contract is in use — the relation that lets one contract
+     * be active for services, roles and locations at the same time.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function usages()
+    {
+        return $this->hasMany(ContractUsage::class);
+    }
+
+    /**
+     * True when an original Word/PDF file is attached, so the UI only offers
+     * «دانلود فایل اصلی» when there is something to download.
+     */
+    public function hasOriginalFile(): bool
+    {
+        return $this->getFirstMedia('file') !== null
+            || ! empty($this->getRawOriginal('file'));
     }
 
 }

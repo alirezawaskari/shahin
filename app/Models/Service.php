@@ -14,6 +14,7 @@ class Service extends Model implements AuditableContract, HasMedia
 {
     use Auditable;
     use Sluggable,SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
+    use \App\Models\Concerns\HasContractUsages;
 
     /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */
     protected function legacyMediaMap(): array

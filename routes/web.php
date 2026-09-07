@@ -839,6 +839,15 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('agency', 'AgencyController');
     Route::resource('agencyType', 'AgencyTypeController');
     //contract
+    // Registered before the resource so /contract/{id}/export is not swallowed by show/{contract}.
+    Route::get('/contract/{contract}/export/{usage?}', 'ContractController@export')->name('contract.export');
+    Route::get('/contract/{contract}/download', 'ContractController@download')->name('contract.download');
+    //contract folders (پوشه های قرارداد)
+    Route::resource('contractFolder', 'ContractFolderController')->except(['show']);
+    //contract usages: the contract <-> service/role/location relation
+    Route::get('/contractUsage/byFolder', 'ContractUsageController@byFolder')->name('contractUsage.byFolder');
+    Route::post('/contractUsage', 'ContractUsageController@store')->name('contractUsage.store');
+    Route::delete('/contractUsage/{contractUsage}', 'ContractUsageController@destroy')->name('contractUsage.destroy');
     Route::resource('contract', 'ContractController');
     Route::resource('arrangeContract', 'ArrangeContractController');
     Route::get('/arrangeContract/{id}/{status}', 'ArrangeContractController@status');

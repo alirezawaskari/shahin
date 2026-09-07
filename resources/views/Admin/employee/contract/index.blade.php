@@ -26,6 +26,18 @@
     </div>
 </div>
 
+{{-- قراردادهای نقش: contracts defined for the roles this employee's user holds,
+     resolved through ContractUsage. Shown in addition to the employee's own
+     contract below, which carries the signing/confirmation flow. --}}
+@foreach ($roleContracts as $roleUsage)
+    @include('Admin.contract.partials.show', [
+        'usage' => $roleUsage,
+        'contract' => $roleUsage->contract,
+        'title' => 'قرارداد ' . $roleUsage->owner_label,
+        'exportParams' => ['employee_id' => $employee->id],
+    ])
+@endforeach
+
 <div class="card">
     <div class="card-body p-1 p-md-4">
         @if (in_array($employee->contract_status , [1,2,3]))
