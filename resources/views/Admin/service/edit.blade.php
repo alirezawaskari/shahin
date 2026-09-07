@@ -64,6 +64,13 @@
                     محتوا سئو
                 </a>
             </li>
+            <li class="nav-item  flex-fill text-center nav-item-service">
+                <a class="nav-link" id="contract-tab" data-toggle="tab" href="#contract-data" role="tab"
+                    aria-controls="contract-data" aria-selected="false"><i class="fa fa-file-text-o"
+                        aria-hidden="true"></i>
+                    قرارداد
+                </a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
 
@@ -667,6 +674,29 @@
             <div class="tab-pane fade" id="seoContrnt-data" role="tabpanel" aria-labelledby="seoContrnt-tab">
                 <div class="container m-top-40">
                     @include('Admin.service.seoContent')
+                </div>
+            </div>
+            <!--___________________________________________-->
+            {{-- قرارداد: one association per usage location. Posts to
+                 ContractUsageController, never through the basic-information form. --}}
+            <div class="tab-pane fade" id="contract-data" role="tabpanel" aria-labelledby="contract-tab">
+                <div class="container m-top-40">
+                    @include('Admin.contract.partials.attach', [
+                        'location' => 'registration_invoice',
+                        'ownerType' => 'service',
+                        'ownerId' => $service->id,
+                        'usage' => $service->contractUsageFor('registration_invoice'),
+                        'folders' => \App\Models\ContractFolder::options(),
+                        'widgetId' => 'service_reg_' . $service->id,
+                    ])
+                    @include('Admin.contract.partials.attach', [
+                        'location' => 'purchase_invoice',
+                        'ownerType' => 'service',
+                        'ownerId' => $service->id,
+                        'usage' => $service->contractUsageFor('purchase_invoice'),
+                        'folders' => \App\Models\ContractFolder::options(),
+                        'widgetId' => 'service_pur_' . $service->id,
+                    ])
                 </div>
             </div>
         </div>

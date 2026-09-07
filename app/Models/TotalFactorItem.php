@@ -1138,6 +1138,21 @@ class TotalFactorItem extends Model implements AuditableContract, HasMedia
         $resnumber = TotalFactorItem::setFatorItemCollectionResnumber( $totalFactorItem );
         $contract_number = TotalFactorItem::setAgentContractNumber( $totalFactorItem );
 
+        // A contract attached through ContractUsage wins, so the confirmed invoice
+        // snapshots what was actually agreed. Falls through to the hardcoded blade
+        // choice below when no service on this invoice has one attached.
+        $resolver = app( \App\Services\V1\Admin\ContractResolver::class );
+
+        foreach ( $totalFactorItem->factorItems as $factorItem ) {
+            $usage = $resolver->forFactorItem( $factorItem );
+
+            if ( $usage && $usage->contract && $usage->contract->content ) {
+                ContractView::store( $totalFactorItem, $usage->contract->content );
+
+                return;
+            }
+        }
+
         if ( $totalFactorItem->factorItems->where( 'factoritemable_id', 124 )->count() ) {
             $contract_view = 'Admin.totalfactoritem.layouts.contractLoanCash';
         } elseif ( $totalFactorItem->factorItems->whereIn( 'factoritemable_id', [17 , 198] )->count() ) {

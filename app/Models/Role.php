@@ -6,6 +6,8 @@ use Laratrust\Models\Role as LaratrustRole;
 
 class Role extends LaratrustRole
 {
+    use \App\Models\Concerns\HasContractUsages;
+
     /**
      * @var array
      */

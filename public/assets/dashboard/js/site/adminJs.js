@@ -978,3 +978,51 @@ function clearNewUserFormInputsData() {
     $('#new_user_province_id').val('');
     $('#new_user_city_id').val('');
 }
+
+//-----------------------------------------------------------------------------------------------------
+// اتصال قرارداد — the contract association widget (Admin/contract/partials/attach.blade.php).
+//
+// Delegated + namespaced with off-before-on, so several widgets can sit on one page
+// (a service has one per usage location) without stacking duplicate handlers.
+//-----------------------------------------------------------------------------------------------------
+function contractAttachSyncPanes($widget) {
+    var mode = $widget.find('.contract-mode:checked').val();
+
+    $widget.find('.contract-pane[data-pane="existing"]').toggle(mode === 'existing');
+    $widget.find('.contract-pane[data-pane="new"]').toggle(mode === 'new');
+    // Number and date belong to the association, so they show for both attach modes.
+    $widget.find('.contract-pane[data-pane="meta"]').toggle(mode === 'existing' || mode === 'new');
+}
+
+$(document)
+    .off('change.contractMode', '.contract-attach-widget .contract-mode')
+    .on('change.contractMode', '.contract-attach-widget .contract-mode', function () {
+        contractAttachSyncPanes($(this).closest('.contract-attach-widget'));
+    });
+
+// Folder -> contract cascade.
+$(document)
+    .off('change.contractFolder', '.contract-attach-widget .contract-folder-filter')
+    .on('change.contractFolder', '.contract-attach-widget .contract-folder-filter', function () {
+        var $widget = $(this).closest('.contract-attach-widget');
+        var $select = $widget.find('.contract-select');
+
+        $select.empty().append('<option value="">در حال بارگذاری...</option>');
+
+        $.get('/dashboard/contractUsage/byFolder', { folder_id: $(this).val() }, function (data) {
+            $select.empty().append('<option value="">لطفا انتخاب کنید..</option>');
+
+            $.each(data.contracts, function (i, contract) {
+                var label = contract.type ? contract.title + ' (' + contract.type + ')' : contract.title;
+                $select.append('<option value="' + contract.id + '">' + label + '</option>');
+            });
+        }).fail(function () {
+            $select.empty().append('<option value="">خطا در دریافت قراردادها</option>');
+        });
+    });
+
+$(function () {
+    $('.contract-attach-widget').each(function () {
+        contractAttachSyncPanes($(this));
+    });
+});

@@ -40,9 +40,22 @@
                         @endif
 
                     </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>پوشه</label>
+                        <select name="contract_folder_id" class="form-control" title="پوشه">
+                            <option value="">دسته بندی نشده</option>
+                            @foreach($folders as $folderId => $folderTitle)
+                                <option value="{{ $folderId }}"
+                                        @if(old('contract_folder_id') == $folderId) selected @endif>{{ $folderTitle }}</option>
+                            @endforeach
+                        </select>
+                        @if($errors->has('contract_folder_id'))
+                            <span class="help-block sub-error">{{ $errors->first('contract_folder_id') }}</span>
+                        @endif
+                    </div>
                     <br/> <br/>
                     <div class="col-12 col-md-4 mb-3">
-                        <label>فایل *</label><br/>
+                        <label>فایل</label><br/>
                         <label for="image" class="btn btn-primary custom-file-upload border border-1">
                             <i class="fa fa-cloud-upload"></i> بارگذاری
                         </label>

@@ -53,6 +53,19 @@
                             <span class="help-block sub-error"> {{$errors->first('type')}} </span>
                         @endif
                     </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label>پوشه</label>
+                        <select name="contract_folder_id" class="form-control" title="پوشه">
+                            <option value="">دسته بندی نشده</option>
+                            @foreach($folders as $folderId => $folderTitle)
+                                <option value="{{ $folderId }}"
+                                        @if($contract->contract_folder_id == $folderId) selected @endif>{{ $folderTitle }}</option>
+                            @endforeach
+                        </select>
+                        @if($errors->has('contract_folder_id'))
+                            <span class="help-block sub-error">{{ $errors->first('contract_folder_id') }}</span>
+                        @endif
+                    </div>
                     <br/> <br/> <br/> <br/>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="d-block">فایل آپلود شده :</label>
@@ -62,10 +75,9 @@
                              (pdf/doc), so it's shown as a link rather than the image-oriented
                              currentMedia partial.
 
-                             Deliberately NO remove (X) here: the file is REQUIRED (store() validates
-                             file_path), so deleting it would strand the record in a state the form
-                             can't create. The 'file' collection is singleFile(), so uploading a new
-                             one replaces it — changing the file never needs a delete. --}}
+                             The file is optional — a contract may be text-only, and the original
+                             file is only offered for download when one exists. The 'file'
+                             collection is singleFile(), so uploading a new one replaces it. --}}
                         @php $__file = $contract->getFirstMedia('file'); @endphp
                         @if($__file)
                             <a href="{{ $__file->getFullUrl() }}" target="_blank" rel="noopener"
@@ -105,10 +117,76 @@
                     <div class="col-12 col-md-12 mb-3">
                         <a href="/dashboard/contract" class="btn btn-warning">بازگشت</a>
                         <button type="submit" class="btn btn-success">ارسال</button>
+                        <a href="/dashboard/contract/{{ $contract->id }}/export" target="_blank"
+                           class="btn btn-info">خروجی قرارداد</a>
+                        @if($contract->hasOriginalFile())
+                            <a href="/dashboard/contract/{{ $contract->id }}/download"
+                               class="btn btn-secondary">دانلود فایل اصلی</a>
+                        @endif
                     </div>
                 </div>
             </form>
 
+        </div>
+    </div>
+
+    {{-- محل های استفاده: the ContractUsage rows. One contract can be active for
+         several services, roles and locations at the same time, so this lists them
+         all rather than pretending a contract belongs to one place. --}}
+    <div class="card">
+        <div class="card-body">
+            <div class="x_title">
+                <h4>محل های استفاده این قرارداد</h4>
+                <div class="clearfix"></div>
+            </div>
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>محل استفاده</th>
+                    <th>مورد</th>
+                    <th>شماره قرارداد</th>
+                    <th>تاریخ قرارداد</th>
+                    <th>وضعیت</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                @forelse($contract->usages as $usage)
+                    <tr>
+                        <td>{{ $usage->location_label }}</td>
+                        <td>{{ $usage->owner_label }}</td>
+                        <td>{{ $usage->contract_number ?: '—' }}</td>
+                        <td>{{ $usage->contract_date ? verta($usage->contract_date)->format('Y/m/d') : '—' }}</td>
+                        <td>
+                            @if($usage->is_active)
+                                <span class="badge badge-success">فعال</span>
+                            @else
+                                <span class="badge badge-secondary">غیرفعال</span>
+                            @endif
+                        </td>
+                        <td>
+                            <a href="/dashboard/contract/{{ $contract->id }}/export/{{ $usage->id }}" target="_blank"
+                               class="btn btn-info btn-sm">خروجی</a>
+                            <form method="post" action="{{ route('contractUsage.destroy', [$usage->id]) }}"
+                                  class="d-inline">
+                                {{ method_field('DELETE') }}
+                                {{ csrf_field() }}
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('آیا مطمئن هستید؟ فقط اتصال حذف می شود و خود قرارداد باقی می ماند.')">
+                                    حذف اتصال
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            این قرارداد هنوز به خدمت یا نقشی متصل نشده است.
+                        </td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 

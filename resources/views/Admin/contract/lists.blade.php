@@ -17,6 +17,7 @@
             <button id="btnGroupDrop1" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-primary dropdown-toggle">اقدامات</button>
             <div aria-labelledby="btnGroupDrop1" x-placement="bottom-start" class="dropdown-menu dropdown-menu-list">
                 <a href="/dashboard/contract/create" class="dropdown-item"> ایجاد  </a>
+                <a href="/dashboard/contractFolder" class="dropdown-item"> پوشه های قرارداد </a>
             </div>
         </div>
     </div>
@@ -41,6 +42,16 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-3 mb-2">
+                    <select name="contract_folder_id" class="custom-select" title="پوشه">
+                        <option value="all" @if(($queries['contract_folder_id'] ?? '') == 'all') selected @endif>پوشه</option>
+                        <option value="none" @if(($queries['contract_folder_id'] ?? '') === 'none') selected @endif>دسته بندی نشده</option>
+                        @foreach($folders as $folderId => $folderTitle)
+                            <option value="{{ $folderId }}"
+                                    @if(($queries['contract_folder_id'] ?? '') == $folderId) selected @endif>{{ $folderTitle }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 mb-2">
                     <button type="submit" id="filter" class="btn btn-outline-primary py-2 px-4">فیلتر</button>
                 </div>
                 </div>
@@ -53,8 +64,10 @@
                     <thead>
                     <tr>
                         <th>عنوان</th>
+                        <th>پوشه</th>
                         <th>نوع</th>
                         <th>وضعیت</th>
+                        <th>محل های استفاده</th>
                         <th>تاریخ</th>
                         <th></th>
                     </tr>
@@ -63,8 +76,17 @@
                     @foreach($contracts as $item)
                         <tr>
                             <td>{{ $item->title }} </td>
-                            <td>{{ $item::TYPE[$item->type] }} </td>
+                            <td>{{ optional($item->folder)->title ?: 'دسته بندی نشده' }}</td>
+                            <td>{{ $item::TYPE[$item->type] ?? '' }} </td>
                             <td>{{isset($item->status)?$item::STATUS[$item->status]:''}}</td>
+                            <td>
+                                {{-- One contract can be active in several places at once; this is that count. --}}
+                                @if($item->usages_count)
+                                    <a href="/dashboard/contract/{{ $item->id }}/edit">{{ $item->usages_count }} مورد</a>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                             <td>{{ verta($item->created_at)->format('Y-m-d') }}</td>
                             <td>
                                 <div data-v-15965e3b="" class="dropdown">
@@ -75,6 +97,14 @@
                                         <a href="/dashboard/contract/{{$item->id}}/edit" target="_blank">
                                             <button type="button" class="dropdown-item pointer">ویرایش</button>
                                         </a>
+                                        <a href="/dashboard/contract/{{$item->id}}/export" target="_blank">
+                                            <button type="button" class="dropdown-item pointer">خروجی</button>
+                                        </a>
+                                        @if($item->hasOriginalFile())
+                                            <a href="/dashboard/contract/{{$item->id}}/download">
+                                                <button type="button" class="dropdown-item pointer">دانلود فایل اصلی</button>
+                                            </a>
+                                        @endif
                                         <a href="/dashboard/contract/{{$item->id}}" target="_blank">
                                             <button type="button" class="dropdown-item pointer">تاریخچه</button>
                                         </a>

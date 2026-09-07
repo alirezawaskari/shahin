@@ -1344,6 +1344,18 @@ class FactorItem extends Model implements AuditableContract, HasMedia
         $resnumber =  $factorItem->resnumber;
         $contract_number = FactorItem::setAgentContractNumber( $factorItem );
 
+        // A contract attached through ContractUsage wins: snapshot its text so the
+        // confirmed invoice keeps what was agreed, even if the bank contract is
+        // edited later. Only when nothing is attached do we fall back to the
+        // hardcoded blade choice below.
+        $usage = app( \App\Services\V1\Admin\ContractResolver::class )->forFactorItem( $factorItem );
+
+        if ( $usage && $usage->contract && $usage->contract->content ) {
+            ContractView::store( $factorItem, $usage->contract->content );
+
+            return;
+        }
+
         if ( $factorItem->where( 'factoritemable_id', 124 )->count() ) {
             $contract_view = 'Admin.totalfactoritem.layouts.contractLoanCash';
         } elseif ( $factorItem->whereIn( 'factoritemable_id', [17,198] )->count() ) {
