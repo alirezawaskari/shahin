@@ -10,10 +10,12 @@
         <label for="title_lbl">دسته بندی مربوط به این برند <span class="required">*</span> :</label>
         <select name="category_id" class="category_id custom-select" title="">
             <option value="all">دسته بندی</option>
+            @if(isset($last_categories))
             @foreach($last_categories as $last_category)
             <option value="{{$last_category->id}}"> {{$last_category->title}}
             </option>
             @endforeach
+            @endif
         </select>
         @endif
     </div>

@@ -150,7 +150,7 @@ class ServiceTariffController extends Controller {
     public function edit( ServiceTariff $serviceTariff ) {
         $tariffs = $serviceTariff->service->tariffs;
         $center = $serviceTariff->centers()->first();
-        $employees = $center->users->where( 'level', 'admin' );
+        $employees = $center->users->whereIn('level', ['admin' , 'ghorfeAdmin']);
         $allocation_employee_share_centers = $serviceTariff->allocationEmployeeShareCenters;
         return view( 'Admin.servicetariff.edit', compact( 'allocation_employee_share_centers', 'center', 'employees', 'serviceTariff', 'tariffs' ) );
     }

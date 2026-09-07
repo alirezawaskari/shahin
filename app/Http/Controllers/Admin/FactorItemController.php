@@ -862,7 +862,7 @@ class FactorItemController extends Controller {
         $price_difference_paid = 0;
         $supervisor_factor_item = $factor_item->supervisor;
         $total_factor_item = $supervisor_factor_item->totalFactorItem;
-        $admin_users = User::where( 'level', 'admin' )->where( 'center_id', $factor_item->center_id )->get();
+        $admin_users = User::whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'center_id', $factor_item->center_id )->get();
         foreach ( $admin_users as $u ) {
             if ( $u->hasRole( 'store-manager' ) ) {
                 $user = $u;

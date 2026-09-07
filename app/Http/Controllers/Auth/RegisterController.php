@@ -100,9 +100,9 @@ class RegisterController extends Controller
         // assign to callcenter
         $last_user = Callcenterstatus::latest()->first();
         if (Arr::has($data, 'representation')) {
-            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where('level', 'admin')->where('admin_representation_id', $data['representation'])->get();
+            $admin_users = User::filter()->where('level', 'admin')->where('admin_representation_id', $data['representation'])->get();
         } else {
-            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where('level', 'admin')->where('id', '!=', $last_user->id)->where('admin_representation_id', null)->get();
+            $admin_users = User::filter()->where('level', 'admin')->where('id', '!=', $last_user->id)->where('admin_representation_id', null)->get();
         }
         foreach ($admin_users as $u) {
             if ($u->hasPermission('get_new_task')) {

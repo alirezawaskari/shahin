@@ -182,7 +182,7 @@ class CallcenterController extends Controller
     {
         $user = auth()->user();
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
-        $admin_users = User::filter()->where('level', 'admin')->withCount('tasks')->get();
+        $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->withCount('tasks')->get();
 
         $services = Service::filter()->where('status' , true)->where('status' , 1)->get();
         $categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
@@ -498,7 +498,7 @@ class CallcenterController extends Controller
         $client = User::where('phone', $phone)->first();
         //create new user
         if (!$client) {
-            $client = self::createUser($request);
+            $client = User::createUser($request);
 
         }else{
             $conduct=null;

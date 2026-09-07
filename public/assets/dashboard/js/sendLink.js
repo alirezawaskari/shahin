@@ -557,9 +557,10 @@ $("body").on('click', '.fast-service', function () {
 
     //Every fresh quick-registration form starts in invoice mode, while leaving the
     //checkbox visible so the operator can explicitly switch to study-link-only mode.
-    scope.find('#send-factor').prop('checked', true);
-    scope.find('#checkbox-send-factor').show();
-    scope.find('.register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type').show();
+    // scope.find('#send-factor').prop('checked', false);
+    // scope.find('#checkbox-send-factor').show();
+    scope.find('.register_price, .service_purchase_type, .factor-payment-type, .category_purchase_type').hide();
+    $("#register_type").val('send_link_site');
 })
 
 $(document).on('change', '#send-factor', function () {
