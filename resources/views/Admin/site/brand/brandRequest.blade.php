@@ -9,9 +9,6 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>
-                      خدمات رفاهی لاله این امکان را برای فروشنده فراهم کرده تا کالایش را با برند ( نام تجاری ) خودش نمایش دهد و به فروش برساند . برای ایجاد و ثبت برندتان فرم زیر را تکمیل کنید.
-                </p>
                 <span class="redColor font12">
                     توجه :
                 </span><br/>

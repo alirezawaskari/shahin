@@ -172,7 +172,13 @@ class Representation extends Model implements HasMedia
     {
         return $this->hasMany(Factor::class);
     }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function callcenters()
+    {
+        return $this->hasMany(Callcenter::class);
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

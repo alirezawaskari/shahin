@@ -294,18 +294,18 @@ class Helper {
     public static function getCallcenter($province , $representation) {
         if($representation)
         {
-            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where( 'level', 'admin' )->where('admin_representation_id' , $representation)->with('tasks')->get()->sortBy(function($admin_users)
+            $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->where('admin_representation_id' , $representation)->with('tasks')->get()->sortBy(function($admin_users)
             {
                 return $admin_users->tasks->count();
             });
         }
         else
         {
-            $admin_users = User::where( 'level', 'admin' )->where( 'admin_representation_id', null )->whereDoesntHave('ghorfeOnlineLists')->get();
+            $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'admin_representation_id', null )->get();
         }
 
         if (is_null($admin_users)){
-            $admin_users = User::where( 'level', 'admin' )->where( 'admin_representation_id', null )->whereDoesntHave('ghorfeOnlineLists')->get();
+            $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'admin_representation_id', null )->get();
         }
         if($admin_users)
         {
@@ -503,7 +503,7 @@ class Helper {
         }
         return $text;
     }
-    
+
 }
 
 

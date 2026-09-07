@@ -73,7 +73,7 @@ class FilterServiceProvider extends ServiceProvider
     {
         $user = auth()->user();
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
-        $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where('level', 'admin')->withCount('tasks')->get();
+        $admin_users = User::filter()->whereIn('level', ['admin','ghorfeAdmin'])->withCount('tasks')->get();
 
         $services = Service::filter()->where('status' , 1)->get();
         // invoiceRows() rather than filter(): a business whose categories were never ticked
@@ -88,7 +88,7 @@ class FilterServiceProvider extends ServiceProvider
             $service_categories = auth()->user()->center->centerable_type == Service::class && auth()->user()->center->centerable ? Category::where('id', auth()->user()->center->centerable->category_id)->get() : collect([]);
             $product_categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
         }elseif ($user->admin_representation) {
-            $admin_users = User::whereDoesntHave('ghorfeOnlineLists')->where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
+            $admin_users = User::filter()->where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
         }
         if($user->isAbleTo('record_payment'))
         {

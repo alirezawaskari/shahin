@@ -72,7 +72,16 @@ class SettingController extends AdminController
 
         return redirect()->back()->with($with);
     }
-
+    
+    public function updateSmsSetting(Request $request)
+    {
+        Cache::forget('setting');
+        Setting::first()->update([
+            'sms_panel' => $request->sms_panel
+        ]);
+        alert()->success('','عملیات موفق');
+        return redirect()->back();
+    }
     private function saveSettings($owner, array $fields)
     {
         foreach ($fields as $key => $value) {

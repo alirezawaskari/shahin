@@ -18,6 +18,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class  Product extends Model implements HasMedia
 {
     use Sluggable,SoftDeletes,InteractsWithMedia,\App\Models\Concerns\AdoptsLegacyMedia;
+    use \App\Models\Concerns\HasContractUsages;
 //    use Taggable;
 
     /** Touch-to-migrate: legacy single-image columns -> Spatie single-file collections. */

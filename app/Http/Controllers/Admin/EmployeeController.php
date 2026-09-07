@@ -552,8 +552,12 @@ class EmployeeController extends AdminController
         // Businesses this employee may still be assigned to — empty once they have one.
         $ghorfeOnlineLists = $this->assignableBusinesses($employee);
 
+        // قرارداد نقش: contracts defined for the roles this employee holds, shown on the
+        // «قرارداد کاری» tab alongside the employee's own contract.
+        $roleContracts = app(\App\Services\V1\Admin\ContractResolver::class)->forEmployee($employee);
+
         return view('Admin.employee.edit', compact('item','employee', 'representations','employees','recruitment_notices','recruitment_notice_selected',
-            'profileServices','ratings','ghorfeOnlineLists'));
+            'profileServices','ratings','ghorfeOnlineLists','roleContracts'));
     }
 
     /**
@@ -955,7 +959,9 @@ class EmployeeController extends AdminController
                 $confirmable = true;
             }
             $item['contract_histories'] = $employee->histories->where('reason_id' , 3);
-            return view('Admin.employee.contract.index' , compact('item','employee' , 'confirmable'));
+            // قرارداد نقش: contracts defined for the roles this employee holds.
+            $roleContracts = app(\App\Services\V1\Admin\ContractResolver::class)->forEmployee($employee);
+            return view('Admin.employee.contract.index' , compact('item','employee' , 'confirmable', 'roleContracts'));
         }
 
         return abort(401);

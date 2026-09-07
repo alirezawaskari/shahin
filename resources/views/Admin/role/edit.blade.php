@@ -60,4 +60,16 @@
         </form>
     </div>
 </div>
+
+{{-- قرارداد نقش: shown in the employees section for every user holding this role.
+     Outside the permissions form on purpose — it posts to ContractUsageController
+     and nested forms are invalid. --}}
+@include('Admin.contract.partials.attach', [
+    'location' => 'employee',
+    'ownerType' => 'role',
+    'ownerId' => $role->id,
+    'usage' => $role->contractUsageFor('employee'),
+    'folders' => \App\Models\ContractFolder::options(),
+    'widgetId' => 'role_emp_' . $role->id,
+])
 @stop

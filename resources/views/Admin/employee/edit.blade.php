@@ -542,6 +542,17 @@
             </div>
             <div class="tab-pane fade p-t-20" id="contract" role="tabpanel" aria-labelledby="contract-tab">
                 @permission('employee_contract_show_detail')
+                {{-- قراردادهای نقش: the contracts defined for the roles this employee holds,
+                     resolved through ContractUsage. Shown above the employee's own contract,
+                     which carries the signing/confirmation flow and stays as it was. --}}
+                @foreach ($roleContracts as $roleUsage)
+                    @include('Admin.contract.partials.show', [
+                        'usage' => $roleUsage,
+                        'contract' => $roleUsage->contract,
+                        'title' => 'قرارداد ' . $roleUsage->owner_label,
+                        'exportParams' => ['employee_id' => $employee->id],
+                    ])
+                @endforeach
                 <form method="post" action="{{route('employee.update.contract' , [ $employee->id])}}"
                     enctype="multipart/form-data">
                     @csrf

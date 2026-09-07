@@ -278,7 +278,21 @@
                             </div>
                         </div>
                     </div>
-                    @if ($factorItem->factoritemable_id == 17 || $factorItem->factoritemable_id == 198)
+                    {{-- قرارداد, in precedence order:
+                           1. a contract attached through ContractUsage — with the confirmed
+                              invoice's snapshot as its body, so editing the bank contract never
+                              rewrites a signed one;
+                           2. the legacy hardcoded services (17/198), rendered exactly as before
+                              so invoices predating the contract bank are untouched;
+                           3. a snapshot alone, for an invoice whose service has since been detached.
+                         Nothing attached and nothing stored means no contract section at all. --}}
+                    @php
+                        $contractUsage = app(\App\Services\V1\Admin\ContractResolver::class)
+                            ->forFactorItem($factorItem);
+                        $contractSnapshot = $factorItem->contractView;
+                        $isLegacyContractService = in_array($factorItem->factoritemable_id, [17, 198]);
+                    @endphp
+                    @if ($contractUsage || $isLegacyContractService || $contractSnapshot)
                     <div class="panel">
                         <div class="panel-heading">
                             <h5 class="panel-title">
@@ -288,7 +302,23 @@
                         </div>
                         <div id="contract" class="panel-collapse collapse">
                             <div class="panel-body">
-                                @include('Admin.factoritem.layouts.contractGhorfeOnline')
+                                @if ($contractUsage)
+                                    @include('Admin.contract.partials.show', [
+                                        'usage' => $contractUsage,
+                                        'contract' => $contractUsage->contract,
+                                        'contractBody' => $contractSnapshot ? $contractSnapshot->contract : null,
+                                        'exportParams' => ['factor_item_id' => $factorItem->id],
+                                    ])
+                                @elseif ($isLegacyContractService)
+                                    @include('Admin.factoritem.layouts.contractGhorfeOnline')
+                                @else
+                                    @include('Admin.contract.partials.show', [
+                                        'usage' => null,
+                                        'contract' => null,
+                                        'contractBody' => $contractSnapshot->contract,
+                                        'exportParams' => ['factor_item_id' => $factorItem->id],
+                                    ])
+                                @endif
                             </div>
                         </div>
                     </div>

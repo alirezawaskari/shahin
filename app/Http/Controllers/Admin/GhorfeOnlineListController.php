@@ -134,7 +134,7 @@ class GhorfeOnlineListController extends AdminController {
         $inputs[ 'contract_expiration_date' ] = Helper::vertaToMiladi( $request->contract_expiration_date );
 
         $ghorfeOnlineList = GhorfeOnlineList::create( $inputs );
-        $ghorfeOnlineList->about()->create();
+        $ghorfeOnlineList->abouts()->create();
 
         // Spatie: attach the logo from its temp media id ( logo_path ).
         if ( $request->logo_path ) {

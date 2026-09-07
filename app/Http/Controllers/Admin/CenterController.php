@@ -403,7 +403,7 @@ class CenterController extends AdminController
     public function createServiceTariff(Center $center,Service $service)
     {
         $tariffs = $service->tariffs;
-        $employees = $center->users->where('level' , 'admin');
+        $employees = $center->users->whereIn('level' , ['admin','ghorfeAdmin']);
         $service_index_tariffs = $service->serviceIndexTariffs;
 
         return view('Admin.center.serviceTariffCreate' , compact(['service_index_tariffs','employees' ,'center' , 'tariffs','service']));

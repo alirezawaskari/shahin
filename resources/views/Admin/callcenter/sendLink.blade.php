@@ -126,7 +126,7 @@
                             <hr>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="send-factor" name="send_factor"
-                                    value="1" checked>
+                                    value="1">
                                 <label class="form-check-label" for="send-factor">ارسال فاکتور</label>
                             </div>
                         </div>
