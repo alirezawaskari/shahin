@@ -7,6 +7,7 @@ use App\Models\Attribute;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\CategoryArticle;
+use App\Models\Employee;
 use App\Models\Product;
 use App\Models\Resume;
 use App\Models\User;
@@ -294,19 +295,24 @@ class Helper {
     public static function getCallcenter($province , $representation) {
         if($representation)
         {
-            $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->where('admin_representation_id' , $representation)->with('tasks')->get()->sortBy(function($admin_users)
+            $admin_users = Employee::filter()->whereHas('user', function ($query) use($representation){
+                $query->whereIn('level', ['admin' , 'ghorfeAdmin'])->where('admin_representation_id' , $representation)->with('tasks');
+            })->get()->sortBy(function($admin_users)
             {
                 return $admin_users->tasks->count();
             });
         }
         else
         {
-            $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'admin_representation_id', null )->get();
+            $admin_users = Employee::filter()->whereHas('user', function ($query) {
+                $query->whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'admin_representation_id', null );
+            })->get();
         }
-
         if (is_null($admin_users)){
-            $admin_users = User::filter()->whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'admin_representation_id', null )->get();
-        }
+            $admin_users = Employee::filter()->whereHas('user', function ($query) {
+                $query->whereIn('level', ['admin' , 'ghorfeAdmin'])->where( 'admin_representation_id', null );
+            })->get();
+        } 
         if($admin_users)
         {
             $callcenterusers = [];
@@ -315,8 +321,8 @@ class Helper {
                     $callcenterusers[] = $user->id;
                 }
             }
-			$key = array_rand( $callcenterusers );
-            return $callcenterusers[$key];
+			$key = $callcenterusers ? array_rand( $callcenterusers ) : null;
+            return $key ? $callcenterusers[$key] : null;
         }
     }
 
