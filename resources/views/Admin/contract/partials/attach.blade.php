@@ -96,6 +96,71 @@
                         <span class="help-block sub-error">{{ $errors->first('contract_id') }}</span>
                     @endif
                 </div>
+
+                {{-- ویرایش قرارداد انتخاب شده, in place. The bank contract is shared, so the
+                     warning below is populated whenever it has more than this one usage. --}}
+                <div class="col-12 contract-edit-box" style="display:none">
+                    <div class="border rounded p-3 mb-3">
+                        <h5 class="mb-3">ویرایش قرارداد انتخاب شده</h5>
+
+                        <div class="alert alert-warning contract-shared-warning" style="display:none"></div>
+
+                        {{-- Prefilled here because the fields above are already rendered with
+                             this contract's current text. Javascript rewrites it after fetching
+                             a different contract; the server ignores the edits unless it matches
+                             the selected contract, so a failed fetch can never blank a body. --}}
+                        <input type="hidden" name="edit_contract_id" class="contract-edit-id"
+                               value="{{ optional($usage)->contract_id }}">
+
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3">
+                                <label>عنوان قرارداد *</label>
+                                <input type="text" name="edit_title" class="form-control contract-edit-title"
+                                       value="{{ optional(optional($usage)->contract)->title }}">
+                                @if($errors->has('edit_title'))
+                                    <span class="help-block sub-error">{{ $errors->first('edit_title') }}</span>
+                                @endif
+                            </div>
+                            <div class="col-12 col-md-6 mb-3">
+                                <label>نوع</label>
+                                <select name="edit_type" class="form-control contract-edit-type" title="نوع">
+                                    @foreach(\App\Models\Contract::TYPE as $typeId => $typeTitle)
+                                        <option value="{{ $typeId }}"
+                                                @if(optional(optional($usage)->contract)->type == $typeId) selected @endif>
+                                            {{ $typeTitle }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label>متن قرارداد</label>
+                                <textarea name="edit_content" id="{{ $widgetId }}_edit_content"
+                                          class="form-control contract-edit-content contract-rich-text"
+                                          rows="10">{{ optional(optional($usage)->contract)->content }}</textarea>
+                                @if($errors->has('edit_content'))
+                                    <span class="help-block sub-error">{{ $errors->first('edit_content') }}</span>
+                                @endif
+                            </div>
+                            <div class="col-12 col-md-6 mb-3">
+                                <label class="d-block">جایگزینی فایل قرارداد (اختیاری)</label>
+                                <label for="{{ $widgetId }}_editfile"
+                                       class="btn btn-primary custom-file-upload border border-1">
+                                    <i class="fa fa-cloud-upload"></i> بارگذاری فایل جدید
+                                </label>
+                                <input id="{{ $widgetId }}_editfile" class="d-none file-upload file_upload_ajax"
+                                       type="file" name="{{ $widgetId }}_editfile">
+                                <div id="{{ $widgetId }}_editfile_src" class="show"></div>
+                                <input type="hidden" id="{{ $widgetId }}_editfile_path" class="path"
+                                       name="edit_file_path" value="">
+                            </div>
+                            <div class="col-12 col-md-6 mb-3 contract-current-file" style="display:none">
+                                <label class="d-block">فایل فعلی</label>
+                                <a href="#" target="_blank" rel="noopener"
+                                   class="btn btn-secondary py-1 px-2 contract-current-file-link">مشاهده فایل فعلی</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- ایجاد قرارداد جدید: creates a real bank contract, so it stays reusable. --}}
@@ -131,7 +196,12 @@
                 </div>
                 <div class="col-12 col-md-8 mb-3">
                     <label>متن قرارداد</label>
-                    <textarea name="content" class="form-control" rows="6" title="متن قرارداد">{{ old('content') }}</textarea>
+                    <textarea name="content" id="{{ $widgetId }}_new_content"
+                              class="form-control contract-rich-text" rows="8"
+                              title="متن قرارداد">{{ old('content') }}</textarea>
+                    @if($errors->has('content'))
+                        <span class="help-block sub-error">{{ $errors->first('content') }}</span>
+                    @endif
                 </div>
                 <div class="col-12 col-md-4 mb-3">
                     <label class="d-block">فایل قرارداد (اختیاری)</label>
