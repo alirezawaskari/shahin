@@ -212,6 +212,9 @@ class EmployeeService {
             'urlimgshenasname', 'urlimgmeli', 'urlavatar',
             'urlimgsignature', 'urlimgaccess', 'urlimglastcertificate',
             'role_id', 'employee', 'ghorfe_online_list_id',
+            // فیلد «کسب و کار» فرم؛ ستون جدول نیست و کنترلر خودش آن را به
+            // BusinessTransferService می‌سپارد.
+            'destination_business_id',
         ];
 
         foreach ( $unsetFields as $field ) {

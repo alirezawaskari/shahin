@@ -3,11 +3,6 @@
 @section('content')
 <div class="page-header">
     <a href="{{ url()->previous() }}" class="btn btn-primary">بازگشت</a>
-    @include('Admin.businessTransfer.individualAction', [
-        'entity' => 'factor',
-        'recordId' => $factor->id,
-        'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys()
-    ])
 </div>
 <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -268,6 +263,9 @@
                         </div>
                         @endif
                         @endif
+                        @include('Admin.businessTransfer.inlineField', [
+                            'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys(),
+                        ])
                         <div class="col-12 col-md-4 mb-3">
                             <input type="submit" class="btn btn-success border-0" value="ذخیره">
                         </div>

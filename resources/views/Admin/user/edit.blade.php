@@ -3,11 +3,6 @@
 @section('content')
 <div class="page-header">
     <a href="{{ url()->previous() }}" class="btn btn-primary">بازگشت</a>
-    @include('Admin.businessTransfer.individualAction', [
-        'entity' => 'user',
-        'recordId' => $user->id,
-        'currentBusinessIds' => $user->ghorfeOnlineLists->modelKeys()
-    ])
 </div>
 <div class="card">
     <div class="card-body">
@@ -49,6 +44,9 @@
                     <label>تکرار رمز عبور جدید</label>
                     <input type="password" class="form-control password" name="password_confirmation">
                 </div>
+                @include('Admin.businessTransfer.inlineField', [
+                    'currentBusinessIds' => $user->ghorfeOnlineLists->modelKeys(),
+                ])
                 @permission('user-edit')
                 <div class="col-12 col-md-4 mb-3">
                     <button type="submit" class="btn btn-success">ثبت</button>
@@ -176,6 +174,9 @@
                     </a>
                 </div>
                 @endpermission
+                @include('Admin.businessTransfer.inlineField', [
+                    'currentBusinessIds' => $user->ghorfeOnlineLists->modelKeys(),
+                ])
                 <div class="col-12 col-md-4 mb-3">
                     <label>ویژگی های سلامتی</label>
                     <div class="col-12 col-md-6 mb-2">

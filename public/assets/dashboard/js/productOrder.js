@@ -104,22 +104,12 @@ $(document).ready(function () {
                 {
                     "data": data,
                     "render": function (row) {
-                        var businessTransferAction = '';
-                        if (Number($('#datatable-json').attr('data-business-transfer-enabled')) === 1) {
-                            businessTransferAction = `<button type="button" class="dropdown-item pointer"
-                                data-business-transfer-single data-transfer-entity="factor"
-                                data-record-id="${row.id}"
-                                data-current-business-ids="${(row.current_business_ids || []).join(',')}">
-                                انتقال به کسب و کار
-                            </button>`;
-                        }
                         return `<div class="dropdown">
                             <a href="#" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                                 <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
                             <div class="dropdown-menu">
                                 <a href="${row.show_url}" class="dropdown-item pointer">جزئیات سفارش</a>
                                 <a href="/factor/${row.resnumber}" target="_blank" class="dropdown-item pointer">مشاهده فاکتور</a>
-                                ${businessTransferAction}
                             </div></div>`;
                     }
                 }

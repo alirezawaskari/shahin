@@ -1,15 +1,5 @@
 <div class="row page-header">
     <div class="col-12 col-md-8">
-        @include('Admin.businessTransfer.individualAction', [
-            'entity' => 'factor_item',
-            'recordId' => $factorItem->id,
-            'recordIds' => $factorItem->factor
-                ? $factorItem->factor->factorItems()->pluck('factor_items.id')->all()
-                : [$factorItem->id],
-            'currentBusinessIds' => optional($factorItem->factor)->ghorfeOnlineLists?->modelKeys() ?? [],
-            'class' => 'btn btn-outline-primary mr-2',
-            'label' => 'انتقال فاکتور و پرونده‌ها به کسب و کار'
-        ])
         <span class="btn btn-warning text-white mr-2" data-toggle="modal" data-target="#suspensionModal">یادآوری
             پیگیری</span>
         <a data-toggle="modal" data-target="#closeFileModal" class="btn btn-dark mr-2 text-white">پرونده مختومه</a>

@@ -1,13 +1,7 @@
 @extends('Admin.master')
 
 @section('content')
-    <div class="page-header">
-        @include('Admin.businessTransfer.individualAction', [
-            'entity' => 'user',
-            'recordId' => $user->id,
-            'currentBusinessIds' => $user->ghorfeOnlineLists->modelKeys()
-        ])
-    </div>
+    <div class="page-header"></div>
     <div class="card">
         <div class="card-body">
             <ul class="nav nav-tabs" id="myTab" role="tablist">

@@ -55,9 +55,6 @@
         @yield('content')
     </div>
 </main>
-@permission('transfer_to_business')
-    @include('Admin.businessTransfer.modal')
-@endpermission
 <script src="{{asset('assets/dashboard/js/dashboard.js?v=2.7') }}"></script>
 {{-- Select2 را روی هر select با فهرست بلند فعال می‌کند؛ باید بلافاصله بعد از
      dashboard.js (jQuery + Select2) و پیش از اسکریپت‌های صفحه بارگذاری شود. --}}
@@ -72,7 +69,8 @@
 <script src="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.js')}}"></script>
 <script src="{{asset('assets/bootstrap-5.3.8-dist/js/bootstrap.min.js')}}"></script>
 @permission('transfer_to_business')
-    <script src="{{ asset('assets/dashboard/js/businessTransfer.js?v=1.2') }}"></script>
+    <script>window.BUSINESS_TRANSFER_URL = '{{ route('businessTransfer.store') }}';</script>
+    <script src="{{ asset('assets/dashboard/js/businessTransfer.js?v=2.0') }}"></script>
 @endpermission
 
 <script>

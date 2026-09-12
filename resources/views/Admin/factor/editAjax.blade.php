@@ -1,11 +1,4 @@
 <div class="">
-    <div class="mb-3">
-        @include('Admin.businessTransfer.individualAction', [
-            'entity' => 'factor',
-            'recordId' => $factor->id,
-            'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys()
-        ])
-    </div>
     <div class="modal fade" id="commentModalFactor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -301,6 +294,9 @@
                             </div>
                             @endif
                             @endpermission
+                            @include('Admin.businessTransfer.inlineField', [
+                                'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys(),
+                            ])
                             <div class="col-12 col-md-4 mb-3">
                                 <input class="btn btn-success border-0 factor-update-submit" value="ذخیره">
                             </div>

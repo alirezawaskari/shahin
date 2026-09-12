@@ -346,7 +346,7 @@
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
 <script src="{{ asset('/assets/dashboard/js/factorItem.js?v=2.1') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.0') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.1') }}"></script>
 <script>
     $(document).ready( function () {
         $('#datatable-history-blade').DataTable({searching: false});

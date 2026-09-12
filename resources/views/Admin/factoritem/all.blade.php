@@ -149,14 +149,18 @@
             <div class="card-body">
                 <div class="row transfer_message_box">
                 </div>
-                <div class="row">
+                <div class="row"
+                     data-business-transfer-scope
+                     data-transfer-entity="factor_item"
+                     data-record-selector=".factor-item-business-transfer-record">
                     <div class="col-12 col-sm-6 col-lg-2 mb-2">
                         <select id="transfer" name="type" class="form-control">
                             <option value="select">بر حسب انتخاب</option>
                         </select>
                     </div>
                     <div class="col-12 col-sm-6 col-lg-2 mb-2">
-                        <select class="custom-select select2" name="transfer_type" id="transfer_type">
+                        <select class="custom-select select2" name="transfer_type" id="transfer_type"
+                                data-business-transfer-type-select>
                             <option value=" ">ارجاع به</option>
                                 @permission('factor_item_referral_to_representation')
                                 <option value="representation">نمایندگی</option>
@@ -166,6 +170,9 @@
                                 @endpermission
                                 @permission('factor_item_referral_to_center')
                                 <option value="center">شعبه</option>
+                                @endpermission
+                                @permission('transfer_to_business')
+                                <option value="business">کسب و کار</option>
                                 @endpermission
                         </select>
                     </div>
@@ -193,15 +200,9 @@
                             @endforeach
                         </select>
                     </div>
+                    @include('Admin.businessTransfer.destinationBox')
                     <div class="col-12 col-sm-6 col-lg-2 mb-2">
                         <button id="do_transfer" type="button" class="btn btn-outline-primary btn-block py-2">انتقال</button>
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-2 mb-2">
-                        @include('Admin.businessTransfer.bulkAction', [
-                            'entity' => 'factor_item',
-                            'recordSelector' => '.factor-item-business-transfer-record',
-                            'class' => 'btn-block py-2'
-                        ])
                     </div>
                     @permission('transfer_to_business')
                         <div class="col-12">
@@ -287,7 +288,7 @@
 @stop
 @section('js')
 <script src="{{asset('assets/dashboard/js/layouts.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.5')}}"></script>
+<script src="{{asset('assets/dashboard/js/factorItem.js?v=1.6')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.3')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 <script>

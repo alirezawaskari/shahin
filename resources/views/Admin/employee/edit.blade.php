@@ -15,12 +15,6 @@
                 <h5 class="card-title">اطلاعات همکار</h5>
             </div>
             <div class="col-12 col-md-2">
-                @include('Admin.businessTransfer.individualAction', [
-                    'entity' => 'employee',
-                    'recordId' => $employee->id,
-                    'currentBusinessIds' => $employee->ghorfe_online_list_id ? [$employee->ghorfe_online_list_id] : [],
-                    'class' => 'btn btn-outline-primary btn-block mb-2'
-                ])
                 @if ($employee->contract_status == 1)
                 <h5 class="btn btn-success float-left">قرارداد تایید شده</h5>
                 @endif
@@ -208,17 +202,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        {{-- Business ownership is read-only here. The dedicated action supplies
-                             permission checks, an active Select2 destination, confirmation,
-                             validation and an atomic write. --}}
-                        <div class="col-12 col-md-4 mb-3">
-                            <label>کسب و کار</label>
-                            <input type="text" class="form-control" readonly
-                                   value="{{ optional($employee->ghorfeOnline)->title ?: 'بدون کسب و کار' }}">
-                            <small class="text-muted">
-                                تغییر کسب و کار فقط از طریق عملیات «انتقال به کسب و کار» انجام می‌شود.
-                            </small>
-                        </div>
+                        @include('Admin.businessTransfer.inlineField', [
+                            'currentBusinessIds' => $employee->ghorfe_online_list_id
+                                ? [$employee->ghorfe_online_list_id]
+                                : [],
+                        ])
                         <div class="col-12 col-md-4 mb-3">
                             <label>انتخاب سرپرست</label>
                             <select class="form-control" name="parent_id">

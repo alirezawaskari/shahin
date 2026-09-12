@@ -59,7 +59,7 @@
          the app loading it, so its remove (✕) buttons rendered as SVGs while every other
          page drew the FA 4.7 font glyph that dashboard.css already provides. --}}
     <script src="{{asset('assets/dashboard/js/bootstrap.min.js')}}"></script>
-    <script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.0') }}"></script>
+    <script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.1') }}"></script>
 
     <script>
         $(document).ready( function () {

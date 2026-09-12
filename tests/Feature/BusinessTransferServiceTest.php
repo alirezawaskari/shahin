@@ -328,7 +328,12 @@ class BusinessTransferServiceTest extends TestCase
         ]);
     }
 
-    public function test_employee_update_endpoint_cannot_bypass_transfer_permission(): void
+    /**
+     * The edit form's «کسب و کار» field posts destination_business_id and is saved with the
+     * rest of the form, so the update endpoint is a transfer boundary and must enforce the
+     * independent permission itself.
+     */
+    public function test_employee_update_endpoint_enforces_transfer_permission(): void
     {
         DB::table('employees')->insert([
             'id' => 30,
@@ -343,19 +348,46 @@ class BusinessTransferServiceTest extends TestCase
             ->with('transfer_to_business')
             ->willReturn(false);
         $request = Request::create('/dashboard/employee/30', 'PATCH', [
-            'ghorfe_online_list_id' => 2,
+            'destination_business_id' => 2,
         ]);
         $request->setUserResolver(fn () => $actor);
 
         try {
             app(EmployeeController::class)->update($request, Employee::findOrFail(30));
-            $this->fail('The general update endpoint must not move an employee.');
+            $this->fail('The update endpoint must not move an employee without the permission.');
         } catch (HttpException $exception) {
             $this->assertSame(403, $exception->getStatusCode());
         }
 
         $this->assertDatabaseHas('employees', [
             'id' => 30,
+            'ghorfe_online_list_id' => 1,
+        ]);
+    }
+
+    /**
+     * The legacy form key stays inert: only the dedicated field goes through the service.
+     */
+    public function test_employee_update_endpoint_ignores_the_legacy_business_key(): void
+    {
+        DB::table('employees')->insert([
+            'id' => 31,
+            'ghorfe_online_list_id' => 1,
+        ]);
+
+        $actor = $this->getMockBuilder(User::class)
+            ->onlyMethods(['hasPermission'])
+            ->getMock();
+        $actor->expects($this->never())->method('hasPermission');
+        $request = Request::create('/dashboard/employee/31', 'PATCH', [
+            'ghorfe_online_list_id' => 2,
+        ]);
+        $request->setUserResolver(fn () => $actor);
+
+        app(EmployeeController::class)->update($request, Employee::findOrFail(31));
+
+        $this->assertDatabaseHas('employees', [
+            'id' => 31,
             'ghorfe_online_list_id' => 1,
         ]);
     }

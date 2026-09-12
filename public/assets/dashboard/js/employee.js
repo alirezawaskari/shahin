@@ -137,22 +137,12 @@ $(document).ready(function () {
                             if($('#can-manual-login').val()==1){
                                 loginDisplay='block';
                             }
-                            let businessTransferAction = '';
-                            if (Number($('#datatable-json').attr('data-business-transfer-enabled')) === 1) {
-                                businessTransferAction = `<button type="button" class="dropdown-item pointer"
-                                    data-business-transfer-single data-transfer-entity="employee"
-                                    data-record-id="${data.id}"
-                                    data-current-business-ids="${(data.current_business_ids || []).join(',')}">
-                                    انتقال به کسب و کار
-                                </button>`;
-                            }
                             return `<div data-v-15965e3b="" class="dropdown">
                             <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm"><i aria-hidden="true" class="fa fa-ellipsis-v"></i>
                             </a><div class="dropdown-menu"><a href="../../dashboard/employee/${data.id}/edit" target="_blank"><button type="button" class="dropdown-item pointer">ویرایش</button></a>
                               <a style="display: ${loginDisplay}" target="_blank" href="/dashboard/user/login/${data.user_id}"><span  data-id="${data.user_id}" class="task-delete dropdown-item pointer">
                                 ورود
                                 </span></a>
-                                ${businessTransferAction}
                                 <a href="../../dashboard/employee-financial-report/${data.id}" target="_blank"><button type="button" class="dropdown-item pointer">عملکرد ماهانه</button></a></div></div>`;
                         }
                     },
