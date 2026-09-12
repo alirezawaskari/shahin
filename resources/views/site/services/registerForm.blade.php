@@ -1,3 +1,4 @@
+@include('site.services.serviceItemList')
 <div class="col-12 col-md-5 py-5 my-auto mr-auto">
     @foreach($errors->all() as $error)
     <div class="alert alert-danger my-3" role="alert">
