@@ -50,11 +50,18 @@ class ContractUsageController extends Controller
             'contract_folder_id' => 'nullable|integer|exists:contract_folders,id',
             'contract_number' => 'nullable|string|max:100',
             'contract_date' => 'nullable|date',
+            'content' => $this->contractBodyRule(),
+            // «استفاده از قرارداد موجود» edit-in-place fields.
+            'edit_contract_id' => 'nullable|integer',
+            'edit_title' => 'required_with:edit_contract_id|nullable|string|max:191',
+            'edit_type' => 'nullable|integer',
+            'edit_content' => $this->contractBodyRule(),
         ], [
             'mode.required' => 'لطفا وضعیت قرارداد را مشخص کنید',
             'contract_id.required_if' => 'لطفا قرارداد مورد نظر را انتخاب کنید',
             'title.required_if' => 'لطفا عنوان قرارداد جدید را وارد کنید',
             'type.required_if' => 'لطفا نوع قرارداد جدید را انتخاب کنید',
+            'edit_title.required_with' => 'عنوان قرارداد نمی تواند خالی باشد',
         ]);
 
         $location = $request->location;
@@ -80,6 +87,10 @@ class ContractUsageController extends Controller
             $contractId = $request->mode === 'new'
                 ? $this->createContract($request)->id
                 : (int) $request->contract_id;
+
+            if ($request->mode === 'existing') {
+                $this->applyContractEdits($request, $contractId);
+            }
 
             // One contract per owner per location: replace rather than stack, so the
             // display points never have to guess between two active rows.
@@ -130,6 +141,92 @@ class ContractUsageController extends Controller
                 'title' => $c->title,
                 'type' => Contract::TYPE[$c->type] ?? '',
             ])->values(),
+        ]);
+    }
+
+    /**
+     * Saves edits made to an existing contract from inside the association widget.
+     *
+     * The `edit_contract_id` interlock is the safety catch: the widget's javascript
+     * writes it only after it has actually filled the edit fields with that contract's
+     * current text. If the fetch never ran (script blocked, ajax failed, an old cached
+     * page), the id does not match the selected contract and the edits are skipped —
+     * so an empty textarea can never blank out a real contract's body. It also means
+     * merely re-picking a contract from the dropdown and saving is a no-op.
+     *
+     * Editing here changes the bank contract everywhere it is used; the widget says so
+     * out loud whenever the contract has more than this one usage.
+     */
+    private function applyContractEdits(Request $request, int $contractId): void
+    {
+        if ((int) $request->input('edit_contract_id') !== $contractId) {
+            return;
+        }
+
+        $contract = Contract::find($contractId);
+
+        if (! $contract) {
+            return;
+        }
+
+        $contract->update([
+            'title' => $request->edit_title,
+            'type' => $request->edit_type ?: $contract->type,
+            'content' => $request->edit_content,
+        ]);
+
+        // singleFile() collection: a new upload replaces the old original.
+        if ($request->edit_file_path) {
+            MediaLibraryHelper::attachTo($contract, $request->edit_file_path, 'file');
+
+            ContractHistory::create([
+                'contract_id' => $contract->id,
+                'user_id' => Auth::user()->id,
+                'file' => $contract->file,
+            ]);
+        }
+    }
+
+    /**
+     * Validation for a contract body.
+     *
+     * `contracts.content` is MySQL TEXT — 65,535 **bytes**, not characters. Laravel's
+     * `max:` counts characters, so a Persian contract (2 bytes per character in UTF-8)
+     * would clear a character limit and then be silently truncated by MySQL, losing the
+     * end of a legal document. Count bytes instead.
+     */
+    private function contractBodyRule(): array
+    {
+        return ['nullable', 'string', function ($attribute, $value, $fail) {
+            if (strlen((string) $value) > 65535) {
+                $fail('متن قرارداد طولانی تر از حد مجاز است. لطفا آن را کوتاه تر کنید یا فایل قرارداد را بارگذاری کنید.');
+            }
+        }];
+    }
+
+    /**
+     * One contract in full, so «استفاده از قرارداد موجود» can edit it in place
+     * instead of sending the user off to the contract bank.
+     *
+     * usages_count is part of the payload on purpose: the widget warns that a
+     * shared contract is about to be changed everywhere it is used.
+     */
+    public function contractDetail(Contract $contract)
+    {
+        $contract->loadCount('usages');
+
+        return response()->json([
+            'status' => true,
+            'contract' => [
+                'id' => $contract->id,
+                'title' => $contract->title,
+                'type' => $contract->type,
+                'content' => $contract->content,
+                'contract_folder_id' => $contract->contract_folder_id,
+                'usages_count' => $contract->usages_count,
+                'has_file' => $contract->hasOriginalFile(),
+                'file_url' => $contract->hasOriginalFile() ? $contract->file : null,
+            ],
         ]);
     }
 

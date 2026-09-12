@@ -410,10 +410,43 @@
         var $host = $el.closest('.modal, .offcanvas');
 
         if ($host.length) {
-            options.dropdownParent = $host.first();
+            options.dropdownParent = dropdownAnchor($el, $host.first());
         }
 
         return options;
+    }
+
+    /**
+     * جایی که dropdown باید ساخته شود: نزدیک‌ترین نیای «موقعیت‌دار» که خودش
+     * اسکرول نمی‌شود.
+     *
+     * Select2 مکان فهرست را چنین حساب می‌کند:
+     *     top = control.offset().top + ارتفاع - dropdownParent.offset().top
+     * و آن را داخل dropdownParent می‌گذارد. اگر همین والد، خودِ ظرفِ اسکرول
+     * باشد (در بوت‌استرپ ۵، `.modal` مقدار overflow-y: auto دارد)، آنگاه
+     * offset کنترل به اندازه‌ی scrollTop بالا رفته ولی offset والد نه؛
+     * پس فهرست دقیقاً به اندازه‌ی scrollTop بالاتر می‌افتد و بیرون از صفحه
+     * می‌رود. روی دسکتاپ چون مودال اسکرول نمی‌شود این خطا دیده نمی‌شد، اما
+     * در عرض‌های موبایل که محتوای مودال بلند است، کلیک روی دسته‌بندی و خدمات
+     * ظاهراً «هیچ کاری نمی‌کرد».
+     *
+     * والدی که خودش اسکرول نمی‌شود ولی داخل ظرفِ اسکرول است، همراه محتوا
+     * جابه‌جا می‌شود و هر دو offset با هم حرکت می‌کنند، پس محاسبه درست درمی‌آید.
+     */
+    function dropdownAnchor($el, $host) {
+        var $anchor = $el.parentsUntil($host.parent()).filter(function () {
+            var cs = window.getComputedStyle(this);
+
+            // باید موقعیت‌دار باشد تا مختصات absolute نسبت به همین المان حل شود
+            if (cs.position === 'static') {
+                return false;
+            }
+
+            // نباید فهرست را ببُرد و نباید خودش ظرفِ اسکرول باشد
+            return cs.overflowY === 'visible' && cs.overflowX === 'visible';
+        });
+
+        return $anchor.length ? $anchor.first() : $host;
     }
 
     // -------------------------------------------------------------------------

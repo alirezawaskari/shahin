@@ -849,6 +849,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('contractFolder', 'ContractFolderController')->except(['show']);
     //contract usages: the contract <-> service/role/location relation
     Route::get('/contractUsage/byFolder', 'ContractUsageController@byFolder')->name('contractUsage.byFolder');
+    Route::get('/contractUsage/contract/{contract}', 'ContractUsageController@contractDetail')->name('contractUsage.contractDetail');
     Route::post('/contractUsage', 'ContractUsageController@store')->name('contractUsage.store');
     Route::delete('/contractUsage/{contractUsage}', 'ContractUsageController@destroy')->name('contractUsage.destroy');
     Route::resource('contract', 'ContractController');
