@@ -978,13 +978,105 @@ function clearNewUserFormInputsData() {
 // Delegated + namespaced with off-before-on, so several widgets can sit on one page
 // (a service has one per usage location) without stacking duplicate handlers.
 //-----------------------------------------------------------------------------------------------------
+// CKEditor is loaded per-page in this admin (service edit has it, role edit does not),
+// so the widget brings its own copy when the host page has none. Everything queues
+// behind a single load.
+var contractCkQueue = [];
+var contractCkLoading = false;
+
+function contractEnsureCkeditor(done) {
+    if (window.CKEDITOR) {
+        done();
+        return;
+    }
+
+    contractCkQueue.push(done);
+
+    if (contractCkLoading) {
+        return;
+    }
+
+    contractCkLoading = true;
+
+    $.getScript('/assets/dashboard/js/ckeditor.js')
+        .done(function () {
+            $.each(contractCkQueue, function (i, cb) { cb(); });
+            contractCkQueue = [];
+        })
+        .fail(function () {
+            // No editor available: the plain textareas still submit their html.
+            contractCkQueue = [];
+        });
+}
+
+// Instantiated only once a pane is actually visible — CKEditor 4 mis-measures itself
+// when replaced inside a display:none container.
+function contractInitEditors($pane) {
+    var $areas = $pane.find('textarea.contract-rich-text').filter(function () {
+        return !$(this).data('ck-done');
+    });
+
+    if (!$areas.length) {
+        return;
+    }
+
+    contractEnsureCkeditor(function () {
+        $areas.each(function () {
+            var id = this.id;
+
+            if (!id || CKEDITOR.instances[id]) {
+                return;
+            }
+
+            $(this).data('ck-done', true);
+            CKEDITOR.replace(id, window.ck_uploader || {});
+        });
+    });
+}
+
+// Writes editor content back into the textarea. CKEditor hooks form submit itself, but
+// only for editors it replaced — doing it explicitly keeps the ajax-filled ones honest.
+function contractSyncEditors($widget) {
+    if (!window.CKEDITOR) {
+        return;
+    }
+
+    $widget.find('textarea.contract-rich-text').each(function () {
+        var instance = CKEDITOR.instances[this.id];
+
+        if (instance) {
+            instance.updateElement();
+        }
+    });
+}
+
+function contractSetEditorValue($textarea, value) {
+    var id = $textarea.attr('id');
+
+    $textarea.val(value || '');
+
+    if (window.CKEDITOR && id && CKEDITOR.instances[id]) {
+        CKEDITOR.instances[id].setData(value || '');
+    }
+}
+
 function contractAttachSyncPanes($widget) {
     var mode = $widget.find('.contract-mode:checked').val();
 
-    $widget.find('.contract-pane[data-pane="existing"]').toggle(mode === 'existing');
-    $widget.find('.contract-pane[data-pane="new"]').toggle(mode === 'new');
+    var $existing = $widget.find('.contract-pane[data-pane="existing"]').toggle(mode === 'existing');
+    var $new = $widget.find('.contract-pane[data-pane="new"]').toggle(mode === 'new');
     // Number and date belong to the association, so they show for both attach modes.
     $widget.find('.contract-pane[data-pane="meta"]').toggle(mode === 'existing' || mode === 'new');
+
+    // The edit box only makes sense once a contract is actually selected.
+    $widget.find('.contract-edit-box')
+        .toggle(mode === 'existing' && !!$widget.find('.contract-select').val());
+
+    if (mode === 'existing') {
+        contractInitEditors($existing);
+    } else if (mode === 'new') {
+        contractInitEditors($new);
+    }
 }
 
 $(document)
@@ -1012,6 +1104,71 @@ $(document)
         }).fail(function () {
             $select.empty().append('<option value="">خطا در دریافت قراردادها</option>');
         });
+
+        // The previous selection is gone, so nothing is safe to edit yet.
+        $widget.find('.contract-edit-box').hide().find('.contract-edit-id').val('');
+    });
+
+// Selecting a contract loads it into the edit box, so it can be changed right here
+// instead of from the contract bank.
+$(document)
+    .off('change.contractSelect', '.contract-attach-widget .contract-select')
+    .on('change.contractSelect', '.contract-attach-widget .contract-select', function () {
+        var $widget = $(this).closest('.contract-attach-widget');
+        var $box = $widget.find('.contract-edit-box');
+        var contractId = $(this).val();
+
+        // Clear the interlock first: until the fetch lands, the fields do not hold this
+        // contract's text and the server must not accept them as an edit.
+        $widget.find('.contract-edit-id').val('');
+
+        if (!contractId) {
+            $box.hide();
+            return;
+        }
+
+        $box.show();
+        contractInitEditors($widget.find('.contract-pane[data-pane="existing"]'));
+
+        $.get('/dashboard/contractUsage/contract/' + contractId, function (data) {
+            var contract = data.contract;
+
+            $widget.find('.contract-edit-title').val(contract.title || '');
+            $widget.find('.contract-edit-type').val(contract.type || '');
+            contractSetEditorValue($widget.find('.contract-edit-content'), contract.content);
+
+            var $currentFile = $widget.find('.contract-current-file');
+            if (contract.has_file) {
+                $currentFile.show().find('.contract-current-file-link').attr('href', contract.file_url);
+            } else {
+                $currentFile.hide();
+            }
+
+            // Editing a shared contract changes it everywhere it is used — say so.
+            var $warning = $widget.find('.contract-shared-warning');
+            if (contract.usages_count > 1) {
+                $warning.text(
+                    'توجه: این قرارداد در ' + contract.usages_count +
+                    ' محل استفاده می شود. تغییرات در همه آن ها اعمال خواهد شد.'
+                ).show();
+            } else {
+                $warning.hide();
+            }
+
+            // Only now do the fields actually hold this contract's text.
+            $widget.find('.contract-edit-id').val(contract.id);
+        }).fail(function () {
+            $widget.find('.contract-shared-warning')
+                .text('خطا در دریافت اطلاعات قرارداد. ویرایش متن در این حالت ذخیره نمی شود.')
+                .show();
+        });
+    });
+
+// CKEditor writes back to its textarea on submit only for editors it replaced itself.
+$(document)
+    .off('submit.contractAttach', '.contract-attach-widget form')
+    .on('submit.contractAttach', '.contract-attach-widget form', function () {
+        contractSyncEditors($(this).closest('.contract-attach-widget'));
     });
 
 $(function () {

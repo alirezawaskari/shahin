@@ -540,8 +540,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/ticket/{ticket}/update',[TicketController::class,'update'])->name('ticket.update');
     Route::post('/ticket/{ticket}/destroy',[TicketController::class,'destroy'])->name('ticket.destroy');
     Route::resource('ticket/history', TicketHistoryController::class);
-    Route::get('/ticket/{type}',[TicketController::class,'index'])->name('ticket.index');
-
+    Route::get('/ticket/all',[TicketController::class,'index'])->defaults('type', 'all')->name('ticket.index.all');
+    Route::get('/ticket/send',[TicketController::class,'index'])->defaults('type', 'send')->name('ticket.index.send');
+    Route::get('/ticket/refer',[TicketController::class,'index'])->defaults('type', 'refer')->name('ticket.index.refer');
+    Route::get('/ticket/received',[TicketController::class,'index'])->defaults('type', 'received')->name('ticket.index.received');
+    Route::get('/ticket/desktop',[TicketController::class,'index'])->defaults('type', 'desktop')->name('ticket.index.desktop');
     //service & category
     Route::post('/service/selectByCategory', 'ServiceController@selectByCategory');
     Route::get('/service/filter', 'ServiceController@filter');
@@ -846,6 +849,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('contractFolder', 'ContractFolderController')->except(['show']);
     //contract usages: the contract <-> service/role/location relation
     Route::get('/contractUsage/byFolder', 'ContractUsageController@byFolder')->name('contractUsage.byFolder');
+    Route::get('/contractUsage/contract/{contract}', 'ContractUsageController@contractDetail')->name('contractUsage.contractDetail');
     Route::post('/contractUsage', 'ContractUsageController@store')->name('contractUsage.store');
     Route::delete('/contractUsage/{contractUsage}', 'ContractUsageController@destroy')->name('contractUsage.destroy');
     Route::resource('contract', 'ContractController');

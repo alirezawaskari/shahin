@@ -199,7 +199,7 @@ class CallcenterController extends Controller
         if ($user->admin_representation) {
             $services = auth()->user()->admin_representation->services;
             $categories = auth()->user()->admin_representation->categories;
-            $admin_users = User::filter()->where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
+            $admin_users = User::filter()->whereIn('level', ['admin','ghorfeAdmin'])->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
         }
 
         $old_callcenters = [];

@@ -30,7 +30,7 @@ class ServiceCallcenterSMSNotification {
         $user = $event->user;
         $userMobile = $user->phone;
         $service = $event->service;
-        $callcenter = $event->callcenter->family;
+        $callcenter = $event->callcenter ? $event->callcenter->family : '';
         $type = $event->type;
         $result = self::setBodyData( $event );
         $link = $result[ 'link' ];

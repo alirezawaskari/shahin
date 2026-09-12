@@ -6,8 +6,8 @@
     @endforeach
     @if(auth()->check() || isset($factor['id']))
 
-    @if(isset($check) && !$check)
-    @if(!is_null($required))
+    @if(1)
+    @if(isset($required) && !is_null($required))
     @if($required == false)
     <div class="rol2">
         <p>برای خرید این خدمت باید ابتدا خدمات زیر را خریداری نمایید.</p>

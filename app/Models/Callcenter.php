@@ -206,17 +206,20 @@ class Callcenter extends Model implements AuditableContract
         }
 
         if (isset($description) && trim($description) != '') {
-            $query->where('description', 'LIKE', '%'.$description.'%')
-            ->orWhereHas('register', function ($query) use ($description) {
-                $query->whereHas('callcenters', function ($query) use ($description) {
-                    $query->whereHas('histories', function ($query) use ($description) {
-                        $query->where('description', 'LIKE', '%'.$description.'%');
+            $query->where(function ($q) use ($description) {
+                $q->where('description', 'LIKE', '%' . $description . '%')
+                    ->orWhereHas('register', function ($q) use ($description) {
+                    $q->whereHas('callcenters', function ($q) use ($description) {
+                    $q->whereHas('histories', function ($q) use ($description) {
+                        $q->where('description', 'LIKE', '%' . $description . '%');
                     });
                 });
-            })->orWhereHas('sms', function ($query) use ($description) {
-                    $query->where('body', 'LIKE', '%'.$description.'%');
-                });
-        }
+            })
+            ->orWhereHas('sms', function ($q) use ($description) {
+                $q->where('body', 'LIKE', '%' . $description . '%');
+            });
+        });
+}
 
         if (isset($serviceItems) && is_array($serviceItems) ) {
             $query->whereHas('factors', function ($query) use ($serviceItems) {

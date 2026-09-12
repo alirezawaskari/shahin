@@ -73,7 +73,7 @@ class CategoryController extends Controller
         $create['displayOrder'] = $request->displayOrder ?? 1;
         $create['isActive'] = $request->isActive ?? 1;
         $category = Category::create($create);
-        $category->ghorfeOnlineLists()->syncWithoutDetaching([ghorfe()->id]);
+        ghorfe() ? $category->ghorfeOnlineLists()->syncWithoutDetaching([ghorfe()->id]) : '';
         $this->updateCategoryImages($request, $category);
         $this->syncGallerySlots($category, 'gallery_desktop', $request->input('deskImage', []));
         $this->syncGallerySlots($category, 'gallery_mobile', $request->input('mobileImage', []));
