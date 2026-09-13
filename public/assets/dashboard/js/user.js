@@ -104,15 +104,6 @@ $(document).ready(function () {
                         if($('#can-manual-login').val()==1){
                             loginDisplay='block';
                         }
-                        let businessTransferAction = '';
-                        if (Number($('#datatable-json').attr('data-business-transfer-enabled')) === 1) {
-                            businessTransferAction = `<button type="button" class="dropdown-item pointer"
-                                data-business-transfer-single data-transfer-entity="user"
-                                data-record-id="${data.id}"
-                                data-current-business-ids="${(data.current_business_ids || []).join(',')}">
-                                انتقال به کسب و کار
-                            </button>`;
-                        }
                         let output= `<div data-v-15965e3b="" class="dropdown">
                         <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
                             <i aria-hidden="true" class="fa fa-ellipsis-v"></i></a>
@@ -135,7 +126,6 @@ $(document).ready(function () {
                             ورود
                             </span></a>
                             <a href="/dashboard/factorItem/${data.resnumber}/edit"></a>
-                            ${businessTransferAction}
                             <span style="display: ${display}" data-taskCount="${data.task_count}"  data-id="${data.id}" class="user_delete dropdown-item pointer">
                             حذف
                             </span>

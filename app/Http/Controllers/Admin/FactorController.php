@@ -18,6 +18,8 @@ use Psy\Command\ListCommand\FunctionEnumerator;
 
 class FactorController extends Controller
 {
+    use \App\Http\Controllers\Concerns\TransfersRecordsToBusiness;
+
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -203,6 +205,17 @@ class FactorController extends Controller
         $factor=Factor::where('resnumber',$request->resnumber)->first();
         $inputs = $request->all();
         $user = $factor->user;
+
+        // فیلد «کسب و کار» فرم: تغییرش یعنی انتقال همین فاکتور به کسب و کار دیگر.
+        $businessTransfer = $this->applyInlineBusinessTransfer(
+            $request,
+            'factor',
+            [$factor->id],
+            $factor->ghorfeOnlineLists->modelKeys()
+        );
+        // ستون جدول فاکتور نیست؛ انتقال بالاتر انجام شده است.
+        unset($inputs['destination_business_id']);
+
         $inputs['price'] = isset($request->price) ? (float) str_replace(',', '', $inputs['price']) : $factor->price;
         unset($inputs['support_id']);
         unset($inputs['bill_image']);
@@ -303,9 +316,10 @@ class FactorController extends Controller
                 'message'=> $message
             ]);
         }
-        return redirect()->back()->with(
-            $status === 'success' ? ['successByMessage' => $message] : ['failByMessage' => $message]
-        );
+        return redirect()->back()->with(array_merge(
+            $status === 'success' ? ['successByMessage' => $message] : ['failByMessage' => $message],
+            $this->businessTransferFlash($businessTransfer)
+        ));
     }
 
     /**

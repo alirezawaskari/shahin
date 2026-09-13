@@ -157,15 +157,6 @@ $(document).ready(function () {
                                 display='block'
                             }
                             let show_factor_display='block';
-                            let businessTransferAction = '';
-                            if (Number($('#datatable-json').attr('data-business-transfer-enabled')) === 1) {
-                                businessTransferAction = `<button type="button" class="dropdown-item pointer"
-                                    data-business-transfer-single data-transfer-entity="factor"
-                                    data-record-id="${data.id}"
-                                    data-current-business-ids="${(data.current_business_ids || []).join(',')}">
-                                    انتقال به کسب و کار
-                                </button>`;
-                            }
 
                             return `<div data-v-15965e3b="" class="dropdown">
                             <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn btn-dark btn-floating btn-icon btn-sm">
@@ -178,7 +169,6 @@ $(document).ready(function () {
                                  </a>
                                 </span>
                                 <span data-id="${data.resnumber}" class="factor-sendMe dropdown-item pointer">ارسال لینک به من</span>
-                                ${businessTransferAction}
                                 <span style="display: ${display}"  data-id="${data.resnumber}" class="factor-delete dropdown-item pointer">حذف</span>
 
                             </div></div>`

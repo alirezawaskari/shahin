@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends AdminController
 {
+    use \App\Http\Controllers\Concerns\TransfersRecordsToBusiness;
+
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
@@ -147,7 +149,17 @@ class UserController extends AdminController
 //            'wallet' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
         ]);
+        // فیلد «کسب و کار» فرم: تغییرش یعنی انتقال همین کاربر به کسب و کار دیگر.
+        $businessTransfer = $this->applyInlineBusinessTransfer(
+            $request,
+            'user',
+            [$user->id],
+            $user->ghorfeOnlineLists->modelKeys()
+        );
+
         $inputs = $request->all();
+        // ستون جدول کاربران نیست؛ انتقال بالاتر انجام شده است.
+        unset($inputs['destination_business_id']);
         $role_id = $request->input('role_id') || $user->roles->count() == 0 ? $request->input('role_id') : $user->roles[0]->id;
         // Spatie: KYC/avatar images arrive as temp media ids; attachTo replaces the single
         // file in each collection. Keep them out of the mass-assign ($inputs) below.
@@ -202,9 +214,10 @@ class UserController extends AdminController
         Helper::vipUser($request->vip , $user->id);
         Helper::sosUser($request->sos , $user->id);
 
-        return redirect()->back()->with([
-            'user_update' => 'success'
-        ]);
+        return redirect()->back()->with(array_merge(
+            ['user_update' => 'success'],
+            $this->businessTransferFlash($businessTransfer)
+        ));
     }
 
     /**

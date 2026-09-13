@@ -150,7 +150,10 @@
         <div class="card-body">
             <div class="row transfer_message_box">
             </div>
-            <div class="row">
+            <div class="row"
+                 data-business-transfer-scope
+                 data-transfer-entity="callcenter"
+                 data-record-selector=".callcenter-business-transfer-record">
                 <div class="col-12 col-md-2 mb-2">
                     <select id="transfer" name="type" class="form-control">
                         <option value="default">پیش فرض</option>
@@ -158,7 +161,16 @@
                         <option value="select">بر حسب انتخاب</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-2 mb-2" id="destination_box">
+                <div class="col-12 col-md-2 mb-2">
+                    <select class="custom-select select2" id="transfer_type" data-business-transfer-type-select>
+                        <option value=" ">ارجاع به</option>
+                        <option value="callcenter">کالسنتر</option>
+                        @permission('transfer_to_business')
+                        <option value="business">کسب و کار</option>
+                        @endpermission
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 mb-2 d-none" id="destination_box">
                     <select class="custom-select select2" name="startUser">
                         <option value="all"> کالسنتر مبدا</option>
                         @foreach($callcenters as $item)
@@ -166,7 +178,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-2 mb-2" id="source_box">
+                <div class="col-12 col-md-2 mb-2 d-none" id="source_box">
                     <select class="custom-select select2" name="endUser">
                         <option value="all"> کالسنتر مقصد</option>
                         @foreach($callcenters as $item)
@@ -174,26 +186,21 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-2 mb-2" id="transfer_start_date_box" style="display: none">
+                <div class="col-12 col-md-2 mb-2 d-none" id="transfer_start_date_box">
                     <date-picker placeholder="از تاریخ" class="transfer_start_date" locale="fa,en" format="YYYY-M-D"
                         name="startDate">
                     </date-picker>
                 </div>
-                <div class="col-12 col-md-2 mb-2" id="transfer_end_date_box" style="display: none">
+                <div class="col-12 col-md-2 mb-2 d-none" id="transfer_end_date_box">
                     <date-picker class="transfer_end_date" placeholder="تا تاریخ" locale="fa,en" format="YYYY-M-D"
                         name="endDate"></date-picker>
                 </div>
 
-                <div class="col-12 col-md-2 mb-2" id="count_box"><input type="text" placeholder="تعداد" name="count"
+                <div class="col-12 col-md-2 mb-2 d-none" id="count_box"><input type="text" placeholder="تعداد" name="count"
                         class="form-control"></div>
+                @include('Admin.businessTransfer.destinationBox', ['boxClass' => 'col-12 col-md-2 mb-2'])
                 <div class="col-12 col-md-2 mb-2">
                     <button id="do_transfer" type="button" class="btn btn-outline-primary py-2 px-4">انتقال</button>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    @include('Admin.businessTransfer.bulkAction', [
-                        'entity' => 'callcenter',
-                        'recordSelector' => '.callcenter-business-transfer-record'
-                    ])
                 </div>
                 <div class="col-12 col-md-2 mb-2">
                     <button class="btn btn-danger" id="multi_delete">
@@ -374,15 +381,6 @@
                                 <input value="ثبت" id="submit-transfer" class="btn btn-success border-0 btn-block">
                             </div>
                         </form>
-                        @permission('transfer_to_business')
-                            <hr>
-                            <button type="button" id="callcenter-business-transfer-detail"
-                                    class="btn btn-outline-primary btn-block"
-                                    data-business-transfer-single data-transfer-entity="callcenter"
-                                    data-record-id="" data-current-business-ids="" disabled>
-                                انتقال به کسب و کار
-                            </button>
-                        @endpermission
                     </div>
                     <div id="detail" role="tabpanel" aria-labelledby="detail-tab" class="tab-pane fade p-t-20">
                         <p class="mb-3 text-dark">تاریخچه</p>
@@ -641,7 +639,7 @@
     var csrfToken = '{{ csrf_token() }}';
 </script>
 <script src="{{asset('assets/dashboard/js/layouts.js?v=1.0')}}"></script>
-<script src="{{asset('assets/dashboard/js/callcenter.js?v=1.9')}}"></script>
+<script src="{{asset('assets/dashboard/js/callcenter.js?v=2.0')}}"></script>
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.9')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 @endsection

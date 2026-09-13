@@ -104,17 +104,10 @@
                 </div>
             </div>
         </form>
-        @permission('transfer_to_business')
-        <div class="card">
-            <div class="card-body d-flex align-items-center">
-                <span class="ml-3">عملیات گروهی:</span>
-                @include('Admin.businessTransfer.bulkAction', [
-                    'entity' => 'user',
-                    'recordSelector' => '.user-business-transfer-record'
-                ])
-            </div>
-        </div>
-        @endpermission
+        @include('Admin.businessTransfer.bulkAction', [
+            'entity' => 'user',
+            'recordSelector' => '.user-business-transfer-record'
+        ])
         <div class="card position-relative">
             <div class="card-body table-responsive" style="padding-bottom: 120px">
                 <table class="vuetable table table-bordered table-striped table-responsive-md" id="datatable-json"
@@ -160,6 +153,6 @@
     </div>
 @stop
 @section('js')
-    <script src="/assets/dashboard/js/user.js?v=1.2"></script>
+    <script src="/assets/dashboard/js/user.js?v=1.3"></script>
     <script src="/assets/dashboard/js/layouts.js?v=1.0"></script>
 @endsection

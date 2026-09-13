@@ -201,17 +201,10 @@
     </div>
 </form>
 @if($title !== 'deleted_list')
-    @permission('transfer_to_business')
-        <div class="card">
-            <div class="card-body d-flex align-items-center">
-                <span class="ml-3">عملیات گروهی:</span>
-                @include('Admin.businessTransfer.bulkAction', [
-                    'entity' => 'factor',
-                    'recordSelector' => '.factor-business-transfer-record'
-                ])
-            </div>
-        </div>
-    @endpermission
+    @include('Admin.businessTransfer.bulkAction', [
+        'entity' => 'factor',
+        'recordSelector' => '.factor-business-transfer-record'
+    ])
 @endif
 <form id="form-factor-action">
     @if($delete )
@@ -293,7 +286,7 @@
 @stop
 @section('js')
 <script src="/assets/dashboard/js/layouts.js"></script>
-<script src="/assets/dashboard/js/factor.js?v=2.1"></script>
+<script src="/assets/dashboard/js/factor.js?v=2.2"></script>
 <script src="/assets/dashboard/js/factorModal.js"></script>
 <script src="/assets/dashboard/js/layout/productServiceFilterInputs.js"></script>
 @endsection

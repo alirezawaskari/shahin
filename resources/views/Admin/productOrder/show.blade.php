@@ -26,12 +26,6 @@
         </nav>
     </div>
     <div class="d-flex flex-column flex-md-row">
-        @include('Admin.businessTransfer.individualAction', [
-            'entity' => 'factor',
-            'recordId' => $factor->id,
-            'currentBusinessIds' => $factor->ghorfeOnlineLists->modelKeys(),
-            'class' => 'btn btn-outline-primary mt-2 mt-md-0 ml-md-2'
-        ])
         <a href="/factor/{{ $factor->resnumber }}" target="_blank" class="btn btn-outline-primary mt-2 mt-md-0">مشاهده فاکتور</a>
     </div>
 </div>

@@ -224,5 +224,5 @@
 @section('js')
 <script src="{{ asset('assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('assets/dashboard/js/purchaseInvoice.js') }}"></script>
-<script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.0') }}"></script>
+<script src="{{ asset('/assets/dashboard/js/factorModal.js?v=1.1') }}"></script>
 @endsection
