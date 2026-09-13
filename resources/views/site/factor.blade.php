@@ -39,7 +39,7 @@
                             @endif
                         </div>
                         <div class="col-12 col-md-4 d-flex align-items-center justify-content-center">
-                            <span>تاریخ: {{ verta(\Carbon\Carbon::now())->format('%d %B ، %Y') }}</span>
+                            <span>تاریخ: {{ verta($factor->created_at)->format('%d %B ، %Y') }}</span>
                         </div>
                     </div>
                 </div>

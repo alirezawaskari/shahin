@@ -317,7 +317,7 @@ class Helper {
         {
             $callcenterusers = [];
             foreach ( $admin_users as $user ) {
-                if ( $user->hasPermission('get_new_task') ) {
+                if ( $user->user()->hasPermission('get_new_task') ) {
                     $callcenterusers[] = $user->id;
                 }
             }
