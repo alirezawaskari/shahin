@@ -63,6 +63,10 @@ $(document).ready(function () {
 
     /*  submit comment for factor */
     $("body").on('click', '.factor-update-submit', function () {
+        /* تغییر فیلد «کسب و کار» یعنی انتقال فاکتور؛ یک بار تایید گرفته می‌شود */
+        if (window.BusinessTransfer && !window.BusinessTransfer.confirmFieldChange($('#form-status-mali'))) {
+            return;
+        }
         var token = $('meta[name="csrf-token"]').attr('content');
         var url = $('#form-status-mali').attr('action');
 

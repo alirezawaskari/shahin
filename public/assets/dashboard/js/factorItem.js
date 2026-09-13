@@ -91,6 +91,12 @@ $("#transfer_type").change(function () {
         $('#center_list_box').css('display', 'block');
         $('#representation_list_box').css('display', 'none');
         $('#supporter_list_box').css('display', 'none');
+    } else {
+        /* «کسب و کار» (و حالت خالی): فهرست مقصدش را businessTransfer.js
+           نشان می‌دهد، اینجا فقط بقیه‌ی فهرست‌ها بسته می‌شوند. */
+        $('#representation_list_box').css('display', 'none');
+        $('#supporter_list_box').css('display', 'none');
+        $('#center_list_box').css('display', 'none');
     }
 });
 
@@ -476,6 +482,10 @@ $(document).ready(function () {
     });
     /*    click on do transfer */
     $("body").on('click', '#do_transfer', function (event) {
+        /* «ارجاع به: کسب و کار» مسیر خودش را دارد (businessTransfer.js) */
+        if (window.BusinessTransfer && window.BusinessTransfer.handle(this)) {
+            return;
+        }
         var token = $('meta[name="csrf-token"]').attr('content');
         var form = $('#transfer_form');
         var formData = form.serialize();

@@ -65,17 +65,10 @@
     </div>
 </form>
 
-@permission('transfer_to_business')
-<div class="card">
-    <div class="card-body d-flex align-items-center">
-        <span class="ml-3">عملیات گروهی:</span>
-        @include('Admin.businessTransfer.bulkAction', [
-            'entity' => 'factor',
-            'recordSelector' => '.product-order-business-transfer-record'
-        ])
-    </div>
-</div>
-@endpermission
+@include('Admin.businessTransfer.bulkAction', [
+    'entity' => 'factor',
+    'recordSelector' => '.product-order-business-transfer-record'
+])
 
 <div class="card position-relative">
     <div class="card-body table-responsive">
@@ -121,5 +114,5 @@
 
 @section('js')
 <script src="{{ asset('assets/dashboard/js/layouts.js') }}"></script>
-<script src="{{ asset('assets/dashboard/js/productOrder.js?v=1.1') }}"></script>
+<script src="{{ asset('assets/dashboard/js/productOrder.js?v=1.2') }}"></script>
 @endsection

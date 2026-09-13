@@ -30,6 +30,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 class EmployeeController extends AdminController
 {
+    use \App\Http\Controllers\Concerns\TransfersRecordsToBusiness;
+
     /**
      * Shown to a business admin who tries to take on somebody another shop already has.
      * The edit form states it up front and update() repeats it if the field is posted anyway.
@@ -712,7 +714,19 @@ class EmployeeController extends AdminController
             return $this->rejectWith(self::BELONGS_TO_ANOTHER_BUSINESS);
         }
 
-        return $this->employeeService->update($request, $employee);
+        // فیلد «کسب و کار» فرم: تغییرش یعنی انتقال همین همکار به کسب و کار دیگر.
+        $transfer = $this->applyInlineBusinessTransfer(
+            $request,
+            'employee',
+            [$employee->id],
+            $employee->ghorfe_online_list_id ? [$employee->ghorfe_online_list_id] : []
+        );
+
+        $response = $this->employeeService->update($request, $employee);
+
+        return $transfer
+            ? $response->with($this->businessTransferFlash($transfer))
+            : $response;
     }
     /**
      * @param Employee $employee
