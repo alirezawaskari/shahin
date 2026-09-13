@@ -15,6 +15,10 @@
                 <div class="row">
 
                     <input type="hidden" name="attribute_group_id" value="{{$attribute_group_id}}">
+                    @if(!empty($wizard_category))
+                        <input type="hidden" name="wizard" value="1">
+                        <input type="hidden" name="wizard_category" value="{{$wizard_category}}">
+                    @endif
                     <div class="col-12 col-md-4 mb-3">
                         <label>عنوان *</label>
                         <input type="text" class="form-control" placeholder="لطفا عنوان را وارد کنید" name="title"
@@ -64,7 +68,11 @@
 
                     <br/> <br/>
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        <a href="{{route('attribute.show',[$attribute_group_id])}}" class="btn btn-warning">بازگشت</a>
+                        @if(!empty($wizard_category))
+                            <a href="{{route('productWizard.attributes',$wizard_category)}}" class="btn btn-warning">بازگشت</a>
+                        @else
+                            <a href="{{route('attribute.show',[$attribute_group_id])}}" class="btn btn-warning">بازگشت</a>
+                        @endif
                         <button type="submit" class="btn btn-success">ارسال</button>
                     </div>
                 </div>

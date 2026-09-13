@@ -92,8 +92,20 @@ class ServiceController extends AdminController
                 ->orderBy('id', 'DESC')->get();
         $all_categories = Category::filter()->select('id','title')->get();
         $all_services = Service::filter()->select('id','title')->get();
+
+        // ویزارد ایجاد محصول دسته‌بندی مرحله قبل را می‌فرستد تا از پیش انتخاب شود.
+        // دسته‌بندی‌های عمیق‌تر از سطح یک در فهرست بالا نیستند، پس اضافه‌شان می‌کنیم.
+        $in_wizard = (bool) request('wizard');
+        $wizard_category = request('wizard_category')
+            ? Category::select('id','title','parent_id')->find(request('wizard_category'))
+            : null;
+        if ($wizard_category && ! $service_categories->contains('id', $wizard_category->id)) {
+            $service_categories->prepend($wizard_category);
+        }
+
         return view('Admin.service.create',['all_categories'=>$all_categories,
-            'all_services'=>$all_services,'service_categories'=>$service_categories]);
+            'all_services'=>$all_services,'service_categories'=>$service_categories,
+            'in_wizard'=>$in_wizard,'wizard_category'=>$wizard_category]);
     }
 
     /**
@@ -146,6 +158,14 @@ class ServiceController extends AdminController
             $service->similarGroupCategories()->attach($request->similar_categories,['similar_model'=>Service::class,'relation_model'=>Category::class]);
         }
 
+
+        // ویزارد ایجاد محصول: خدمت تنوع ندارد، پس مستقیم به مرحله پایانی می‌رویم.
+        if ($request->wizard) {
+            return redirect(route('productWizard.done', [
+                'kind' => 'service',
+                'category_id' => $request->category_id,
+            ]))->with(['create' => 'success']);
+        }
 
         return redirect(route('service.index'))->with([
             'create' => 'success'

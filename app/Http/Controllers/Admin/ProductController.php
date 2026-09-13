@@ -599,10 +599,18 @@ class ProductController extends Controller
             if (isset($center) && $center->centerable_type == Category::class) $category_center_id = $center->centerable_id;
         }
 
+        // ویزارد ایجاد محصول دسته‌بندی مرحله قبل را با wizard_category می‌فرستد تا
+        // کاربر مجبور به انتخاب دوباره آن نشود.
+        $in_wizard = (bool) request('wizard');
+        $wizard_category = request('wizard_category')
+            ? Category::find(request('wizard_category'))
+            : null;
+
         return view('Admin.product.createGood', compact('parents', 'centers', 'store_rooms',
             'category_store_rooms', 'counting_units', 'tags', 'category_center_id',
             'storage_store_rooms', 'counting_units_measurement', 'store_room_id',
-            'purchase_invoice_id', 'center_id','categories','brands'));
+            'purchase_invoice_id', 'center_id','categories','brands',
+            'in_wizard', 'wizard_category'));
     }
 
     //store good
@@ -724,6 +732,12 @@ class ProductController extends Controller
                 Product::saveAttributeGood($request, $product, $productattributeable_id, $productattributeable_type);
                 if(isset($request->createByAdmin)){ $product->status=3 ;$product->save();}
                 Product::saveReviewsGood($request, $product, $productattributeable_id, $productattributeable_type);
+                // ویزارد ایجاد محصول: کالای تازه ثبت‌شده مستقیم به مرحله ثبت تنوع می‌رود
+                // و دیگر لازم نیست کاربر کالا را دوباره انتخاب کند.
+                if ($request->wizard) {
+                    return redirect(route('price.show', ['price' => $product->id, 'wizard' => 1]))
+                        ->with(['create' => 'success']);
+                }
                 if ($insertByStoreRoom == 1) {
                     return redirect(route('createGoodByValues',['type'=>'store_room','id'=>$request->good['store_room_id']]))->with(['create' => 'success']);
                 }

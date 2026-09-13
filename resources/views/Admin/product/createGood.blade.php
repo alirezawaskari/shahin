@@ -1,6 +1,18 @@
 @extends('Admin.master')
 
 @section('content')
+@php $in_wizard = $in_wizard ?? false; @endphp
+
+@if($in_wizard)
+    @include('Admin.productWizard.partials.steps',['current'=>'create','kind'=>'product'])
+    @if(!empty($wizard_category))
+        <div class="mb-3">
+            <a href="{{route('category.subCategory',[$wizard_category->parent_id ?: $wizard_category->id,'wizard'=>1])}}"
+               class="btn btn-outline-secondary btn-sm">بازگشت به دسته‌بندی‌ها</a>
+        </div>
+    @endif
+@endif
+
 <div class="card">
     <div class="card-body">
         <div class="x_title">
@@ -9,6 +21,7 @@
 
         <form class="form-horizontal" method="post" action="{{route('products.store')}}" enctype="multipart/form-data">
             {{csrf_field()}}
+            @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif
             <section class="signup-step-container">
                 <div class="container">
                     <div class="row d-flex justify-content-center">
@@ -192,6 +205,16 @@
 <script>
     $(document).ready(function () {
             CKEDITOR.replace('description_lbl',ck_uploader) ;
+
+            // «تغییر دسته بندی» جعبه جستجوی گروه کالا را باز می‌کند و انتخاب ویزارد را آزاد می‌کند.
+            $(document).on('click', '.changeWizardCategory', function () {
+                $('.wizardCategorySearchBox').slideDown('fast');
+                $(this).closest('.alert').remove();
+            });
+
+            // دسته‌بندی از پیش انتخاب‌شده ویزارد باید همان واکنشی را بگیرد که انتخاب دستی
+            // می‌گرفت، تا برندها و ویژگی‌های قدم سوم بارگذاری شوند.
+            $('.choose_category_id:checked').trigger('click');
         })
 </script>
 @stop

@@ -778,6 +778,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/manage/product/createGood', 'ProductController@create')->name('createGood');
     Route::get('/manage/product/createGood/{type}/{id}', 'ProductController@createByValues')->name('createGoodByValues');
 
+    // ویزارد ایجاد: دسته‌بندی ← کالا/خدمت ← تنوع کالا
+    Route::get('/manage/product-wizard', 'ProductWizardController@index')->name('productWizard.index');
+    Route::get('/manage/product-wizard/done', 'ProductWizardController@done')->name('productWizard.done');
+    Route::get('/manage/product-wizard/kind/{kind}', 'ProductWizardController@category')->name('productWizard.category');
+    Route::get('/manage/product-wizard/created/{category_id}', 'ProductWizardController@categoryCreated')->name('productWizard.categoryCreated');
+    Route::get('/manage/product-wizard/attributes/{category_id}', 'ProductWizardController@attributes')->name('productWizard.attributes');
+
     Route::get('/manage/product/createMaterials', 'ProductController@createMaterials')->name('createMaterials');
     Route::get('/manage/product/createMaterials/{type}/{id}', 'ProductController@createMaterialsByValues')->name('createMaterialsByValues');
 

@@ -1,6 +1,17 @@
 @extends('Admin.master')
 
 @section('content')
+    @php $in_wizard = $in_wizard ?? false; @endphp
+
+    @if($in_wizard)
+        @include('Admin.productWizard.partials.steps',['current'=>'variation','kind'=>'product'])
+        <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap">
+            <span>کالای «{{$product->name}}» ثبت شد. حالا تنوع‌های آن (رنگ، سایز و سایر ویژگی‌ها) را ثبت کنید.</span>
+            <a href="{{$wizard_done_url}}" class="btn btn-sm btn-outline-primary">
+                اتمام و بازگشت به لیست کالاها
+            </a>
+        </div>
+    @endif
 
     <div class="card">
         <div class="card-body">
@@ -148,5 +159,9 @@
 @stop
 
 @section('js')
+    @if($in_wizard)
+        {{-- ثبت تنوع با ajax انجام می‌شود؛ در حالت ویزارد به جای رفرش صفحه، به مرحله پایانی می‌رویم. --}}
+        <script>window.PRODUCT_WIZARD_DONE_URL = '{{ $wizard_done_url }}';</script>
+    @endif
     <script src="{{ asset('assets/dashboard/js/site/product/price/createPrice.js') }}"></script>
 @stop

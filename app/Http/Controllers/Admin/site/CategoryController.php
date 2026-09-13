@@ -200,6 +200,13 @@ class CategoryController extends Controller
 
     private function returnResponse(Category $category)
     {
+        // آمده از ویزارد ایجاد محصول: به جای برگشت به لیست، کاربر را به مرحله بعد
+        // (ثبت کالا/خدمت در همین دسته‌بندی) می‌بریم.
+        if (request('wizard')) {
+            return redirect()->route('productWizard.categoryCreated', $category->id)
+                ->with(['create' => 'success']);
+        }
+
         if ($category->parent_id == 0) {
             $categories = Category::filter()->where('depth', 0)->orderBy('id', 'DESC')->paginate(15);
             return view('Admin.site.category.lists', ['categories' => $categories, 'create' => 'success']);

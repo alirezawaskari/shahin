@@ -11,6 +11,7 @@
             <form class="form-horizontal" method="post"
                   action="{{route('attributeGroup.store')}}" enctype="multipart/form-data">
                 {{csrf_field()}}
+                @if(request('wizard'))<input type="hidden" name="wizard" value="1">@endif
 
                 <div class="row">
                     <div class="col-12 col-md-4 mb-5">
@@ -39,7 +40,11 @@
 
                 <br/> <br/>
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <a href="{{route('attributeGroup.index')}}" class="btn btn-warning">بازگشت</a>
+                    @if(request('wizard') && isset($category))
+                        <a href="{{route('productWizard.attributes',$category->id)}}" class="btn btn-warning">بازگشت</a>
+                    @else
+                        <a href="{{route('attributeGroup.index')}}" class="btn btn-warning">بازگشت</a>
+                    @endif
                     <button type="submit" class="btn btn-success">ارسال</button>
                 </div>
             </form>
