@@ -5,6 +5,9 @@
 @stop
 
 @section('content')
+    @if(!empty($wizard_category))
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
     <div class="card">
         <div class="card-body">
             <div class="x_panel">

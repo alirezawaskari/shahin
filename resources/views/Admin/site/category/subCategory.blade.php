@@ -36,7 +36,7 @@
     @if($in_wizard)
         @include('Admin.productWizard.partials.steps',[
             'current' => 'category',
-            'kind'    => \App\Http\Controllers\Admin\ProductWizardController::kindOfCategory($selected_cat),
+            'kind'    => \App\Services\V1\Admin\ProductWizardService::kindOfCategory($selected_cat),
         ])
         <div class="alert alert-info">
             یک دسته‌بندی جدید بسازید یا وارد زیرمجموعه دسته‌بندی موجود شوید؛ پس از ایجاد، به مرحله ثبت
@@ -104,15 +104,15 @@
                                     @if($in_wizard)
                                         {{-- ادامه ویزارد با یک دسته‌بندی موجود، بدون اجبار به ساخت دسته‌بندی جدید --}}
                                         @php
-                                            $item_kind = \App\Http\Controllers\Admin\ProductWizardController::kindOfCategory($item);
+                                            $item_kind = \App\Services\V1\Admin\ProductWizardService::kindOfCategory($item);
                                         @endphp
-                                        <a href="{{\App\Http\Controllers\Admin\ProductWizardController::createUrl($item_kind,$item->id)}}">
+                                        <a href="{{\App\Services\V1\Admin\ProductWizardService::createUrl($item_kind,$item->id)}}">
                                             <button type="button" class="dropdown-item pointer">
                                                 ثبت {{$item_kind === 'service' ? 'خدمت' : 'کالا'}} در این دسته‌بندی
                                             </button>
                                         </a>
                                     @endif
-                                    <a href="{{route('category.edit',[$item->id])}}">
+                                    <a href="{{route('category.edit',[$item->id] + $wizard_query)}}">
                                         <button type="button" class="dropdown-item pointer">ویرایش</button>
                                     </a>
 
@@ -124,7 +124,8 @@
                                     </a>
 
                                     @if(\App\Models\Category::hasChild($item->id) == 0)
-                                        <a href="{{route('attributeGroup.index',['category_id'=>$item->id])}}">
+                                        {{-- داخل ویزارد، لیست ویژگی همان مرحله «ویژگی‌های دسته‌بندی» است --}}
+                                        <a href="{{ $in_wizard ? route('productWizard.attributes',$item->id) : route('attributeGroup.index',['category_id'=>$item->id]) }}">
                                             <button type="button" class="dropdown-item pointer"> لیست ویژگی</button>
                                         </a>
                                         <a href="{{route('brand.show',[$item->id])}}">
@@ -150,7 +151,8 @@
                 @endforeach
                 </tbody>
             </table>
-            {{$categories->links()}}
+            {{-- withQueryString تا صفحه دوم نه فیلترها را گم کند نه حالت ویزارد را --}}
+            {{$categories->withQueryString()->links()}}
         </div>
     </div>
 @stop

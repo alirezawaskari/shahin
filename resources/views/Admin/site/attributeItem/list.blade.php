@@ -1,6 +1,10 @@
 @extends('Admin.master')
 
 @section('content')
+    @php
+        $in_wizard = (bool) request('wizard');
+        $wizard_query = $in_wizard ? ['wizard' => 1] : [];
+    @endphp
 
     <div class="page-header">
         <div>
@@ -20,13 +24,23 @@
                     class="btn btn-primary dropdown-toggle">اقدامات
             </button>
             <div aria-labelledby="btnGroupDrop1" x-placement="bottom-start" class="dropdown-menu dropdown-menu-list">
-                <a href="{{route('createAttributeItem',[$attribute->id])}}" class="dropdown-item"> ایجاد </a>
-                <a href="{{route('attribute.show',[$attribute->attribute_group_id])}}" class="dropdown-item"> بازگشت به لیست ویژگی
-                    های این گروه </a>
+                @if($in_wizard)
+                    {{-- داخل ویزارد: ایجاد و بازگشت هر دو در همان مرحله ویژگی‌ها می‌مانند --}}
+                    <a href="{{route('createAttributeItem',[$attribute->id,'wizard'=>1,'wizard_category'=>$attribute->category_id])}}" class="dropdown-item"> ایجاد </a>
+                    <a href="{{route('productWizard.attributes',$attribute->category_id)}}" class="dropdown-item"> بازگشت به ویژگی های دسته بندی </a>
+                @else
+                    <a href="{{route('createAttributeItem',[$attribute->id])}}" class="dropdown-item"> ایجاد </a>
+                    <a href="{{route('attribute.show',[$attribute->attribute_group_id])}}" class="dropdown-item"> بازگشت به لیست ویژگی
+                        های این گروه </a>
+                @endif
             </div>
         </div>
 
     </div>
+
+    @if($in_wizard)
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
 
     <div class="card position-relative">
         <div class="card-body">
@@ -51,7 +65,7 @@
                                 </a>
                                 <div class="dropdown-menu">
                                     @if(\App\Helpers\Helper::attribute($attribute->id ,'type') != 'color')
-                                        <a href="{{route('attributeItem.edit',[$item->id])}}">
+                                        <a href="{{route('attributeItem.edit',[$item->id] + $wizard_query)}}">
                                             <button type="button" class="dropdown-item pointer">ویرایش</button>
                                         </a>
                                     @endif
@@ -68,7 +82,7 @@
                 @endforeach
                 </tbody>
             </table>
-            {{$attribute_items->links()}}
+            {{$attribute_items->withQueryString()->links()}}
 
         </div>
     </div>

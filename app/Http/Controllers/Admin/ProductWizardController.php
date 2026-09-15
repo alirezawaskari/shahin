@@ -6,34 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\AttributeGroup;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\V1\Admin\ProductWizardService as Wizard;
 use Illuminate\Http\Request;
 
 /**
- * ویزارد ایجاد دسته‌بندی ← کالا/خدمت ← تنوع کالا.
+ * ویزارد ایجاد دسته‌بندی ← ویژگی‌ها ← کالا/خدمت ← تنوع کالا.
  *
- * این کنترلر هیچ صفحه‌ای را بازنویسی نمی‌کند؛ فقط صفحات موجود (ثبت دسته‌بندی،
- * ثبت کالا، ثبت خدمت و قیمت‌گذاری/تنوع) را پشت سر هم زنجیر می‌کند و شناسه رکورد
- * هر مرحله را به مرحله بعد می‌برد تا کاربر مجبور به انتخاب دوباره نشود.
- *
- * پرچم عبور بین مراحل، کوئری‌استرینگ `wizard=1` است. صفحات موجود وقتی آن را
- * ببینند نوار مراحل را نشان می‌دهند و در پایان به مرحله بعد ویزارد برمی‌گردند.
+ * این کنترلر هیچ صفحه‌ای را بازنویسی نمی‌کند؛ فقط صفحات موجود را پشت سر هم زنجیر
+ * می‌کند. منطق مراحل و زمینه ویزارد در ProductWizardService است.
  */
 class ProductWizardController extends Controller
 {
-    /** ریشه درخت دسته‌بندی‌ها به ازای هر نوع — در این سیستم با شناسه ثابت مشخص می‌شود. */
-    public const ROOTS = ['product' => 1, 'service' => 2];
-
-    public const LABELS = ['product' => 'کالا', 'service' => 'خدمت'];
-
     /**
      * قدم اول: تشخیص نوع کسب‌وکار.
      *
-     * فقط کسب‌وکاری که هم کالا و هم خدمت دارد سوال را می‌بیند؛ بقیه مستقیم وارد
-     * بخش دسته‌بندی خودشان می‌شوند تا صفحه اضافه‌ای بین راه نباشد.
+     * ورود از منو یعنی شروع تازه، پس زمینه قبلی پاک می‌شود؛ کلیک روی همین مرحله در
+     * نوار ویزارد (`keep=1`) زمینه را نگه می‌دارد.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $kind = $this->kindOfBusiness();
+        if (! $request->keep) {
+            Wizard::forget();
+        }
+
+        $kind = Wizard::kindOfBusiness();
 
         // یک‌نوعی‌ها بدون پرش اضافه مستقیم به بخش دسته‌بندی خودشان می‌روند.
         if ($kind) {
@@ -45,42 +41,39 @@ class ProductWizardController extends Controller
 
     /**
      * قدم دوم: ورود مستقیم به بخش دسته‌بندی همان نوع.
-     *
-     * صفحه لیست زیرمجموعه‌ها خودش درخت دسته‌بندی را مدیریت می‌کند، پس ویزارد فقط
-     * کاربر را با پرچم wizard به همان صفحه می‌فرستد.
      */
     public function category($kind)
     {
-        abort_unless(isset(self::ROOTS[$kind]), 404);
+        abort_unless(isset(Wizard::ROOTS[$kind]), 404);
+
+        Wizard::remember(['kind' => $kind]);
 
         return redirect()->route('category.subCategory', [
-            'cat_id' => self::ROOTS[$kind],
+            'cat_id' => Wizard::ROOTS[$kind],
             'wizard' => 1,
         ]);
     }
 
     /**
-     * قدم دوم - پایان: دسته‌بندی ساخته شد؛ ادامه به ثبت کالا/خدمت در همین دسته‌بندی.
+     * قدم دوم - پایان: دسته‌بندی ساخته شد؛ ادامه به ویژگی‌ها (کالا) یا ثبت خدمت.
      */
     public function categoryCreated($category_id)
     {
         $category = Category::findOrFail($category_id);
-        $kind = self::kindOfCategory($category);
+        $kind = Wizard::kindOfCategory($category);
+        Wizard::rememberCategory($category);
 
         return view('Admin.productWizard.categoryCreated', [
             'category'  => $category,
             'kind'      => $kind,
-            'label'     => self::LABELS[$kind],
+            'label'     => Wizard::LABELS[$kind],
             // برای کالا، قدم بعد تعریف ویژگی‌های دسته‌بندی است؛ خدمت ویژگی ندارد و
             // مستقیم به فرم ثبت خدمت می‌رود.
             'next_url'  => $kind === 'service'
-                ? self::createUrl($kind, $category->id)
-                : route('productWizard.attributes', $category->id),
-            'skip_url'  => $kind === 'service' ? null : self::createUrl($kind, $category->id),
-            'back_url'  => route('category.subCategory', [
-                'cat_id' => $category->parent_id ?: self::ROOTS[$kind],
-                'wizard' => 1,
-            ]),
+                ? Wizard::createUrl($kind, $category->id)
+                : Wizard::attributesUrl($category->id),
+            'skip_url'  => $kind === 'service' ? null : Wizard::createUrl($kind, $category->id),
+            'back_url'  => Wizard::categoryListUrl($category),
         ]);
     }
 
@@ -95,6 +88,7 @@ class ProductWizardController extends Controller
     public function attributes($category_id)
     {
         $category = Category::findOrFail($category_id);
+        Wizard::rememberCategory($category);
 
         $attribute_groups = AttributeGroup::where('category_id', $category->id)
             ->with(['attributes' => fn($q) => $q->with('attributeItems')])
@@ -104,21 +98,9 @@ class ProductWizardController extends Controller
         return view('Admin.productWizard.attributes', [
             'category'         => $category,
             'attribute_groups' => $attribute_groups,
-            'next_url'         => self::createUrl('product', $category->id),
-            'back_url'         => route('category.subCategory', [
-                'cat_id' => $category->parent_id ?: self::ROOTS['product'],
-                'wizard' => 1,
-            ]),
+            'next_url'         => Wizard::createUrl('product', $category->id),
+            'back_url'         => Wizard::categoryListUrl($category),
         ]);
-    }
-
-    /**
-     * جایی که فرم‌های گروه ویژگی/ویژگی/مقدار بعد از ثبت باید به آن برگردند.
-     * وقتی دسته‌بندی معلوم نباشد، null یعنی «رفتار عادی خودت را داشته باش».
-     */
-    public static function attributesUrl($category_id): ?string
-    {
-        return $category_id ? route('productWizard.attributes', $category_id) : null;
     }
 
     /**
@@ -130,46 +112,17 @@ class ProductWizardController extends Controller
         $product = $request->product_id ? Product::find($request->product_id) : null;
         $category_id = $request->category_id ?: optional($product)->root_category_id;
 
+        Wizard::remember(['kind' => $kind, 'product_id' => optional($product)->id]);
+
         return view('Admin.productWizard.done', [
             'kind'      => $kind,
-            'label'     => self::LABELS[$kind],
+            'label'     => Wizard::LABELS[$kind],
             'product'   => $product,
             'list_url'  => $kind === 'service'
                 ? route('service.index')
                 : route('products.index', array_filter(['root_category_id' => $category_id])),
-            'again_url' => route('productWizard.category', $kind),
+            // «ایجاد مورد جدید» یعنی شروع تازه، نه ادامه با دسته‌بندی و کالای قبلی
+            'again_url' => route('productWizard.index'),
         ]);
-    }
-
-    /**
-     * نوع کسب‌وکار جاری، یا null وقتی هر دو نوع را دارد (و باید از کاربر پرسید).
-     */
-    public function kindOfBusiness(): ?string
-    {
-        $type_work = optional(ghorfe())->type_work;
-
-        return in_array($type_work, ['product', 'service'], true) ? $type_work : null;
-    }
-
-    /**
-     * دسته‌بندی زیر کدام ریشه است. مسیر (path) همیشه با شناسه ریشه شروع می‌شود.
-     */
-    public static function kindOfCategory(Category $category): string
-    {
-        $root = (int) (explode('/', (string) $category->path)[0] ?: $category->id);
-
-        return $root === self::ROOTS['service'] ? 'service' : 'product';
-    }
-
-    /**
-     * آدرس فرم ثبت کالا/خدمت با دسته‌بندی از پیش انتخاب‌شده.
-     */
-    public static function createUrl(string $kind, $category_id): string
-    {
-        $params = ['wizard' => 1, 'wizard_category' => $category_id];
-
-        return $kind === 'service'
-            ? route('service.create', $params)
-            : route('createGood', $params);
     }
 }

@@ -33,6 +33,9 @@ class AttributeController extends Controller
      */
     public function createAttribute($id)
     {
+        if (request('wizard')) {
+            \App\Services\V1\Admin\ProductWizardService::rememberAttributeGroup(AttributeGroup::find($id));
+        }
         return view('Admin.site.attribute.create', [
             'attribute_group_id' => $id,
             // ویزارد ایجاد محصول: تا بعد از ثبت بتوانیم به همان مرحله ویژگی‌ها برگردیم
@@ -66,7 +69,7 @@ class AttributeController extends Controller
         // آمده از ویزارد ایجاد محصول: به مرحله ویژگی‌های همان دسته‌بندی برمی‌گردیم،
         // وگرنه مثل قبل به لیست ویژگی‌های همین گروه.
         $back = $request->wizard
-            ? \App\Http\Controllers\Admin\ProductWizardController::attributesUrl($request->wizard_category)
+            ? \App\Services\V1\Admin\ProductWizardService::attributesUrl($request->wizard_category)
             : null;
         $back = $back ?: route('attribute.show', [$attribute_group->id]);
 
@@ -121,6 +124,9 @@ class AttributeController extends Controller
     public function edit($id){
         if ($id) {
             $attribute = Attribute::find($id);
+            if (request('wizard')) {
+                \App\Services\V1\Admin\ProductWizardService::rememberAttribute($attribute);
+            }
             return view('Admin.site.attribute.edit', ['attribute' => $attribute]);
         }
         return redirect()->back();
@@ -145,6 +151,11 @@ class AttributeController extends Controller
         $attribute = Attribute::find($id);
         $attribute->update($request->all());
 
+        if ($request->wizard) {
+            return redirect()->route('productWizard.attributes', $attribute->category_id)
+                ->with(['update' => 'success']);
+        }
+
         return redirect()
             ->route('attribute.show',[$attribute->attribute_group_id])
             ->with(['update' => 'success']);
@@ -166,6 +177,10 @@ class AttributeController extends Controller
             if($attribute) {
                 $attribute->attributeItems()->delete();
                 $attribute->delete();
+                if (request('wizard')) {
+                    return redirect()->route('productWizard.attributes', $attribute->category_id)
+                        ->with(['delete' => 'success']);
+                }
                 return redirect()
                     ->route('attribute.show',[$attribute_group_id])
                     ->with(['delete' => 'success']);

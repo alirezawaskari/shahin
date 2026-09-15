@@ -5,6 +5,9 @@
 @stop
 
 @section('content')
+    @if(request('wizard'))
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
     <div class="card">
         <div class="card-body">
             <h4>ثبت گروه های ویژگی</h4>

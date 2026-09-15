@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    @include('Admin.productWizard.partials.steps',['current'=>$kind === 'service' ? 'create' : 'attributes','kind'=>$kind])
+    @include('Admin.productWizard.partials.steps',['current'=>'category','kind'=>$kind])
 
     <div class="card">
         <div class="card-body">

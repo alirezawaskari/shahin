@@ -50,8 +50,7 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                     <tr>
-                        <th>گروه ویژگی</th>
-                        <th>ویژگی</th>
+                        <th>گروه ویژگی / ویژگی</th>
                         <th>نوع</th>
                         <th>مقادیر</th>
                         <th>اقدام</th>
@@ -59,46 +58,82 @@
                     </thead>
                     <tbody>
                     @foreach($attribute_groups as $group)
-                        @if($group->attributes->isEmpty())
+                        {{-- ردیف خود گروه: همه کارهای گروه در همان منوی «اقدام» --}}
+                        <tr>
+                            <td colspan="3" class="fw-bold">
+                                {{ $group->title }}
+                                @if($group->attributes->isEmpty())
+                                    <span class="text-muted fw-normal">— هنوز ویژگی‌ای ندارد</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                       class="btn btn-dark btn-floating btn-icon btn-sm">
+                                        <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a href="{{ route('createAttribute',[$group->id,'wizard'=>1,'wizard_category'=>$category->id]) }}">
+                                            <button type="button" class="dropdown-item pointer">افزودن ویژگی</button>
+                                        </a>
+                                        <a href="{{ route('attributeGroup.edit',[$group->id,'wizard'=>1]) }}">
+                                            <button type="button" class="dropdown-item pointer">ویرایش گروه</button>
+                                        </a>
+                                        <form method="post" action="{{ route('attributeGroup.destroy',[$group->id]) }}">
+                                            {{ method_field('DELETE') }} {{ csrf_field() }}
+                                            <input type="hidden" name="wizard" value="1">
+                                            <button type="submit" class="dropdown-item pointer showConfirmDelete">حذف گروه</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        @foreach($group->attributes as $attribute)
                             <tr>
-                                <td>{{ $group->title }}</td>
-                                <td colspan="3" class="text-muted">هنوز ویژگی‌ای ندارد</td>
+                                <td class="ps-4">
+                                    {{ $attribute->title }}
+                                    @if($attribute->is_price)
+                                        <span class="badge bg-primary">محور تنوع</span>
+                                    @endif
+                                </td>
+                                <td>{{ $attribute->type }}</td>
                                 <td>
-                                    <a href="{{ route('createAttribute',[$group->id,'wizard'=>1,'wizard_category'=>$category->id]) }}"
-                                       class="btn btn-sm btn-outline-success">افزودن ویژگی</a>
+                                    @forelse($attribute->attributeItems as $item)
+                                        <span class="badge bg-secondary">{{ $item->title }}</span>
+                                    @empty
+                                        <span class="text-danger">بدون مقدار</span>
+                                    @endforelse
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                           class="btn btn-dark btn-floating btn-icon btn-sm">
+                                            <i aria-hidden="true" class="fa fa-ellipsis-v"></i>
+                                        </a>
+                                        <div class="dropdown-menu">
+                                            <a href="{{ route('createAttributeItem',[$attribute->id,'wizard'=>1,'wizard_category'=>$category->id]) }}">
+                                                <button type="button" class="dropdown-item pointer">افزودن مقدار</button>
+                                            </a>
+                                            <a href="{{ route('attributeItem.show',[$attribute->id,'wizard'=>1]) }}">
+                                                <button type="button" class="dropdown-item pointer">مدیریت مقادیر</button>
+                                            </a>
+                                            {{-- مثل لیست ویژگی‌های پنل، ویرایش فقط برای select و color --}}
+                                            @if($attribute->type == 'select' || $attribute->type == 'color')
+                                                <a href="{{ route('attribute.edit',[$attribute->id,'wizard'=>1]) }}">
+                                                    <button type="button" class="dropdown-item pointer">ویرایش ویژگی</button>
+                                                </a>
+                                            @endif
+                                            <form method="post" action="{{ route('attribute.destroy',[$attribute->id]) }}">
+                                                {{ method_field('DELETE') }} {{ csrf_field() }}
+                                                <input type="hidden" name="wizard" value="1">
+                                                <button type="submit" class="dropdown-item pointer showConfirmDelete">حذف ویژگی</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
-                        @else
-                            @foreach($group->attributes as $attribute)
-                                <tr>
-                                    @if($loop->first)
-                                        <td rowspan="{{ $group->attributes->count() }}">{{ $group->title }}</td>
-                                    @endif
-                                    <td>
-                                        {{ $attribute->title }}
-                                        @if($attribute->is_price)
-                                            <span class="badge bg-primary">محور تنوع</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $attribute->type }}</td>
-                                    <td>
-                                        @forelse($attribute->attributeItems as $item)
-                                            <span class="badge bg-secondary">{{ $item->title }}</span>
-                                        @empty
-                                            <span class="text-danger">بدون مقدار</span>
-                                        @endforelse
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('createAttributeItem',[$attribute->id,'wizard'=>1,'wizard_category'=>$category->id]) }}"
-                                           class="btn btn-sm btn-outline-primary">افزودن مقدار</a>
-                                        @if($loop->first)
-                                            <a href="{{ route('createAttribute',[$group->id,'wizard'=>1,'wizard_category'=>$category->id]) }}"
-                                               class="btn btn-sm btn-outline-success">افزودن ویژگی</a>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
+                        @endforeach
                     @endforeach
                     </tbody>
                 </table>
@@ -113,4 +148,11 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('css')
+    <link rel="stylesheet" href="{{asset('assets/dashboard/css/site/sweetalert2.css')}}">
+@stop
+@section('js')
+    <script src="{{ asset('assets/dashboard/js/site/sweetalert2.all.js') }}"></script>
 @stop

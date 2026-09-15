@@ -54,6 +54,9 @@ class AttributeGroupController extends Controller
     public function createByCategory($category_id)
     {
         $category = Category::filter()->where('id',$category_id)->select('id','title')->first();
+        if (request('wizard')) {
+            \App\Services\V1\Admin\ProductWizardService::rememberCategory(Category::find($category_id));
+        }
         return view('Admin.site.attributeGroup.create', compact('category'));
     }
 
@@ -111,6 +114,9 @@ class AttributeGroupController extends Controller
         if ($id) {
             $parents = Category::filter()->where('parent_id', 0)->get();
             $attribute_group = AttributeGroup::find($id);
+            if (request('wizard')) {
+                \App\Services\V1\Admin\ProductWizardService::rememberAttributeGroup($attribute_group);
+            }
             return view('Admin.site.attributeGroup.edit', ['attribute_group' => $attribute_group, 'parents' => $parents]);
         }
         return redirect()->back();
@@ -143,6 +149,12 @@ class AttributeGroupController extends Controller
             }
         }
 
+        // ویرایش از داخل ویزارد: برگشت به مرحله ویژگی‌های (شاید تازه عوض‌شده) دسته‌بندی
+        if ($request->wizard) {
+            return redirect()->route('productWizard.attributes', $attribute_group->category_id)
+                ->with(['update' => 'success']);
+        }
+
         return redirect()
             ->route('attributeGroup.index',['category_id'=>$attribute_group->category_id])
             ->with(['update' => 'success']);
@@ -166,6 +178,10 @@ class AttributeGroupController extends Controller
                     $attribute->delete();
                }
                $attribute_group->delete();
+                if (request('wizard')) {
+                    return redirect()->route('productWizard.attributes', $attribute_group->category_id)
+                        ->with(['delete' => 'success']);
+                }
                 return redirect()->route('attributeGroup.index', ['category_id' => $attribute_group->category_id])
                     ->with(['delete' => 'success']);
             }

@@ -19,6 +19,10 @@
             <h4>ثبت کالا</h4>
         </div>
 
+        {{-- فرم چندقدمی است و بعد از خطا روی قدم اول باز می‌شود؛ خطای فیلدهای قدم‌های
+             بعد (مثل نام کالا) باید همین بالا هم دیده شود. --}}
+        @include('Admin.layouts.errors')
+
         <form class="form-horizontal" method="post" action="{{route('products.store')}}" enctype="multipart/form-data">
             {{csrf_field()}}
             @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif

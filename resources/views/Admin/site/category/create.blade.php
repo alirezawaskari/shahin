@@ -11,7 +11,7 @@
 @if($in_wizard)
     @include('Admin.productWizard.partials.steps',[
         'current' => 'category',
-        'kind'    => \App\Http\Controllers\Admin\ProductWizardController::kindOfCategory($parent),
+        'kind'    => \App\Services\V1\Admin\ProductWizardService::kindOfCategory($parent),
     ])
     <div class="mb-3">
         <a href="{{route('category.subCategory',[$parent->id,'wizard'=>1])}}" class="btn btn-outline-secondary btn-sm">
