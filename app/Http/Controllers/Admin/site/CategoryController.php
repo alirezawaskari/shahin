@@ -51,6 +51,12 @@ class CategoryController extends Controller
         $all_categories = Category::filter()->select('id', 'title')->get();
         $all_services = Service::filter()->select('id', 'title')->get();
 
+        if (request('wizard')) {
+            \App\Services\V1\Admin\ProductWizardService::remember([
+                'kind' => \App\Services\V1\Admin\ProductWizardService::kindOfCategory($parent),
+            ]);
+        }
+
         return view('Admin.site.category.create', compact(
             'parent', 'path', 'depth', 'cateDepthOne', 'family_cat_ids_list', 'all_categories', 'all_services'
         ));
@@ -125,6 +131,11 @@ class CategoryController extends Controller
                 $path = $category->path . '/' . $category->id;
                 $path_explode = explode('/',$path);
                 $cateDepthOne = Category::where('depth', 1)->where('path', $path_explode[0])->get();
+            }
+
+            // ویرایش از داخل ویزارد: همین دسته‌بندی زمینه مراحل بعد (ویژگی‌ها، ثبت کالا) می‌شود
+            if (request('wizard')) {
+                \App\Services\V1\Admin\ProductWizardService::rememberCategory($category);
             }
 
             return view('Admin.site.category.edit',
@@ -312,6 +323,11 @@ class CategoryController extends Controller
                 }
             }
             $categories = $categories->paginate(15);
+            if ($request->wizard) {
+                \App\Services\V1\Admin\ProductWizardService::remember([
+                    'kind' => \App\Services\V1\Admin\ProductWizardService::kindOfCategory($selected_cat),
+                ]);
+            }
             return view('Admin.site.category.subCategory', ['categories' => $categories,
                 'selected_cat' => $selected_cat, 'path' => $path,'queries'=>$queries]);
         }

@@ -5,6 +5,12 @@
 @stop
 
 @section('content')
+    @php $in_wizard = (bool) request('wizard'); @endphp
+
+    @if($in_wizard)
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
+
     <div class="card">
         <div class="card-body">
             <h4>ویرایش ویژگی
@@ -14,6 +20,7 @@
             <form class="form-horizontal" method="post"
                   action="{{route('attribute.update',$attribute->id)}}" enctype="multipart/form-data">
                 {{csrf_field()}}   {{ method_field('PATCH') }}
+                @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif
 
                 <div class="row">
 
@@ -65,7 +72,11 @@
                 <br/><br/>
 
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <a href="/dashboard/site/attribute/{{$attribute->attribute_group_id}}" class="btn btn-warning">بازگشت</a>
+                    @if($in_wizard)
+                        <a href="{{route('productWizard.attributes',$attribute->category_id)}}" class="btn btn-warning">بازگشت</a>
+                    @else
+                        <a href="/dashboard/site/attribute/{{$attribute->attribute_group_id}}" class="btn btn-warning">بازگشت</a>
+                    @endif
                     <button type="submit" class="btn btn-success">ویرایش</button>
                 </div>
                 </div>

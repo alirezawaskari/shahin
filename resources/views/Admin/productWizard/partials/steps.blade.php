@@ -1,53 +1,66 @@
 {{--
-    نوار مراحل ویزارد ایجاد محصول.
+    نوار مراحل ویزارد ایجاد محصول — قابل کلیک، با دکمه‌های «قبلی» و «بعدی».
 
     ورودی‌ها:
-      $current — کلید مرحله جاری: type | category | create | variation | done
-      $kind    — product | service | null (وقتی هنوز نوع انتخاب نشده)
+      $current — کلید مرحله جاری: type | category | attributes | create | variation | done
+      $kind    — product | service | null (پیش‌فرض: نوعی که ویزارد در session دارد)
 
-    مرحله «نوع» فقط برای کسب‌وکاری که هم کالا و هم خدمت دارد نمایش داده می‌شود و
-    مرحله «تنوع» فقط برای کالا؛ چون خدمت تنوع ندارد.
+    آدرس هر مرحله از زمینه ویزارد می‌آید (ProductWizardService::steps). مرحله‌ای که هنوز
+    پیش‌نیازش معلوم نیست (مثلا ثبت کالا پیش از انتخاب دسته‌بندی) غیرفعال نمایش داده می‌شود.
 --}}
 @php
-    $wizard_kind = $kind ?? null;
-    $wizard_label = $wizard_kind === 'service' ? 'خدمت' : 'کالا';
-    $asks_kind = app(\App\Http\Controllers\Admin\ProductWizardController::class)->kindOfBusiness() === null;
-
-    $wizard_steps = [];
-    if ($asks_kind) {
-        $wizard_steps['type'] = 'انتخاب کالا یا خدمت';
-    }
-    $wizard_steps['category'] = 'ایجاد دسته‌بندی';
-    // ویژگی‌ها روی دسته‌بندی تعریف می‌شوند و بعد سر کالا مقدار می‌گیرند؛ خدمت ویژگی ندارد.
-    if ($wizard_kind !== 'service') {
-        $wizard_steps['attributes'] = 'ویژگی‌های دسته‌بندی';
-    }
-    $wizard_steps['create'] = 'ثبت ' . $wizard_label;
-    if ($wizard_kind !== 'service') {
-        $wizard_steps['variation'] = 'ثبت تنوع کالا';
-    }
-    $wizard_steps['done'] = 'اتمام';
-
-    $wizard_keys = array_keys($wizard_steps);
-    $wizard_current_index = array_search($current, $wizard_keys, true);
+    $wizard_steps = \App\Services\V1\Admin\ProductWizardService::steps($current, $kind ?? null);
+    $wizard_active = collect($wizard_steps)->search(fn($step) => $step['state'] === 'active');
+    $wizard_prev = $wizard_active !== false && $wizard_active > 0 ? $wizard_steps[$wizard_active - 1] : null;
+    $wizard_next = $wizard_active !== false ? ($wizard_steps[$wizard_active + 1] ?? null) : null;
 @endphp
 
 <div class="card mb-3">
-    <div class="card-body py-3">
-        <ol class="breadcrumb bg-transparent mb-0 p-0 flex-wrap">
-            @foreach($wizard_steps as $wizard_key => $wizard_title)
+    <div class="card-body py-3 d-flex align-items-center flex-wrap gap-2">
+        @if($wizard_prev)
+            @if($wizard_prev['url'])
+                <a href="{{ $wizard_prev['url'] }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa fa-arrow-right"></i> قبلی
+                </a>
+            @else
+                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                    <i class="fa fa-arrow-right"></i> قبلی
+                </button>
+            @endif
+        @endif
+
+        <ol class="breadcrumb bg-transparent mb-0 p-0 flex-wrap flex-grow-1">
+            @foreach($wizard_steps as $wizard_step)
                 @php
-                    $wizard_index = $loop->index;
-                    $wizard_done = $wizard_current_index !== false && $wizard_index < $wizard_current_index;
-                    $wizard_active = $wizard_key === $current;
+                    $wizard_badge = ['active' => 'bg-primary', 'done' => 'bg-success', 'todo' => 'bg-secondary'][$wizard_step['state']];
+                    $wizard_text = ['active' => 'fw-bold', 'done' => 'text-success', 'todo' => 'text-muted'][$wizard_step['state']];
                 @endphp
-                <li class="breadcrumb-item {{ $wizard_active ? 'active fw-bold' : '' }}">
-                    <span class="badge rounded-pill {{ $wizard_active ? 'bg-primary' : ($wizard_done ? 'bg-success' : 'bg-secondary') }}">
-                        {{ $wizard_index + 1 }}
-                    </span>
-                    <span class="{{ $wizard_done ? 'text-success' : ($wizard_active ? '' : 'text-muted') }}">{{ $wizard_title }}</span>
+                <li class="breadcrumb-item {{ $wizard_step['state'] === 'active' ? 'active' : '' }}">
+                    @if($wizard_step['url'] && $wizard_step['state'] !== 'active')
+                        <a href="{{ $wizard_step['url'] }}" class="text-decoration-none">
+                            <span class="badge rounded-pill {{ $wizard_badge }}">{{ $wizard_step['number'] }}</span>
+                            <span class="{{ $wizard_step['state'] === 'done' ? 'text-success' : '' }}">{{ $wizard_step['title'] }}</span>
+                        </a>
+                    @else
+                        <span @if(! $wizard_step['url'] && $wizard_step['state'] !== 'active') title="ابتدا مرحله قبل را انجام دهید" @endif>
+                            <span class="badge rounded-pill {{ $wizard_badge }}">{{ $wizard_step['number'] }}</span>
+                            <span class="{{ $wizard_text }}">{{ $wizard_step['title'] }}</span>
+                        </span>
+                    @endif
                 </li>
             @endforeach
         </ol>
+
+        @if($wizard_next)
+            @if($wizard_next['url'])
+                <a href="{{ $wizard_next['url'] }}" class="btn btn-sm btn-primary">
+                    بعدی <i class="fa fa-arrow-left"></i>
+                </a>
+            @else
+                <button type="button" class="btn btn-sm btn-primary" disabled title="ابتدا این مرحله را کامل کنید">
+                    بعدی <i class="fa fa-arrow-left"></i>
+                </button>
+            @endif
+        @endif
     </div>
 </div>

@@ -20,6 +20,9 @@ class AttributeItemController extends Controller
     public function createAttributeItem($attribute_id)
     {
         $colors = Color::get();
+        if (request('wizard')) {
+            \App\Services\V1\Admin\ProductWizardService::rememberAttribute(Attribute::find($attribute_id));
+        }
         return view('Admin.site.attributeItem.create', [
             'attribute_id' => $attribute_id,
             'colors' => $colors,
@@ -79,7 +82,7 @@ class AttributeItemController extends Controller
 
         // آمده از ویزارد ایجاد محصول: به مرحله ویژگی‌های همان دسته‌بندی برمی‌گردیم.
         if ($request->wizard) {
-            $back = \App\Http\Controllers\Admin\ProductWizardController::attributesUrl($request->wizard_category);
+            $back = \App\Services\V1\Admin\ProductWizardService::attributesUrl($request->wizard_category);
             if ($back) {
                 return redirect($back)->with(['create' => 'success']);
             }
@@ -100,6 +103,9 @@ class AttributeItemController extends Controller
     public function show($id)
     {
         $attribute = Attribute::find($id);
+        if (request('wizard')) {
+            \App\Services\V1\Admin\ProductWizardService::rememberAttribute($attribute);
+        }
         $attribute_items = AttributeItem::where('attribute_id', $id)->paginate(15);
         return view('Admin.site.attributeItem.list', ['attribute_items' => $attribute_items,'attribute'=>$attribute]);
     }
@@ -114,6 +120,9 @@ class AttributeItemController extends Controller
     {
         if ($id) {
             $attribute_item = AttributeItem::find($id);
+            if (request('wizard') && $attribute_item) {
+                \App\Services\V1\Admin\ProductWizardService::rememberAttribute(Attribute::find($attribute_item->attribute_id));
+            }
             $attribute_item_colors = AttributeItemColor::where('attribute_item_id', $id)->first();
             return view('Admin.site.attributeItem.edit', ['attribute_item' => $attribute_item, 'attribute_item_colors' => $attribute_item_colors]);
         }
@@ -146,6 +155,12 @@ class AttributeItemController extends Controller
                 AttributeItemColor::create(['attribute_item_id' => $attribute_item->id,
                     'color_palette' => $request->color_palette]);
             }
+        }
+
+        // ویرایش از داخل ویزارد: برگشت به لیست مقادیر همین ویژگی، در همان قاب ویزارد
+        if ($request->wizard) {
+            return redirect()->route('attributeItem.show', [$attribute_item->attribute_id, 'wizard' => 1])
+                ->with(['update' => 'success']);
         }
 
         return redirect()->back()->with(['update' => 'success']);

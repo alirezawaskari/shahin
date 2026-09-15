@@ -605,6 +605,9 @@ class ProductController extends Controller
         $wizard_category = request('wizard_category')
             ? Category::find(request('wizard_category'))
             : null;
+        if ($in_wizard) {
+            \App\Services\V1\Admin\ProductWizardService::rememberCategory($wizard_category);
+        }
 
         return view('Admin.product.createGood', compact('parents', 'centers', 'store_rooms',
             'category_store_rooms', 'counting_units', 'tags', 'category_center_id',
@@ -622,6 +625,22 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // فرم ثبت کالا چندقدمی است و می‌شود بدون پر کردن قدم‌های قبل به دکمه ثبت رسید.
+        // بدون این اعتبارسنجی، نام خالی در SlugService و دسته‌بندی خالی در findAllFather
+        // خطای ۵۰۰ می‌دهند. خطا کاربر را به همان صفحه (با همان ?wizard) برمی‌گرداند.
+        $request->validate([
+            'good.name'          => 'required|string|max:255',
+            'choose_category_id' => 'required|exists:categories,id',
+            'image_name_good'    => 'required|array',
+            'type_good_selected' => 'required',
+        ], [
+            'good.name.required'          => 'لطفا نام کالا را در قدم دوم وارد کنید.',
+            'choose_category_id.required' => 'لطفا دسته بندی کالا را در قدم اول انتخاب کنید.',
+            'choose_category_id.exists'   => 'دسته بندی انتخاب شده معتبر نیست.',
+            'image_name_good.required'    => 'ثبت حداقل یک عکس برای کالا ضروری است.',
+            'type_good_selected.required' => 'لطفا لوکیشن کالا را در قدم پنجم انتخاب کنید.',
+        ]);
+
         $insertByStoreRoom = 0;
         if (isset($request->image_name_good) && $request->image_name_good != null) {
             if (isset($request->type_good_selected)) {
@@ -735,6 +754,8 @@ class ProductController extends Controller
                 // ویزارد ایجاد محصول: کالای تازه ثبت‌شده مستقیم به مرحله ثبت تنوع می‌رود
                 // و دیگر لازم نیست کاربر کالا را دوباره انتخاب کند.
                 if ($request->wizard) {
+                    \App\Services\V1\Admin\ProductWizardService::rememberCategory(Category::find($request->choose_category_id));
+                    \App\Services\V1\Admin\ProductWizardService::remember(['kind' => 'product', 'product_id' => $product->id]);
                     return redirect(route('price.show', ['price' => $product->id, 'wizard' => 1]))
                         ->with(['create' => 'success']);
                 }

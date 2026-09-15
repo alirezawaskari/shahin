@@ -5,6 +5,12 @@
 @stop
 
 @section('content')
+    @php $in_wizard = (bool) request('wizard'); @endphp
+
+    @if($in_wizard)
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
+
     <div class="card">
         <div class="card-body">
             <h4>ویرایش گروه های ویژگی</h4>
@@ -12,6 +18,7 @@
                   action="{{route('attributeGroup.update',$attribute_group->id)}}"
                   enctype="multipart/form-data">
                 {{csrf_field()}}   {{ method_field('PATCH') }}
+                @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif
 
                 <div class="col-12 col-md-4 mb-3">
                     <label>عنوان *</label>
@@ -35,7 +42,11 @@
 
                 <br/> <br/>
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <a href="{{route('attributeGroup.index')}}" class="btn btn-info">بازگشت</a>
+                    @if($in_wizard)
+                        <a href="{{route('productWizard.attributes',$attribute_group->category_id)}}" class="btn btn-info">بازگشت</a>
+                    @else
+                        <a href="{{route('attributeGroup.index')}}" class="btn btn-info">بازگشت</a>
+                    @endif
                     <button type="submit" class="btn btn-success">ویرایش</button>
                 </div>
 

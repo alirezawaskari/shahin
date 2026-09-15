@@ -97,10 +97,13 @@ class ServiceController extends AdminController
         // دسته‌بندی‌های عمیق‌تر از سطح یک در فهرست بالا نیستند، پس اضافه‌شان می‌کنیم.
         $in_wizard = (bool) request('wizard');
         $wizard_category = request('wizard_category')
-            ? Category::select('id','title','parent_id')->find(request('wizard_category'))
+            ? Category::select('id','title','parent_id','path')->find(request('wizard_category'))
             : null;
         if ($wizard_category && ! $service_categories->contains('id', $wizard_category->id)) {
             $service_categories->prepend($wizard_category);
+        }
+        if ($in_wizard) {
+            \App\Services\V1\Admin\ProductWizardService::rememberCategory($wizard_category);
         }
 
         return view('Admin.service.create',['all_categories'=>$all_categories,
@@ -161,6 +164,8 @@ class ServiceController extends AdminController
 
         // ویزارد ایجاد محصول: خدمت تنوع ندارد، پس مستقیم به مرحله پایانی می‌رویم.
         if ($request->wizard) {
+            \App\Services\V1\Admin\ProductWizardService::rememberCategory(Category::find($request->category_id));
+            \App\Services\V1\Admin\ProductWizardService::remember(['kind' => 'service', 'service_id' => $service->id]);
             return redirect(route('productWizard.done', [
                 'kind' => 'service',
                 'category_id' => $request->category_id,
