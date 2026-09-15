@@ -374,9 +374,15 @@ class PriceProductController extends Controller
             $center_id = null;
             if (User::checkManager() != null) $center_id = User::checkManager();
 
+            // مرحله آخر ویزارد ایجاد محصول: کالا از مرحله قبل آمده و نیازی به انتخاب دوباره نیست.
+            $in_wizard = (bool) request('wizard');
+            $wizard_done_url = $in_wizard
+                ? route('productWizard.done', ['kind' => 'product', 'product_id' => $product->id])
+                : null;
 
             return view("Admin.product.price.create",
-                compact('product', 'center_products', 'product_store_rooms', 'attributes', 'center_id'));
+                compact('product', 'center_products', 'product_store_rooms', 'attributes', 'center_id',
+                    'in_wizard', 'wizard_done_url'));
 
         }
         return redirect()->back();

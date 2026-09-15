@@ -33,7 +33,11 @@ class AttributeController extends Controller
      */
     public function createAttribute($id)
     {
-        return view('Admin.site.attribute.create', ['attribute_group_id'=>$id]);
+        return view('Admin.site.attribute.create', [
+            'attribute_group_id' => $id,
+            // ویزارد ایجاد محصول: تا بعد از ثبت بتوانیم به همان مرحله ویژگی‌ها برگردیم
+            'wizard_category' => request('wizard') ? request('wizard_category') : null,
+        ]);
     }
 
     /**
@@ -59,28 +63,30 @@ class AttributeController extends Controller
             $has_rec_is_price=Attribute::where('is_price',1)->where('category_id',$attribute_group->category_id)->count();
         }
 
+        // آمده از ویزارد ایجاد محصول: به مرحله ویژگی‌های همان دسته‌بندی برمی‌گردیم،
+        // وگرنه مثل قبل به لیست ویژگی‌های همین گروه.
+        $back = $request->wizard
+            ? \App\Http\Controllers\Admin\ProductWizardController::attributesUrl($request->wizard_category)
+            : null;
+        $back = $back ?: route('attribute.show', [$attribute_group->id]);
+
         if($request['is_price'] == 1){
             if($has_rec_is_price == 0){
                Attribute::create($request->all());
 
-                return redirect()
-                    ->route('attribute.show',[$attribute_group->id])
-                    ->with([
+                return redirect($back)->with([
                     'create' => 'success'
                 ]);
 
             }else{
-                return redirect()
-                    ->route('attribute.show',[$attribute_group->id])
+                return redirect($back)
                     ->with(['failByMessage' => 'امکان ثبت مجدد ویژگی با قابلیت قیمت گذاری وجود ندارد']);
             }
         }
         else{
              Attribute::create($request->all());
 
-            return redirect()
-                ->route('attribute.show',[$attribute_group->id])
-                ->with([
+            return redirect($back)->with([
                 'create' => 'success'
             ]);
 

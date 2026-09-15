@@ -20,8 +20,12 @@ class AttributeItemController extends Controller
     public function createAttributeItem($attribute_id)
     {
         $colors = Color::get();
-        return view('Admin.site.attributeItem.create',
-            ['attribute_id' => $attribute_id, 'colors' => $colors]);
+        return view('Admin.site.attributeItem.create', [
+            'attribute_id' => $attribute_id,
+            'colors' => $colors,
+            // ویزارد ایجاد محصول: تا بعد از ثبت بتوانیم به همان مرحله ویژگی‌ها برگردیم
+            'wizard_category' => request('wizard') ? request('wizard_category') : null,
+        ]);
     }
 
     /**
@@ -32,8 +36,17 @@ class AttributeItemController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required'],['title.required' => 'لطفا عنوان را وارد کنید']);
-        if ($request->attribute_type == 'color') {
+        // فرم هیچ‌وقت `title` سطح‌بالا نمی‌فرستد؛ بسته به نوع ویژگی یا `color_id[]` می‌آید
+        // یا `item[n][title]`. اعتبارسنجی باید همان چیزی را بخواهد که واقعا ارسال می‌شود،
+        // وگرنه ثبت هیچ مقداری ممکن نیست.
+        $is_color = $request->attribute_type == 'color';
+
+        if ($is_color) {
+            $request->validate(
+                ['color_id' => 'required|array|min:1'],
+                ['color_id.required' => 'لطفا حداقل یک رنگ را انتخاب کنید']
+            );
+
             foreach ($request->color_id as $item) {
                 $attribute_item = new AttributeItem();
                 $attribute_item->attribute_id = $request->attribute_id;
@@ -44,13 +57,31 @@ class AttributeItemController extends Controller
                     'color_id' => $item]);
             }
         } else {
-            foreach ($request->item as $item) {
-                if ($item != '') {
-                    $attribute_item = new AttributeItem();
-                    $attribute_item->attribute_id = $request->attribute_id;
-                    $attribute_item->title = $item['title'];
-                    $attribute_item->save();
-                }
+            // ردیف‌های خالی فرم نادیده گرفته می‌شوند، ولی حداقل یک عنوان لازم است.
+            $titles = collect($request->input('item', []))
+                ->pluck('title')
+                ->map(fn($title) => trim((string) $title))
+                ->filter()
+                ->values();
+
+            if ($titles->isEmpty()) {
+                return back()->withInput()
+                    ->withErrors(['item' => 'لطفا حداقل یک عنوان را وارد کنید']);
+            }
+
+            foreach ($titles as $title) {
+                $attribute_item = new AttributeItem();
+                $attribute_item->attribute_id = $request->attribute_id;
+                $attribute_item->title = $title;
+                $attribute_item->save();
+            }
+        }
+
+        // آمده از ویزارد ایجاد محصول: به مرحله ویژگی‌های همان دسته‌بندی برمی‌گردیم.
+        if ($request->wizard) {
+            $back = \App\Http\Controllers\Admin\ProductWizardController::attributesUrl($request->wizard_category);
+            if ($back) {
+                return redirect($back)->with(['create' => 'success']);
             }
         }
 

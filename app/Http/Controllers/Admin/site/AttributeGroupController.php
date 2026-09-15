@@ -54,7 +54,7 @@ class AttributeGroupController extends Controller
     public function createByCategory($category_id)
     {
         $category = Category::filter()->where('id',$category_id)->select('id','title')->first();
-        return view('Admin.site..attributeGroup.create', compact('category'));
+        return view('Admin.site.attributeGroup.create', compact('category'));
     }
 
     /**
@@ -77,10 +77,15 @@ class AttributeGroupController extends Controller
         $attribute_group->category_id = $request->input('choose_category_id');
         $attribute_group->save();
 
+        // آمده از ویزارد ایجاد محصول: به همان مرحله ویژگی‌ها برمی‌گردیم تا کاربر بتواند
+        // ویژگی‌ها و مقادیرشان را همان‌جا ادامه دهد.
+        if ($request->wizard) {
+            return redirect()->route('productWizard.attributes', $attribute_group->category_id)
+                ->with(['create' => 'success']);
+        }
 
-        return redirect('/dashboard/attributeGroup?category_id='.$attribute_group->category_id)->with([
-            'create' => 'success'
-        ]);
+        return redirect()->route('attributeGroup.index', ['category_id' => $attribute_group->category_id])
+            ->with(['create' => 'success']);
 
     }
 
@@ -161,9 +166,8 @@ class AttributeGroupController extends Controller
                     $attribute->delete();
                }
                $attribute_group->delete();
-                return redirect('/dashboard/attributeGroup?category_id='.$attribute_group->category_id)->with([
-                    'delete' => 'success'
-                ]);
+                return redirect()->route('attributeGroup.index', ['category_id' => $attribute_group->category_id])
+                    ->with(['delete' => 'success']);
             }
         }
         return redirect()->back();

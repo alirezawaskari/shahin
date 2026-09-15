@@ -1,5 +1,15 @@
 
 
+// بعد از ثبت موفق تنوع: در حالت عادی صفحه رفرش می‌شود تا تنوع ثبت‌شده دیده شود،
+// و در حالت ویزارد ایجاد محصول به مرحله پایانی می‌رویم.
+function afterPriceSaved() {
+    if (window.PRODUCT_WIZARD_DONE_URL) {
+        window.location.href = window.PRODUCT_WIZARD_DONE_URL;
+        return;
+    }
+    location.reload();
+}
+
 //attributeIsPrice in price of good
 $(".attributeIsPrice").click(function () {
     var id = $(this).attr('id');
@@ -78,7 +88,7 @@ $('.productPrice').click(function () {
                                         if (result === 'true') {
                                             $('#' + attribute_item_id + '.attributeIsPrice').attr('data-title', 'selected');
                                             toastr.success('ثبت قیمت گذاری : قیمت گذاری کالا با موفقیت انجام شد.');
-                                            location.reload();
+                                            afterPriceSaved();
                                         }
                                         if (result === '301') {
                                             toastr.warning('کالا با این ویژگی قبلا ثبت شده است. اگر تمامی موارد مانند ویژگی ثبت شده قبلی باشد ، به موجودی این تنوع اضافه می شود. ');
@@ -118,7 +128,7 @@ $('.productPrice').click(function () {
                             success: function (result) {
                                 if (result == 'true') {
                                     toastr.success('قیمت گذاری کالا با موفقیت انجام شد.');
-                                    location.reload();
+                                    afterPriceSaved();
                                 }
                             }
                         });
