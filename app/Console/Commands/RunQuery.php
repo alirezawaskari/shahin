@@ -64,10 +64,26 @@ class RunQuery extends Command {
         $ghorfeOnlineList->services()->attach($services);
         $ghorfeOnlineList->financialPlansTypes()->attach($financialPlansTypes);
         $ghorfeOnlineList->centers()->attach($centers);
-        $ghorfeOnlineList->articles()->attach($articles);
-        $ghorfeOnlineList->tickets()->attach($tickets);
-        $ghorfeOnlineList->staff()->attach($employees);
-        $ghorfeOnlineList->abouts()->attach($abouts);
+        foreach ($articles as $article) {
+            $article->articleable_id   = $ghorfeOnlineList->id;
+            $article->articleable_type = $ghorfeOnlineList::class; // یا morph map اگه داری
+            $article->save();
+        }
+        foreach ($tickets as $ticket) {
+            $ticket->ticketable_id   = $ghorfeOnlineList->id;
+            $ticket->ticketable_type = $ghorfeOnlineList::class; // یا morph map اگه داری
+            $ticket->save();
+        }
+        foreach ($abouts as $about) {
+            $about->aboutable_id   = $ghorfeOnlineList->id;
+            $about->aboutable_type = $ghorfeOnlineList::class; // یا morph map اگه داری
+            $about->save();
+        }
+        foreach ($employees as $employee) {
+            $employee->employee->update(['ghorfe_online_list_id' => $ghorfeOnlineList->id]);
+            $employee->update(['level' => 'ghorfeAdmin']);
+        }
+        
         dd('success');
         ///////////////////////////////////////////
         $service_tariffs = ServiceTariff::where( 'service_id', 211 )->get();
