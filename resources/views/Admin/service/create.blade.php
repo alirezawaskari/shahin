@@ -2,11 +2,27 @@
 @section('title')ایجاد خدمت@endsection
 
 @section('content')
+    @php
+        $in_wizard = $in_wizard ?? false;
+        $preselected_category = $wizard_category ?? null;
+    @endphp
+
+    @if($in_wizard)
+        @include('Admin.productWizard.partials.steps',['current'=>'create','kind'=>'service'])
+        @if($preselected_category)
+            <div class="mb-3">
+                <a href="{{route('category.subCategory',[$preselected_category->parent_id ?: $preselected_category->id,'wizard'=>1])}}"
+                   class="btn btn-outline-secondary btn-sm">بازگشت به دسته‌بندی‌ها</a>
+            </div>
+        @endif
+    @endif
+
     <div class="card">
         <div class="card-body">
             <form class="form-horizontal" role="form" method="post" action="{{route('service.store')}}"
                   enctype="multipart/form-data">
                 @csrf
+                @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif
                 @include('Admin.layouts.errors')
                 <div class="container">
                     <div class="row">
@@ -118,10 +134,13 @@
 
                         <div class="col-12 col-md-3 mb-5">
                             <label>دسته بندی *</label>
+                            {{-- دسته‌بندی مرحله قبلِ ویزارد از پیش انتخاب می‌شود. --}}
+                            @php $selected_category_id = old('category_id', optional($preselected_category)->id); @endphp
                             <select class="form-control" name="category_id" title="">
                                 <option value="">لطفا انتخاب کنید</option>
                                 @foreach($service_categories as $service_category)
-                                    <option value="{{$service_category->id}}">{{$service_category->title}}</option>
+                                    <option value="{{$service_category->id}}"
+                                            @selected($selected_category_id == $service_category->id)>{{$service_category->title}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('category_id'))<span

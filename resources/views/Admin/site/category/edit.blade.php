@@ -5,6 +5,18 @@
 @stop
 
 @section('content')
+{{-- ویرایش از داخل ویزارد ایجاد محصول: نوار مراحل و راه بازگشت به لیست دسته‌بندی‌ها.
+     ذخیره این فرم ajax است و صفحه عوض نمی‌شود، پس ویزارد سر جایش می‌ماند. --}}
+@if(request('wizard'))
+    @include('Admin.productWizard.partials.steps',[
+        'current' => 'category',
+        'kind'    => \App\Services\V1\Admin\ProductWizardService::kindOfCategory($category),
+    ])
+    <div class="mb-3">
+        <a href="{{ \App\Services\V1\Admin\ProductWizardService::categoryListUrl($category) }}"
+           class="btn btn-outline-secondary btn-sm">بازگشت به لیست دسته‌بندی‌ها</a>
+    </div>
+@endif
 <div class="col-12">
     <div class="card"><br />
         <div class="card-body">

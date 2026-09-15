@@ -5,6 +5,21 @@
 @stop
 
 @section('content')
+@php $in_wizard = (bool) request('wizard'); @endphp
+
+{{-- در حالت ویزارد، مرحله جاری و راه بازگشت به لیست دسته‌بندی‌ها نشان داده می‌شود. --}}
+@if($in_wizard)
+    @include('Admin.productWizard.partials.steps',[
+        'current' => 'category',
+        'kind'    => \App\Services\V1\Admin\ProductWizardService::kindOfCategory($parent),
+    ])
+    <div class="mb-3">
+        <a href="{{route('category.subCategory',[$parent->id,'wizard'=>1])}}" class="btn btn-outline-secondary btn-sm">
+            بازگشت به لیست دسته‌بندی‌ها
+        </a>
+    </div>
+@endif
+
 <div class="card p-4"><br />
     <h4 class="disTable">ثبت زیر مجموعه در دسته بندی
         @if($parent) {{$parent->title}} @endif
@@ -14,6 +29,7 @@
         <form id="bannerImage" class="form-horizontal" method="post" action="{{route('category.store')}}"
             enctype="multipart/form-data">
             {{csrf_field()}}
+            @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif
             <input type="hidden" name="parent_id" value="{{$parent->id}}">
             <input type="hidden" name="depth" value="{{$depth}}">
             @if($parent->depth == 0) <input type="hidden" name="path" value="{{$parent->id}}"> @endif

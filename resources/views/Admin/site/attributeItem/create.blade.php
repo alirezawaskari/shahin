@@ -5,6 +5,9 @@
 @stop
 
 @section('content')
+    @if(!empty($wizard_category))
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
     <div class="card">
         <div class="card-body">
             <div class="x_panel">
@@ -20,6 +23,10 @@
                       action="{{route('attributeItem.store')}}" enctype="multipart/form-data">
                     {{csrf_field()}}
                     <input type="hidden" name="attribute_id" value="{{$attribute_id}}">
+                    @if(!empty($wizard_category))
+                        <input type="hidden" name="wizard" value="1">
+                        <input type="hidden" name="wizard_category" value="{{$wizard_category}}">
+                    @endif
                     <input type="hidden" name="attribute_type"
                            value="{{\App\Helpers\Helper::attribute($attribute_id,'type')}}">
                     <div class="row">
@@ -61,6 +68,9 @@
 
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12">
+                            @if(!empty($wizard_category))
+                                <a href="{{route('productWizard.attributes',$wizard_category)}}" class="btn btn-warning">بازگشت</a>
+                            @endif
                             <button type="submit" class="btn btn-success">ارسال</button>
                         </div>
                     </div>

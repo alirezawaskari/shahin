@@ -5,6 +5,12 @@
 @stop
 
 @section('content')
+    @php $in_wizard = (bool) request('wizard'); @endphp
+
+    @if($in_wizard)
+        @include('Admin.productWizard.partials.steps',['current'=>'attributes','kind'=>'product'])
+    @endif
+
     <div class="card">
         <div class="card-body">
             <div class="x_title">
@@ -16,6 +22,7 @@
                   action="{{route('attributeItem.update',$attribute_item->id)}}"
                   enctype="multipart/form-data">
                 {{csrf_field()}}   {{ method_field('PATCH') }}
+                @if($in_wizard)<input type="hidden" name="wizard" value="1">@endif
 
                 <div class="row mb-4">
                     <div class="col-12 col-md-4 ">
@@ -39,6 +46,9 @@
                 </div>
                 <div class="row mb-4">
                     <div class="col-md-12 col-sm-12 col-xs-12">
+                        @if($in_wizard)
+                            <a href="{{route('attributeItem.show',[$attribute_item->attribute_id,'wizard'=>1])}}" class="btn btn-warning">بازگشت</a>
+                        @endif
                         <button type="submit" class="btn btn-success">ویرایش</button>
                     </div>
                 </div>

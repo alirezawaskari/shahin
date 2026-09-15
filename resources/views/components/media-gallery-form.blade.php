@@ -92,4 +92,4 @@ $bigDeskIndex = $numberImage;
 @include('Admin.partials.legacyGalleryFallback', [
     'model'       => $owner,
     'collections' => collect($sections)->pluck('collection')->all(),
-])
+]) 
