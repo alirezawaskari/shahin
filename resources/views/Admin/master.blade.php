@@ -64,7 +64,7 @@
      (Vue و کامپوننت date-picker) بارگذاری شود. --}}
 <script src="{{asset('assets/dashboard/js/jalaliDatePicker.js?v=1.0')}}"></script>
 <script src="{{asset('assets/dashboard/js/datatables.min.js')}}"></script>
-<script src="{{asset('assets/dashboard/js/site/adminJs.js')}}"></script>
+<script src="{{asset('assets/dashboard/js/site/adminJs.js?v=2.0')}}"></script>
 <script src="{{asset('assets/dashboard/js/jquery.twbsPagination.min.js')}}"></script>
 <script src="{{asset('assets/script/jquery-ui-1.13.2.custom/jquery-ui.js')}}"></script>
 <script src="{{asset('assets/bootstrap-5.3.8-dist/js/bootstrap.min.js')}}"></script>
