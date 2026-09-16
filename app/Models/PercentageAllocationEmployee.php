@@ -127,7 +127,7 @@ class PercentageAllocationEmployee extends Model {
             //set emplloyee performance from percentageAllocation employee
             //A کالا line carries no financial plan (createCategoryFactorItems never sets
             //one) - its own price IS the registration figure the invoice was built from.
-            $price = $factor_item->financialPlansType?->price ?? $factor_item->price;
+            $price = $factor_item->factor?->price ?? $factor_item->price;
             return PercentageAllocationEmployee::setUserPerformance($factor_item , 'register_price' , $price , now() , null , $payment_type);
         });
         return $percentage_allocation_employees;
