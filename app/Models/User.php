@@ -252,7 +252,7 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
             return true;
         }
 
-        return $this->level === 'ghorfeAdmin' && $this->ghorfeOnlineLists()->exists();
+        return $this->level === 'ghorfeAdmin' && ghorfe();
     }
     /**
      * @return bool

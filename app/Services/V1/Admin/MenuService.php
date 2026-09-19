@@ -8,12 +8,28 @@ use Illuminate\Support\Facades\Route;
 
 class MenuService
 {
+    /**
+     * `permissions.name` هایی که فقط superAdmin در منو می‌بیند.
+     *
+     * admin هم مثل superAdmin همه‌ی آیتم‌های منو را می‌گیرد، پس نگه داشتن یک
+     * آیتم از او با داده‌ی جدول permissions ممکن نیست و باید همین‌جا کنار گذاشته
+     * شود. کش این دو نقش هم به همین دلیل کلید جداگانه دارد.
+     */
+    public const SUPER_ADMIN_ONLY = [
+        // نقشه سایتِ سایت اصلی؛ کار ستاد است نه هر مدیر پنل.
+        'sitemap',
+    ];
+
     public function getMenu($user)
     {
         $version = $this->version();
 
-        if ($user->level == 'superAdmin' || $user->level == 'admin') {
+        if ($user->level == 'superAdmin') {
             return Cache::remember("menu_super_admin_{$version}", 60, fn() => $this->getAllMenus());
+        }
+
+        if ($user->level == 'admin') {
+            return Cache::remember("menu_admin_{$version}", 60, fn() => $this->getAllMenus(self::SUPER_ADMIN_ONLY));
         }
 
         return Cache::remember("menu_user_{$user->id}_{$version}", 60, function () use ($user) {
@@ -63,10 +79,18 @@ class MenuService
 
     /**
      * همه منوها
+     *
+     * @param array<int, string> $except نام دسترسی‌هایی که نباید در منو بیایند
      */
-    private function getAllMenus()
+    private function getAllMenus(array $except = [])
     {
-        return $this->groupByCategory($this->menuQuery()->get());
+        $query = $this->menuQuery();
+
+        if ($except !== []) {
+            $query->whereNotIn('permissions.name', $except);
+        }
+
+        return $this->groupByCategory($query->get());
     }
 
     /**

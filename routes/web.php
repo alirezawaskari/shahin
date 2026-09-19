@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShortLinkController;
+use App\Http\Controllers\Admin\SitemapController;
 use App\Http\Controllers\Admin\site\ArticleController;
 use App\Http\Controllers\Admin\site\BrandController;
 use App\Http\Controllers\Admin\site\CategoryArticleController;
@@ -235,6 +236,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::patch('/settings/update-expire-dates', [ContextController::class,'updateExpireDates'])->name('settings.updateExpireDates');
     Route::patch('/settings/update-company-info',[SettingController::class, 'updateCompanyInfo'])->name('settings.updateCompanyInfo');
     Route::post('/settings/sms', [SettingController::class,'updateSmsSetting'])->name('settings.update.sms.setting');
+
+    // نقشه سایت — همان کاری که «php artisan sitemap:generate» می‌کند، با یک دکمه
+    Route::get('/sitemap', [SitemapController::class, 'index'])->name('sitemap.index');
+    Route::post('/sitemap', [SitemapController::class, 'store'])->name('sitemap.store');
 
     Route::resource('/campaign', CampaignControllerAdmin::class);
     Route::post('/campaign/from', [CampaignControllerAdmin::class,'createForm'])->name('campaign.create.form');

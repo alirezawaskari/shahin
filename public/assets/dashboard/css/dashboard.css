@@ -26248,3 +26248,10 @@ input:disabled {
     padding: 15px;
     text-align: center;
 }
+.gh-steps{display:flex;justify-content:center;gap:8px;list-style:none;padding:0;margin:0 0 20px;flex-wrap:wrap}
+.gh-step{padding:8px 18px;border-radius:20px;background:#eee;color:#666;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px}
+.gh-step b{width:24px;height:24px;border-radius:50%;background:#ccc;color:#fff;display:inline-flex;align-items:center;justify-content:center}
+.gh-step.active{background:#28a745;color:#fff}
+.gh-step.active b{background:#fff;color:#28a745}
+.gh-pane{display:none}
+.gh-pane.active{display:block}
