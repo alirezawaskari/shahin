@@ -372,7 +372,9 @@ class GhorfeOnlineListController extends AdminController {
             'keywords',
             'status',
             'domain_active',
-            'addvertisment_slider_link'
+            'addvertisment_slider_link',
+            'index_title',
+            'index_description',
         ]);
 
         // footer_tag جداگانه (بدون overwrite کل update)
@@ -418,7 +420,6 @@ class GhorfeOnlineListController extends AdminController {
         }else {
             $this->validate($request, [
                 'titles.*' => 'required',
-                'links.*' => 'required',
             ]);
 
             $ids = $request->ids ?? [];
@@ -431,7 +432,6 @@ class GhorfeOnlineListController extends AdminController {
                 if (!$menu) continue;
 
                 $menu->title = $title;
-                $menu->link = $request->links[$index];
 
                 $menu->is_active = isset($request->actives[$index]) ? 1 : 0;
 
