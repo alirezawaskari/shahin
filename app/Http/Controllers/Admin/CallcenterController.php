@@ -1699,8 +1699,9 @@ class CallcenterController extends Controller
         ]);
     }
     /**
+     * Summary of followedTask
      * @param Request $request
-     * @return response
+     * @return \Illuminate\Http\Response
      */
     public function followedTask(Request $request)
     {

@@ -34,8 +34,10 @@ class Category extends Model implements HasMedia
     /**
      * @var string[]
      */
+    // path و depth جایگاه دسته‌بندی در درخت‌اند (findAllFather، تشخیص کالا/خدمت و …)؛
+    // بدون آن‌ها در fillable، هر دسته‌بندی تازه با path و depth خالی ذخیره می‌شد.
     protected $fillable=['title','subTitle','en_title','slug','isActive','displayOrder','min_credit'
-        ,'max_credit','percent','price','tax','minimum_discount' , 'parent_id'];
+        ,'max_credit','percent','price','tax','minimum_discount' , 'parent_id', 'path', 'depth'];
 
     /**
      * @var array

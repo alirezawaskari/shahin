@@ -670,7 +670,7 @@ class Factor extends Model implements AuditableContract, HasMedia
     {
         $temp = [];
         foreach ($item->factorItems as $factor_item) {
-            array_push($temp, $factor_item->factoritemable->title);
+            $factor_item->factoritemable ? array_push($temp, $factor_item->factoritemable->title) : '';
         }
         return implode(' - ', $temp);
     }

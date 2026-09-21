@@ -58,7 +58,7 @@ function paymentType(title) {
     }
     if (payment_type == "cash" || payment_type == "card_reader" || payment_type == "card" || payment_type == "check") {
         pShow('bill_image' + title);
-        pReq('bill_image_input' + title, true);
+        pReq('bill_image_input' + title, false);
     } else {
         pHide('bill_image' + title);
         pReq('bill_image_input' + title, false);

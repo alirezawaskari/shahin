@@ -19,3 +19,4 @@ docker
 docker-compose.yml
 Dockerfile
 public/build/*
+public/sitemap*

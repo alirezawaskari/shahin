@@ -34,32 +34,19 @@ class ServiceController extends AdminController
      */
     public function index(Request $request)
     {
-        // $columns=['title','pay_type','purchase_type'];
-
-        // foreach ($columns as $column) {
-        //     if($request->has($column)){
-        //         if ($request->$column != null) {
-        //             if ($column == 'title') {
-        //                 $services = $services->where($column, 'like', '%' . $request->$column . '%');
-        //                 $queries[$column] = $request->$column;
-        //             }
-        //         }
-        //         if ($column == 'pay_type' || $column == 'purchase_type' ) {
-        //             if($request->$column != 'all'){
-        //                 $services = $services->where($column, 'like', '%' . $request->$column . '%');
-        //                 $queries[$column]=$request->$column;
-        //             }
-        //             if($request->$column == 'all'){
-        //                 $queries[$column]='all';
-        //             }
-        //         }
-        //     }
-        // }
-
+        $in_wizard = (bool) request('wizard');
+        $wizard_category = request('wizard_category')
+            ? Category::select('id','title','parent_id','path')->find(request('wizard_category'))
+            : null;
+        if ($in_wizard) {
+            \App\Services\V1\Admin\ProductWizardService::rememberCategory($wizard_category);
+        }
         $pay_type = [0 => 'نقدی', 1 => 'اقساطی',2 => 'هر دو'];
         $purchase_type = [ 0 => 'آنلاین', 1=>'حضوری',2=>'هر دو'];
         $delete = auth()->user()->isAbleTo( 'service-delete' );
-        return view('Admin.service.all', compact('pay_type','purchase_type','delete'));
+        return view('Admin.service.all',['pay_type'=>$pay_type,'purchase_type'=>$purchase_type,'delete'=>$delete,
+            'in_wizard'=>$in_wizard,'wizard_category'=>$wizard_category]);
+
     }
 
     /**

@@ -1085,28 +1085,50 @@ $(document)
         contractAttachSyncPanes($(this).closest('.contract-attach-widget'));
     });
 
+// Fills the contract dropdown with the contracts of the currently chosen folder.
+//
+// keepSelection: re-selects the contract that was already chosen (the one the server
+// rendered as attached), set with .val() so no change event fires — the edit box and
+// its server-prefilled interlock stay exactly as rendered.
+function contractLoadFolderContracts($widget, keepSelection) {
+    var $select = $widget.find('.contract-select');
+    var selectedId = keepSelection ? $select.val() : '';
+    var selectedLabel = keepSelection ? $select.find('option:selected').text() : '';
+
+    $select.empty().append('<option value="">در حال بارگذاری...</option>');
+
+    $.get('/dashboard/contractUsage/byFolder', { folder_id: $widget.find('.contract-folder-filter').val() }, function (data) {
+        $select.empty().append('<option value="">لطفا انتخاب کنید..</option>');
+
+        $.each(data.contracts, function (i, contract) {
+            var label = contract.type ? contract.title + ' (' + contract.type + ')' : contract.title;
+            $select.append($('<option>').val(contract.id).text(label));
+        });
+
+        if (selectedId) {
+            // Keep the attached contract selectable even if it has since left this folder.
+            if (!$select.find('option[value="' + selectedId + '"]').length) {
+                $select.append($('<option>').val(selectedId).text(selectedLabel));
+            }
+            $select.val(selectedId);
+        } else if (!data.contracts.length) {
+            $select.empty().append('<option value="">قراردادی در این پوشه وجود ندارد</option>');
+        }
+    }).fail(function () {
+        $select.empty().append('<option value="">خطا در دریافت قراردادها</option>');
+    });
+}
+
 // Folder -> contract cascade.
 $(document)
     .off('change.contractFolder', '.contract-attach-widget .contract-folder-filter')
     .on('change.contractFolder', '.contract-attach-widget .contract-folder-filter', function () {
         var $widget = $(this).closest('.contract-attach-widget');
-        var $select = $widget.find('.contract-select');
-
-        $select.empty().append('<option value="">در حال بارگذاری...</option>');
-
-        $.get('/dashboard/contractUsage/byFolder', { folder_id: $(this).val() }, function (data) {
-            $select.empty().append('<option value="">لطفا انتخاب کنید..</option>');
-
-            $.each(data.contracts, function (i, contract) {
-                var label = contract.type ? contract.title + ' (' + contract.type + ')' : contract.title;
-                $select.append('<option value="' + contract.id + '">' + label + '</option>');
-            });
-        }).fail(function () {
-            $select.empty().append('<option value="">خطا در دریافت قراردادها</option>');
-        });
 
         // The previous selection is gone, so nothing is safe to edit yet.
         $widget.find('.contract-edit-box').hide().find('.contract-edit-id').val('');
+
+        contractLoadFolderContracts($widget, false);
     });
 
 // Selecting a contract loads it into the edit box, so it can be changed right here
@@ -1174,5 +1196,11 @@ $(document)
 $(function () {
     $('.contract-attach-widget').each(function () {
         contractAttachSyncPanes($(this));
+
+        // The dropdown is rendered with at most the attached contract, and the folder
+        // select already sits on its default («دسته بندی نشده» when nothing is attached),
+        // so choosing that folder fires no change and the list would never load. Load it
+        // up front instead.
+        contractLoadFolderContracts($(this), true);
     });
 });

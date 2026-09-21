@@ -106,7 +106,24 @@ class Callcenter extends Model implements AuditableContract
         $serviceItems = request('service_items');
         $has_factor = request('has_factor');
 
-        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
+        if (isset($description) && trim($description) != '') {
+            $query->where(function ($q) use ($description) {
+                $q->where('description', 'LIKE', '%' . $description . '%')
+                    ->orWhereHas('register', function ($q) use ($description) {
+                    $q->whereHas('callcenters', function ($q) use ($description) {
+                    $q->whereHas('histories', function ($q) use ($description) {
+                        $q->where('description', 'LIKE', '%' . $description . '%');
+                    });
+                });
+            })
+            ->orWhereHas('sms', function ($q) use ($description) {
+                $q->where('body', 'LIKE', '%' . $description . '%');
+            });
+        });
+        }
+        else{
+            $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
+        }
         if (auth()->user()->admin_representation) {
             $query->where('representation_id', auth()->user()->admin_representation->id);
         }
@@ -204,22 +221,6 @@ class Callcenter extends Model implements AuditableContract
                 $query->where('sex', $sex);
             });
         }
-
-        if (isset($description) && trim($description) != '') {
-            $query->where(function ($q) use ($description) {
-                $q->where('description', 'LIKE', '%' . $description . '%')
-                    ->orWhereHas('register', function ($q) use ($description) {
-                    $q->whereHas('callcenters', function ($q) use ($description) {
-                    $q->whereHas('histories', function ($q) use ($description) {
-                        $q->where('description', 'LIKE', '%' . $description . '%');
-                    });
-                });
-            })
-            ->orWhereHas('sms', function ($q) use ($description) {
-                $q->where('body', 'LIKE', '%' . $description . '%');
-            });
-        });
-}
 
         if (isset($serviceItems) && is_array($serviceItems) ) {
             $query->whereHas('factors', function ($query) use ($serviceItems) {
