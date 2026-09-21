@@ -168,6 +168,8 @@ class SitemapService
      */
     public function generate(array $only = []): array
     {
+        $this->ensureConfigured();
+
         $sections = $this->sections();
 
         if ($only !== []) {
@@ -269,6 +271,34 @@ class SitemapService
         }
 
         return $rows;
+    }
+
+    /**
+     * اگر config/sitemap.php بارگذاری نشده باشد، ساخت نقشه سایت متوقف می‌شود.
+     *
+     * رایج‌ترین دلیلش کش کانفیگ است: اگر روی سرور `php artisan config:cache`
+     * قبل از اضافه شدن این فایل اجرا شده باشد، لاراول فقط bootstrap/cache/config.php
+     * را می‌خواند و config('sitemap') خالی است. بدون این بررسی همه‌ی بخش‌ها «خالی»
+     * دیده می‌شدند، فایل‌های موجود پاک می‌شدند و یک sitemap.xml خالی جایشان
+     * می‌نشست — یعنی نقشه سایت سالم روی سایت اصلی با یک فایل تهی عوض می‌شد.
+     *
+     * @throws SitemapNotConfiguredException
+     */
+    public function ensureConfigured(): void
+    {
+        if (! $this->isConfigured()) {
+            throw new SitemapNotConfiguredException(
+                'تنظیمات نقشه سایت (config/sitemap.php) بارگذاری نشده است. به احتمال زیاد کش کانفیگ'
+                .' قدیمی است؛ روی سرور «php artisan config:cache» (یا config:clear) را اجرا کنید و دوباره بسازید.'
+            );
+        }
+    }
+
+    public function isConfigured(): bool
+    {
+        return is_array(config('sitemap.sections'))
+            && is_array(config('sitemap.model_paths'))
+            && is_array(config('sitemap.static_pages'));
     }
 
     public function baseUrl(): string
