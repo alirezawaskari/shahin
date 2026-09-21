@@ -39,9 +39,7 @@ class SingleWebPageController extends Controller
     {
         $user = auth()->user();
         $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get();
-        $registerForm = View::make('site.services.registerForm' , compact('service' , 'financial_plans_types' , 'callcenter'))->render();
-        $content = str_replace('[form]', $registerForm, $service->content);
-
+        $callcenter = null;
         if ($user) {
             $required = null;
             $founded = [];
@@ -73,13 +71,18 @@ class SingleWebPageController extends Controller
                     $query->where('factoritemable_id', $service->id);
                 })->first();
             }
+            $registerForm = View::make('site.services.registerForm' , compact('callcenter','singleWebPage','service' , 'financial_plans_types' ,'required', 'requireServices' , 'check','factor'))->render();
+            $content = str_replace('[form]', $registerForm, $service->content);
 
-            return view('site.singleWebPage.single', compact('content' , 'singleWebPage','financial_plans_types' ,'service', 'required', 'requireServices' , 'check','factor'));
+            return view('site.singleWebPage.single', compact('callcenter' ,'content' , 'singleWebPage','financial_plans_types' ,'service', 'required', 'requireServices' , 'check','factor'));
         }
 
         $provinces = Province::get();
         $citys = City::get();
-        return view('site.singleWebPage.single' , compact('content' , 'singleWebPage','financial_plans_types' , 'service' , 'provinces' , 'citys'));
+        $registerForm = View::make('site.services.registerForm' , compact('callcenter','singleWebPage','financial_plans_types' , 'service' , 'provinces' , 'citys'))->render();
+        $content = str_replace('[form]', $registerForm, $service->content);
+
+        return view('site.singleWebPage.single' , compact('callcenter','content' , 'singleWebPage','financial_plans_types' , 'service' , 'provinces' , 'citys'));
     }
 
     public function checkout(SingleWebPage $singleWebPage , Factor $factor ) {
