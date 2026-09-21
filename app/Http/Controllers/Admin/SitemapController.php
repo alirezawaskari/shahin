@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\V1\Sitemap\SitemapNotConfiguredException;
 use App\Services\V1\Sitemap\SitemapService;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,7 @@ class SitemapController extends Controller
             'base_url' => $this->sitemap->baseUrl(),
             'path'     => rtrim(config('sitemap.path', public_path()), '/\\'),
             'report'   => session('sitemap_report'),
+            'configured' => $this->sitemap->isConfigured(),
         ]);
     }
 
@@ -46,7 +48,13 @@ class SitemapController extends Controller
         // هیچ بخشی تیک نخورده یعنی همه — مثل اجرای بدون --section در کنسول.
         $only = array_values(array_unique($data['sections'] ?? []));
 
-        $report = $this->sitemap->generate($only);
+        try {
+            $report = $this->sitemap->generate($only);
+        } catch (SitemapNotConfiguredException $e) {
+            alert()->error('ناموفق', $e->getMessage())->persistent('باشه');
+
+            return redirect()->route('sitemap.index');
+        }
 
         alert()->success('عملیات موفق', sprintf(
             'نقشه سایت به‌روز شد: %d آدرس در %d فایل.',

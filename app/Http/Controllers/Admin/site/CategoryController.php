@@ -34,7 +34,9 @@ class CategoryController extends Controller
         $parent = Category::findOrFail($category_id);
         $all_categories = Category::filter()->select('id', 'title')->get();
         $all_services = Service::filter()->select('id', 'title')->get();
-        $path = ($parent->path === null) ? 1 : $parent->path .'/'. $parent->id;
+        // والدِ بدون path (ریشه، یا ردیفی که path آن ذخیره نشده) مسیرش خودش است؛
+        // پیش‌تر اینجا ثابت 1 (ریشه کالا) بود و زیرمجموعه خدمات را کالا حساب می‌کرد.
+        $path = ($parent->path === null || $parent->path === '') ? $parent->id : $parent->path .'/'. $parent->id;
         $path_explode = explode('/', $path);
         $cateDepthOne = Category::filter()
             ->where('depth', 1)

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\V1\Sitemap\SitemapNotConfiguredException;
 use App\Services\V1\Sitemap\SitemapService;
 use Illuminate\Console\Command;
 
@@ -27,11 +28,19 @@ class GenerateSitemap extends Command
     public function handle(SitemapService $sitemap): int
     {
         if ($this->option('list')) {
+            if (! $sitemap->isConfigured()) {
+                $this->warn('config/sitemap.php بارگذاری نشده است (کش کانفیگ قدیمی؟)؛ مقادیر زیر پیش‌فرض‌اند.');
+            }
+
             return $this->showSections($sitemap);
         }
 
         try {
             $report = $sitemap->generate($this->option('section'));
+        } catch (SitemapNotConfiguredException $e) {
+            $this->error($e->getMessage());
+
+            return self::FAILURE;
         } catch (\InvalidArgumentException $e) {
             $this->error($e->getMessage());
             $this->line('بخش‌های موجود: '.$sitemap->sections()->keys()->implode('، '));

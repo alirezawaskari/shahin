@@ -42,9 +42,38 @@ class ProductWizardService
      */
     public static function kindOfCategory(Category $category): string
     {
-        $root = (int) (explode('/', (string) $category->path)[0] ?: $category->id);
+        return self::rootIdOf($category) === self::ROOTS['service'] ? 'service' : 'product';
+    }
 
-        return $root === self::ROOTS['service'] ? 'service' : 'product';
+    /**
+     * شناسه ریشه درختی که دسته‌بندی در آن است.
+     *
+     * اول از path (سریع)؛ اگر path خالی بود — خود ریشه، یا ردیفی که path آن هیچ‌وقت
+     * ذخیره نشده — از زنجیره parent_id بالا می‌رویم. بدون این، دسته‌بندی خدمتی که path
+     * ندارد «کالا» تشخیص داده می‌شد.
+     */
+    private static function rootIdOf(Category $category): int
+    {
+        $first = (int) explode('/', (string) $category->path)[0];
+        if ($first) {
+            return $first;
+        }
+
+        $node = $category;
+        for ($guard = 0; $node->parent_id && $guard < 10; $guard++) {
+            $parent = Category::select('id', 'parent_id', 'path')->find($node->parent_id);
+            if (! $parent) {
+                break;
+            }
+            // یک سطح بالاتر path سالم دارد؟ همان کافی است
+            $first = (int) explode('/', (string) $parent->path)[0];
+            if ($first) {
+                return $first;
+            }
+            $node = $parent;
+        }
+
+        return (int) $node->id;
     }
 
     /**

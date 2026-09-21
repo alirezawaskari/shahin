@@ -19,6 +19,14 @@
         </div>
     </div>
 
+    @unless($configured)
+        <div class="alert alert-danger" role="alert">
+            تنظیمات نقشه سایت (<code>config/sitemap.php</code>) بارگذاری نشده است، پس ساخت نقشه سایت غیرفعال است.
+            به احتمال زیاد کش کانفیگ سرور قدیمی است؛ روی سرور
+            <code>php artisan config:cache</code> (یا <code>config:clear</code>) را اجرا کنید و صفحه را دوباره باز کنید.
+        </div>
+    @endunless
+
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">ساخت و به‌روزرسانی</h4>
@@ -63,7 +71,7 @@
                     بخش‌های غیرفعال در <code>config/sitemap.php</code> خاموش شده‌اند.
                 </p>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" {{ $configured ? '' : 'disabled' }}>
                     ساخت / به‌روزرسانی نقشه سایت
                 </button>
             </form>
