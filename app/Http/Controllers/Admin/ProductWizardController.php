@@ -119,7 +119,7 @@ class ProductWizardController extends Controller
             'label'     => Wizard::LABELS[$kind],
             'product'   => $product,
             'list_url'  => $kind === 'service'
-                ? route('service.index')
+                ? route('service.index' , ['wizard' => 1, 'wizard_category' => $category_id])
                 : route('products.index', array_filter(['root_category_id' => $category_id])),
             // «ایجاد مورد جدید» یعنی شروع تازه، نه ادامه با دسته‌بندی و کالای قبلی
             'again_url' => route('productWizard.index'),

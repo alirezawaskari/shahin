@@ -3,25 +3,23 @@
 
 @section('content')
 
-<div class="page-header">
-    <div>
-        <h3>فهرست خدمات</h3>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">فهرست خدمات</li>
-            </ol>
-        </nav>
-    </div>
-    <div>
-        @permission('create_service')
-        <a class="btn btn-primary" href="{{ route('service.create') }}">خدمت جدید</a>
-        @endpermission
-    </div>
+@php
+$in_wizard = $in_wizard ?? false;
+$preselected_category = $wizard_category ?? null;
+@endphp
+
+@if($in_wizard)
+@include('Admin.productWizard.partials.steps',['current'=>'create','kind'=>'service'])
+@if($preselected_category)
+<div class="mb-3">
+    <a href="{{route('category.subCategory',[$preselected_category->parent_id ?: $preselected_category->id,'wizard'=>1])}}"
+        class="btn btn-outline-secondary btn-sm">بازگشت به دسته‌بندی‌ها</a>
 </div>
+@endif
+@endif
 <div class="card position-relative">
     <div class="card-body">
-        <form  id="filter_form" method="get" role="form" action="/dashboard/service/filter">
+        <form id="filter_form" method="get" role="form" action="/dashboard/service/filter">
             <div class="row">
                 <div class="col-12 col-md-3 mb-2 disInline">
                     <input class="form-control" name="title" placeholder="عنوان">
