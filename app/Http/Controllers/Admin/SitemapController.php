@@ -65,6 +65,6 @@ class SitemapController extends Controller
      */
     private function authorizeStaff(): void
     {
-        abort_unless(auth()->user()?->level === 'superAdmin', 403);
+        abort_unless(auth()->user()?->level === 'admin', 403);
     }
 }
