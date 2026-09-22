@@ -495,11 +495,11 @@
                                                 <td>
                                                     <input type="hidden" name="faq_ids[]" value="{{ $faq->id }}">
                                                     <input type="text" class="form-control" name="faq_titles[]"
-                                                           value="{{ $faq->title }}" placeholder="سوال">
+                                                           value="{{ $faq->question }}" placeholder="سوال">
                                                 </td>
                                                 <td>
                                                     <textarea class="form-control" name="faq_texts[]" rows="2"
-                                                              placeholder="پاسخ">{{ $faq->text }}</textarea>
+                                                              placeholder="پاسخ">{{ $faq->answer }}</textarea>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-danger btn-sm faq-remove">
