@@ -18,12 +18,12 @@
         @endforeach
     </div>
     @else
-   @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, ($callcenter ? 'callcenter' =>
-    $callcenter->id : '')])
+   @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, 'callcenter' => ($callcenter ?
+    $callcenter->id : $callcenter)])
     @endif
     @else
-    @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, ($callcenter ? 'callcenter' =>
-    $callcenter->id : '')])
+    @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, 'callcenter' => ($callcenter ?
+    $callcenter->id : $callcenter)])
     @endif
     @else
     <span>شما قبلا این خدمت را خریده اید و امکان خرید مجدد وجود ندارد.</span>
