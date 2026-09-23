@@ -24,7 +24,10 @@ class MenuService
     {
         $version = $this->version();
 
-        if ($user->level == 'superAdmin') {
+        // isSuperAdmin و نه level: حساب‌هایی که نقش «superadmin» دارند و level شان
+        // admin است هم باید همان منوی کامل را ببینند، وگرنه آیتمی که مسیرش برایشان
+        // باز است در منو غایب می‌ماند.
+        if ($user->isSuperAdmin()) {
             return Cache::remember("menu_super_admin_{$version}", 60, fn() => $this->getAllMenus());
         }
 

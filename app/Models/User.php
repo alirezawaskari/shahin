@@ -246,9 +246,22 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
      *
      * @return bool
      */
+    /**
+     * لاله's top-level account.
+     *
+     * Two ways to be one, and both count everywhere in the panel: the `superAdmin`
+     * level, or the `superadmin` role (مدیرعامل) on top of another level — accounts
+     * provisioned through نقش‌ها have the role and a plain `admin` level, so a check
+     * that only reads `level` locks them out of pages they are meant to run.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->level === 'superAdmin' || $this->hasRole('superadmin');
+    }
+
     public function canCreateEmployee(): bool
     {
-        if (in_array($this->level, ['superAdmin', 'admin'], true) || $this->hasRole('superadmin')) {
+        if ($this->isSuperAdmin() || $this->level === 'admin') {
             return true;
         }
 

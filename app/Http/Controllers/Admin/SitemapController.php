@@ -70,9 +70,13 @@ class SitemapController extends Controller
      * در منو می‌بیند (MenuService::SUPER_ADMIN_ONLY). داشبورد برای admin و
      * ghorfeAdmin هم باز است، پس همان محدودیت باید روی خود مسیر هم باشد وگرنه
      * با تایپ کردن آدرس دور زده می‌شود.
+     *
+     * تشخیص superAdmin با User::isSuperAdmin() است، نه مقایسه‌ی مستقیم level:
+     * حسابی که نقش «superadmin» (مدیرعامل) دارد ولی level اش admin است هم در
+     * بقیه‌ی پنل superAdmin حساب می‌شود و اینجا هم باید بشود.
      */
     private function authorizeStaff(): void
     {
-        abort_unless(auth()->user()?->level === 'admin', 403);
+        abort_unless((bool) auth()->user()?->isSuperAdmin(), 403);
     }
 }
