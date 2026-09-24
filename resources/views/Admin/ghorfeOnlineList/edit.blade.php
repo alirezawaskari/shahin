@@ -1305,7 +1305,7 @@
                                             </div>
                                         </div>
 
-                                        {{-- دسته بندی --}}
+                                        {{-- دسته بندی
                                         @php
                                         $selectedCategory = old('category', $ghorfeOnlineList->category_id ?? null);
                                         @endphp
@@ -1351,11 +1351,11 @@
                                             </span>
                                             @enderror
 
-                                        </div>
+                                        </div> --}}
 
 
                                         {{-- خدمات --}}
-                                        @php
+                                        {{-- @php
                                         $selectedService = old('service', $ghorfeOnlineList->service_id ?? null);
                                         @endphp
 
@@ -1394,7 +1394,7 @@
 
                                             </div>
 
-                                        </div>
+                                        </div> --}}
 
 
                                         {{-- گالری --}}
@@ -1405,7 +1405,7 @@
                                             </label>
 
                                             <div id="gallerySection">
-                                                <x-gallery-form :galleries="$ghorfeOnlineList->galleries"
+                                                <x-media-gallery-form :owner="$ghorfeOnlineList"
                                                     :ghorfeTemplet="$ghorfeOnlineList->template" />
                                             </div>
 
