@@ -1,4 +1,4 @@
-<nav class="navbar  navbar-expand-lg navbar-light header py-0">
+<nav class="navbar  navbar-expand-lg navbar-light header py-0 noprint">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
                 aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
@@ -193,7 +193,7 @@
                         </li>
                         <li class="nav-item profile">
                             <a class="nav-link text-dark" href="{{ route('profile') }}">
-                                <img width="40px" height="40px" src="{{ auth()->user()->avatar }}"
+                                <img width="40px" height="40px" src="{{ asset(auth()->user()->avatar) }}"
                                      class="rounded-circle">
                                 <span>{{ auth()->user()->family }}</span>
                             </a>
