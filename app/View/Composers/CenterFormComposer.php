@@ -21,8 +21,9 @@ class CenterFormComposer
 
         View::composer($views, function ($view) {
 
-            $product_categories = CenterCategory::where('type', 'category')->get();
-            $service_categories = CenterCategory::where('type', 'service')->get();
+            $service_categories = Category::filter()->where('parent_id', 2)->where('isActive' , 1)->get();
+            $product_categories = Category::filter()->where('parent_id', 1)->where('isActive' , 1)->get();
+
             $categories = Category::filter()
                 ->where('isActive', true)
                 ->where('depth', 1)

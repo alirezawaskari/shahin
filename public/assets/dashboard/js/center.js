@@ -4,14 +4,14 @@ function catType(catType) {
         $(".services-select").next(".select2").hide();
         $("#product_category").removeAttr("style").show();
         $("#category").removeAttr("style").show();
-        $("#service_category").removeAttr("style").hide();
-        // $("#service").removeAttr("style").hide();
+        $("#service_category_id1").removeAttr("style").hide();
+        $("#service_id1").removeAttr("style").hide();
     } else {
         $(".services-select").next(".select2").show();
         $("#product_category").removeAttr("style").hide();
         $("#category").removeAttr("style").hide();
-        $("#service_category").removeAttr("style").show();
-        $("#service").removeAttr("style").show();
+        $("#service_category_id1").removeAttr("style").show();
+        $("#service_id1").removeAttr("style").show();
     }
 }
 

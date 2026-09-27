@@ -11,9 +11,9 @@
                 <div class="form-row">
                     <input type="hidden" name="item[user_id]" value="{{ auth()->user()->id }}">
                     {{-- Present only when the form was opened from a business's branch tab:
-                         it says which business the new branch belongs to. --}}
+                    it says which business the new branch belongs to. --}}
                     @isset($ghorfeOnlineListId)
-                        <input type="hidden" name="ghorfe_online_list_id" value="{{ $ghorfeOnlineListId }}">
+                    <input type="hidden" name="ghorfe_online_list_id" value="{{ $ghorfeOnlineListId }}">
                     @endisset
                     <div class="col-12 mb-3">
                         <h5>1 - انتخاب نوع دسته بندی همکاری</h5>
@@ -25,32 +25,30 @@
                             onclick="catType(this.value)">
                     </div>
                     <div class="col-12 mb-5">
-                        <select class="form-control mb-3" name="item[service_category]" id="service_category">
-                            <option selected disabled>انتخاب دسته بندی خدمت مربوطه</option>
-                            @foreach ($service_categories as $service_category)
-                            <option value="{{ $service_category->id }}">{{ $service_category->title }}
-                            </option>
-                            @endforeach
-                        </select>
-                        <select class="form-control mb-3 services-select" multiple="multiple" name="service[]"
-                            id="service">
-                            {{-- <option selected disabled>انتخاب خدمت مربوطه</option>--}}
-                            @foreach ($services as $service)
-                            <option value="{{ $service->id }}">{{ $service->title }}
-                            </option>
-                            @endforeach
-                        </select>
+                        <div class="col-12 mb-3 mt-2 service_category {{ auth()->user()->center ? 'd-none' : ''}}">
+                            <select class="form-control" id="service_category_id1"
+                                onchange="selectByCategory(this.id , this.value)" name="item[service_category]">
+                                <option selected disabled> انتخاب دسته بندی</option>
+                                @foreach ($service_categories as $category)
+                                <option value="{{ $category->id }}">{{
+                                    $category->title }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3 mt-2 service">
+                            <select class="form-control" id="service_id1" multiple="multiple" name="service[]">
+                                @foreach ($services as $service)
+                                <option value="{{ $service->id }}">{{
+                                    $service->title }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
                         <select class="form-control mb-3" name="item[product_category]" id="product_category">
                             <option selected disabled>انتخاب دسته بندی کالا مربوطه</option>
                             @foreach ($product_categories as $product_category)
                             <option value="{{ $product_category->id }}">{{ $product_category->title }}
-                            </option>
-                            @endforeach
-                        </select>
-                        <select class="form-control mb-3" name="category" id="category">
-                            <option selected disabled>انتخاب دسته بندی مربوطه</option>
-                            @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->title }}
                             </option>
                             @endforeach
                         </select>
@@ -194,8 +192,8 @@
         </div>
 
         {{-- The customer-facing side. Only the three fields that are awkward to leave blank
-             on day one; the rest of the branch page (ساعات کاری، طرح های مالی، تصاویر،
-             سوالات متداول) is filled in on the edit page, which opens right after saving. --}}
+        on day one; the rest of the branch page (ساعات کاری، طرح های مالی، تصاویر،
+        سوالات متداول) is filled in on the edit page, which opens right after saving. --}}
         <div class="card">
             <div class="card-body">
                 <div class="form-group">
@@ -206,7 +204,8 @@
                             <label>عنوان منو</label>
                             <select class="form-control" name="label_type">
                                 @foreach(\App\Models\Center::LABELS as $key => $word)
-                                <option value="{{ $key }}" @selected(old('label_type', 'branch') === $key)>{{ $word }}</option>
+                                <option value="{{ $key }}" @selected(old('label_type', 'branch' )===$key)>{{ $word }}
+                                </option>
                                 @endforeach
                             </select>
                             <small class="text-muted">این عنوان در منو و سرتیتر صفحه عمومی استفاده می‌شود.</small>
@@ -225,7 +224,8 @@
                         </div>
                     </div>
                     <div class="alert alert-info mb-0">
-                        پس از ثبت، صفحه ویرایش باز می‌شود تا ساعات کاری، طرح های مالی، تصاویر و سوالات متداول را کامل کنید.
+                        پس از ثبت، صفحه ویرایش باز می‌شود تا ساعات کاری، طرح های مالی، تصاویر و سوالات متداول را کامل
+                        کنید.
                     </div>
                 </div>
             </div>
@@ -237,6 +237,7 @@
 </form>
 @stop
 @section('js')
+<script src="{{asset('assets/dashboard/js/sendLink.js?v=1.9')}}"></script>
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/center.js') }}"></script>
 <script>
