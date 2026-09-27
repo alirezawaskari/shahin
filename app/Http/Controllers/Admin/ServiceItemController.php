@@ -154,6 +154,7 @@ class ServiceItemController extends Controller
             'content'=>$request['content'],
             'txt_box_1'=>$request->txt_box_1,
             'left_content'=>$request->left_content,
+            'is_complete_content' =>$request->is_complete_content,
         ));
         return response(['status'=>'success','messages'=>array('ثبت تغییرات با موفقیت انجام گرفت !')]);
     }
