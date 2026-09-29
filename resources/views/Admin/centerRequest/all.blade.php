@@ -1,15 +1,15 @@
 @extends('Admin.master')
-@section('title')فهرست درخواست مرکز@endsection
+@section('title')فهرست درخواست مستاجرین و شرکای تجاری@endsection
 
 @section('content')
 
 <div class="page-header">
     <div>
-        <h3>فهرست درخواست مرکز</h3>
+        <h3>فهرست درخواست مستاجرین و شرکای تجاری</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page"> فهرست درخواست مرکز</li>
+                <li class="breadcrumb-item active" aria-current="page"> فهرست درخواست مستاجرین و شرکای تجاری</li>
             </ol>
         </nav>
     </div>

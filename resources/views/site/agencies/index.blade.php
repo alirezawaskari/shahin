@@ -1,12 +1,12 @@
 @extends('site.master')
 
 @section('title')
-    اعطاء مجوز همکاری به مراکز و فروشگاهها
+    اعطاء مجوز همکاری به مستاجرین و شرکای تجاری و فروشگاهها
 @endsection
 @section('content')
     <div>
         {{--banner--}}
-        @component('site.layouts.breadcrumb',['title'=>'اعطاء مجوز همکاری به مراکز و فروشگاهها','background'=>asset('/assets/site/images/services-header.jpg')]) @endcomponent
+        @component('site.layouts.breadcrumb',['title'=>'اعطاء مجوز همکاری به مستاجرین و شرکای تجاری و فروشگاهها','background'=>asset('/assets/site/images/services-header.jpg')]) @endcomponent
         {{--article--}}
         @if(!auth()->check())
             <div class="col-12 mt-4">

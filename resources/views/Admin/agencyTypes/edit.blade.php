@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-body">
             <div class="x_title">
-                <h4>ویرایش عاملیت</h4>
+                <h4>ویرایش نمایندگی</h4>
             </div>
             <form class="form-horizontal" method="post"
                   action="{{route('agencyType.update',$agencyTypes->id)}}"

@@ -88,7 +88,7 @@
                                             dir="LTR" style="font-size:14.0pt">Social Credit</span><span dir="ltr"
                                             lang="FA" style="font-size:14.0pt"><span
                                                 style="font-family:&quot;B Nazanin&quot;">( بود. این پروژه که بر ارزیابی
-                                                اعتبار و مسئولیت&zwnj;پذیری افراد در جامعه بر اساس معیارهای مختلف تمرکز
+                                                اعتبار و مسئولیت&zwnj;پذیری افراد در جامعه بر اساس معیارهای مختلف تمستاجرین و شرکای تجاری
                                                 دارد، نشان&zwnj;دهنده عمق نگاه او به پیوند میان اقتصاد، فناوری و رفتار
                                                 اجتماعی است. این تجربه بین&zwnj;المللی بعدها در طراحی &laquo;لاله کارت
                                                 شهروندی&raquo; تأثیر مستقیمی گذاشت.</span></span></span></span></p>
@@ -121,7 +121,7 @@
                                                 رئیس شورای <strong>اقتصاد مقاومتی</strong> نیروهای مسلح فعالیت
                                                 می&zwnj;کرد. این مسئولیت خطیر به او این فرصت را داد تا راهکارهای افزایش
                                                 بهره&zwnj;وری، خودکفایی و تاب&zwnj;آوری اقتصادی را در یکی از
-                                                بزرگ&zwnj;ترین ساختارهای کشور طراحی و نظارت کند. تمرکز او بر استفاده از
+                                                بزرگ&zwnj;ترین ساختارهای کشور طراحی و نظارت کند. تمستاجرین و شرکای تجاری او بر استفاده از
                                                 ظرفیت&zwnj;های داخلی و بهینه&zwnj;سازی منابع در این دوره، بعدها به فلسفه
                                                 اصلی کسب&zwnj;وکارهای شخصی او تبدیل شد.</span></span></span></span></p>
 
@@ -355,7 +355,7 @@
                             <p dir="RTL" style="text-align:justify"><span style="font-size:12pt"><span
                                         ><span dir="ltr" lang="FA"
                                             style="font-size:14.0pt"><span style="font-family:&quot;B Nazanin&quot;">پیش
-                                                از تمرکز کامل بر بخش خصوصی، <strong>دکتر میرحسینی</strong> در
+                                                از تمستاجرین و شرکای تجاری کامل بر بخش خصوصی، <strong>دکتر میرحسینی</strong> در
                                                 پروژه&zwnj;های استراتژیک ملی نیز مشارکت فعالی داشته است. این تجربیات،
                                                 درک عمیقی از سازوکارهای کلان کشور و نیازهای زیرساختی به او
                                                 بخشید.</span></span></span></span></p>
@@ -392,7 +392,7 @@
                                                 پروژه&zwnj;های عمرانی و رفاهی بزرگ با عناوین &laquo;شهید فلاحی&raquo;،
                                                 &laquo;ولایت فقیه&raquo;، &laquo;زینبیه&raquo;، &laquo;لویزان ۱&raquo; و
                                                 &laquo;لویزان ۲&raquo; اشاره کرد. این پروژه&zwnj;ها عمدتاً بر بهبود
-                                                زیرساخت&zwnj;ها و ارائه خدمات رفاهی متمرکز
+                                                زیرساخت&zwnj;ها و ارائه خدمات رفاهی متمستاجرین و شرکای تجاری
                                                 بودند.</span></span></span></span></p>
 
                             <p dir="RTL" style="text-align:justify"><span style="font-size:12pt"><span
@@ -419,7 +419,7 @@
                                 <li dir="RTL" style="text-align:justify"><span style="font-size:12pt"><span
                                             ><strong><span dir="ltr" lang="FA"
                                                     style="font-size:14.0pt"><span
-                                                        style="font-family:&quot;B Nazanin&quot;">تمرکز بر نیازهای واقعی
+                                                        style="font-family:&quot;B Nazanin&quot;">تمستاجرین و شرکای تجاری بر نیازهای واقعی
                                                         جامعه:</span></span></strong><span dir="ltr" lang="FA"
                                                 style="font-size:14.0pt"><span
                                                     style="font-family:&quot;B Nazanin&quot;"> تمام پروژه&zwnj;های او،
@@ -567,7 +567,7 @@
                                             style="font-size:14.0pt"><span
                                                 style="font-family:&quot;B Nazanin&quot;">تفاوت اصلی در رویکرد جامع و
                                                 اجتماعی اوست. در حالی که بسیاری از شرکت&zwnj;ها صرفاً بر ارائه وام یا
-                                                اعتبار متمرکز هستند، مدل کسب&zwnj;وکار دکتر میرحسینی یک اکوسیستم کامل از
+                                                اعتبار متمستاجرین و شرکای تجاری هستند، مدل کسب&zwnj;وکار دکتر میرحسینی یک اکوسیستم کامل از
                                                 خدمات رفاهی (درمانی، حقوقی، مسکن) را حول محور اعتبار ایجاد کرده و هدف
                                                 اصلی آن کاهش هزینه&zwnj;های زندگی و افزایش رفاه اجتماعی است، نه فقط
                                                 سودآوری مالی.</span></span></span></span></p>

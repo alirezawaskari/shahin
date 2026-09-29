@@ -20,13 +20,13 @@
         @role('mali-representation')
         @if($purchaseInvoice->status == 3)
             <p class="text-warning col-12">مدیر مالی محترم تایید نهایی فاکتور به منظور تایید
-                پرونده از جانب شما و ارسال پرونده برای تایید مدیر عاملیت می‌باشد.</p>
-            <button class="btn btn-success ml-2">تایید و ارجاع به مدیر عاملیت</button>
+                پرونده از جانب شما و ارسال پرونده برای تایید مدیر نمایندگی می‌باشد.</p>
+            <button class="btn btn-success ml-2">تایید و ارجاع به مدیر نمایندگی</button>
         @endif
         @endrole
         @role('superadmin-representation')
         @if($purchaseInvoice->status == 4)
-            <button class="btn btn-success ml-2">تایید نهایی مدیر عاملیت</button>
+            <button class="btn btn-success ml-2">تایید نهایی مدیر نمایندگی</button>
         @endif
         @endrole
         @role('warehouse-keeper' || 'superadmin')

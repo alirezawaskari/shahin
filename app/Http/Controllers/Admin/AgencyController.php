@@ -93,7 +93,7 @@ class AgencyController extends Controller
         $agency->histories()->create([
             'user_id' => auth()->user()->id,
             'status' => 2,
-            'description' => $request->description ? $request->description : 'درخواست عاملیت ثبت شده است',
+            'description' => $request->description ? $request->description : 'درخواست نمایندگی ثبت شده است',
         ]);
 
         return redirect(route('agency.index'))->with([

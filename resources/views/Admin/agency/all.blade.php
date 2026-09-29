@@ -3,11 +3,11 @@
 @section('content')
 <div class="page-header">
     <div>
-        <h3>فهرست درخواست عاملیت</h3>
+        <h3>فهرست درخواست نمایندگی</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">فهرست درخواست عاملیت</li>
+                <li class="breadcrumb-item active" aria-current="page">فهرست درخواست نمایندگی</li>
             </ol>
         </nav>
     </div>
@@ -66,7 +66,7 @@
 
                 <div class="col-12 col-md-3 mb-2">
                     <select class="form-control" name="agency_type">
-                        <option value="all">نوع عاملیت</option>
+                        <option value="all">نوع نمایندگی</option>
                         @foreach($agency_types as $agency_type)
                         <option value="{{$agency_type->id}}">{{ $agency_type->title }}</option>
                         @endforeach
@@ -101,7 +101,7 @@
                     <th>شماره موبایل</th>
                     <th>استان</th>
                     <th>شهر</th>
-                    <th>نوع عاملیت</th>
+                    <th>نوع نمایندگی</th>
                     <th>تاریخ ثبت</th>
                     <th>تاریخ ویرایش</th>
                     <th>وضعیت</th>

@@ -4,16 +4,16 @@
 
     <div class="page-header">
         <div>
-            <h3>فهرست عاملیت ها</h3>
+            <h3>فهرست نمایندگی ها</h3>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">فهرست عاملیت ها</li>
+                    <li class="breadcrumb-item active" aria-current="page">فهرست نمایندگی ها</li>
                 </ol>
             </nav>
         </div>
         <div>
-            <a class="btn btn-primary" href="{{ route('representation.create') }}">عاملیت جدید</a>
+            <a class="btn btn-primary" href="{{ route('representation.create') }}">نمایندگی جدید</a>
         </div>
     </div>
     <div class="card position-relative">
@@ -22,7 +22,7 @@
                 <thead>
                     <tr>
                         <th>آدرس سایت</th>
-                        <th>عنوان  عاملیت</th>
+                        <th>عنوان  نمایندگی</th>
                         <th>نام نماینده</th>
                         <th>موبایل</th>
                         <th>تاریخ ثبت</th>

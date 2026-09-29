@@ -1,20 +1,20 @@
 @extends('Admin.master')
-@section('title')فهرست مراکز@endsection
+@section('title')فهرست مستاجرین و شرکای تجاری@endsection
 
 @section('content')
 
 <div class="page-header">
     <div>
-        <h3>فهرست مراکز</h3>
+        <h3>فهرست مستاجرین و شرکای تجاری</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">داشبورد</a></li>
-                <li class="breadcrumb-item active" aria-current="page">فهرست مراکز</li>
+                <li class="breadcrumb-item active" aria-current="page">فهرست مستاجرین و شرکای تجاری</li>
             </ol>
         </nav>
     </div>
     <div>
-        <a class="btn btn-primary" href="{{ route('center.create') }}">مرکز جدید</a>
+        <a class="btn btn-primary" href="{{ route('center.create') }}">مستاجرین و شرکای تجاری جدید</a>
     </div>
 </div>
 
@@ -24,12 +24,12 @@
             <div class="row">
 
                 <div class="col-12 col-md-3 mb-2">
-                    <input type="text" class="form-control" name="title" placeholder="نام مرکز">
+                    <input type="text" class="form-control" name="title" placeholder="نام مستاجرین و شرکای تجاری">
                 </div>
 
                 <div class="col-12 col-md-3 mb-2">
                     <select class="form-control" name="service">
-                        <option value="all">خدمات شامل این مرکز</option>
+                        <option value="all">خدمات شامل این مستاجرین و شرکای تجاری</option>
                         @foreach(\App\Models\Service::orderBy('title')->get() as $service)
                             <option value="{{ $service->id }}">{{ $service->title }}</option>
                         @endforeach
@@ -38,7 +38,7 @@
 
                 <div class="col-12 col-md-3 mb-2">
                     <select class="form-control" name="status">
-                        <option value="all">وضعیت مرکز</option>
+                        <option value="all">وضعیت مستاجرین و شرکای تجاری</option>
                         <option value="1">فعال</option>
                         <option value="0">غیر فعال</option>
                     </select>
@@ -78,7 +78,7 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>نام مرکز</th>
+                    <th>نام مستاجرین و شرکای تجاری</th>
                     <th>خدمات</th>
                     <th>نمایندگی</th>
                     <th>تاریخ ثبت</th>

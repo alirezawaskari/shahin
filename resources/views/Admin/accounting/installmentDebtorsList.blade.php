@@ -37,7 +37,7 @@
                 @if(is_null(auth()->user()->center_id))
                 <div class="col-12 col-md-3 mb-2">
                     <select class="form-control select2" name="center">
-                        <option value="all">مراکز</option>
+                        <option value="all">مستاجرین و شرکای تجاری</option>
                         @foreach($centers as $center)
                         <option value="{{$center->id}}">
                             {{$center->title}}

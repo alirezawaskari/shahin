@@ -22,7 +22,7 @@
         <h3>{{ $center->display_title }}</h3>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('center.index') }}">مراکز</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('center.index') }}">مستاجرین و شرکای تجاری</a></li>
                 <li class="breadcrumb-item active" aria-current="page">ویرایش</li>
             </ol>
         </nav>
@@ -295,7 +295,7 @@
 
                                 <div class="col-12 col-md-4 mb-3">
                                     <label>عنوان منو</label>
-                                    {{-- The customer picks the word: a chain says شعبه, a single-site business says مرکز. --}}
+                                    {{-- The customer picks the word: a chain says شعبه, a single-site business says مستاجرین و شرکای تجاری. --}}
                                     <select class="form-control" name="label_type">
                                         @foreach(\App\Models\Center::LABELS as $key => $word)
                                             <option value="{{ $key }}" @selected(old('label_type', $center->label_type ?: 'branch') === $key)>{{ $word }}</option>

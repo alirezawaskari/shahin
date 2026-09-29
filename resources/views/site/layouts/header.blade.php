@@ -120,7 +120,7 @@
                         <div class="dropdown-menu dropdown-menu-right text-right mt-3"
                              aria-labelledby="navbarDropdownMenuLink">
                             {{-- <a class="dropdown-item text-orange py-2" href="{{ url('/agency') }}">--}}
-                            {{-- اعطاء مجوز همکاری به مراکز و فروشگاهها--}}
+                            {{-- اعطاء مجوز همکاری به مستاجرین و شرکای تجاری و فروشگاهها--}}
                             {{-- </a>--}}
                             <a class="dropdown-item text-orange py-2"
                                href="{{ url('/Permanent-employment') }}">استخدام و تامین نیروی انسانی</a>

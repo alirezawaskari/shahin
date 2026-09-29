@@ -76,9 +76,9 @@ class Center extends Model implements HasMedia {
 
     /**
     * What this place is called in menus and headings. The customer picks the word, because
-    * a chain calls them شعبه and a single-site business calls itself مرکز.
+    * a chain calls them شعبه and a single-site business calls itself مستاجرین و شرکای تجاری.
     */
-    const LABELS = [ 'branch' => 'شعبه', 'center' => 'مرکز' ];
+    const LABELS = [ 'branch' => 'شعبه', 'center' => 'مستاجرین و شرکای تجاری' ];
 
     /**
     * Weekday keys of the `working_hours` json, in the order the branch page lists them.
@@ -194,12 +194,12 @@ class Center extends Model implements HasMedia {
         return $this->morphMany( Rating::class, 'rateable' );
     }
 
-    /** "شعبه" or "مرکز" — the word the customer chose for this place. */
+    /** "شعبه" or "مستاجرین و شرکای تجاری" — the word the customer chose for this place. */
     public function getLabelWordAttribute(): string {
         return self::LABELS[ $this->label_type ] ?? self::LABELS[ 'branch' ];
     }
 
-    /** Heading of the branch page: "شعبه تهران مرکزی". */
+    /** Heading of the branch page: "شعبه تهران مستاجرین و شرکای تجاریی". */
     public function getDisplayTitleAttribute(): string {
         return trim( $this->label_word . ' ' . $this->title );
     }

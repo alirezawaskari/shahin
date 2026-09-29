@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             <div class="x_title">
-                <h4>ثبت عاملیت ها</h4>
+                <h4>ثبت نمایندگی ها</h4>
             </div>
             <form class="form-horizontal" method="post" action="{{route('agencyType.store')}}"
                   enctype="multipart/form-data">

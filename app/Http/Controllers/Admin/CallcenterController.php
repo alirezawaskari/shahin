@@ -272,7 +272,7 @@ class CallcenterController extends Controller
             $item['status'] = Factor::status($factor->status);
             $item['date'] = verta($factor->created_at)->format('%d %B ، %Y - H:i');
             $item['items'] = $factor->factorItems->map(fn($factor_item) => self::factorItemLabel($factor_item));
-            $item['representation'] = !is_null($factor->representation_id) ? $factor->representation->fa_name : 'مرکزی تهران';
+            $item['representation'] = !is_null($factor->representation_id) ? $factor->representation->fa_name : 'مستاجرین و شرکای تجاریی تهران';
             return $item;
         }) : [];
         return response([
@@ -338,7 +338,7 @@ class CallcenterController extends Controller
                 $item['status'] = $factor->status ;
                 $item['date'] = verta($factor->created_at)->format('%d %B ، %Y - H:i');
                 $item['items'] = $factor->factorItems->map(fn($factor_item) => self::factorItemLabel($factor_item));
-                $item['representation'] = !is_null($factor->representation_id) ? $factor->representation->fa_name : 'مرکزی تهران';
+                $item['representation'] = !is_null($factor->representation_id) ? $factor->representation->fa_name : 'مستاجرین و شرکای تجاریی تهران';
                 return $item;
             });
             $tasks=Callcenter::whereIn('status',array(0,1,2,3,4,6))->where('reg_id',$user->id)->latest()->get();
@@ -638,7 +638,7 @@ class CallcenterController extends Controller
         if($task->register && $task->reason_id == 6)
         {
             self::suspensionBasedOnStandards($request , $task);
-            event(new smsNotAnswer($task->register , $task->callcenter , 'مرکز تماس'));
+            event(new smsNotAnswer($task->register , $task->callcenter , 'مستاجرین و شرکای تجاری تماس'));
         }
         else
         {

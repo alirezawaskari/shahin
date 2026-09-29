@@ -121,7 +121,7 @@
                         </div>
                         <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/ ">
-                                <span>همکاری با مراکز و فروشندگان کالا وخدمات </span>
+                                <span>همکاری با مستاجرین و شرکای تجاری و فروشندگان کالا وخدمات </span>
                             </a>
                         </div>
                         <div class="col-md-12 mt-2">
@@ -222,7 +222,7 @@
                         </div>
                         <div class="col-md-12 mt-2">
                             <a class="text-dark" href="/services/dentistry">
-                                <span>دندانپزشکی مرکزی کرج </span>
+                                <span>دندانپزشکی مستاجرین و شرکای تجاریی کرج </span>
                             </a>
                         </div>
                         <div class="col-md-12 mt-2">

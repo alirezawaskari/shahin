@@ -120,7 +120,7 @@
 
                     <div class="form-row">
                         <div class="col-12 mb-3">
-                            <label>توضیحات مرکز</label>
+                            <label>توضیحات مستاجرین و شرکای تجاری</label>
                             <textarea name="description" class="form-control no-resize" rows="6"
                                 placeholder="توضیحات خود را وارد نمایید"></textarea>
                         </div>

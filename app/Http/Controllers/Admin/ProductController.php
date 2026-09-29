@@ -1083,7 +1083,7 @@ class ProductController extends Controller
             //table : product
             if (isset($product)) {
                 if (isset($request->center_id)) {
-                    //حذف از طریق لیست کالاها هر مرکز
+                    //حذف از طریق لیست کالاها هر مستاجرین و شرکای تجاری
                     if (isset($product->centers)) {
                         $center_products = $product->centers()->where('center_id', $request->center_id)->get();
                         foreach ($center_products as $center_product) {

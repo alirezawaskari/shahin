@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="col-12 col-md-4 mb-3">
-                        <label>نوع عاملیت</label>
+                        <label>نوع نمایندگی</label>
                         <select class="form-control" name="agency_type_id">
                             @foreach($agency_types as $agency_type)
                             <option value="{{ $agency_type->id }}" {{ $agency_type->id == $agency->agency_type_id ? 'selected' : '' }}>{{ $agency_type->title }}</option>

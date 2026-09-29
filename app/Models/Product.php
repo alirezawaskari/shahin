@@ -602,7 +602,7 @@ class  Product extends Model implements HasMedia
                 'good.name.required' => 'لطفا عنوان را وارد کنید',
                 'good.brand_id.required' => 'لطفا برند را انتخاب کنید',
                 'choose_category_id.required' => 'لطفا گروه کالا را انتخاب کنید',
-                'good.center_id.required' => 'لطفا مرکز را انتخاب کنید',
+                'good.center_id.required' => 'لطفا مستاجرین و شرکای تجاری را انتخاب کنید',
                 'good.length.required' => 'لطفا طول را انتخاب کنید',
                 'good.width.required' => 'لطفا عرض را انتخاب کنید',
                 'good.height.required' => 'لطفا ارتفاع را انتخاب کنید',

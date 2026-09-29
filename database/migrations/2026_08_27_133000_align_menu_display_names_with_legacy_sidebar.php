@@ -91,18 +91,18 @@ return new class extends Migration
         'service'                             => 'خدمات',
         'service-tariff'                      => 'دوره تعرفه',
 
-        // مراکز
-        'center-request-detail'               => 'درخواست مراکز',
-        'center'                              => 'فهرست مراکز',
+        // مستاجرین و شرکای تجاری
+        'center-request-detail'               => 'درخواست مستاجرین و شرکای تجاری',
+        'center'                              => 'فهرست مستاجرین و شرکای تجاری',
 
         // تماس با ما / طرح های مالی
         'contact-detail'                      => 'تماس با ما',
         'financial-plans-type'                => 'طرح های مالی',
 
-        // عاملیت ها
-        'agency'                              => 'درخواست عاملیت',
-        'representation'                      => 'فهرست عاملیت ها',
-        'agency-type'                         => 'انواع عاملیت',
+        // نمایندگی ها
+        'agency'                              => 'درخواست نمایندگی',
+        'representation'                      => 'فهرست نمایندگی ها',
+        'agency-type'                         => 'انواع نمایندگی',
 
         // مغازه های دیجیتال
         'ghorfe_online_list'                  => 'فهرست مغازه های دیجیتال',
@@ -171,7 +171,7 @@ return new class extends Migration
         'news-list'                           => 'اخبار',
         'validation'                          => 'اعتبارسنجی کالا ها',
         'comment-detail'                      => 'نظرات',
-        'coupon-variety'                      => 'کد تخفیف تنوع کالا ها توسط مراکز',
+        'coupon-variety'                      => 'کد تخفیف تنوع کالا ها توسط مستاجرین و شرکای تجاری',
     ];
 
     public function up(): void

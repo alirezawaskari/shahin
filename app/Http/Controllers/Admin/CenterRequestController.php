@@ -212,7 +212,7 @@ class CenterRequestController extends AdminController
         if (isset($request->description) && $request->description != '') {
             $center_description = $request->description;
         }
-        $description = "درخواست مرکز ،
+        $description = "درخواست مستاجرین و شرکای تجاری ،
           موضوع :
          {$request->subject}،
          توضیحات درخواست دهنده :

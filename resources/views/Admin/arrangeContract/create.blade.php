@@ -43,9 +43,9 @@
                     </div>
 
                     <div class="col-12 col-md-12 mb-5">
-                        <input class="agency_type_selected" type="radio" name="contract_type_selected" title="عاملیت"
+                        <input class="agency_type_selected" type="radio" name="contract_type_selected" title="نمایندگی"
                                value="0">
-                        <span class="lblRadioBtn font-weight-bold font16">عاملیت </span>
+                        <span class="lblRadioBtn font-weight-bold font16">نمایندگی </span>
 
                         <input class="center_selected" type="radio" name="contract_type_selected" title="شعبه"
                                value="1">
@@ -55,7 +55,7 @@
 
 
                     <div class="col-12 col-md-4 mb-5 agency_type_box" style="display: none;">
-                        <label>عاملیت *</label>
+                        <label>نمایندگی *</label>
                         <select name="agency_type_id" class="form-control" title="">
                             <option value="">لطفا انتخاب کنید..</option>
                             @foreach($agency_types as $agency_type)
