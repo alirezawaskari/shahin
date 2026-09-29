@@ -1,4 +1,5 @@
 <select class="form-control" name="level">
+    <option value="all">نوع حساب کاربری</option>
     <option value="user" {{ (isset($user) && $user->level == 'user') ? 'selected' : '' }}>
         {{ App\Models\User::LEVEL['user'] }}
     </option>
@@ -17,5 +18,5 @@
     <option value="superAdmin" {{ (isset($user) && $user->level == 'superAdmin') ? 'selected' : '' }}>
         {{ App\Models\User::LEVEL['superAdmin'] }}
     </option>
-    @endif 
+    @endif
 </select>

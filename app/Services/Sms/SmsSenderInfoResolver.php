@@ -83,7 +83,7 @@ class SmsSenderInfoResolver
      */
     private function fromGhorfe(User $user): array
     {
-        $ghorfe = $user->ghorfeOnlineLists()->first();
+        $ghorfe = ghorfe();
 
         if (!$ghorfe) {
             return $this->mainCompany($user);
