@@ -90,14 +90,14 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-12 mb-4">
+                    {{-- <div class="col-12 col-md-12 mb-4">
                         <label>خلاصه *</label>
                         <textarea class="form-control" name="summary" rows="8" cols="5"
                                   title="خلاصه ">{{old('summary')}}</textarea>
                         @if($errors->has('summary'))
                             <span class="help-block sub-error  "> {{$errors->first('summary')}} </span>
                         @endif
-                    </div>
+                    </div> --}}
 
                     <div class="col-12 col-md-12 mb-5">
                         <label>متن مقاله * </label>
