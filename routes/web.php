@@ -732,6 +732,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/officialInfoUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@officialInfoUpdate')->name('ghorfeOnlineList.officialInfoUpdate');
     Route::post('ghorfeOnlineList/contentUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@contentUpdate')->name('ghorfeOnlineList.contentUpdate');
+    Route::post('ghorfeOnlineList/shippingMethods/{ghorfeOnlineList}', 'GhorfeOnlineListController@shippingMethodsUpdate')->name('ghorfeOnlineList.shippingMethods');
     Route::post('ghorfeOnlineList/packageUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@packageUpdate')->name('ghorfeOnlineList.packageUpdate');
     Route::post('ghorfeOnlineList/menuUpdate/{ghorfeOnlineList}', 'GhorfeOnlineListController@menuUpdate')->name('ghorfeOnlineList.menuUpdate');
     Route::post('ghorfeOnlineList/question/{ghorfeOnlineList}', [GhorfeOnlineListController::class,'question'])->name('ghorfeOnlineList.question');
@@ -789,6 +790,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::get('/manage/product-wizard/kind/{kind}', 'ProductWizardController@category')->name('productWizard.category');
     Route::get('/manage/product-wizard/created/{category_id}', 'ProductWizardController@categoryCreated')->name('productWizard.categoryCreated');
     Route::get('/manage/product-wizard/attributes/{category_id}', 'ProductWizardController@attributes')->name('productWizard.attributes');
+    Route::get('/manage/product-wizard/special-sale', 'ProductWizardController@specialSale')->name('productWizard.specialSale');
+    Route::post('/manage/product-wizard/special-sale', 'ProductWizardController@specialSaleStore')->name('productWizard.specialSale.store');
+    Route::delete('/manage/product-wizard/special-sale/{item}', 'ProductWizardController@specialSaleRemove')->name('productWizard.specialSale.remove');
 
     Route::get('/manage/product/createMaterials', 'ProductController@createMaterials')->name('createMaterials');
     Route::get('/manage/product/createMaterials/{type}/{id}', 'ProductController@createMaterialsByValues')->name('createMaterialsByValues');

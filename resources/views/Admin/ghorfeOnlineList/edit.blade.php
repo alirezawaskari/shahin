@@ -1128,6 +1128,118 @@
                             action="{{route('ghorfeOnlineList.contentUpdate', [$ghorfeOnlineList->slug])}}"
                             enctype="multipart/form-data">
                             @csrf
+                            <input type="hidden" name="active_tab" value="banners_manager">
+                            <div class="card shadow-sm border-0 mb-4">
+
+                                {{-- Header --}}
+                                <div class="card-header bg-dark text-white py-3">
+                                    <h6 class="mb-0 font-weight-bold">
+                                        <i class="fa fa-picture-o ml-2"></i>
+                                        بنر بالای صفحه
+                                    </h6>
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="alert alert-info small mb-4">
+                                        <i class="fa fa-info-circle ml-1"></i>
+                                        این بنر به صورت <strong>تمام عرض (full-width)</strong> در بالای صفحه نمایش داده می‌شود.
+                                        ارتفاع تصویر موبایل <strong dir="ltr">24px</strong> و ارتفاع تصویر دسکتاپ <strong dir="ltr">40px</strong> است.
+                                        امکان بارگذاری تصویر متحرک (GIF) نیز وجود دارد.
+                                    </div>
+
+                                    <div class="row">
+
+                                        @foreach(['top_banner_desktop' => ['دسکتاپ', '40px'], 'top_banner_mobile' => ['موبایل', '24px']] as $bannerField => [$bannerLabel, $bannerHeight])
+
+                                        <div class="col-12 col-md-6 mb-4">
+
+                                            <label class="font-weight-bold d-block mb-3">
+                                                بنر {{ $bannerLabel }}
+                                                <small class="text-muted font-weight-normal">
+                                                    (ارتفاع <span dir="ltr">{{ $bannerHeight }}</span>)
+                                                </small>
+                                            </label>
+
+                                            <div class="border rounded bg-light p-2 text-center mb-3">
+
+                                                <div id="{{ $bannerField }}_src" class="show">
+
+                                                    @if($ghorfeOnlineList->$bannerField)
+
+                                                    <img src="{{ $ghorfeOnlineList->$bannerField }}"
+                                                        class="img-fluid rounded"
+                                                        style="height:80px;width:100%;object-fit:contain;background:#f8f9fa;">
+
+                                                    @else
+
+                                                    <div class="d-flex align-items-center justify-content-center text-muted"
+                                                        style="height:80px;background:#f8f9fa;">
+
+                                                        <div>
+                                                            <i class="fa fa-image fa-2x d-block mb-2"></i>
+                                                            بدون تصویر
+                                                        </div>
+
+                                                    </div>
+
+                                                    @endif
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="input-group">
+
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fa fa-upload"></i>
+                                                    </span>
+                                                </div>
+
+                                                <label for="{{ $bannerField }}"
+                                                    class="btn btn-primary mb-0 d-flex align-items-center px-4">
+
+                                                    انتخاب تصویر
+
+                                                </label>
+
+                                            </div>
+
+                                            <input name="{{ $bannerField }}" type="file" id="{{ $bannerField }}"
+                                                class="d-none file-upload file_upload_ajax"
+                                                accept=".jpg,.jpeg,.png,.gif">
+
+                                            <input type="hidden" id="{{ $bannerField }}_path" class="path"
+                                                name="{{ $bannerField }}_path">
+
+                                            <small class="form-text text-muted">
+                                                فرمت‌های مجاز: JPG، JPEG، PNG، GIF
+                                            </small>
+
+                                        </div>
+
+                                        @endforeach
+
+                                    </div>
+
+
+                                    {{-- ثبت تغییرات --}}
+                                    <div class="d-flex justify-content-end mt-3">
+
+                                        <input type="submit" class="btn btn-success border-0 px-5 py-2 shadow-sm"
+                                            value="ثبت تغییرات">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+                        <form class="form-horizontal" role="form" method="post"
+                            action="{{route('ghorfeOnlineList.contentUpdate', [$ghorfeOnlineList->slug])}}"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="active_tab" value="banners_manager">
                             <div class="card shadow-sm border-0 mb-4">
 
                                 {{-- Header --}}
@@ -1689,6 +1801,72 @@
                             </div>
                         </form>
 
+                        {{-- روش‌های ارسال: روی فرم کالا انتخاب می‌شوند و در صفحه تک محصول نمایش داده می‌شوند --}}
+                        <form action="{{ route('ghorfeOnlineList.shippingMethods', [$ghorfeOnlineList->slug]) }}" method="POST" class="mb-2">
+                            @csrf
+                            <div class="card shadow-sm border-0 mb-4">
+
+                                {{-- Header --}}
+                                <div class="card-header bg-dark text-white py-3">
+                                    <h6 class="mb-0 font-weight-bold">
+                                        <i class="fa fa-truck ml-2"></i>
+                                        روش‌های ارسال کالا
+                                    </h6>
+                                </div>
+
+                                <div class="card-body">
+
+                                    <div class="alert alert-info small mb-4">
+                                        <i class="fa fa-info-circle ml-1"></i>
+                                        روش‌های ارسال اینجا تعریف می‌شوند و در فرم ثبت/ویرایش کالا برای هر کالا قابل انتخاب هستند.
+                                        روش‌های انتخاب‌شده در صفحه تک محصول سایت نمایش داده می‌شوند.
+                                    </div>
+
+                                    <div id="shipping_methods_rows">
+                                        @foreach($ghorfeOnlineList->shippingMethods as $index => $shippingMethod)
+                                        <div class="row shipping-method-row align-items-end">
+                                            <input type="hidden" name="shipping_methods[{{ $index }}][id]" value="{{ $shippingMethod->id }}">
+                                            <div class="col-12 col-md-3 mb-3">
+                                                <label class="font-weight-bold">عنوان <span class="text-danger">*</span></label>
+                                                <input type="text" name="shipping_methods[{{ $index }}][title]" class="form-control"
+                                                    value="{{ $shippingMethod->title }}" placeholder="ارسال سریع">
+                                            </div>
+                                            <div class="col-12 col-md-5 mb-3">
+                                                <label class="font-weight-bold">توضیحات</label>
+                                                <input type="text" name="shipping_methods[{{ $index }}][description]" class="form-control"
+                                                    value="{{ $shippingMethod->description }}" placeholder="تحویل ۱ تا ۲ روز کاری">
+                                            </div>
+                                            <div class="col-10 col-md-3 mb-3">
+                                                <label class="font-weight-bold">هزینه (ریال)</label>
+                                                <input type="text" data-type="currency" name="shipping_methods[{{ $index }}][price]" class="form-control"
+                                                    value="{{ number_format($shippingMethod->price) }}">
+                                            </div>
+                                            <div class="col-2 col-md-1 mb-3">
+                                                <button type="button" class="btn btn-outline-danger remove-shipping-method" title="حذف">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="add_shipping_method">
+                                        <i class="fa fa-plus ml-1"></i>
+                                        افزودن روش ارسال
+                                    </button>
+
+                                    {{-- ثبت تغییرات --}}
+                                    <div class="d-flex justify-content-end mt-3">
+
+                                        <input type="submit" class="btn btn-success border-0 px-5 py-2 shadow-sm"
+                                            value="ثبت تغییرات">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </form>
+
                         @endpermission
                     </div>
                     <div class="d-none d-md-flex justify-content-between mb-1">
@@ -1708,6 +1886,33 @@
 @section('js')
 <script src="{{ asset('/assets/dashboard/js/layouts.js') }}"></script>
 <script src="{{ asset('/assets/dashboard/js/ghorfeOnlineUpdate.js') }}"></script>
+
+<script>
+    // روش‌های ارسال: ردیف جدید / حذف ردیف. ردیفی که حذف شود با ثبت فرم از جدول هم حذف می‌شود.
+    $(function () {
+        var shippingIndex = {{ $ghorfeOnlineList->shippingMethods->count() }};
+
+        $('#add_shipping_method').on('click', function () {
+            var i = shippingIndex++;
+            $('#shipping_methods_rows').append(
+                '<div class="row shipping-method-row align-items-end">' +
+                    '<div class="col-12 col-md-3 mb-3"><label class="font-weight-bold">عنوان <span class="text-danger">*</span></label>' +
+                        '<input type="text" name="shipping_methods[' + i + '][title]" class="form-control" placeholder="ارسال سریع"></div>' +
+                    '<div class="col-12 col-md-5 mb-3"><label class="font-weight-bold">توضیحات</label>' +
+                        '<input type="text" name="shipping_methods[' + i + '][description]" class="form-control" placeholder="تحویل ۱ تا ۲ روز کاری"></div>' +
+                    '<div class="col-10 col-md-3 mb-3"><label class="font-weight-bold">هزینه (ریال)</label>' +
+                        '<input type="text" name="shipping_methods[' + i + '][price]" class="form-control" value="0"></div>' +
+                    '<div class="col-2 col-md-1 mb-3"><button type="button" class="btn btn-outline-danger remove-shipping-method" title="حذف">' +
+                        '<i class="fa fa-trash"></i></button></div>' +
+                '</div>'
+            );
+        });
+
+        $(document).on('click', '.remove-shipping-method', function () {
+            $(this).closest('.shipping-method-row').remove();
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

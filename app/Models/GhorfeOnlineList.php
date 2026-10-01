@@ -142,7 +142,7 @@ class GhorfeOnlineList extends Model implements HasMedia
     const GALLERY_COLLECTIONS = ['gallery_desktop', 'gallery_mobile'];
 
     /** Single-file settings images (legacy *_id columns kept, read through accessors). */
-    const SINGLE_IMAGE_COLLECTIONS = ['logo', 'footer_logo', 'fav', 'mohr', 'addvertisment_slider'];
+    const SINGLE_IMAGE_COLLECTIONS = ['logo', 'footer_logo', 'fav', 'mohr', 'addvertisment_slider', 'top_banner_desktop', 'top_banner_mobile'];
 
     public function registerMediaCollections(): void
     {
@@ -207,6 +207,17 @@ class GhorfeOnlineList extends Model implements HasMedia
             ?: $this->legacyMediaLibraryUrl('addvertisment_slider');
     }
 
+    /** Full-width top banner (desktop 40px tall / mobile 24px tall). Spatie-only, no legacy column. */
+    public function getTopBannerDesktopAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'top_banner_desktop');
+    }
+
+    public function getTopBannerMobileAttribute(): string
+    {
+        return \App\Helpers\MediaLibraryHelper::urlIfFileExists($this, 'top_banner_mobile');
+    }
+
     public function theme()
     {
         return $this->belongsTo(Theme::class);
@@ -253,6 +264,13 @@ class GhorfeOnlineList extends Model implements HasMedia
     public function products()
     {
         return $this->belongsToMany(Product::class);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shippingMethods()
+    {
+        return $this->hasMany(ShippingMethod::class)->orderBy('id');
     }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

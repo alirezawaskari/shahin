@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Services\Settings\SettingsService;
 use App\Services\V1\Admin\GalleryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 class GhorfeOnlineListController extends AdminController {
@@ -391,18 +392,78 @@ class GhorfeOnlineListController extends AdminController {
 
         // Spatie: attach any newly uploaded settings image from its temp media id (*_path).
         // Replaces the old Helper::moveImage writes into the char(36) *_id columns.
-        foreach (['logo', 'footer_logo', 'fav', 'mohr', 'addvertisment_slider'] as $collection) {
+        foreach (GhorfeOnlineList::SINGLE_IMAGE_COLLECTIONS as $collection) {
             $pathKey = $collection . '_path';
             if ($request->$pathKey) {
                 \App\Helpers\MediaLibraryHelper::attachTo($ghorfeOnlineList, $request->$pathKey, $collection);
             }
         }
 
+        // this action serves forms on several tabs; reopen the one that was saved
+        $tabs = ['ghorfe_customization', 'content_manager', 'banners_manager', 'settings_mali'];
+
         return redirect()
             ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
             ->with([
                 'update' => 'success',
-                'active_tab' => 'menu_content'
+                'active_tab' => in_array($request->active_tab, $tabs, true) ? $request->active_tab : 'menu_content'
+            ]);
+    }
+    /**
+     * Sync the business's shipping methods from the «روش‌های ارسال کالا» rows: rows with an
+     * id are updated, rows without one are created, and methods whose row was removed are
+     * deleted (their product links go with them through the pivot's cascade).
+     */
+    public function shippingMethodsUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)
+    {
+        if (!auth()->user()->hasPermission('ghorfe_online_list_site_content')) {
+            abort(401);
+        }
+        if (auth()->user()->level == 'ghorfeAdmin' && optional(ghorfe())->id !== $ghorfeOnlineList->id) {
+            abort(401);
+        }
+
+        $rows = collect($request->input('shipping_methods', []))
+            ->map(fn ($row) => [
+                'id'          => $row['id'] ?? null,
+                'title'       => trim($row['title'] ?? ''),
+                'description' => trim($row['description'] ?? '') ?: null,
+                'price'       => (int) str_replace(',', '', Helper::numberConverter($row['price'] ?? '0')),
+            ]);
+
+        $request->merge(['shipping_methods' => $rows->values()->all()]);
+        $request->validate([
+            'shipping_methods.*.title' => 'required|string|max:255',
+            'shipping_methods.*.price' => 'integer|min:0',
+        ], [
+            'shipping_methods.*.title.required' => 'عنوان روش ارسال را وارد کنید.',
+            'shipping_methods.*.price.min'      => 'هزینه ارسال نمی‌تواند منفی باشد.',
+        ]);
+
+        DB::transaction(function () use ($ghorfeOnlineList, $rows) {
+            $existing = $ghorfeOnlineList->shippingMethods()->get()->keyBy('id');
+            $kept = [];
+
+            foreach ($rows as $row) {
+                $data = collect($row)->except('id')->all();
+                $method = $row['id'] ? $existing->get((int) $row['id']) : null;
+
+                if ($method) {
+                    $method->update($data);
+                } else {
+                    $method = $ghorfeOnlineList->shippingMethods()->create($data);
+                }
+                $kept[] = $method->id;
+            }
+
+            $ghorfeOnlineList->shippingMethods()->whereNotIn('id', $kept)->get()->each->delete();
+        });
+
+        return redirect()
+            ->route('ghorfeOnlineList.edit', $ghorfeOnlineList->slug)
+            ->with([
+                'update' => 'success',
+                'active_tab' => 'settings_mali'
             ]);
     }
     public function menuUpdate(Request $request, GhorfeOnlineList $ghorfeOnlineList)

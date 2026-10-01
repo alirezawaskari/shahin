@@ -613,7 +613,9 @@ class ProductController extends Controller
             'category_store_rooms', 'counting_units', 'tags', 'category_center_id',
             'storage_store_rooms', 'counting_units_measurement', 'store_room_id',
             'purchase_invoice_id', 'center_id','categories','brands',
-            'in_wizard', 'wizard_category'));
+            'in_wizard', 'wizard_category') + [
+                'shipping_methods' => $this->productService->shippingMethodsFor(),
+            ]);
     }
 
     //store good
@@ -751,6 +753,7 @@ class ProductController extends Controller
                 Product::saveAttributeGood($request, $product, $productattributeable_id, $productattributeable_type);
                 if(isset($request->createByAdmin)){ $product->status=3 ;$product->save();}
                 Product::saveReviewsGood($request, $product, $productattributeable_id, $productattributeable_type);
+                $this->productService->savePurchaseInfo($request, $product);
                 // ویزارد ایجاد محصول: کالای تازه ثبت‌شده مستقیم به مرحله ثبت تنوع می‌رود
                 // و دیگر لازم نیست کاربر کالا را دوباره انتخاب کند.
                 if ($request->wizard) {
@@ -857,7 +860,9 @@ class ProductController extends Controller
                 'category_center', 'category_center_id', 'centers', 'product_centers_ids', 'center_id', 'brands',
                 'product_validation', 'store_rooms', 'counting_units', 'counting_units_measurement',
                 'category_store_rooms', 'storage_store_rooms', 'attributes', 'product_attributes', 'validations',
-                'allowed_attribute'));
+                'allowed_attribute') + [
+                    'shipping_methods' => $this->productService->shippingMethodsFor($product),
+                ]);
         }
 
     }
@@ -1007,6 +1012,7 @@ class ProductController extends Controller
                 }
             }
             Product::saveReviewsGood($request, $product, $productattributeable_id, $productattributeable_type);
+            $this->productService->savePurchaseInfo($request, $product);
 
             //edit store Rooms
             if (isset($request->store_room_id)) {
