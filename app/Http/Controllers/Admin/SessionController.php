@@ -150,7 +150,7 @@ class SessionController extends Controller {
         $session = Session::create( $input );
         if($request->check)
         {
-            event( new smsServiceSession( $session->factorItem, $request->date ) );
+            event( new smsServiceSession( $session->factorItem, $input[ 'date' ] ) );
         }
 
         return redirect()->back();

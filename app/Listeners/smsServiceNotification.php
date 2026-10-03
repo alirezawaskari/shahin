@@ -81,8 +81,14 @@ class smsServiceNotification {
      */
     private function sendRejectSessionNotification( FactorItem $factorItem, $userMobile ) {
         $center_title = $factorItem->center->title;
+        $user = $factorItem->factor->user->name.' '.$factorItem->factor->user->family;
+        $center_call = $factorItem->center->phone;
+        $supporter_phone = $factorItem->supporter ? $factorItem->supporter->employee->business_phone : $center_call;
+     
         $body = [
-            'param1' => $center_title,
+            'param1' => $user,
+            'param2' => $center_title,
+            'param3' => $supporter_phone,
         ];
         SendSms::sendSingleSms( 'rejectSessionNotification', $userMobile, $body );
     }
@@ -107,17 +113,23 @@ class smsServiceNotification {
      */
     private function sendTurnRatingsNotificationInPerson( FactorItem $factorItem, $userMobile )
     {
+        $user = $factorItem->factor->user->name.' '.$factorItem->factor->user->family;
         $center_title = $factorItem->center->title;
         $center_call = $factorItem->center->phone;
         $center_address = $factorItem->center->address;
         $factoritemable = ($factorItem->factoritemable_type == Service::class ? 'خدمات ' : 'کالا ') . $factorItem->factoritemable->category->title;
         $date = verta($factorItem->date)->format('Y/m/d H:i:s');
+        $time = verta($factorItem->date)->format('H:i');
+        $supporter_name = $factorItem->supporter ? $factorItem->supporter->family : '';
         $body = [
-            'param1' => $factoritemable,
-            'param2' => $center_title,
-            'param3' => $date,
-            'param4' => $center_address,
-            'param5' => $center_call,
+            'param1' => $user,
+            'param2' => $factoritemable,
+            'param3' => $center_title,
+            'param4' => $date,
+            'param5' => $time,
+            'param6' => $supporter_name,
+            'param7' => $center_address,
+            'param8' => $center_call,
         ];
         SendSms::sendSingleSms( 'centerTurnRaitingInPerson', $userMobile, $body );
     }
@@ -129,10 +141,20 @@ class smsServiceNotification {
     private function sendTurnRatingsNotificationOnline( FactorItem $factorItem, $userMobile )
     {
         $center_title = $factorItem->center->title;
+        $user = $factorItem->factor->user->name.' '.$factorItem->factor->user->family;
         $date = verta($factorItem->date)->format('Y/m/d H:i:s');
+        $time = verta($factorItem->date)->format('H:i');
+        $center_call = $factorItem->center->phone;
+        $supporter_phone = $factorItem->supporter ? $factorItem->supporter->employee->business_phone : $center_call;
+        $supporter_name = $factorItem->supporter ? $factorItem->supporter->family : '';
+
         $body = [
-            'param1' => $center_title,
-            'param2' => $date,
+            'param1' => $user,
+            'param2' => $center_title,
+            'param3' => $date,
+            'param4' => $time,
+            'param5' => $supporter_phone,
+            'param6' => $supporter_name,
         ];
         SendSms::sendSingleSms( 'centerTurnRaitingOnline', $userMobile, $body );
     }
