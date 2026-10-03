@@ -33,7 +33,7 @@ return new class extends Migration
             // dedicated licence-number column: that would only fit medical partners.
             $table->longText('extra_content')->nullable()->after('bio');
 
-            // "ساعات حضور در مرکز": one line each, exactly as the design renders them
+            // "ساعات حضور در مستاجرین و شرکای تجاری": one line each, exactly as the design renders them
             // ("شنبه تا دوشنبه" / "۱۰ صبح تا ۱۰ شب"). Per-weekday hours belong to the
             // branch (centers.working_hours), not to the person visiting it.
             $table->string('attendance_days', 255)->nullable()->after('extra_content');

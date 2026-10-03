@@ -31,6 +31,7 @@ class ServiceCallcenterSMSNotification {
         $userMobile = $user->phone;
         $service = $event->service;
         $callcenter = $event->callcenter ? $event->callcenter->family : '';
+        $callcenter_phone = $event->callcenter ? $event->callcenter->employee->business_phone : '';
         $type = $event->type;
         $result = self::setBodyData( $event );
         $link = $result[ 'link' ];
@@ -54,10 +55,9 @@ class ServiceCallcenterSMSNotification {
                 } else {
                     $body = [
                         'param1' => $user->name.' '.$user->family,
-                        'param2' => $organ_name,
-                        'param3' => $callcenter,
-                        'param4' => $link,
-                        'param5' => $organ_call
+                        'param2' => $callcenter,
+                        'param3' => $link,
+                        'param4' => $callcenter_phone,
                     ];
                     SendSms::sendSingleSms( 'callcenterfastservice', $userMobile, $body );
                 }

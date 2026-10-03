@@ -381,8 +381,9 @@ class PriceProductController extends Controller
                 \App\Services\V1\Admin\ProductWizardService::rememberCategory($cat_id ? Category::find($cat_id) : null);
                 \App\Services\V1\Admin\ProductWizardService::remember(['kind' => 'product', 'product_id' => $product->id]);
             }
+            // بعد از تنوع، مرحله (اختیاری) شگفت‌انگیز و از آنجا اتمام
             $wizard_done_url = $in_wizard
-                ? route('productWizard.done', ['kind' => 'product', 'product_id' => $product->id])
+                ? \App\Services\V1\Admin\ProductWizardService::specialSaleUrl($product->id)
                 : null;
 
             return view("Admin.product.price.create",

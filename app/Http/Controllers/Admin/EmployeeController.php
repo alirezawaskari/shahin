@@ -443,7 +443,7 @@ class EmployeeController extends AdminController
     {
         $user = auth()->user();
 
-        return $user && ($user->level === 'superAdmin' || $user->hasRole('superadmin'));
+        return $user && $user->isSuperAdmin();
     }
 
     /**

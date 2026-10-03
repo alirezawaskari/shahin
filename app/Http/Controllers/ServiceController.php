@@ -131,14 +131,14 @@ class ServiceController extends Controller
     public function serviceItemSingle(ServiceItem $serviceItem, User $callcenter , Callcenter $task, Factor $factor=null )
     {
         $service = $serviceItem->service;
-        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->get()->unique();
+        $financial_plans_types = $service->financialPlansTypes()->where('status' , 1)->where('is_show' , 1)->whereRaw('capacity > reserved')->where('end_date' , '>=' , now())->latest()->get()->unique();
         $questions=$serviceItem->askedQuestions;
-
+        $service_items = $service->service_items()->where('status' , 1)->where('isShow' , true)->get();
         //$callcenter=$task->callcenter;
 		$images = $serviceItem->galleries;
 	    $is_service = true;
 		$check = false;
-        if (!$serviceItem->isShow && !$serviceItem->status)
+        if (!$serviceItem->isShow && $serviceItem->status != 1)
         {
             return redirect('/');
         }
@@ -148,6 +148,7 @@ class ServiceController extends Controller
 		{
 			$user = $factor->user;
 		}
+
         if ($user) {
             $required = null;
             $founded = [];
@@ -174,16 +175,14 @@ class ServiceController extends Controller
                     $check = false;
                 }
             }
-            $serviceItem['service_item_id'] = $serviceItem->id;
-            $serviceItem['id'] = $service->id;
-            $serviceItem['slug'] = $service->slug;
-            $service = $serviceItem;
-            return view('site.services.single', compact('images' ,'questions', 'is_service' , 'factor' ,'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
+			$registerForm = View::make('site.services.registerForm' , compact('images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'))->render();
+		    $serviceItemsList = View::make('site.services.serviceItemsList' , compact('service_items'))->render();
+			$content = str_replace(['[form]', '[serviceItemsList]'],[$registerForm, $serviceItemsList],$serviceItem->content);
+            return view('site.services.single', compact('service_items' , 'content' , 'images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'required', 'requireServices', 'check','task'));
         }
-        $serviceItem['service_item_id'] = $serviceItem->id;
-        $serviceItem['id'] = $service->id;
-        $serviceItem['slug'] = $service->slug;
-        $service = $serviceItem;
-        return view('site.services.single', compact('images' ,'questions', 'is_service' , 'factor' , 'callcenter','service', 'financial_plans_types' ,'task'));
-       }
+		$registerForm = View::make('site.services.registerForm' , compact('images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'))->render();
+	    $serviceItemsList = View::make('site.services.serviceItemsList' , compact('service_items'))->render();
+	    $content = str_replace(['[form]', '[serviceItemsList]'],[$registerForm, $serviceItemsList],$serviceItem->content);
+        return view('site.services.single', compact('service_items' , 'content' , 'images' ,'questions', 'is_service' , 'factor', 'callcenter','service', 'financial_plans_types' ,'task'));
+    }
 }

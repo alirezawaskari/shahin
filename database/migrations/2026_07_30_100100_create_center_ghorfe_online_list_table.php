@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * The missing "a business has many branches" link.
  *
- * `centers` (شعبه/مرکز) already existed and `ghorfe_online_lists` (کسب و کار) already
+ * `centers` (شعبه/مستاجرین و شرکای تجاری) already existed and `ghorfe_online_lists` (کسب و کار) already
  * existed, but nothing joined them — a center only knew its creator representation
  * (creator_representation_id) or its polymorphic owner, neither of which answers
  * "which branches belong to this digital store?", the question the about-us branch list

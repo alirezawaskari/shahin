@@ -86,12 +86,14 @@ class SitemapService
                 key: 'single-web-pages',
                 file: 'sitemap-single-web-pages.xml',
                 label: 'تک‌صفحه‌ها',
+                // خود تک‌صفحه‌ها به علاوه‌ی مسیر دو بخشی «تک‌صفحه/خدمت» — هر دو در
+                // یک فایل، چون یک صفحه‌اند با دو سطح آدرس و تیک جدا لازم ندارند.
                 urls: fn () => $this->modelUrls(
                     'single-web-pages',
                     SingleWebPage::query()->where('status', true),
                     changefreq: 'monthly',
                     priority: '0.7',
-                ),
+                )->merge($this->singleWebPageServiceUrls()),
                 enabled: $this->isEnabled('single-web-pages'),
             ),
 
@@ -383,6 +385,65 @@ class SitemapService
     }
 
     /**
+     * آدرس‌های مسیر دو بخشی /singleWebPage/{تک‌صفحه}/{خدمت}.
+     *
+     * این خدمت‌ها معمولا isShow=0 دارند، یعنی نه در /services فهرست می‌شوند و نه
+     * در sitemap-services.xml می‌آیند؛ تنها راه رسیدن به آن‌ها همین مسیر زیر
+     * تک‌صفحه است (مثل /singleWebPage/logistic/monaghese2 که /lagestic/monaghese1
+     * هم به آن ریدایرکت می‌کند). پس isShow اینجا شرط نیست و فقط status بررسی
+     * می‌شود — یعنی دقیقا همان چیزی که SingleWebPageController@single سرو می‌کند.
+     *
+     * خروجی عمدا داخل همان بخش single-web-pages می‌نشیند، نه یک بخش جدا.
+     *
+     * @return Collection<int, SitemapUrl>
+     */
+    private function singleWebPageServiceUrls(): Collection
+    {
+        $pattern = config('sitemap.model_paths.single-web-page-services');
+
+        if (blank($pattern)) {
+            return collect();
+        }
+
+        $urls = collect();
+
+        SingleWebPage::query()
+            ->where('status', true)
+            // services.status چون whereHas/with روی belongsToMany جدول pivot را
+            // join می‌کند و status بدون نام جدول مبهم می‌شود.
+            ->with(['services' => fn ($query) => $query->where('services.status', 1)])
+            ->chunkById(200, function (Collection $pages) use ($urls, $pattern) {
+                $pageSeo = $this->seoOverrides($pages);
+
+                // یک کوئری seo برای همه‌ی خدمت‌های این دسته، نه یکی به ازای هر تک‌صفحه.
+                $serviceSeo = $this->seoOverrides(
+                    $pages->flatMap->services->unique->getKey()->values()
+                );
+
+                foreach ($pages as $page) {
+                    if (blank($page->slug) || $this->isNoIndex(($pageSeo[$page->getKey()] ?? null)?->robots)) {
+                        continue;
+                    }
+
+                    foreach ($page->services as $service) {
+                        if (blank($service->slug) || $this->isNoIndex(($serviceSeo[$service->getKey()] ?? null)?->robots)) {
+                            continue;
+                        }
+
+                        $urls->push(new SitemapUrl(
+                            loc: $this->url(strtr($pattern, [':page' => $page->slug, ':slug' => $service->slug])),
+                            lastmod: $this->lastModOf($service),
+                            changefreq: 'monthly',
+                            priority: '0.6',
+                        ));
+                    }
+                }
+            });
+
+        return $urls;
+    }
+
+    /**
      * ردیف‌های seo_contents یک دسته رکورد، کلیدخورده با شناسه‌ی رکورد.
      *
      * @param  Collection<int, Model> $models
@@ -396,7 +457,9 @@ class SitemapService
 
         return SeoContent::query()
             ->where('seoable_type', $models->first()->getMorphClass())
-            ->whereIn('seoable_id', $models->modelKeys())
+            // map()->getKey() و نه modelKeys(): بعضی صداکننده‌ها (مسیر
+            // تک‌صفحه/خدمت) یک Support\Collection ساده می‌دهند که modelKeys ندارد.
+            ->whereIn('seoable_id', $models->map->getKey()->all())
             ->get()
             ->keyBy('seoable_id')
             ->all();

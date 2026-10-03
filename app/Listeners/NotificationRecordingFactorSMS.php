@@ -67,14 +67,16 @@ class NotificationRecordingFactorSMS {
     private function sendSmsNotificationRecordingFactorConfirmation(FactorItem $factorItem , $resnumber) {
         $user = $factorItem->supervisor->factor->user;
         $userMobile = $user->phone;
+        $center_call = $factorItem->center->phone;
+        $supporter_phone = $factorItem->supporter ? $factorItem->supporter->employee->business_phone : $center_call;
+     
         if ( isset( $userMobile ) ) {
 
             $body = [
                 'param1' => $user->name.' '.$user->family,
                 'param2' => $resnumber,
-                'param3' => verta(Carbon::now())->format('Y/m/d H:i:s'),
-                'param4' => $factorItem->center->title,
-                'param5' => 'lalecard.ir/factorItem/factor/'.$resnumber,
+                'param3' => $supporter_phone,
+                'param4' => 'lalecard.ir/factorItem/factor/'.$resnumber,
             ];
             SendSms::sendSingleSms( 'notificationrecordingfactorforconfirmation', $userMobile, $body );
         }

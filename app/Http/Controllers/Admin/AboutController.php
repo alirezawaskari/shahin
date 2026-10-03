@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\About;
+use App\Models\GhorfeOnlineList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -287,8 +288,8 @@ class AboutController extends Controller
             }
 
             $attributes = [
-                'title' => $title,
-                'text'  => trim((string) ($texts[$index] ?? '')),
+                'question' => $title,
+                'answer'  => trim((string) ($texts[$index] ?? '')),
             ];
 
             $id = $ids[$index] ?? null;
@@ -301,7 +302,7 @@ class AboutController extends Controller
                 $faq->update($attributes);
             } else {
                 $faq = $about->faqsQuery()->create($attributes + [
-                    'ghorfe_online_list_id' => $about->ghorfeOnline?->id,
+                    'askedquestionable_id' => $about->ghorfeOnline?->id, 'askedquestionable_type' => GhorfeOnlineList::class
                 ]);
             }
 

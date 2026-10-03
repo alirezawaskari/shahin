@@ -179,7 +179,7 @@
                                     تخفیف
                                     عمومی</a></li>
                             <li><a href="{{ route('coupons.discountVarietyProduct') }}"> <i
-                                        class="icon ti-control-record"></i>کد تخفیف تنوع کالاها توسط مراکز</a></li>
+                                        class="icon ti-control-record"></i>کد تخفیف تنوع کالاها توسط مستاجرین و شرکای تجاری</a></li>
                         </ul>
                     </li>
                     @endpermission
@@ -414,7 +414,7 @@
                 <ul>
                     <li><a href="{{ route('storeRoom.index') }}">فهرست انبارها</a></li>
                     <li><a href="{{ route('supplier.index') }}">فهرست تامین کنندگان</a></li>
-                    <li><a href="{{ route('center.index') }}">فهرست مراکز</a></li>
+                    <li><a href="{{ route('center.index') }}">فهرست مستاجرین و شرکای تجاری</a></li>
                     <li><a href="{{ route('purchaseInvoice.index') }}">فهرست فاکتورها </a></li>
                     <li><a href="{{ route('changeStoreRoom.index') }}"> خروج از انبار </a></li>
                     @permission('request' || 'request-detail')
@@ -459,13 +459,13 @@
             @endpermission
 
             @permission('center|center-request|center-request-detail')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>مراکز</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>مستاجرین و شرکای تجاری</span> </a>
                 <ul>
                     @permission('center-request|center-request-detail')
-                    <li><a href="{{ route('centerRequest.index') }}">درخواست مراکز</a></li>
+                    <li><a href="{{ route('centerRequest.index') }}">درخواست مستاجرین و شرکای تجاری</a></li>
                     @endpermission
                     @permission('center')
-                    <li><a href="{{ route('center.index') }}">فهرست مراکز</a></li>
+                    <li><a href="{{ route('center.index') }}">فهرست مستاجرین و شرکای تجاری</a></li>
                     @endpermission
                 </ul>
             </li>
@@ -497,14 +497,14 @@
             @endif
 
             @permission('create_agency')
-            <li><a href="#"><i class="icon ti-control-record"></i> <span>عاملیت ها</span> </a>
+            <li><a href="#"><i class="icon ti-control-record"></i> <span>نمایندگی ها</span> </a>
                 <ul>
                     @permission('agency')
-                    <li><a href="{{ route('agency.index') }}">درخواست عاملیت</a></li>
+                    <li><a href="{{ route('agency.index') }}">درخواست نمایندگی</a></li>
                     @endpermission
-                    <li><a href="{{ route('representation.index') }}">فهرست عاملیت ها</a></li>
+                    <li><a href="{{ route('representation.index') }}">فهرست نمایندگی ها</a></li>
                     @permission('agency-type')
-                    <li><a href="{{ route('agencyType.index') }}">انواع عاملیت</a></li>
+                    <li><a href="{{ route('agencyType.index') }}">انواع نمایندگی</a></li>
                     @endpermission
                 </ul>
             </li>

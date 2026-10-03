@@ -11,7 +11,7 @@
                     <div class="col-12 col-md-8 py-5 my-auto mr-auto">
                         <div class="card">
                             <div class="card-header">معرفی شرکت</div>
-                            <div class="card-body">متخصص محترم و کارجوی عزیز 
+                            <div class="card-body">متخصص محترم و کارجوی عزیز
 
 شبکه لاله در سطوح مختلف از رشته های متعدد و سطوح مختلف دعوت به همکاری مینماید.</div>
                         </div>
@@ -20,12 +20,12 @@
                             @csrf
                             <div class="card">
                                 <div class="card-body">
-                                    <img src="{{ asset('assets/site/images/478345.png') }}" width="25px">طراح گرافیست و انیماتور 
+                                    <img src="{{ asset('assets/site/images/478345.png') }}" width="25px">طراح گرافیست و انیماتور
                                 </div>
                             </div>
                             <div class="card">
                                 <div class="card-body">
-                                    <img src="{{ asset('assets/site/images/49128.svg') }}" width="25px">  اپراتور مرکز تماس
+                                    <img src="{{ asset('assets/site/images/49128.svg') }}" width="25px">  اپراتور مستاجرین و شرکای تجاری تماس
                                 </div>
                             </div>
 							  <div class="card">
@@ -35,7 +35,7 @@
                             </div>
 							  <div class="card">
                                 <div class="card-body">
-                                    <img src="{{ asset('assets/site/images/accountants.png') }}" width="25px">  حسابدار 
+                                    <img src="{{ asset('assets/site/images/accountants.png') }}" width="25px">  حسابدار
                                 </div>
                             </div>
 							 <div class="card">

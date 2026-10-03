@@ -105,7 +105,7 @@
                     <div class="col-12 col-md-3 mb-2">
                         <select name="representation" class="custom-select">
                             <option value="all">انتخاب نمایندگی</option>
-                            <option value="center">نمایندگی مرکزی تهران</option>
+                            <option value="center">نمایندگی مستاجرین و شرکای تجاریی تهران</option>
                             @foreach($representations as $item)
                                 <option value="{{$item->id}}">{{$item->fa_name}}</option>
                             @endforeach
@@ -156,7 +156,7 @@
                         <th>موبایل</th>
                         <th>فروشنده</th>
                         <th>مبلغ</th>
-                        <th>عاملیت</th>
+                        <th>نمایندگی</th>
                         <th>موضوع</th>
                         <th>نوع پرداخت</th>
                         <th>تاریخ</th>

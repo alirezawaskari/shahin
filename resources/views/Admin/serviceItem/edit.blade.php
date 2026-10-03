@@ -133,39 +133,66 @@
                     <form action="{{route('serviceItem.update' , [$service->slug ])}}" id="text-information-form">
                         <input type="hidden" value="text_information" name="update_type">
                         <div class="row">
-                            <div class="col-12 mb-3">
-                                <div class="card">
-                                    <div class="card-header">
-                                        متن بخش اول (بالای فرم ثبت نام)
-                                    </div>
-                                    <div class="card-body">
-                                        <textarea name="left_content">{{ $service->left_content }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <div class="card">
-                                    <div class="card-header">
-                                        متن بخش دوم
-                                    </div>
-                                    <div class="card-body">
-                                        <textarea name="txt_box_1">{{ $service->txt_box_1 }}</textarea>
+                            @if (ghorfe() || $service->is_complete_content)
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            توضیحات(قابل نمایش در صفحه خدمت)
+                                        </div>
+                                        <div class="card-body">
+                                            <textarea class="editor-content"
+                                                name="content">{!! $service->content !!} </textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            @else
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            متن بخش اول (بالای فرم ثبت نام)
+                                        </div>
+                                        <div class="card-body">
+                                            <textarea name="left_content">{{ $service->left_content }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            متن بخش دوم
+                                        </div>
+                                        <div class="card-body">
+                                            <textarea name="txt_box_1">{{ $service->txt_box_1 }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div class="col-12 mb-3">
-                                <div class="card">
-                                    <div class="card-header">
-                                        متن بخش سوم (بخش پایانی)
-                                    </div>
-                                    <div class="card-body">
-                                        <textarea class="editor-content"
-                                            name="content">{!! $service->content !!} </textarea>
+                                <div class="col-12 mb-3">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            متن بخش سوم (بخش پایانی)
+                                        </div>
+                                        <div class="card-body">
+                                            <textarea class="editor-content"
+                                                name="content">{!! $service->content !!} </textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
+                            @endif
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="is_complete_content" value="1" id="is_complete_content"
+                                        @if($service->is_complete_content)
+                                    checked
+                                    @endif> تکمیل متن آیتم
+                                </label>
+                                @if($errors->has('is_complete_content'))<span
+                                    class="help-block sub-error">{{$errors->first('is_complete_content')}}</span>@endif
+                            </div>
 
                         </div>
                         <div class="col-12 col-md-12 mb-3">
@@ -365,10 +392,12 @@
                                 </table>
                             </div>
 
-                            @if($service->getMedia('portfolio')->count() == 0 && $service->hasLegacyWorkSampleRows('portfolio'))
+                            @if($service->getMedia('portfolio')->count() == 0 &&
+                            $service->hasLegacyWorkSampleRows('portfolio'))
                             <div class="col-12 col-md-12 mb-4">
                                 <label> نمونه کار های ذخیره شده</label>
-                                <small class="d-block text-warning mb-2">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل می‌شوند</small>
+                                <small class="d-block text-warning mb-2">تصاویر قدیمی - با ذخیره به سیستم جدید منتقل
+                                    می‌شوند</small>
                                 <table class="table table-striped">
                                     <tbody>
                                         @foreach($service->legacyWorkSampleItems('portfolio') as $item)

@@ -34,7 +34,7 @@
         <div class="carousel-inner main-slider">
             @foreach($sliders as $slider)
             <div class="carousel-item {{ $loop->first ? 'active' : '' }}  ">
-                <a href="{{ $slider->link }}"><img src="{{ $slider->img }}" class="d-block w-100"
+                <a href="{{ $slider->link }}"><img src="{{ asset($slider->img) }}" class="d-block w-100"
                         alt="{{ $slider->title }}"></a>
             </div>
             @endforeach
@@ -55,7 +55,7 @@
 
             @foreach($sliders_mobile as $slider)
             <div class="carousel-item {{ $loop->first ? 'active' : '' }}  ">
-                <a href="{{ $slider->link }}"><img src="{{ $slider->img }}" class="d-block w-100"
+                <a href="{{ $slider->link }}"><img src="{{ asset($slider->img) }}" class="d-block w-100"
                         alt="{{ $slider->title }}"></a>
             </div>
             @endforeach
@@ -96,7 +96,7 @@
             <div
                 class="col-md-2 col-sm-4 col-4 d-flex flex-column align-items-center text-center justify-content-center">
                 <a href="/services/{{ $service->slug }}/{{ $callcenter->id }}" class="ml-2">
-                    <img class="ml-2" src="{{ $service->icon }}" alt="{{ $service->title }}" width="74px">
+                    <img class="ml-2" src="{{ asset($service->icon) }}" alt="{{ $service->title }}" width="74px">
                     <p class="text-dark mt-1 font-weight-bolder">{{ $service->title }}</p>
                 </a>
             </div>

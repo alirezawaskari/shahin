@@ -96,6 +96,12 @@ class ProductWizardService
         return $category_id ? route('productWizard.attributes', $category_id) : null;
     }
 
+    /** مرحله شگفت‌انگیز؛ با کالای جاری، همان کالا از پیش انتخاب شده است. */
+    public static function specialSaleUrl($product_id = null): string
+    {
+        return route('productWizard.specialSale', array_filter(['product_id' => $product_id]));
+    }
+
     /**
      * لیست دسته‌بندی‌هایی که این دسته‌بندی در آن است (همان جایی که کاربر آن را می‌بیند).
      */
@@ -227,6 +233,12 @@ class ProductWizardService
             $steps['variation'] = [
                 'title' => 'ثبت تنوع کالا',
                 'url'   => $product ? route('price.show', ['price' => $product->id, 'wizard' => 1]) : null,
+            ];
+
+            // اختیاری و بدون پیش‌نیاز: بدون کالای جاری هم می‌شود چند کالا را با هم انتخاب کرد
+            $steps['special'] = [
+                'title' => 'شگفت‌انگیز',
+                'url'   => self::specialSaleUrl(optional($product)->id),
             ];
         }
 

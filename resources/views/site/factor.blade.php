@@ -18,7 +18,7 @@
                     @if(!is_null($factor->representation))
                     <p>{{ $factor->representation->fa_name }}</p>
                     @else
-                    <p>دفتر مرکزی </p>
+                    <p>دفتر مستاجرین و شرکای تجاریی </p>
                     @endif
                 </div>
                 @if(now() > $factor->expired_at && $factor->status != 1 )

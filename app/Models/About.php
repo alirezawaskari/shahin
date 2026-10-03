@@ -156,8 +156,8 @@ class About extends Model implements HasMedia {
     {
         // No center guard needed: branch questions live in `asked_questions` under the
         // center's own morph, so nothing in `faqs` can be mistaken for a main-site row.
-        return Faq::query()
-            ->where( 'ghorfe_online_list_id', $this->ghorfeOnline?->id );
+        return AskedQuestion::query()
+            ->where( 'askedquestionable_id', ghorfe()?->id )->where('askedquestionable_type' , GhorfeOnlineList::class);
     }
 
     /**

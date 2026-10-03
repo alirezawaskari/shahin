@@ -45,8 +45,8 @@
                         <option value="0">جدید</option>
                         <option value="1">منتظر تایید مالی</option>
                         <option value="2">منتظر تایید مدیر</option>
-                        <option value="3">منتظر تایید مدیر مالی عاملیت</option>
-                        <option value="4">منتظر تایید  مدیر عاملیت</option>
+                        <option value="3">منتظر تایید مدیر مالی نمایندگی</option>
+                        <option value="4">منتظر تایید  مدیر نمایندگی</option>
                         <option value="5">آماده ارسال</option>
                         <option value="6">کالا ارسال شده</option>
                         <option value="7">گزارش خرابی کالا</option>

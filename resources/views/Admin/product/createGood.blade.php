@@ -73,6 +73,9 @@
                                     <div class="tab-pane" role="tabpanel" id="step2">
                                         <h5 class="text-center">اطلاعات کالا</h5><br />
                                         @include('Admin.step.step_two',['internal_use'=>true])
+                                        <div class="row">
+                                            @include('Admin.partials.products.purchaseInfo')
+                                        </div>
                                         <hr />
                                         <button type="button"
                                             class="badge badge-info prev-step float-left">برگشت</button>

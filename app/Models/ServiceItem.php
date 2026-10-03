@@ -130,7 +130,7 @@ class ServiceItem extends Model implements AuditableContract, HasMedia
      * @var string[]
      */
     protected $fillable=['service_id','title','en_title','description','slug','status','isShow',
-        'content','image','icon','thumb','image_app','img_box_1','txt_box_1','left_content'];
+        'content','image','icon','thumb','image_app','img_box_1','txt_box_1','left_content','is_complete_content'];
     /**
      * @var string[]
      */

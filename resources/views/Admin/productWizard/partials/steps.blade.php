@@ -2,7 +2,7 @@
     نوار مراحل ویزارد ایجاد محصول — قابل کلیک، با دکمه‌های «قبلی» و «بعدی».
 
     ورودی‌ها:
-      $current — کلید مرحله جاری: type | category | attributes | create | variation | done
+      $current — کلید مرحله جاری: type | category | attributes | create | variation | special | done
       $kind    — product | service | null (پیش‌فرض: نوعی که ویزارد در session دارد)
 
     آدرس هر مرحله از زمینه ویزارد می‌آید (ProductWizardService::steps). مرحله‌ای که هنوز

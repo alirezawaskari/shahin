@@ -10,7 +10,7 @@
                     @include('Admin.layouts.errors')
 
                     <div class="col-12 col-md-4 mb-2">
-                        <label>عنوان فارسی(این عنوان در سایت عاملیت درج می شود)</label>
+                        <label>عنوان فارسی(این عنوان در سایت نمایندگی درج می شود)</label>
                         <input type="text" value="{{old('fa_name')}}"
                                class="form-control"
                                name="fa_name" required>

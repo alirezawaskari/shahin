@@ -8,7 +8,7 @@
         <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap">
             <span>کالای «{{$product->name}}» ثبت شد. حالا تنوع‌های آن (رنگ، سایز و سایر ویژگی‌ها) را ثبت کنید.</span>
             <a href="{{$wizard_done_url}}" class="btn btn-sm btn-outline-primary">
-                اتمام و بازگشت به لیست کالاها
+                ادامه: افزودن به شگفت‌انگیز
             </a>
         </div>
     @endif

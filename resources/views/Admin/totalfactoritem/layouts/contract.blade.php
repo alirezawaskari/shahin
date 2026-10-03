@@ -71,7 +71,7 @@
             <span lang="FA" style="line-height: 150%;font-weight: 700;">ماده 2 : موضوع قرارداد :<br></span>
             <span lang="FA" style="line-height: 150%;">عبارت است از معرفی
                 خدمات گیرنده برای دریافت خدمات {{ App\Models\totalFactorItem::setFactorItemable($totalFactorItem) }} از
-                مراکز طرف قرارداد با شرکت که با
+                مستاجرین و شرکای تجاری طرف قرارداد با شرکت که با
             </span>
             <span lang="FA" style="line-height: 150%;">
                 دریافت تسهیلات مندرج در ماده 3 و خدمات مالی از شرکت به صورت اقساطی از خدمات دریافتی مورد

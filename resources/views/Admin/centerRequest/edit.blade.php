@@ -1,5 +1,5 @@
 @extends('Admin.master')
-@section('title')مشاهده درخواست مرکز@endsection
+@section('title')مشاهده درخواست مستاجرین و شرکای تجاری@endsection
 @section('content')
 <div class="card">
     <div class="card-body">
@@ -188,7 +188,7 @@
                     @endif
 
                     <div class="col-12 col-md-6 mb-3">
-                        <label>توضیحات مرکز</label>
+                        <label>توضیحات مستاجرین و شرکای تجاری</label>
                         <textarea type="text" class="form-control"
                             name="description">{{ $center_request->description }}</textarea>
                     </div>
@@ -228,7 +228,7 @@
                         @endforelse
                     </div>
                     <div class="col-12">
-                        <p class="text-warning font-weight-bolder"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> توجه : همکار گرامی توجه داشته باشید درصورتی که وضعیت را به فعال تغییر دهید این درخواست به عنوان یک مرکز فعال سایت درنظر گرفته خواهد شد. </p>
+                        <p class="text-warning font-weight-bolder"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> توجه : همکار گرامی توجه داشته باشید درصورتی که وضعیت را به فعال تغییر دهید این درخواست به عنوان یک مستاجرین و شرکای تجاری فعال سایت درنظر گرفته خواهد شد. </p>
                     </div>
                     <div class="col-12">
                         <input type="submit" class="btn btn-success border-0" value="ثبت">

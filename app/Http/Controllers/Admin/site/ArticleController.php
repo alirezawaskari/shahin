@@ -49,9 +49,8 @@ class ArticleController extends Controller
 
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Summary of create
+     * @return \Illuminate\Contracts\View\View
      */
     public function create()
     {
@@ -68,14 +67,13 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $request->validate(['title' => 'required','slug_title' => 'required', 'category_article_id' => 'required',
-            'image_path' => 'required','description'=>'required','summary'=>'required'],
+            'image_path' => 'required','description'=>'required'],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
                 'slug_title.required' => 'لطفا عنوان  url مرتبط با این مقاله را وارد کنید',
                 'category_article_id.required' => 'لطفا دسته بندی را وارد کنید',
                 'image_path.required' => 'لطفا عکس را وارد کنید',
                 'description.required' => 'لطفا متن را وارد کنید',
-                'summary.required' => 'لطفا خلاصه را وارد کنید',
             ]
         );
 
@@ -123,7 +121,7 @@ class ArticleController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate(['title' => 'required', 'slug_title' => 'required', 'category_article_id' => 'required|integer'
-            ,'description'=>'required','summary'=>'required'
+            ,'description'=>'required'
         ],
             [
                 'title.required' => 'لطفا عنوان را وارد کنید',
@@ -131,7 +129,6 @@ class ArticleController extends Controller
                 'category_article_id.required' => 'لطفا دسته بندی را وارد کنید',
                 'category_article_id.integer' => 'لطفا دسته بندی را درست وارد کنید',
                 'description.required' => 'لطفا متن را وارد کنید',
-                'summary.required' => 'لطفا خلاصه را وارد کنید',
             ]
         );
         $request['user_id'] = $request->user()->id;

@@ -1,5 +1,4 @@
-@include('site.services.serviceItemList')
-<div class="col-12 col-md-5 py-5 my-auto mr-auto">
+<div class="col-12 col-md-6 py-5 my-auto m-auto">
     @foreach($errors->all() as $error)
     <div class="alert alert-danger my-3" role="alert">
         {{ $error }}
@@ -19,18 +18,18 @@
         @endforeach
     </div>
     @else
-    @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, 'callcenter' =>
-    $callcenter->id])
+   @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, 'callcenter' => ($callcenter ?
+    $callcenter->id : $callcenter)])
     @endif
     @else
-    @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, 'callcenter' =>
-    $callcenter->id])
+    @include('site.layouts.add_to_cart', ['service' => $service, 'representation' => 0, 'callcenter' => ($callcenter ?
+    $callcenter->id : $callcenter)])
     @endif
     @else
     <span>شما قبلا این خدمت را خریده اید و امکان خرید مجدد وجود ندارد.</span>
     @endif
     @else
-    @include('auth.layout.check_register')
+	@include('auth.layout.check_register')
     @include('auth.layout.login')
     <form action="/fastregister" method="POST" class="my-4" id="registerForm">
         @csrf
@@ -112,7 +111,7 @@
                 </button>
             </div>
         </div>
-        <input type="hidden" name="callcenter_id" value="{{ $callcenter->id }}">
+        <input type="hidden" name="callcenter_id" value="{{ $callcenter ? $callcenter->id : ''}}">
     </form>
     {{-- <a href="{{ route('login') }}" class="btn btn-orange text-white px-3 mt-2 btn-block">قبلا ثبت
         نام کرده اید؟اینجا کلیک کنید</a>--}}

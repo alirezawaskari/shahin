@@ -45,7 +45,7 @@ return new class extends Migration
         'امور مالی'          => 'تراکنش ها',
         'پرونده ها'          => 'پرونده',
         'انبارداری'          => 'انبار',
-        'عاملیت ها'          => 'نمایندگی',
+        'نمایندگی ها'          => 'نمایندگی',
         'تسهیم درآمد'        => 'تسهیم درصدی درآمد',
         'مغازه های دیجیتال'  => 'مغازه دیجیتال',
         'قراردادها'          => 'قرارداد',
@@ -141,9 +141,9 @@ return new class extends Migration
             ['service-tariff', 'tariff.index', 'دوره تعرفه'],
         ]],
 
-        ['مراکز', 'ti-control-record', [
-            ['center-request-detail', 'centerRequest.index', 'درخواست مراکز'],
-            ['center', 'center.index', 'فهرست مراکز'],
+        ['مستاجرین و شرکای تجاری', 'ti-control-record', [
+            ['center-request-detail', 'centerRequest.index', 'درخواست مستاجرین و شرکای تجاری'],
+            ['center', 'center.index', 'فهرست مستاجرین و شرکای تجاری'],
         ]],
 
         ['تماس با ما', 'ti-control-record', [
@@ -154,10 +154,10 @@ return new class extends Migration
             ['financial-plans-type', 'financialPlansType.index', 'طرح های مالی'],
         ]],
 
-        ['عاملیت ها', 'ti-control-record', [
-            ['agency', 'agency.index', 'درخواست عاملیت'],
-            ['representation', 'representation.index', 'فهرست عاملیت ها'],
-            ['agency-type', 'agencyType.index', 'انواع عاملیت'],
+        ['نمایندگی ها', 'ti-control-record', [
+            ['agency', 'agency.index', 'درخواست نمایندگی'],
+            ['representation', 'representation.index', 'فهرست نمایندگی ها'],
+            ['agency-type', 'agencyType.index', 'انواع نمایندگی'],
         ]],
 
         ['مغازه های دیجیتال', 'ti-control-record', [
@@ -265,7 +265,7 @@ return new class extends Migration
             ['news-list', 'news.index', 'اخبار'],
             ['validation', 'validation.index', 'اعتبارسنجی کالا ها'],
             ['comment-detail', 'comment.index', 'نظرات'],
-            ['coupon-variety', 'coupons.discountVarietyProduct', 'کد تخفیف تنوع کالا ها توسط مراکز'],
+            ['coupon-variety', 'coupons.discountVarietyProduct', 'کد تخفیف تنوع کالا ها توسط مستاجرین و شرکای تجاری'],
         ]],
     ];
 

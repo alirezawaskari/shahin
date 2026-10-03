@@ -94,7 +94,7 @@
                          has an admin_representation_id, centers when they have a center_id. --}}
                     @if(count($agency_types))
                         <div class="col-12 col-md-4 mb-5">
-                            <label>عاملیت *</label>
+                            <label>نمایندگی *</label>
                             <select name="agency_type_id" class="form-control" title="">
                                 <option value="">لطفا انتخاب کنید..</option>
                                 @foreach($agency_types as $agency_type)

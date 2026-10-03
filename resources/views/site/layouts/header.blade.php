@@ -1,4 +1,4 @@
-<nav class="navbar  navbar-expand-lg navbar-light header py-0">
+<nav class="navbar  navbar-expand-lg navbar-light header py-0 noprint">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
                 aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,7 +120,7 @@
                         <div class="dropdown-menu dropdown-menu-right text-right mt-3"
                              aria-labelledby="navbarDropdownMenuLink">
                             {{-- <a class="dropdown-item text-orange py-2" href="{{ url('/agency') }}">--}}
-                            {{-- اعطاء مجوز همکاری به مراکز و فروشگاهها--}}
+                            {{-- اعطاء مجوز همکاری به مستاجرین و شرکای تجاری و فروشگاهها--}}
                             {{-- </a>--}}
                             <a class="dropdown-item text-orange py-2"
                                href="{{ url('/Permanent-employment') }}">استخدام و تامین نیروی انسانی</a>
@@ -193,7 +193,7 @@
                         </li>
                         <li class="nav-item profile">
                             <a class="nav-link text-dark" href="{{ route('profile') }}">
-                                <img width="40px" height="40px" src="{{ auth()->user()->avatar }}"
+                                <img width="40px" height="40px" src="{{ asset(auth()->user()->avatar) }}"
                                      class="rounded-circle">
                                 <span>{{ auth()->user()->family }}</span>
                             </a>

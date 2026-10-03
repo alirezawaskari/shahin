@@ -53,7 +53,13 @@ class  Product extends Model implements HasMedia
     protected $fillable = [
         'name','en_name','slug','brand_id','isShow','is_sale','internal_use','review',
         'root_category_id','type','status', 'center_id','description','length','width','height','weight',
-        'reference_price','message','status'
+        'reference_price','message','status',
+        'cash_purchase','cash_purchase_note','installment_purchase','installment_purchase_note',
+    ];
+
+    protected $casts = [
+        'cash_purchase'        => 'boolean',
+        'installment_purchase' => 'boolean',
     ];
 
     /** Product media (Spatie native): single main image + a multi-image gallery. */
@@ -99,6 +105,26 @@ class  Product extends Model implements HasMedia
     }
 
     //start relationShip
+
+    /**
+     * Shipping methods offered for this product on its single-product page.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function shippingMethods()
+    {
+        return $this->belongsToMany(ShippingMethod::class, 'product_shipping_method');
+    }
+
+    /**
+     * «شگفت‌انگیز» rows this product is in (each one belongs to a timed SpecialSaleGroup).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function specialSaleItems()
+    {
+        return $this->hasMany(SpecialSaleItem::class);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -602,7 +628,7 @@ class  Product extends Model implements HasMedia
                 'good.name.required' => 'لطفا عنوان را وارد کنید',
                 'good.brand_id.required' => 'لطفا برند را انتخاب کنید',
                 'choose_category_id.required' => 'لطفا گروه کالا را انتخاب کنید',
-                'good.center_id.required' => 'لطفا مرکز را انتخاب کنید',
+                'good.center_id.required' => 'لطفا مستاجرین و شرکای تجاری را انتخاب کنید',
                 'good.length.required' => 'لطفا طول را انتخاب کنید',
                 'good.width.required' => 'لطفا عرض را انتخاب کنید',
                 'good.height.required' => 'لطفا ارتفاع را انتخاب کنید',

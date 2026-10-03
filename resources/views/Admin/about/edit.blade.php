@@ -126,7 +126,7 @@
                                 </div>
 
                                 <div class="col-12 col-md-4 mb-3">
-                                    <label>شماره تماس مرکز</label>
+                                    <label>شماره تماس مستاجرین و شرکای تجاری</label>
                                     <input type="text" class="form-control" name="contact_phone"
                                            value="{{ old('contact_phone', $about->contact_phone) }}" placeholder="021-42568879">
                                     @if($ghorfe && $ghorfe->call)
@@ -258,7 +258,7 @@
                                          says WHICH branches of this business the about-us page shows and in
                                          WHAT ORDER (row order = the pivot `sort`, as the tag order used to
                                          be). «ویرایش» and «ایجاد شعبه جدید» open the branch forms under
-                                         «مراکز», so a branch keeps exactly one form. --}}
+                                         «مستاجرین و شرکای تجاری», so a branch keeps exactly one form. --}}
                                     <table class="table table-bordered" id="branch-table">
                                         <thead>
                                         <tr>
@@ -495,11 +495,11 @@
                                                 <td>
                                                     <input type="hidden" name="faq_ids[]" value="{{ $faq->id }}">
                                                     <input type="text" class="form-control" name="faq_titles[]"
-                                                           value="{{ $faq->title }}" placeholder="سوال">
+                                                           value="{{ $faq->question }}" placeholder="سوال">
                                                 </td>
                                                 <td>
                                                     <textarea class="form-control" name="faq_texts[]" rows="2"
-                                                              placeholder="پاسخ">{{ $faq->text }}</textarea>
+                                                              placeholder="پاسخ">{{ $faq->answer }}</textarea>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-danger btn-sm faq-remove">
