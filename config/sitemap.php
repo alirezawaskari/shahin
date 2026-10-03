@@ -86,16 +86,24 @@ return [
     | «:slug» با اسلاگ رکورد جایگزین می‌شود. اگر مسیر عمومی یک مدل در
     | routes/web.php عوض شد، فقط همین‌جا باید به‌روز شود.
     |
+    | single-web-page-services کلید بخش نیست و در فهرست sections بالا نمی‌آید:
+    | آدرس‌هایش داخل همان فایل sitemap-single-web-pages.xml نوشته می‌شود، پس
+    | تیک جداگانه‌ای در پنل ندارد. این همان مسیر دو بخشی
+    | /singleWebPage/{تک‌صفحه}/{خدمت} است (مثلا /singleWebPage/logistic/monaghese2)
+    | که ریدایرکت‌های /lagestic/... در routes/web.php هم به آن اشاره می‌کنند.
+    | «:page» اسلاگ تک‌صفحه و «:slug» اسلاگ خدمتِ متصل به آن است.
+    |
     */
 
     'model_paths' => [
-        'services'         => '/services/:slug',
-        'service-items'    => '/serviceItem/:slug',
-        'single-web-pages' => '/singleWebPage/:slug',
-        'articles'         => '/articles/:slug',
-        'news'             => '/news/:slug',
-        'organizations'    => '/organizations/:slug',
-        'representations'  => '/:slug',
+        'services'                   => '/services/:slug',
+        'service-items'              => '/serviceItem/:slug',
+        'single-web-pages'           => '/singleWebPage/:slug',
+        'single-web-page-services'   => '/singleWebPage/:page/:slug',
+        'articles'                   => '/articles/:slug',
+        'news'                       => '/news/:slug',
+        'organizations'              => '/organizations/:slug',
+        'representations'            => '/:slug',
     ],
 
     /*

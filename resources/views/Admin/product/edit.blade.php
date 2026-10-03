@@ -365,6 +365,8 @@
                                             </div>
                                             @endif
 
+                                            @include('Admin.partials.products.purchaseInfo')
+
                                         </div>
 
                                         <hr />
