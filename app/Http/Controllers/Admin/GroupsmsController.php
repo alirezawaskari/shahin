@@ -4,8 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\AdvertisingBalance;
+use App\Models\GhorfeOnlineList;
 use App\Models\Groupsms;
+use App\Models\OtpBalance;
+use App\Models\SenderNumber;
 use App\Models\Service;
+use App\Models\SmsMessage;
+use App\Models\SmsMessageTemplate;
+use App\Services\Sms\SingleSmsSendService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -30,7 +37,62 @@ class GroupsmsController extends Controller
     public function create()
     {
         $services = Service::filter()->get();
-        return view('Admin.groupsms.create', compact('services'));
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $user = auth()->user();
+
+        // Advertising sender numbers assigned to this business with balances
+        $advertisingNumbers = collect();
+        if ($business) {
+            $advertisingNumbers = $business->senderNumbers()
+                ->where('sender_numbers.type', 'advertising')
+                ->where('sender_numbers.status', 'active')
+                ->get()
+                ->map(function ($sender) use ($business) {
+                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
+                        ->where('sender_number_id', $sender->id)
+                        ->value('balance') ?? 0;
+                    $sender->current_balance = (float) $balance;
+                    return $sender;
+                });
+        }
+
+        // Active SMS templates
+        $templates = SmsMessageTemplate::active()
+            ->with('group')
+            ->latest()
+            ->get();
+
+        // Filter helper options
+        $roles = class_exists(\App\Models\Role::class) && \Illuminate\Support\Facades\Schema::hasTable('roles') ? \App\Models\Role::all() : collect();
+        $businesses = \App\Helpers\FilterHelper::ghorfeFilterOptions();
+        $categories = class_exists(\App\Models\Category::class) && \Illuminate\Support\Facades\Schema::hasTable('categories') ? \App\Models\Category::whereNull('parent_id')->orWhere('depth', 1)->get() : collect();
+        $provinces = class_exists(\App\Models\Province::class) && \Illuminate\Support\Facades\Schema::hasTable('provinces') ? \App\Models\Province::all() : collect();
+
+        // Recent campaigns
+        $recentCampaigns = collect();
+        if ($business) {
+            $recentCampaigns = \App\Models\SmsCampaign::where('ghorfe_online_list_id', $business->id)
+                ->with(['senderNumber', 'template'])
+                ->latest()
+                ->take(10)
+                ->get();
+        }
+
+        $userTier = $user ? ($user->access_tier ?: 'silver') : 'silver';
+
+        return view('Admin.groupsms.create', compact(
+            'services',
+            'business',
+            'user',
+            'userTier',
+            'advertisingNumbers',
+            'templates',
+            'roles',
+            'businesses',
+            'categories',
+            'provinces',
+            'recentCampaigns'
+        ));
     }
 
     /**
@@ -146,7 +208,60 @@ class GroupsmsController extends Controller
      */
     public function single()
     {
-        return view('Admin.groupsms.single');
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+
+        // System-wide active OTP sender number (singleton)
+        $otpSender = SenderNumber::query()
+            ->where('type', 'otp')
+            ->where('status', 'active')
+            ->first();
+
+        // OTP Balance for current business
+        $otpBalance = 0.0;
+        if ($business) {
+            $otpBalance = (float) (OtpBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
+        }
+
+        // Advertising sender numbers assigned to this business with balances
+        $advertisingNumbers = collect();
+        if ($business) {
+            $advertisingNumbers = $business->senderNumbers()
+                ->where('sender_numbers.type', 'advertising')
+                ->where('sender_numbers.status', 'active')
+                ->get()
+                ->map(function ($sender) use ($business) {
+                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
+                        ->where('sender_number_id', $sender->id)
+                        ->value('balance') ?? 0;
+                    $sender->current_balance = (float) $balance;
+                    return $sender;
+                });
+        }
+
+        // Active SMS templates
+        $templates = SmsMessageTemplate::active()
+            ->with('group')
+            ->latest()
+            ->get();
+
+        // Recent sent messages for reference & forwarding
+        $recentMessages = collect();
+        if ($business) {
+            $recentMessages = SmsMessage::where('ghorfe_online_list_id', $business->id)
+                ->with(['senderNumber', 'user'])
+                ->latest()
+                ->take(15)
+                ->get();
+        }
+
+        return view('Admin.groupsms.single', compact(
+            'business',
+            'otpSender',
+            'otpBalance',
+            'advertisingNumbers',
+            'templates',
+            'recentMessages'
+        ));
     }
 
 
@@ -164,25 +279,60 @@ class GroupsmsController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function singleStore(Request $request)
+    public function singleStore(Request $request, SingleSmsSendService $singleSmsSendService)
     {
-        $this->validate($request, [
-            'title' => 'required',
-            'message' => 'required',
-            'phones' => 'required',
-        ]);
-
-        $phones = $request->input('phones');
+        $phone = $request->input('recipient_phone') ?: $request->input('phones');
         $message = $request->input('message');
-        Helper::sms($phones , $message);
-        //save
-        $inputs = $request->all();
-        $groupsms = Groupsms::create(array_merge($inputs, ['type' => 'single', 'status' => 2 , 'flag' => true]));
 
-        return redirect(route('groupsms.index'))->with([
-            'create' => 'success'
-        ]);
+        if (!$phone || !$message) {
+            return back()->withInput()->withErrors(['message' => 'شماره گیرنده و متن پیام الزامی است.']);
+        }
 
+        try {
+            $serviceType = $request->input('service_type', 'normal');
+            $senderNumberId = $request->input('sender_number_id');
+
+            $sms = $singleSmsSendService->send([
+                'recipient_phone' => $phone,
+                'content' => $message,
+                'service_type' => $serviceType,
+                'sender_number_id' => $senderNumberId,
+                'user_id' => $request->input('user_id'),
+                'auto_append_cancel' => (bool) $request->input('auto_append_cancel', true),
+            ], auth()->user());
+
+            // Legacy record for backward compatibility
+            Groupsms::create([
+                'title' => $request->input('title', 'پیامک تکی'),
+                'message' => $message,
+                'phones' => $phone,
+                'type' => 'single',
+                'status' => 2,
+                'flag' => true,
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'پیامک با موفقیت ارسال شد.',
+                    'sms' => $sms,
+                ]);
+            }
+
+            return redirect(route('groupsms.index'))->with([
+                'create' => 'success',
+                'success' => 'پیامک با موفقیت ارسال شد.',
+            ]);
+        } catch (\Throwable $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+
+            return back()->withInput()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     /**

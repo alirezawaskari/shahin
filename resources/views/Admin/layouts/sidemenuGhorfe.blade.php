@@ -598,17 +598,30 @@
             @permission('sms')
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پیامک</span> </a>
                 <ul>
-
-                    @permission('sms-list')
-                    <li><a href="{{ route('groupsms.index') }}">فهرست پیامک ها</a></li>
+                    @permission('send-single-sms')
+                    <li><a href="{{ route('sms.single') }}">پیامک تکی</a></li>
                     @endpermission
                     @permission('send-group-sms')
                     <li><a href="{{ route('groupsms.create') }}">پیامک گروهی</a></li>
                     @endpermission
-                    @permission('send-single-sms')
-                    <li><a href="{{ route('sms.single') }}">پیامک تکی</a></li>
+                    @permission('sms-ai')
+                    <li><a href="{{ route('admin.sms.ai.index') }}">ارسال هوشمند با AI</a></li>
                     @endpermission
-                    <li><a href="{{ route('admin.sms.logs.index') }}">لاگ پیامک‌های ارسالی و دریافتی</a></li>
+                    @permission('sms-template')
+                    <li><a href="{{ route('smsTemplate.index') }}">قالب های پیامکی</a></li>
+                    @endpermission
+                    @permission('sms-list')
+                    <li><a href="{{ route('groupsms.index') }}">فهرست پیامک ها</a></li>
+                    @endpermission
+                    @permission('sms-financial')
+                    <li><a href="{{ route('admin.sms.financial.otp.index') }}">مدیریت مالی و اعتبار</a></li>
+                    @endpermission
+                    @permission('sms-reports')
+                    <li><a href="{{ route('admin.sms.reports.otp.index') }}">گزارش های پیامک</a></li>
+                    @endpermission
+                    @permission('sms-settings')
+                    <li><a href="{{ route('admin.sms.settings.index') }}">تنظیمات سامانه</a></li>
+                    @endpermission
                 </ul>
             </li>
             @endpermission
