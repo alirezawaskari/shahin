@@ -1,0 +1,134 @@
+@extends('Admin.master')
+
+@section('title', 'افزودن خط اختصاصی جدید')
+
+@section('content')
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="fw-bold mb-1">افزودن خط اختصاصی پیامک</h3>
+            <p class="text-muted small mb-0">ثبت شماره فرستنده جدید و اتصال آن به درگاه و کسب‌وکارها</p>
+        </div>
+        <a href="{{ route('admin.sms.settings.senders.index') }}" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
+        </a>
+    </div>
+
+    @include('Admin.sms.settings.navigation')
+
+    @if($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <h6 class="fw-bold mb-2"><i class="fa fa-exclamation-triangle me-1"></i> خطا در ثبت خط فرستنده:</h6>
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">مشخصات خط فرستنده</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ route('admin.sms.settings.senders.store') }}" method="POST">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">شماره خط (Sender Number) <span class="text-danger">*</span></label>
+                        <input type="text" name="number" class="form-control font-monospace" placeholder="مثال: 30005006003675 یا 90001" value="{{ old('number') }}" required>
+                        <small class="text-muted">شماره فرستنده باید در کل سامانه یکتا باشد.</small>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">نوع خط <span class="text-danger">*</span></label>
+                        <select name="type" class="form-select" id="senderTypeSelect" required>
+                            <option value="advertising" {{ old('type') === 'advertising' ? 'selected' : '' }}>تبلیغاتی (قابل تخصیص به کسب‌وکارها)</option>
+                            <option value="otp" {{ old('type') === 'otp' ? 'selected' : '' }}>کد تایید (OTP - احراز هویت سراسری)</option>
+                        </select>
+                        <div class="form-text text-warning small mt-1" id="otpNotice" style="display: none;">
+                            <i class="fa fa-info-circle me-1"></i> توجه: در کل سامانه تنها یک خط OTP سراسری مجاز است. در صورت وجود خط OTP دیگر، خطا دریافت خواهید کرد.
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">پنل / درگاه پیامک <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" name="sms_panel" id="smsPanelInput" class="form-control" list="panelOptions" placeholder="انتخاب یا تایپ درگاه..." value="{{ old('sms_panel', 'IranSms') }}" required>
+                            <datalist id="panelOptions">
+                                @foreach($panels as $p)
+                                    <option value="{{ $p->name }}">{{ $p->name }} ({{ $p->type }})</option>
+                                @endforeach
+                                <option value="IranSms">IranSms</option>
+                                <option value="NeginSms">NeginSms</option>
+                                <option value="ParsaSms">ParsaSms</option>
+                            </datalist>
+                        </div>
+                        <small class="text-muted">شناسه درگاه اتصال مخابراتی برای این خط.</small>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">وضعیت خط <span class="text-danger">*</span></label>
+                        <select name="status" class="form-select" required>
+                            <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>فعال</option>
+                            <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>غیرفعال</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">وضعیت تعهدنامه / قرارداد خط</label>
+                        <input type="text" name="contract_status" class="form-control" placeholder="مثال: تایید شده، در انتظار تعهدنامه..." value="{{ old('contract_status', 'تایید شده') }}">
+                    </div>
+
+                    @if(!$business)
+                        <div class="col-12 col-md-6" id="businessAssignmentGroup">
+                            <label class="form-label fw-bold">تخصیص به کسب‌وکارها (اختیاری)</label>
+                            <select name="business_ids[]" class="form-select" multiple size="4">
+                                @foreach($businesses as $b)
+                                    <option value="{{ $b->id }}" {{ in_array($b->id, (array) old('business_ids', [])) ? 'selected' : '' }}>
+                                        {{ $b->title }} (کد {{ $b->id }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">می‌توانید چند کسب‌وکار را برای استفاده مشترک از این خط انتخاب کنید.</small>
+                        </div>
+                    @endif
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">توضیحات</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="یادداشت‌های فنی یا سازمانی مربوط به این خط...">{{ old('description') }}</textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fa fa-check me-1"></i> ثبت و ذخیره خط فرستنده
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const typeSelect = document.getElementById('senderTypeSelect');
+        const otpNotice = document.getElementById('otpNotice');
+        const bizGroup = document.getElementById('businessAssignmentGroup');
+
+        function toggleTypeView() {
+            if (typeSelect.value === 'otp') {
+                if (otpNotice) otpNotice.style.display = 'block';
+                if (bizGroup) bizGroup.style.display = 'none';
+            } else {
+                if (otpNotice) otpNotice.style.display = 'none';
+                if (bizGroup) bizGroup.style.display = 'block';
+            }
+        }
+
+        typeSelect.addEventListener('change', toggleTypeView);
+        toggleTypeView();
+    });
+</script>
+@endsection

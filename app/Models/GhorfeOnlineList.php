@@ -10,7 +10,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class GhorfeOnlineList extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia, \App\Models\Concerns\HasSenderNumbers;
+    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia, \App\Models\Concerns\HasSenderNumbers, \App\Models\Concerns\HasContractUsages;
 
     /**
      * Touch-to-migrate: legacy single-image columns -> Spatie single-file collections.

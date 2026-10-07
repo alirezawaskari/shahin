@@ -24,7 +24,7 @@ class SmsMessageTemplate extends Model
 
     protected static function booted(): void
     {
-        static::observe(SmsMessageTemplateObserver::class);
+        // Observer registered via #[ObservedBy([SmsMessageTemplateObserver::class])]
     }
 
     public function group(): BelongsTo

@@ -29,6 +29,8 @@ class ContractUsage extends Model
         'registration_invoice' => 'فاکتور ثبت‌نام',
         'purchase_invoice' => 'فاکتور خرید',
         'employee' => 'همکاران',
+        'sms_otp' => 'قرارداد عمومی پیامک خدماتی (OTP)',
+        'sms_advertising' => 'قرارداد پیامک تبلیغاتی کسب‌وکار',
     ];
 
     /**
@@ -39,6 +41,8 @@ class ContractUsage extends Model
         'registration_invoice' => [Service::class],
         'purchase_invoice' => [Service::class, Product::class, null],
         'employee' => [Role::class],
+        'sms_otp' => [null],
+        'sms_advertising' => [GhorfeOnlineList::class, null],
     ];
 
     protected $fillable = [
@@ -118,6 +122,7 @@ class ContractUsage extends Model
             Service::class => 'خدمت',
             Role::class => 'نقش',
             Product::class => 'محصول',
+            GhorfeOnlineList::class => 'کسب‌وکار',
             default => 'مورد',
         };
 
