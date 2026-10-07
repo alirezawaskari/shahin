@@ -530,6 +530,11 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         return $this->hasMany(History::class , 'user_id');
     }
 
+    public function smsMessages()
+    {
+        return $this->hasMany(\App\Models\SmsMessage::class, 'user_id');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

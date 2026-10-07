@@ -220,4 +220,45 @@ class ProfileController extends Controller
         return view('site.profile.layouts.notifications-read' ,compact('notifications'));
     }
 
+    /**
+     * Display SMS messages for customer account area, split into normal vs confidential.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function messages()
+    {
+        $user = auth()->user();
+        $allMessages = \App\Models\SmsMessage::where('user_id', $user->id)
+            ->orWhere(function ($q) use ($user) {
+                if (!empty($user->phone)) {
+                    $q->where('recipient_phone', $user->phone)
+                      ->orWhere('sender_phone', $user->phone);
+                }
+            })
+            ->with(['group', 'template', 'senderNumber'])
+            ->latest()
+            ->get();
+
+        $canViewConfidential = $user->isSuperAdmin()
+            || $user->isAbleTo('view-confidential-messages')
+            || $user->isAbleTo('confidential-messages')
+            || $user->isAbleTo('sms-confidential');
+
+        $normalMessages = $allMessages->filter(function ($msg) {
+            return !$msg->isConfidential();
+        });
+
+        $confidentialMessages = $canViewConfidential
+            ? $allMessages->filter(function ($msg) {
+                return $msg->isConfidential();
+            })
+            : collect();
+
+        return view('site.profile.layouts.messages', compact(
+            'user',
+            'normalMessages',
+            'confidentialMessages',
+            'canViewConfidential'
+        ));
+    }
 }

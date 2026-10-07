@@ -13,5 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         '/callback',
+        'api/sms/*',
+        '/api/sms/*',
     ];
 }

@@ -384,6 +384,7 @@ class SingleSmsSendService
                 'cost' => $cost,
                 'tracking_id' => $trackingId,
                 'user_id' => $recipientUser?->id,
+                'request_id' => $data['request_id'] ?? null,
                 'created_by' => $creator?->id,
                 'is_bulk' => false,
             ]);

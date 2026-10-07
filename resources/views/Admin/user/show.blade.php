@@ -14,6 +14,9 @@
                 <li class="nav-item">
                     <a class="nav-link show" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">فاکتور پرداخت شده</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link show" id="sms-tab" data-toggle="tab" href="#sms" role="tab" aria-controls="sms" aria-selected="false">پیامک‌ها ({{ isset($sms_messages) ? $sms_messages->count() : $user->smsMessages()->count() }})</a>
+                </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade p-t-20 active show" id="home" role="tabpanel" aria-labelledby="home-tab">
@@ -244,6 +247,63 @@
                         </table>
                     </div>
 
+                </div>
+                <div class="tab-pane fade p-t-20" id="sms" role="tabpanel" aria-labelledby="sms-tab">
+                    <div class="table-responsive w-100">
+                        <table class="table table-striped table-hover text-center">
+                            <thead>
+                            <tr>
+                                <th scope="col">شناسه</th>
+                                <th scope="col">جهت</th>
+                                <th scope="col">نوع</th>
+                                <th scope="col">فرستنده</th>
+                                <th scope="col">گیرنده</th>
+                                <th scope="col" class="text-right">متن پیام</th>
+                                <th scope="col">وضعیت</th>
+                                <th scope="col">تاریخ</th>
+                                <th scope="col">شناسه رهگیری</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @php
+                                $userSmsList = isset($sms_messages) ? $sms_messages : $user->smsMessages()->latest()->get();
+                            @endphp
+                            @forelse($userSmsList as $msg)
+                                <tr>
+                                    <td>{{ $msg->id }}</td>
+                                    <td>
+                                        @if($msg->direction === 'inbound')
+                                            <span class="badge badge-info px-2 py-1"><i class="fa fa-arrow-down"></i> دریافتی</span>
+                                        @else
+                                            <span class="badge badge-success px-2 py-1"><i class="fa fa-arrow-up"></i> ارسالی</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light border">{{ $msg->service_type }}</span>
+                                    </td>
+                                    <td style="direction: ltr;">{{ $msg->sender_phone ?: ($msg->senderNumber?->number ?: '-') }}</td>
+                                    <td style="direction: ltr;">{{ $msg->recipient_phone ?: '-' }}</td>
+                                    <td class="text-right" style="direction: rtl;">{{ $msg->content }}</td>
+                                    <td>
+                                        @if($msg->status === 'delivered' || $msg->delivery_status === 'delivered')
+                                            <span class="badge badge-success">تحویل شد</span>
+                                        @elseif($msg->status === 'failed')
+                                            <span class="badge badge-danger">ناموفق</span>
+                                        @else
+                                            <span class="badge badge-warning text-dark">{{ $msg->status }}</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ verta($msg->created_at)->format('Y/m/d H:i') }}</td>
+                                    <td style="direction: ltr; font-family: monospace;">{{ $msg->tracking_id ?: '-' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-muted py-4">هیچ پیامکی برای این کاربر ثبت نشده است.</td>
+                                </tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

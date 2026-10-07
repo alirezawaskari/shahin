@@ -608,6 +608,7 @@
                     @permission('send-single-sms')
                     <li><a href="{{ route('sms.single') }}">پیامک تکی</a></li>
                     @endpermission
+                    <li><a href="{{ route('admin.sms.logs.index') }}">لاگ پیامک‌های ارسالی و دریافتی</a></li>
                 </ul>
             </li>
             @endpermission

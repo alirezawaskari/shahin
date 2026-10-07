@@ -15,6 +15,9 @@
             <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.notifications' ? 'active' : '' }}"
                href="{{ route('profile.notifications') }}">پیام های من</a>
 
+            <a class="list-group-item list-group-item-action my-1 text-white text-center font-16 {{ Route::currentRouteName() == 'profile.messages' ? 'active' : '' }}"
+               href="{{ route('profile.messages') }}">پیام‌ها</a>
+
             <a href="{{ route('logout') }}" class="list-group-item list-group-item-action my-1 text-white text-center font-16 bg-dark"
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 خروج از حساب</a>

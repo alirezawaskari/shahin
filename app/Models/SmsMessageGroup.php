@@ -42,4 +42,37 @@ class SmsMessageGroup extends Model
     {
         return $query->whereNull('parent_id');
     }
+
+    public function isConfidential(): bool
+    {
+        if (isset($this->attributes['is_confidential'])) {
+            return (bool) $this->attributes['is_confidential'];
+        }
+
+        $slug = strtolower($this->slug ?? '');
+        $name = $this->name ?? '';
+
+        $confidentialKeywords = ['confidential', 'mahrameh', 'hoghoghi', 'ekhtar', 'erja-be-hoghoghi', 'secret', 'private'];
+        foreach ($confidentialKeywords as $keyword) {
+            if (str_contains($slug, $keyword)) {
+                return true;
+            }
+        }
+
+        $persianKeywords = ['محرمانه', 'حقوقی', 'اخطار', 'ارجاع به حقوقی'];
+        foreach ($persianKeywords as $keyword) {
+            if (str_contains($name, $keyword)) {
+                return true;
+            }
+        }
+
+        if ($this->parent_id) {
+            $parent = $this->relationLoaded('parent') ? $this->parent : $this->parent()->first();
+            if ($parent && $parent->isConfidential()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

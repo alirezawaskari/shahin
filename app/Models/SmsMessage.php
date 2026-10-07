@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\SmsMessageObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SmsMessage extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::observe(SmsMessageObserver::class);
+    }
 
     protected $guarded = [];
 
@@ -94,5 +100,10 @@ class SmsMessage extends Model
     public function scopeNormal($query)
     {
         return $query->where('service_type', 'normal');
+    }
+
+    public function isConfidential(): bool
+    {
+        return (bool) $this->group?->isConfidential();
     }
 }

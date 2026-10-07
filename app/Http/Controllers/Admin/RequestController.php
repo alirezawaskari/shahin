@@ -162,7 +162,8 @@ class RequestController extends Controller
                 }
                 $item['brand'] = \App\Models\Request::brandProductInRequest($item->pivot->product_id);
             }
-            return view('Admin.request.show', compact('request_rec'));
+            $sms_messages = $request_rec->smsMessages()->with(['senderNumber', 'group', 'template'])->latest()->get();
+            return view('Admin.request.show', compact('request_rec', 'sms_messages'));
         }
         return redirect()->back();
     }
