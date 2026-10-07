@@ -194,6 +194,11 @@ class BulkSmsSendService
 
         $recipientType = $data['recipient_type'] ?? 'normal';
         $filters = $data['filters'] ?? [];
+        $type = $data['type'] ?? 'bulk';
+
+        if ($type === 'ai' && empty($data['human_confirmed'])) {
+            throw new DomainException('ارسال کمپین هوش مصنوعی نیازمند تایید نهایی کاربر (Human Confirmation) می‌باشد.');
+        }
 
         // 1. Enforce Tier Gate
         $this->accessTierService->assertCanQuery($actor, $filters, $recipientType);
@@ -246,6 +251,7 @@ class BulkSmsSendService
         // 8. Atomic database transaction to persist campaign and recipient rows
         $campaign = DB::transaction(function () use (
             $business,
+            $type,
             $templateId,
             $senderNumber,
             $filters,
@@ -256,11 +262,13 @@ class BulkSmsSendService
             $totalCost,
             $actor,
             $validRecipients,
-            $rawMessage
+            $rawMessage,
+            $data
         ) {
             $campaign = SmsCampaign::create([
                 'ghorfe_online_list_id' => $business->id,
-                'type' => 'bulk',
+                'type' => $type,
+                'ai_goal_prompt' => $data['ai_goal_prompt'] ?? null,
                 'sms_message_template_id' => $templateId,
                 'sender_number_id' => $senderNumber->id,
                 'filters' => array_merge($filters, ['message_preview' => Str::limit($rawMessage, 200)]),
