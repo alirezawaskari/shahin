@@ -48,6 +48,11 @@ class SenderNumber extends Model
         ->withTimestamps();
     }
 
+    public function panel(): BelongsTo
+    {
+        return $this->belongsTo(SmsPanel::class, 'sms_panel', 'name');
+    }
+
     public function advertisingBalances(): HasMany
     {
         return $this->hasMany(AdvertisingBalance::class, 'sender_number_id');

@@ -1060,6 +1060,7 @@ require __DIR__ . '/admin_sms_single.php';
 require __DIR__ . '/admin_sms_bulk.php';
 require __DIR__ . '/admin_sms_ai.php';
 require __DIR__ . '/admin_sms_settings.php';
+require __DIR__ . '/admin_sms_financial.php';
 
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
