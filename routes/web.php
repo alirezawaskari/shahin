@@ -1056,6 +1056,8 @@ Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepaymen
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 
+require __DIR__ . '/admin_sms_single.php';
+
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
 Route::get('/singleWebPage/{singleWebPage}/{service}', 'SingleWebPageController@single');

@@ -1,0 +1,272 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Exceptions\Sms\InsufficientBalanceException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Sms\ForwardMessageRequest;
+use App\Http\Requests\Admin\Sms\SendSingleSmsRequest;
+use App\Http\Requests\Admin\Sms\StoreContactRequest;
+use App\Models\AdvertisingBalance;
+use App\Models\GhorfeOnlineList;
+use App\Models\OtpBalance;
+use App\Models\SenderNumber;
+use App\Models\SmsMessage;
+use App\Models\SmsMessageTemplate;
+use App\Models\User;
+use App\Services\Sms\SingleSmsSendService;
+use Carbon\Carbon;
+use DomainException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class SmsSingleSendController extends Controller
+{
+    public function __construct(
+        protected SingleSmsSendService $singleSmsSendService
+    ) {
+    }
+
+    /**
+     * Display the Single SMS Send UI.
+     */
+    public function index(Request $request): View
+    {
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+
+        // System-wide active OTP sender number (singleton)
+        $otpSender = SenderNumber::query()
+            ->where('type', 'otp')
+            ->where('status', 'active')
+            ->first();
+
+        // OTP Balance for current business
+        $otpBalance = 0.0;
+        if ($business) {
+            $otpBalance = (float) (OtpBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
+        }
+
+        // Advertising sender numbers assigned to this business with balances
+        $advertisingNumbers = collect();
+        if ($business) {
+            $advertisingNumbers = $business->senderNumbers()
+                ->where('sender_numbers.type', 'advertising')
+                ->where('sender_numbers.status', 'active')
+                ->get()
+                ->map(function ($sender) use ($business) {
+                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
+                        ->where('sender_number_id', $sender->id)
+                        ->value('balance') ?? 0;
+                    $sender->current_balance = (float) $balance;
+                    return $sender;
+                });
+        }
+
+        // Active SMS templates
+        $templates = SmsMessageTemplate::active()
+            ->with('group')
+            ->latest()
+            ->get();
+
+        // Recent sent messages for reference & forwarding
+        $recentMessages = collect();
+        if ($business) {
+            $recentMessages = SmsMessage::where('ghorfe_online_list_id', $business->id)
+                ->with(['senderNumber', 'user'])
+                ->latest()
+                ->take(15)
+                ->get();
+        }
+
+        return view('Admin.sms.single.index', compact(
+            'business',
+            'otpSender',
+            'otpBalance',
+            'advertisingNumbers',
+            'templates',
+            'recentMessages'
+        ));
+    }
+
+    /**
+     * Handle single SMS dispatch.
+     */
+    public function send(SendSingleSmsRequest $request): JsonResponse|RedirectResponse
+    {
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+
+        if (!$business) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'کسب‌وکار معتبری برای ارسال پیامک یافت نشد.',
+                ], 422);
+            }
+            return redirect()->back()->withErrors(['business' => 'کسب‌وکار معتبری برای ارسال پیامک یافت نشد.']);
+        }
+
+        try {
+            $message = $this->singleSmsSendService->send($request->validated(), $business);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'پیامک با موفقیت ارسال شد.',
+                    'tracking_id' => $message->tracking_id,
+                    'sms' => $message,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'پیامک با موفقیت ارسال شد. شناسه رهگیری: ' . $message->tracking_id);
+        } catch (InsufficientBalanceException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'error_type' => 'insufficient_balance',
+                    'message' => $e->getMessage(),
+                    'current_balance' => $e->currentBalance,
+                    'required_amount' => $e->requiredAmount,
+                ], 422);
+            }
+            return redirect()->back()->withInput()->withErrors(['balance' => $e->getMessage()]);
+        } catch (DomainException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+            return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Real-time calculation and preview endpoint.
+     */
+    public function preview(Request $request): JsonResponse
+    {
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $text = (string) $request->input('message', '');
+        $serviceType = (string) $request->input('service_type', 'advertising');
+        $autoAppendCancel = filter_var($request->input('auto_append_cancel', true), FILTER_VALIDATE_BOOLEAN);
+        $userId = $request->input('user_id');
+        $senderNumberId = $request->input('sender_number_id');
+
+        $recipient = $userId ? User::find($userId) : null;
+        $resolvedText = $this->singleSmsSendService->resolvePlaceholders($text, $request->input('context', []), $recipient);
+
+        $segmentation = $this->singleSmsSendService->calculateSegmentation($resolvedText, $autoAppendCancel, $serviceType);
+        $cost = $this->singleSmsSendService->calculateCost($segmentation['page_count'], $segmentation['is_unicode']);
+
+        $currentBalance = 0.0;
+        if ($business) {
+            try {
+                $senderNumber = $this->singleSmsSendService->resolveSenderNumber($serviceType, $business, $senderNumberId ? (int) $senderNumberId : null);
+                $balanceInfo = $this->singleSmsSendService->getBalance($serviceType, $business, $senderNumber);
+                $currentBalance = $balanceInfo['balance'];
+            } catch (\Throwable) {
+                // If sender number is not resolved yet, fallback
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'raw_text' => $text,
+            'resolved_text' => $segmentation['text'],
+            'character_count' => $segmentation['character_count'],
+            'page_count' => $segmentation['page_count'],
+            'remaining_characters' => $segmentation['remaining_characters'],
+            'is_unicode' => $segmentation['is_unicode'],
+            'encoding' => $segmentation['encoding'],
+            'appended_cancel' => $segmentation['appended_cancel'],
+            'cost' => $cost,
+            'current_balance' => $currentBalance,
+            'balance_after' => max(0, $currentBalance - $cost),
+            'has_sufficient_balance' => $currentBalance >= $cost,
+        ]);
+    }
+
+    /**
+     * Contact search endpoint.
+     */
+    public function searchContacts(Request $request): JsonResponse
+    {
+        $query = (string) $request->input('q', '');
+        $contacts = $this->singleSmsSendService->searchContacts($query);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $contacts,
+        ]);
+    }
+
+    /**
+     * Inline contact creation without leaving the page.
+     */
+    public function storeContact(StoreContactRequest $request): JsonResponse
+    {
+        $contact = $this->singleSmsSendService->storeContact($request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'مخاطب با موفقیت ثبت شد.',
+            'contact' => [
+                'id' => $contact->id,
+                'name' => trim(($contact->name ?? '') . ' ' . ($contact->family ?? '')) ?: 'بدون نام',
+                'first_name' => $contact->name,
+                'family' => $contact->family,
+                'phone' => $contact->phone,
+            ],
+        ]);
+    }
+
+    /**
+     * Forward / refer message to another contact.
+     */
+    public function forward(ForwardMessageRequest $request): JsonResponse|RedirectResponse
+    {
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $originalMessage = SmsMessage::findOrFail($request->original_message_id);
+
+        try {
+            $newMessage = $this->singleSmsSendService->forwardMessage(
+                $originalMessage,
+                $request->recipient_phone,
+                $request->user_id,
+                $request->referrer_id ?? auth()->id(),
+                $request->referred_at ? Carbon::parse($request->referred_at) : now(),
+                $business
+            );
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'پیامک با موفقیت ارجاع داده شد.',
+                    'tracking_id' => $newMessage->tracking_id,
+                    'sms' => $newMessage,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'پیامک با موفقیت ارجاع داده شد. شناسه رهگیری: ' . $newMessage->tracking_id);
+        } catch (InsufficientBalanceException $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'error_type' => 'insufficient_balance',
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+            return redirect()->back()->withErrors(['balance' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+}
