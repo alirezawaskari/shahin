@@ -1057,6 +1057,7 @@ Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 
 require __DIR__ . '/admin_sms_single.php';
+require __DIR__ . '/admin_sms_bulk.php';
 
 //singleWebPage
 Route::get('/singleWebPage/{singleWebPage}', 'SingleWebPageController@index');
