@@ -11,7 +11,11 @@ class AdvertisingBalance extends Model
 {
     use HasFactory, DebitsBalance;
 
-    protected $guarded = [];
+    /**
+     * Balance is deliberately not mass-assignable: it may only change through
+     * DebitsBalance::lockAndDebit() or the explicit balance-adjustment services.
+     */
+    protected $fillable = ['ghorfe_online_list_id', 'sender_number_id'];
 
     protected $casts = [
         'balance' => 'decimal:2',

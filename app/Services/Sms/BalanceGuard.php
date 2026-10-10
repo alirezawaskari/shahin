@@ -20,7 +20,6 @@ class BalanceGuard
         return OtpBalance::firstOrCreate(
             ['ghorfe_online_list_id' => $business->id],
             [
-                'balance' => 0,
                 'low_balance_threshold' => 100000,
             ]
         );
@@ -144,7 +143,7 @@ class BalanceGuard
                 'ghorfe_online_list_id' => $business->id,
                 'sender_number_id' => $senderNumber->id,
             ],
-            ['balance' => 0]
+            []
         );
     }
 

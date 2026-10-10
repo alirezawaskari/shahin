@@ -103,7 +103,7 @@ class BulkSmsSendService
                 'ghorfe_online_list_id' => $business->id,
                 'sender_number_id' => $senderNumber->id,
             ],
-            ['balance' => 0]
+            []
         );
 
         return [

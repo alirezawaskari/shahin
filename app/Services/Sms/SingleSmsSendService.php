@@ -221,7 +221,7 @@ class SingleSmsSendService
         if ($serviceType === 'otp') {
             $model = OtpBalance::firstOrCreate(
                 ['ghorfe_online_list_id' => $business->id],
-                ['balance' => 0, 'low_balance_threshold' => 100000]
+                ['low_balance_threshold' => 100000]
             );
 
             return [
@@ -236,7 +236,7 @@ class SingleSmsSendService
                 'ghorfe_online_list_id' => $business->id,
                 'sender_number_id' => $senderNumber->id,
             ],
-            ['balance' => 0]
+            []
         );
 
         return [
