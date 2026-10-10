@@ -13,7 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         '/callback',
-        'api/sms/*',
-        '/api/sms/*',
+        'api/sms/webhook',
+        'api/sms/webhook/delivery',
+        'api/sms/webhook/inbound',
     ];
 }

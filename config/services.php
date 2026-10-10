@@ -45,7 +45,10 @@ return [
     ],
 
     'sms' => [
-        'name' => 'IranSms' //or NeginSms
+        'name' => 'IranSms', //or NeginSms
+        // Shared secret the SMS gateway must send in the X-Webhook-Secret header
+        // on every delivery/inbound callback. Required for webhooks to be accepted.
+        'webhook_secret' => env('SMS_WEBHOOK_SECRET'),
     ],
 
     'iranSms' => [

@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('sms')->group(function () {
+Route::prefix('sms')->middleware(\App\Http\Middleware\VerifySmsWebhookSecret::class)->group(function () {
     Route::match(['get', 'post'], '/webhook', [\App\Http\Controllers\Api\SmsWebhookController::class, 'handle'])->name('api.sms.webhook');
     Route::match(['get', 'post'], '/webhook/delivery', [\App\Http\Controllers\Api\SmsWebhookController::class, 'delivery'])->name('api.sms.webhook.delivery');
     Route::match(['get', 'post'], '/webhook/inbound', [\App\Http\Controllers\Api\SmsWebhookController::class, 'inbound'])->name('api.sms.webhook.inbound');
