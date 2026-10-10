@@ -474,6 +474,8 @@ class SmsAiCampaignController extends Controller
      */
     public function statusView(SmsCampaign $campaign): View
     {
+        $this->abortUnlessCampaignInBusiness($campaign);
+
         $campaign->load(['senderNumber', 'template', 'creator', 'business']);
 
         $recipients = $campaign->recipients()
@@ -482,5 +484,22 @@ class SmsAiCampaignController extends Controller
             ->paginate(30);
 
         return view('Admin.sms.ai.status', compact('campaign', 'recipients'));
+    }
+
+    /**
+     * Ensure the campaign belongs to the current business (superAdmin bypasses).
+     * Fails closed when no business is active.
+     */
+    private function abortUnlessCampaignInBusiness(SmsCampaign $campaign): void
+    {
+        $business = ghorfe();
+
+        if (auth()->user()?->isSuperAdmin()) {
+            return;
+        }
+
+        if (!$business || (int) $campaign->ghorfe_online_list_id !== (int) $business->id) {
+            abort(403, 'شما دسترسی به این کمپین را ندارید.');
+        }
     }
 }
