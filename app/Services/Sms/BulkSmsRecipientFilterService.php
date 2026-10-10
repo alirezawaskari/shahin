@@ -6,6 +6,7 @@ use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
 use App\Models\GhorfeOnlineList;
 use App\Models\User;
+use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -162,6 +163,10 @@ class BulkSmsRecipientFilterService
             $query->whereHas('ghorfeOnlineLists', function ($q) use ($business) {
                 $q->where('ghorfe_online_lists.id', $business->id);
             });
+        } else {
+            // Never build a cross-business query by accident: no business context and no
+            // explicit 'all' means there is no tenant to scope to.
+            throw new DomainException('کسب‌وکار معتبری برای اعمال فیلتر مخاطبان یافت نشد.');
         }
 
         // 2. Role filter
