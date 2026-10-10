@@ -14,6 +14,7 @@
     }
     .phone-mockup {
         width: 310px;
+        max-width: 100%;
         height: 600px;
         background: #1e1e2d;
         border-radius: 42px;

@@ -85,6 +85,7 @@
     }
     .phone-mockup {
         width: 300px;
+        max-width: 100%;
         height: 560px;
         background: #1e1e2d;
         border-radius: 38px;
