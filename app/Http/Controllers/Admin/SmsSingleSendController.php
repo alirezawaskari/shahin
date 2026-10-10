@@ -149,14 +149,13 @@ class SmsSingleSendController extends Controller
         $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $text = (string) $request->input('message', '');
         $serviceType = (string) $request->input('service_type', 'advertising');
-        $autoAppendCancel = filter_var($request->input('auto_append_cancel', true), FILTER_VALIDATE_BOOLEAN);
         $userId = $request->input('user_id');
         $senderNumberId = $request->input('sender_number_id');
 
         $recipient = $userId ? User::find($userId) : null;
         $resolvedText = $this->singleSmsSendService->resolvePlaceholders($text, $request->input('context', []), $recipient);
 
-        $segmentation = $this->singleSmsSendService->calculateSegmentation($resolvedText, $autoAppendCancel, $serviceType);
+        $segmentation = $this->singleSmsSendService->calculateSegmentation($resolvedText, $serviceType);
         $cost = $this->singleSmsSendService->calculateCost($segmentation['page_count'], $segmentation['is_unicode']);
 
         $currentBalance = 0.0;

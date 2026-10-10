@@ -275,8 +275,8 @@ class AiCampaignAssistant
 
         $draftText = trim($draftText, " \t\n\r\0\x0B\"'«»");
 
-        // Calculate segmentation with autoAppendCancel
-        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($draftText, true);
+        // "لغو 11" is appended unconditionally for advertising messages.
+        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($draftText);
 
         return [
             'goal' => $goalPrompt,
@@ -298,7 +298,6 @@ class AiCampaignAssistant
      * @param GhorfeOnlineList $business
      * @param User $actor
      * @param int|null $senderNumberId
-     * @param bool $autoAppendCancel
      * @param string $recipientType
      * @return array<string, mixed>
      */
@@ -308,11 +307,10 @@ class AiCampaignAssistant
         GhorfeOnlineList $business,
         User $actor,
         ?int $senderNumberId = null,
-        bool $autoAppendCancel = true,
         string $recipientType = 'normal'
     ): array {
-        // 1. Segmentation & Per-Message Cost
-        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($messageText, $autoAppendCancel);
+        // 1. Segmentation & Per-Message Cost ("لغو 11" appended unconditionally for advertising)
+        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($messageText);
         $pageCount = $segmentation['page_count'];
         $tariff = $segmentation['tariff'];
 

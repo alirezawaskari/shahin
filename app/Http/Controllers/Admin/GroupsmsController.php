@@ -298,7 +298,6 @@ class GroupsmsController extends Controller
                 'service_type' => $serviceType,
                 'sender_number_id' => $senderNumberId,
                 'user_id' => $request->input('user_id'),
-                'auto_append_cancel' => (bool) $request->input('auto_append_cancel', true),
             ], auth()->user());
 
             // Legacy record for backward compatibility

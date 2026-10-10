@@ -356,11 +356,9 @@
                     </div>
                     <textarea id="messageTextInput" class="form-control" rows="4"
                         placeholder="متن نگارش شده توسط هوش مصنوعی اینجا قرار می‌گیرد و شما می‌توانید آن را ویرایش نمایید..."></textarea>
-                    <div class="form-check mt-2">
-                        <input class="form-check-input" type="checkbox" id="autoAppendCancelCheck" checked>
-                        <label class="form-check-label small text-muted" for="autoAppendCancelCheck">
-                            افزودن خودکار عبارت قانونی «لغو ۱۱» در انتهای پیامک تبلیغاتی
-                        </label>
+                    <div class="small text-muted mt-2">
+                        <i class="fa fa-info-circle"></i>
+                        عبارت قانونی «لغو ۱۱» همواره و بدون امکان غیرفعال‌سازی به انتهای پیامک تبلیغاتی افزوده می‌شود.
                     </div>
                 </div>
 
@@ -498,16 +496,16 @@
     // Live Phone Mockup update
     function updatePhoneMockup() {
         const text = document.getElementById('messageTextInput').value;
-        const autoCancel = document.getElementById('autoAppendCancelCheck').checked;
         const senderSelect = document.getElementById('senderNumberSelect');
         const selectedOption = senderSelect.options[senderSelect.selectedIndex];
 
         document.getElementById('phoneSenderNumber').innerText = selectedOption ? selectedOption.text.split(' ')[0] : 'فرستنده پیامک';
         document.getElementById('phoneBubbleText').innerText = text.trim() ? text : 'متن پیامک پس از نگارش هوش مصنوعی یا ویرایش شما در این قسمت شبیه‌سازی خواهد شد...';
-        document.getElementById('phoneBubbleOptOut').style.display = autoCancel ? 'block' : 'none';
+        // "لغو 11" is mandatory and unconditional for advertising messages — always shown and counted.
+        document.getElementById('phoneBubbleOptOut').style.display = 'block';
 
         // Calculate live characters and pages
-        const len = text.length + (autoCancel ? 7 : 0);
+        const len = text.length + 7;
         document.getElementById('charCounter').innerText = len;
         let pages = 1;
         if (len <= 70) pages = 1;
@@ -517,7 +515,6 @@
     }
 
     document.getElementById('messageTextInput').addEventListener('input', updatePhoneMockup);
-    document.getElementById('autoAppendCancelCheck').addEventListener('change', updatePhoneMockup);
     document.getElementById('senderNumberSelect').addEventListener('change', updatePhoneMockup);
 
     // STEP 1 & 2: Propose Audience
@@ -706,7 +703,6 @@
         }
 
         const senderId = document.getElementById('senderNumberSelect').value;
-        const autoCancel = document.getElementById('autoAppendCancelCheck').checked;
         const recipientType = document.getElementById('recipientTypeSelect').value;
 
         fetch("{{ route('admin.sms.ai.calculateCost') }}", {
@@ -720,7 +716,6 @@
                 message: text,
                 filters: state.approvedAudience ? state.approvedAudience.filters : state.proposedFilters,
                 sender_number_id: senderId,
-                auto_append_cancel: autoCancel,
                 recipient_type: recipientType
             })
         })
@@ -811,7 +806,6 @@
     function executeLaunch() {
         const text = document.getElementById('messageTextInput').value.trim();
         const senderId = document.getElementById('senderNumberSelect').value;
-        const autoCancel = document.getElementById('autoAppendCancelCheck').checked;
         const recipientType = document.getElementById('recipientTypeSelect').value;
 
         launchBtn.disabled = true;
@@ -830,7 +824,6 @@
                 message: text,
                 filters: state.approvedAudience ? state.approvedAudience.filters : state.proposedFilters,
                 sender_number_id: senderId,
-                auto_append_cancel: autoCancel,
                 recipient_type: recipientType
             })
         })

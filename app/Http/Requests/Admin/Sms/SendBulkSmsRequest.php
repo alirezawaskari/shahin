@@ -19,7 +19,6 @@ class SendBulkSmsRequest extends FormRequest
             'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
             'sender_number_id' => ['required', 'integer', 'exists:sender_numbers,id'],
             'filters' => ['nullable', 'array'],
-            'auto_append_cancel' => ['nullable', 'boolean'],
             'scheduled_at' => ['nullable', 'date'],
             'custom_numbers' => ['nullable', 'string'],
         ];

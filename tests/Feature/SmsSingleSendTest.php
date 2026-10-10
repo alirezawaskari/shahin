@@ -298,14 +298,14 @@ class SmsSingleSendTest extends TestCase
 
         // 4. Auto-append "لغو 11" for advertising messages
         $advText = 'تخفیف ویژه لاله کارت';
-        $resAdv = $this->service->calculateSegmentation($advText, autoAppendCancel: true, serviceType: 'advertising');
+        $resAdv = $this->service->calculateSegmentation($advText, serviceType: 'advertising');
         $this->assertStringContainsString('لغو 11', $resAdv['text']);
         $this->assertTrue($resAdv['appended_cancel']);
         $this->assertEquals(mb_strlen($resAdv['text'], 'UTF-8'), $resAdv['character_count']);
 
         // If "لغو 11" is already present, do not duplicate
         $advWithCancel = 'تخفیف ویژه لاله کارت لغو 11';
-        $resAdvDup = $this->service->calculateSegmentation($advWithCancel, autoAppendCancel: true, serviceType: 'advertising');
+        $resAdvDup = $this->service->calculateSegmentation($advWithCancel, serviceType: 'advertising');
         $this->assertFalse($resAdvDup['appended_cancel']);
     }
 

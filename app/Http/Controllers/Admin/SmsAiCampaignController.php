@@ -205,7 +205,6 @@ class SmsAiCampaignController extends Controller
             'message' => 'required|string',
             'filters' => 'nullable|array',
             'sender_number_id' => 'nullable|integer',
-            'auto_append_cancel' => 'nullable|boolean',
             'recipient_type' => 'nullable|string|in:normal,advertising',
         ]);
 
@@ -221,7 +220,6 @@ class SmsAiCampaignController extends Controller
 
         try {
             $senderNumberId = $request->filled('sender_number_id') ? (int) $request->input('sender_number_id') : null;
-            $autoAppendCancel = filter_var($request->input('auto_append_cancel', true), FILTER_VALIDATE_BOOLEAN);
             $recipientType = $request->input('recipient_type', 'normal');
 
             $result = $this->aiAssistant->calculateCost(
@@ -230,7 +228,6 @@ class SmsAiCampaignController extends Controller
                 $business,
                 $user,
                 $senderNumberId,
-                $autoAppendCancel,
                 $recipientType
             );
 
@@ -275,7 +272,6 @@ class SmsAiCampaignController extends Controller
             'message' => 'required|string',
             'filters' => 'nullable|array',
             'sender_number_id' => 'nullable|integer',
-            'auto_append_cancel' => 'nullable|boolean',
             'recipient_type' => 'nullable|string|in:normal,advertising',
             'scheduled_at' => 'nullable|date',
         ], [
@@ -345,7 +341,6 @@ class SmsAiCampaignController extends Controller
             'message' => $request->input('message'),
             'filters' => (array) $request->input('filters', []),
             'sender_number_id' => $request->input('sender_number_id'),
-            'auto_append_cancel' => filter_var($request->input('auto_append_cancel', true), FILTER_VALIDATE_BOOLEAN),
             'recipient_type' => $request->input('recipient_type', 'normal'),
             'scheduled_at' => $request->input('scheduled_at'),
         ];

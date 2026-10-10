@@ -349,15 +349,12 @@
                             <textarea name="message" id="messageTextarea" rows="6" class="form-control" placeholder="متن پیام خود را اینجا بنویسید..." required>{{ old('message') }}</textarea>
                         </div>
 
-                        {{-- Auto Append "لغو 11" Toggle (Advertising) --}}
+                        {{-- Mandatory "لغو 11" Notice (Advertising) --}}
                         <div class="mb-3" id="autoAppendWrapper">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" name="auto_append_cancel" id="autoAppendCancel" value="1" {{ old('auto_append_cancel', '1') == '1' ? 'checked' : '' }}>
-                                <label class="form-check-label small fw-bold" for="autoAppendCancel">
-                                    افزودن خودکار عبارت «لغو 11» در انتهای پیامک‌های تبلیغاتی (الزامی طبق مقررات اپراتورها)
-                                </label>
+                            <div class="alert alert-secondary small py-2 mb-0">
+                                <i class="fa fa-info-circle"></i>
+                                عبارت «لغو 11» طبق مقررات اپراتورها همواره و بدون امکان غیرفعال‌سازی به انتهای پیامک‌های تبلیغاتی افزوده می‌شود و در شمارش کاراکتر و صفحات پیامک لحاظ می‌گردد.
                             </div>
-                            <div class="form-text text-muted small">این عبارت در شمارش کاراکتر و صفحات پیامک لحاظ می‌گردد.</div>
                         </div>
 
                         {{-- Live Stats Counters Grid --}}
@@ -626,7 +623,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const otpNumber = "{{ $otpSender ? $otpSender->number : '' }}";
 
     const textarea = document.getElementById('messageTextarea');
-    const autoAppendCheckbox = document.getElementById('autoAppendCancel');
     const serviceTypeAdv = document.getElementById('serviceTypeAdv');
     const serviceTypeOtp = document.getElementById('serviceTypeOtp');
     const senderNumberSelect = document.getElementById('senderNumberSelect');
@@ -764,7 +760,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateLivePreview() {
         const raw = textarea.value;
         const isAdv = serviceTypeAdv.checked;
-        const autoAppend = autoAppendCheckbox.checked;
+        // "لغو 11" is mandatory and unconditional for advertising messages — no toggle.
+        const autoAppend = true;
 
         const resolved = resolvePlaceholders(raw);
         const seg = calculateSegmentation(resolved, isAdv, autoAppend);
@@ -828,8 +825,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         updateLivePreview();
     });
-    autoAppendCheckbox.addEventListener('change', updateLivePreview);
-
     // Keystroke live update
     textarea.addEventListener('input', updateLivePreview);
     textarea.addEventListener('keyup', updateLivePreview);

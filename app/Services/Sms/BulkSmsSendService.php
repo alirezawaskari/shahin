@@ -127,9 +127,9 @@ class BulkSmsSendService
      *     tariff: float
      * }
      */
-    public function calculateMessageSegmentation(string $content, bool $autoAppendCancel = true): array
+    public function calculateMessageSegmentation(string $content): array
     {
-        $segmentation = $this->singleSmsSendService->calculateSegmentation($content, $autoAppendCancel, 'advertising');
+        $segmentation = $this->singleSmsSendService->calculateSegmentation($content, 'advertising');
         $tariff = (float) config('services.sms.cost_per_page', 1200);
         $costPerMessage = (float) ($segmentation['page_count'] * $tariff);
 
@@ -220,8 +220,7 @@ class BulkSmsSendService
             throw new DomainException('متن پیامک نمی‌تواند خالی باشد.');
         }
 
-        $autoAppendCancel = (bool) ($data['auto_append_cancel'] ?? true);
-        $segmentation = $this->calculateMessageSegmentation($rawMessage, $autoAppendCancel);
+        $segmentation = $this->calculateMessageSegmentation($rawMessage);
         $pageCount = $segmentation['page_count'];
 
         // 4. Resolve and de-duplicate recipients
@@ -369,8 +368,7 @@ class BulkSmsSendService
         $template = $campaign->template;
         $rawMessage = $template?->content ?? ($campaign->filters['message'] ?? $campaign->filters['message_preview'] ?? '');
 
-        $autoAppendCancel = true;
-        $segmentation = $this->calculateMessageSegmentation($rawMessage, $autoAppendCancel);
+        $segmentation = $this->calculateMessageSegmentation($rawMessage);
         $pageCount = $segmentation['page_count'];
         $costPerMessage = $segmentation['cost_per_message'];
         $baseContent = $segmentation['text'];

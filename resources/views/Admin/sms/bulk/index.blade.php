@@ -401,11 +401,9 @@
                             </select>
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
-                            <div class="form-check form-switch mb-1">
-                                <input class="form-check-input" type="checkbox" name="auto_append_cancel" id="auto_append_cancel" value="1" checked>
-                                <label class="form-check-label small" for="auto_append_cancel">
-                                    درج خودکار عبارت الزامی مخابراتی «لغو ۱۱» در انتهای پیامک
-                                </label>
+                            <div class="small text-muted mb-1">
+                                <i class="fa fa-info-circle"></i>
+                                عبارت الزامی مخابراتی «لغو ۱۱» همواره و بدون امکان غیرفعال‌سازی به انتهای پیامک افزوده می‌شود.
                             </div>
                         </div>
                     </div>
@@ -589,16 +587,11 @@
         updatePhoneMockup();
     });
 
-    document.getElementById('auto_append_cancel').addEventListener('change', function () {
-        updatePhoneMockup();
-        triggerPreview();
-    });
-
     function updatePhoneMockup() {
         const text = document.getElementById('sms_message').value;
-        const autoCancel = document.getElementById('auto_append_cancel').checked;
         document.getElementById('phoneBubbleText').innerText = text.trim() ? text : 'متن پیامک شما اینجا نمایش داده خواهد شد...';
-        document.getElementById('phoneBubbleOptOut').style.display = autoCancel ? 'block' : 'none';
+        // "لغو 11" is mandatory and unconditional for advertising messages — always shown.
+        document.getElementById('phoneBubbleOptOut').style.display = 'block';
     }
 
     // Preview and calculate button

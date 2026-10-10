@@ -122,9 +122,8 @@
                                     <label class="form-label small">مهلت زمانی درخواست (Timeout ثانیه)</label>
                                     <input type="number" name="send_settings[timeout]" class="form-control" value="{{ old('send_settings.timeout', 15) }}">
                                 </div>
-                                <div class="form-check">
-                                    <input type="checkbox" name="send_settings[auto_append_cancel]" value="1" class="form-check-input" id="appendCancel" {{ old('send_settings.auto_append_cancel', 1) ? 'checked' : '' }}>
-                                    <label class="form-check-label small" for="appendCancel">افزودن خودکار عبارت «لغو 11» به پیام‌های تبلیغاتی</label>
+                                <div class="form-text small text-muted">
+                                    عبارت الزامی «لغو 11» طبق ضوابط اپراتورها همواره به انتهای پیامک‌های تبلیغاتی افزوده می‌شود و قابل غیرفعال‌سازی نیست.
                                 </div>
                             </div>
 

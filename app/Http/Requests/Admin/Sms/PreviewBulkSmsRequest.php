@@ -19,7 +19,6 @@ class PreviewBulkSmsRequest extends FormRequest
             'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
             'sender_number_id' => ['nullable', 'integer', 'exists:sender_numbers,id'],
             'filters' => ['nullable', 'array'],
-            'auto_append_cancel' => ['nullable', 'boolean'],
             'custom_numbers' => ['nullable', 'string'],
         ];
     }

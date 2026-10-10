@@ -80,16 +80,16 @@ class SingleSmsSendService
      *   Page 3+: 307 - 459 chars, 460 - 612 chars (153 chars per segment)
      *
      * @param string $text
-     * @param bool $autoAppendCancel
      * @param string $serviceType
      * @return array<string, mixed>
      */
-    public function calculateSegmentation(string $text, bool $autoAppendCancel = false, string $serviceType = 'normal'): array
+    public function calculateSegmentation(string $text, string $serviceType = 'normal'): array
     {
         $appendedCancel = false;
 
-        // Auto append "لغو 11" if advertising and setting/flag enabled
-        if ($serviceType === 'advertising' && $autoAppendCancel) {
+        // "لغو 11" is a mandatory telecom-regulatory requirement for advertising messages.
+        // It is ALWAYS appended, unconditionally — there is no setting or toggle to disable it.
+        if ($serviceType === 'advertising') {
             if (!str_contains($text, self::CANCEL_PHRASE)) {
                 $text = rtrim($text) . "\n" . self::CANCEL_PHRASE;
                 $appendedCancel = true;
@@ -333,9 +333,8 @@ class SingleSmsSendService
         $rawMessage = $data['message'] ?? '';
         $resolvedMessage = $this->resolvePlaceholders($rawMessage, $data['context'] ?? [], $recipientUser);
 
-        // 3. Auto-append "لغو 11" if advertising and setting enabled
-        $autoAppendCancel = (bool) ($data['auto_append_cancel'] ?? true);
-        $segmentation = $this->calculateSegmentation($resolvedMessage, $autoAppendCancel, $serviceType);
+        // 3. "لغو 11" is appended unconditionally for advertising messages (see calculateSegmentation).
+        $segmentation = $this->calculateSegmentation($resolvedMessage, $serviceType);
         $finalContent = $segmentation['text'];
         $pageCount = $segmentation['page_count'];
         $characterCount = $segmentation['character_count'];
@@ -453,7 +452,6 @@ class SingleSmsSendService
             'message' => $originalMessage->content,
             'service_type' => $originalMessage->service_type,
             'sender_number_id' => $originalMessage->sender_number_id,
-            'auto_append_cancel' => false, // Already formatted if needed
         ];
 
         $newMessage = $this->send($sendData, $business, $referrer);

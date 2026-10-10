@@ -134,8 +134,7 @@ class SmsBulkSendController extends Controller
             $rawMessage = $template?->content ?? '';
         }
 
-        $autoAppendCancel = filter_var($request->input('auto_append_cancel', true), FILTER_VALIDATE_BOOLEAN);
-        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($rawMessage, $autoAppendCancel);
+        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($rawMessage);
         $pageCount = $segmentation['page_count'];
         $tariff = $segmentation['tariff'];
 
