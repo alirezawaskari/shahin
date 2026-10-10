@@ -79,8 +79,10 @@ class SmsReportService
 
         $messages = $baseQuery->paginate($perPage);
 
-        // Available filter options
-        $templates = SmsMessageTemplate::query()->where('type', 'otp')->get();
+        // Available filter options. `type` (confidential/normal, added in
+        // 509f35d7) is a different, auto-derived column — service_type is
+        // what distinguishes an OTP template (see scopeForOtp()).
+        $templates = SmsMessageTemplate::query()->where('service_type', 'otp')->get();
         $groups = SmsMessageGroup::query()->get();
 
         return [
