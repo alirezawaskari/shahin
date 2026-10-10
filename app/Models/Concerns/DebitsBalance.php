@@ -48,6 +48,31 @@ trait DebitsBalance
         return $before;
     }
 
+    /**
+     * Lock this balance row and credit $amount to it atomically (top-ups).
+     *
+     * @return float The balance before the credit.
+     */
+    public function lockAndCredit(float $amount): float
+    {
+        $locked = static::query()
+            ->whereKey($this->getKey())
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        $before = (float) $locked->balance;
+
+        // Increment is applied by the database against the locked row, so the
+        // stored value is always (locked value + amount), never a stale write.
+        static::query()
+            ->whereKey($this->getKey())
+            ->increment('balance', $amount);
+
+        $this->balance = $before + $amount;
+
+        return $before;
+    }
+
     private function insufficientBalance(float $balance, float $amount): InsufficientBalanceException
     {
         return new InsufficientBalanceException(

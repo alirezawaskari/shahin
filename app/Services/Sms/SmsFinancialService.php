@@ -213,11 +213,10 @@ class SmsFinancialService
 
         return DB::transaction(function () use ($business, $amount, $actor, $trackingId) {
             $otpBalance = $this->balanceGuard->getOtpBalance($business);
-            $balanceBefore = (float) $otpBalance->balance;
-            $balanceAfter = $balanceBefore + $amount;
 
-            $otpBalance->balance = $balanceAfter;
-            $otpBalance->save();
+            // Row-locked atomic credit: concurrent top-ups and debits serialize here.
+            $balanceBefore = $otpBalance->lockAndCredit($amount);
+            $balanceAfter = $balanceBefore + $amount;
 
             return SmsTransaction::create([
                 'ghorfe_online_list_id' => $business->id,
@@ -263,11 +262,10 @@ class SmsFinancialService
 
         return DB::transaction(function () use ($business, $senderNumber, $amount, $actor, $trackingId) {
             $advBalance = $this->balanceGuard->getAdvertisingBalance($business, $senderNumber);
-            $balanceBefore = (float) $advBalance->balance;
-            $balanceAfter = $balanceBefore + $amount;
 
-            $advBalance->balance = $balanceAfter;
-            $advBalance->save();
+            // Row-locked atomic credit: concurrent top-ups and debits serialize here.
+            $balanceBefore = $advBalance->lockAndCredit($amount);
+            $balanceAfter = $balanceBefore + $amount;
 
             return SmsTransaction::create([
                 'ghorfe_online_list_id' => $business->id,
