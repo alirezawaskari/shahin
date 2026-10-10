@@ -32,7 +32,7 @@ class SmsReportController extends Controller
             $business = GhorfeOnlineList::find($request->input('business_id'));
         }
 
-        return $business ?? GhorfeOnlineList::first();
+        return $business ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
     }
 
     /**

@@ -8,7 +8,6 @@ use App\Http\Requests\Admin\Sms\ForwardMessageRequest;
 use App\Http\Requests\Admin\Sms\SendSingleSmsRequest;
 use App\Http\Requests\Admin\Sms\StoreContactRequest;
 use App\Models\AdvertisingBalance;
-use App\Models\GhorfeOnlineList;
 use App\Models\OtpBalance;
 use App\Models\SenderNumber;
 use App\Models\SmsMessage;
@@ -34,7 +33,7 @@ class SmsSingleSendController extends Controller
      */
     public function index(Request $request): View
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
 
         // System-wide active OTP sender number (singleton)
         $otpSender = SenderNumber::query()
@@ -95,7 +94,7 @@ class SmsSingleSendController extends Controller
      */
     public function send(SendSingleSmsRequest $request): JsonResponse|RedirectResponse
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
 
         if (!$business) {
             if ($request->wantsJson()) {
@@ -147,7 +146,7 @@ class SmsSingleSendController extends Controller
      */
     public function preview(Request $request): JsonResponse
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $text = (string) $request->input('message', '');
         $serviceType = (string) $request->input('service_type', 'advertising');
         $autoAppendCancel = filter_var($request->input('auto_append_cancel', true), FILTER_VALIDATE_BOOLEAN);
@@ -227,7 +226,7 @@ class SmsSingleSendController extends Controller
      */
     public function forward(ForwardMessageRequest $request): JsonResponse|RedirectResponse
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $originalMessage = SmsMessage::findOrFail($request->original_message_id);
 
         try {
