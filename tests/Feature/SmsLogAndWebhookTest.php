@@ -254,15 +254,15 @@ class SmsLogAndWebhookTest extends TestCase
         // Run SMS migrations
         $migrationFiles = [
             'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000003_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000004_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000005_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000006_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000007_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_transactions_table.php',
+            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
+            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
+            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
+            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
+            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
+            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
+            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
+            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
+            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
         ];
 
         foreach ($migrationFiles as $file) {

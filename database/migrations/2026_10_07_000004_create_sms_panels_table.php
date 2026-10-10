@@ -21,7 +21,14 @@ return new class extends Migration
             $table->json('send_settings')->nullable(); // default_sender, timeout, max_retries, auto_append_cancel
             $table->json('receive_settings')->nullable(); // webhook_url, is_receive_active
             $table->json('delivery_settings')->nullable(); // callback_url, check_interval, auto_check_delivery
-            $table->unsignedBigInteger('ghorfe_online_list_id')->nullable(); // optional tenant scope
+
+            // Optional tenant scope. Deliberately not a declared foreign key
+            // (no ->constrained()): a panel may be global (null) or scoped to
+            // one business, and is never cascade/null-deleted off the back of
+            // a business being removed. ghorfe_online_lists.id is a bigint
+            // (`$table->id()`), so the column type here matches it exactly.
+            $table->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+
             $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();

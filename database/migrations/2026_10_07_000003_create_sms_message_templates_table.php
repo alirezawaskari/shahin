@@ -16,6 +16,16 @@ return new class extends Migration
             $table->string('title');
             $table->text('content');
             $table->foreignId('sms_message_group_id')->nullable()->constrained('sms_message_groups')->nullOnDelete();
+
+            // Mirrors a real SMS-gateway panel's template shape: a `type`
+            // distinguishing a confidential template (مالی/حقوقی group) from
+            // a normal one. It is NEVER set from a form field —
+            // SmsMessageTemplateObserver always (re)computes it from the
+            // linked sms_message_group_id, the same way
+            // SmsMessage::isConfidential() derives confidentiality from its
+            // group.
+            $table->enum('type', ['normal', 'confidential'])->default('normal')->after('sms_message_group_id');
+
             $table->enum('service_type', ['otp', 'normal', 'advertising'])->default('normal');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->unsignedInteger('created_by');

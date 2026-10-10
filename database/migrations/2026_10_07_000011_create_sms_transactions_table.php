@@ -26,6 +26,10 @@ return new class extends Migration
             $table->unsignedInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
+
+            // Supports per-business, time-ordered lookups (transaction
+            // history and report ranges) without scanning the whole table.
+            $table->index(['ghorfe_online_list_id', 'created_at']);
         });
     }
 

@@ -32,6 +32,9 @@ return new class extends Migration
             $table->text('error_reason')->nullable();
             $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
+            // requests.id is a plain signed `integer` (not unsigned, see
+            // 2022_07_09_1657367827_create_requests_table.php), so this FK
+            // column must stay signed `integer` to match it exactly.
             $table->integer('request_id')->nullable();
             $table->foreign('request_id')->references('id')->on('requests')->nullOnDelete();
             $table->boolean('is_bulk')->default(false);
@@ -39,6 +42,10 @@ return new class extends Migration
             $table->unsignedInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
+
+            // Supports per-business, time-ordered lookups (message logs,
+            // report ranges) without scanning the whole table.
+            $table->index(['ghorfe_online_list_id', 'created_at']);
         });
     }
 

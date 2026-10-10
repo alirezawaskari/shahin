@@ -239,7 +239,7 @@ class ProfileController extends Controller
             ->latest()
             ->get();
 
-        // Canonical permission (see database/migrations/2026_10_11_000002_*):
+        // Canonical permission (see database/migrations/2026_10_11_000001_*):
         // the older guessed names are kept for backward compatibility with
         // any role that may already have been granted one of them.
         $canViewConfidential = \App\Services\Sms\SmsConfidentialityGuard::canViewConfidential($user)

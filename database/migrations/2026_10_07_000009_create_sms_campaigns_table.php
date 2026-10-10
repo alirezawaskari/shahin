@@ -24,7 +24,12 @@ return new class extends Migration
             $table->integer('success_count')->default(0);
             $table->integer('failed_count')->default(0);
             $table->integer('pending_count')->default(0);
-            $table->enum('status', ['draft', 'scheduled', 'sending', 'completed', 'failed'])->default('draft');
+
+            // 'completed_with_errors' covers a campaign that stopped on
+            // balance exhaustion with recipients unsent.
+            $table->enum('status', ['draft', 'scheduled', 'sending', 'completed', 'completed_with_errors', 'failed'])
+                ->default('draft');
+
             $table->timestamp('scheduled_at')->nullable();
             $table->decimal('cost_estimate', 12, 2)->nullable();
             $table->text('ai_goal_prompt')->nullable();
