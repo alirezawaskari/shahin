@@ -8,6 +8,7 @@ use App\Models\GhorfeOnlineList;
 use App\Models\OtpBalance;
 use App\Models\SenderNumber;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class BalanceGuard
 {
@@ -44,7 +45,14 @@ class BalanceGuard
      */
     public function checkOtp(GhorfeOnlineList $business, float $requiredCost = 0.0): array
     {
-        $otpBalance = $this->getOtpBalance($business);
+        return $this->evaluateOtp($this->getOtpBalance($business), $requiredCost);
+    }
+
+    /**
+     * Evaluate an already-loaded OTP balance row against the required cost.
+     */
+    protected function evaluateOtp(OtpBalance $otpBalance, float $requiredCost = 0.0): array
+    {
         $balance = (float) $otpBalance->balance;
         $threshold = (float) $otpBalance->low_balance_threshold;
         $isLowBalance = $balance <= $threshold;
@@ -103,17 +111,27 @@ class BalanceGuard
      */
     public function enforceOtp(GhorfeOnlineList $business, float $requiredCost = 0.0): OtpBalance
     {
-        $check = $this->checkOtp($business, $requiredCost);
+        // The check runs against a locked row. The lock is held until the enclosing
+        // transaction ends, so callers that debit must do so within this same transaction.
+        return DB::transaction(function () use ($business, $requiredCost) {
+            $otpBalance = $this->getOtpBalance($business);
+            $locked = OtpBalance::query()
+                ->whereKey($otpBalance->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if (!$check['allowed']) {
-            throw new InsufficientBalanceException(
-                $check['error'] ?? 'موجودی پیامک اعتبارسنجی (OTP) برای ارسال کافی نیست.',
-                $check['balance'],
-                $requiredCost
-            );
-        }
+            $check = $this->evaluateOtp($locked, $requiredCost);
 
-        return $this->getOtpBalance($business);
+            if (!$check['allowed']) {
+                throw new InsufficientBalanceException(
+                    $check['error'] ?? 'موجودی پیامک اعتبارسنجی (OTP) برای ارسال کافی نیست.',
+                    $check['balance'],
+                    $requiredCost
+                );
+            }
+
+            return $locked;
+        });
     }
 
     /**
@@ -182,8 +200,20 @@ class BalanceGuard
         float $requiredCost
     ): array {
         $advBalance = $this->getAdvertisingBalance($business, $senderNumber);
-        $balance = (float) $advBalance->balance;
 
+        return $this->evaluateAdvertising($business, $senderNumber, (float) $advBalance->balance, $requiredCost);
+    }
+
+    /**
+     * Evaluate a known advertising balance figure against the required cost,
+     * surfacing an alternative sender number on shortfall.
+     */
+    protected function evaluateAdvertising(
+        GhorfeOnlineList $business,
+        SenderNumber $senderNumber,
+        float $balance,
+        float $requiredCost
+    ): array {
         if ($balance >= $requiredCost) {
             return [
                 'allowed' => true,
@@ -238,17 +268,26 @@ class BalanceGuard
         SenderNumber $senderNumber,
         float $requiredCost
     ): AdvertisingBalance {
-        $check = $this->checkAdvertising($business, $senderNumber, $requiredCost);
+        // Same locking contract as enforceOtp(): call from within the debit transaction.
+        return DB::transaction(function () use ($business, $senderNumber, $requiredCost) {
+            $advBalance = $this->getAdvertisingBalance($business, $senderNumber);
+            $locked = AdvertisingBalance::query()
+                ->whereKey($advBalance->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if (!$check['allowed']) {
-            throw new InsufficientBalanceException(
-                $check['error'] ?? 'موجودی خط فرستنده تبلیغاتی برای ارسال کافی نیست.',
-                $check['balance'],
-                $requiredCost,
-                $check['alternative_sender']
-            );
-        }
+            $check = $this->evaluateAdvertising($business, $senderNumber, (float) $locked->balance, $requiredCost);
 
-        return $this->getAdvertisingBalance($business, $senderNumber);
+            if (!$check['allowed']) {
+                throw new InsufficientBalanceException(
+                    $check['error'] ?? 'موجودی خط فرستنده تبلیغاتی برای ارسال کافی نیست.',
+                    $check['balance'],
+                    $requiredCost,
+                    $check['alternative_sender']
+                );
+            }
+
+            return $locked;
+        });
     }
 }

@@ -386,102 +386,121 @@ class BulkSmsSendService
             // Resolve dynamic placeholders
             $content = $this->singleSmsSendService->resolvePlaceholders($baseContent, [], $recipientUser);
 
-            DB::transaction(function () use (
-                $campaign,
-                $business,
-                $senderNumber,
-                $creator,
-                $recipientRecord,
-                $recipientPhone,
-                $recipientUser,
-                $content,
-                $pageCount,
-                $costPerMessage,
-                $trackingId
-            ) {
-                // Deduct balance
-                $balanceInfo = $this->getBalance($business, $senderNumber);
-                $balanceModel = $balanceInfo['model'];
-                $balanceBefore = (float) $balanceModel->balance;
-                $balanceAfter = max(0, $balanceBefore - $costPerMessage);
+            try {
+                DB::transaction(function () use (
+                    $campaign,
+                    $business,
+                    $senderNumber,
+                    $creator,
+                    $recipientRecord,
+                    $recipientPhone,
+                    $recipientUser,
+                    $content,
+                    $pageCount,
+                    $costPerMessage,
+                    $trackingId
+                ) {
+                    // Lock the balance row, verify it covers this message, and debit atomically.
+                    // Throws InsufficientBalanceException, which rolls back this recipient's transaction.
+                    $balanceModel = $this->getBalance($business, $senderNumber)['model'];
+                    $balanceBefore = $balanceModel->lockAndDebit($costPerMessage);
+                    $balanceAfter = $balanceBefore - $costPerMessage;
 
-                $balanceModel->decrement('balance', $costPerMessage);
-
-                // Create sms_message record
-                $smsMessage = SmsMessage::create([
-                    'ghorfe_online_list_id' => $business->id,
-                    'direction' => 'outbound',
-                    'service_type' => 'advertising',
-                    'sender_number_id' => $senderNumber->id,
-                    'recipient_phone' => $recipientPhone,
-                    'sender_phone' => $senderNumber->number,
-                    'sms_message_template_id' => $campaign->sms_message_template_id,
-                    'content' => $content,
-                    'character_count' => mb_strlen($content, 'UTF-8'),
-                    'page_count' => $pageCount,
-                    'status' => 'queued',
-                    'cost' => $costPerMessage,
-                    'tracking_id' => $trackingId,
-                    'user_id' => $recipientUser?->id,
-                    'created_by' => $creator?->id,
-                    'is_bulk' => true,
-                    'sms_campaign_id' => $campaign->id,
-                ]);
-
-                // Create sms_transaction record
-                SmsTransaction::create([
-                    'ghorfe_online_list_id' => $business->id,
-                    'credit_type' => 'advertising',
-                    'sender_number_id' => $senderNumber->id,
-                    'charge_amount' => 0,
-                    'consume_amount' => $costPerMessage,
-                    'balance_before' => $balanceBefore,
-                    'balance_after' => $balanceAfter,
-                    'sms_message_id' => $smsMessage->id,
-                    'sms_campaign_id' => $campaign->id,
-                    'tracking_id' => $trackingId,
-                    'created_by' => $creator?->id,
-                ]);
-
-                // Dispatch to gateway
-                try {
-                    $this->dispatchToGateway(
-                        $senderNumber->sms_panel ?? 'IranSms',
-                        $recipientPhone,
-                        $content
-                    );
-
-                    $smsMessage->update(['status' => 'sent']);
-                    $recipientRecord->update([
-                        'status' => 'sent',
-                        'delivery_status' => 'delivered',
+                    // Create sms_message record
+                    $smsMessage = SmsMessage::create([
+                        'ghorfe_online_list_id' => $business->id,
+                        'direction' => 'outbound',
+                        'service_type' => 'advertising',
+                        'sender_number_id' => $senderNumber->id,
+                        'recipient_phone' => $recipientPhone,
+                        'sender_phone' => $senderNumber->number,
+                        'sms_message_template_id' => $campaign->sms_message_template_id,
+                        'content' => $content,
+                        'character_count' => mb_strlen($content, 'UTF-8'),
+                        'page_count' => $pageCount,
+                        'status' => 'queued',
+                        'cost' => $costPerMessage,
                         'tracking_id' => $trackingId,
+                        'user_id' => $recipientUser?->id,
+                        'created_by' => $creator?->id,
+                        'is_bulk' => true,
+                        'sms_campaign_id' => $campaign->id,
                     ]);
 
-                    $campaign->increment('sent_count');
-                    $campaign->increment('success_count');
-                    $campaign->decrement('pending_count');
-                } catch (\Throwable $e) {
-                    Log::error("Bulk SMS Gateway Error for Campaign #{$campaign->id}: " . $e->getMessage(), [
-                        'phone' => $recipientPhone,
+                    // Create sms_transaction record
+                    SmsTransaction::create([
+                        'ghorfe_online_list_id' => $business->id,
+                        'credit_type' => 'advertising',
+                        'sender_number_id' => $senderNumber->id,
+                        'charge_amount' => 0,
+                        'consume_amount' => $costPerMessage,
+                        'balance_before' => $balanceBefore,
+                        'balance_after' => $balanceAfter,
+                        'sms_message_id' => $smsMessage->id,
+                        'sms_campaign_id' => $campaign->id,
                         'tracking_id' => $trackingId,
+                        'created_by' => $creator?->id,
                     ]);
 
-                    $smsMessage->update([
+                    // Dispatch to gateway
+                    try {
+                        $this->dispatchToGateway(
+                            $senderNumber->sms_panel ?? 'IranSms',
+                            $recipientPhone,
+                            $content
+                        );
+
+                        $smsMessage->update(['status' => 'sent']);
+                        $recipientRecord->update([
+                            'status' => 'sent',
+                            'delivery_status' => 'delivered',
+                            'tracking_id' => $trackingId,
+                        ]);
+
+                        $campaign->increment('sent_count');
+                        $campaign->increment('success_count');
+                        $campaign->decrement('pending_count');
+                    } catch (\Throwable $e) {
+                        Log::error("Bulk SMS Gateway Error for Campaign #{$campaign->id}: " . $e->getMessage(), [
+                            'phone' => $recipientPhone,
+                            'tracking_id' => $trackingId,
+                        ]);
+
+                        $smsMessage->update([
+                            'status' => 'failed',
+                            'error_reason' => $e->getMessage(),
+                        ]);
+                        $recipientRecord->update([
+                            'status' => 'failed',
+                            'error_reason' => $e->getMessage(),
+                            'tracking_id' => $trackingId,
+                        ]);
+
+                        $campaign->increment('sent_count');
+                        $campaign->increment('failed_count');
+                        $campaign->decrement('pending_count');
+                    }
+                });
+            } catch (InsufficientBalanceException $e) {
+                // The sender balance can no longer cover a message: fail this recipient and
+                // every remaining pending one (the rolled-back row is still pending), then stop.
+                Log::warning("Bulk Campaign #{$campaign->id} stopped: insufficient balance.", [
+                    'sender_number_id' => $senderNumber->id,
+                    'message' => $e->getMessage(),
+                ]);
+
+                $stopped = $campaign->recipients()
+                    ->where('status', 'pending')
+                    ->update([
                         'status' => 'failed',
                         'error_reason' => $e->getMessage(),
                     ]);
-                    $recipientRecord->update([
-                        'status' => 'failed',
-                        'error_reason' => $e->getMessage(),
-                        'tracking_id' => $trackingId,
-                    ]);
 
-                    $campaign->increment('sent_count');
-                    $campaign->increment('failed_count');
-                    $campaign->decrement('pending_count');
-                }
-            });
+                $campaign->increment('failed_count', $stopped);
+                $campaign->decrement('pending_count', $stopped);
+
+                break;
+            }
         }
 
         $campaign->refresh();

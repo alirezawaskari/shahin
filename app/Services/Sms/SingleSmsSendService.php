@@ -347,8 +347,9 @@ class SingleSmsSendService
         $requestedSenderId = !empty($data['sender_number_id']) ? (int) $data['sender_number_id'] : null;
         $senderNumber = $this->resolveSenderNumber($serviceType, $business, $requestedSenderId);
 
-        // 6. Verify balance & hard block if insufficient
-        $balanceInfo = $this->verifyBalance($serviceType, $business, $senderNumber, $cost);
+        // 6. Resolve the balance row. The authoritative sufficiency check runs under a
+        //    row lock inside the transaction below (an unlocked pre-check here would race).
+        $balanceInfo = $this->getBalance($serviceType, $business, $senderNumber);
 
         $trackingId = 'TRK-' . strtoupper(Str::random(12));
 
@@ -389,12 +390,10 @@ class SingleSmsSendService
                 'is_bulk' => false,
             ]);
 
-            // Deduct balance
-            $balanceModel = $balanceInfo['model'];
-            $balanceBefore = (float) $balanceModel->balance;
+            // Lock the balance row, verify it covers the cost, and debit atomically.
+            // Throws InsufficientBalanceException, which rolls back the message insert above.
+            $balanceBefore = $balanceInfo['model']->lockAndDebit($cost);
             $balanceAfter = $balanceBefore - $cost;
-
-            $balanceModel->decrement('balance', $cost);
 
             // Record transaction
             SmsTransaction::create([
