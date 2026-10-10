@@ -94,7 +94,15 @@ class SmsMessageGroupService
 
     /**
      * Delete a group or subgroup.
-     * Guard against deleting groups that still contain active templates.
+     * Guard against deleting groups that still contain active templates, or
+     * that have historical SmsMessage rows referencing them.
+     *
+     * The sms_message_group_id FK on sms_messages is nullOnDelete(), and
+     * SmsMessage::isConfidential() resolves purely through $this->group —
+     * so deleting a مالی/حقوقی (confidential) group with historical messages
+     * would null out their group_id and make those messages silently appear
+     * non-confidential to everyone, retroactively. Block the delete instead,
+     * the same way a group with templates is blocked.
      *
      * @throws ValidationException
      */
@@ -106,11 +114,23 @@ class SmsMessageGroupService
             ]);
         }
 
-        // Check if any child subgroups have templates
+        if ($group->messages()->exists()) {
+            throw ValidationException::withMessages([
+                'group' => ["گروه «{$group->name}» دارای پیامک‌های ثبت‌شده است و امکان حذف آن وجود ندارد."],
+            ]);
+        }
+
+        // Check if any child subgroups have templates or messages
         foreach ($group->children as $child) {
             if ($child->templates()->exists()) {
                 throw ValidationException::withMessages([
                     'group' => ["زیرگروه «{$child->name}» دارای قالب‌های پیامک است و امکان حذف گروه اصلی وجود ندارد."],
+                ]);
+            }
+
+            if ($child->messages()->exists()) {
+                throw ValidationException::withMessages([
+                    'group' => ["زیرگروه «{$child->name}» دارای پیامک‌های ثبت‌شده است و امکان حذف گروه اصلی وجود ندارد."],
                 ]);
             }
         }
