@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\SmsAiCampaignController;
+use App\Http\Controllers\Admin\SmsBulkSendController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -16,4 +17,6 @@ Route::group([
     Route::post('/confirm-and-launch', [SmsAiCampaignController::class, 'confirmAndLaunch'])->name('confirmAndLaunch');
     Route::get('/campaigns', [SmsAiCampaignController::class, 'campaigns'])->name('campaigns');
     Route::get('/campaigns/{campaign}', [SmsAiCampaignController::class, 'statusView'])->name('campaigns.show');
+    // AI and bulk campaigns share sms_campaigns, so the bulk polling JSON endpoint serves both.
+    Route::get('/campaigns/{campaign}/status', [SmsBulkSendController::class, 'statusApi'])->name('campaigns.status');
 });

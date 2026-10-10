@@ -45,11 +45,13 @@
                 <span class="text-muted small">وضعیت فعلی:</span>
                 <span id="campaignStatusBadge" class="badge-status ms-2
                     @if($campaign->status === 'completed') bg-success text-white
+                    @elseif($campaign->status === 'completed_with_errors') bg-warning text-dark
                     @elseif($campaign->status === 'sending') bg-primary text-white
                     @elseif($campaign->status === 'scheduled') bg-info text-white
                     @elseif($campaign->status === 'failed') bg-danger text-white
                     @else bg-secondary text-white @endif">
                     @if($campaign->status === 'completed') تکمیل شده
+                    @elseif($campaign->status === 'completed_with_errors') تکمیل ناقص (موجودی)
                     @elseif($campaign->status === 'sending') در حال ارسال
                     @elseif($campaign->status === 'scheduled') زمان‌بندی شده
                     @elseif($campaign->status === 'failed') ناموفق
@@ -82,7 +84,7 @@
             </div>
             <div class="progress" style="height: 12px; border-radius: 6px;">
                 <div id="campaignProgressBar"
-                    class="progress-bar @if($campaign->status === 'completed') bg-success @elseif($campaign->status === 'failed') bg-danger @else bg-primary progress-bar-striped progress-bar-animated @endif"
+                    class="progress-bar @if($campaign->status === 'completed') bg-success @elseif($campaign->status === 'completed_with_errors') bg-warning @elseif($campaign->status === 'failed') bg-danger @else bg-primary progress-bar-striped progress-bar-animated @endif"
                     role="progressbar"
                     style="width: {{ min(100, $pct) }}%;">
                 </div>
@@ -172,4 +174,66 @@
         </div>
     @endif
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    // Live status polling. Same JSON endpoint as bulk campaigns (shared sms_campaigns table).
+    const statusApiUrl = "{{ route('admin.sms.ai.campaigns.status', $campaign) }}";
+    let isPolling = @json(!in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']));
+
+    function pollStatus() {
+        if (!isPolling) return;
+
+        fetch(statusApiUrl, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const c = data.campaign;
+                const fmt = (n) => Number(n).toLocaleString('fa-IR');
+
+                // Progress
+                const bar = document.getElementById('campaignProgressBar');
+                bar.style.width = c.progress_percentage + '%';
+                document.getElementById('progressText').innerText =
+                    c.progress_percentage + '% (' + fmt(c.sent_count) + ' از ' + fmt(c.total_recipients) + ')';
+
+                // Counters
+                document.getElementById('statTotal').innerText = fmt(c.total_recipients);
+                document.getElementById('statSuccess').innerText = fmt(c.success_count);
+                document.getElementById('statFailed').innerText = fmt(c.failed_count);
+                document.getElementById('statPending').innerText = fmt(c.pending_count);
+
+                // Status badge
+                const badge = document.getElementById('campaignStatusBadge');
+                badge.innerText = c.status_label;
+                badge.className = 'badge-status ms-2 ' + (
+                    c.status === 'completed' ? 'bg-success text-white' :
+                    c.status === 'completed_with_errors' ? 'bg-warning text-dark' :
+                    c.status === 'sending' ? 'bg-primary text-white' :
+                    c.status === 'failed' ? 'bg-danger text-white' :
+                    c.status === 'scheduled' ? 'bg-info text-white' : 'bg-secondary text-white'
+                );
+
+                if (c.is_finished) {
+                    isPolling = false;
+                    bar.classList.remove('progress-bar-striped', 'progress-bar-animated', 'bg-primary');
+                    bar.classList.add(
+                        c.status === 'completed' ? 'bg-success' :
+                        c.status === 'completed_with_errors' ? 'bg-warning' : 'bg-danger'
+                    );
+                    // Reload once so the recipients table reflects the final state
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            }
+        })
+        .catch(err => console.error('Status poll error:', err));
+    }
+
+    if (isPolling) {
+        setInterval(pollStatus, 2500);
+    }
+</script>
 @endsection
