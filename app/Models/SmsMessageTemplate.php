@@ -20,11 +20,21 @@ class SmsMessageTemplate extends Model
     protected $casts = [
         'service_type' => 'string',
         'status' => 'string',
+        'type' => 'string',
     ];
 
     protected static function booted(): void
     {
         // Observer registered via #[ObservedBy([SmsMessageTemplateObserver::class])]
+    }
+
+    /**
+     * Confidentiality is derived purely from the linked group (مالی/حقوقی),
+     * exactly like SmsMessage::isConfidential() — never set directly.
+     */
+    public function isConfidential(): bool
+    {
+        return (bool) $this->group?->isConfidential();
     }
 
     public function group(): BelongsTo

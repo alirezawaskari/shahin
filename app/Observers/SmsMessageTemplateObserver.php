@@ -9,6 +9,24 @@ use Illuminate\Support\Facades\Auth;
 class SmsMessageTemplateObserver
 {
     /**
+     * Handle the SmsMessageTemplate "saving" event.
+     *
+     * `type` (confidential vs normal) is NEVER accepted from a form field —
+     * it is always (re)computed here from the linked sms_message_group_id,
+     * the same way SmsMessage::isConfidential() derives it from its group.
+     * This runs on every create/update, so even a mass-assigned `type`
+     * value (the model is $guarded = []) is overwritten before it persists.
+     */
+    public function saving(SmsMessageTemplate $template): void
+    {
+        $group = $template->sms_message_group_id
+            ? ($template->relationLoaded('group') ? $template->group : $template->group()->first())
+            : null;
+
+        $template->type = $group?->isConfidential() ? 'confidential' : 'normal';
+    }
+
+    /**
      * Handle the SmsMessageTemplate "created" event.
      */
     public function created(SmsMessageTemplate $template): void
