@@ -14,6 +14,7 @@ use App\Models\SmsMessage;
 use App\Models\SmsMessageTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
+use App\Services\SmsSettings\SmsCmsContentService;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +25,8 @@ use Illuminate\View\View;
 class SmsSingleSendController extends Controller
 {
     public function __construct(
-        protected SingleSmsSendService $singleSmsSendService
+        protected SingleSmsSendService $singleSmsSendService,
+        protected SmsCmsContentService $cmsContent
     ) {
     }
 
@@ -79,13 +81,16 @@ class SmsSingleSendController extends Controller
                 ->get();
         }
 
+        $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
+
         return view('Admin.sms.single.index', compact(
             'business',
             'otpSender',
             'otpBalance',
             'advertisingNumbers',
             'templates',
-            'recentMessages'
+            'recentMessages',
+            'regulatoryRulesText'
         ));
     }
 

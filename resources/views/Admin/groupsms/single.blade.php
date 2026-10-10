@@ -470,6 +470,16 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Persistent read-only regulatory rules panel (task.md §2-6) --}}
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-header bg-white py-2 px-3">
+                    <small class="fw-bold text-muted"><i class="fa fa-balance-scale me-1"></i> ضوابط و مقررات ارسال پیامک</small>
+                </div>
+                <div class="card-body p-3" style="max-height: 160px; overflow-y: auto;">
+                    <p class="small text-muted mb-0" style="white-space: pre-wrap;">{{ $regulatoryRulesText }}</p>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -32,11 +32,19 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link py-2 px-3 {{ request()->routeIs('admin.sms.settings.contracts.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
+                <a class="nav-link py-2 px-3 {{ request()->routeIs('admin.sms.settings.contracts.*') ? 'active bg-primary text-white' : 'text-dark' }}"
                    href="{{ route('admin.sms.settings.contracts.index') }}">
                     <i class="fa fa-file-pdf-o me-1"></i> قراردادها و تعهدنامه‌ها
                 </a>
             </li>
+            @if(auth()->user()?->isSuperAdmin())
+            <li class="nav-item">
+                <a class="nav-link py-2 px-3 {{ request()->routeIs('admin.sms.settings.content.*') ? 'active bg-primary text-white' : 'text-dark' }}"
+                   href="{{ route('admin.sms.settings.content.index') }}">
+                    <i class="fa fa-balance-scale me-1"></i> متون حقوقی و ضوابط (محتوا)
+                </a>
+            </li>
+            @endif
         </ul>
     </div>
 </div>

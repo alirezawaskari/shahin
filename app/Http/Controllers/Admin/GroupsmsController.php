@@ -79,6 +79,7 @@ class GroupsmsController extends Controller
         }
 
         $userTier = $user ? ($user->access_tier ?: 'silver') : 'silver';
+        $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
 
         return view('Admin.groupsms.create', compact(
             'services',
@@ -91,7 +92,8 @@ class GroupsmsController extends Controller
             'businesses',
             'categories',
             'provinces',
-            'recentCampaigns'
+            'recentCampaigns',
+            'regulatoryRulesText'
         ));
     }
 
@@ -254,13 +256,16 @@ class GroupsmsController extends Controller
                 ->get();
         }
 
+        $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
+
         return view('Admin.groupsms.single', compact(
             'business',
             'otpSender',
             'otpBalance',
             'advertisingNumbers',
             'templates',
-            'recentMessages'
+            'recentMessages',
+            'regulatoryRulesText'
         ));
     }
 

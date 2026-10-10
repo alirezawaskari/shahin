@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SmsSettings\SmsCmsSettingsController;
 use App\Http\Controllers\Admin\SmsSettings\SmsContractController;
 use App\Http\Controllers\Admin\SmsSettings\SmsMessageGroupController;
 use App\Http\Controllers\Admin\SmsSettings\SmsMessageTemplateController;
@@ -68,5 +69,11 @@ Route::group([
         Route::post('/', [SmsContractController::class, 'store'])->name('store');
         Route::put('/{contractUsage}', [SmsContractController::class, 'update'])->name('update');
         Route::delete('/{contractUsage}', [SmsContractController::class, 'destroy'])->name('destroy');
+    });
+
+    // 6. CMS content: regulatory rules text + contract text (superAdmin only)
+    Route::group(['prefix' => 'content', 'as' => 'content.'], function () {
+        Route::get('/', [SmsCmsSettingsController::class, 'index'])->name('index');
+        Route::put('/', [SmsCmsSettingsController::class, 'update'])->name('update');
     });
 });

@@ -17,6 +17,7 @@ use App\Models\SmsMessageTemplate;
 use App\Services\Sms\BulkSmsRecipientFilterService;
 use App\Services\Sms\BulkSmsSendService;
 use App\Services\Sms\SmsAccessTierService;
+use App\Services\SmsSettings\SmsCmsContentService;
 use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -28,7 +29,8 @@ class SmsBulkSendController extends Controller
     public function __construct(
         protected BulkSmsSendService $bulkSmsSendService,
         protected BulkSmsRecipientFilterService $recipientFilterService,
-        protected SmsAccessTierService $accessTierService
+        protected SmsAccessTierService $accessTierService,
+        protected SmsCmsContentService $cmsContent
     ) {
     }
 
@@ -79,6 +81,7 @@ class SmsBulkSendController extends Controller
         }
 
         $userTier = $user ? ($user->access_tier ?: 'silver') : 'silver';
+        $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
 
         return view('Admin.sms.bulk.index', compact(
             'business',
@@ -90,7 +93,8 @@ class SmsBulkSendController extends Controller
             'businesses',
             'categories',
             'provinces',
-            'recentCampaigns'
+            'recentCampaigns',
+            'regulatoryRulesText'
         ));
     }
 
