@@ -872,14 +872,18 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::resource('arrangeContract', 'ArrangeContractController');
     Route::get('/arrangeContract/{id}/{status}', 'ArrangeContractController@status');
     Route::get('/arrangeContractList/{contract_id}', 'ArrangeContractController@arrangeContractList');
-    //sms
-    Route::get('/sms/single/create', 'GroupsmsController@single')->name('sms.single');
-    Route::get('/sms/single/edit/{groupsms}', 'GroupsmsController@singleEdit')->name('sms.edit');
-    Route::post('/sms/single/store', 'GroupsmsController@singleStore')->name('sms.single.store');
-    Route::post('/sms/sendConsent', 'GroupsmsController@sendConsent')->name('sms.sendConsent');
-    Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
-    Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
-    Route::resource('groupsms', 'GroupsmsController');
+    //sms (legacy entry points; gated by EnsureSmsContractSigned same as the
+    // newer admin.sms.* module — task.md §2-6 requires the contract sign
+    // gate to cover every SMS screen, not just the new route namespace)
+    Route::middleware(\App\Http\Middleware\EnsureSmsContractSigned::class)->group(function () {
+        Route::get('/sms/single/create', 'GroupsmsController@single')->name('sms.single');
+        Route::get('/sms/single/edit/{groupsms}', 'GroupsmsController@singleEdit')->name('sms.edit');
+        Route::post('/sms/single/store', 'GroupsmsController@singleStore')->name('sms.single.store');
+        Route::post('/sms/sendConsent', 'GroupsmsController@sendConsent')->name('sms.sendConsent');
+        Route::post('/groupsms/phone/store', 'GroupsmsController@groupsmsPhone')->name('groupsms.phone.store');
+        Route::patch('/groupsms/phone/update/{groupsms}', 'GroupsmsController@groupsmsPhoneUpdate')->name('groupsms.phone.update');
+        Route::resource('groupsms', 'GroupsmsController');
+    });
 
     // Ai
 // AI Settings (باید قبل از {id} باشه)
@@ -1056,6 +1060,7 @@ Route::get('/pp/{payment}', 'PaymentController@fastPrePay')->name('pay.prepaymen
 Route::post('/coupon', 'FactorController@coupon')->name('coupon');
 Route::post('/user/sellingAccount', 'CampaignController@sellingAccount')->name('user.sellingAccount');
 
+require __DIR__ . '/admin_sms_contract.php';
 require __DIR__ . '/admin_sms_single.php';
 require __DIR__ . '/admin_sms_bulk.php';
 require __DIR__ . '/admin_sms_ai.php';

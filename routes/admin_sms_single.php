@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\SmsSingleSendController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin'],
+    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin', \App\Http\Middleware\EnsureSmsContractSigned::class],
     'prefix' => 'dashboard/sms/single',
     'as' => 'admin.sms.single.',
 ], function () {

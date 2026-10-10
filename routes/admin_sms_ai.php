@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\SmsBulkSendController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin'],
+    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin', \App\Http\Middleware\EnsureSmsContractSigned::class],
     'prefix' => 'dashboard/sms/ai',
     'as' => 'admin.sms.ai.',
 ], function () {

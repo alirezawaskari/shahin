@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\SmsReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin'],
+    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin', \App\Http\Middleware\EnsureSmsContractSigned::class],
     'prefix' => 'dashboard/sms',
     'as' => 'admin.sms.',
 ], function () {

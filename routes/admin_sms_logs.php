@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // Admin SMS Logs
 Route::group([
-    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin'],
+    'middleware' => ['web', 'auth:web', 'checkActive', 'checkAdmin', \App\Http\Middleware\EnsureSmsContractSigned::class],
     'prefix' => 'dashboard/sms/logs',
     'as' => 'admin.sms.logs.',
 ], function () {
