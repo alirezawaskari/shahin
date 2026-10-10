@@ -266,7 +266,11 @@
                             <td>{{ $msg->senderNumber?->number ?? $msg->sender_phone ?? '-' }}</td>
                             <td class="fw-bold">{{ $msg->recipient_phone }}</td>
                             <td class="text-start" style="max-width: 250px;">
-                                <div class="text-truncate" title="{{ $msg->content }}">{{ $msg->content }}</div>
+                                @if($msg->content_redacted ?? false)
+                                    <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
+                                @else
+                                    <div class="text-truncate" title="{{ $msg->content }}">{{ $msg->content }}</div>
+                                @endif
                             </td>
                             <td>{{ $msg->character_count }} / {{ $msg->page_count }}</td>
                             <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>

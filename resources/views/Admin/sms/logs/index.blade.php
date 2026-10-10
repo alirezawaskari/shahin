@@ -261,7 +261,11 @@
                                 @endif
                                 <td>{{ $msg->group?->name ?: '-' }}</td>
                                 <td class="text-right" style="direction: rtl; font-size: 0.9rem;">
-                                    {{ Str::limit($msg->content, 65) }}
+                                    @if($msg->content_redacted ?? false)
+                                        <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
+                                    @else
+                                        {{ Str::limit($msg->content, 65) }}
+                                    @endif
                                 </td>
                                 <td>
                                     @if($msg->status === 'delivered' || $msg->delivery_status === 'delivered')
@@ -283,7 +287,7 @@
                                 <td>
                                     <button type="button" class="btn btn-outline-info btn-sm view-details-btn" 
                                             data-id="{{ $msg->id }}"
-                                            data-content="{{ e($msg->content) }}"
+                                            data-content="{{ ($msg->content_redacted ?? false) ? 'محرمانه - دسترسی محدود' : e($msg->content) }}"
                                             data-sender="{{ $msg->sender_phone }}"
                                             data-recipient="{{ $msg->recipient_phone }}"
                                             data-direction="{{ $msg->direction === 'inbound' ? 'دریافتی' : 'ارسالی' }}"

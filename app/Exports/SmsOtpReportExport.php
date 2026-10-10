@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Models\User;
+use App\Services\Sms\SmsConfidentialityGuard;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -14,8 +16,10 @@ class SmsOtpReportExport implements FromCollection, ShouldAutoSize, WithHeadings
     use Exportable;
 
     public function __construct(
-        protected Builder $query
+        protected Builder $query,
+        protected ?User $viewer = null
     ) {
+        $this->viewer = $this->viewer ?? auth()->user();
     }
 
     public function collection(): Collection
@@ -31,7 +35,7 @@ class SmsOtpReportExport implements FromCollection, ShouldAutoSize, WithHeadings
             return [
                 'id' => $message->id,
                 'recipient_phone' => $message->recipient_phone,
-                'content' => $message->content,
+                'content' => SmsConfidentialityGuard::visibleContent($message, $this->viewer) ?? '*** محرمانه - دسترسی محدود ***',
                 'character_count' => $message->character_count,
                 'page_count' => $message->page_count,
                 'cost' => $message->cost ? number_format((float) $message->cost) : '0',

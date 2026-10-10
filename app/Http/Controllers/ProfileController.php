@@ -239,7 +239,10 @@ class ProfileController extends Controller
             ->latest()
             ->get();
 
-        $canViewConfidential = $user->isSuperAdmin()
+        // Canonical permission (see database/migrations/2026_10_11_000002_*):
+        // the older guessed names are kept for backward compatibility with
+        // any role that may already have been granted one of them.
+        $canViewConfidential = \App\Services\Sms\SmsConfidentialityGuard::canViewConfidential($user)
             || $user->isAbleTo('view-confidential-messages')
             || $user->isAbleTo('confidential-messages')
             || $user->isAbleTo('sms-confidential');

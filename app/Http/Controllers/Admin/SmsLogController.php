@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SmsMessageResource;
 use App\Models\GhorfeOnlineList;
 use App\Models\SenderNumber;
 use App\Models\SmsMessage;
 use App\Models\SmsMessageGroup;
+use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\Sms\SmsLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,6 +40,14 @@ class SmsLogController extends Controller
 
         $summary = $this->logService->getSummaryMetrics($filters, $business, $isSuperAdmin);
 
+        // Confidentiality enforcement (task.md §13): the body of a message in a
+        // confidential group (مالی/حقوقی) is removed server-side for anyone
+        // without the view-confidential-sms permission, for both the JSON
+        // response below AND the server-rendered Blade table — mutating the
+        // attribute here means the raw text is never serialized to the client
+        // in either path, rather than merely hidden behind an @if in the view.
+        SmsConfidentialityGuard::redactMany($messages->getCollection(), $user);
+
         // Filter options for dropdowns
         $businesses = $isSuperAdmin ? GhorfeOnlineList::orderBy('title')->get() : collect([$business])->filter();
 
@@ -59,7 +69,13 @@ class SmsLogController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'data' => $messages,
+                'data' => SmsMessageResource::collection($messages->getCollection())->toArray($request),
+                'meta' => [
+                    'current_page' => $messages->currentPage(),
+                    'last_page' => $messages->lastPage(),
+                    'per_page' => $messages->perPage(),
+                    'total' => $messages->total(),
+                ],
                 'summary' => $summary,
             ]);
         }
@@ -95,9 +111,13 @@ class SmsLogController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => $smsMessage,
+                'message' => (new SmsMessageResource($smsMessage))->toArray($request),
             ]);
         }
+
+        // Also redact for the server-rendered view: confidentiality is
+        // enforced regardless of output format.
+        SmsConfidentialityGuard::redact($smsMessage, $user);
 
         return view('Admin.sms.logs.show', compact('smsMessage'));
     }

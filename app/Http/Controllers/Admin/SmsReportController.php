@@ -6,7 +6,9 @@ use App\Exports\SmsAdvertisingReportExport;
 use App\Exports\SmsOtpReportExport;
 use App\Exports\SmsSuperAdminReportExport;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SmsMessageResource;
 use App\Models\GhorfeOnlineList;
+use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\Sms\SmsReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,6 +21,30 @@ class SmsReportController extends Controller
     public function __construct(
         protected SmsReportService $reportService
     ) {
+    }
+
+    /**
+     * Confidentiality enforcement (task.md §13): redact the body of every
+     * confidential (مالی/حقوقی) message in a report's paginated `messages`
+     * collection for viewers without view-confidential-sms, server-side,
+     * before the data reaches either the JSON branch or the Blade view.
+     *
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    protected function redactReportMessages(array $data, Request $request): array
+    {
+        $viewer = auth()->user();
+
+        if (isset($data['messages']) && method_exists($data['messages'], 'getCollection')) {
+            SmsConfidentialityGuard::redactMany($data['messages']->getCollection(), $viewer);
+
+            if ($request->wantsJson()) {
+                $data['messages'] = SmsMessageResource::collection($data['messages']->getCollection())->toArray($request);
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -48,6 +74,7 @@ class SmsReportController extends Controller
 
         $filters = $request->only(['status', 'sms_message_template_id', 'sms_message_group_id', 'search', 'date_from', 'date_to']);
         $data = $this->reportService->getOtpReport($business, $filters);
+        $data = $this->redactReportMessages($data, $request);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -90,6 +117,7 @@ class SmsReportController extends Controller
 
         $filters = $request->only(['sender_number_id', 'sms_campaign_id', 'status', 'sms_message_group_id', 'search', 'date_from', 'date_to']);
         $data = $this->reportService->getAdvertisingReport($business, $filters);
+        $data = $this->redactReportMessages($data, $request);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -148,6 +176,7 @@ class SmsReportController extends Controller
         ]);
 
         $data = $this->reportService->getSuperAdminReport($filters);
+        $data = $this->redactReportMessages($data, $request);
 
         if ($request->wantsJson()) {
             return response()->json([

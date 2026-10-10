@@ -52,14 +52,19 @@ class SmsMessageGroup extends Model
         $slug = strtolower($this->slug ?? '');
         $name = $this->name ?? '';
 
-        $confidentialKeywords = ['confidential', 'mahrameh', 'hoghoghi', 'ekhtar', 'erja-be-hoghoghi', 'secret', 'private'];
+        // مالی (financial) and حقوقی (legal) are the two confidential top-level
+        // categories per task.md §13 (see also §2-4 group taxonomy). Both are
+        // matched by slug and by Persian name so subgroups created under
+        // either one inherit confidentiality via the parent-chain check below.
+        $confidentialKeywords = ['confidential', 'mahrameh', 'hoghoghi', 'ekhtar', 'erja-be-hoghoghi', 'secret', 'private', 'mali', 'financial'];
+        $slugParts = preg_split('/[-_]/', $slug) ?: [];
         foreach ($confidentialKeywords as $keyword) {
-            if (str_contains($slug, $keyword)) {
+            if (in_array($keyword, $slugParts, true) || $slug === $keyword) {
                 return true;
             }
         }
 
-        $persianKeywords = ['محرمانه', 'حقوقی', 'اخطار', 'ارجاع به حقوقی'];
+        $persianKeywords = ['محرمانه', 'حقوقی', 'اخطار', 'ارجاع به حقوقی', 'مالی'];
         foreach ($persianKeywords as $keyword) {
             if (str_contains($name, $keyword)) {
                 return true;
