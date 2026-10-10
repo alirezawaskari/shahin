@@ -138,6 +138,9 @@ class SmsAiCampaignController extends Controller
             'rationale' => $request->input('rationale', ''),
             'recipient_count' => (int) $request->input('recipient_count', 0),
             'approved_at' => now()->toIso8601String(),
+            // Bound later, at calculateCost, once the user has fixed the final text and sender.
+            'message' => null,
+            'sender_number_id' => null,
         ];
 
         session()->put('sms_ai_approved_audience', $approvedAudience);
@@ -231,6 +234,15 @@ class SmsAiCampaignController extends Controller
                 $recipientType
             );
 
+            // Bind the exact text and sender the user is costing to the stored approval,
+            // so confirmAndLaunch can reject any change made after this point.
+            $approved = session()->get('sms_ai_approved_audience');
+            if (is_array($approved)) {
+                $approved['message'] = (string) $request->input('message');
+                $approved['sender_number_id'] = $senderNumberId;
+                session()->put('sms_ai_approved_audience', $approved);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'data' => $result,
@@ -304,8 +316,20 @@ class SmsAiCampaignController extends Controller
             return $this->approvalMismatch($request, 'ابتدا باید مخاطبان پیشنهادی توسط کاربر تایید شوند.');
         }
 
-        $approvedFingerprint = $this->audienceFingerprint((string) ($approved['goal'] ?? ''), (array) ($approved['filters'] ?? []));
-        $launchFingerprint = $this->audienceFingerprint($launchGoal, $launchFilters);
+        $launchSenderNumberId = $request->filled('sender_number_id') ? (int) $request->input('sender_number_id') : null;
+
+        $approvedFingerprint = $this->approvalFingerprint(
+            (string) ($approved['goal'] ?? ''),
+            (array) ($approved['filters'] ?? []),
+            isset($approved['message']) ? (string) $approved['message'] : null,
+            isset($approved['sender_number_id']) ? (int) $approved['sender_number_id'] : null
+        );
+        $launchFingerprint = $this->approvalFingerprint(
+            $launchGoal,
+            $launchFilters,
+            (string) $request->input('message'),
+            $launchSenderNumberId
+        );
 
         if (!hash_equals($approvedFingerprint, $launchFingerprint)) {
             // Invalidate the approval so it cannot be retried against altered payloads.
@@ -380,13 +404,17 @@ class SmsAiCampaignController extends Controller
     }
 
     /**
-     * Stable hash of the audience definition (goal + filters), independent of key order.
+     * Stable hash of what the user approved: audience (goal + filters), the final
+     * message text and the sender number. Filters are key-order independent.
+     * A null message or sender means that part has not been bound yet.
      */
-    private function audienceFingerprint(string $goal, array $filters): string
+    private function approvalFingerprint(string $goal, array $filters, ?string $message, ?int $senderNumberId): string
     {
         return hash('sha256', json_encode([
             'goal' => $goal,
             'filters' => $this->sortKeysRecursive($filters),
+            'message' => $message,
+            'sender_number_id' => $senderNumberId,
         ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
     }
 
