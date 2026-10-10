@@ -555,7 +555,12 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
+    // Dynamic parameter tokens inside a selected template render as styled,
+    // non-text-editable chips instead of raw "{...}" text.
+    const bulkMessageChipEditor = SmsParamChips.attach(document.getElementById('sms_message'), []);
+
     function selectSenderNumber(id) {
         document.querySelectorAll('.sender-radio-card').forEach(el => el.classList.remove('active'));
         const input = document.getElementById('sender_' + id);
@@ -577,7 +582,11 @@
         const selected = this.options[this.selectedIndex];
         const content = selected.getAttribute('data-content') || '';
         if (content) {
-            document.getElementById('sms_message').value = content;
+            if (bulkMessageChipEditor) {
+                bulkMessageChipEditor.setValue(content);
+            } else {
+                document.getElementById('sms_message').value = content;
+            }
             updatePhoneMockup();
             triggerPreview();
         }

@@ -146,6 +146,7 @@
     </form>
 </div>
 
+<script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const textarea = document.getElementById('templateContent');
@@ -156,18 +157,9 @@
         const previewStatus = document.getElementById('previewStatus');
         const tokenButtons = document.querySelectorAll('.insert-token');
 
-        tokenButtons.forEach(btn => {
-            btn.addEventListener('click', function () {
-                const token = this.getAttribute('data-token');
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const text = textarea.value;
-                textarea.value = text.substring(0, start) + token + text.substring(end);
-                textarea.focus();
-                textarea.selectionStart = textarea.selectionEnd = start + token.length;
-                updatePreview();
-            });
-        });
+        // Dynamic parameter tokens are inserted as styled, non-text-editable
+        // chip elements instead of raw "{...}" brace text.
+        SmsParamChips.attach(textarea, tokenButtons);
 
         let debounceTimer;
 

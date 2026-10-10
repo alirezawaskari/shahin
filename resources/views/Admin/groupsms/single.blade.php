@@ -615,6 +615,7 @@
 @stop
 
 @section('script')
+<script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // State variables
@@ -830,26 +831,20 @@ document.addEventListener('DOMContentLoaded', function () {
     textarea.addEventListener('keyup', updateLivePreview);
     textarea.addEventListener('change', updateLivePreview);
 
-    // Placeholder chips click
-    document.querySelectorAll('.placeholder-chip').forEach(chip => {
-        chip.addEventListener('click', function () {
-            const token = this.getAttribute('data-token');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const text = textarea.value;
-            textarea.value = text.substring(0, start) + token + text.substring(end);
-            textarea.focus();
-            textarea.selectionStart = textarea.selectionEnd = start + token.length;
-            updateLivePreview();
-        });
-    });
+    // Dynamic parameter chips: clicking a palette chip inserts a styled,
+    // non-text-editable chip element into the editor (not raw "{...}" text).
+    const paramChipEditor = SmsParamChips.attach(textarea, document.querySelectorAll('.placeholder-chip'));
 
     // Template selection
     templateSelect.addEventListener('change', function () {
         const selected = this.selectedOptions[0];
         if (selected && selected.value) {
             const content = selected.getAttribute('data-content');
-            textarea.value = content;
+            if (paramChipEditor) {
+                paramChipEditor.setValue(content);
+            } else {
+                textarea.value = content;
+            }
             const type = selected.getAttribute('data-type');
             if (type === 'otp') {
                 serviceTypeOtp.checked = true;
