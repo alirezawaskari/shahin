@@ -18,7 +18,7 @@
     <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="fa fa-robot text-primary me-2"></i> وضعیت زنده کمپین هوش مصنوعی #{{ $campaign->id }}
+                <i class="fa fa-android text-primary me-2"></i> وضعیت زنده کمپین هوش مصنوعی #{{ $campaign->id }}
             </h4>
             <p class="text-muted mb-0 small">
                 کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |

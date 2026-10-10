@@ -7,7 +7,7 @@
     <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="fa fa-robot text-primary me-2"></i> تاریخچه کمپین‌های پیامکی هوش مصنوعی
+                <i class="fa fa-android text-primary me-2"></i> تاریخچه کمپین‌های پیامکی هوش مصنوعی
             </h4>
             <p class="text-muted mb-0 small">
                 کسب‌وکار: <strong>{{ $business?->title ?? 'همه' }}</strong>
@@ -64,7 +64,7 @@
                         <td class="fw-bold">#{{ $camp->id }}</td>
                         <td>
                             <span class="badge bg-purple text-dark border mb-1">
-                                <i class="fa fa-robot me-1"></i> AI
+                                <i class="fa fa-android me-1"></i> AI
                             </span>
                             <div class="text-truncate text-dark fw-bold" style="max-width: 200px;" title="{{ $camp->ai_goal_prompt }}">
                                 {{ $camp->ai_goal_prompt ?: '(بدون پرامپت)' }}

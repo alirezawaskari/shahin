@@ -157,7 +157,7 @@
                 };
             @endphp
             <div class="tier-badge {{ $tierClass }}" title="سطح دسترسی شما به فیلترها و مخاطبان">
-                <i class="fa fa-shield-alt"></i> سطح دسترسی: {{ $tierLabel }}
+                <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
             </div>
             <a href="{{ route('admin.sms.bulk.campaigns') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fa fa-list me-1"></i> تاریخچه کمپین‌ها
@@ -517,7 +517,7 @@
 
                     <div class="d-grid mt-4">
                         <button type="submit" id="btnLaunchCampaign" class="btn btn-success btn-lg fw-bold" {{ $advertisingNumbers->isEmpty() ? 'disabled' : '' }}>
-                            <i class="fa fa-rocket me-2"></i> تأیید و ثبت کمپین پیامکی
+                            <i class="fa fa-send me-2"></i> تأیید و ثبت کمپین پیامکی
                         </button>
                     </div>
                 </div>
@@ -532,7 +532,7 @@
                     <div class="phone-screen">
                         <div class="phone-header">
                             <div style="width: 32px; height: 32px; border-radius: 50%; background: #3b82f6; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px;">
-                                <i class="fa fa-comment-dots"></i>
+                                <i class="fa fa-comments"></i>
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div class="fw-bold small text-truncate" id="phonePreviewSender">

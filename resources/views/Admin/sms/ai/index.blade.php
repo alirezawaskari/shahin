@@ -168,7 +168,7 @@
     <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
         <div>
             <h4 class="fw-bold mb-1">
-                <i class="fa fa-robot text-primary me-2"></i> دستیار هوشمند کمپین‌های پیامکی (AI Studio)
+                <i class="fa fa-android text-primary me-2"></i> دستیار هوشمند کمپین‌های پیامکی (AI Studio)
             </h4>
             <p class="text-muted mb-0 small">
                 کسب‌وکار جاری: <strong class="text-dark">{{ $business?->title ?? 'سیستم' }}</strong> |
@@ -191,7 +191,7 @@
                 };
             @endphp
             <div class="tier-badge {{ $tierClass }}">
-                <i class="fa fa-shield-alt"></i> سطح دسترسی: {{ $tierLabel }}
+                <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
             </div>
             <a href="{{ route('admin.sms.ai.campaigns') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fa fa-history me-1"></i> تاریخچه کمپین‌های AI
@@ -274,7 +274,7 @@
                 <div id="aiAudienceProposalBox" class="mt-4" style="display: none;">
                     <div class="ai-bubble">
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <i class="fa fa-sparkles text-primary"></i>
+                            <i class="fa fa-magic text-primary"></i>
                             <strong class="text-primary small">پیشنهاد هوش مصنوعی برای جامعه هدف:</strong>
                         </div>
                         <p id="aiAudienceRationale" class="mb-2 text-dark small"></p>
@@ -339,7 +339,7 @@
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
                         <button type="button" id="btnDraftMessage" class="btn btn-primary btn-sm w-100">
-                            <i class="fa fa-pen-nib me-1"></i> نگارش متن بهینه با هوش مصنوعی
+                            <i class="fa fa-pencil me-1"></i> نگارش متن بهینه با هوش مصنوعی
                         </button>
                     </div>
                 </div>
@@ -415,7 +415,7 @@
 
                 <!-- Hard Human Confirmation Gate -->
                 <div class="alert alert-warning border-warning d-flex align-items-start gap-2 mb-3">
-                    <i class="fa fa-shield-alt text-warning mt-1 fs-5"></i>
+                    <i class="fa fa-shield text-warning mt-1 fs-5"></i>
                     <div>
                         <strong class="d-block mb-1">گیت کنترل انسانی (Hard Code-Level Human Confirmation Gate):</strong>
                         <p class="mb-0 small text-dark">
@@ -453,7 +453,7 @@
                     <div class="phone-notch"></div>
                     <div class="phone-header">
                         <div style="width: 28px; height: 28px; border-radius: 50%; background: #4f46e5; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px;">
-                            <i class="fa fa-sms"></i>
+                            <i class="fa fa-comment"></i>
                         </div>
                         <div style="flex: 1; overflow: hidden;">
                             <div id="phoneSenderNumber" style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -618,7 +618,7 @@
                 state.approvedAudience = res.approved_audience;
 
                 btn.className = 'btn btn-secondary btn-sm';
-                btn.innerHTML = '<i class="fa fa-check-double me-1"></i> جامعه مخاطبان تایید شد';
+                btn.innerHTML = '<i class="fa fa-check-circle me-1"></i> جامعه مخاطبان تایید شد';
                 document.getElementById('step1Badge').className = 'step-badge approved';
 
                 // Unlock Step 2
@@ -675,7 +675,7 @@
         .then(res => res.json())
         .then(res => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fa fa-pen-nib me-1"></i> نگارش متن بهینه با هوش مصنوعی';
+            btn.innerHTML = '<i class="fa fa-pencil me-1"></i> نگارش متن بهینه با هوش مصنوعی';
 
             if (res.status === 'success') {
                 const data = res.data;
@@ -687,7 +687,7 @@
         })
         .catch(err => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fa fa-pen-nib me-1"></i> نگارش متن بهینه با هوش مصنوعی';
+            btn.innerHTML = '<i class="fa fa-pencil me-1"></i> نگارش متن بهینه با هوش مصنوعی';
             console.error(err);
         });
     });
