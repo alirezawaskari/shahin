@@ -294,6 +294,26 @@ class SmsAiCampaignController extends Controller
             return redirect()->back()->withErrors(['human_confirmed' => 'تایید نهایی کاربر انسانی الزامی است.']);
         }
 
+        // The launch must match the audience the user approved in approveAudience().
+        // Without this, a single approval could be replayed with different filters.
+        $approved = session()->get('sms_ai_approved_audience');
+        $launchGoal = (string) $request->input('goal');
+        $launchFilters = (array) $request->input('filters', []);
+
+        if (!is_array($approved)) {
+            return $this->approvalMismatch($request, 'ابتدا باید مخاطبان پیشنهادی توسط کاربر تایید شوند.');
+        }
+
+        $approvedFingerprint = $this->audienceFingerprint((string) ($approved['goal'] ?? ''), (array) ($approved['filters'] ?? []));
+        $launchFingerprint = $this->audienceFingerprint($launchGoal, $launchFilters);
+
+        if (!hash_equals($approvedFingerprint, $launchFingerprint)) {
+            // Invalidate the approval so it cannot be retried against altered payloads.
+            session()->forget('sms_ai_approved_audience');
+
+            return $this->approvalMismatch($request, 'مخاطبان ارسالی با مخاطبان تایید شده مطابقت ندارد. لطفا دوباره مخاطبان را تایید کنید.');
+        }
+
         $campaignData = [
             'type' => 'ai',
             'ai_goal_prompt' => $request->input('goal'),
@@ -357,6 +377,43 @@ class SmsAiCampaignController extends Controller
             }
             return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Stable hash of the audience definition (goal + filters), independent of key order.
+     */
+    private function audienceFingerprint(string $goal, array $filters): string
+    {
+        return hash('sha256', json_encode([
+            'goal' => $goal,
+            'filters' => $this->sortKeysRecursive($filters),
+        ], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+    }
+
+    private function sortKeysRecursive(array $value): array
+    {
+        ksort($value);
+
+        foreach ($value as $key => $item) {
+            if (is_array($item)) {
+                $value[$key] = $this->sortKeysRecursive($item);
+            }
+        }
+
+        return $value;
+    }
+
+    private function approvalMismatch(Request $request, string $message): JsonResponse|RedirectResponse
+    {
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'error',
+                'error_type' => 'approval_mismatch',
+                'message' => $message,
+            ], 422);
+        }
+
+        return redirect()->back()->withInput()->withErrors(['approval' => $message]);
     }
 
     /**
