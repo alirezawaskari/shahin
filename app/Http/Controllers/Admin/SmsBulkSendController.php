@@ -317,7 +317,7 @@ class SmsBulkSendController extends Controller
 
         $total = max(1, $campaign->total_recipients);
         $progress = round(($campaign->sent_count / $total) * 100, 1);
-        $isFinished = in_array($campaign->status, ['completed', 'failed'], true);
+        $isFinished = in_array($campaign->status, ['completed', 'completed_with_errors', 'failed'], true);
 
         return response()->json([
             'status' => 'success',
@@ -329,6 +329,7 @@ class SmsBulkSendController extends Controller
                     'scheduled' => 'زمان‌بندی شده',
                     'sending' => 'در حال ارسال',
                     'completed' => 'تکمیل شده',
+                    'completed_with_errors' => 'تکمیل ناقص (توقف به دلیل موجودی)',
                     'failed' => 'ناموفق',
                     default => $campaign->status,
                 },

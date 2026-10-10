@@ -377,6 +377,7 @@ class BulkSmsSendService
         $tariff = $segmentation['tariff'];
 
         $pendingRecipients = $campaign->recipients()->where('status', 'pending')->with('user')->get();
+        $stoppedForBalance = false;
 
         foreach ($pendingRecipients as $recipientRecord) {
             $trackingId = 'BLK-' . strtoupper(Str::random(12));
@@ -484,6 +485,8 @@ class BulkSmsSendService
             } catch (InsufficientBalanceException $e) {
                 // The sender balance can no longer cover a message: fail this recipient and
                 // every remaining pending one (the rolled-back row is still pending), then stop.
+                $stoppedForBalance = true;
+
                 Log::warning("Bulk Campaign #{$campaign->id} stopped: insufficient balance.", [
                     'sender_number_id' => $senderNumber->id,
                     'message' => $e->getMessage(),
@@ -506,6 +509,9 @@ class BulkSmsSendService
         $campaign->refresh();
         if ($campaign->failed_count === $campaign->total_recipients && $campaign->total_recipients > 0) {
             $campaign->update(['status' => 'failed']);
+        } elseif ($stoppedForBalance && $campaign->failed_count > 0) {
+            // Stopped by balance exhaustion with some recipients unsent: not a clean completion.
+            $campaign->update(['status' => 'completed_with_errors']);
         } else {
             $campaign->update(['status' => 'completed']);
         }

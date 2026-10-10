@@ -34,6 +34,7 @@
                 <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                     <option value="all">همه وضعیت‌ها</option>
                     <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>تکمیل شده</option>
+                    <option value="completed_with_errors" {{ request('status') === 'completed_with_errors' ? 'selected' : '' }}>تکمیل ناقص (موجودی)</option>
                     <option value="sending" {{ request('status') === 'sending' ? 'selected' : '' }}>در حال ارسال</option>
                     <option value="scheduled" {{ request('status') === 'scheduled' ? 'selected' : '' }}>زمان‌بندی شده</option>
                     <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>ناموفق</option>
@@ -83,6 +84,8 @@
                         <td>
                             @if($camp->status === 'completed')
                                 <span class="badge bg-success">تکمیل شده</span>
+                            @elseif($camp->status === 'completed_with_errors')
+                                <span class="badge bg-warning text-dark">تکمیل ناقص (موجودی)</span>
                             @elseif($camp->status === 'sending')
                                 <span class="badge bg-primary">در حال ارسال</span>
                             @elseif($camp->status === 'scheduled')

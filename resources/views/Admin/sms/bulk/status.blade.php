@@ -48,17 +48,19 @@
                 <span class="text-muted small">وضعیت فعلی:</span>
                 <span id="campaignStatusBadge" class="badge-status ms-2
                     @if($campaign->status === 'completed') bg-success text-white
+                    @elseif($campaign->status === 'completed_with_errors') bg-warning text-dark
                     @elseif($campaign->status === 'sending') bg-primary text-white
                     @elseif($campaign->status === 'scheduled') bg-info text-white
                     @elseif($campaign->status === 'failed') bg-danger text-white
                     @else bg-secondary text-white @endif">
                     @if($campaign->status === 'completed') تکمیل شده
+                    @elseif($campaign->status === 'completed_with_errors') تکمیل ناقص (موجودی)
                     @elseif($campaign->status === 'sending') در حال ارسال
                     @elseif($campaign->status === 'scheduled') زمان‌بندی شده
                     @elseif($campaign->status === 'failed') ناموفق
                     @else پیش‌نویس @endif
                 </span>
-                <span id="livePulseIndicator" class="ms-2 small text-primary" style="{{ in_array($campaign->status, ['completed', 'failed']) ? 'display: none;' : '' }}">
+                <span id="livePulseIndicator" class="ms-2 small text-primary" style="{{ in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']) ? 'display: none;' : '' }}">
                     <i class="fa fa-spinner fa-spin me-1"></i> در حال به‌روزرسانی زنده...
                 </span>
             </div>
@@ -181,7 +183,7 @@
 @section('scripts')
 <script>
     const statusApiUrl = "{{ route('admin.sms.bulk.campaigns.status', $campaign) }}";
-    let isPolling = @json(!in_array($campaign->status, ['completed', 'failed']));
+    let isPolling = @json(!in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']));
 
     function pollStatus() {
         if (!isPolling) return;
@@ -209,6 +211,7 @@
                 badge.innerText = c.status_label;
                 badge.className = 'badge-status ms-2 ' + (
                     c.status === 'completed' ? 'bg-success text-white' :
+                    c.status === 'completed_with_errors' ? 'bg-warning text-dark' :
                     c.status === 'sending' ? 'bg-primary text-white' :
                     c.status === 'failed' ? 'bg-danger text-white' :
                     c.status === 'scheduled' ? 'bg-info text-white' : 'bg-secondary text-white'
