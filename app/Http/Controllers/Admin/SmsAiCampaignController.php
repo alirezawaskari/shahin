@@ -6,7 +6,6 @@ use App\Exceptions\Sms\InsufficientBalanceException;
 use App\Exceptions\Sms\TierAccessDeniedException;
 use App\Http\Controllers\Controller;
 use App\Models\AdvertisingBalance;
-use App\Models\GhorfeOnlineList;
 use App\Models\SmsCampaign;
 use App\Services\Sms\AiCampaignAssistant;
 use App\Services\Sms\BulkSmsSendService;
@@ -31,7 +30,7 @@ class SmsAiCampaignController extends Controller
      */
     public function index(Request $request): View
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         // Advertising sender numbers assigned to this business with balances
@@ -87,7 +86,7 @@ class SmsAiCampaignController extends Controller
             'goal.min' => 'هدف کمپین باید حداقل شامل ۳ کاراکتر باشد.',
         ]);
 
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         if (!$business) {
@@ -161,7 +160,7 @@ class SmsAiCampaignController extends Controller
             'page_budget' => 'nullable|integer|min:1|max:4',
         ]);
 
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         if (!$business) {
@@ -207,7 +206,7 @@ class SmsAiCampaignController extends Controller
             'recipient_type' => 'nullable|string|in:normal,advertising',
         ]);
 
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         if (!$business) {
@@ -271,7 +270,7 @@ class SmsAiCampaignController extends Controller
             'human_confirmed.accepted' => 'تایید نهایی کاربر انسانی برای صدور دستور ارسال الزامی است و هوش مصنوعی بدون تایید اجازه ارسال ندارد.',
         ]);
 
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         if (!$business) {
@@ -365,7 +364,7 @@ class SmsAiCampaignController extends Controller
      */
     public function campaigns(Request $request): View
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
 
         $query = SmsCampaign::query()
             ->where('type', 'ai')

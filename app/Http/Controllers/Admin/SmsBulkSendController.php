@@ -10,7 +10,6 @@ use App\Http\Requests\Admin\Sms\PreviewBulkSmsRequest;
 use App\Http\Requests\Admin\Sms\SendBulkSmsRequest;
 use App\Models\AdvertisingBalance;
 use App\Models\Category;
-use App\Models\GhorfeOnlineList;
 use App\Models\Province;
 use App\Models\Role;
 use App\Models\SmsCampaign;
@@ -38,7 +37,7 @@ class SmsBulkSendController extends Controller
      */
     public function index(Request $request): View
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         // Advertising sender numbers assigned to this business with balances
@@ -100,7 +99,7 @@ class SmsBulkSendController extends Controller
      */
     public function preview(PreviewBulkSmsRequest $request): JsonResponse
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         $recipientType = (string) $request->input('recipient_type', 'normal');
@@ -199,7 +198,7 @@ class SmsBulkSendController extends Controller
      */
     public function send(SendBulkSmsRequest $request): JsonResponse|RedirectResponse
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         $user = auth()->user();
 
         if (!$business) {
@@ -274,7 +273,7 @@ class SmsBulkSendController extends Controller
      */
     public function campaigns(Request $request): View
     {
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
 
         $query = SmsCampaign::query()
             ->where('type', 'bulk')
