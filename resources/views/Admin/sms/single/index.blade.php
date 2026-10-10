@@ -523,8 +523,12 @@
                                         {{ $msg->service_type }}
                                     </span>
                                 </td>
-                                <td style="max-width: 280px;" class="text-truncate" title="{{ $msg->content }}">
-                                    {{ $msg->content }}
+                                <td style="max-width: 280px;" class="text-truncate" title="{{ ($msg->content_redacted ?? false) ? 'محرمانه - دسترسی محدود' : $msg->content }}">
+                                    @if($msg->content_redacted ?? false)
+                                        <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
+                                    @else
+                                        {{ $msg->content }}
+                                    @endif
                                 </td>
                                 <td>{{ $msg->page_count }}</td>
                                 <td>{{ number_format((float) $msg->cost) }}</td>
@@ -535,7 +539,8 @@
                                 <td>
                                     <button type="button" class="btn btn-sm btn-outline-primary forward-msg-btn"
                                         data-msg-id="{{ $msg->id }}"
-                                        data-msg-content="{{ $msg->content }}"
+                                        data-msg-content="{{ ($msg->content_redacted ?? false) ? '' : e($msg->content) }}"
+                                        data-msg-redacted="{{ ($msg->content_redacted ?? false) ? '1' : '0' }}"
                                         data-msg-type="{{ $msg->service_type }}"
                                         data-bs-toggle="modal" data-bs-target="#forwardDirectModal">
                                         <i class="fa fa-share me-1"></i> ارجاع به مخاطب
@@ -976,7 +981,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.forward-msg-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             const id = this.getAttribute('data-msg-id');
-            const content = this.getAttribute('data-msg-content');
+            const isRedacted = this.getAttribute('data-msg-redacted') === '1';
+            const content = isRedacted ? 'محرمانه - دسترسی محدود' : this.getAttribute('data-msg-content');
             document.getElementById('forwardOriginalMsgId').value = id;
             document.getElementById('forwardMsgContent').textContent = content;
         });

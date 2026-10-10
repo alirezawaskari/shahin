@@ -14,6 +14,7 @@ use App\Models\SmsMessage;
 use App\Models\SmsMessageTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
+use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\SmsSettings\SmsCmsContentService;
 use Carbon\Carbon;
 use DomainException;
@@ -79,6 +80,13 @@ class SmsSingleSendController extends Controller
                 ->latest()
                 ->take(15)
                 ->get();
+
+            // Confidentiality enforcement (task.md §13): redact the body of
+            // any message in a confidential group (مالی/حقوقی) server-side
+            // for viewers without view-confidential-sms, consistently with
+            // SmsLogController — otherwise the raw text would leak through
+            // this screen's table and forward-modal regardless of the UI.
+            SmsConfidentialityGuard::redactMany($recentMessages, auth()->user());
         }
 
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
