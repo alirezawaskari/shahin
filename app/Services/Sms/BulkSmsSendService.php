@@ -153,6 +153,44 @@ class BulkSmsSendService
     }
 
     /**
+     * Pick a stand-in recipient for a pre-send cost/segmentation estimate.
+     *
+     * A true per-recipient preview would require resolving every recipient's
+     * placeholders (e.g. "{نام کاربر}") before the campaign/recipient rows
+     * exist, which isn't feasible for a cheap preview over a large filtered
+     * set. Instead this resolves against the recipient with the longest
+     * name+family among the filtered set, a worst-case stand-in that avoids
+     * under-estimating page_count (and therefore the balance required)
+     * relative to what executeCampaign() will actually charge per recipient.
+     *
+     * @param array<int, array{phone: string, user_id: int|null}> $validRecipients
+     */
+    public function resolveWorstCaseRecipient(array $validRecipients): ?User
+    {
+        $userIds = array_filter(array_unique(array_column($validRecipients, 'user_id')));
+        if (empty($userIds)) {
+            return null;
+        }
+
+        return User::query()
+            ->whereIn('id', $userIds)
+            ->get(['id', 'name', 'family'])
+            ->sortByDesc(fn (User $user) => mb_strlen(($user->name ?? '') . ($user->family ?? ''), 'UTF-8'))
+            ->first();
+    }
+
+    /**
+     * Thin passthrough to SingleSmsSendService::resolvePlaceholders(), so
+     * callers (e.g. the bulk preview endpoint) don't need their own
+     * SingleSmsSendService dependency just to resolve a stand-in recipient's
+     * placeholders before estimating segmentation.
+     */
+    public function resolvePlaceholders(string $rawContent, array $context = [], ?User $recipient = null): string
+    {
+        return $this->singleSmsSendService->resolvePlaceholders($rawContent, $context, $recipient);
+    }
+
+    /**
      * Check balance sufficiency and throw InsufficientBalanceException if insufficient.
      *
      * @throws InsufficientBalanceException
@@ -208,7 +246,10 @@ class BulkSmsSendService
         $senderNumberId = !empty($data['sender_number_id']) ? (int) $data['sender_number_id'] : null;
         $senderNumber = $this->resolveAdvertisingSenderNumber($business, $senderNumberId);
 
-        // 3. Resolve template & message content
+        // 3. Resolve template & message content. $rawMessage is still
+        // unresolved here — it may contain literal placeholder tokens such
+        // as "{نام کاربر}" — and must NOT be segmented/counted directly (see
+        // below, after recipients are known).
         $templateId = !empty($data['sms_message_template_id']) ? (int) $data['sms_message_template_id'] : null;
         $rawMessage = $data['message'] ?? '';
         if ($templateId && empty($rawMessage)) {
@@ -220,9 +261,6 @@ class BulkSmsSendService
             throw new DomainException('متن پیامک نمی‌تواند خالی باشد.');
         }
 
-        $segmentation = $this->calculateMessageSegmentation($rawMessage);
-        $pageCount = $segmentation['page_count'];
-
         // 4. Resolve and de-duplicate recipients
         $filterResult = $this->recipientFilterService->filterRecipients($filters, $actor, $business, $recipientType);
         $validRecipients = $filterResult['valid_recipients'];
@@ -231,6 +269,19 @@ class BulkSmsSendService
         if ($recipientCount === 0) {
             throw new DomainException('هیچ مخاطب معتبری پس از اعمال فیلترها و اعتبارسنجی شماره‌ها یافت نشد.');
         }
+
+        // 4b. Resolve placeholders (against a worst-case stand-in recipient —
+        // see resolveWorstCaseRecipient()), THEN append the mandatory لغو 11
+        // opt-out and segment, matching SingleSmsSendService::send()'s order:
+        // resolve → append لغو 11 → segment/count. Doing this on the raw,
+        // unresolved template (the previous behavior) under-counts whenever
+        // placeholders expand into text, which under-estimates both the
+        // page_count used for the balance check below and the per-recipient
+        // cost that executeCampaign() will actually charge.
+        $representativeUser = $this->resolveWorstCaseRecipient($validRecipients);
+        $resolvedForEstimate = $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $representativeUser);
+        $segmentation = $this->calculateMessageSegmentation($resolvedForEstimate);
+        $pageCount = $segmentation['page_count'];
 
         // 5. Calculate total cost = recipients × pages × tariff
         $totalCost = $this->calculateCampaignCost($recipientCount, $pageCount);
@@ -364,15 +415,15 @@ class BulkSmsSendService
             return;
         }
 
-        // Template or raw message
+        // Template or raw message. $rawMessage is unresolved — it may still
+        // contain literal placeholder tokens such as "{نام کاربر}" — and is
+        // deliberately NOT segmented/counted here: that must happen per
+        // recipient, after placeholder resolution (inside the loop below),
+        // otherwise every recipient's page_count/cost would be computed from
+        // the same pre-resolution text regardless of their actual resolved
+        // message length.
         $template = $campaign->template;
         $rawMessage = $template?->content ?? ($campaign->filters['message'] ?? $campaign->filters['message_preview'] ?? '');
-
-        $segmentation = $this->calculateMessageSegmentation($rawMessage);
-        $pageCount = $segmentation['page_count'];
-        $costPerMessage = $segmentation['cost_per_message'];
-        $baseContent = $segmentation['text'];
-        $tariff = $segmentation['tariff'];
 
         $pendingRecipients = $campaign->recipients()->where('status', 'pending')->with('user')->get();
         $stoppedForBalance = false;
@@ -382,8 +433,17 @@ class BulkSmsSendService
             $recipientPhone = $recipientRecord->phone;
             $recipientUser = $recipientRecord->user;
 
-            // Resolve dynamic placeholders
-            $content = $this->singleSmsSendService->resolvePlaceholders($baseContent, [], $recipientUser);
+            // Resolve dynamic placeholders first, THEN append the mandatory
+            // لغو 11 opt-out and segment on the final per-recipient text —
+            // matches SingleSmsSendService::send()'s order (resolve → append
+            // لغو 11 → segment/count), so page_count/character_count/cost
+            // reflect what this specific recipient actually receives.
+            $resolvedContent = $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $recipientUser);
+            $segmentation = $this->calculateMessageSegmentation($resolvedContent);
+            $content = $segmentation['text'];
+            $pageCount = $segmentation['page_count'];
+            $characterCount = $segmentation['character_count'];
+            $costPerMessage = $segmentation['cost_per_message'];
 
             try {
                 DB::transaction(function () use (
@@ -395,6 +455,7 @@ class BulkSmsSendService
                     $recipientPhone,
                     $recipientUser,
                     $content,
+                    $characterCount,
                     $pageCount,
                     $costPerMessage,
                     $trackingId
@@ -415,7 +476,7 @@ class BulkSmsSendService
                         'sender_phone' => $senderNumber->number,
                         'sms_message_template_id' => $campaign->sms_message_template_id,
                         'content' => $content,
-                        'character_count' => mb_strlen($content, 'UTF-8'),
+                        'character_count' => $characterCount,
                         'page_count' => $pageCount,
                         'status' => 'queued',
                         'cost' => $costPerMessage,

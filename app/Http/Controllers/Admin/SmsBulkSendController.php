@@ -130,7 +130,15 @@ class SmsBulkSendController extends Controller
         // 2. Filter, validate, and de-duplicate recipients
         $filterResult = $this->recipientFilterService->filterRecipients($filters, $user, $business, $recipientType);
 
-        // 3. Message segmentation & Cost calculation
+        // 3. Message segmentation & Cost calculation. $rawMessage may still
+        // contain unresolved placeholder tokens such as "{نام کاربر}".
+        // Resolving it individually for every filtered recipient isn't
+        // feasible for a cheap live preview, so — matching createCampaign()
+        // — it is resolved against the recipient with the longest
+        // name+family among the filtered set (a worst-case stand-in),
+        // THEN laid through the same resolve → append لغو 11 → segment
+        // order used everywhere else, so this preview's page_count doesn't
+        // under-estimate what the actual send will charge.
         $rawMessage = (string) $request->input('message', '');
         $templateId = $request->input('sms_message_template_id');
         if ($templateId && empty($rawMessage)) {
@@ -138,7 +146,9 @@ class SmsBulkSendController extends Controller
             $rawMessage = $template?->content ?? '';
         }
 
-        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($rawMessage);
+        $representativeUser = $this->bulkSmsSendService->resolveWorstCaseRecipient($filterResult['valid_recipients']);
+        $resolvedForEstimate = $this->bulkSmsSendService->resolvePlaceholders($rawMessage, [], $representativeUser);
+        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($resolvedForEstimate);
         $pageCount = $segmentation['page_count'];
         $tariff = $segmentation['tariff'];
 
