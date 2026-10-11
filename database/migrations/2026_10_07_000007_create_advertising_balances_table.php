@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('balance', 12, 2)->default(0);
             $table->timestamps();
 
-            $table->unique(['ghorfe_online_list_id', 'sender_number_id']);
+            $table->unique(['ghorfe_online_list_id', 'sender_number_id'], 'advertising_balances_business_sender_unique');
         });
     }
 

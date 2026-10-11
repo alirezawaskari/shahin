@@ -24,7 +24,7 @@ return new class extends Migration
             // linked sms_message_group_id, the same way
             // SmsMessage::isConfidential() derives confidentiality from its
             // group.
-            $table->enum('type', ['normal', 'confidential'])->default('normal')->after('sms_message_group_id');
+            $table->enum('type', ['normal', 'confidential'])->default('normal');
 
             $table->enum('service_type', ['otp', 'normal', 'advertising'])->default('normal');
             $table->enum('status', ['active', 'inactive'])->default('active');

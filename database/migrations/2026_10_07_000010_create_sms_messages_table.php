@@ -35,8 +35,12 @@ return new class extends Migration
             // requests.id is a plain signed `integer` (not unsigned, see
             // 2022_07_09_1657367827_create_requests_table.php), so this FK
             // column must stay signed `integer` to match it exactly.
-            $table->integer('request_id')->nullable();
-            $table->foreign('request_id')->references('id')->on('requests')->nullOnDelete();
+            // No DB-level FK to `requests`: that table's `id` column is a
+            // pre-existing legacy wart (not a proper unsigned/indexed primary
+            // key), which makes MySQL reject a real foreign key constraint
+            // here (errno 150). Kept as a plain soft reference, consistent
+            // with how the rest of the app treats this column elsewhere.
+            $table->integer('request_id')->nullable()->index();
             $table->boolean('is_bulk')->default(false);
             $table->foreignId('sms_campaign_id')->nullable()->constrained('sms_campaigns')->nullOnDelete();
             $table->unsignedInteger('created_by')->nullable();
