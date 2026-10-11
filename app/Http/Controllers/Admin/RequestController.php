@@ -163,6 +163,9 @@ class RequestController extends Controller
                 $item['brand'] = \App\Models\Request::brandProductInRequest($item->pivot->product_id);
             }
             $sms_messages = $request_rec->smsMessages()->with(['senderNumber', 'group', 'template'])->latest()->get();
+            // Confidentiality (task.md §13): redact the body of مالی/حقوقی messages
+            // server-side for viewers without view-confidential-sms.
+            \App\Services\Sms\SmsConfidentialityGuard::redactMany($sms_messages, auth()->user());
             return view('Admin.request.show', compact('request_rec', 'sms_messages'));
         }
         return redirect()->back();

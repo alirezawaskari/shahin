@@ -170,7 +170,13 @@
                                     </td>
                                     <td style="direction: ltr;">{{ $msg->sender_phone ?: ($msg->senderNumber?->number ?: 'سیستم') }}</td>
                                     <td style="direction: ltr;">{{ $msg->recipient_phone ?: '-' }}</td>
-                                    <td class="text-right" style="direction: rtl;">{{ $msg->content }}</td>
+                                    <td class="text-right" style="direction: rtl;">
+                                        @if($msg->content_redacted ?? false)
+                                            <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
+                                        @else
+                                            {{ $msg->content }}
+                                        @endif
+                                    </td>
                                     <td>
                                         @if($msg->status === 'delivered' || $msg->delivery_status === 'delivered')
                                             <span class="badge badge-success px-2 py-1"><i class="fa fa-check me-1"></i> تحویل شد</span>
