@@ -80,17 +80,31 @@ class CreateSmsTestUsers extends Command
 
     /**
      * 1) superAdmin — level alone is enough for isSuperAdmin()/SmsCmsSettingsController's
-     * abort_unless() gate; no business/employee row needed.
+     * abort_unless() gate, no business needed. Still given a bare employee
+     * row (no business attached) because several pre-existing, unrelated
+     * admin views (e.g. Factor::scope..., the main dashboard) read
+     * auth()->user()->employee->id unconditionally — out of scope to patch
+     * those views themselves, but a superAdmin test account needs to
+     * survive hitting them.
      */
     private function makeSuperAdmin(): User
     {
-        return $this->upsertUser(
+        $user = $this->upsertUser(
             phone: '09000000001',
             email: 'sms-test-superadmin@test.local',
             name: 'ادمین',
             family: 'تست کل',
             level: 'superAdmin'
         );
+
+        $this->upsertEmployeeRow($user, [
+            'ghorfe_online_list_id' => null,
+            'status' => 1,
+            'business_phone' => '09000000001',
+            'show_status' => 1,
+        ]);
+
+        return $user;
     }
 
     /**
@@ -297,17 +311,37 @@ class CreateSmsTestUsers extends Command
      * which is what AdminAuthService::getGhorfe() (the ghorfe() helper) and
      * EnsureSmsContractSigned read to resolve "the current business".
      */
-    private function attachEmployee(User $user, GhorfeOnlineList $business, string $businessPhone): Employee
+    private function attachEmployee(User $user, ?GhorfeOnlineList $business, string $businessPhone): Employee
     {
-        return Employee::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'ghorfe_online_list_id' => $business->id,
-                'status' => 1,
-                'business_phone' => $businessPhone,
-                'show_status' => 1,
-            ]
-        );
+        return $this->upsertEmployeeRow($user, [
+            'ghorfe_online_list_id' => $business?->id,
+            'status' => 1,
+            'business_phone' => $businessPhone,
+            'show_status' => 1,
+        ]);
+    }
+
+    /**
+     * `employees.id` has no real auto_increment in this DB (verified via
+     * SHOW COLUMNS: Extra is empty) — a plain updateOrCreate()/insert leaves
+     * every new row at id=0, and since there's no PRIMARY KEY/unique
+     * constraint either, nothing stops multiple rows from silently
+     * colliding on id 0. Pre-existing DB wart, out of scope to fix
+     * generally, but our own test rows need a real unique id to be usable
+     * at all, so we assign one by hand.
+     */
+    private function upsertEmployeeRow(User $user, array $attributes): Employee
+    {
+        $employee = Employee::firstOrNew(['user_id' => $user->id]);
+
+        if (!$employee->exists || (int) $employee->id === 0) {
+            $employee->id = (int) (Employee::where('id', '>', 0)->max('id')) + 1;
+        }
+
+        $employee->fill($attributes);
+        $employee->save();
+
+        return $employee;
     }
 
     /** An advertising sender number assigned to a business (never OTP: the app allows only one OTP number system-wide). */
