@@ -28,9 +28,20 @@ class SmsAiCampaignController extends Controller
     /**
      * Display the AI-Assisted Campaign Studio.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = ghorfe();
+
+        if (!$business) {
+            // The AI studio is per-business; a superAdmin without one goes to the
+            // cross-business report instead of hitting a 403.
+            if (auth()->user()?->isSuperAdmin()) {
+                return redirect()->route('admin.sms.reports.superadmin.index');
+            }
+
+            abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        }
+
         $user = auth()->user();
 
         // Advertising sender numbers assigned to this business with balances
@@ -60,7 +71,7 @@ class SmsAiCampaignController extends Controller
                 ->get();
         }
 
-        $userTier = $user ? ($user->access_tier ?: 'silver') : 'silver';
+        $userTier = $this->accessTierService->effectiveTier($user);
         $aiModel = $this->aiAssistant->resolveAiModel();
 
         return view('Admin.sms.ai.index', compact(

@@ -11,6 +11,7 @@ use App\Models\GhorfeOnlineList;
 use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\Sms\SmsReportService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -62,10 +63,25 @@ class SmsReportController extends Controller
     }
 
     /**
+     * superAdmin with no current business and no ?business_id= gets sent to the
+     * cross-business report instead of a 403. Other users are unaffected.
+     */
+    protected function superAdminWithoutBusiness(Request $request): bool
+    {
+        return !ghorfe()
+            && auth()->user()?->isSuperAdmin()
+            && !$request->filled('business_id');
+    }
+
+    /**
      * OTP report for current business.
      */
-    public function otpReport(Request $request): View|JsonResponse
+    public function otpReport(Request $request): View|JsonResponse|RedirectResponse
     {
+        if ($this->superAdminWithoutBusiness($request)) {
+            return redirect()->route('admin.sms.reports.superadmin.index');
+        }
+
         $business = $this->resolveBusiness($request);
 
         if (!$business) {
@@ -107,8 +123,12 @@ class SmsReportController extends Controller
     /**
      * Advertising report (per-sender, campaigns + messages).
      */
-    public function advertisingReport(Request $request): View|JsonResponse
+    public function advertisingReport(Request $request): View|JsonResponse|RedirectResponse
     {
+        if ($this->superAdminWithoutBusiness($request)) {
+            return redirect()->route('admin.sms.reports.superadmin.index');
+        }
+
         $business = $this->resolveBusiness($request);
 
         if (!$business) {

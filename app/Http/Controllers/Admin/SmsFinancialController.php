@@ -36,12 +36,27 @@ class SmsFinancialController extends Controller
     }
 
     /**
+     * superAdmin with no current business and no ?business_id= gets sent to the
+     * cross-business report instead of a 403. Other users are unaffected.
+     */
+    protected function superAdminWithoutBusiness(Request $request): bool
+    {
+        return !ghorfe()
+            && auth()->user()?->isSuperAdmin()
+            && !$request->filled('business_id');
+    }
+
+    /**
      * Per-business OTP balance view:
      * Balance, total charged, total consumed, message count,
      * charge/consumption history, and transaction list.
      */
-    public function otpView(Request $request): View|JsonResponse
+    public function otpView(Request $request): View|JsonResponse|RedirectResponse
     {
+        if ($this->superAdminWithoutBusiness($request)) {
+            return redirect()->route('admin.sms.reports.superadmin.index');
+        }
+
         $business = $this->resolveBusiness($request);
 
         if (!$business) {
@@ -124,8 +139,12 @@ class SmsFinancialController extends Controller
      * Balance, total charged, total consumed, message count,
      * charge/consumption history, and transaction list.
      */
-    public function advertisingView(Request $request, ?SenderNumber $senderNumber = null): View|JsonResponse
+    public function advertisingView(Request $request, ?SenderNumber $senderNumber = null): View|JsonResponse|RedirectResponse
     {
+        if ($this->superAdminWithoutBusiness($request)) {
+            return redirect()->route('admin.sms.reports.superadmin.index');
+        }
+
         $business = $this->resolveBusiness($request);
 
         if (!$business) {
