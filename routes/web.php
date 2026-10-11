@@ -205,9 +205,11 @@ Route::middleware('guest')->prefix('/admin')->name('admin.')->group(function () 
     // اعتبارسنجی کد و ورود
     Route::post('login/otp/verify', [AdminOtpController::class, 'verifyCode'])
         ->name('login.otp.verify');
+});
 
-    // خروج — فقط برای کاربر authenticated
-    Route::middleware('auth')->post('logout', [AdminLoginController::class, 'logout'])
+// خروج — فقط برای کاربر authenticated (خارج از گروه guest)
+Route::middleware('auth')->prefix('/admin')->name('admin.')->group(function () {
+    Route::post('logout', [AdminLoginController::class, 'logout'])
         ->name('logout');
 });
 
