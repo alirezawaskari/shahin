@@ -526,7 +526,7 @@ class Factor extends Model implements AuditableContract, HasMedia
             } else {
                 $query->whereHas('callcenter',function ($query){
                     $query->whereHas('employee',function ($query){
-                        $query->where('parent_id', auth()->user()->employee?->id);
+                        $query->where('parent_id',auth()->user()->employee->id);
                     });
                 })->orWhere('callcenter_id', auth()->user()->id);
             }
