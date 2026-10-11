@@ -278,6 +278,7 @@ class CreateSmsTestUsers extends Command
             ['en_title' => $enTitle],
             [
                 'user_id' => $ownerId,
+                'template_id' => \Illuminate\Support\Facades\DB::table('templates')->value('id'),
                 'title' => $title,
                 'slug' => $enTitle,
                 'type_work' => 'service',
