@@ -629,7 +629,7 @@
 
 @stop
 
-@section('script')
+@section('js')
 <script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
