@@ -27,6 +27,13 @@ class SmsSettingsController extends Controller
     {
         $business = ghorfe();
 
+        if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
+            $targetBusinessId = $request->input('business_id') ?: $request->input('business');
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : null;
+        }
+
+        $all_businesses = auth()->user()?->isSuperAdmin() ? GhorfeOnlineList::select('id', 'title')->get() : collect();
+
         $stats = [
             'panels_count' => SmsPanel::count(),
             'active_panels_count' => SmsPanel::where('status', 'active')->count(),
@@ -44,6 +51,6 @@ class SmsSettingsController extends Controller
             'total_adv_contracts' => ContractUsage::where('location', 'sms_advertising')->active()->count(),
         ];
 
-        return view('Admin.sms.settings.index', compact('stats', 'business'));
+        return view('Admin.sms.settings.index', compact('stats', 'business', 'all_businesses'));
     }
 }

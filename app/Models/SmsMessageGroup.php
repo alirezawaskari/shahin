@@ -13,6 +13,26 @@ class SmsMessageGroup extends Model
 
     protected $guarded = [];
 
+    public function business(): BelongsTo
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function ghorfe(): BelongsTo
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function getBusinessIdAttribute()
+    {
+        return $this->ghorfe_online_list_id;
+    }
+
+    public function setBusinessIdAttribute($value)
+    {
+        $this->attributes['ghorfe_online_list_id'] = $value;
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');

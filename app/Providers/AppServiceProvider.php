@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(
             \App\Contracts\Ai\LlmClientInterface::class,
-            \App\Services\Ai\FakeLlmClient::class
+            \App\Services\Ai\HttpLlmClient::class
         );
     }
 

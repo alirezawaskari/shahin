@@ -2,17 +2,74 @@
 
 @section('title', 'مدیریت مالی و موجودی پیامک اعتبارسنجی (OTP)')
 
+@section('css')
+<style>
+    .badge-soft-primary {
+        background-color: rgba(63, 81, 181, 0.12) !important;
+        color: #3f51b5 !important;
+        border: none;
+    }
+    .badge-soft-success {
+        background-color: rgba(10, 207, 151, 0.12) !important;
+        color: #0acf97 !important;
+        border: none;
+    }
+    .badge-soft-danger {
+        background-color: rgba(242, 18, 94, 0.12) !important;
+        color: #f2125e !important;
+        border: none;
+    }
+    .badge-soft-warning {
+        background-color: rgba(255, 131, 0, 0.12) !important;
+        color: #ff8300 !important;
+        border: none;
+    }
+    .badge-soft-info {
+        background-color: rgba(0, 188, 212, 0.12) !important;
+        color: #0097a7 !important;
+        border: none;
+    }
+    .badge-soft-secondary {
+        background-color: rgba(108, 117, 125, 0.12) !important;
+        color: #495057 !important;
+        border: none;
+    }
+
+    .kpi-icon-badge {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        min-height: 56px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .kpi-icon-badge i {
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+
+    .table td, .table th {
+        line-height: 1.8 !important;
+        padding: 12px 10px !important;
+        vertical-align: middle;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid py-3">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">مدیریت مالی و اعتبار پیامک اعتبارسنجی (OTP)</h3>
             <p class="text-muted small mb-0">مشاهده موجودی، شارژ حساب، کنترل سقف هشدار و تاریخچه تراکنش‌های کدهای تایید</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             @if(auth()->user()?->isSuperAdmin() && $all_businesses->isNotEmpty())
-                <form method="GET" action="{{ route('admin.sms.financial.otp.index') }}" class="d-flex gap-2">
+                <form method="GET" action="{{ route('admin.sms.financial.otp.index') }}" class="d-flex flex-wrap gap-2 m-0">
                     <select name="business_id" class="form-select form-select-sm" onchange="this.form.submit()">
                         @foreach($all_businesses as $b)
                             <option value="{{ $b->id }}" {{ $business->id === $b->id ? 'selected' : '' }}>
@@ -53,30 +110,34 @@
 
     <!-- Low-Balance or Hard-Stop Alert Banners -->
     @if($guard['balance'] <= 0)
-        <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4" role="alert">
-            <div class="p-2 bg-danger text-white rounded-circle me-3">
-                <i class="fa fa-ban fa-2x"></i>
+        <div class="alert alert-danger shadow-sm border-0 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="p-2 bg-danger text-white rounded-circle me-3">
+                    <i class="fa fa-ban fa-2x"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-1">توقف اضطراری ارسال پیامک اعتبارسنجی (Hard-Stop)</h5>
+                    <p class="mb-0 small">موجودی اعتبار OTP کسب‌وکار صفر یا منفی می‌باشد. تا زمان شارژ مجدد، ارسال کدهای ورود و پیام‌های اعتبارسنجی متوقف شده است.</p>
+                </div>
             </div>
-            <div>
-                <h5 class="fw-bold mb-1">توقف اضطراری ارسال پیامک اعتبارسنجی (Hard-Stop)</h5>
-                <p class="mb-0 small">موجودی اعتبار OTP کسب‌وکار صفر یا منفی می‌باشد. تا زمان شارژ مجدد، ارسال کدهای ورود و پیام‌های اعتبارسنجی متوقف شده است.</p>
-            </div>
-            <div class="ms-auto">
+            <div class="mt-2 mt-md-0">
                 <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#otpTopUpModal">
                     <i class="fa fa-plus-circle me-1"></i> شارژ فوری حساب
                 </button>
             </div>
         </div>
     @elseif($guard['is_low_balance'])
-        <div class="alert alert-warning shadow-sm border-0 d-flex align-items-center mb-4" role="alert">
-            <div class="p-2 bg-warning text-dark rounded-circle me-3">
-                <i class="fa fa-exclamation-triangle fa-2x"></i>
+        <div class="alert alert-warning shadow-sm border-0 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="p-2 bg-warning text-dark rounded-circle me-3">
+                    <i class="fa fa-exclamation-triangle fa-2x"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-1">هشدار کسری اعتبار OTP</h5>
+                    <p class="mb-0 small">{{ $guard['warning'] }}</p>
+                </div>
             </div>
-            <div>
-                <h5 class="fw-bold mb-1">هشدار کسری اعتبار OTP</h5>
-                <p class="mb-0 small">{{ $guard['warning'] }}</p>
-            </div>
-            <div class="ms-auto">
+            <div class="mt-2 mt-md-0">
                 <button type="button" class="btn btn-warning text-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#otpTopUpModal">
                     <i class="fa fa-plus-circle me-1"></i> افزایش موجودی
                 </button>
@@ -89,22 +150,24 @@
         <!-- Balance -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle {{ $guard['balance'] > $guard['low_balance_threshold'] ? 'bg-success bg-opacity-10 text-success' : ($guard['balance'] > 0 ? 'bg-warning bg-opacity-10 text-warning' : 'bg-danger bg-opacity-10 text-danger') }} me-3">
-                        <i class="fa fa-credit-card fa-2x"></i>
+                <div class="card-body d-flex flex-column justify-content-between p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="kpi-icon-badge {{ $guard['balance'] > $guard['low_balance_threshold'] ? 'badge-soft-success' : ($guard['balance'] > 0 ? 'badge-soft-warning' : 'badge-soft-danger') }}">
+                            <i class="fa fa-credit-card"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">موجودی فعلی OTP</div>
+                            <h4 class="fw-bold mb-0 {{ $guard['balance'] <= 0 ? 'text-danger' : '' }}">{{ number_format($balance) }} <small class="fs-6 text-muted">ریال</small></h4>
+                            <small class="{{ $guard['balance'] > $guard['low_balance_threshold'] ? 'text-success' : 'text-danger' }}">
+                                {{ $guard['balance'] > $guard['low_balance_threshold'] ? 'وضعیت نرمال' : ($guard['balance'] > 0 ? 'کمتر از حد آستانه' : 'متوقف شده') }}
+                            </small>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-muted small">موجودی فعلی OTP</div>
-                        <h4 class="fw-bold mb-0 {{ $guard['balance'] <= 0 ? 'text-danger' : '' }}">{{ number_format($balance) }} <small class="fs-6 text-muted">ریال</small></h4>
-                        <small class="{{ $guard['balance'] > $guard['low_balance_threshold'] ? 'text-success' : 'text-danger' }}">
-                            {{ $guard['balance'] > $guard['low_balance_threshold'] ? 'وضعیت نرمال' : ($guard['balance'] > 0 ? 'کمتر از حد آستانه' : 'متوقف شده') }}
-                        </small>
+                    <div class="mt-2 pt-2 border-top text-end">
+                        <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#otpTopUpModal">
+                            <i class="fa fa-plus me-1"></i> افزایش موجودی
+                        </button>
                     </div>
-                </div>
-                <div class="card-footer bg-transparent border-0 pt-0 text-end">
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#otpTopUpModal">
-                        <i class="fa fa-plus me-1"></i> افزایش موجودی
-                    </button>
                 </div>
             </div>
         </div>
@@ -112,14 +175,14 @@
         <!-- Threshold -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-secondary bg-opacity-10 text-secondary me-3">
-                        <i class="fa fa-bell-o fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-secondary">
+                        <i class="fa fa-bell-o"></i>
                     </div>
                     <div>
                         <div class="text-muted small">آستانه هشدار کسری اعتبار</div>
                         <h4 class="fw-bold mb-0">{{ number_format($low_balance_threshold) }} <small class="fs-6 text-muted">ریال</small></h4>
-                        <small class="text-muted">ارسال اخطار در موجودی زیر این سقف</small>
+                        <small class="text-muted">ارسال اخطار زیر ۱۰۰,۰۰۰ تومان (۱,۰۰۰,۰۰۰ ریال)</small>
                     </div>
                 </div>
             </div>
@@ -128,9 +191,9 @@
         <!-- Total Charged -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary me-3">
-                        <i class="fa fa-arrow-down fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-primary">
+                        <i class="fa fa-arrow-down"></i>
                     </div>
                     <div>
                         <div class="text-muted small">مجموع کل شارژ شده</div>
@@ -144,9 +207,9 @@
         <!-- Total Consumed & Message Count -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-danger bg-opacity-10 text-danger me-3">
-                        <i class="fa fa-paper-plane-o fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-danger">
+                        <i class="fa fa-paper-plane-o"></i>
                     </div>
                     <div>
                         <div class="text-muted small">کل مصرف شده (تعداد: {{ number_format($message_count) }})</div>
@@ -194,7 +257,7 @@
         <!-- Transactions List -->
         <div class="col-12 {{ $history->isNotEmpty() ? 'col-lg-8' : 'col-12' }}">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <h6 class="fw-bold mb-0"><i class="fa fa-history me-1"></i> ریز تراکنش‌های اعتباری OTP</h6>
                     <span class="badge bg-light text-dark">{{ $transactions->total() }} تراکنش</span>
                 </div>
@@ -218,11 +281,11 @@
                                     <td>{{ $tx->id }}</td>
                                     <td>
                                         @if($tx->charge_amount > 0)
-                                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">
+                                            <span class="badge badge-soft-success px-2 py-1">
                                                 <i class="fa fa-plus-circle me-1"></i> شارژ حساب
                                             </span>
                                         @else
-                                            <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">
+                                            <span class="badge badge-soft-danger px-2 py-1">
                                                 <i class="fa fa-minus-circle me-1"></i> کسر هزینه پیامک
                                             </span>
                                         @endif

@@ -20,13 +20,32 @@ class GroupsmsController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $groupsms = Groupsms::latest()->get();
-        return view('Admin.groupsms.all', compact('groupsms'));
+        $user = auth()->user();
+        $isSuperAdmin = $user?->isSuperAdmin() ?? false;
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+
+        if ($isSuperAdmin && $request->filled('business_id')) {
+            $business = GhorfeOnlineList::find($request->input('business_id')) ?: $business;
+        }
+
+        $all_businesses = $isSuperAdmin ? GhorfeOnlineList::orderBy('title')->get() : collect();
+
+        $query = Groupsms::with(['group', 'services', 'phone_list', 'smsMessage'])->latest();
+
+        if (!$isSuperAdmin && $business) {
+            $query->where('ghorfe_online_list_id', $business->id);
+        } elseif ($isSuperAdmin && $request->filled('business_id')) {
+            $query->where('ghorfe_online_list_id', $business->id);
+        }
+
+        $groupsms = $query->get();
+
+        $canViewConfidential = \App\Services\Sms\SmsConfidentialityGuard::canViewConfidential($user);
+
+        return view('Admin.groupsms.all', compact('groupsms', 'business', 'all_businesses', 'canViewConfidential'));
     }
 
     /**
@@ -56,8 +75,9 @@ class GroupsmsController extends Controller
                 });
         }
 
-        // Active SMS templates
+        // Active SMS templates (scoped to business)
         $templates = SmsMessageTemplate::active()
+            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with('group')
             ->latest()
             ->get();
@@ -80,6 +100,13 @@ class GroupsmsController extends Controller
 
         $userTier = app(\App\Services\Sms\SmsAccessTierService::class)->effectiveTier($user);
         $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
+        $groups = \App\Models\SmsMessageGroup::whereNull('parent_id')
+            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
+            ->with(['subgroups' => function ($q) use ($business) {
+                $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
+            }])
+            ->orderBy('name')
+            ->get();
 
         return view('Admin.groupsms.create', compact(
             'services',
@@ -93,7 +120,8 @@ class GroupsmsController extends Controller
             'categories',
             'provinces',
             'recentCampaigns',
-            'regulatoryRulesText'
+            'regulatoryRulesText',
+            'groups'
         ));
     }
 
@@ -117,7 +145,25 @@ class GroupsmsController extends Controller
         $inputs = $request->all();
         unset($inputs['service_id']);
         unset($inputs['date']);
-        $groupsms = Groupsms::create(array_merge($inputs, ['send_at' => Carbon::createFromTimestamp($inputs['send_at'] / 1000)->toDateString(), 'type' => 'groupsService' , 'flag' => true]));
+
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $groupId = $request->input('sms_message_group_id') ?: null;
+        $classification = $request->input('classification') ?: 'regular';
+        if ($groupId) {
+            $grp = \App\Models\SmsMessageGroup::find($groupId);
+            if ($grp && $grp->isConfidential()) {
+                $classification = 'classified';
+            }
+        }
+
+        $groupsms = Groupsms::create(array_merge($inputs, [
+            'send_at' => Carbon::createFromTimestamp($inputs['send_at'] / 1000)->toDateString(),
+            'type' => 'groupsService',
+            'flag' => true,
+            'ghorfe_online_list_id' => $business?->id,
+            'sms_message_group_id' => $groupId,
+            'classification' => $classification,
+        ]));
 
         if ($request->input('service_id')[0] != 'all') {
             $groupsms->services()->sync($request->input("service_id"));
@@ -257,6 +303,7 @@ class GroupsmsController extends Controller
         }
 
         $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
+        $groups = \App\Models\SmsMessageGroup::whereNull('parent_id')->with('subgroups')->orderBy('name')->get();
 
         return view('Admin.groupsms.single', compact(
             'business',
@@ -265,7 +312,8 @@ class GroupsmsController extends Controller
             'advertisingNumbers',
             'templates',
             'recentMessages',
-            'regulatoryRulesText'
+            'regulatoryRulesText',
+            'groups'
         ));
     }
 
@@ -296,6 +344,7 @@ class GroupsmsController extends Controller
         try {
             $serviceType = $request->input('service_type', 'normal');
             $senderNumberId = $request->input('sender_number_id');
+            $business = ghorfe() ?? GhorfeOnlineList::first();
 
             $sms = $singleSmsSendService->send([
                 'recipient_phone' => $phone,
@@ -303,17 +352,9 @@ class GroupsmsController extends Controller
                 'service_type' => $serviceType,
                 'sender_number_id' => $senderNumberId,
                 'user_id' => $request->input('user_id'),
-            ], auth()->user());
-
-            // Legacy record for backward compatibility
-            Groupsms::create([
-                'title' => $request->input('title', 'پیامک تکی'),
-                'message' => $message,
-                'phones' => $phone,
-                'type' => 'single',
-                'status' => 2,
-                'flag' => true,
-            ]);
+                'sms_message_group_id' => $request->input('sms_message_group_id'),
+                'classification' => $request->input('classification'),
+            ], $business, auth()->user());
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -356,8 +397,15 @@ class GroupsmsController extends Controller
         $message = $request->input('message');
         Helper::sms($phones , $message);
         //save
+        $business = ghorfe() ?? GhorfeOnlineList::first();
         $inputs = $request->all();
-        $groupsms = Groupsms::create(array_merge($inputs, ['type' => 'single', 'status' => 2 , 'flag' => true]));
+        $groupsms = Groupsms::create(array_merge($inputs, [
+            'type' => 'single',
+            'status' => 2,
+            'flag' => true,
+            'ghorfe_online_list_id' => $business?->id,
+            'classification' => 'regular',
+        ]));
 
         return redirect(route('groupsms.index'))->with([
             'create' => 'success'
@@ -382,6 +430,19 @@ class GroupsmsController extends Controller
         $inputs = $request->all();
         unset($inputs['date2']);
         unset($inputs['phone_list_id']);
+
+        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $groupId = $request->input('sms_message_group_id') ?: null;
+        $classification = $request->input('classification') ?: 'regular';
+        if ($groupId) {
+            $grp = \App\Models\SmsMessageGroup::find($groupId);
+            if ($grp && $grp->isConfidential()) {
+                $classification = 'classified';
+            }
+        }
+        $inputs['ghorfe_online_list_id'] = $business?->id;
+        $inputs['sms_message_group_id'] = $groupId;
+        $inputs['classification'] = $classification;
 
         if ($request->input('phone_list_id') == 'default') {
             Groupsms::create(array_merge($inputs, ['send_at' => Carbon::createFromTimestamp($inputs['send_at'] / 1000)->toDateString(), 'type' => 'groupsPhone']));

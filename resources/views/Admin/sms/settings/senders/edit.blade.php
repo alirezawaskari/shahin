@@ -4,14 +4,16 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">ویرایش خط اختصاصی: {{ $senderNumber->number }}</h3>
             <p class="text-muted small mb-0">به‌روزرسانی تنظیمات خط فرستنده و کسب‌وکارهای متصل</p>
         </div>
-        <a href="{{ route('admin.sms.settings.senders.index') }}" class="btn btn-outline-secondary">
-            <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
-        </a>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('admin.sms.settings.senders.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
+            </a>
+        </div>
     </div>
 
     @include('Admin.sms.settings.navigation')
@@ -75,7 +77,25 @@
 
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-bold">وضعیت تعهدنامه / قرارداد خط</label>
-                        <input type="text" name="contract_status" class="form-control" value="{{ old('contract_status', $senderNumber->contract_status) }}">
+                        @if(auth()->user()?->isSuperAdmin())
+                            <select name="contract_status" class="form-select">
+                                <option value="تایید شده" {{ old('contract_status', $senderNumber->contract_status) === 'تایید شده' ? 'selected' : '' }}>تایید شده (فعال برای ارسال)</option>
+                                <option value="در انتظار تایید تعهدنامه" {{ old('contract_status', $senderNumber->contract_status) === 'در انتظار تایید تعهدنامه' ? 'selected' : '' }}>در انتظار تایید تعهدنامه</option>
+                                <option value="رد شده / منقضی" {{ old('contract_status', $senderNumber->contract_status) === 'رد شده / منقضی' ? 'selected' : '' }}>رد شده / منقضی</option>
+                            </select>
+                            <small class="text-muted"><i class="fa fa-shield text-primary me-1"></i> کنترل انحصاری توسط مدیریت ارشد سامانه.</small>
+                        @else
+                            @php
+                                $isApproved = ($senderNumber->contract_status === 'تایید شده');
+                            @endphp
+                            <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-between">
+                                <span class="badge {{ $isApproved ? 'bg-success' : 'bg-warning text-dark' }} px-3 py-2">
+                                    <i class="fa {{ $isApproved ? 'fa-check-circle' : 'fa-clock-o' }} me-1"></i>
+                                    {{ $senderNumber->contract_status ?: 'در انتظار تایید تعهدنامه' }}
+                                </span>
+                                <small class="text-muted"><i class="fa fa-lock me-1"></i> غیرقابل تغییر توسط کاربر (کنترل منحصراً توسط مدیریت ارشد)</small>
+                            </div>
+                        @endif
                     </div>
 
                     @if(!$business)

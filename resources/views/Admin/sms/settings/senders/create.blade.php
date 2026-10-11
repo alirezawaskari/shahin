@@ -4,14 +4,16 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">افزودن خط اختصاصی پیامک</h3>
             <p class="text-muted small mb-0">ثبت شماره فرستنده جدید و اتصال آن به درگاه و کسب‌وکارها</p>
         </div>
-        <a href="{{ route('admin.sms.settings.senders.index') }}" class="btn btn-outline-secondary">
-            <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
-        </a>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('admin.sms.settings.senders.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
+            </a>
+        </div>
     </div>
 
     @include('Admin.sms.settings.navigation')
@@ -78,7 +80,21 @@
 
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-bold">وضعیت تعهدنامه / قرارداد خط</label>
-                        <input type="text" name="contract_status" class="form-control" placeholder="مثال: تایید شده، در انتظار تعهدنامه..." value="{{ old('contract_status', 'تایید شده') }}">
+                        @if(auth()->user()?->isSuperAdmin())
+                            <select name="contract_status" class="form-select">
+                                <option value="تایید شده" {{ old('contract_status', 'تایید شده') === 'تایید شده' ? 'selected' : '' }}>تایید شده (فعال برای ارسال)</option>
+                                <option value="در انتظار تایید تعهدنامه" {{ old('contract_status') === 'در انتظار تایید تعهدنامه' ? 'selected' : '' }}>در انتظار تایید تعهدنامه</option>
+                                <option value="رد شده / منقضی" {{ old('contract_status') === 'رد شده / منقضی' ? 'selected' : '' }}>رد شده / منقضی</option>
+                            </select>
+                            <small class="text-muted"><i class="fa fa-shield text-primary me-1"></i> کنترل انحصاری توسط مدیریت ارشد سامانه.</small>
+                        @else
+                            <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-between">
+                                <span class="badge bg-warning text-dark px-3 py-2">
+                                    <i class="fa fa-clock-o me-1"></i> در انتظار تایید تعهدنامه
+                                </span>
+                                <small class="text-muted"><i class="fa fa-lock me-1"></i> تایید نهایی قرارداد منحصراً توسط مدیریت سامانه انجام می‌شود.</small>
+                            </div>
+                        @endif
                     </div>
 
                     @if(!$business)

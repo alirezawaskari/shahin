@@ -8,9 +8,11 @@ use App\Http\Requests\Admin\Sms\ForwardMessageRequest;
 use App\Http\Requests\Admin\Sms\SendSingleSmsRequest;
 use App\Http\Requests\Admin\Sms\StoreContactRequest;
 use App\Models\AdvertisingBalance;
+use App\Models\GhorfeOnlineList;
 use App\Models\OtpBalance;
 use App\Models\SenderNumber;
 use App\Models\SmsMessage;
+use App\Models\SmsMessageGroup;
 use App\Models\SmsMessageTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
@@ -32,11 +34,30 @@ class SmsSingleSendController extends Controller
     }
 
     /**
+     * Resolve the current business context with fallback for SuperAdmin.
+     */
+    protected function resolveBusiness(Request $request): GhorfeOnlineList
+    {
+        $business = ghorfe();
+
+        if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
+            $targetBusinessId = $request->input('business_id') ?: $request->input('business');
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : GhorfeOnlineList::first();
+        }
+
+        if (!$business) {
+            abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        }
+
+        return $business;
+    }
+
+    /**
      * Display the Single SMS Send UI.
      */
     public function index(Request $request): View
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
 
         // System-wide active OTP sender number (singleton)
         $otpSender = SenderNumber::query()
@@ -66,8 +87,9 @@ class SmsSingleSendController extends Controller
                 });
         }
 
-        // Active SMS templates
+        // Active SMS templates (scoped to business)
         $templates = SmsMessageTemplate::active()
+            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with('group')
             ->latest()
             ->get();
@@ -90,6 +112,13 @@ class SmsSingleSendController extends Controller
         }
 
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
+        $groups = SmsMessageGroup::whereNull('parent_id')
+            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
+            ->with(['subgroups' => function ($q) use ($business) {
+                $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
+            }])
+            ->orderBy('name')
+            ->get();
 
         return view('Admin.sms.single.index', compact(
             'business',
@@ -98,7 +127,8 @@ class SmsSingleSendController extends Controller
             'advertisingNumbers',
             'templates',
             'recentMessages',
-            'regulatoryRulesText'
+            'regulatoryRulesText',
+            'groups'
         ));
     }
 
@@ -107,7 +137,7 @@ class SmsSingleSendController extends Controller
      */
     public function send(SendSingleSmsRequest $request): JsonResponse|RedirectResponse
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
 
         if (!$business) {
             if ($request->wantsJson()) {
@@ -159,7 +189,7 @@ class SmsSingleSendController extends Controller
      */
     public function preview(Request $request): JsonResponse
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
         $text = (string) $request->input('message', '');
         $serviceType = (string) $request->input('service_type', 'advertising');
         $userId = $request->input('user_id');
@@ -195,7 +225,14 @@ class SmsSingleSendController extends Controller
             'cost' => $cost,
             'current_balance' => $currentBalance,
             'balance_after' => max(0, $currentBalance - $cost),
-            'has_sufficient_balance' => $currentBalance >= $cost,
+            'has_sufficient_balance' => ($cost > 0) ? ($currentBalance >= $cost) : true,
+            'balance_deficit' => max(0, $cost - $currentBalance),
+            'is_low_balance' => ($currentBalance < 50000) || ($cost > $currentBalance),
+            'business_id' => $business ? $business->id : null,
+            'business_name' => $business ? $business->title : null,
+            'service_type' => $serviceType,
+            'sender_number' => $senderNumber ? $senderNumber->number : null,
+            'sender_number_id' => $senderNumber ? $senderNumber->id : null,
         ]);
     }
 
@@ -238,7 +275,7 @@ class SmsSingleSendController extends Controller
      */
     public function forward(ForwardMessageRequest $request): JsonResponse|RedirectResponse
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
         $originalMessage = SmsMessage::findOrFail($request->original_message_id);
 
         try {

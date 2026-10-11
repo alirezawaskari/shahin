@@ -18,6 +18,33 @@ class SmsTemplate extends Model
     ];
     protected $guarded = [];
 
+    public static bool $isSyncing = false;
+
+    protected static function booted()
+    {
+        static::saved(function ($model) {
+            if (static::$isSyncing || \App\Models\SmsMessageTemplate::$isSyncing) {
+                return;
+            }
+            static::$isSyncing = true;
+            try {
+                \App\Models\SmsMessageTemplate::updateOrCreate(
+                    ['content' => $model->content],
+                    [
+                        'title' => $model->name ?: ($model->fa_name ?: 'قالب پیامک'),
+                        'type' => 'normal',
+                        'service_type' => 'advertising',
+                        'status' => 'active',
+                        'created_by' => $model->user_id,
+                    ]
+                );
+            } catch (\Throwable) {
+            } finally {
+                static::$isSyncing = false;
+            }
+        });
+    }
+
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

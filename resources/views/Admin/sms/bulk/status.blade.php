@@ -17,26 +17,24 @@
 @endsection
 
 @section('content')
-<div class="row mb-4">
-    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="fa fa-line-chart text-primary me-2"></i> وضعیت زنده کمپین پیامکی #{{ $campaign->id }}
-            </h4>
-            <p class="text-muted mb-0 small">
-                کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |
-                ایجادکننده: <strong>{{ $campaign->creator ? ($campaign->creator->name . ' ' . $campaign->creator->family) : 'کاربر' }}</strong> |
-                تاریخ ثبت: {{ $campaign->created_at->format('Y/m/d H:i') }}
-            </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.sms.bulk.campaigns') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fa fa-list me-1"></i> فهرست کمپین‌ها
-            </a>
-            <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary btn-sm">
-                <i class="fa fa-plus me-1"></i> ایجاد کمپین جدید
-            </a>
-        </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="fa fa-line-chart text-primary me-2"></i> وضعیت زنده کمپین پیامکی #{{ $campaign->id }}
+        </h3>
+        <p class="text-muted mb-0 small">
+            کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |
+            ایجادکننده: <strong>{{ $campaign->creator ? ($campaign->creator->name . ' ' . $campaign->creator->family) : 'کاربر' }}</strong> |
+            تاریخ ثبت: {{ $campaign->created_at->format('Y/m/d H:i') }}
+        </p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="{{ route('admin.sms.bulk.campaigns') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa fa-list me-1"></i> فهرست کمپین‌ها
+        </a>
+        <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary btn-sm">
+            <i class="fa fa-plus me-1"></i> ایجاد کمپین جدید
+        </a>
     </div>
 </div>
 
@@ -101,21 +99,21 @@
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 bg-success bg-opacity-10 rounded border border-success">
-                    <div class="text-success small fw-bold">ارسال موفق</div>
-                    <div class="fs-4 fw-bold text-success mt-1" id="cntSuccess">{{ number_format($campaign->success_count) }}</div>
+                <div class="p-3 rounded border" style="background-color: #ecfdf5 !important; border-color: #a7f3d0 !important;">
+                    <div class="small fw-bold" style="color: #065f46 !important;">ارسال موفق</div>
+                    <div class="fs-4 fw-bold mt-1" style="color: #059669 !important;" id="cntSuccess">{{ number_format($campaign->success_count) }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 bg-danger bg-opacity-10 rounded border border-danger">
-                    <div class="text-danger small fw-bold">ارسال ناموفق</div>
-                    <div class="fs-4 fw-bold text-danger mt-1" id="cntFailed">{{ number_format($campaign->failed_count) }}</div>
+                <div class="p-3 rounded border" style="background-color: #fff1f2 !important; border-color: #fecdd3 !important;">
+                    <div class="small fw-bold" style="color: #9f1239 !important;">ارسال ناموفق</div>
+                    <div class="fs-4 fw-bold mt-1" style="color: #e11d48 !important;" id="cntFailed">{{ number_format($campaign->failed_count) }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 bg-warning bg-opacity-10 rounded border border-warning">
-                    <div class="text-warning small fw-bold">در صف ارسال (باقی‌مانده)</div>
-                    <div class="fs-4 fw-bold text-warning mt-1" id="cntPending">{{ number_format($campaign->pending_count) }}</div>
+                <div class="p-3 rounded border" style="background-color: #fffbeb !important; border-color: #fde68a !important;">
+                    <div class="small fw-bold" style="color: #92400e !important;">در صف ارسال (باقی‌مانده)</div>
+                    <div class="fs-4 fw-bold mt-1" style="color: #d97706 !important;" id="cntPending">{{ number_format($campaign->pending_count) }}</div>
                 </div>
             </div>
         </div>

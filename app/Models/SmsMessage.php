@@ -104,6 +104,10 @@ class SmsMessage extends Model
 
     public function isConfidential(): bool
     {
+        if (($this->classification ?? '') === 'classified') {
+            return true;
+        }
+
         return (bool) $this->group?->isConfidential();
     }
 }

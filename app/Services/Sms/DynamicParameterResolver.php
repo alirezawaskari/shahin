@@ -206,6 +206,17 @@ class DynamicParameterResolver
 
             return (string) ($context['request_id'] ?? '');
         });
+
+        // Common token aliases for maximum usability
+        $this->register('{نام}', fn($ctx) => (string) ($this->extractUser($ctx)?->name ?? $ctx['first_name'] ?? $ctx['name'] ?? ''));
+        $this->register('{first_name}', fn($ctx) => (string) ($this->extractUser($ctx)?->name ?? $ctx['first_name'] ?? $ctx['name'] ?? ''));
+        $this->register('{last_name}', fn($ctx) => (string) ($this->extractUser($ctx)?->family ?? $ctx['family'] ?? $ctx['last_name'] ?? ''));
+        $this->register('{phone}', fn($ctx) => (string) ($this->extractUser($ctx)?->phone ?? $ctx['phone'] ?? $ctx['mobile'] ?? ''));
+        $this->register('{موبایل}', fn($ctx) => (string) ($this->extractUser($ctx)?->phone ?? $ctx['phone'] ?? $ctx['mobile'] ?? ''));
+        $this->register('{company_name}', fn($ctx) => (string) ($ctx['company_name'] ?? ghorfe()?->title ?? ''));
+        $this->register('{نام شرکت}', fn($ctx) => (string) ($ctx['company_name'] ?? ghorfe()?->title ?? ''));
+        $this->register('{کد}', fn($ctx) => (string) ($ctx['code'] ?? $ctx['otp'] ?? ''));
+        $this->register('{code}', fn($ctx) => (string) ($ctx['code'] ?? $ctx['otp'] ?? ''));
     }
 
     /**

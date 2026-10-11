@@ -24,11 +24,15 @@ class SmsMessageTemplateService
     /**
      * List templates with filters.
      */
-    public function list(array $filters = []): LengthAwarePaginator
+    public function list(array $filters = [], ?int $businessId = null): LengthAwarePaginator
     {
         $query = SmsMessageTemplate::with(['group.parent', 'creator', 'updater'])
             ->withCount('histories')
             ->latest('id');
+
+        if ($businessId) {
+            $query->where('ghorfe_online_list_id', $businessId);
+        }
 
         if (!empty($filters['service_type']) && $filters['service_type'] !== 'all') {
             $query->where('service_type', $filters['service_type']);
@@ -56,7 +60,7 @@ class SmsMessageTemplateService
     /**
      * Create a template.
      */
-    public function create(array $data, ?int $userId = null): SmsMessageTemplate
+    public function create(array $data, ?int $userId = null, ?int $businessId = null): SmsMessageTemplate
     {
         $userId = $userId ?: Auth::id();
 
@@ -64,6 +68,7 @@ class SmsMessageTemplateService
             'title' => $data['title'],
             'content' => $data['content'],
             'sms_message_group_id' => $data['sms_message_group_id'] ?? null,
+            'ghorfe_online_list_id' => $businessId,
             'service_type' => $data['service_type'] ?? 'normal',
             'status' => $data['status'] ?? 'active',
             'created_by' => $userId,

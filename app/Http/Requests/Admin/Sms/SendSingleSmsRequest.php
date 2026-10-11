@@ -20,6 +20,9 @@ class SendSingleSmsRequest extends FormRequest
             'sender_number_id' => ['nullable', 'integer', 'exists:sender_numbers,id'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
+            'sms_message_group_id' => ['nullable', 'integer', 'exists:sms_message_groups,id'],
+            'type' => ['nullable', 'string', 'in:regular,classified'],
+            'classification' => ['nullable', 'string', 'in:regular,classified'],
             'context' => ['nullable', 'array'],
         ];
     }

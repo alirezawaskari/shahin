@@ -3,24 +3,22 @@
 @section('title', 'تاریخچه کمپین‌های پیامک انبوه')
 
 @section('content')
-<div class="row mb-4">
-    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="fa fa-history text-primary me-2"></i> تاریخچه کمپین‌های پیامک انبوه
-            </h4>
-            <p class="text-muted mb-0 small">
-                کسب‌وکار: <strong>{{ $business?->title ?? 'همه' }}</strong>
-            </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary btn-sm">
-                <i class="fa fa-plus me-1"></i> ایجاد کمپین جدید
-            </a>
-            <a href="{{ route('admin.sms.single.index') }}" class="btn btn-outline-primary btn-sm">
-                <i class="fa fa-envelope me-1"></i> ارسال تکی
-            </a>
-        </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="fa fa-history text-primary me-2"></i> تاریخچه کمپین‌های پیامک انبوه
+        </h3>
+        <p class="text-muted mb-0 small">
+            کسب‌وکار: <strong>{{ $business?->title ?? 'همه' }}</strong>
+        </p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary btn-sm">
+            <i class="fa fa-plus me-1"></i> ایجاد کمپین جدید
+        </a>
+        <a href="{{ route('admin.sms.single.index') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fa fa-envelope me-1"></i> ارسال تکی
+        </a>
     </div>
 </div>
 

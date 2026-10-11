@@ -20,7 +20,7 @@ class BalanceGuard
         return OtpBalance::firstOrCreate(
             ['ghorfe_online_list_id' => $business->id],
             [
-                'low_balance_threshold' => 100000,
+                'low_balance_threshold' => 1000000, // 100,000 Tomans (1,000,000 Rials)
             ]
         );
     }

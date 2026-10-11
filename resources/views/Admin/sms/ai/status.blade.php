@@ -14,26 +14,24 @@
 @endsection
 
 @section('content')
-<div class="row mb-4">
-    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="fa fa-android text-primary me-2"></i> وضعیت زنده کمپین هوش مصنوعی #{{ $campaign->id }}
-            </h4>
-            <p class="text-muted mb-0 small">
-                کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |
-                ایجادکننده: <strong>{{ $campaign->creator ? ($campaign->creator->name . ' ' . $campaign->creator->family) : 'کاربر' }}</strong> |
-                تاریخ ثبت: {{ $campaign->created_at->format('Y/m/d H:i') }}
-            </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.sms.ai.campaigns') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fa fa-list me-1"></i> فهرست کمپین‌های AI
-            </a>
-            <a href="{{ route('admin.sms.ai.index') }}" class="btn btn-primary btn-sm">
-                <i class="fa fa-plus me-1"></i> کمپین جدید
-            </a>
-        </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="fa fa-android text-primary me-2"></i> وضعیت زنده کمپین هوش مصنوعی #{{ $campaign->id }}
+        </h3>
+        <p class="text-muted mb-0 small">
+            کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |
+            ایجادکننده: <strong>{{ $campaign->creator ? ($campaign->creator->name . ' ' . $campaign->creator->family) : 'کاربر' }}</strong> |
+            تاریخ ثبت: {{ $campaign->created_at->format('Y/m/d H:i') }}
+        </p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="{{ route('admin.sms.ai.campaigns') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa fa-list me-1"></i> فهرست کمپین‌های AI
+        </a>
+        <a href="{{ route('admin.sms.ai.index') }}" class="btn btn-primary btn-sm">
+            <i class="fa fa-plus me-1"></i> کمپین جدید
+        </a>
     </div>
 </div>
 

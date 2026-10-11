@@ -9,8 +9,8 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        position: sticky;
-        top: 20px;
+        width: 100%;
+        margin-bottom: 1.5rem;
     }
     .phone-mockup {
         width: 310px;
@@ -316,14 +316,65 @@
                             </div>
                         </div>
 
+                        {{-- Message Category / Folders & Type (Classified / Regular) --}}
+                        <div class="row mb-3 p-3 bg-light rounded border g-3">
+                            <div class="col-md-7">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    <i class="fa fa-folder text-primary ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> دسته‌بندی موضوعی / پوشه پیام:
+                                </label>
+                                <select name="sms_message_group_id" id="messageGroupSelect" class="form-select">
+                                    <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
+                                    @if(isset($groups))
+                                        @foreach($groups as $grp)
+                                            <optgroup label="📁 {{ $grp->name }}">
+                                                <option value="{{ $grp->id }}" data-slug="{{ $grp->slug }}" data-confidential="{{ $grp->isConfidential() ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
+                                                    {{ $grp->name }} (دسته اصلی)
+                                                </option>
+                                                @foreach($grp->subgroups as $sub)
+                                                    <option value="{{ $sub->id }}" data-slug="{{ $sub->slug }}" data-confidential="{{ ($sub->isConfidential() || $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
+                                                        {{ $grp->name }} › {{ $sub->name }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                <div class="form-text small text-muted">
+                                    سازمان‌دهی پیام در پوشه‌های موضوعی (اجرایی، پشتیبانی، حقوقی، مالی، فروش و زیرگروه‌ها)
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    <i class="fa fa-shield text-info ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> نوع پیام (سطح طبقه‌بندی):
+                                </label>
+                                <div class="d-flex gap-2 p-1 border rounded bg-white mt-1">
+                                    <div class="form-check flex-fill text-center p-2 mb-0 border rounded" id="typeRegularWrapper">
+                                        <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" {{ old('type', 'regular') === 'regular' ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-semibold cursor-pointer" for="typeRegular">
+                                            <i class="fa fa-envelope-o text-secondary ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> عادی
+                                        </label>
+                                    </div>
+                                    <div class="form-check flex-fill text-center p-2 mb-0 border rounded" id="typeClassifiedWrapper">
+                                        <input class="form-check-input" type="radio" name="type" id="typeClassified" value="classified" {{ old('type') === 'classified' ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold cursor-pointer text-danger" for="typeClassified">
+                                            <i class="fa fa-lock text-danger ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> محرمانه
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-text small mt-1" id="classificationHint">
+                                    <span class="text-muted"><i class="fa fa-info-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های مالی و حقوقی به‌طور خودکار «محرمانه» تعیین می‌شوند.</span>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Template Selection --}}
                         <div class="mb-3">
                             <label class="form-label fw-bold text-secondary small">انتخاب از قالب‌های پیامک آماده</label>
                             <select id="templateSelect" name="template_id" class="form-select">
                                 <option value="">-- بدون قالب (متن دلخواه) --</option>
                                 @foreach($templates as $tpl)
-                                    <option value="{{ $tpl->id }}" data-content="{{ $tpl->content }}" data-type="{{ $tpl->service_type }}">
-                                        [{{ $tpl->service_type }}] {{ $tpl->title }}
+                                    <option value="{{ $tpl->id }}" data-content="{{ $tpl->content }}" data-type="{{ $tpl->service_type }}" data-group-id="{{ $tpl->sms_message_group_id }}">
+                                        [{{ $tpl->service_type }}] {{ $tpl->title }} {{ $tpl->group ? '('.$tpl->group->name.')' : '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -448,7 +499,7 @@
                             <div class="avatar" id="phoneAvatar">?</div>
                             <div class="contact-info">
                                 <div class="contact-name" id="phoneRecipientTitle">مخاطب</div>
-                                <div class="contact-sub" id="phoneSenderNumber">
+                                <div class="contact-sub" id="phoneSenderNumber" dir="ltr">
                                     {{ $advertisingNumbers->first()->number ?? ($otpSender->number ?? 'SMS') }}
                                 </div>
                             </div>
@@ -512,12 +563,12 @@
                             <tr>
                                 <td>#{{ $msg->id }}</td>
                                 <td>
-                                    <strong>{{ $msg->recipient_phone }}</strong>
+                                    <span dir="ltr"><strong>{{ $msg->recipient_phone }}</strong></span>
                                     @if($msg->user)
                                         <div class="text-muted small">{{ $msg->user->name }} {{ $msg->user->family }}</div>
                                     @endif
                                 </td>
-                                <td>{{ $msg->sender_phone }}</td>
+                                <td><span dir="ltr">{{ $msg->sender_phone }}</span></td>
                                 <td>
                                     <span class="badge {{ $msg->service_type === 'otp' ? 'bg-success' : 'bg-warning text-dark' }}">
                                         {{ $msg->service_type }}

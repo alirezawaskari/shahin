@@ -4,16 +4,16 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">ویرایش الگوی پیامک: {{ $template->title }}</h3>
             <p class="text-muted small mb-0">هرگونه ویرایش متن به صورت خودکار در تاریخچه نگارش‌ها ثبت می‌شود.</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.sms.settings.templates.history', $template) }}" class="btn btn-outline-info">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('admin.sms.settings.templates.history', $template) }}" class="btn btn-outline-info btn-sm">
                 <i class="fa fa-history me-1"></i> مشاهده تاریخچه و مقایسه
             </a>
-            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
             </a>
         </div>

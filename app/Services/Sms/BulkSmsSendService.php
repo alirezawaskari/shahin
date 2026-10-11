@@ -315,13 +315,29 @@ class BulkSmsSendService
             $rawMessage,
             $data
         ) {
+            $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
+            $classification = $data['classification'] ?? $data['type'] ?? 'regular';
+
+            if ($groupId) {
+                $group = \App\Models\SmsMessageGroup::find($groupId);
+                if ($group && $group->isConfidential()) {
+                    $classification = 'classified';
+                }
+            }
+
             $campaign = SmsCampaign::create([
                 'ghorfe_online_list_id' => $business->id,
                 'type' => $type,
                 'ai_goal_prompt' => $data['ai_goal_prompt'] ?? null,
                 'sms_message_template_id' => $templateId,
+                'sms_message_group_id' => $groupId,
+                'classification' => $classification,
                 'sender_number_id' => $senderNumber->id,
-                'filters' => array_merge($filters, ['message_preview' => Str::limit($rawMessage, 200)]),
+                'filters' => array_merge($filters, [
+                    'message_preview' => Str::limit($rawMessage, 200),
+                    'sms_message_group_id' => $groupId,
+                    'classification' => $classification,
+                ]),
                 'access_tier_required' => $requiredTier,
                 'total_recipients' => $recipientCount,
                 'sent_count' => 0,
@@ -475,6 +491,8 @@ class BulkSmsSendService
                         'recipient_phone' => $recipientPhone,
                         'sender_phone' => $senderNumber->number,
                         'sms_message_template_id' => $campaign->sms_message_template_id,
+                        'sms_message_group_id' => $campaign->sms_message_group_id ?? ($campaign->filters['sms_message_group_id'] ?? null),
+                        'classification' => $campaign->classification ?? ($campaign->filters['classification'] ?? 'regular'),
                         'content' => $content,
                         'character_count' => $characterCount,
                         'page_count' => $pageCount,
@@ -501,6 +519,23 @@ class BulkSmsSendService
                         'tracking_id' => $trackingId,
                         'created_by' => $creator?->id,
                     ]);
+
+                    // Legacy backward-compatibility record
+                    try {
+                        \App\Models\Groupsms::create([
+                            'title' => 'پیامک گروهی: ' . ($campaign->name ?? 'کمپین انبوه'),
+                            'message' => $content,
+                            'phones' => $recipientPhone,
+                            'type' => 'groupsService',
+                            'status' => 2,
+                            'flag' => true,
+                            'send_at' => now(),
+                            'ghorfe_online_list_id' => $business?->id,
+                            'sms_message_group_id' => $campaign->sms_message_group_id,
+                            'classification' => $campaign->classification ?? 'regular',
+                            'sms_message_id' => $smsMessage->id,
+                        ]);
+                    } catch (\Throwable) {}
 
                     // Dispatch to gateway
                     try {

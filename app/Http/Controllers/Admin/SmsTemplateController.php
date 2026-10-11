@@ -12,16 +12,47 @@ use Illuminate\Support\Facades\Auth;
 class SmsTemplateController extends Controller
 {
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * Check if current user can view SMS templates.
+     */
+    protected function canViewTemplates(): bool
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        return $user->isSuperAdmin()
+            || $user->hasRole('ghorfeAdmin')
+            || $user->hasPermission('sms-template')
+            || $user->hasPermission('sms-settings');
+    }
+
+    /**
+     * Check if current user can create/edit SMS templates.
+     */
+    protected function canManageTemplates(): bool
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        return $user->isSuperAdmin()
+            || $user->hasRole('ghorfeAdmin')
+            || $user->hasPermission('sms-template-create')
+            || $user->hasPermission('sms-template-edit')
+            || $user->hasPermission('sms-template')
+            || $user->hasPermission('sms-settings');
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function index()
     {
-        if (auth()->user()->hasPermission('sms-template'))
-        {
-            return view( 'Admin.smsTemplate.all');
-        }
-        return abort(401);
+        return redirect()->route('admin.sms.settings.templates.index');
     }
+
     /**
      * @return \App\Http\Resources\SmsTemplateCollection
      */
@@ -30,24 +61,22 @@ class SmsTemplateController extends Controller
         $sms_templates = SmsTemplate::filter()->latest();
         return new SmsTemplateCollection($sms_templates->paginate(20));
     }
+
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function create()
     {
-        if (auth()->user()->hasPermission('sms-template-create'))
-        {
-            return view('Admin.smsTemplate.create');
-        }
-        return abort(401);
+        return redirect()->route('admin.sms.settings.templates.create');
     }
+
     /**
      * @param Request $request
      * @return RedirectResponse
      */
     public function store(Request $request)
     {
-        if (auth()->user()->hasPermission('sms-template-create'))
+        if ($this->canManageTemplates())
         {
             $this->validate(request(), [
                 'name' => 'required|string',
@@ -72,12 +101,13 @@ class SmsTemplateController extends Controller
      */
     public function edit(SmsTemplate $smsTemplate)
     {
-        if (auth()->user()->hasPermission('sms-template-edit'))
+        if ($this->canManageTemplates())
         {
             return view('Admin.smsTemplate.edit' , compact(['smsTemplate']));
         }
-        return abort(401);
+        return abort(403, 'امکان ویرایش قالب پیامک برای شما وجود ندارد.');
     }
+
     /**
      * @param SmsTemplate $smsTemplate
      * @param Request $request
@@ -85,7 +115,7 @@ class SmsTemplateController extends Controller
      */
     public function update(SmsTemplate $smsTemplate , Request $request)
     {
-        if (auth()->user()->hasPermission('sms-template-edit'))
+        if ($this->canManageTemplates())
         {
             $smsTemplate->update($request->all());
             return redirect()->back()->with([
@@ -97,4 +127,3 @@ class SmsTemplateController extends Controller
         ]);
     }
 }
-

@@ -76,4 +76,17 @@ Route::group([
         Route::get('/', [SmsCmsSettingsController::class, 'index'])->name('index');
         Route::put('/', [SmsCmsSettingsController::class, 'update'])->name('update');
     });
+
+    // 7. Access tiers & Users management (superAdmin only)
+    Route::group(['prefix' => 'access-tiers', 'as' => 'access-tiers.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\SmsSettings\SmsUserAccessTierController::class, 'index'])->name('index');
+        Route::put('/{user}', [App\Http\Controllers\Admin\SmsSettings\SmsUserAccessTierController::class, 'update'])->name('update');
+    });
+
+    // 8. AI & LLM Models configuration (superAdmin only)
+    Route::group(['prefix' => 'ai', 'as' => 'ai.'], function () {
+        Route::get('/', [App\Http\Controllers\Admin\SmsSettings\SmsAiSettingsController::class, 'index'])->name('index');
+        Route::post('/', [App\Http\Controllers\Admin\SmsSettings\SmsAiSettingsController::class, 'update'])->name('update');
+        Route::post('/test', [App\Http\Controllers\Admin\SmsSettings\SmsAiSettingsController::class, 'testConnection'])->name('test');
+    });
 });

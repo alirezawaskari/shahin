@@ -4,14 +4,16 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">افزودن پنل پیامک جدید</h3>
             <p class="text-muted small mb-0">تعریف درگاه یا ارائه‌دهنده جدید برای ارسال و دریافت پیامک</p>
         </div>
-        <a href="{{ route('admin.sms.settings.panels.index') }}" class="btn btn-outline-secondary">
-            <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
-        </a>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('admin.sms.settings.panels.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
+            </a>
+        </div>
     </div>
 
     @include('Admin.sms.settings.navigation')

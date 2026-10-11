@@ -2,15 +2,41 @@
 
 @section('title', 'لاگ پیامک‌های ارسالی و دریافتی')
 
+@section('css')
+<style>
+    .table td, .table th {
+        line-height: 1.8 !important;
+        padding: 12px 10px !important;
+        vertical-align: middle;
+    }
+    .sms-content-cell {
+        max-width: 320px;
+        line-height: 1.8 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: middle;
+        padding-bottom: 4px;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid py-3">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">لاگ پیامک‌های ارسالی و دریافتی</h3>
             <p class="text-muted small mb-0">مشاهده جامع تمام پیام‌های خروجی و ورودی، فیلتر پیشرفته بر اساس وضعیت، جهت، شماره، گروه و تاریخ</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('admin.sms.single.index') }}" class="btn btn-primary btn-sm">
+                <i class="fa fa-paper-plane me-1"></i> ارسال پیامک تکی
+            </a>
+            <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fa fa-users me-1"></i> ارسال پیامک گروهی
+            </a>
             @if($business)
                 <span class="badge badge-info px-3 py-2">
                     <i class="fa fa-building-o me-1"></i> کسب‌وکار: {{ $business->title }}
@@ -202,7 +228,7 @@
 
     <!-- Messages Table Card -->
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h5 class="mb-0 fw-bold"><i class="fa fa-envelope-o me-2 text-primary"></i> لیست پیامک‌ها ({{ number_format($messages->total()) }} مورد)</h5>
         </div>
         <div class="card-body p-0">
@@ -260,11 +286,11 @@
                                     <td>{{ $msg->business?->title ?: 'عمومی' }}</td>
                                 @endif
                                 <td>{{ $msg->group?->name ?: '-' }}</td>
-                                <td class="text-right" style="direction: rtl; font-size: 0.9rem;">
+                                <td class="text-right" style="direction: rtl; font-size: 0.9rem; max-width: 320px;">
                                     @if($msg->content_redacted ?? false)
                                         <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
                                     @else
-                                        {{ Str::limit($msg->content, 65) }}
+                                        <span class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</span>
                                     @endif
                                 </td>
                                 <td>

@@ -4,14 +4,33 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">الگوهای پیامک (Templates)</h3>
             <p class="text-muted small mb-0">تعریف متن‌های پیش‌فرض، متغیرهای پویا و تاریخچه تغییرات</p>
         </div>
-        <a href="{{ route('admin.sms.settings.templates.create') }}" class="btn btn-primary">
-            <i class="fa fa-plus me-1"></i> ایجاد الگوی جدید
-        </a>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            @if(auth()->user()?->isSuperAdmin() && isset($all_businesses) && $all_businesses->isNotEmpty())
+                <form method="GET" action="{{ route('admin.sms.settings.templates.index') }}" class="d-flex flex-wrap gap-2 m-0">
+                    <select name="business_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">-- کلیه کسب‌وکارها (نمای سراسری) --</option>
+                        @foreach($all_businesses as $b)
+                            <option value="{{ $b->id }}" {{ $business && $business->id === $b->id ? 'selected' : '' }}>
+                                {{ $b->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+            @endif
+            @if($business)
+                <span class="badge bg-info text-dark px-3 py-2">
+                    <i class="fa fa-building-o ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> کسب‌وکار: {{ $business->title }}
+                </span>
+            @endif
+            <a href="{{ route('admin.sms.settings.templates.create', $business && auth()->user()?->isSuperAdmin() ? ['business_id' => $business->id] : []) }}" class="btn btn-primary btn-sm">
+                <i class="fa fa-plus ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> ایجاد الگوی جدید
+            </a>
+        </div>
     </div>
 
     @include('Admin.sms.settings.navigation')

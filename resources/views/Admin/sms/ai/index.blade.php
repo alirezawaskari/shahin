@@ -80,8 +80,8 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        position: sticky;
-        top: 20px;
+        width: 100%;
+        margin-bottom: 1.5rem;
     }
     .phone-mockup {
         width: 300px;
@@ -165,42 +165,51 @@
 @endsection
 
 @section('content')
-<div class="row mb-4">
-    <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
-        <div>
-            <h4 class="fw-bold mb-1">
-                <i class="fa fa-android text-primary me-2"></i> دستیار هوشمند کمپین‌های پیامکی (AI Studio)
-            </h4>
-            <p class="text-muted mb-0 small">
-                کسب‌وکار جاری: <strong class="text-dark">{{ $business?->title ?? 'سیستم' }}</strong> |
-                مدل هوش مصنوعی: <code class="text-indigo">{{ $aiModel }}</code>
-            </p>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="fa fa-android text-primary me-2"></i> دستیار هوشمند کمپین‌های پیامکی (AI Studio)
+        </h3>
+        <p class="text-muted mb-0 small">
+            کسب‌وکار جاری: <strong class="text-dark">{{ $business?->title ?? 'سیستم' }}</strong> |
+            مدل هوش مصنوعی: <code class="text-indigo">{{ $aiModel }}</code>
+        </p>
+    </div>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        @if(auth()->user()?->isSuperAdmin() && isset($all_businesses) && $all_businesses->isNotEmpty())
+            <form method="GET" action="{{ route('admin.sms.ai.index') }}" class="d-flex flex-wrap gap-2 m-0">
+                <select name="business_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    @foreach($all_businesses as $b)
+                        <option value="{{ $b->id }}" {{ $business->id === $b->id ? 'selected' : '' }}>
+                            {{ $b->title }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        @endif
+        @php
+            $tierClass = match($userTier) {
+                'titanium' => 'tier-titanium',
+                'diamond' => 'tier-diamond',
+                'gold' => 'tier-gold',
+                default => 'tier-silver',
+            };
+            $tierLabel = match($userTier) {
+                'titanium' => 'تیتانیومی (Titanium)',
+                'diamond' => 'الماسی (Diamond)',
+                'gold' => 'طلایی (Gold)',
+                default => 'نقره‌ای (Silver)',
+            };
+        @endphp
+        <div class="tier-badge {{ $tierClass }}">
+            <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
         </div>
-        <div class="d-flex align-items-center gap-2">
-            @php
-                $tierClass = match($userTier) {
-                    'titanium' => 'tier-titanium',
-                    'diamond' => 'tier-diamond',
-                    'gold' => 'tier-gold',
-                    default => 'tier-silver',
-                };
-                $tierLabel = match($userTier) {
-                    'titanium' => 'تیتانیومی (Titanium)',
-                    'diamond' => 'الماسی (Diamond)',
-                    'gold' => 'طلایی (Gold)',
-                    default => 'نقره‌ای (Silver)',
-                };
-            @endphp
-            <div class="tier-badge {{ $tierClass }}">
-                <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
-            </div>
-            <a href="{{ route('admin.sms.ai.campaigns') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fa fa-history me-1"></i> تاریخچه کمپین‌های AI
-            </a>
-            <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-outline-primary btn-sm">
-                <i class="fa fa-bullhorn me-1"></i> ارسال انبوه دستی
-            </a>
-        </div>
+        <a href="{{ route('admin.sms.ai.campaigns', ['business_id' => $business?->id]) }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa fa-history me-1"></i> تاریخچه کمپین‌های AI
+        </a>
+        <a href="{{ route('admin.sms.bulk.index', ['business_id' => $business?->id]) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fa fa-bullhorn me-1"></i> ارسال انبوه دستی
+        </a>
     </div>
 </div>
 
@@ -455,7 +464,7 @@
                             <i class="fa fa-comment"></i>
                         </div>
                         <div style="flex: 1; overflow: hidden;">
-                            <div id="phoneSenderNumber" style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <div id="phoneSenderNumber" dir="ltr" style="font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 فرستنده پیامک
                             </div>
                             <div style="font-size: 10px; color: #94a3b8;">کمپین هوش مصنوعی</div>
@@ -476,6 +485,8 @@
 
 @section('js')
 <script>
+    const currentBusinessId = {{ $business?->id ? (int)$business->id : 'null' }};
+
     // State management
     const state = {
         goal: '',
@@ -504,13 +515,15 @@
         // "لغو 11" is mandatory and unconditional for advertising messages — always shown and counted.
         document.getElementById('phoneBubbleOptOut').style.display = 'block';
 
-        // Calculate live characters and pages
-        const len = text.length + 7;
-        document.getElementById('charCounter').innerText = len;
+        // Calculate live characters and pages accurately
+        const typedLen = [...text].length;
+        const totalLen = typedLen > 0 ? (typedLen + 7) : 0; // +7 for '\nلغو 11'
+        document.getElementById('charCounter').innerText = typedLen;
         let pages = 1;
-        if (len <= 70) pages = 1;
-        else if (len <= 134) pages = 2;
-        else pages = 2 + Math.ceil((len - 134) / 67);
+        const countForPages = totalLen > 0 ? totalLen : 1;
+        if (countForPages <= 70) pages = 1;
+        else if (countForPages <= 134) pages = 2;
+        else pages = 2 + Math.ceil((countForPages - 134) / 67);
         document.getElementById('pageCounter').innerText = pages;
     }
 
@@ -538,7 +551,7 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ goal: goal, recipient_type: recipientType })
+            body: JSON.stringify({ goal: goal, recipient_type: recipientType, business_id: currentBusinessId })
         })
         .then(res => res.json())
         .then(res => {
@@ -607,7 +620,8 @@
                 filters: state.proposedFilters,
                 rationale: state.rationale,
                 recipient_count: state.recipientCount,
-                approved: true
+                approved: true,
+                business_id: currentBusinessId
             })
         })
         .then(res => res.json())
@@ -667,7 +681,8 @@
             body: JSON.stringify({
                 goal: state.goal,
                 approved_audience: state.approvedAudience,
-                page_budget: pageBudget
+                page_budget: pageBudget,
+                business_id: currentBusinessId
             })
         })
         .then(res => res.json())
@@ -716,7 +731,8 @@
                 message: text,
                 filters: state.approvedAudience ? state.approvedAudience.filters : state.proposedFilters,
                 sender_number_id: senderId,
-                recipient_type: recipientType
+                recipient_type: recipientType,
+                business_id: currentBusinessId
             })
         })
         .then(res => res.json())
@@ -824,7 +840,8 @@
                 message: text,
                 filters: state.approvedAudience ? state.approvedAudience.filters : state.proposedFilters,
                 sender_number_id: senderId,
-                recipient_type: recipientType
+                recipient_type: recipientType,
+                business_id: currentBusinessId
             })
         })
         .then(res => res.json())

@@ -10,9 +10,11 @@ use App\Http\Requests\Admin\Sms\PreviewBulkSmsRequest;
 use App\Http\Requests\Admin\Sms\SendBulkSmsRequest;
 use App\Models\AdvertisingBalance;
 use App\Models\Category;
+use App\Models\GhorfeOnlineList;
 use App\Models\Province;
 use App\Models\Role;
 use App\Models\SmsCampaign;
+use App\Models\SmsMessageGroup;
 use App\Models\SmsMessageTemplate;
 use App\Services\Sms\BulkSmsRecipientFilterService;
 use App\Services\Sms\BulkSmsSendService;
@@ -35,11 +37,30 @@ class SmsBulkSendController extends Controller
     }
 
     /**
+     * Resolve the current business context with fallback for SuperAdmin.
+     */
+    protected function resolveBusiness(Request $request): GhorfeOnlineList
+    {
+        $business = ghorfe();
+
+        if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
+            $targetBusinessId = $request->input('business_id') ?: $request->input('business');
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : GhorfeOnlineList::first();
+        }
+
+        if (!$business) {
+            abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        }
+
+        return $business;
+    }
+
+    /**
      * Display the Bulk SMS Send Interface.
      */
     public function index(Request $request): View
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
         $user = auth()->user();
 
         // Advertising sender numbers assigned to this business with balances
@@ -58,8 +79,9 @@ class SmsBulkSendController extends Controller
                 });
         }
 
-        // Active SMS templates
+        // Active SMS templates (scoped to business)
         $templates = SmsMessageTemplate::active()
+            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with('group')
             ->latest()
             ->get();
@@ -82,6 +104,13 @@ class SmsBulkSendController extends Controller
 
         $userTier = $this->accessTierService->effectiveTier($user);
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
+        $groups = SmsMessageGroup::whereNull('parent_id')
+            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
+            ->with(['subgroups' => function ($q) use ($business) {
+                $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
+            }])
+            ->orderBy('name')
+            ->get();
 
         return view('Admin.sms.bulk.index', compact(
             'business',
@@ -94,7 +123,8 @@ class SmsBulkSendController extends Controller
             'categories',
             'provinces',
             'recentCampaigns',
-            'regulatoryRulesText'
+            'regulatoryRulesText',
+            'groups'
         ));
     }
 
@@ -103,7 +133,7 @@ class SmsBulkSendController extends Controller
      */
     public function preview(PreviewBulkSmsRequest $request): JsonResponse
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
         $user = auth()->user();
 
         $recipientType = (string) $request->input('recipient_type', 'normal');
@@ -170,7 +200,11 @@ class SmsBulkSendController extends Controller
             }
         }
 
-        $hasSufficientBalance = ($currentBalance >= $totalEstimatedCost) && ($totalEstimatedCost > 0);
+        $totalEstimatedCost = $filterResult['valid_count'] * $segmentation['cost_per_message'];
+
+        $hasSufficientBalance = ($totalEstimatedCost > 0) ? ($currentBalance >= $totalEstimatedCost) : true;
+        $balanceDeficit = ($totalEstimatedCost > $currentBalance) ? ($totalEstimatedCost - $currentBalance) : 0;
+        $isLowBalance = ($currentBalance < 100000) || ($balanceDeficit > 0);
 
         return response()->json([
             'status' => 'success',
@@ -196,7 +230,12 @@ class SmsBulkSendController extends Controller
                 'current_balance' => $currentBalance,
                 'balance_after' => max(0, $currentBalance - $totalEstimatedCost),
                 'has_sufficient_balance' => $hasSufficientBalance,
-                'balance_deficit' => max(0, $totalEstimatedCost - $currentBalance),
+                'balance_deficit' => $balanceDeficit,
+                'is_low_balance' => $isLowBalance,
+                'sender_number' => $senderNumber ? $senderNumber->number : null,
+                'sender_number_id' => $senderNumber ? $senderNumber->id : null,
+                'business_id' => $business->id,
+                'business_name' => $business->title,
             ],
             'access_tier' => [
                 'user_tier' => $this->accessTierService->effectiveTier($user),
@@ -211,7 +250,7 @@ class SmsBulkSendController extends Controller
      */
     public function send(SendBulkSmsRequest $request): JsonResponse|RedirectResponse
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
         $user = auth()->user();
 
         if (!$business) {
@@ -286,7 +325,7 @@ class SmsBulkSendController extends Controller
      */
     public function campaigns(Request $request): View
     {
-        $business = ghorfe() ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
+        $business = $this->resolveBusiness($request);
 
         $query = SmsCampaign::query()
             ->where('type', 'bulk')

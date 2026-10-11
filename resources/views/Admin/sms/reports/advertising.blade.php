@@ -2,15 +2,93 @@
 
 @section('title', 'گزارش پیامک‌ها و کمپین‌های تبلیغاتی')
 
+@section('css')
+<style>
+    .badge-soft-primary {
+        background-color: rgba(63, 81, 181, 0.12) !important;
+        color: #3f51b5 !important;
+        border: none;
+    }
+    .badge-soft-success {
+        background-color: rgba(10, 207, 151, 0.12) !important;
+        color: #0acf97 !important;
+        border: none;
+    }
+    .badge-soft-danger {
+        background-color: rgba(242, 18, 94, 0.12) !important;
+        color: #f2125e !important;
+        border: none;
+    }
+    .badge-soft-warning {
+        background-color: rgba(255, 131, 0, 0.12) !important;
+        color: #ff8300 !important;
+        border: none;
+    }
+    .badge-soft-info {
+        background-color: rgba(0, 188, 212, 0.12) !important;
+        color: #0097a7 !important;
+        border: none;
+    }
+    .badge-soft-secondary {
+        background-color: rgba(108, 117, 125, 0.12) !important;
+        color: #495057 !important;
+        border: none;
+    }
+
+    .kpi-icon-badge {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        min-height: 56px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .kpi-icon-badge i {
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+
+    .table td, .table th {
+        line-height: 1.8 !important;
+        padding: 12px 10px !important;
+        vertical-align: middle;
+    }
+    .sms-content-cell {
+        max-width: 320px;
+        line-height: 1.8 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        vertical-align: middle;
+        padding-bottom: 4px;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid py-3">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">گزارش پیامک‌ها و کمپین‌های تبلیغاتی</h3>
             <p class="text-muted small mb-0">تحلیل عملکرد بر اساس هر خط فرستنده، کمپین‌های انبوه و تکی و نرخ موفقیت ارسال‌ها</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            @if(auth()->user()?->isSuperAdmin() && isset($all_businesses) && $all_businesses->isNotEmpty())
+                <form method="GET" action="{{ route('admin.sms.reports.advertising.index') }}" class="d-flex flex-wrap gap-2 m-0">
+                    <select name="business_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        @foreach($all_businesses as $b)
+                            <option value="{{ $b->id }}" {{ $business->id === $b->id ? 'selected' : '' }}>
+                                {{ $b->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+            @endif
             <a href="{{ route('admin.sms.reports.advertising.export', request()->all()) }}" class="btn btn-success btn-sm">
                 <i class="fa fa-file-excel-o me-1"></i> خروجی اکسل
             </a>
@@ -22,16 +100,16 @@
         </div>
     </div>
 
-    @include('Admin.sms.financial.navigation')
+    @include('Admin.sms.reports.navigation')
 
     <!-- KPI Summary Cards -->
     <div class="row g-3 mb-4">
         <!-- Total Campaigns -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary me-3">
-                        <i class="fa fa-bullhorn fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-primary">
+                        <i class="fa fa-bullhorn"></i>
                     </div>
                     <div>
                         <div class="text-muted small">تعداد کمپین‌های تبلیغاتی</div>
@@ -45,9 +123,9 @@
         <!-- Total Messages -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-info bg-opacity-10 text-info me-3">
-                        <i class="fa fa-paper-plane fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-info">
+                        <i class="fa fa-paper-plane"></i>
                     </div>
                     <div>
                         <div class="text-muted small">کل پیامک‌های ارسالی</div>
@@ -61,9 +139,9 @@
         <!-- Total Cost -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-danger bg-opacity-10 text-danger me-3">
-                        <i class="fa fa-money fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-danger">
+                        <i class="fa fa-money"></i>
                     </div>
                     <div>
                         <div class="text-muted small">مجموع هزینه تبلیغاتی</div>
@@ -77,9 +155,9 @@
         <!-- Delivery Rate -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="p-3 rounded-circle bg-success bg-opacity-10 text-success me-3">
-                        <i class="fa fa-check-circle fa-2x"></i>
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="kpi-icon-badge badge-soft-success">
+                        <i class="fa fa-check-circle"></i>
                     </div>
                     <div>
                         <div class="text-muted small">نرخ تحویل و موفقیت</div>
@@ -240,7 +318,7 @@
 
     <!-- Messages Table -->
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h6 class="fw-bold mb-0"><i class="fa fa-envelope-o me-1"></i> پیامک‌های تبلیغاتی</h6>
             <span class="badge bg-light text-dark">{{ $messages->total() }} پیامک</span>
         </div>
@@ -265,22 +343,42 @@
                             <td>{{ $msg->id }}</td>
                             <td>{{ $msg->senderNumber?->number ?? $msg->sender_phone ?? '-' }}</td>
                             <td class="fw-bold">{{ $msg->recipient_phone }}</td>
-                            <td class="text-start" style="max-width: 250px;">
+                            <td class="text-start" style="max-width: 320px;">
                                 @if($msg->content_redacted ?? false)
                                     <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
                                 @else
-                                    <div class="text-truncate" title="{{ $msg->content }}">{{ $msg->content }}</div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</span>
+                                        <button type="button" class="btn btn-sm btn-link p-0 text-primary view-details-btn" 
+                                                title="مشاهده متن کامل"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#smsDetailsModal"
+                                                data-toggle="modal"
+                                                data-target="#smsDetailsModal"
+                                                data-content="{{ $msg->content }}"
+                                                data-id="{{ $msg->id }}"
+                                                data-recipient="{{ $msg->recipient_phone }}"
+                                                data-sender="{{ $msg->senderNumber?->number ?? $msg->sender_phone ?? '-' }}"
+                                                data-status="{{ in_array($msg->status, ['delivered', 'sent']) ? 'تحویل شد' : ($msg->status === 'queued' ? 'در صف' : 'ناموفق') }}"
+                                                data-cost="{{ number_format($msg->cost ?? 0) }}"
+                                                data-pages="{{ $msg->page_count }}"
+                                                data-chars="{{ $msg->character_count }}"
+                                                data-tracking="{{ $msg->tracking_id ?: '-' }}"
+                                                data-date="{{ $msg->created_at->format('Y/m/d H:i') }}">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
                                 @endif
                             </td>
                             <td>{{ $msg->character_count }} / {{ $msg->page_count }}</td>
                             <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
                             <td>
                                 @if(in_array($msg->status, ['delivered', 'sent']))
-                                    <span class="badge bg-success bg-opacity-10 text-success">موفق</span>
+                                    <span class="badge badge-soft-success">موفق</span>
                                 @elseif($msg->status === 'queued')
-                                    <span class="badge bg-warning bg-opacity-10 text-warning">در صف</span>
+                                    <span class="badge badge-soft-warning">در صف</span>
                                 @else
-                                    <span class="badge bg-danger bg-opacity-10 text-danger">ناموفق</span>
+                                    <span class="badge badge-soft-danger">ناموفق</span>
                                 @endif
                             </td>
                             <td><code>{{ $msg->tracking_id ?? '-' }}</code></td>
@@ -301,4 +399,64 @@
         @endif
     </div>
 </div>
+
+<!-- SMS Details Modal -->
+<div class="modal fade" id="smsDetailsModal" tabindex="-1" role="dialog" aria-labelledby="smsDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="smsDetailsModalLabel"><i class="fa fa-info-circle me-1 text-primary"></i> جزئیات کامل پیامک</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-md-3"><strong>فرستنده:</strong> <span id="mSender" dir="ltr" class="d-inline-block"></span></div>
+                    <div class="col-6 col-md-3"><strong>گیرنده:</strong> <span id="mRecipient" dir="ltr" class="d-inline-block fw-bold"></span></div>
+                    <div class="col-6 col-md-3"><strong>وضعیت:</strong> <span id="mStatus"></span></div>
+                    <div class="col-6 col-md-3"><strong>شناسه رهگیری:</strong> <span id="mTracking" dir="ltr" class="font-monospace"></span></div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-md-3"><strong>تعداد صفحات:</strong> <span id="mPages"></span></div>
+                    <div class="col-6 col-md-3"><strong>تعداد کاراکتر:</strong> <span id="mChars"></span></div>
+                    <div class="col-6 col-md-3"><strong>هزینه:</strong> <span id="mCost" class="text-danger fw-bold"></span> ریال</div>
+                    <div class="col-6 col-md-3"><strong>تاریخ ارسال:</strong> <span id="mDate"></span></div>
+                </div>
+                <div class="mb-0">
+                    <label class="fw-bold mb-1">متن پیامک:</label>
+                    <div class="p-3 bg-light rounded border text-start" style="white-space: pre-wrap; line-height: 1.8; max-height: 200px; overflow-y: auto;" id="mContent"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('js')
+<script>
+$(document).ready(function() {
+    $(document).on('click', '.view-details-btn', function() {
+        var btn = $(this);
+        $('#mSender').text(btn.data('sender') || '-');
+        $('#mRecipient').text(btn.data('recipient') || '-');
+        $('#mStatus').text(btn.data('status') || '-');
+        $('#mTracking').text(btn.data('tracking') || '-');
+        $('#mPages').text(btn.data('pages') || '1');
+        $('#mChars').text(btn.data('chars') || '0');
+        $('#mCost').text(btn.data('cost') || '0');
+        $('#mDate').text(btn.data('date') || '-');
+        $('#mContent').text(btn.data('content') || '');
+
+        var modalEl = document.getElementById('smsDetailsModal');
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            var modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+            modal.show();
+        } else if (typeof $ !== 'undefined' && $.fn.modal) {
+            $('#smsDetailsModal').modal('show');
+        }
+    });
+});
+</script>
 @endsection

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\SmsSettings;
 
 use App\Http\Controllers\Controller;
+use App\Models\GhorfeOnlineList;
 use App\Models\SmsMessageGroup;
 use App\Models\SmsMessageTemplate;
 use App\Services\SmsSettings\SmsMessageGroupService;
@@ -22,35 +23,53 @@ class SmsMessageTemplateController extends Controller
     }
 
     /**
-     * Display listing of templates.
+     * Resolve the active business for scoping.
      */
-    public function index(Request $request): View
+    protected function resolveBusiness(Request $request): ?GhorfeOnlineList
     {
         $business = ghorfe();
-        $filters = $request->only(['service_type', 'status', 'group_id', 'search', 'per_page']);
-        $templates = $this->templateService->list($filters);
-        $groups = $this->groupService->tree();
+        if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
+            $targetBusinessId = $request->input('business_id') ?: $request->input('business');
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : null;
+        }
 
-        return view('Admin.sms.settings.templates.index', compact('templates', 'groups', 'filters', 'business'));
+        return $business;
     }
 
     /**
-     * Show form for creating a new template.
+     * Display listing of templates for the current business.
      */
-    public function create(): View
+    public function index(Request $request): View
     {
-        $business = ghorfe();
-        $groupOptions = $this->groupService->options();
-        $groups = $this->groupService->tree();
+        $business = $this->resolveBusiness($request);
+        $all_businesses = auth()->user()?->isSuperAdmin() ? GhorfeOnlineList::select('id', 'title')->get() : collect();
+
+        $filters = $request->only(['service_type', 'status', 'group_id', 'search', 'per_page']);
+        $templates = $this->templateService->list($filters, $business?->id);
+        $groups = $this->groupService->tree($business?->id);
+
+        return view('Admin.sms.settings.templates.index', compact('templates', 'groups', 'filters', 'business', 'all_businesses'));
+    }
+
+    /**
+     * Show form for creating a new template for the current business.
+     */
+    public function create(Request $request): View
+    {
+        $business = $this->resolveBusiness($request);
+        $groupOptions = $this->groupService->options($business?->id);
+        $groups = $this->groupService->tree($business?->id);
 
         return view('Admin.sms.settings.templates.create', compact('groupOptions', 'groups', 'business'));
     }
 
     /**
-     * Store a newly created template.
+     * Store a newly created template for the current business.
      */
     public function store(Request $request): RedirectResponse
     {
+        $business = $this->resolveBusiness($request);
+
         $validated = $request->validate([
             'title' => 'required|string|max:191',
             'content' => 'required|string|max:1000',
@@ -64,30 +83,53 @@ class SmsMessageTemplateController extends Controller
             'status.required' => 'وضعیت الگو را مشخص کنید.',
         ]);
 
-        $template = $this->templateService->create($validated, Auth::id());
+        // Security: verify chosen group belongs to the same business
+        if (!empty($validated['sms_message_group_id']) && $business) {
+            $group = SmsMessageGroup::find($validated['sms_message_group_id']);
+            if ($group && $group->ghorfe_online_list_id && $group->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
+                abort(403, 'گروه انتخابی متعلق به کسب‌وکار شما نیست.');
+            }
+        }
 
-        return redirect()->route('admin.sms.settings.templates.index')
+        $template = $this->templateService->create($validated, Auth::id(), $business?->id);
+
+        $redirectParams = $business && auth()->user()?->isSuperAdmin() ? ['business_id' => $business->id] : [];
+
+        return redirect()->route('admin.sms.settings.templates.index', $redirectParams)
             ->with('success', "الگوی پیامک «{$template->title}» با موفقیت افزوده شد.");
     }
 
     /**
      * Show form for editing a template.
      */
-    public function edit(SmsMessageTemplate $template): View
+    public function edit(Request $request, SmsMessageTemplate $template): View
     {
-        $business = ghorfe();
-        $groupOptions = $this->groupService->options();
-        $groups = $this->groupService->tree();
+        $business = $this->resolveBusiness($request);
+
+        // Security: customer cannot edit another customer's template
+        if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
+            abort(403, 'شما اجازه دسترسی به این الگوی پیامک را ندارید.');
+        }
+
+        $targetBizId = $template->ghorfe_online_list_id ?: $business?->id;
+        $groupOptions = $this->groupService->options($targetBizId);
+        $groups = $this->groupService->tree($targetBizId);
 
         return view('Admin.sms.settings.templates.edit', compact('template', 'groupOptions', 'groups', 'business'));
     }
 
     /**
      * Update an existing template.
-     * Fires SmsMessageTemplateObserver to record history snapshot.
      */
     public function update(Request $request, SmsMessageTemplate $template): RedirectResponse
     {
+        $business = $this->resolveBusiness($request);
+
+        // Security: customer cannot update another customer's template
+        if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
+            abort(403, 'شما اجازه دسترسی به این الگوی پیامک را ندارید.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:191',
             'content' => 'required|string|max:1000',
@@ -103,19 +145,30 @@ class SmsMessageTemplateController extends Controller
 
         $this->templateService->update($template, $validated, Auth::id());
 
-        return redirect()->route('admin.sms.settings.templates.index')
+        $redirectParams = $business && auth()->user()?->isSuperAdmin() ? ['business_id' => $business->id] : [];
+
+        return redirect()->route('admin.sms.settings.templates.index', $redirectParams)
             ->with('success', "الگوی پیامک «{$template->title}» با موفقیت به‌روزرسانی شد و در تاریخچه ثبت گردید.");
     }
 
     /**
      * Delete a template.
      */
-    public function destroy(SmsMessageTemplate $template): RedirectResponse
+    public function destroy(Request $request, SmsMessageTemplate $template): RedirectResponse
     {
+        $business = $this->resolveBusiness($request);
+
+        // Security: customer cannot delete another customer's template
+        if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
+            abort(403, 'شما اجازه دسترسی به این الگوی پیامک را ندارید.');
+        }
+
         $title = $template->title;
         $this->templateService->delete($template);
 
-        return redirect()->route('admin.sms.settings.templates.index')
+        $redirectParams = $business && auth()->user()?->isSuperAdmin() ? ['business_id' => $business->id] : [];
+
+        return redirect()->route('admin.sms.settings.templates.index', $redirectParams)
             ->with('success', "الگوی پیامک «{$title}» با موفقیت حذف شد.");
     }
 
@@ -140,6 +193,13 @@ class SmsMessageTemplateController extends Controller
      */
     public function toggleStatus(Request $request, SmsMessageTemplate $template): JsonResponse|RedirectResponse
     {
+        $business = $this->resolveBusiness($request);
+
+        // Security: customer cannot toggle another customer's template
+        if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
+            abort(403, 'شما اجازه دسترسی به این الگوی پیامک را ندارید.');
+        }
+
         $updated = $this->templateService->toggleStatus($template);
 
         if ($request->wantsJson()) {
@@ -158,7 +218,13 @@ class SmsMessageTemplateController extends Controller
      */
     public function history(Request $request, SmsMessageTemplate $template): View
     {
-        $business = ghorfe();
+        $business = $this->resolveBusiness($request);
+
+        // Security: customer cannot view history of another customer's template
+        if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
+            abort(403, 'شما اجازه دسترسی به این الگوی پیامک را ندارید.');
+        }
+
         $historyId = $request->input('history_id') ? (int) $request->input('history_id') : null;
         $historyData = $this->templateService->getHistoryWithDiff($template, $historyId);
 

@@ -23,6 +23,10 @@ class SmsCmsContentService
 
     public function get(string $key, string $default = ''): string
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('sms_cms_contents')) {
+            return $default;
+        }
+
         $value = Cache::rememberForever(self::CACHE_PREFIX . $key, function () use ($key) {
             return SmsCmsContent::where('key', $key)->value('value');
         });
@@ -32,6 +36,10 @@ class SmsCmsContentService
 
     public function set(string $key, string $value): void
     {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('sms_cms_contents')) {
+            return;
+        }
+
         SmsCmsContent::updateOrCreate(
             ['key' => $key],
             ['value' => $value, 'updated_by' => auth()->id()]

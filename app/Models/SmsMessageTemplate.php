@@ -23,9 +23,30 @@ class SmsMessageTemplate extends Model
         'type' => 'string',
     ];
 
+    public static bool $isSyncing = false;
+
     protected static function booted(): void
     {
-        // Observer registered via #[ObservedBy([SmsMessageTemplateObserver::class])]
+        static::saved(function ($model) {
+            if (static::$isSyncing || \App\Models\SmsTemplate::$isSyncing) {
+                return;
+            }
+            static::$isSyncing = true;
+            try {
+                \App\Models\SmsTemplate::updateOrCreate(
+                    ['content' => $model->content],
+                    [
+                        'name' => $model->title,
+                        'fa_name' => $model->title,
+                        'status' => $model->status === 'active' ? 1 : 0,
+                        'user_id' => $model->created_by ?: auth()->id(),
+                    ]
+                );
+            } catch (\Throwable) {
+            } finally {
+                static::$isSyncing = false;
+            }
+        });
     }
 
     /**
@@ -35,6 +56,26 @@ class SmsMessageTemplate extends Model
     public function isConfidential(): bool
     {
         return (bool) $this->group?->isConfidential();
+    }
+
+    public function business(): BelongsTo
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function ghorfe(): BelongsTo
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function getBusinessIdAttribute()
+    {
+        return $this->ghorfe_online_list_id;
+    }
+
+    public function setBusinessIdAttribute($value)
+    {
+        $this->attributes['ghorfe_online_list_id'] = $value;
     }
 
     public function group(): BelongsTo

@@ -73,7 +73,9 @@ class GhorfeOnlineList extends Model implements HasMedia
      */
     protected $casts = [
         'sms_code' => 'array',
-        'footer_tag' => 'array'
+        'footer_tag' => 'array',
+        'sms_contract_accepted' => 'boolean',
+        'sms_contract_accepted_at' => 'datetime',
     ];
     /**
      * Return the sluggable configuration array for this model.

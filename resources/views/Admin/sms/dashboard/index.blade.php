@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">پیش‌خوان سرویس پیامک</h3>
             <p class="text-muted small mb-0">
@@ -12,53 +12,105 @@
                 به بخش‌های سرویس پیامک.
             </p>
         </div>
-        <form method="GET" class="d-flex gap-2">
-            <select name="days" class="form-select form-select-sm" onchange="this.form.submit()">
-                <option value="7" {{ $days == 7 ? 'selected' : '' }}>۷ روز گذشته</option>
-                <option value="30" {{ $days == 30 ? 'selected' : '' }}>۳۰ روز گذشته</option>
-                <option value="90" {{ $days == 90 ? 'selected' : '' }}>۹۰ روز گذشته</option>
-            </select>
-        </form>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            @if(auth()->user()?->isSuperAdmin() && isset($all_businesses) && $all_businesses->isNotEmpty())
+                <form method="GET" action="{{ route('admin.sms.dashboard.index') }}" class="d-flex flex-wrap gap-2 m-0">
+                    <input type="hidden" name="days" value="{{ $days }}">
+                    <select name="business_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        @foreach($all_businesses as $b)
+                            <option value="{{ $b->id }}" {{ $business->id === $b->id ? 'selected' : '' }}>
+                                {{ $b->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+                <a href="{{ route('admin.sms.reports.superadmin.index') }}" class="btn btn-outline-info btn-sm">
+                    <i class="fa fa-globe me-1"></i> گزارش کلان کسب‌وکارها
+                </a>
+            @endif
+            <form method="GET" class="d-flex flex-wrap gap-2 m-0">
+                @if(request()->filled('business_id'))
+                    <input type="hidden" name="business_id" value="{{ request('business_id') }}">
+                @endif
+                <select name="days" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="7" {{ $days == 7 ? 'selected' : '' }}>۷ روز گذشته</option>
+                    <option value="30" {{ $days == 30 ? 'selected' : '' }}>۳۰ روز گذشته</option>
+                    <option value="90" {{ $days == 90 ? 'selected' : '' }}>۹۰ روز گذشته</option>
+                </select>
+            </form>
+        </div>
     </div>
 
-    {{-- Balance cards: same card/widget pattern used on the main admin dashboard (Admin.index) --}}
-    <div class="row page-header">
-        <div class="col-lg-3 col-md-6">
-            <div class="data-box card overflow-hidden">
-                <div class="card-body text-center">
-                    <h5 class="title-box">موجودی OTP</h5>
-                    <div class="d-flex align-items-center justify-content-center m-b-10 font-size-22">
-                        <p>{{ number_format($otpBalance) }} ریال</p>
+    {{-- Balance & KPI cards --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #10b981 !important; border-radius: 12px;">
+                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small fw-bold">موجودی اعتبار OTP</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #ecfdf5; color: #10b981;">
+                            <i class="fa fa-shield"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($otpBalance) }} <small class="fs-6 text-muted">ریال</small></h4>
+                        <div class="text-success small fw-semibold">
+                            <i class="fa fa-check-circle me-1"></i> وضعیت نرمال
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="data-box card overflow-hidden">
-                <div class="card-body text-center">
-                    <h5 class="title-box">ارسال‌شده ({{ $days }} روز اخیر)</h5>
-                    <div class="d-flex align-items-center justify-content-center m-b-10 font-size-22">
-                        <p>{{ number_format($volume['sent']) }}</p>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #3b82f6 !important; border-radius: 12px;">
+                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small fw-bold">ارسال‌شده ({{ $days }} روز اخیر)</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #eff6ff; color: #3b82f6;">
+                            <i class="fa fa-paper-plane"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($volume['sent']) }}</h4>
+                        <div class="text-muted small">
+                            موفق: <span class="text-success fw-bold">{{ number_format($volume['success']) }}</span> | ناموفق: <span class="text-danger fw-bold">{{ number_format($volume['failed']) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="data-box card overflow-hidden">
-                <div class="card-body text-center">
-                    <h5 class="title-box">دریافت‌شده ({{ $days }} روز اخیر)</h5>
-                    <div class="d-flex align-items-center justify-content-center m-b-10 font-size-22">
-                        <p>{{ number_format($volume['received']) }}</p>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #8b5cf6 !important; border-radius: 12px;">
+                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small fw-bold">دریافت‌شده ({{ $days }} روز اخیر)</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #f5f3ff; color: #8b5cf6;">
+                            <i class="fa fa-inbox"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($volume['received']) }}</h4>
+                        <div class="text-muted small">
+                            پیامک‌های دریافتی از مخاطبان
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="data-box card overflow-hidden">
-                <div class="card-body text-center">
-                    <h5 class="title-box">هزینه ({{ $days }} روز اخیر)</h5>
-                    <div class="d-flex align-items-center justify-content-center m-b-10 font-size-22">
-                        <p>{{ number_format($volume['total_cost']) }} ریال</p>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #f59e0b !important; border-radius: 12px;">
+                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small fw-bold">هزینه ({{ $days }} روز اخیر)</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #fffbeb; color: #f59e0b;">
+                            <i class="fa fa-credit-card"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($volume['total_cost']) }} <small class="fs-6 text-muted">ریال</small></h4>
+                        <div class="text-muted small">
+                            مجموع هزینه مصرف‌شده
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,7 +136,7 @@
                         <tbody>
                             @forelse($advertisingBalances as $sender)
                                 <tr>
-                                    <td class="font-monospace">{{ $sender->number }}</td>
+                                    <td class="font-monospace"><span dir="ltr">{{ $sender->number }}</span></td>
                                     <td>
                                         <span class="badge {{ $sender->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
                                             {{ $sender->status === 'active' ? 'فعال' : 'غیرفعال' }}
@@ -164,23 +216,27 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-6 col-md-3">
-                            <a href="{{ route('sms.single') }}" class="btn btn-outline-primary w-100 py-3">
-                                <i class="fa fa-paper-plane d-block fs-4 mb-1"></i> ارسال پیامک تکی
+                            <a href="{{ route('admin.sms.single.index') }}" class="btn btn-primary w-100 py-3 shadow-sm text-white">
+                                <i class="fa fa-paper-plane d-block fs-4 mb-1"></i>
+                                <span class="fw-bold">ارسال پیامک تکی</span>
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="{{ route('groupsms.create') }}" class="btn btn-outline-primary w-100 py-3">
-                                <i class="fa fa-users d-block fs-4 mb-1"></i> ارسال پیامک گروهی
+                            <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary w-100 py-3 shadow-sm text-white">
+                                <i class="fa fa-users d-block fs-4 mb-1"></i>
+                                <span class="fw-bold">ارسال پیامک گروهی</span>
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-primary w-100 py-3">
-                                <i class="fa fa-file-text-o d-block fs-4 mb-1"></i> قالب‌های پیامک
+                            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
+                                <i class="fa fa-file-text-o d-block fs-4 mb-1"></i>
+                                <span class="fw-bold">قالب‌های پیامک</span>
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.logs.index') }}" class="btn btn-outline-primary w-100 py-3">
-                                <i class="fa fa-list d-block fs-4 mb-1"></i> گزارش‌ها و فهرست پیامک‌ها
+                            <a href="{{ route('admin.sms.logs.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
+                                <i class="fa fa-list d-block fs-4 mb-1"></i>
+                                <span class="fw-bold">فهرست و لاگ پیامک‌ها</span>
                             </a>
                         </div>
                     </div>

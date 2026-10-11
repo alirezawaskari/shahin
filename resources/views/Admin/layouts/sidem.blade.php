@@ -407,9 +407,7 @@
                     @permission('sms-ai')
                     <li><a href="{{ route('admin.sms.ai.index') }}">ارسال هوشمند با AI</a></li>
                     @endpermission
-                    @permission('sms-template')
-                    <li><a href="{{ route('smsTemplate.index') }}">قالب های پیامکی</a></li>
-                    @endpermission
+
                     @permission('sms-list')
                     <li><a href="{{ route('groupsms.index') }}">فهرست پیامک ها</a></li>
                     @endpermission

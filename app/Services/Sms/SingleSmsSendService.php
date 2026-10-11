@@ -368,6 +368,16 @@ class SingleSmsSendService
             $balanceInfo,
             $data
         ) {
+            $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
+            $classification = $data['classification'] ?? $data['type'] ?? 'regular';
+
+            if ($groupId) {
+                $group = \App\Models\SmsMessageGroup::find($groupId);
+                if ($group && $group->isConfidential()) {
+                    $classification = 'classified';
+                }
+            }
+
             $smsMessage = SmsMessage::create([
                 'ghorfe_online_list_id' => $business->id,
                 'direction' => 'outbound',
@@ -376,7 +386,8 @@ class SingleSmsSendService
                 'recipient_phone' => $recipientPhone,
                 'sender_phone' => $senderNumber->number,
                 'sms_message_template_id' => $data['sms_message_template_id'] ?? null,
-                'sms_message_group_id' => $data['sms_message_group_id'] ?? null,
+                'sms_message_group_id' => $groupId,
+                'classification' => $classification,
                 'content' => $finalContent,
                 'character_count' => $characterCount,
                 'page_count' => $pageCount,
@@ -407,6 +418,23 @@ class SingleSmsSendService
                 'tracking_id' => $trackingId,
                 'created_by' => $creator?->id,
             ]);
+
+            // Legacy backward-compatibility record
+            try {
+                \App\Models\Groupsms::create([
+                    'title' => $serviceType === 'otp' ? 'پیامک اعتبارسنجی' : ($serviceType === 'advertising' ? 'پیامک تبلیغاتی' : 'پیامک تکی'),
+                    'message' => $finalContent,
+                    'phones' => $recipientPhone,
+                    'type' => 'single',
+                    'status' => 2,
+                    'flag' => true,
+                    'send_at' => now(),
+                    'ghorfe_online_list_id' => $business?->id,
+                    'sms_message_group_id' => $groupId,
+                    'classification' => $classification,
+                    'sms_message_id' => $smsMessage->id,
+                ]);
+            } catch (\Throwable) {}
 
             // Dispatch through external gateway
             try {

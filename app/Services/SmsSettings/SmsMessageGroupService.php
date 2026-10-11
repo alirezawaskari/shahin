@@ -12,12 +12,14 @@ class SmsMessageGroupService
     /**
      * Get hierarchical list of message groups with subgroups and template counts.
      */
-    public function tree(): Collection
+    public function tree(?int $businessId = null): Collection
     {
         return SmsMessageGroup::query()
             ->whereNull('parent_id')
-            ->with(['children' => function ($q) {
-                $q->withCount('templates');
+            ->when($businessId, fn($q) => $q->where('ghorfe_online_list_id', $businessId))
+            ->with(['children' => function ($q) use ($businessId) {
+                $q->when($businessId, fn($sq) => $sq->where('ghorfe_online_list_id', $businessId))
+                  ->withCount('templates');
             }])
             ->withCount('templates')
             ->orderBy('name')
@@ -27,10 +29,13 @@ class SmsMessageGroupService
     /**
      * Get flat list of all groups (e.g. for dropdowns).
      */
-    public function options(): array
+    public function options(?int $businessId = null): array
     {
         $roots = SmsMessageGroup::whereNull('parent_id')
-            ->with('children')
+            ->when($businessId, fn($q) => $q->where('ghorfe_online_list_id', $businessId))
+            ->with(['children' => function ($q) use ($businessId) {
+                $q->when($businessId, fn($sq) => $sq->where('ghorfe_online_list_id', $businessId));
+            }])
             ->orderBy('name')
             ->get();
 
@@ -48,14 +53,17 @@ class SmsMessageGroupService
     /**
      * Create a group or subgroup.
      */
-    public function create(array $data): SmsMessageGroup
+    public function create(array $data, ?int $businessId = null): SmsMessageGroup
     {
         $slug = !empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']);
 
-        // Ensure unique slug within same parent level
+        // Ensure unique slug within same parent level and business
         $originalSlug = $slug;
         $counter = 1;
-        while (SmsMessageGroup::where('slug', $slug)->where('parent_id', $data['parent_id'] ?? null)->exists()) {
+        while (SmsMessageGroup::where('slug', $slug)
+            ->where('parent_id', $data['parent_id'] ?? null)
+            ->where('ghorfe_online_list_id', $businessId)
+            ->exists()) {
             $slug = "{$originalSlug}-" . $counter++;
         }
 
@@ -63,7 +71,77 @@ class SmsMessageGroupService
             'name' => $data['name'],
             'slug' => $slug,
             'parent_id' => !empty($data['parent_id']) ? $data['parent_id'] : null,
+            'ghorfe_online_list_id' => $businessId,
         ]);
+    }
+
+    /**
+     * Ensure default base groups exist for a specific business.
+     */
+    public function ensureDefaultGroupsForBusiness(int $businessId): void
+    {
+        if (SmsMessageGroup::where('ghorfe_online_list_id', $businessId)->exists()) {
+            return;
+        }
+
+        $defaultGroups = [
+            [
+                'name' => 'مالی',
+                'slug' => 'mali',
+                'subgroups' => [
+                    ['name' => 'واریز پیش‌پرداخت', 'slug' => 'variz-pish-pardakht'],
+                    ['name' => 'پرداخت فاکتور', 'slug' => 'pardakht-factor'],
+                ],
+            ],
+            [
+                'name' => 'حقوقی',
+                'slug' => 'hoghoghi',
+                'subgroups' => [
+                    ['name' => 'اخطار', 'slug' => 'ekhtar'],
+                    ['name' => 'ارجاع به حقوقی', 'slug' => 'erja-be-hoghoghi'],
+                ],
+            ],
+            [
+                'name' => 'پشتیبانی',
+                'slug' => 'poshtibani',
+                'subgroups' => [
+                    ['name' => 'عدم پاسخگویی به تماس', 'slug' => 'adam-pasokhgooei-be-tamas'],
+                ],
+            ],
+            [
+                'name' => 'اجرایی',
+                'slug' => 'ejraei',
+                'subgroups' => [
+                    ['name' => 'نوبت‌دهی', 'slug' => 'nobat-dehi'],
+                    ['name' => 'تأیید جلسه', 'slug' => 'taeed-jalase'],
+                ],
+            ],
+            [
+                'name' => 'فروش',
+                'slug' => 'foroush',
+                'subgroups' => [
+                    ['name' => 'پیگیری مشتری', 'slug' => 'peygiri-moshtari'],
+                ],
+            ],
+        ];
+
+        foreach ($defaultGroups as $groupData) {
+            $parent = SmsMessageGroup::create([
+                'ghorfe_online_list_id' => $businessId,
+                'name' => $groupData['name'],
+                'slug' => $groupData['slug'],
+                'parent_id' => null,
+            ]);
+
+            foreach ($groupData['subgroups'] as $sub) {
+                SmsMessageGroup::create([
+                    'ghorfe_online_list_id' => $businessId,
+                    'parent_id' => $parent->id,
+                    'name' => $sub['name'],
+                    'slug' => $sub['slug'],
+                ]);
+            }
+        }
     }
 
     /**

@@ -4,16 +4,16 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">تاریخچه نگارش‌های الگو: {{ $template->title }}</h3>
             <p class="text-muted small mb-0">ردیابی تمامی ویرایش‌های متن و مقایسه تفاوت‌های نگارشی (Diff)</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.sms.settings.templates.edit', $template) }}" class="btn btn-primary">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('admin.sms.settings.templates.edit', $template) }}" class="btn btn-primary btn-sm">
                 <i class="fa fa-pencil me-1"></i> ویرایش الگو
             </a>
-            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fa fa-arrow-right me-1"></i> بازگشت به فهرست
             </a>
         </div>

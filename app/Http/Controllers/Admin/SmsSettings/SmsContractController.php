@@ -16,17 +16,29 @@ use Illuminate\View\View;
 class SmsContractController extends Controller
 {
     public function __construct(
-        protected SmsContractService $contractService
+        protected SmsContractService $contractService,
+        protected \App\Services\SmsSettings\SmsCmsContentService $cmsContent
     ) {
     }
 
     /**
      * Display SMS contracts management view.
-     * Shows global OTP contract and per-business advertising contracts.
+     * Shows SMS usage agreement (sign once, view-only once signed),
+     * global OTP contract, and per-business advertising contracts.
      */
     public function index(Request $request): View
     {
         $business = ghorfe();
+
+        if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
+            $targetBusinessId = $request->input('business_id') ?: $request->input('business');
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : null;
+        }
+
+        $all_businesses = auth()->user()?->isSuperAdmin()
+            ? GhorfeOnlineList::select('id', 'title', 'sms_contract_accepted', 'sms_contract_accepted_at', 'sms_contract_signature_name')->get()
+            : collect();
+
         $otpContractUsage = $this->contractService->getOtpContract();
 
         $advertisingContracts = null;
@@ -42,13 +54,25 @@ class SmsContractController extends Controller
         $folders = ContractFolder::options();
         $bankContracts = Contract::latest('id')->take(50)->get();
 
+        $contractText = $this->cmsContent->contractText();
+        $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
+        $isContractSigned = (bool) ($business?->sms_contract_accepted);
+        $contractSigner = $business?->sms_contract_signature_name;
+        $contractSignedAt = $business?->sms_contract_accepted_at;
+
         return view('Admin.sms.settings.contracts.index', compact(
             'otpContractUsage',
             'businessAdvUsage',
             'advertisingContracts',
             'business',
+            'all_businesses',
             'folders',
-            'bankContracts'
+            'bankContracts',
+            'contractText',
+            'regulatoryRulesText',
+            'isContractSigned',
+            'contractSigner',
+            'contractSignedAt'
         ));
     }
 
@@ -57,6 +81,10 @@ class SmsContractController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (!auth()->user()?->isSuperAdmin()) {
+            abort(403, 'تنظیم و تغییر قراردادها منحصراً در اختیار مدیریت ارشد سامانه است.');
+        }
+
         $validated = $request->validate([
             'service_type' => 'required|in:otp,advertising',
             'mode' => 'required|in:new,existing',
@@ -108,6 +136,10 @@ class SmsContractController extends Controller
      */
     public function update(Request $request, ContractUsage $contractUsage): RedirectResponse
     {
+        if (!auth()->user()?->isSuperAdmin()) {
+            abort(403, 'ویرایش اطلاعات قرارداد منحصراً در اختیار مدیریت ارشد سامانه است.');
+        }
+
         $validated = $request->validate([
             'contract_number' => 'nullable|string|max:100',
             'contract_date' => 'nullable|date',
@@ -124,6 +156,10 @@ class SmsContractController extends Controller
      */
     public function destroy(ContractUsage $contractUsage): RedirectResponse
     {
+        if (!auth()->user()?->isSuperAdmin()) {
+            abort(403, 'لغو قرارداد منحصراً در اختیار مدیریت ارشد سامانه است.');
+        }
+
         $this->contractService->detachUsage($contractUsage);
 
         return redirect()->route('admin.sms.settings.contracts.index')

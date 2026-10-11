@@ -28,8 +28,20 @@ class SmsFinancialController extends Controller
     {
         $business = ghorfe();
 
-        if (!$business && auth()->user()?->isSuperAdmin() && $request->filled('business_id')) {
-            $business = GhorfeOnlineList::find($request->input('business_id'));
+        if (!$business && auth()->user()?->isSuperAdmin()) {
+            $businessId = $request->input('business_id') ?: $request->input('business');
+            if ($businessId) {
+                $business = GhorfeOnlineList::find($businessId);
+            }
+            if (!$business && $request->filled('sender_number_id')) {
+                $sender = SenderNumber::find($request->input('sender_number_id'));
+                if ($sender) {
+                    $business = $sender->businesses()->first();
+                }
+            }
+            if (!$business) {
+                $business = GhorfeOnlineList::first();
+            }
         }
 
         return $business ?? abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
@@ -43,7 +55,8 @@ class SmsFinancialController extends Controller
     {
         return !ghorfe()
             && auth()->user()?->isSuperAdmin()
-            && !$request->filled('business_id');
+            && !$request->filled('business_id')
+            && !$request->filled('business');
     }
 
     /**
@@ -54,6 +67,10 @@ class SmsFinancialController extends Controller
     public function otpView(Request $request): View|JsonResponse|RedirectResponse
     {
         if ($this->superAdminWithoutBusiness($request)) {
+            $firstBusinessId = GhorfeOnlineList::query()->value('id');
+            if ($firstBusinessId) {
+                return redirect()->route('admin.sms.financial.otp.index', ['business_id' => $firstBusinessId]);
+            }
             return redirect()->route('admin.sms.reports.superadmin.index');
         }
 
@@ -142,6 +159,10 @@ class SmsFinancialController extends Controller
     public function advertisingView(Request $request, ?SenderNumber $senderNumber = null): View|JsonResponse|RedirectResponse
     {
         if ($this->superAdminWithoutBusiness($request)) {
+            $firstBusinessId = GhorfeOnlineList::query()->value('id');
+            if ($firstBusinessId) {
+                return redirect()->route('admin.sms.financial.advertising.index', ['business_id' => $firstBusinessId]);
+            }
             return redirect()->route('admin.sms.reports.superadmin.index');
         }
 

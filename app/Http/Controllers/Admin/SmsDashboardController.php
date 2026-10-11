@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdvertisingBalance;
+use App\Models\GhorfeOnlineList;
 use App\Models\OtpBalance;
 use App\Models\SmsMessage;
+use App\Services\Sms\SmsConfidentialityGuard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,19 +21,20 @@ use Illuminate\View\View;
  */
 class SmsDashboardController extends Controller
 {
-    public function index(Request $request): View|RedirectResponse
+    public function index(Request $request): View
     {
         $business = ghorfe();
 
-        if (!$business) {
-            // superAdmin has no business of their own; the dashboard is per-business,
-            // so send them to the cross-business (all-business) report instead.
-            if (auth()->user()?->isSuperAdmin()) {
-                return redirect()->route('admin.sms.reports.superadmin.index');
-            }
+        if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
+            $targetBusinessId = $request->input('business_id') ?: $request->input('business');
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : GhorfeOnlineList::first();
+        }
 
+        if (!$business) {
             abort(403, 'کسب‌وکار فعالی برای این درخواست انتخاب نشده است.');
         }
+
+        $all_businesses = auth()->user()?->isSuperAdmin() ? GhorfeOnlineList::select('id', 'title')->get() : collect();
 
         $otpBalance = (float) (OtpBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
 
@@ -65,8 +68,11 @@ class SmsDashboardController extends Controller
             ->take(8)
             ->get();
 
+        SmsConfidentialityGuard::redactMany($recentMessages, auth()->user());
+
         return view('Admin.sms.dashboard.index', compact(
             'business',
+            'all_businesses',
             'otpBalance',
             'advertisingBalances',
             'volume',

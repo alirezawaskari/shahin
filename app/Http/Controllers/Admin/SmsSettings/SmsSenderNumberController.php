@@ -77,6 +77,13 @@ class SmsSenderNumberController extends Controller
             $businessIds = [$business->id];
         }
 
+        // Security check: Clients/Business owners cannot approve their own contract!
+        if (!auth()->user()?->isSuperAdmin()) {
+            $validated['contract_status'] = 'در انتظار تایید تعهدنامه';
+        } else {
+            $validated['contract_status'] = $validated['contract_status'] ?: 'تایید شده';
+        }
+
         try {
             $sender = $this->senderNumberService->create($validated, $businessIds);
         } catch (ValidationException $e) {
@@ -133,6 +140,11 @@ class SmsSenderNumberController extends Controller
             'sms_panel.required' => 'پنل پیامک مربوطه را انتخاب کنید.',
             'status.required' => 'وضعیت خط را مشخص کنید.',
         ]);
+
+        // Security check: Clients/Business owners cannot modify contract_status!
+        if (!auth()->user()?->isSuperAdmin()) {
+            unset($validated['contract_status']);
+        }
 
         $businessIds = $business ? null : $request->input('business_ids', []);
 
