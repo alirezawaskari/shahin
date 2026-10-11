@@ -80,7 +80,7 @@ class SmsBulkSendController extends Controller
                 ->get();
         }
 
-        $userTier = $user ? ($user->access_tier ?: 'silver') : 'silver';
+        $userTier = $this->accessTierService->effectiveTier($user);
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
 
         return view('Admin.sms.bulk.index', compact(
@@ -199,7 +199,7 @@ class SmsBulkSendController extends Controller
                 'balance_deficit' => max(0, $totalEstimatedCost - $currentBalance),
             ],
             'access_tier' => [
-                'user_tier' => $user->access_tier ?: 'silver',
+                'user_tier' => $this->accessTierService->effectiveTier($user),
                 'required_tier' => $filterResult['required_tier'],
                 'is_allowed' => true,
             ],

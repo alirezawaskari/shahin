@@ -78,7 +78,7 @@ class GroupsmsController extends Controller
                 ->get();
         }
 
-        $userTier = $user ? ($user->access_tier ?: 'silver') : 'silver';
+        $userTier = app(\App\Services\Sms\SmsAccessTierService::class)->effectiveTier($user);
         $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
 
         return view('Admin.groupsms.create', compact(

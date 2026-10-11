@@ -143,7 +143,7 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             @php
-                $currentTier = $userTier ?? (auth()->user()?->access_tier ?: 'silver');
+                $currentTier = $userTier ?? (auth()->user()?->isSuperAdmin() ? 'titanium' : (auth()->user()?->access_tier ?: 'silver'));
                 $tierClass = match($currentTier) {
                     'titanium' => 'tier-titanium',
                     'diamond' => 'tier-diamond',

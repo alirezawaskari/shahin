@@ -63,6 +63,24 @@ class SmsAccessTierService
     }
 
     /**
+     * The tier actually in effect for a user. superAdmin is always Titanium,
+     * regardless of the raw access_tier column. Use this for display and UI gating;
+     * the raw column is only read for ordinary users.
+     */
+    public function effectiveTier(?User $user): string
+    {
+        if (!$user) {
+            return self::TIER_SILVER;
+        }
+
+        if ($user->isSuperAdmin()) {
+            return self::TIER_TITANIUM;
+        }
+
+        return $user->access_tier ?: self::TIER_SILVER;
+    }
+
+    /**
      * Check if a user's tier satisfies the required tier.
      */
     public function canAccess(User $user, string $requiredTier): bool
