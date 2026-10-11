@@ -7,6 +7,7 @@ use App\Models\CategoryPermission;
 use App\Models\Employee;
 use App\Models\GhorfeOnlineList;
 use App\Models\OtpBalance;
+use App\Models\Role;
 use App\Models\SenderNumber;
 use App\Models\ShahinPackage;
 use App\Models\User;
@@ -225,7 +226,30 @@ class CreateSmsTestUsers extends Command
 
         $user->update(['password' => Hash::make(self::PASSWORD)]);
 
+        $this->attachRole($user, $level);
+
         return $user;
+    }
+
+    /**
+     * This local dev database has zero rows in `roles`/`role_user` for ANY
+     * user, not just these test ones — every admin view that reads
+     * auth()->user()->roles->first() (e.g. resources/views/Admin/index.blade.php)
+     * crashes on a null first() regardless of who logs in. That's a
+     * pre-existing environment/data gap, out of scope to patch in main's
+     * views/models — but giving OUR OWN test users a real Laratrust role is
+     * squarely in scope, since it's this command's job to make them usable.
+     */
+    private function attachRole(User $user, string $level): void
+    {
+        $roleName = str_starts_with($level, 'ghorfeAdmin') ? 'ghorfeAdmin' : $level;
+
+        $role = Role::firstOrCreate(
+            ['name' => $roleName],
+            ['display_name' => $roleName === 'superAdmin' ? 'سوپر ادمین' : 'ادمین کسب‌وکار']
+        );
+
+        $user->roles()->syncWithoutDetaching([$role->id]);
     }
 
     /** Create or update a test business by its (test-only) en_title. */
