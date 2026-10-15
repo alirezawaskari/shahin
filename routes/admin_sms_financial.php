@@ -17,7 +17,7 @@ Route::group([
         Route::post('/otp/topup', [SmsFinancialController::class, 'otpTopUp'])->name('otp.topup');
 
         // Advertising Balance
-        Route::get('/advertising/{senderNumber?}', [SmsFinancialController::class, 'advertisingView'])->name('advertising.index');
+        Route::get('/advertising', [SmsFinancialController::class, 'advertisingView'])->name('advertising.index');
         Route::post('/advertising/topup', [SmsFinancialController::class, 'advertisingTopUp'])->name('advertising.topup');
 
         // Centralized Balance Guard Check API

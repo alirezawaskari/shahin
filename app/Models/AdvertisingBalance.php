@@ -15,7 +15,7 @@ class AdvertisingBalance extends Model
      * Balance is deliberately not mass-assignable: it may only change through
      * DebitsBalance::lockAndDebit() or the explicit balance-adjustment services.
      */
-    protected $fillable = ['ghorfe_online_list_id', 'sender_number_id'];
+    protected $fillable = ['ghorfe_online_list_id'];
 
     protected $casts = [
         'balance' => 'decimal:2',
@@ -29,11 +29,6 @@ class AdvertisingBalance extends Model
     public function ghorfe(): BelongsTo
     {
         return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
-    }
-
-    public function senderNumber(): BelongsTo
-    {
-        return $this->belongsTo(SenderNumber::class, 'sender_number_id');
     }
 
     public function hasSufficientBalance(float $amount): bool

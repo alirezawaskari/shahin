@@ -24,6 +24,8 @@ use Tests\TestCase;
 
 class SmsFoundationTest extends TestCase
 {
+    use \Tests\Concerns\SeedsSmsBalances;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -54,6 +56,7 @@ class SmsFoundationTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -80,6 +83,9 @@ class SmsFoundationTest extends TestCase
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
             'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
+            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
+            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
+            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -148,11 +154,7 @@ class SmsFoundationTest extends TestCase
     {
         $business = GhorfeOnlineList::create(['title' => 'کسب و کار ۲']);
 
-        $otpBalance = OtpBalance::create([
-            'ghorfe_online_list_id' => $business->id,
-            'balance' => 50000,
-            'low_balance_threshold' => 100000,
-        ]);
+        $otpBalance = $this->seedOtpBalance($business->id, 50000, 100000);
 
         $this->assertTrue($otpBalance->isLowBalance());
         $this->assertTrue($otpBalance->hasSufficientBalance(40000));
@@ -169,15 +171,11 @@ class SmsFoundationTest extends TestCase
             'sms_panel' => 'NeginSms',
         ]);
 
-        $advBalance = AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $business->id,
-            'sender_number_id' => $sender->id,
-            'balance' => 250000,
-        ]);
+        $advBalance = $this->seedAdvertisingBalance($business->id, 250000);
 
         $this->assertEquals(250000, (float) $advBalance->balance);
         $this->assertTrue($advBalance->hasSufficientBalance(200000));
-        $this->assertCount(1, $business->fresh()->advertisingBalances);
+        $this->assertEquals($advBalance->id, $business->fresh()->advertisingBalance->id);
     }
 
     public function test_sms_message_groups_seeder_and_hierarchy(): void

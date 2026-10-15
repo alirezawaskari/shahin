@@ -67,9 +67,7 @@ class GroupsmsController extends Controller
                 ->where('sender_numbers.status', 'active')
                 ->get()
                 ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
-                        ->where('sender_number_id', $sender->id)
-                        ->value('balance') ?? 0;
+                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
                     $sender->current_balance = (float) $balance;
                     return $sender;
                 });
@@ -278,9 +276,7 @@ class GroupsmsController extends Controller
                 ->where('sender_numbers.status', 'active')
                 ->get()
                 ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
-                        ->where('sender_number_id', $sender->id)
-                        ->value('balance') ?? 0;
+                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
                     $sender->current_balance = (float) $balance;
                     return $sender;
                 });

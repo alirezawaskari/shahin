@@ -212,11 +212,11 @@ class SingleSmsSendService
     }
 
     /**
-     * Retrieve the financial balance for the given service type and sender number.
+     * Retrieve the financial balance for the given service type. Advertising credit is shared by all of the business' advertising lines.
      *
      * @return array{balance: float, model: OtpBalance|AdvertisingBalance, credit_type: string}
      */
-    public function getBalance(string $serviceType, GhorfeOnlineList $business, SenderNumber $senderNumber): array
+    public function getBalance(string $serviceType, GhorfeOnlineList $business): array
     {
         if ($serviceType === 'otp') {
             $model = OtpBalance::firstOrCreate(
@@ -232,10 +232,7 @@ class SingleSmsSendService
         }
 
         $model = AdvertisingBalance::firstOrCreate(
-            [
-                'ghorfe_online_list_id' => $business->id,
-                'sender_number_id' => $senderNumber->id,
-            ],
+            ['ghorfe_online_list_id' => $business->id],
             []
         );
 
@@ -251,9 +248,9 @@ class SingleSmsSendService
      *
      * @throws InsufficientBalanceException
      */
-    public function verifyBalance(string $serviceType, GhorfeOnlineList $business, SenderNumber $senderNumber, float $requiredCost): array
+    public function verifyBalance(string $serviceType, GhorfeOnlineList $business, float $requiredCost): array
     {
-        $balanceInfo = $this->getBalance($serviceType, $business, $senderNumber);
+        $balanceInfo = $this->getBalance($serviceType, $business);
 
         if ($balanceInfo['balance'] < $requiredCost) {
             throw new InsufficientBalanceException(
@@ -348,7 +345,7 @@ class SingleSmsSendService
 
         // 6. Resolve the balance row. The authoritative sufficiency check runs under a
         //    row lock inside the transaction below (an unlocked pre-check here would race).
-        $balanceInfo = $this->getBalance($serviceType, $business, $senderNumber);
+        $balanceInfo = $this->getBalance($serviceType, $business);
 
         $trackingId = 'TRK-' . strtoupper(Str::random(12));
 

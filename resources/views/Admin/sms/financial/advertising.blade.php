@@ -1,6 +1,6 @@
 @extends('Admin.master')
 
-@section('title', 'مدیریت مالی و موجودی خطوط تبلیغاتی')
+@section('title', 'مدیریت مالی و موجودی پنل تبلیغاتی')
 
 @section('css')
 <style>
@@ -68,8 +68,8 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h3 class="fw-bold mb-1">مدیریت مالی و اعتبار خطوط پیامک تبلیغاتی</h3>
-            <p class="text-muted small mb-0">مشاهده موجودی بر اساس هر خط فرستنده، شارژ مجزا و کشف خطوط جایگزین دارای اعتبار کافی</p>
+            <h3 class="fw-bold mb-1">مدیریت مالی و اعتبار پنل پیامک تبلیغاتی</h3>
+            <p class="text-muted small mb-0">مشاهده موجودی پنل تبلیغاتی، شارژ و ریز تراکنش‌ها. اعتبار بین همه خطوط تبلیغاتی کسب‌وکار مشترک است</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
             @if(auth()->user()?->isSuperAdmin() && $all_businesses->isNotEmpty())
@@ -112,76 +112,19 @@
         </div>
     @endif
 
-    <!-- Sender Selection Bar -->
-    @if($assigned_senders->isNotEmpty())
-        @php
-            $bizParam = request('business_id') ? ['business_id' => request('business_id')] : [];
-        @endphp
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body py-2 d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
-                <span class="fw-bold small text-nowrap"><i class="fa fa-phone me-1"></i> انتخاب خط فرستنده:</span>
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    @foreach($assigned_senders as $s)
-                        @php
-                            $bal = $senders_summary->firstWhere('sender.id', $s->id)['balance'] ?? 0;
-                            $isActive = $active_sender && $active_sender->id === $s->id;
-                        @endphp
-                        <a href="{{ route('admin.sms.financial.advertising.index', array_merge($bizParam, ['sender_number_id' => $s->id])) }}" 
-                           class="btn btn-sm {{ $isActive ? 'btn-primary text-white' : 'btn-outline-secondary' }} d-inline-flex align-items-center gap-2 text-nowrap"
-                           style="white-space: nowrap;">
-                            <span dir="ltr">{{ $s->number }}</span>
-                            <span class="badge {{ $isActive ? 'bg-white text-primary' : 'bg-light text-dark' }}" style="position: static !important;">{{ number_format($bal) }} ریال</span>
-                        </a>
-                    @endforeach
-                </div>
+    <!-- Low / Empty Balance Banner -->
+    @if($balance <= 0)
+        <div class="alert alert-warning shadow-sm border-0 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="fa fa-info-circle text-warning me-1"></i> موجودی پنل پیامک تبلیغاتی صفر ریال می‌باشد. لطفا حساب را شارژ نمایید.
+            </h5>
+            <div class="mt-3 mt-md-0">
+                <button type="button" class="btn btn-warning text-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#advTopUpModal">
+                    <i class="fa fa-plus-circle me-1"></i> شارژ پنل تبلیغاتی
+                </button>
             </div>
-        </div>
-    @else
-        <div class="alert alert-warning shadow-sm border-0 mb-4" role="alert">
-            <i class="fa fa-exclamation-triangle me-1"></i> هیچ خط پیامک تبلیغاتی به این کسب‌وکار تخصیص داده نشده است.
         </div>
     @endif
-
-    @if($sender_details)
-        @php
-            $selectedSender = $sender_details['sender'];
-            $selectedBal = $sender_details['balance'];
-        @endphp
-
-        <!-- Insufficient Balance & Alternative Sender Banner -->
-        @if($selectedBal <= 0)
-            @php
-                $alternatives = $senders_summary->filter(function($item) use ($selectedSender) {
-                    return $item['sender']->id !== $selectedSender->id && $item['balance'] > 0;
-                });
-            @endphp
-            <div class="alert alert-warning shadow-sm border-0 d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between mb-4">
-                <div>
-                    <h5 class="fw-bold text-dark mb-1">
-                        <i class="fa fa-info-circle text-warning me-1"></i> موجودی خط {{ $selectedSender->number }} صفر ریال می‌باشد
-                    </h5>
-                    @if($alternatives->isNotEmpty())
-                        <p class="mb-0 text-muted small">
-                            خطوط تبلیغاتی جایگزین زیر در همین کسب‌وکار دارای موجودی فعال هستند و می‌توانید از آن‌ها برای ارسال استفاده فرمایید:
-                        </p>
-                        <div class="d-flex flex-wrap gap-2 mt-2">
-                            @foreach($alternatives as $alt)
-                                <a href="{{ route('admin.sms.financial.advertising.index', ['sender_number_id' => $alt['sender']->id]) }}" class="badge bg-success text-white text-decoration-none px-2 py-1">
-                                    خط {{ $alt['sender']->number }} (موجودی: {{ number_format($alt['balance']) }} ریال)
-                                </a>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="mb-0 text-muted small">هیچ خط تبلیغاتی جایگزین دارای اعتباری در این کسب‌وکار موجود نیست. لطفا حساب را شارژ نمایید.</p>
-                    @endif
-                </div>
-                <div class="mt-3 mt-md-0">
-                    <button type="button" class="btn btn-warning text-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#advTopUpModal">
-                        <i class="fa fa-plus-circle me-1"></i> شارژ همین خط
-                    </button>
-                </div>
-            </div>
-        @endif
 
         <!-- Financial KPI Cards for Active Sender -->
         <div class="row g-3 mb-4">
@@ -190,20 +133,20 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body d-flex flex-column justify-content-between p-3">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="kpi-icon-badge {{ $selectedBal > 0 ? 'badge-soft-success' : 'badge-soft-danger' }}">
+                            <div class="kpi-icon-badge {{ $balance > 0 ? 'badge-soft-success' : 'badge-soft-danger' }}">
                                 <i class="fa fa-credit-card"></i>
                             </div>
                             <div>
-                                <div class="text-muted small">موجودی خط {{ $selectedSender->number }}</div>
-                                <h4 class="fw-bold mb-0 {{ $selectedBal <= 0 ? 'text-danger' : '' }}">{{ number_format($selectedBal) }} <small class="fs-6 text-muted">ریال</small></h4>
-                                <small class="{{ $selectedBal > 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ $selectedBal > 0 ? 'دارای اعتبار ارسال' : 'فاقد موجودی' }}
+                                <div class="text-muted small">موجودی پنل تبلیغاتی</div>
+                                <h4 class="fw-bold mb-0 {{ $balance <= 0 ? 'text-danger' : '' }}">{{ number_format($balance) }} <small class="fs-6 text-muted">ریال</small></h4>
+                                <small class="{{ $balance > 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $balance > 0 ? 'دارای اعتبار ارسال' : 'فاقد موجودی' }}
                                 </small>
                             </div>
                         </div>
                         <div class="mt-2 pt-2 border-top text-end">
                             <button type="button" class="btn btn-primary btn-sm w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#advTopUpModal">
-                                <i class="fa fa-plus me-1"></i> شارژ این خط
+                                <i class="fa fa-plus me-1"></i> شارژ پنل تبلیغاتی
                             </button>
                         </div>
                     </div>
@@ -219,8 +162,8 @@
                         </div>
                         <div>
                             <div class="text-muted small">مجموع کل شارژ شده</div>
-                            <h4 class="fw-bold mb-0 text-primary">{{ number_format($sender_details['total_charged']) }} <small class="fs-6 text-muted">ریال</small></h4>
-                            <small class="text-muted">شارژ اختصاصی این خط</small>
+                            <h4 class="fw-bold mb-0 text-primary">{{ number_format($total_charged) }} <small class="fs-6 text-muted">ریال</small></h4>
+                            <small class="text-muted">شارژ پنل تبلیغاتی</small>
                         </div>
                     </div>
                 </div>
@@ -235,7 +178,7 @@
                         </div>
                         <div>
                             <div class="text-muted small">مجموع هزینه مصرفی</div>
-                            <h4 class="fw-bold mb-0 text-danger">{{ number_format($sender_details['total_consumed']) }} <small class="fs-6 text-muted">ریال</small></h4>
+                            <h4 class="fw-bold mb-0 text-danger">{{ number_format($total_consumed) }} <small class="fs-6 text-muted">ریال</small></h4>
                             <small class="text-muted">هزینه پیامک‌های ارسالی</small>
                         </div>
                     </div>
@@ -251,8 +194,8 @@
                         </div>
                         <div>
                             <div class="text-muted small">تعداد پیامک‌های ارسالی</div>
-                            <h4 class="fw-bold mb-0">{{ number_format($sender_details['message_count']) }}</h4>
-                            <small class="text-muted">پیام‌های ارسال شده از این خط</small>
+                            <h4 class="fw-bold mb-0">{{ number_format($message_count) }}</h4>
+                            <small class="text-muted">پیام‌های تبلیغاتی ارسال شده</small>
                         </div>
                     </div>
                 </div>
@@ -262,7 +205,7 @@
         <!-- History & Transactions Table -->
         <div class="row g-4 mb-4">
             <!-- Daily Aggregate History -->
-            @if($sender_details['history']->isNotEmpty())
+            @if($history->isNotEmpty())
                 <div class="col-12 col-lg-4">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-header bg-white border-0 py-3">
@@ -278,7 +221,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($sender_details['history'] as $item)
+                                    @foreach($history as $item)
                                         <tr>
                                             <td>{{ $item->date }}</td>
                                             <td class="text-success fw-bold">{{ $item->total_charged > 0 ? '+' . number_format($item->total_charged) : '-' }}</td>
@@ -293,11 +236,11 @@
             @endif
 
             <!-- Transactions List -->
-            <div class="col-12 {{ $sender_details['history']->isNotEmpty() ? 'col-lg-8' : 'col-12' }}">
+            <div class="col-12 {{ $history->isNotEmpty() ? 'col-lg-8' : 'col-12' }}">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <h6 class="fw-bold mb-0"><i class="fa fa-history me-1"></i> ریز تراکنش‌های اعتباری خط {{ $selectedSender->number }}</h6>
-                        <span class="badge bg-light text-dark">{{ $sender_details['transactions']->total() }} تراکنش</span>
+                        <h6 class="fw-bold mb-0"><i class="fa fa-history me-1"></i> ریز تراکنش‌های اعتباری پنل تبلیغاتی</h6>
+                        <span class="badge bg-light text-dark">{{ $transactions->total() }} تراکنش</span>
                     </div>
                     <div class="card-body p-0 table-responsive">
                         <table class="table table-hover align-middle mb-0 text-center small">
@@ -314,13 +257,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($sender_details['transactions'] as $tx)
+                                @forelse($transactions as $tx)
                                     <tr>
                                         <td>{{ $tx->id }}</td>
                                         <td>
                                             @if($tx->charge_amount > 0)
                                                 <span class="badge badge-soft-success px-2 py-1">
-                                                    <i class="fa fa-plus-circle me-1"></i> شارژ خط
+                                                    <i class="fa fa-plus-circle me-1"></i> شارژ پنل
                                                 </span>
                                             @else
                                                 <span class="badge badge-soft-danger px-2 py-1">
@@ -349,40 +292,38 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-muted py-4">هیچ تراکنشی برای این خط یافت نشد.</td>
+                                        <td colspan="8" class="text-muted py-4">هیچ تراکنشی یافت نشد.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    @if($sender_details['transactions']->hasPages())
+                    @if($transactions->hasPages())
                         <div class="card-footer bg-white border-0 py-3">
-                            {{ $sender_details['transactions']->links() }}
+                            {{ $transactions->links() }}
                         </div>
                     @endif
                 </div>
             </div>
         </div>
-
         <!-- Modal: Top Up Advertising -->
         <div class="modal fade" id="advTopUpModal" tabindex="-1" aria-labelledby="advTopUpModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
                     <form action="{{ route('admin.sms.financial.advertising.topup') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="sender_number_id" value="{{ $selectedSender->id }}">
                         @if(auth()->user()?->isSuperAdmin())
                             <input type="hidden" name="business_id" value="{{ $business->id }}">
                         @endif
                         <div class="modal-header">
                             <h5 class="modal-title fw-bold" id="advTopUpModalLabel">
-                                <i class="fa fa-bullhorn me-1 text-primary"></i> شارژ موجودی خط تبلیغاتی {{ $selectedSender->number }}
+                                <i class="fa fa-bullhorn me-1 text-primary"></i> شارژ موجودی پنل تبلیغاتی
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
                         </div>
                         <div class="modal-body">
                             <p class="text-muted small">
-                                این مبلغ منحصراً به موجودی خط <strong>{{ $selectedSender->number }}</strong> در کسب‌وکار <strong>{{ $business->title }}</strong> افزوده خواهد شد و با سایر خطوط یا موجودی OTP به اشتراک گذاشته نمی‌شود.
+                                این مبلغ منحصراً به موجودی پنل تبلیغاتی کسب‌وکار <strong>{{ $business->title }}</strong> افزوده می‌شود و در اختیار همه خطوط تبلیغاتی این کسب‌وکار قرار می‌گیرد. موجودی OTP و سایر کسب‌وکارها جدا هستند.
                             </p>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">مبلغ شارژ (ریال) <span class="text-danger">*</span></label>
@@ -403,50 +344,4 @@
                 </div>
             </div>
         </div>
-    @endif
-
-    <!-- All Assigned Senders Overview Table -->
-    @if($senders_summary->isNotEmpty())
-        <div class="card border-0 shadow-sm mt-4">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0"><i class="fa fa-list me-1"></i> وضعیت کلی کلیه خطوط تبلیغاتی تخصیص‌یافته</h6>
-            </div>
-            <div class="card-body p-0 table-responsive">
-                <table class="table table-hover align-middle mb-0 text-center small">
-                    <thead class="table-light">
-                        <tr>
-                            <th>شماره خط</th>
-                            <th>پنل</th>
-                            <th>موجودی فعلی (ریال)</th>
-                            <th>مجموع شارژ شده (ریال)</th>
-                            <th>مجموع مصرفی (ریال)</th>
-                            <th>تعداد پیامک</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($senders_summary as $item)
-                            <tr>
-                                <td class="fw-bold">{{ $item['sender']->number }}</td>
-                                <td>{{ $item['sender']->sms_panel ?? '-' }}</td>
-                                <td class="fw-bold {{ $item['balance'] > 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ number_format($item['balance']) }}
-                                </td>
-                                <td>{{ number_format($item['total_charged']) }}</td>
-                                <td>{{ number_format($item['total_consumed']) }}</td>
-                                <td>{{ number_format($item['message_count']) }}</td>
-                                <td>
-                                    <a href="{{ route('admin.sms.financial.advertising.index', ['sender_number_id' => $item['sender']->id]) }}" 
-                                       class="btn btn-sm btn-outline-primary py-0">
-                                        مشاهده ریز تراکنش‌ها
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    @endif
-</div>
 @endsection

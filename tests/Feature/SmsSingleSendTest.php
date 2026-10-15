@@ -24,6 +24,8 @@ use Tests\TestCase;
 
 class SmsSingleSendTest extends TestCase
 {
+    use \Tests\Concerns\SeedsSmsBalances;
+
     protected GhorfeOnlineList $business;
     protected SenderNumber $otpSender;
     protected SenderNumber $advSender;
@@ -62,6 +64,7 @@ class SmsSingleSendTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -146,6 +149,9 @@ class SmsSingleSendTest extends TestCase
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
             'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
+            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
+            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
+            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -315,11 +321,7 @@ class SmsSingleSendTest extends TestCase
     public function test_insufficient_balance_hard_block(): void
     {
         // 1. Advertising send with insufficient balance
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 500.00, // Cost is 1200 per page, so 500 is insufficient for 1 page
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 500.00); // Cost is 1200 per page, so 500 is insufficient for 1 page
 
         $this->expectException(InsufficientBalanceException::class);
 
@@ -341,10 +343,7 @@ class SmsSingleSendTest extends TestCase
      */
     public function test_insufficient_balance_hard_block_for_otp(): void
     {
-        OtpBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'balance' => 0.00,
-        ]);
+        $this->seedOtpBalance($this->business->id, 0.00);
 
         $this->expectException(InsufficientBalanceException::class);
 
@@ -364,10 +363,7 @@ class SmsSingleSendTest extends TestCase
     public function test_otp_sends_never_allow_sender_number_override(): void
     {
         // Set sufficient OTP balance
-        OtpBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'balance' => 50000.00,
-        ]);
+        $this->seedOtpBalance($this->business->id, 50000.00);
 
         $dispatchedPanel = null;
         $dispatchedPhone = null;
@@ -409,11 +405,7 @@ class SmsSingleSendTest extends TestCase
      */
     public function test_successful_advertising_send_and_deduction(): void
     {
-        $advBalance = AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 10000.00,
-        ]);
+        $advBalance = $this->seedAdvertisingBalance($this->business->id, 10000.00);
 
         $dispatched = false;
         $this->service->setGatewayDispatcher(function () use (&$dispatched) {
@@ -498,11 +490,7 @@ class SmsSingleSendTest extends TestCase
      */
     public function test_message_forwarding_and_referral_history(): void
     {
-        $advBalance = AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 20000.00,
-        ]);
+        $advBalance = $this->seedAdvertisingBalance($this->business->id, 20000.00);
 
         $original = SmsMessage::create([
             'ghorfe_online_list_id' => $this->business->id,
@@ -564,11 +552,7 @@ class SmsSingleSendTest extends TestCase
             'active' => true,
         ]);
 
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 0.00,
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 0.00);
 
         $response = $this->actingAs($admin)
             ->postJson(route('admin.sms.single.send'), [
@@ -597,10 +581,7 @@ class SmsSingleSendTest extends TestCase
             'active' => true,
         ]);
 
-        OtpBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'balance' => 20000.00,
-        ]);
+        $this->seedOtpBalance($this->business->id, 20000.00);
 
         $this->service->setGatewayDispatcher(function () {});
 

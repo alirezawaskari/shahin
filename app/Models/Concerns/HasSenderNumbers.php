@@ -53,11 +53,11 @@ trait HasSenderNumbers
     }
 
     /**
-     * The advertising financial balances track for this business across assigned sender numbers.
+     * The advertising financial balance for this business. Shared by all of its advertising lines.
      */
-    public function advertisingBalances(): HasMany
+    public function advertisingBalance(): HasOne
     {
-        return $this->hasMany(AdvertisingBalance::class, 'ghorfe_online_list_id');
+        return $this->hasOne(AdvertisingBalance::class, 'ghorfe_online_list_id');
     }
 
     /**

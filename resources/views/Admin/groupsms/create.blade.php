@@ -576,10 +576,10 @@
                                             <span class="badge bg-success small">فعال</span>
                                         </div>
                                         <div class="mt-2 text-muted small d-flex justify-content-between align-items-center">
-                                            <span>موجودی شماره:</span>
+                                            <span>موجودی پنل تبلیغاتی:</span>
                                             <div class="d-flex align-items-center gap-2">
                                                 <strong class="text-dark" id="sender_balance_{{ $sender->id }}">{{ number_format($sender->current_balance) }} ریال</strong>
-                                                <button type="button" class="btn btn-sm btn-outline-warning text-dark py-0 px-2 fw-semibold quick-charge-sender-btn" style="font-size: 11px;" onclick="event.stopPropagation(); openQuickPaymentGate(null, {{ $sender->id }}, '{{ $sender->number }}', {{ $sender->current_balance }});" title="شارژ سریع آنلاین این خط">
+                                                <button type="button" class="btn btn-sm btn-outline-warning text-dark py-0 px-2 fw-semibold quick-charge-sender-btn" style="font-size: 11px;" onclick="event.stopPropagation(); openQuickPaymentGate(null, {{ $sender->id }}, '{{ $sender->number }}', {{ $sender->current_balance }});" title="شارژ سریع آنلاین پنل تبلیغاتی">
                                                     <i class="fa fa-bolt me-1 text-warning"></i> شارژ سریع
                                                 </button>
                                             </div>

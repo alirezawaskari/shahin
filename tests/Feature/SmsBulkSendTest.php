@@ -26,6 +26,8 @@ use Tests\TestCase;
 
 class SmsBulkSendTest extends TestCase
 {
+    use \Tests\Concerns\SeedsSmsBalances;
+
     protected GhorfeOnlineList $business;
     protected SenderNumber $advSender;
     protected User $superAdmin;
@@ -78,6 +80,7 @@ class SmsBulkSendTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -149,6 +152,9 @@ class SmsBulkSendTest extends TestCase
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
             'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
+            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
+            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
+            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -361,10 +367,7 @@ class SmsBulkSendTest extends TestCase
     public function test_insufficient_balance_blocks_campaign_before_any_send(): void
     {
         // Set balance to 1,000 Rials
-        AdvertisingBalance::updateOrCreate(
-            ['ghorfe_online_list_id' => $this->business->id, 'sender_number_id' => $this->advSender->id],
-            ['balance' => 1000]
-        );
+        $this->seedAdvertisingBalance($this->business->id, 1000);
 
         // Create 5 valid candidate users for this business
         for ($i = 1; $i <= 5; $i++) {
@@ -397,7 +400,7 @@ class SmsBulkSendTest extends TestCase
         $this->assertEquals(0, SmsCampaignRecipient::count());
         $this->assertEquals(0, SmsMessage::count());
         $this->assertEquals(0, SmsTransaction::count());
-        $this->assertEquals(1000, (float) AdvertisingBalance::where('sender_number_id', $this->advSender->id)->value('balance'));
+        $this->assertEquals(1000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
     }
 
     /**
@@ -406,10 +409,7 @@ class SmsBulkSendTest extends TestCase
     public function test_successful_campaign_send_flow_and_job_execution(): void
     {
         // Set sufficient balance: 50,000 Rials
-        AdvertisingBalance::updateOrCreate(
-            ['ghorfe_online_list_id' => $this->business->id, 'sender_number_id' => $this->advSender->id],
-            ['balance' => 50000]
-        );
+        $this->seedAdvertisingBalance($this->business->id, 50000);
 
         // Create template
         $group = SmsMessageGroup::create(['name' => 'تخفیفات', 'slug' => 'discounts']);
@@ -463,7 +463,7 @@ class SmsBulkSendTest extends TestCase
         $this->assertStringContainsString('سلام رضا', $dispatchedMessages[0]['msg']);
 
         // Verify balance deduction: 50000 - 3600 = 46400
-        $balanceAfter = (float) AdvertisingBalance::where('sender_number_id', $this->advSender->id)->value('balance');
+        $balanceAfter = (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance');
         $this->assertEquals(46400, $balanceAfter);
 
         // Verify SmsMessage & SmsTransaction records
@@ -485,10 +485,7 @@ class SmsBulkSendTest extends TestCase
             'ghorfe_online_list_id' => $this->business->id,
         ]);
 
-        AdvertisingBalance::updateOrCreate(
-            ['ghorfe_online_list_id' => $this->business->id, 'sender_number_id' => $this->advSender->id],
-            ['balance' => 100000]
-        );
+        $this->seedAdvertisingBalance($this->business->id, 100000);
 
         User::create(['name' => 'کاربر ۱', 'phone' => '09129990001', 'level' => 'user'])
             ->ghorfeOnlineLists()->attach($this->business->id);
@@ -546,10 +543,7 @@ class SmsBulkSendTest extends TestCase
      */
     public function test_scheduled_campaign_support(): void
     {
-        AdvertisingBalance::updateOrCreate(
-            ['ghorfe_online_list_id' => $this->business->id, 'sender_number_id' => $this->advSender->id],
-            ['balance' => 50000]
-        );
+        $this->seedAdvertisingBalance($this->business->id, 50000);
 
         User::create(['name' => 'کاربر ۱', 'phone' => '09127770001', 'level' => 'user'])
             ->ghorfeOnlineLists()->attach($this->business->id);

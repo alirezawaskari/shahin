@@ -92,17 +92,14 @@ class BulkSmsSendService
     }
 
     /**
-     * Get financial balance for business and advertising sender number.
+     * Get the business' advertising panel balance (shared by all its advertising lines).
      *
      * @return array{balance: float, model: AdvertisingBalance, credit_type: string}
      */
-    public function getBalance(GhorfeOnlineList $business, SenderNumber $senderNumber): array
+    public function getBalance(GhorfeOnlineList $business): array
     {
         $model = AdvertisingBalance::firstOrCreate(
-            [
-                'ghorfe_online_list_id' => $business->id,
-                'sender_number_id' => $senderNumber->id,
-            ],
+            ['ghorfe_online_list_id' => $business->id],
             []
         );
 
@@ -195,9 +192,9 @@ class BulkSmsSendService
      *
      * @throws InsufficientBalanceException
      */
-    public function verifyBalance(GhorfeOnlineList $business, SenderNumber $senderNumber, float $requiredCost): array
+    public function verifyBalance(GhorfeOnlineList $business, float $requiredCost): array
     {
-        $balanceInfo = $this->getBalance($business, $senderNumber);
+        $balanceInfo = $this->getBalance($business);
 
         if ($balanceInfo['balance'] < $requiredCost) {
             throw new InsufficientBalanceException(
@@ -287,7 +284,7 @@ class BulkSmsSendService
         $totalCost = $this->calculateCampaignCost($recipientCount, $pageCount);
 
         // 6. Hard block balance verification BEFORE any send or campaign queue
-        $this->verifyBalance($business, $senderNumber, $totalCost);
+        $this->verifyBalance($business, $totalCost);
 
         // 7. Parse scheduled time if provided
         $scheduledAt = null;
@@ -478,7 +475,7 @@ class BulkSmsSendService
                 ) {
                     // Lock the balance row, verify it covers this message, and debit atomically.
                     // Throws InsufficientBalanceException, which rolls back this recipient's transaction.
-                    $balanceModel = $this->getBalance($business, $senderNumber)['model'];
+                    $balanceModel = $this->getBalance($business)['model'];
                     $balanceBefore = $balanceModel->lockAndDebit($costPerMessage);
                     $balanceAfter = $balanceBefore - $costPerMessage;
 

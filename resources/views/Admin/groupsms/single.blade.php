@@ -247,7 +247,7 @@
                                     <select name="sender_number_id" id="senderNumberSelect" class="form-select">
                                         @forelse($advertisingNumbers as $sender)
                                             <option value="{{ $sender->id }}" data-balance="{{ $sender->current_balance }}" data-number="{{ $sender->number }}" {{ old('sender_number_id') == $sender->id ? 'selected' : '' }}>
-                                                {{ $sender->number }} (موجودی: {{ number_format($sender->current_balance) }} ریال)
+                                                {{ $sender->number }}
                                             </option>
                                         @empty
                                             <option value="" disabled>هیچ شماره تبلیغاتی به این کسب‌وکار تخصیص داده نشده است</option>

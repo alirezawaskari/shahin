@@ -31,6 +31,8 @@ use Tests\TestCase;
 
 class SmsSettingsTest extends TestCase
 {
+    use \Tests\Concerns\SeedsSmsBalances;
+
     protected User $adminUser;
     protected GhorfeOnlineList $businessA;
     protected GhorfeOnlineList $businessB;
@@ -70,6 +72,7 @@ class SmsSettingsTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -164,6 +167,9 @@ class SmsSettingsTest extends TestCase
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
             'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
+            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
+            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
+            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
         ];
 
         foreach ($migrationFiles as $file) {

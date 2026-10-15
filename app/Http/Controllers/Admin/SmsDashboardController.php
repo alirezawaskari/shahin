@@ -42,9 +42,7 @@ class SmsDashboardController extends Controller
             ->where('sender_numbers.type', 'advertising')
             ->get()
             ->map(function ($sender) use ($business) {
-                $sender->current_balance = (float) (AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
-                    ->where('sender_number_id', $sender->id)
-                    ->value('balance') ?? 0);
+                $sender->current_balance = (float) (AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
                 return $sender;
             });
 

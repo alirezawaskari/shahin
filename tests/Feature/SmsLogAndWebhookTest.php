@@ -70,6 +70,7 @@ class SmsLogAndWebhookTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->string('linenumber')->nullable();

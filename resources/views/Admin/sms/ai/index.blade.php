@@ -267,7 +267,7 @@
                         <select id="senderNumberSelect" class="form-select form-select-sm">
                             @forelse($advertisingNumbers as $snd)
                                 <option value="{{ $snd->id }}" data-balance="{{ $snd->current_balance }}">
-                                    {{ $snd->number }} (موجودی: {{ number_format($snd->current_balance) }} ریال)
+                                    {{ $snd->number }}
                                 </option>
                             @empty
                                 <option value="">هیچ شماره فرستنده‌ای یافت نشد</option>

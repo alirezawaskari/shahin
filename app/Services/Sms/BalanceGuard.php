@@ -6,8 +6,6 @@ use App\Exceptions\Sms\InsufficientBalanceException;
 use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
 use App\Models\OtpBalance;
-use App\Models\SenderNumber;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class BalanceGuard
@@ -134,155 +132,80 @@ class BalanceGuard
     }
 
     /**
-     * Get or create the advertising balance for a specific business and sender number.
+     * Get or create the advertising balance for a business.
+     * Credit belongs to the advertising panel, so every advertising line of the
+     * business spends from this one balance.
      */
-    public function getAdvertisingBalance(GhorfeOnlineList $business, SenderNumber $senderNumber): AdvertisingBalance
+    public function getAdvertisingBalance(GhorfeOnlineList $business): AdvertisingBalance
     {
         return AdvertisingBalance::firstOrCreate(
-            [
-                'ghorfe_online_list_id' => $business->id,
-                'sender_number_id' => $senderNumber->id,
-            ],
+            ['ghorfe_online_list_id' => $business->id],
             []
         );
     }
 
     /**
-     * Find alternative active advertising sender numbers assigned to this business
-     * that possess sufficient balance (>= requiredCost).
+     * Check whether the business' advertising balance covers the required cost.
      *
-     * @return Collection<int, SenderNumber>
+     * @return array{allowed: bool, balance: float, required: float, error: ?string}
      */
-    public function findAlternativeAdvertisingSenders(
-        GhorfeOnlineList $business,
-        float $requiredCost,
-        ?int $excludeSenderNumberId = null
-    ): Collection {
-        $senders = $business->senderNumbers()
-            ->where('sender_numbers.type', 'advertising')
-            ->where('sender_numbers.status', 'active')
-            ->when($excludeSenderNumberId, fn ($q) => $q->where('sender_numbers.id', '!=', $excludeSenderNumberId))
-            ->get();
+    public function checkAdvertising(GhorfeOnlineList $business, float $requiredCost): array
+    {
+        $advBalance = $this->getAdvertisingBalance($business);
 
-        $validAlternatives = collect();
-
-        foreach ($senders as $sender) {
-            $balance = (float) (AdvertisingBalance::where('ghorfe_online_list_id', $business->id)
-                ->where('sender_number_id', $sender->id)
-                ->value('balance') ?? 0);
-
-            if ($balance >= $requiredCost) {
-                $sender->current_balance = $balance;
-                $validAlternatives->push($sender);
-            }
-        }
-
-        return $validAlternatives->sortByDesc('current_balance')->values();
+        return $this->evaluateAdvertising((float) $advBalance->balance, $requiredCost);
     }
 
     /**
-     * Check advertising balance sufficiency for a sender number, and if insufficient,
-     * surface an alternative sender number with sufficient balance if available.
+     * Evaluate a known advertising balance figure against the required cost.
      *
-     * @return array{
-     *     allowed: bool,
-     *     balance: float,
-     *     required: float,
-     *     alternative_sender: ?SenderNumber,
-     *     alternative_senders: Collection<int, SenderNumber>,
-     *     error: ?string
-     * }
+     * @return array{allowed: bool, balance: float, required: float, error: ?string}
      */
-    public function checkAdvertising(
-        GhorfeOnlineList $business,
-        SenderNumber $senderNumber,
-        float $requiredCost
-    ): array {
-        $advBalance = $this->getAdvertisingBalance($business, $senderNumber);
-
-        return $this->evaluateAdvertising($business, $senderNumber, (float) $advBalance->balance, $requiredCost);
-    }
-
-    /**
-     * Evaluate a known advertising balance figure against the required cost,
-     * surfacing an alternative sender number on shortfall.
-     */
-    protected function evaluateAdvertising(
-        GhorfeOnlineList $business,
-        SenderNumber $senderNumber,
-        float $balance,
-        float $requiredCost
-    ): array {
+    protected function evaluateAdvertising(float $balance, float $requiredCost): array
+    {
         if ($balance >= $requiredCost) {
             return [
                 'allowed' => true,
                 'balance' => $balance,
                 'required' => $requiredCost,
-                'alternative_sender' => null,
-                'alternative_senders' => collect(),
                 'error' => null,
             ];
-        }
-
-        // Insufficient balance on selected sender: look for alternatives
-        $alternatives = $this->findAlternativeAdvertisingSenders($business, $requiredCost, $senderNumber->id);
-        $primaryAlternative = $alternatives->first();
-
-        if ($primaryAlternative) {
-            $error = sprintf(
-                'موجودی خط فرستنده %s ناکافی است (موجودی: %s ریال، هزینه: %s ریال). شما می‌توانید از خط جایگزین %s با موجودی %s ریال استفاده نمایید.',
-                $senderNumber->number,
-                number_format($balance),
-                number_format($requiredCost),
-                $primaryAlternative->number,
-                number_format($primaryAlternative->current_balance)
-            );
-        } else {
-            $error = sprintf(
-                'موجودی خط فرستنده %s ناکافی است (موجودی: %s ریال، هزینه: %s ریال) و هیچ خط جایگزین دیگری با موجودی کافی برای این کسب‌وکار یافت نشد.',
-                $senderNumber->number,
-                number_format($balance),
-                number_format($requiredCost)
-            );
         }
 
         return [
             'allowed' => false,
             'balance' => $balance,
             'required' => $requiredCost,
-            'alternative_sender' => $primaryAlternative,
-            'alternative_senders' => $alternatives,
-            'error' => $error,
+            'error' => sprintf(
+                'موجودی پنل پیامک تبلیغاتی ناکافی است (موجودی: %s ریال، هزینه: %s ریال).',
+                number_format($balance),
+                number_format($requiredCost)
+            ),
         ];
     }
 
     /**
-     * Enforce advertising balance and throw InsufficientBalanceException if insufficient,
-     * while attaching the surfaced alternative sender number to the exception.
+     * Enforce advertising balance and throw InsufficientBalanceException if insufficient.
      *
      * @throws InsufficientBalanceException
      */
-    public function enforceAdvertising(
-        GhorfeOnlineList $business,
-        SenderNumber $senderNumber,
-        float $requiredCost
-    ): AdvertisingBalance {
+    public function enforceAdvertising(GhorfeOnlineList $business, float $requiredCost): AdvertisingBalance
+    {
         // Same locking contract as enforceOtp(): call from within the debit transaction.
-        return DB::transaction(function () use ($business, $senderNumber, $requiredCost) {
-            $advBalance = $this->getAdvertisingBalance($business, $senderNumber);
+        return DB::transaction(function () use ($business, $requiredCost) {
+            $advBalance = $this->getAdvertisingBalance($business);
             $locked = AdvertisingBalance::query()
                 ->whereKey($advBalance->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $check = $this->evaluateAdvertising($business, $senderNumber, (float) $locked->balance, $requiredCost);
+            $check = $this->evaluateAdvertising((float) $locked->balance, $requiredCost);
 
             if (!$check['allowed']) {
                 throw new InsufficientBalanceException(
-                    $check['error'] ?? 'موجودی خط فرستنده تبلیغاتی برای ارسال کافی نیست.',
+                    $check['error'] ?? 'موجودی پنل پیامک تبلیغاتی برای ارسال کافی نیست.',
                     $check['balance'],
-                    $requiredCost,
-                    $check['alternative_sender']
+                    $requiredCost
                 );
             }
 

@@ -26,6 +26,8 @@ use Tests\TestCase;
 
 class SmsFinancialAndReportTest extends TestCase
 {
+    use \Tests\Concerns\SeedsSmsBalances;
+
     protected User $adminUser;
     protected User $superAdminUser;
     protected GhorfeOnlineList $businessA;
@@ -68,6 +70,7 @@ class SmsFinancialAndReportTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -172,6 +175,9 @@ class SmsFinancialAndReportTest extends TestCase
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
             'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
+            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
+            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
+            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -267,10 +273,7 @@ class SmsFinancialAndReportTest extends TestCase
         $guard = app(BalanceGuard::class);
 
         // Set balance above zero but below threshold (50,000 <= 100,000 threshold)
-        OtpBalance::updateOrCreate(
-            ['ghorfe_online_list_id' => $this->businessA->id],
-            ['balance' => 50000, 'low_balance_threshold' => 100000]
-        );
+        $this->seedOtpBalance($this->businessA->id, 50000, 100000);
 
         $checkLow = $guard->checkOtp($this->businessA, 1200);
         $this->assertTrue($checkLow['allowed'], 'Should still allow sending when balance > 0 and >= cost');
@@ -290,10 +293,7 @@ class SmsFinancialAndReportTest extends TestCase
         $guard = app(BalanceGuard::class);
 
         // Set balance above threshold
-        OtpBalance::updateOrCreate(
-            ['ghorfe_online_list_id' => $this->businessA->id],
-            ['balance' => 500000, 'low_balance_threshold' => 100000]
-        );
+        $this->seedOtpBalance($this->businessA->id, 500000, 100000);
 
         $checkNormal = $guard->checkOtp($this->businessA, 1200);
         $this->assertTrue($checkNormal['allowed']);
@@ -302,70 +302,45 @@ class SmsFinancialAndReportTest extends TestCase
         $this->assertNull($checkNormal['error']);
     }
 
-    public function test_balance_guard_advertising_surfaces_alternative_sender(): void
+    public function test_balance_guard_advertising_shortfall_blocks_every_line_of_the_business(): void
     {
         $guard = app(BalanceGuard::class);
 
-        // Sender 1: low balance (500 Rials)
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender1->id,
-            'balance' => 500,
-        ]);
-
-        // Sender 2: sufficient balance (50,000 Rials)
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender2->id,
-            'balance' => 50000,
-        ]);
+        // Business A's advertising panel is short; business B has plenty of credit.
+        $this->seedAdvertisingBalance($this->businessA->id, 500);
+        $this->seedAdvertisingBalance($this->businessB->id, 50000);
 
         $requiredCost = 5000;
 
-        // Check Sender 1: should be blocked, BUT surface Sender 2 as alternative!
-        $check = $guard->checkAdvertising($this->businessA, $this->advSender1, $requiredCost);
+        $check = $guard->checkAdvertising($this->businessA, $requiredCost);
 
         $this->assertFalse($check['allowed']);
         $this->assertEquals(500, $check['balance']);
-        $this->assertNotNull($check['alternative_sender']);
-        $this->assertEquals($this->advSender2->id, $check['alternative_sender']->id);
-        $this->assertStringContainsString($this->advSender2->number, $check['error']);
+        $this->assertEquals($requiredCost, $check['required']);
 
-        // Check enforceAdvertising throws InsufficientBalanceException carrying the alternative sender
         try {
-            $guard->enforceAdvertising($this->businessA, $this->advSender1, $requiredCost);
+            $guard->enforceAdvertising($this->businessA, $requiredCost);
             $this->fail('Expected InsufficientBalanceException was not thrown');
         } catch (InsufficientBalanceException $e) {
-            $this->assertNotNull($e->alternativeSender);
-            $this->assertEquals($this->advSender2->id, $e->alternativeSender->id);
             $this->assertEquals(500, $e->currentBalance);
             $this->assertEquals($requiredCost, $e->requiredAmount);
         }
+
+        // Tenancy: business B's credit is untouched and unusable by A.
+        $this->assertEquals(50000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessB->id)->value('balance'));
     }
 
-    public function test_balance_guard_advertising_when_no_alternative_available(): void
+    public function test_balance_guard_advertising_sufficient_balance_is_allowed(): void
     {
         $guard = app(BalanceGuard::class);
 
-        // Both Sender 1 and Sender 2 have insufficient balance
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender1->id,
-            'balance' => 100,
-        ]);
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender2->id,
-            'balance' => 200,
-        ]);
+        $this->seedAdvertisingBalance($this->businessA->id, 50000);
 
-        $requiredCost = 5000;
-        $check = $guard->checkAdvertising($this->businessA, $this->advSender1, $requiredCost);
+        $check = $guard->checkAdvertising($this->businessA, 5000);
 
-        $this->assertFalse($check['allowed']);
-        $this->assertNull($check['alternative_sender']);
-        $this->assertEmpty($check['alternative_senders']);
-        $this->assertStringContainsString('هیچ خط جایگزین', $check['error']);
+        $this->assertTrue($check['allowed']);
+        $this->assertNull($check['error']);
+        $this->assertInstanceOf(AdvertisingBalance::class, $guard->enforceAdvertising($this->businessA, 5000));
     }
 
     // ==========================================
@@ -377,13 +352,9 @@ class SmsFinancialAndReportTest extends TestCase
         $financialService = app(SmsFinancialService::class);
 
         // Initial balances
-        OtpBalance::create(['ghorfe_online_list_id' => $this->businessA->id, 'balance' => 10000]);
-        OtpBalance::create(['ghorfe_online_list_id' => $this->businessB->id, 'balance' => 20000]);
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender1->id,
-            'balance' => 5000,
-        ]);
+        $this->seedOtpBalance($this->businessA->id, 10000);
+        $this->seedOtpBalance($this->businessB->id, 20000);
+        $this->seedAdvertisingBalance($this->businessA->id, 5000);
 
         // Top up Business A OTP with 100,000
         $tx = $financialService->topUpOtp($this->businessA, 100000, $this->adminUser, 'TOPUP-TEST-1');
@@ -402,49 +373,34 @@ class SmsFinancialAndReportTest extends TestCase
         $this->assertEquals(20000, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessB->id)->value('balance'));
 
         // Verify Business A Advertising balance was NEVER touched
-        $this->assertEquals(5000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)
-            ->where('sender_number_id', $this->advSender1->id)->value('balance'));
+        $this->assertEquals(5000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
     }
 
-    public function test_advertising_topup_adds_only_to_chosen_sender_row_without_cross_credit(): void
+    public function test_advertising_topup_credits_only_the_business_panel_without_cross_credit(): void
     {
         $financialService = app(SmsFinancialService::class);
 
         // Initial balances
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender1->id,
-            'balance' => 1000,
-        ]);
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender2->id,
-            'balance' => 2000,
-        ]);
-        OtpBalance::create([
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'balance' => 50000,
-        ]);
+        $this->seedAdvertisingBalance($this->businessA->id, 1000);
+        $this->seedAdvertisingBalance($this->businessB->id, 2000);
+        $this->seedOtpBalance($this->businessA->id, 50000);
 
-        // Top up Business A Sender 1 with 80,000
-        $tx = $financialService->topUpAdvertising($this->businessA, $this->advSender1, 80000, $this->adminUser);
+        // Top up Business A's advertising panel with 80,000
+        $tx = $financialService->topUpAdvertising($this->businessA, 80000, $this->adminUser);
 
         $this->assertInstanceOf(SmsTransaction::class, $tx);
         $this->assertEquals('advertising', $tx->credit_type);
-        $this->assertEquals($this->advSender1->id, $tx->sender_number_id);
+        $this->assertNull($tx->sender_number_id, 'Credit belongs to the panel, not a line');
         $this->assertEquals(1000, (float) $tx->balance_before);
         $this->assertEquals(81000, (float) $tx->balance_after);
         $this->assertEquals(80000, (float) $tx->charge_amount);
 
-        // Verify Sender 1 balance updated
-        $this->assertEquals(81000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)
-            ->where('sender_number_id', $this->advSender1->id)->value('balance'));
+        $this->assertEquals(81000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
 
-        // Verify Sender 2 balance was NOT changed
-        $this->assertEquals(2000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)
-            ->where('sender_number_id', $this->advSender2->id)->value('balance'));
+        // Another business' advertising balance was NOT changed
+        $this->assertEquals(2000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessB->id)->value('balance'));
 
-        // Verify OTP balance was NOT changed
+        // OTP balance was NOT changed
         $this->assertEquals(50000, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
     }
 
@@ -452,7 +408,7 @@ class SmsFinancialAndReportTest extends TestCase
     {
         $financialService = app(SmsFinancialService::class);
 
-        OtpBalance::create(['ghorfe_online_list_id' => $this->businessA->id, 'balance' => 45000]);
+        $this->seedOtpBalance($this->businessA->id, 45000);
 
         // Create transactions and messages
         SmsTransaction::create([
@@ -531,16 +487,15 @@ class SmsFinancialAndReportTest extends TestCase
         // 1. View
         $response = $this->get(route('admin.sms.financial.advertising.index', [
             'business_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender1->id,
         ]));
         $response->assertOk();
         $response->assertViewIs('Admin.sms.financial.advertising');
-        $response->assertViewHas(['assigned_senders', 'senders_summary', 'sender_details']);
+        $response->assertViewHas(['balance', 'total_charged', 'total_consumed', 'message_count', 'transactions']);
+        $response->assertViewMissing('senders_summary');
 
         // 2. Top-up POST
         $topupResponse = $this->post(route('admin.sms.financial.advertising.topup'), [
             'business_id' => $this->businessA->id,
-            'sender_number_id' => $this->advSender1->id,
             'amount' => 300000,
             'tracking_id' => 'BANK-ADV-888',
         ]);
@@ -549,12 +504,11 @@ class SmsFinancialAndReportTest extends TestCase
         $this->assertDatabaseHas('sms_transactions', [
             'ghorfe_online_list_id' => $this->businessA->id,
             'credit_type' => 'advertising',
-            'sender_number_id' => $this->advSender1->id,
+            'sender_number_id' => null,
             'charge_amount' => 300000,
             'tracking_id' => 'BANK-ADV-888',
         ]);
-        $this->assertEquals(300000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)
-            ->where('sender_number_id', $this->advSender1->id)->value('balance'));
+        $this->assertEquals(300000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
     }
 
     public function test_http_balance_check_api(): void
@@ -573,7 +527,6 @@ class SmsFinancialAndReportTest extends TestCase
         $advCheckRes = $this->postJson(route('admin.sms.financial.check'), [
             'business_id' => $this->businessA->id,
             'type' => 'advertising',
-            'sender_number_id' => $this->advSender1->id,
             'cost' => 5000,
         ]);
         $advCheckRes->assertOk()->assertJsonStructure(['success', 'status' => ['allowed', 'balance']]);

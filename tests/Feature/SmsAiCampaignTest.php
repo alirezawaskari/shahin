@@ -25,6 +25,8 @@ use Tests\TestCase;
 
 class SmsAiCampaignTest extends TestCase
 {
+    use \Tests\Concerns\SeedsSmsBalances;
+
     protected GhorfeOnlineList $business;
     protected SenderNumber $advSender;
     protected User $superAdmin;
@@ -77,6 +79,7 @@ class SmsAiCampaignTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
+            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -155,6 +158,9 @@ class SmsAiCampaignTest extends TestCase
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
             'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
+            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
+            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
+            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -247,11 +253,7 @@ class SmsAiCampaignTest extends TestCase
         ]);
         $this->business->users()->attach($contact->id);
 
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 500000,
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 500000);
 
         // Case 1: Missing human_confirmed parameter for an AI campaign
         $this->expectException(DomainException::class);
@@ -272,11 +274,7 @@ class SmsAiCampaignTest extends TestCase
      */
     public function test_false_human_confirmation_is_rejected(): void
     {
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 500000,
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 500000);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('ارسال کمپین هوش مصنوعی نیازمند تایید نهایی کاربر (Human Confirmation) می‌باشد.');
@@ -306,11 +304,7 @@ class SmsAiCampaignTest extends TestCase
         ]);
         $this->business->users()->attach($contact->id);
 
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 500000,
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 500000);
 
         // Attempt launch with human_confirmed = false or omitted
         $response = $this->actingAs($this->superAdmin)->postJson(route('admin.sms.ai.confirmAndLaunch'), [
@@ -438,11 +432,7 @@ class SmsAiCampaignTest extends TestCase
         ]);
         $this->business->users()->attach($customer->id);
 
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 500000,
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 500000);
 
         // 2. Step 1 & 2: Propose Audience via HTTP
         $this->fakeLlmClient->setFakeJsonResponse([
@@ -526,11 +516,7 @@ class SmsAiCampaignTest extends TestCase
     public function test_insufficient_balance_blocks_ai_campaign_launch(): void
     {
         // Zero balance
-        AdvertisingBalance::create([
-            'ghorfe_online_list_id' => $this->business->id,
-            'sender_number_id' => $this->advSender->id,
-            'balance' => 0,
-        ]);
+        $this->seedAdvertisingBalance($this->business->id, 0);
 
         $customer = User::create([
             'name' => 'تست',

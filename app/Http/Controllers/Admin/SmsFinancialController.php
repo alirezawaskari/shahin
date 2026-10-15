@@ -152,11 +152,11 @@ class SmsFinancialController extends Controller
     }
 
     /**
-     * Per-sender advertising balance view:
+     * Advertising panel balance view (one balance shared by all advertising lines):
      * Balance, total charged, total consumed, message count,
      * charge/consumption history, and transaction list.
      */
-    public function advertisingView(Request $request, ?SenderNumber $senderNumber = null): View|JsonResponse|RedirectResponse
+    public function advertisingView(Request $request): View|JsonResponse|RedirectResponse
     {
         if ($this->superAdminWithoutBusiness($request)) {
             $firstBusinessId = GhorfeOnlineList::query()->value('id');
@@ -172,11 +172,7 @@ class SmsFinancialController extends Controller
             abort(404, 'هیچ کسب‌وکاری در سیستم تعریف نشده است.');
         }
 
-        if (!$senderNumber && $request->filled('sender_number_id')) {
-            $senderNumber = SenderNumber::find($request->input('sender_number_id'));
-        }
-
-        $data = $this->financialService->getAdvertisingFinancialData($business, $senderNumber);
+        $data = $this->financialService->getAdvertisingFinancialData($business);
 
         $businesses = auth()->user()?->isSuperAdmin()
             ? GhorfeOnlineList::query()->select('id', 'title')->orderBy('title')->get()
@@ -195,13 +191,12 @@ class SmsFinancialController extends Controller
     }
 
     /**
-     * Top-up Advertising balance for a chosen sender number.
-     * Credits ONLY the chosen sender's advertising_balances row for that business. Never cross-credits.
+     * Top-up the Advertising panel balance.
+     * Credits ONLY this business's advertising_balances row. Never cross-credits.
      */
     public function advertisingTopUp(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
-            'sender_number_id' => 'required|exists:sender_numbers,id',
             'amount' => 'required|numeric|min:1000',
             'business_id' => 'nullable|exists:ghorfe_online_lists,id',
             'tracking_id' => 'nullable|string|max:100',
@@ -215,20 +210,16 @@ class SmsFinancialController extends Controller
                 : redirect()->back()->withErrors('کسب‌وکار معتبری یافت نشد.');
         }
 
-        $senderNumber = SenderNumber::findOrFail($request->input('sender_number_id'));
-
         try {
             $transaction = $this->financialService->topUpAdvertising(
                 $business,
-                $senderNumber,
                 (float) $request->input('amount'),
                 auth()->user(),
                 $request->input('tracking_id')
             );
 
             $msg = sprintf(
-                'شارژ پیامک تبلیغاتی خط %s به مبلغ %s ریال با موفقیت انجام شد. شناسه تراکنش: %s',
-                $senderNumber->number,
+                'شارژ پنل پیامک تبلیغاتی به مبلغ %s ریال با موفقیت انجام شد. شناسه تراکنش: %s',
                 number_format((float) $request->input('amount')),
                 $transaction->tracking_id
             );
@@ -269,14 +260,7 @@ class SmsFinancialController extends Controller
             return response()->json(['success' => true, 'status' => $status]);
         }
 
-        $senderNumberId = $request->input('sender_number_id');
-        $senderNumber = SenderNumber::find($senderNumberId);
-
-        if (!$senderNumber) {
-            return response()->json(['success' => false, 'message' => 'شماره فرستنده مشخص نشده است.'], 422);
-        }
-
-        $status = $this->balanceGuard->checkAdvertising($business, $senderNumber, $cost);
+        $status = $this->balanceGuard->checkAdvertising($business, $cost);
         return response()->json(['success' => true, 'status' => $status]);
     }
 }

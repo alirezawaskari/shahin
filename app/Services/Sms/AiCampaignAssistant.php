@@ -327,7 +327,7 @@ class AiCampaignAssistant
 
         try {
             $senderNumber = $this->bulkSmsSendService->resolveAdvertisingSenderNumber($business, $senderNumberId);
-            $balanceInfo = $this->bulkSmsSendService->getBalance($business, $senderNumber);
+            $balanceInfo = $this->bulkSmsSendService->getBalance($business);
             $currentBalance = $balanceInfo['balance'];
         } catch (\Throwable) {
             // Unassigned or missing sender number
