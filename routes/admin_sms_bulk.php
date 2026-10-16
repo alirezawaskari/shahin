@@ -11,6 +11,7 @@ Route::group([
     Route::get('/', [SmsBulkSendController::class, 'index'])->name('index');
     Route::post('/preview', [SmsBulkSendController::class, 'preview'])->name('preview');
     Route::post('/send', [SmsBulkSendController::class, 'send'])->name('send');
+    Route::post('/excel-numbers', [SmsBulkSendController::class, 'parseExcel'])->name('excel');
     Route::get('/campaigns', [SmsBulkSendController::class, 'campaigns'])->name('campaigns');
     Route::get('/campaigns/{campaign}', [SmsBulkSendController::class, 'statusView'])->name('campaigns.show');
     Route::get('/campaigns/{campaign}/status', [SmsBulkSendController::class, 'statusApi'])->name('campaigns.status');

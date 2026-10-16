@@ -400,6 +400,14 @@
                             <div class="col-12">
                                 <label class="form-label small">شماره‌های همراه اضافی (اختیاری - با خط جدید یا کاما جدا کنید):</label>
                                 <textarea name="custom_numbers" id="custom_numbers" rows="2" class="form-control form-control-sm font-monospace" placeholder="09120000000, 09350000000 ..."></textarea>
+                                <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
+                                    <input type="file" id="excel_numbers_file" accept=".xlsx,.xls,.csv" class="d-none">
+                                    <button type="button" class="btn btn-outline-success btn-sm" id="btnExcelNumbers" data-url="{{ route('admin.sms.bulk.excel') }}">
+                                        <i class="fa fa-file-excel-o ms-1"></i> ورود شماره‌ها از اکسل
+                                    </button>
+                                    <span class="small text-muted">فایل xlsx / xls / csv تا ۲ مگابایت؛ شماره‌ها از هر ستونی خوانده می‌شوند.</span>
+                                    <span id="excelNumbersResult" class="small"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -847,6 +855,7 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/dashboard/js/excelNumbers.js?v=1.0') }}"></script>
 <script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
     // Dynamic parameter tokens inside a selected template render as styled,

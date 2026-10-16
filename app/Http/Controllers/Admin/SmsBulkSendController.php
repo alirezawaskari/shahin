@@ -319,6 +319,45 @@ class SmsBulkSendController extends Controller
     }
 
     /**
+     * Read phone numbers out of an uploaded Excel / CSV file. Nothing is stored and nothing is
+     * sent: the numbers are returned to the page, which drops them into the "custom numbers"
+     * box so they go through the same validation, de-duplication, tier and cost pipeline as
+     * typed numbers.
+     */
+    public function parseExcel(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv,txt', 'max:2048'],
+        ], [
+            'file.required' => 'فایل اکسل را انتخاب کنید.',
+            'file.mimes' => 'فقط فایل‌های xlsx، xls و csv پذیرفته می‌شوند.',
+            'file.max' => 'حجم فایل نباید بیشتر از ۲ مگابایت باشد.',
+        ]);
+
+        try {
+            $sheets = \Maatwebsite\Excel\Facades\Excel::toArray(new \App\Imports\RawSheetImport(), $request->file('file'));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'خواندن فایل ممکن نشد. از سالم بودن فایل (xlsx / xls / csv) مطمئن شوید.',
+            ], 422);
+        }
+
+        $result = $this->recipientFilterService->extractPhonesFromSheets($sheets);
+
+        if ($result['valid_count'] === 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'هیچ شماره موبایل معتبری در فایل پیدا نشد.',
+                'invalid_count' => $result['invalid_count'],
+                'invalid_sample' => $result['invalid_sample'],
+            ], 422);
+        }
+
+        return response()->json(['status' => 'success'] + $result);
+    }
+
+    /**
      * List all bulk campaigns.
      */
     public function campaigns(Request $request): View

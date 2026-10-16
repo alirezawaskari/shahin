@@ -368,4 +368,98 @@ class BulkSmsRecipientFilterService
 
         return $candidates;
     }
+
+    /**
+     * Pull phone numbers out of spreadsheet rows (any sheet, any column). Header text and other
+     * non-numeric cells are ignored; cells with a long digit string that still is not a valid
+     * Iranian mobile number are reported as invalid so the user knows rows were skipped.
+     *
+     * Numeric cells lose their leading zero in Excel (9121234567), and big numbers may arrive as
+     * floats; both are handled. A cell may hold several numbers separated by space/comma/semicolon.
+     *
+     * @param iterable<int, iterable<int, iterable<int, mixed>>> $sheets sheets -> rows -> cells
+     * @return array{numbers: array<int, string>, valid_count: int, duplicate_count: int, invalid_count: int, invalid_sample: array<int, string>, cells_scanned: int}
+     */
+    public function extractPhonesFromSheets(iterable $sheets): array
+    {
+        $numbers = [];
+        $seen = [];
+        $duplicates = 0;
+        $invalid = 0;
+        $invalidSample = [];
+        $cells = 0;
+
+        foreach ($sheets as $rows) {
+            foreach ($rows as $row) {
+                foreach ($row as $cell) {
+                    if ($cell === null || $cell === '') {
+                        continue;
+                    }
+                    $cells++;
+
+                    if (is_float($cell) || is_int($cell)) {
+                        $cell = sprintf('%.0f', $cell); // never scientific notation
+                    }
+                    if (!is_scalar($cell)) {
+                        continue;
+                    }
+
+                    // Commas / semicolons / newlines separate numbers. Spaces usually sit INSIDE one
+                    // number ("+98 912 123 4570"), so whitespace only splits as a fallback, for a
+                    // cell that holds several numbers ("0912... 0935...").
+                    foreach (preg_split('/[,;،\r\n]+/u', (string) $cell, -1, PREG_SPLIT_NO_EMPTY) as $chunk) {
+                        $found = [];
+                        $whole = $this->normalizePhoneNumber($chunk);
+                        if ($whole !== null) {
+                            $found[] = $whole;
+                        } else {
+                            foreach (preg_split('/\s+/u', trim($chunk), -1, PREG_SPLIT_NO_EMPTY) as $token) {
+                                $normalized = $this->normalizePhoneNumber($token);
+                                if ($normalized !== null) {
+                                    $found[] = $normalized;
+                                }
+                            }
+                        }
+
+                        foreach ($found as $normalized) {
+                            if (isset($seen[$normalized])) {
+                                $duplicates++;
+                            } else {
+                                $seen[$normalized] = true;
+                                $numbers[] = $normalized;
+                            }
+                        }
+
+                        // Nothing usable in it, yet it is long enough to have been meant as a
+                        // phone number: report it so the user knows the row was skipped.
+                        if (!$found && strlen(preg_replace('/\D/u', '', $this->digitsOnly($chunk))) >= 9) {
+                            $invalid++;
+                            if (count($invalidSample) < 5) {
+                                $invalidSample[] = trim($chunk);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return [
+            'numbers' => $numbers,
+            'valid_count' => count($numbers),
+            'duplicate_count' => $duplicates,
+            'invalid_count' => $invalid,
+            'invalid_sample' => $invalidSample,
+            'cells_scanned' => $cells,
+        ];
+    }
+
+    /** Persian/Arabic digits -> ASCII, so "۰۹۱۲..." counts as digits when sizing a token. */
+    private function digitsOnly(string $value): string
+    {
+        return str_replace(
+            ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
+            ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+            $value
+        );
+    }
 }

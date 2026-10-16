@@ -679,4 +679,72 @@ class SmsBulkSendTest extends TestCase
         $phones = \App\Models\SmsCampaignRecipient::where('sms_campaign_id', $send->json('campaign_id'))->pluck('phone')->sort()->values()->all();
         $this->assertSame(['09121110001', '09121110002'], $phones);
     }
+
+    // ------------------------------------------------------------------
+    // Enter recipients from Excel
+    // ------------------------------------------------------------------
+
+    public function test_excel_extraction_handles_real_world_cells(): void
+    {
+        $result = $this->filterService->extractPhonesFromSheets([
+            [
+                ['نام', 'شماره موبایل', 'توضیحات'],                   // header text is ignored
+                ['علی', 9121234567, 'مشتری'],                          // Excel dropped the leading zero
+                ['رضا', 9.121234568E9, ''],                            // large number arrives as a float
+                ['سارا', '۰۹۱۲۱۲۳۴۵۶۹', null],                        // Persian digits
+                ['نیلوفر', '+98 912 123 4570', '09121234571, 09121234572'], // prefix, spaces, two numbers in a cell
+                ['تکراری', '09121234567', ''],                         // duplicate of row 1
+                ['بد', '0912123', '12345678901'],                      // long digit strings that are not mobiles
+            ],
+            [
+                ['09121234573'],                                       // second sheet is read too
+            ],
+        ]);
+
+        $this->assertSame([
+            '09121234567', '09121234568', '09121234569', '09121234570',
+            '09121234571', '09121234572', '09121234573',
+        ], $result['numbers']);
+        $this->assertSame(7, $result['valid_count']);
+        $this->assertSame(1, $result['duplicate_count']);
+        $this->assertSame(1, $result['invalid_count'], 'only the 11-digit non-mobile counts; "0912123" is too short to look like a phone');
+        $this->assertSame(['12345678901'], $result['invalid_sample']);
+    }
+
+    public function test_excel_endpoint_reads_xlsx_and_csv_files_and_validates_uploads(): void
+    {
+        $this->actingAs($this->titaniumUser);
+        \DB::table('employees')->insert(['user_id' => $this->titaniumUser->id, 'ghorfe_online_list_id' => $this->business->id]);
+
+        // A genuine .xlsx file, written with the same library the endpoint reads with.
+        $sheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet->getActiveSheet()->fromArray([['phone'], [9121234567], ['09121234568'], ['09121234568'], ['oops']]);
+        $path = tempnam(sys_get_temp_dir(), 'nums') . '.xlsx';
+        (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($sheet))->save($path);
+
+        $xlsx = $this->postJson(route('admin.sms.bulk.excel'), [
+            'file' => new \Illuminate\Http\UploadedFile($path, 'numbers.xlsx', null, null, true),
+        ]);
+        $xlsx->assertOk()->assertJsonPath('status', 'success')->assertJsonPath('valid_count', 2)->assertJsonPath('duplicate_count', 1);
+        $this->assertSame(['09121234567', '09121234568'], $xlsx->json('numbers'));
+
+        $csv = $this->postJson(route('admin.sms.bulk.excel'), [
+            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('numbers.csv', "phone\n09121234569\n09121234570\n"),
+        ]);
+        $csv->assertOk()->assertJsonPath('valid_count', 2);
+
+        // No usable number -> clear error, nothing returned
+        $empty = $this->postJson(route('admin.sms.bulk.excel'), [
+            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent('none.csv', "name\nali\n"),
+        ]);
+        $empty->assertStatus(422)->assertJsonPath('status', 'error');
+
+        // Wrong type and missing file are rejected by validation
+        $this->postJson(route('admin.sms.bulk.excel'), [
+            'file' => \Illuminate\Http\UploadedFile::fake()->create('virus.exe', 10, 'application/octet-stream'),
+        ])->assertStatus(422)->assertJsonValidationErrors('file');
+        $this->postJson(route('admin.sms.bulk.excel'), [])->assertStatus(422)->assertJsonValidationErrors('file');
+
+        @unlink($path);
+    }
 }
