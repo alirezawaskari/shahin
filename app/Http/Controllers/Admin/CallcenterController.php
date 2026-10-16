@@ -112,7 +112,15 @@ class CallcenterController extends Controller
      */
     public function filter(Request $request)
     {
-        $callcenters = Callcenter::where('status' , '!=' , 11)->filter()->latest();
+        // Status 11 (SMS opt-outs) is hidden from the general list unless it is picked
+        // explicitly: the dropdown offers it, and excluding it unconditionally made that
+        // option always return nothing.
+        $wantsOptOuts = in_array('11', array_map('strval', (array) $request->input('status', [])), true);
+
+        $callcenters = Callcenter::query()
+            ->when(!$wantsOptOuts, fn ($q) => $q->where('status', '!=', 11))
+            ->filter()
+            ->latest();
 
         if ($request->exel == 'on') {
             return (new CallcenterExport($callcenters))->download('callcenters.xlsx');
