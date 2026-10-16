@@ -78,16 +78,33 @@ class Callcenter extends Model implements AuditableContract
     }
 
     /**
-     * Access scoping (tenancy, permissions, representation) + the request's filter criteria.
+     * Access scoping (tenancy, permissions, representation) + the filter criteria.
      *
      * @param $query
+     * @param array<string, mixed>|null $criteria defaults to the current HTTP request's input
      * @return mixed
      */
-    public function scopeFilter($query)
+    public function scopeFilter($query, ?array $criteria = null)
+    {
+        return $query->accessScoped()->applyCriteria($criteria ?? request()->all());
+    }
+
+    /**
+     * Restrict a requests query to what the signed-in user may see.
+     *
+     * @param $query
+     * @param \App\Models\GhorfeOnlineList|null $business scope explicitly to this business
+     *        (e.g. the business a campaign is sent from) instead of the signed-in user's own
+     *        tenancy rules.
+     * @return mixed
+     */
+    public function scopeAccessScoped($query, ?GhorfeOnlineList $business = null)
     {
         // Business scoping must apply to EVERY listing. It used to live in the `else` of the
         // description check, so searching by description silently dropped tenancy.
-        $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
+        $query = $business
+            ? FilterHelper::filterWithHaveGhorfeOnline($query, 'belongsToMany', null, $business)
+            : FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
 
         if (auth()->user()->admin_representation) {
             $query->where('representation_id', auth()->user()->admin_representation->id);
@@ -115,7 +132,7 @@ class Callcenter extends Model implements AuditableContract
             });
 		}
 
-        return $query->applyCriteria(request()->all());
+        return $query;
     }
 
     /**

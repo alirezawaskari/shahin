@@ -584,4 +584,99 @@ class SmsBulkSendTest extends TestCase
         $response->assertJsonPath('required_tier', 'diamond');
         $response->assertJsonPath('user_tier', 'silver');
     }
+
+    /**
+     * Group send with the requests-page filter as the audience (HTTP level): only the people
+     * behind matching requests are messaged, opt-outs never are, and a bare "requests" source
+     * with no criteria means all requests — not all business users.
+     */
+    public function test_http_preview_and_send_with_request_filter_audience(): void
+    {
+        BulkSmsSendService::setGlobalGatewayDispatcher(function () {});
+
+        \Illuminate\Support\Facades\Schema::create('sms', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('sender_number')->nullable();
+            $t->string('body')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        \Illuminate\Support\Facades\Schema::create('callcenters', function (Blueprint $t) {
+            $t->increments('id');
+            $t->unsignedInteger('sms_id')->nullable();
+            $t->unsignedInteger('reg_id')->nullable();
+            $t->unsignedInteger('user_id')->nullable();
+            $t->unsignedInteger('agent_id')->nullable();
+            $t->unsignedInteger('representation_id')->nullable();
+            $t->integer('type')->default(0);
+            $t->string('request_type')->nullable();
+            $t->integer('status')->default(0);
+            $t->text('description')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        \Illuminate\Support\Facades\Schema::create('callcenter_ghorfe_online_list', function (Blueprint $t) {
+            $t->unsignedInteger('callcenter_id');
+            $t->unsignedBigInteger('ghorfe_online_list_id');
+        });
+
+        \Illuminate\Support\Facades\Schema::create('permissions', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('name')->nullable();
+            $t->string('display_name')->nullable();
+            $t->timestamps();
+        });
+        \Illuminate\Support\Facades\Schema::create('permission_user', function (Blueprint $t) {
+            $t->unsignedInteger('permission_id');
+            $t->unsignedInteger('user_id');
+            $t->string('user_type');
+        });
+        \Illuminate\Support\Facades\Schema::create('permission_role', function (Blueprint $t) {
+            $t->unsignedInteger('permission_id');
+            $t->unsignedInteger('role_id');
+        });
+
+        $this->actingAs($this->titaniumUser);
+        \DB::table('employees')->insert(['user_id' => $this->titaniumUser->id, 'ghorfe_online_list_id' => $this->business->id]);
+        $permissionId = \DB::table('permissions')->insertGetId(['name' => 'callcenter-detail']);
+        \DB::table('permission_user')->insert(['permission_id' => $permissionId, 'user_id' => $this->titaniumUser->id, 'user_type' => User::class]);
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+
+        $makeRequest = function (string $phone, int $status) {
+            $registrant = User::create(['name' => 'ثبت‌کننده', 'phone' => $phone, 'level' => 'user']);
+            $request = \App\Models\Callcenter::create(['type' => 0, 'status' => $status, 'reg_id' => $registrant->id]);
+            \DB::table('callcenter_ghorfe_online_list')->insert(['callcenter_id' => $request->id, 'ghorfe_online_list_id' => $this->business->id]);
+        };
+        $makeRequest('09121110001', 3);
+        $makeRequest('09121110002', 0);
+        $makeRequest('09121110003', 11); // opted out of SMS
+        User::create(['name' => 'بدون درخواست', 'phone' => '09121110004', 'level' => 'user'])
+            ->ghorfeOnlineLists()->attach($this->business->id);
+
+        $payload = fn (array $requestFilter) => [
+            'recipient_type' => 'normal',
+            'message' => 'پیامک آزمایشی',
+            'sender_number_id' => $this->advSender->id,
+            'filters' => ['request_filter' => ['__source' => 'requests'] + $requestFilter],
+        ];
+
+        // Narrowed by criteria
+        $this->postJson(route('admin.sms.bulk.preview'), $payload(['status' => ['3']]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 1);
+
+        // Source only: all requests, still never the opt-out nor the user without a request
+        $this->postJson(route('admin.sms.bulk.preview'), $payload([]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 2);
+
+        // Explicitly asking for the opt-out status must not reach them
+        $this->postJson(route('admin.sms.bulk.preview'), $payload(['status' => ['11']]))
+            ->assertStatus(200)->assertJsonPath('recipient_summary.valid_count', 0);
+
+        // Send: the campaign's recipients are exactly the two live requests' registrants
+        $send = $this->postJson(route('admin.sms.bulk.send'), $payload([]));
+        $send->assertOk()->assertJsonPath('status', 'success');
+
+        $phones = \App\Models\SmsCampaignRecipient::where('sms_campaign_id', $send->json('campaign_id'))->pluck('phone')->sort()->values()->all();
+        $this->assertSame(['09121110001', '09121110002'], $phones);
+    }
 }

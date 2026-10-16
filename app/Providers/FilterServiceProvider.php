@@ -43,6 +43,12 @@ class FilterServiceProvider extends ServiceProvider
             $data =$this->tasks_requires();
             $view->with($data);
         });
+        // «ارسال پیامک به نتیجه فیلتر» on the requests page, and the requests-filter pop-up of the
+        // group-message page: both reuse the requests page's filter data / send data.
+        view()->composer(['Admin.callcenter.partials.sms-to-filter-modal'], \App\View\Composers\SmsToFilterComposer::class);
+        view()->composer(['Admin.callcenter.partials.filter-modal'], function ($view) {
+            $view->with($this->tasks_requires());
+        });
         view()->composer(['Admin.accounting.all','Admin.accounting.installments'], function ($view) {
             $view->with([
                 'centers' => Center::all(),

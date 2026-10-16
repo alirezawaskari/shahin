@@ -306,6 +306,19 @@
                             <span class="badge bg-secondary small" id="tierGateHint">سطح مورد نیاز: نقره‌ای</span>
                         </div>
 
+                        <!-- Audience from requests: the requests page's filter section as a pop-up -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 pb-3 border-bottom">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="open_request_filter">
+                                <i class="fa fa-filter ms-1"></i> فیلتر بر اساس درخواست‌ها
+                            </button>
+                            <span id="requestFilterBadge" class="badge bg-success d-none align-items-center">
+                                فیلتر درخواست‌ها فعال است (<span data-count>0</span> فیلد)
+                                <button type="button" class="btn-close btn-close-white ms-2" id="request_filter_remove" aria-label="حذف فیلتر درخواست‌ها" style="font-size: .6rem;"></button>
+                            </span>
+                            <span class="text-muted small">با فعال بودن این فیلتر، مخاطبان از روی درخواست‌ها تعیین می‌شوند و فیلترهای کاربری زیر نادیده گرفته می‌شوند.</span>
+                        </div>
+                        <div id="requestFilterInputs"></div>
+
                         <div class="row g-3">
                             <!-- Role Filter (Gold+) -->
                             <div class="col-md-4">
@@ -714,6 +727,9 @@
     </div>
 </form>
 
+{{-- The requests-filter pop-up lives OUTSIDE #bulkSmsForm: its fields are criteria, not form fields. --}}
+@include('Admin.callcenter.partials.filter-modal')
+
 <!-- Quick Payment Gate Modal (مودال درگاه پرداخت سریع) -->
 <div class="modal fade" id="quickPaymentModal" tabindex="-1" aria-labelledby="quickPaymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -847,6 +863,8 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/dashboard/js/layout/productServiceFilterInputs.js') }}"></script>
+<script src="{{ asset('assets/dashboard/js/requestFilterPicker.js?v=1.0') }}"></script>
 <script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
     // Dynamic parameter tokens inside a selected template render as styled,

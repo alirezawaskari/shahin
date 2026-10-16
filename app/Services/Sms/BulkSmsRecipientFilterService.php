@@ -4,6 +4,7 @@ namespace App\Services\Sms;
 
 use App\Helpers\FilterHelper;
 use App\Helpers\Helper;
+use App\Models\Callcenter;
 use App\Models\GhorfeOnlineList;
 use App\Models\User;
 use DomainException;
@@ -284,17 +285,25 @@ class BulkSmsRecipientFilterService
     {
         $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType);
 
-        // Fetch candidates from DB query
-        $query = $this->buildQuery($filters, $actor, $business, $recipientType);
-        $users = $query->get(['id', 'name', 'family', 'phone']);
-
         $candidates = [];
-        foreach ($users as $user) {
-            $candidates[] = [
-                'phone' => $user->phone,
-                'user_id' => $user->id,
-                'name' => trim(($user->name ?? '') . ' ' . ($user->family ?? '')) ?: 'کاربر',
-            ];
+
+        if (!empty($filters['request_filter']) && is_array($filters['request_filter'])) {
+            // Audience = the people behind the requests matching the requests-page filter.
+            // The user-field filters are not applied on top of it.
+            $this->accessTierService->assertCanQuery($actor, $filters, $recipientType);
+            $candidates = $this->requestCandidates($filters['request_filter'], $actor, $business);
+        } else {
+            // Fetch candidates from DB query
+            $query = $this->buildQuery($filters, $actor, $business, $recipientType);
+            $users = $query->get(['id', 'name', 'family', 'phone']);
+
+            foreach ($users as $user) {
+                $candidates[] = [
+                    'phone' => $user->phone,
+                    'user_id' => $user->id,
+                    'name' => trim(($user->name ?? '') . ' ' . ($user->family ?? '')) ?: 'کاربر',
+                ];
+            }
         }
 
         // Support manual / pasted custom numbers if present
@@ -319,5 +328,44 @@ class BulkSmsRecipientFilterService
         $result['required_tier'] = $requiredTier;
 
         return $result;
+    }
+
+    /**
+     * Recipients for the requests-page filter: one candidate per matching request, using the
+     * registered user's phone, or the number the request's incoming SMS came from.
+     *
+     * Always scoped by the same access rules as the requests page, pinned to the business the
+     * campaign is sent from, and never includes requests that opted out of SMS (status 11),
+     * even when the criteria ask for that status.
+     *
+     * @param array<string, mixed> $criteria
+     * @return array<int, array{phone: ?string, user_id: ?int, name: string}>
+     */
+    public function requestCandidates(array $criteria, User $actor, ?GhorfeOnlineList $business = null): array
+    {
+        // Callcenter::accessScoped() reads the signed-in user; refuse to run it for anyone else.
+        if (auth()->id() !== $actor->id) {
+            throw new DomainException('فیلتر درخواست‌ها فقط برای کاربر واردشده قابل اجراست.');
+        }
+
+        $candidates = [];
+
+        Callcenter::query()
+            ->accessScoped($business)
+            ->applyCriteria($criteria)
+            ->where('status', '!=', 11)
+            ->with(['register:id,name,family,phone', 'sms:id,sender_number'])
+            ->chunkById(1000, function ($requests) use (&$candidates) {
+                foreach ($requests as $request) {
+                    $user = $request->register;
+                    $candidates[] = [
+                        'phone' => $user?->phone ?: $request->sms?->sender_number,
+                        'user_id' => $user?->id,
+                        'name' => $user ? (trim(($user->name ?? '') . ' ' . ($user->family ?? '')) ?: 'کاربر') : 'درخواست‌دهنده',
+                    ];
+                }
+            }, 'callcenters.id', 'id');
+
+        return $candidates;
     }
 }

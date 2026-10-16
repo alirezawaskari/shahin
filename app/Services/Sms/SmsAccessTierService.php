@@ -48,6 +48,20 @@ class SmsAccessTierService
             return self::TIER_DIAMOND;
         }
 
+        // 2b. Requests-page audience: same category rule as the user filters below, so a Silver
+        //     account cannot reach a category-based audience through the requests filter either.
+        if (!empty($filters['request_filter']) && is_array($filters['request_filter'])) {
+            foreach (['product_category', 'service_category', 'sub_service_category', 'service_items', 'service'] as $key) {
+                $value = $filters['request_filter'][$key] ?? null;
+                $value = array_filter((array) $value, fn ($v) => $v !== null && $v !== '' && $v !== 'all');
+                if (!empty($value)) {
+                    return self::TIER_DIAMOND;
+                }
+            }
+
+            return self::TIER_SILVER;
+        }
+
         // 3. Service or Product category filters require Diamond
         if (!empty($filters['service_category_id']) || !empty($filters['product_category_id']) || !empty($filters['service_id'])) {
             return self::TIER_DIAMOND;
