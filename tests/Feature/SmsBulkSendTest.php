@@ -836,4 +836,106 @@ class SmsBulkSendTest extends TestCase
         $this->getJson(route('callcenter.smsHistory', $foreign->id))->assertNotFound();
         $this->getJson(route('callcenter.smsHistory', 999999))->assertNotFound();
     }
+
+    // ------------------------------------------------------------------
+    // Silver (and every non-Titanium tier) may only message their own business' users
+    // ------------------------------------------------------------------
+
+    private function otherBusinessWithCustomer(): GhorfeOnlineList
+    {
+        $other = GhorfeOnlineList::create(['title' => 'کسب‌وکار رقیب']);
+        User::create(['name' => 'مشتری رقیب', 'phone' => '09127770001', 'level' => 'user'])
+            ->ghorfeOnlineLists()->attach($other->id);
+
+        return $other;
+    }
+
+    private function previewPayload(array $filters): array
+    {
+        return [
+            'recipient_type' => 'normal',
+            'message' => 'متن پیامک',
+            'sender_number_id' => $this->advSender->id,
+            'filters' => $filters,
+        ];
+    }
+
+    public function test_non_titanium_tiers_cannot_target_another_businesses_users(): void
+    {
+        $other = $this->otherBusinessWithCustomer();
+        User::create(['name' => 'مشتری من', 'phone' => '09121110001', 'level' => 'user'])
+            ->ghorfeOnlineLists()->attach($this->business->id);
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+
+        foreach (['silver' => $this->silverUser, 'gold' => $this->goldUser, 'diamond' => $this->diamondUser] as $tier => $actor) {
+            \DB::table('employees')->insert(['user_id' => $actor->id, 'ghorfe_online_list_id' => $this->business->id]);
+            $this->actingAs($actor);
+
+            // Their own business: fine, and sees only their own customer
+            $this->postJson(route('admin.sms.bulk.preview'), $this->previewPayload(['business' => $this->business->id]))
+                ->assertOk()->assertJsonPath('recipient_summary.valid_count', 1);
+
+            // Someone else's business, as a scalar or as a list: refused with the tier that would allow it
+            foreach ([$other->id, [$other->id], [$this->business->id, $other->id]] as $foreign) {
+                $this->postJson(route('admin.sms.bulk.preview'), $this->previewPayload(['business' => $foreign]))
+                    ->assertStatus(403)
+                    ->assertJsonPath('error_type', 'tier_denied')
+                    ->assertJsonPath('required_tier', 'titanium')
+                    ->assertJsonPath('user_tier', $tier);
+            }
+
+            // The alias key is guarded the same way
+            $this->postJson(route('admin.sms.bulk.preview'), $this->previewPayload(['ghorfe_online_list_id' => $other->id]))
+                ->assertStatus(403)->assertJsonPath('required_tier', 'titanium');
+        }
+    }
+
+    public function test_foreign_business_target_is_refused_on_send_and_creates_nothing(): void
+    {
+        $other = $this->otherBusinessWithCustomer();
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+        \DB::table('employees')->insert(['user_id' => $this->silverUser->id, 'ghorfe_online_list_id' => $this->business->id]);
+        $this->actingAs($this->silverUser);
+
+        $this->postJson(route('admin.sms.bulk.send'), $this->previewPayload(['business' => $other->id]))
+            ->assertStatus(403)->assertJsonPath('error_type', 'tier_denied');
+
+        $this->assertSame(0, SmsCampaign::count());
+        $this->assertSame(0, SmsCampaignRecipient::count());
+        $this->assertSame(100000.0, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
+    }
+
+    public function test_titanium_can_still_target_another_business(): void
+    {
+        $other = $this->otherBusinessWithCustomer();
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+        \DB::table('employees')->insert(['user_id' => $this->titaniumUser->id, 'ghorfe_online_list_id' => $this->business->id]);
+        $this->actingAs($this->titaniumUser);
+
+        $this->postJson(route('admin.sms.bulk.preview'), $this->previewPayload(['business' => $other->id]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 1);
+    }
+
+    public function test_required_tier_for_business_filters(): void
+    {
+        $tier = $this->tierService;
+        $own = $this->business->id;
+
+        // No business filter / own business only: the base tier
+        $this->assertSame('silver', $tier->getRequiredTier([], 'normal', $own));
+        $this->assertSame('silver', $tier->getRequiredTier(['business' => $own], 'normal', $own));
+        $this->assertSame('silver', $tier->getRequiredTier(['business' => (string) $own], 'normal', $own));
+        $this->assertSame('silver', $tier->getRequiredTier(['business' => [$own]], 'normal', $own));
+        $this->assertSame('silver', $tier->getRequiredTier(['business' => ''], 'normal', $own));
+
+        // Anything beyond the own business needs Titanium
+        $this->assertSame('titanium', $tier->getRequiredTier(['business' => $own + 1], 'normal', $own));
+        $this->assertSame('titanium', $tier->getRequiredTier(['business' => [$own, $own + 1]], 'normal', $own));
+        $this->assertSame('titanium', $tier->getRequiredTier(['ghorfe_online_list_id' => $own + 1], 'normal', $own));
+        $this->assertSame('titanium', $tier->getRequiredTier(['business' => 'all'], 'normal', $own));
+        $this->assertSame('titanium', $tier->getRequiredTier(['business' => ['all']], 'normal'));
+
+        // The sender's business unknown: behaviour is unchanged (only "all" is cross-business)
+        $this->assertSame('silver', $tier->getRequiredTier(['business' => $own + 1], 'normal'));
+    }
 }

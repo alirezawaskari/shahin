@@ -171,7 +171,7 @@ class AiCampaignAssistant
         $cleanFilters = $this->sanitizeFilters($rawFilters, $business);
 
         // Access tier evaluation
-        $requiredTier = $this->accessTierService->getRequiredTier($cleanFilters, $recipientType);
+        $requiredTier = $this->accessTierService->getRequiredTier($cleanFilters, $recipientType, $business->id);
         $userTier = $this->accessTierService->effectiveTier($actor);
         $isTierAllowed = $this->accessTierService->canAccess($actor, $requiredTier);
 

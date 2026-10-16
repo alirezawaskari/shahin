@@ -236,8 +236,8 @@ class BulkSmsSendService
         }
 
         // 1. Enforce Tier Gate
-        $this->accessTierService->assertCanQuery($actor, $filters, $recipientType);
-        $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType);
+        $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business->id);
+        $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType, $business->id);
 
         // 2. Resolve sender number (strictly restricted to business's assigned advertising numbers)
         $senderNumberId = !empty($data['sender_number_id']) ? (int) $data['sender_number_id'] : null;

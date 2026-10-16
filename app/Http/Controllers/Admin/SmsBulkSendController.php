@@ -144,7 +144,7 @@ class SmsBulkSendController extends Controller
 
         // 1. Verify Tier Gate
         try {
-            $this->accessTierService->assertCanQuery($user, $filters, $recipientType);
+            $this->accessTierService->assertCanQuery($user, $filters, $recipientType, $business->id);
         } catch (TierAccessDeniedException $e) {
             return response()->json([
                 'status' => 'error',

@@ -35,12 +35,21 @@ class SmsAccessTierService
      * @param string $recipientType
      * @return string
      */
-    public function getRequiredTier(array $filters = [], string $recipientType = 'normal'): string
+    public function getRequiredTier(array $filters = [], string $recipientType = 'normal', ?int $ownBusinessId = null): string
     {
-        // 1. Cross-business targeting requires Titanium
-        $businessFilter = $filters['business'] ?? $filters['ghorfe_online_list_id'] ?? null;
-        if (!empty($businessFilter) && ($businessFilter === 'all' || (is_array($businessFilter) && in_array('all', $businessFilter, true)))) {
+        // 1. Cross-business targeting requires Titanium: "all businesses", or — when the
+        //    sender's own business is known — any business other than their own. Without this a
+        //    lower tier could post another business' id and message that business' customers.
+        $businessIds = $this->businessFilterIds($filters);
+        if (in_array('all', $businessIds, true)) {
             return self::TIER_TITANIUM;
+        }
+        if ($ownBusinessId !== null) {
+            foreach ($businessIds as $id) {
+                if ((string) $id !== (string) $ownBusinessId) {
+                    return self::TIER_TITANIUM;
+                }
+            }
         }
 
         // 2. Advertising recipient pool requires Diamond
@@ -74,6 +83,22 @@ class SmsAccessTierService
 
         // 5. Default/basic filters (gender, date range, own business customers) require Silver
         return self::TIER_SILVER;
+    }
+
+    /**
+     * The business ids a filter set targets, from either key, as a list of strings
+     * (a scalar, a list, or the literal "all").
+     *
+     * @return array<int, string>
+     */
+    public function businessFilterIds(array $filters): array
+    {
+        $raw = $filters['business'] ?? $filters['ghorfe_online_list_id'] ?? null;
+
+        return array_values(array_map(
+            'strval',
+            array_filter((array) $raw, fn ($v) => is_scalar($v) && $v !== '')
+        ));
     }
 
     /**
@@ -112,13 +137,13 @@ class SmsAccessTierService
      *
      * @throws TierAccessDeniedException
      */
-    public function assertCanQuery(User $user, array $filters = [], string $recipientType = 'normal'): void
+    public function assertCanQuery(User $user, array $filters = [], string $recipientType = 'normal', ?int $ownBusinessId = null): void
     {
         if ($user->isSuperAdmin()) {
             return;
         }
 
-        $requiredTier = $this->getRequiredTier($filters, $recipientType);
+        $requiredTier = $this->getRequiredTier($filters, $recipientType, $ownBusinessId);
         $userTier = $user->access_tier ?: self::TIER_SILVER;
 
         if (!$this->canAccess($user, $requiredTier)) {

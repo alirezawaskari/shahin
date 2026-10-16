@@ -149,16 +149,17 @@ class BulkSmsRecipientFilterService
      */
     public function buildQuery(array $filters, User $actor, ?GhorfeOnlineList $business = null, string $recipientType = 'normal'): Builder
     {
-        // Enforce Access Tier Gate
-        $this->accessTierService->assertCanQuery($actor, $filters, $recipientType);
+        // Enforce Access Tier Gate (including: only Titanium may leave the sender's own business)
+        $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business?->id);
 
         $query = User::query();
 
         // 1. Business scoping
-        $businessId = $filters['business'] ?? $filters['ghorfe_online_list_id'] ?? null;
+        $businessIds = $this->accessTierService->businessFilterIds($filters);
+        $businessId = in_array('all', $businessIds, true) ? 'all' : ($businessIds ?: null);
         if (!empty($businessId) && $businessId !== 'all') {
             $query->whereHas('ghorfeOnlineLists', function ($q) use ($businessId) {
-                $q->where('ghorfe_online_lists.id', $businessId);
+                $q->whereIn('ghorfe_online_lists.id', $businessId);
             });
         } elseif ($businessId === 'all') {
             // Titanium or superAdmin allowed to query across all businesses
@@ -285,14 +286,14 @@ class BulkSmsRecipientFilterService
      */
     public function filterRecipients(array $filters, User $actor, ?GhorfeOnlineList $business = null, string $recipientType = 'normal'): array
     {
-        $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType);
+        $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType, $business?->id);
 
         $candidates = [];
 
         if (!empty($filters['request_filter']) && is_array($filters['request_filter'])) {
             // Audience = the people behind the requests matching the requests-page filter.
             // The user-field filters are not applied on top of it.
-            $this->accessTierService->assertCanQuery($actor, $filters, $recipientType);
+            $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business?->id);
             $candidates = $this->requestCandidates($filters['request_filter'], $actor, $business);
         } else {
             // Fetch candidates from DB query
