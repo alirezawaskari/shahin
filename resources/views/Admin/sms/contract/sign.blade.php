@@ -90,12 +90,44 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">نام و نام خانوادگی (امضای الکترونیکی) <span class="text-danger">*</span></label>
-                                <input type="text" name="signature_name" class="form-control" placeholder="نام و نام خانوادگی خود را به‌عنوان تایید امضا وارد کنید" required>
+                                <input type="text" name="signature_name" id="signatureName" value="{{ old('signature_name') }}" class="form-control" placeholder="نام و نام خانوادگی خود را به‌عنوان تایید امضا وارد کنید" required>
                                 <div class="form-text text-muted small">
                                     ثبت نام و نام خانوادگی در این فیلد و ارسال فرم، به منزله امضای الکترونیکی تعهدنامه است.
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-success px-4">
+
+                            {{-- Verification of the signature: a 6-digit code SMS'd to the signer's OWN number --}}
+                            <div class="border rounded p-3 mb-3 bg-light" id="otpBox"
+                                 data-send-url="{{ route('admin.sms.contract.otp') }}"
+                                 data-business-id="{{ $business->id }}"
+                                 data-resend="{{ $otpResendSeconds }}">
+                                <div class="fw-bold mb-1"><i class="fa fa-shield me-1"></i> تایید امضا با کد یکبار مصرف</div>
+                                @if($otpPhoneMasked)
+                                    <p class="small text-muted mb-2">
+                                        برای تایید هویت امضاکننده، یک کد ۶ رقمی به شماره‌ی <strong dir="ltr">{{ $otpPhoneMasked }}</strong> (شماره‌ی ثبت‌شده در حساب شما) پیامک می‌شود.
+                                    </p>
+                                    <div class="d-flex flex-wrap align-items-start gap-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="sendOtpBtn">
+                                            <i class="fa fa-commenting-o me-1"></i> ارسال کد تایید
+                                        </button>
+                                        <div>
+                                            <input type="text" name="otp" id="otpInput" class="form-control form-control-sm text-center font-monospace"
+                                                   inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9۰-۹]{6}"
+                                                   placeholder="------" style="width: 9rem; letter-spacing: .4rem;" required>
+                                        </div>
+                                    </div>
+                                    <div id="otpMessage" class="small mt-2" role="status" aria-live="polite"></div>
+                                    @error('otp')
+                                        <div class="text-danger small mt-2">{{ $message }}</div>
+                                    @enderror
+                                @else
+                                    <div class="alert alert-warning mb-0 small">
+                                        شماره موبایل معتبری برای حساب کاربری شما ثبت نشده است؛ بدون آن امکان امضا وجود ندارد. ابتدا شماره‌ی موبایل خود را در پروفایل تکمیل کنید.
+                                    </div>
+                                @endif
+                            </div>
+
+                            <button type="submit" class="btn btn-success px-4" @if(!$otpPhoneMasked) disabled @endif>
                                 <i class="fa fa-check me-1"></i> تایید و امضای تعهدنامه
                             </button>
                         </div>
@@ -116,4 +148,89 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+(function () {
+    var box = document.getElementById('otpBox');
+    var sendBtn = document.getElementById('sendOtpBtn');
+    if (!box || !sendBtn) { return; }
+
+    var agree = document.getElementById('agree');
+    var nameInput = document.getElementById('signatureName');
+    var otpInput = document.getElementById('otpInput');
+    var message = document.getElementById('otpMessage');
+    var timer = null;
+    var sentName = null;
+
+    // The code is bound to the exact name it was requested for.
+    nameInput.addEventListener('input', function () {
+        if (sentName !== null && nameInput.value.trim() !== sentName) {
+            say('warning', 'با تغییر نام امضاکننده، کد قبلی بی‌اعتبار می‌شود و باید کد جدید دریافت کنید.');
+        }
+    });
+
+    function say(kind, text) {
+        message.className = 'small mt-2 text-' + kind;
+        message.textContent = text;
+    }
+
+    function countdown(seconds) {
+        clearInterval(timer);
+        var left = seconds;
+        sendBtn.disabled = true;
+        (function tick() {
+            if (left <= 0) {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'ارسال مجدد کد';
+                return;
+            }
+            sendBtn.textContent = 'ارسال مجدد تا ' + left.toLocaleString('fa-IR') + ' ثانیه دیگر';
+            left--;
+            timer = setTimeout(tick, 1000);
+        })();
+    }
+
+    sendBtn.addEventListener('click', function () {
+        if (!agree.checked || nameInput.value.trim().length < 3) {
+            say('danger', 'ابتدا تعهدنامه را تایید کنید و نام و نام خانوادگی خود را وارد کنید.');
+            return;
+        }
+        sendBtn.disabled = true;
+        say('muted', 'در حال ارسال کد...');
+
+        var data = new FormData();
+        data.append('agree', '1');
+        data.append('signature_name', nameInput.value.trim());
+        data.append('business_id', box.getAttribute('data-business-id'));
+
+        fetch(box.getAttribute('data-send-url'), {
+            method: 'POST',
+            headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), 'Accept': 'application/json'},
+            body: data
+        }).then(function (response) {
+            return response.json().then(function (body) { return {status: response.status, body: body}; });
+        }).then(function (res) {
+            if (res.status === 200 && res.body.status === 'success') {
+                say('success', res.body.message);
+                sentName = nameInput.value.trim();
+                otpInput.focus();
+                countdown(res.body.resend_after || parseInt(box.getAttribute('data-resend'), 10));
+                return;
+            }
+            var errors = res.body && res.body.errors ? Object.keys(res.body.errors).map(function (k) { return res.body.errors[k][0]; }).join(' ') : '';
+            say('danger', (res.body && res.body.message) || errors || 'ارسال کد ناموفق بود.');
+            if (res.body && res.body.retry_after && res.status === 429) {
+                countdown(Math.min(res.body.retry_after, 3600));
+            } else {
+                sendBtn.disabled = false;
+            }
+        }).catch(function () {
+            say('danger', 'ارتباط با سرور برقرار نشد.');
+            sendBtn.disabled = false;
+        });
+    });
+})();
+</script>
 @endsection

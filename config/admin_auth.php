@@ -51,6 +51,23 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | OTP امضای تعهدنامه و ضوابط پیامک
+    |--------------------------------------------------------------------------
+    | کد ۶ رقمی که فقط به شماره‌ی حساب خود امضاکننده ارسال می‌شود.
+    | sms_template باید یک تمپلیت تاییدیه در پنل ارسال با یک پارامتر (کد) باشد؛ تا زمانی که
+    | تمپلیت اختصاصی ساخته نشده به تمپلیت OTP ورود برمی‌گردد.
+    */
+    'contract_otp' => [
+        'length' => 6,
+        'ttl_seconds' => (int) env('SMS_CONTRACT_OTP_TTL_SECONDS', 300),
+        'max_attempts' => (int) env('SMS_CONTRACT_OTP_MAX_ATTEMPTS', 5),
+        'resend_cooldown_seconds' => (int) env('SMS_CONTRACT_OTP_RESEND_COOLDOWN', 60),
+        'max_sends_per_hour' => (int) env('SMS_CONTRACT_OTP_MAX_PER_HOUR', 5),
+        'sms_template' => env('SMS_CONTRACT_OTP_TEMPLATE') ?: env('ADMIN_OTP_SMS_TEMPLATE', 'admin-login-otp'),
+    ],
+
     'password_login' => [
 
         /*
