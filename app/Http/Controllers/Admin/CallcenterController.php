@@ -259,6 +259,62 @@ class CallcenterController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
      */
+    /**
+     * SMS history of ONE request: the SMS that created it (when it came in by SMS) plus every
+     * message the SMS module sent for it. Scoped exactly like the requests list, and confidential
+     * message bodies are omitted server-side for viewers without view-confidential-sms.
+     *
+     * Legacy automated messages (payment / card links, close-task) are not recorded per request
+     * anywhere, so they cannot appear here; they only exist as text notes in the details tab.
+     */
+    public function smsHistory(int $callcenter)
+    {
+        $task = Callcenter::query()->accessScoped()->with('sms')->findOrFail($callcenter);
+        $viewer = auth()->user();
+        $items = [];
+
+        if ($task->type == 1 && $task->sms) {
+            $items[] = [
+                'direction' => 'inbound',
+                'party' => $task->sms->sender_number,
+                'content' => $task->sms->body,
+                'redacted' => false,
+                'status' => 'received',
+                'service' => 'درخواست از طریق پیامک',
+                'date' => verta($task->sms->created_at)->format('Y/m/d H:i'),
+                'at' => $task->sms->created_at?->timestamp ?? 0,
+            ];
+        }
+
+        $messages = \App\Models\SmsMessage::query()
+            ->where('callcenter_id', $task->id)
+            ->with('senderNumber')
+            ->get();
+        \App\Services\Sms\SmsConfidentialityGuard::redactMany($messages, $viewer);
+
+        foreach ($messages as $message) {
+            $items[] = [
+                'direction' => $message->direction === 'inbound' ? 'inbound' : 'outbound',
+                'party' => $message->direction === 'inbound' ? $message->sender_phone : $message->recipient_phone,
+                'content' => $message->content,
+                'redacted' => (bool) ($message->content_redacted ?? false),
+                'status' => $message->delivery_status === 'delivered' ? 'delivered' : $message->status,
+                'service' => match ($message->service_type) {
+                    'otp' => 'OTP',
+                    'advertising' => 'تبلیغاتی',
+                    default => 'عادی',
+                },
+                'sender' => $message->sender_phone ?: $message->senderNumber?->number,
+                'date' => verta($message->created_at)->format('Y/m/d H:i'),
+                'at' => $message->created_at?->timestamp ?? 0,
+            ];
+        }
+
+        usort($items, fn ($a, $b) => $b['at'] <=> $a['at']);
+
+        return response()->json(['data' => ['messages' => $items]]);
+    }
+
     public function taskDetail(Request $request)
     {
         $task = Callcenter::find($request->id);

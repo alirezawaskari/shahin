@@ -301,6 +301,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     Route::post('/callcenter/change', [CallcenterController::class, 'change'])->name('callcenter.change');
     Route::get('/tasks-requires', [CallcenterController::class, 'tasks_requires']);
     Route::post('/task-detail', [CallcenterController::class, 'taskDetail']);
+    Route::get('/callcenter/{callcenter}/sms-history', [CallcenterController::class, 'smsHistory'])->whereNumber('callcenter')->name('callcenter.smsHistory');
     Route::post('/status-form', [CallcenterController::class, 'statusForm']);
     Route::post('/service-form', [CallcenterController::class, 'service_form']);
     Route::post('/service-form-global', [CallcenterController::class, 'service_form_global']);

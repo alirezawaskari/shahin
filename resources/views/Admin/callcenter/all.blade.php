@@ -190,6 +190,9 @@
                     <li class="nav-item"><a id="detail-tab" data-toggle="tab" href="#detail" role="tab"
                             aria-controls="detail" aria-selected="false" class="nav-link show">جزئیات</a>
                     </li>
+                    <li class="nav-item"><a id="sms-history-tab" data-toggle="tab" href="#smsHistory" role="tab"
+                            aria-controls="smsHistory" aria-selected="false" class="nav-link show">پیامک‌ها</a>
+                    </li>
                     @permission('close-task|followed-task')
                     <li class="nav-item"><a id="change-status-task-tab" data-toggle="tab" href="#changeStatusTask" role="tab"
                             aria-controls="colseTask" aria-selected="false" class="nav-link show">تغییر وضعیت درخواست
@@ -338,6 +341,27 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div id="smsHistory" role="tabpanel" aria-labelledby="sms-history-tab" class="tab-pane fade p-t-20"
+                         data-url-template="{{ route('callcenter.smsHistory', ['callcenter' => '__ID__']) }}">
+                        <p class="text-muted small mb-2">فقط پیامک‌های مربوط به همین درخواست؛ نه کل سابقه‌ی کاربر.</p>
+                        <div class="sms-history-state text-center text-muted py-4"></div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped d-none sms-history-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>جهت</th>
+                                        <th>نوع</th>
+                                        <th>شماره</th>
+                                        <th>متن</th>
+                                        <th>وضعیت</th>
+                                        <th>تاریخ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="sms-history-tbody"></tbody>
+                            </table>
+                        </div>
                     </div>
                     <div id="changeStatusTask" role="tabpanel" aria-labelledby="change-status-task-tab" class="tab-pane fade p-t-20">
                         <div class="tab">
@@ -553,4 +577,5 @@
 <script src="{{asset('assets/dashboard/js/sendLink.js?v=1.9')}}"></script>
 <script src="{{asset('assets/dashboard/js/layout/productServiceFilterInputs.js')}}"></script>
 <script src="{{asset('assets/dashboard/js/requestFilterSms.js?v=1.0')}}"></script>
+<script src="{{asset('assets/dashboard/js/requestSmsHistory.js?v=1.0')}}"></script>
 @endsection

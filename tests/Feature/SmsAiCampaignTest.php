@@ -161,6 +161,7 @@ class SmsAiCampaignTest extends TestCase
             'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
             'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
             'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
+            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
         ];
 
         foreach ($migrationFiles as $file) {

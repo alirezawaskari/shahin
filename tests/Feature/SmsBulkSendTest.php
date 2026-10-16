@@ -155,6 +155,7 @@ class SmsBulkSendTest extends TestCase
             'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
             'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
             'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
+            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -594,52 +595,7 @@ class SmsBulkSendTest extends TestCase
     {
         BulkSmsSendService::setGlobalGatewayDispatcher(function () {});
 
-        \Illuminate\Support\Facades\Schema::create('sms', function (Blueprint $t) {
-            $t->increments('id');
-            $t->string('sender_number')->nullable();
-            $t->string('body')->nullable();
-            $t->softDeletes();
-            $t->timestamps();
-        });
-        \Illuminate\Support\Facades\Schema::create('callcenters', function (Blueprint $t) {
-            $t->increments('id');
-            $t->unsignedInteger('sms_id')->nullable();
-            $t->unsignedInteger('reg_id')->nullable();
-            $t->unsignedInteger('user_id')->nullable();
-            $t->unsignedInteger('agent_id')->nullable();
-            $t->unsignedInteger('representation_id')->nullable();
-            $t->integer('type')->default(0);
-            $t->string('request_type')->nullable();
-            $t->integer('status')->default(0);
-            $t->text('description')->nullable();
-            $t->softDeletes();
-            $t->timestamps();
-        });
-        \Illuminate\Support\Facades\Schema::create('callcenter_ghorfe_online_list', function (Blueprint $t) {
-            $t->unsignedInteger('callcenter_id');
-            $t->unsignedBigInteger('ghorfe_online_list_id');
-        });
-
-        \Illuminate\Support\Facades\Schema::create('permissions', function (Blueprint $t) {
-            $t->increments('id');
-            $t->string('name')->nullable();
-            $t->string('display_name')->nullable();
-            $t->timestamps();
-        });
-        \Illuminate\Support\Facades\Schema::create('permission_user', function (Blueprint $t) {
-            $t->unsignedInteger('permission_id');
-            $t->unsignedInteger('user_id');
-            $t->string('user_type');
-        });
-        \Illuminate\Support\Facades\Schema::create('permission_role', function (Blueprint $t) {
-            $t->unsignedInteger('permission_id');
-            $t->unsignedInteger('role_id');
-        });
-
-        $this->actingAs($this->titaniumUser);
-        \DB::table('employees')->insert(['user_id' => $this->titaniumUser->id, 'ghorfe_online_list_id' => $this->business->id]);
-        $permissionId = \DB::table('permissions')->insertGetId(['name' => 'callcenter-detail']);
-        \DB::table('permission_user')->insert(['permission_id' => $permissionId, 'user_id' => $this->titaniumUser->id, 'user_type' => User::class]);
+        $this->prepareRequestTables();
         $this->seedAdvertisingBalance($this->business->id, 100000);
 
         $makeRequest = function (string $phone, int $status) {
@@ -678,6 +634,14 @@ class SmsBulkSendTest extends TestCase
 
         $phones = \App\Models\SmsCampaignRecipient::where('sms_campaign_id', $send->json('campaign_id'))->pluck('phone')->sort()->values()->all();
         $this->assertSame(['09121110001', '09121110002'], $phones);
+
+        // Each message is attributed to the request it was sent for (feeds the request's SMS tab).
+        $messages = \App\Models\SmsMessage::where('sms_campaign_id', $send->json('campaign_id'))->orderBy('recipient_phone')->get();
+        $this->assertCount(2, $messages);
+        $this->assertSame(
+            \App\Models\Callcenter::whereIn('status', [3, 0])->orderBy('id')->pluck('id')->all(),
+            $messages->pluck('callcenter_id')->all()
+        );
     }
 
     // ------------------------------------------------------------------
@@ -746,5 +710,130 @@ class SmsBulkSendTest extends TestCase
         $this->postJson(route('admin.sms.bulk.excel'), [])->assertStatus(422)->assertJsonValidationErrors('file');
 
         @unlink($path);
+    }
+
+    /**
+     * Tables + permission the requests (callcenters) access scope needs, and the acting admin
+     * pinned to the test business.
+     */
+    private function prepareRequestTables(): void
+    {
+        \Illuminate\Support\Facades\Schema::create('sms', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('sender_number')->nullable();
+            $t->string('body')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        \Illuminate\Support\Facades\Schema::create('callcenters', function (Blueprint $t) {
+            $t->increments('id');
+            $t->unsignedInteger('sms_id')->nullable();
+            $t->unsignedInteger('reg_id')->nullable();
+            $t->unsignedInteger('user_id')->nullable();
+            $t->unsignedInteger('agent_id')->nullable();
+            $t->unsignedInteger('representation_id')->nullable();
+            $t->integer('type')->default(0);
+            $t->string('request_type')->nullable();
+            $t->integer('status')->default(0);
+            $t->text('description')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        \Illuminate\Support\Facades\Schema::create('callcenter_ghorfe_online_list', function (Blueprint $t) {
+            $t->unsignedInteger('callcenter_id');
+            $t->unsignedBigInteger('ghorfe_online_list_id');
+        });
+
+        \Illuminate\Support\Facades\Schema::create('permissions', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('name')->nullable();
+            $t->string('display_name')->nullable();
+            $t->timestamps();
+        });
+        \Illuminate\Support\Facades\Schema::create('permission_user', function (Blueprint $t) {
+            $t->unsignedInteger('permission_id');
+            $t->unsignedInteger('user_id');
+            $t->string('user_type');
+        });
+        \Illuminate\Support\Facades\Schema::create('permission_role', function (Blueprint $t) {
+            $t->unsignedInteger('permission_id');
+            $t->unsignedInteger('role_id');
+        });
+
+        $this->actingAs($this->titaniumUser);
+        \DB::table('employees')->insert(['user_id' => $this->titaniumUser->id, 'ghorfe_online_list_id' => $this->business->id]);
+        $permissionId = \DB::table('permissions')->insertGetId(['name' => 'callcenter-detail']);
+        \DB::table('permission_user')->insert(['permission_id' => $permissionId, 'user_id' => $this->titaniumUser->id, 'user_type' => User::class]);
+    }
+
+    private function makeRequest(GhorfeOnlineList $business, string $phone, int $status = 0, array $attrs = []): \App\Models\Callcenter
+    {
+        $registrant = User::create(['name' => 'ثبت‌کننده', 'phone' => $phone, 'level' => 'user']);
+        $request = \App\Models\Callcenter::create(array_merge(['type' => 0, 'status' => $status, 'reg_id' => $registrant->id], $attrs));
+        \DB::table('callcenter_ghorfe_online_list')->insert(['callcenter_id' => $request->id, 'ghorfe_online_list_id' => $business->id]);
+
+        return $request;
+    }
+
+    private function sentMessage(array $attrs): \App\Models\SmsMessage
+    {
+        return \App\Models\SmsMessage::create(array_merge([
+            'ghorfe_online_list_id' => $this->business->id, 'direction' => 'outbound', 'service_type' => 'advertising',
+            'recipient_phone' => '09121110001', 'content' => 'متن', 'status' => 'sent', 'classification' => 'regular',
+        ], $attrs));
+    }
+
+    public function test_request_sms_history_shows_only_that_requests_messages(): void
+    {
+        $this->prepareRequestTables();
+        $confidentialId = \DB::table('permissions')->insertGetId(['name' => 'view-confidential-sms']);
+        \DB::table('permission_user')->insert(['permission_id' => $confidentialId, 'user_id' => $this->titaniumUser->id, 'user_type' => User::class]);
+
+        $a = $this->makeRequest($this->business, '09121110001', 3);
+        $b = $this->makeRequest($this->business, '09121110001', 3); // same person, a second request
+        $this->sentMessage(['callcenter_id' => $a->id, 'content' => 'برای درخواست الف']);
+        $this->sentMessage(['callcenter_id' => $a->id, 'content' => 'محرمانه الف', 'classification' => 'classified', 'delivery_status' => 'delivered']);
+        $this->sentMessage(['callcenter_id' => $b->id, 'content' => 'برای درخواست ب']);
+        $this->sentMessage(['callcenter_id' => null, 'content' => 'پیام عمومی همان کاربر']);
+
+        // A request that came in by SMS shows the inbound message first-class
+        $smsId = \DB::table('sms')->insertGetId(['sender_number' => '09125550000', 'body' => 'سلام، درخواست دارم', 'created_at' => now()->subDay(), 'updated_at' => now()]);
+        $c = $this->makeRequest($this->business, '09125550000', 0, ['type' => 1, 'sms_id' => $smsId]);
+
+        $res = $this->getJson(route('callcenter.smsHistory', $a->id))->assertOk();
+        $bodies = collect($res->json('data.messages'));
+        $this->assertCount(2, $bodies, 'only the two messages attributed to request A');
+        $this->assertEqualsCanonicalizing(['برای درخواست الف', 'محرمانه الف'], $bodies->pluck('content')->all(), 'a viewer with view-confidential-sms sees the text');
+        $this->assertSame(['outbound', 'outbound'], $bodies->pluck('direction')->all());
+        $this->assertContains('delivered', $bodies->pluck('status')->all());
+
+        $inbound = $this->getJson(route('callcenter.smsHistory', $c->id))->assertOk()->json('data.messages');
+        $this->assertCount(1, $inbound);
+        $this->assertSame('inbound', $inbound[0]['direction']);
+        $this->assertSame('سلام، درخواست دارم', $inbound[0]['content']);
+        $this->assertSame('09125550000', $inbound[0]['party']);
+
+        $this->getJson(route('callcenter.smsHistory', $b->id))->assertOk()->assertJsonCount(1, 'data.messages');
+    }
+
+    public function test_request_sms_history_hides_confidential_text_and_other_businesses_requests(): void
+    {
+        $this->prepareRequestTables();
+
+        $own = $this->makeRequest($this->business, '09121110001', 3);
+        $this->sentMessage(['callcenter_id' => $own->id, 'content' => 'سری', 'classification' => 'classified']);
+
+        $other = GhorfeOnlineList::create(['title' => 'کسب‌وکار دیگر']);
+        $foreign = $this->makeRequest($other, '09127770001', 3);
+        $this->sentMessage(['ghorfe_online_list_id' => $other->id, 'callcenter_id' => $foreign->id, 'content' => 'دیگران']);
+
+        // This admin lacks view-confidential-sms -> the body is omitted server-side
+        $row = $this->getJson(route('callcenter.smsHistory', $own->id))->assertOk()->json('data.messages.0');
+        $this->assertTrue($row['redacted']);
+        $this->assertNull($row['content']);
+
+        // Another business' request is not reachable at all
+        $this->getJson(route('callcenter.smsHistory', $foreign->id))->assertNotFound();
+        $this->getJson(route('callcenter.smsHistory', 999999))->assertNotFound();
     }
 }

@@ -394,6 +394,7 @@ $(document).ready(function () {
 
         var token = $('meta[name="csrf-token"]').attr('content');
         var task_id = $(this).data('id');
+        $(document).trigger('callcenter:opened', [task_id]); // lets add-on tabs (SMS history) reset and lazy-load
         $.ajax({
             url: "/dashboard/task-detail",
             type: 'post',

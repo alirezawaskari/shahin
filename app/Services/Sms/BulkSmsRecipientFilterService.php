@@ -122,6 +122,8 @@ class BulkSmsRecipientFilterService
                 'phone' => $normalized,
                 'user_id' => $candidate['user_id'] ?? null,
                 'name' => $candidate['name'] ?? null,
+                // Set when the audience came from requests: the message is attributed to that request.
+                'callcenter_id' => $candidate['callcenter_id'] ?? null,
             ];
         }
 
@@ -339,7 +341,7 @@ class BulkSmsRecipientFilterService
      * even when the criteria ask for that status.
      *
      * @param array<string, mixed> $criteria
-     * @return array<int, array{phone: ?string, user_id: ?int, name: string}>
+     * @return array<int, array{phone: ?string, user_id: ?int, callcenter_id: int, name: string}>
      */
     public function requestCandidates(array $criteria, User $actor, ?GhorfeOnlineList $business = null): array
     {
@@ -361,6 +363,7 @@ class BulkSmsRecipientFilterService
                     $candidates[] = [
                         'phone' => $user?->phone ?: $request->sms?->sender_number,
                         'user_id' => $user?->id,
+                        'callcenter_id' => $request->id,
                         'name' => $user ? (trim(($user->name ?? '') . ' ' . ($user->family ?? '')) ?: 'کاربر') : 'درخواست‌دهنده',
                     ];
                 }
