@@ -366,12 +366,17 @@ class SingleSmsSendService
             $data
         ) {
             $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
-            $classification = $data['classification'] ?? $data['type'] ?? 'regular';
-
-            if ($groupId) {
-                $group = \App\Models\SmsMessageGroup::find($groupId);
-                if ($group && $group->isConfidential()) {
-                    $classification = 'classified';
+            // OTP is the only message type that can be classified (محرمانه).
+            // Advertising messages can never have any classification other than regular (عادی).
+            if ($serviceType !== 'otp') {
+                $classification = 'regular';
+            } else {
+                $classification = $data['classification'] ?? $data['type'] ?? 'regular';
+                if ($groupId) {
+                    $group = \App\Models\SmsMessageGroup::find($groupId);
+                    if ($group && $group->isConfidential()) {
+                        $classification = 'classified';
+                    }
                 }
             }
 

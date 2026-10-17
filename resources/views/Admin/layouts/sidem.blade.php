@@ -398,6 +398,9 @@
 
             <li><a href="#"><i class="icon ti-control-record"></i> <span>پیامک</span> </a>
                 <ul>
+                    @permission('sms-settings')
+                    <li><a href="{{ route('admin.sms.settings.index') }}">تنظیمات پنل پیامک</a></li>
+                    @endpermission
                     @permission('send-single-sms')
                     <li><a href="{{ route('sms.single') }}">پیامک تکی</a></li>
                     @endpermission
@@ -416,9 +419,6 @@
                     @endpermission
                     @permission('sms-reports')
                     <li><a href="{{ route('admin.sms.reports.otp.index') }}">گزارش های پیامک</a></li>
-                    @endpermission
-                    @permission('sms-settings')
-                    <li><a href="{{ route('admin.sms.settings.index') }}">تنظیمات سامانه</a></li>
                     @endpermission
                 </ul>
             </li>

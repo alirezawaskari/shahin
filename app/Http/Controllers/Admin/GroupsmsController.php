@@ -25,10 +25,16 @@ class GroupsmsController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user?->isSuperAdmin() ?? false;
-        $business = ghorfe() ?? GhorfeOnlineList::first();
+        $business = ghorfe();
 
-        if ($isSuperAdmin && $request->filled('business_id')) {
-            $business = GhorfeOnlineList::find($request->input('business_id')) ?: $business;
+        if ($isSuperAdmin) {
+            if ($request->filled('business_id') && $request->input('business_id') !== 'all') {
+                $business = GhorfeOnlineList::find($request->input('business_id'));
+            } else {
+                $business = null;
+            }
+        } elseif (!$business) {
+            $business = GhorfeOnlineList::first();
         }
 
         $all_businesses = $isSuperAdmin ? GhorfeOnlineList::orderBy('title')->get() : collect();
@@ -146,13 +152,7 @@ class GroupsmsController extends Controller
 
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $groupId = $request->input('sms_message_group_id') ?: null;
-        $classification = $request->input('classification') ?: 'regular';
-        if ($groupId) {
-            $grp = \App\Models\SmsMessageGroup::find($groupId);
-            if ($grp && $grp->isConfidential()) {
-                $classification = 'classified';
-            }
-        }
+        $classification = 'regular';
 
         $groupsms = Groupsms::create(array_merge($inputs, [
             'send_at' => Carbon::createFromTimestamp($inputs['send_at'] / 1000)->toDateString(),
@@ -429,13 +429,7 @@ class GroupsmsController extends Controller
 
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $groupId = $request->input('sms_message_group_id') ?: null;
-        $classification = $request->input('classification') ?: 'regular';
-        if ($groupId) {
-            $grp = \App\Models\SmsMessageGroup::find($groupId);
-            if ($grp && $grp->isConfidential()) {
-                $classification = 'classified';
-            }
-        }
+        $classification = 'regular';
         $inputs['ghorfe_online_list_id'] = $business?->id;
         $inputs['sms_message_group_id'] = $groupId;
         $inputs['classification'] = $classification;

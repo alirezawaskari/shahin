@@ -313,14 +313,8 @@ class BulkSmsSendService
             $data
         ) {
             $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
-            $classification = $data['classification'] ?? $data['type'] ?? 'regular';
-
-            if ($groupId) {
-                $group = \App\Models\SmsMessageGroup::find($groupId);
-                if ($group && $group->isConfidential()) {
-                    $classification = 'classified';
-                }
-            }
+            // Advertising/bulk messages must never be classified; only OTP messages can be confidential (محرمانه).
+            $classification = 'regular';
 
             $campaign = SmsCampaign::create([
                 'ghorfe_online_list_id' => $business->id,

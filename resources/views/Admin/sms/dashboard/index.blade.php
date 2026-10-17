@@ -8,7 +8,7 @@
         <div>
             <h3 class="fw-bold mb-1">پیش‌خوان سرویس پیامک</h3>
             <p class="text-muted small mb-0">
-                کسب‌وکار: <strong>{{ $business->title }}</strong> — نمای کلی اعتبار، حجم ارسال/دریافت و دسترسی سریع
+                کسب‌وکار: <strong>{{ $business ? $business->title : 'کلیه کسب‌وکارها (نمای سراسری)' }}</strong> — نمای کلی اعتبار، حجم ارسال/دریافت و دسترسی سریع
                 به بخش‌های سرویس پیامک.
             </p>
         </div>
@@ -17,8 +17,9 @@
                 <form method="GET" action="{{ route('admin.sms.dashboard.index') }}" class="d-flex flex-wrap gap-2 m-0">
                     <input type="hidden" name="days" value="{{ $days }}">
                     <select name="business_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="all" {{ !$business ? 'selected' : '' }}>-- کلیه کسب‌وکارها (نمای سراسری) --</option>
                         @foreach($all_businesses as $b)
-                            <option value="{{ $b->id }}" {{ $business->id === $b->id ? 'selected' : '' }}>
+                            <option value="{{ $b->id }}" {{ $business && $business->id === $b->id ? 'selected' : '' }}>
                                 {{ $b->title }}
                             </option>
                         @endforeach

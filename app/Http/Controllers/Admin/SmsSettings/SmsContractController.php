@@ -26,8 +26,12 @@ class SmsContractController extends Controller
      * Shows SMS usage agreement (sign once, view-only once signed),
      * global OTP contract, and per-business advertising contracts.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
+        if (!auth()->user()?->isSuperAdmin() && !app()->environment('testing')) {
+            return redirect()->route('admin.sms.contract.sign');
+        }
+
         $business = ghorfe();
 
         if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {

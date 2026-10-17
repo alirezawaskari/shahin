@@ -80,6 +80,7 @@
                 </div>
             </div>
 
+            @if(auth()->user()?->isSuperAdmin())
             <!-- Box 2 -->
             <div class="col-12 col-md-6 col-xl-3">
                 <div style="background-color: #1e293b !important; border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 10px; padding: 18px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
@@ -96,6 +97,7 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             <!-- Box 3 -->
             <div class="col-12 col-md-6 col-xl-3">

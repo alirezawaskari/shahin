@@ -63,13 +63,13 @@
                     <i class="fa fa-folder-o ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> گروه‌بندی پیام‌ها
                 </a>
             </li>
+            @if(auth()->user()?->isSuperAdmin())
             <li class="nav-item flex-shrink-0">
                 <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.settings.contracts.*') ? 'active bg-primary text-white' : 'text-dark' }}"
                    href="{{ route('admin.sms.settings.contracts.index') }}">
                     <i class="fa fa-file-pdf-o ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> قراردادها و تعهدنامه‌ها
                 </a>
             </li>
-            @if(auth()->user()?->isSuperAdmin())
             <li class="nav-item flex-shrink-0">
                 <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.settings.content.*') ? 'active bg-primary text-white' : 'text-dark' }}"
                    href="{{ route('admin.sms.settings.content.index') }}">

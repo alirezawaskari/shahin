@@ -863,17 +863,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Toggle service type (Advertising vs OTP)
     function onServiceTypeChange() {
+        const classifiedWrapper = document.getElementById('typeClassifiedWrapper');
+        const regularRadio = document.getElementById('typeRegular');
+        const classifiedRadio = document.getElementById('typeClassified');
+        const hintEl = document.getElementById('classificationHint');
+
         if (serviceTypeOtp.checked) {
             document.getElementById('advertisingSenderContainer').style.display = 'none';
             document.getElementById('otpSenderContainer').style.display = 'block';
             document.getElementById('autoAppendWrapper').style.display = 'none';
             phoneSenderNumber.textContent = otpNumber || 'OTP-System';
+
+            if (classifiedWrapper) {
+                classifiedWrapper.style.display = 'block';
+                if (classifiedRadio) classifiedRadio.disabled = false;
+            }
+            if (hintEl) {
+                hintEl.innerHTML = '<span class="text-muted"><i class="fa fa-info-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های مالی و حقوقی OTP می‌توانند با سطح «محرمانه» ارسال شوند.</span>';
+            }
         } else {
             document.getElementById('advertisingSenderContainer').style.display = 'block';
             document.getElementById('otpSenderContainer').style.display = 'none';
             document.getElementById('autoAppendWrapper').style.display = 'block';
             if (senderNumberSelect.selectedOptions.length > 0) {
                 phoneSenderNumber.textContent = senderNumberSelect.selectedOptions[0].getAttribute('data-number') || 'SMS';
+            }
+
+            // Advertising messages can ONLY be regular (عادی)
+            if (classifiedWrapper) {
+                classifiedWrapper.style.display = 'none';
+                if (classifiedRadio) classifiedRadio.disabled = true;
+            }
+            if (regularRadio) regularRadio.checked = true;
+            if (hintEl) {
+                hintEl.innerHTML = '<span class="text-success"><i class="fa fa-check-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های تبلیغاتی منحصراً دارای طبقه‌بندی عادی هستند.</span>';
             }
         }
         updateLivePreview();

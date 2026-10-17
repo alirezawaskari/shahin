@@ -442,21 +442,15 @@
                                 <i class="fa fa-shield text-info ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> نوع پیام (سطح طبقه‌بندی):
                             </label>
                             <div class="d-flex gap-2 p-1 border rounded bg-white mt-1">
-                                <div class="form-check flex-fill text-center p-2 mb-0 border rounded" id="typeRegularWrapper">
-                                    <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" {{ old('type', 'regular') === 'regular' ? 'checked' : '' }}>
+                                <div class="form-check flex-fill text-center p-2 mb-0 border rounded bg-light" id="typeRegularWrapper">
+                                    <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" checked readonly>
                                     <label class="form-check-label small fw-semibold cursor-pointer" for="typeRegular">
-                                        <i class="fa fa-envelope-o text-secondary ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> عادی
-                                    </label>
-                                </div>
-                                <div class="form-check flex-fill text-center p-2 mb-0 border rounded" id="typeClassifiedWrapper">
-                                    <input class="form-check-input" type="radio" name="type" id="typeClassified" value="classified" {{ old('type') === 'classified' ? 'checked' : '' }}>
-                                    <label class="form-check-label small fw-bold cursor-pointer text-danger" for="typeClassified">
-                                        <i class="fa fa-lock text-danger ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> محرمانه
+                                        <i class="fa fa-envelope-o text-secondary ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> عادی (تبلیغاتی)
                                     </label>
                                 </div>
                             </div>
                             <div class="form-text small mt-1" id="classificationHint">
-                                <span class="text-muted"><i class="fa fa-info-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های مالی و حقوقی به‌طور خودکار «محرمانه» تعیین می‌شوند.</span>
+                                <span class="text-success"><i class="fa fa-check-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های تبلیغاتی منحصراً دارای طبقه‌بندی عادی هستند. طبقه‌بندی محرمانه تنها برای پیامک‌های OTP مجاز است.</span>
                             </div>
                         </div>
                     </div>

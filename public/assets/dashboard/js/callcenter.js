@@ -853,5 +853,8 @@ function getBadgeOfCallCenterStatus(status) {
             return ''
     }
 }
-// Get the element with id="changeStatusTaskDefaultOpen" and click on it
-document.getElementById("changeStatusTaskDefaultOpen").click();
+// Get the element with id="changeStatusTaskDefaultOpen" and click on it if present
+var defaultOpenBtn = document.getElementById("changeStatusTaskDefaultOpen");
+if (defaultOpenBtn) {
+    defaultOpenBtn.click();
+}
