@@ -182,30 +182,20 @@
                         </div>
                     </div>
 
-                    {{-- Signing Form: Can only be done ONCE --}}
-                    <form action="{{ route('admin.sms.contract.accept') }}" method="POST" class="p-3 bg-light border rounded-3">
-                        @csrf
-                        <h6 class="fw-bold text-dark mb-3">
-                            <i class="fa fa-pencil text-primary ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> فرم امضای الکترونیکی تعهدنامه
-                        </h6>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="agree_contracts_page" name="agree" value="1" required>
-                            <label class="form-check-label small fw-bold" for="agree_contracts_page">
-                                تعهدنامه فوق و ضوابط و مقررات ارسال پیامک را به دقت مطالعه نموده و کلیه مفاد و مسئولیت‌های قانونی آن را می‌پذیرم.
-                            </label>
+                    {{-- Action to 2-Step OTP Digital Signing --}}
+                    <div class="p-3 bg-light border rounded-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">
+                                <i class="fa fa-shield text-primary ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> فرآیند دو مرحله‌ای امضای الکترونیک (تایید پیامکی OTP)
+                            </h6>
+                            <p class="text-muted small mb-0">
+                                امضای رسمی تعهدنامه مطابق با استاندارد سامانه، با ارسال کد تایید ۶ رقمی به شماره موبایل شما انجام می‌پذیرد.
+                            </p>
                         </div>
-                        <div class="row g-3 align-items-end">
-                            <div class="col-12 col-md-7">
-                                <label class="form-label fw-bold small">نام و نام خانوادگی امضاکننده (امضای الکترونیکی) <span class="text-danger">*</span></label>
-                                <input type="text" name="signature_name" class="form-control" placeholder="نام و نام خانوادگی خود را وارد کنید" required>
-                            </div>
-                            <div class="col-12 col-md-5">
-                                <button type="submit" class="btn btn-success w-100 fw-bold">
-                                    <i class="fa fa-check ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> تایید و امضای الکترونیکی تعهدنامه
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                        <a href="{{ route('admin.sms.contract.sign') }}" class="btn btn-success fw-bold px-4 py-2 flex-shrink-0">
+                            <i class="fa fa-pencil ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> ورود به فرم امضای دیجیتال با کد پیامکی (OTP)
+                        </a>
+                    </div>
                 @endif
             </div>
         </div>

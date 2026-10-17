@@ -81,39 +81,48 @@
                 <form action="{{ route('admin.sms.contract.accept') }}" method="POST">
                     @csrf
                     <div class="card border-0 shadow-sm">
-                        <div class="card-body">
+                            {{-- Step 1: Acceptance of Terms & Signature Name --}}
+                            <div class="alert alert-info py-2 px-3 mb-3">
+                                <strong>مرحله اول:</strong> مطالعه و تایید تعهدنامه
+                            </div>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" id="agree" name="agree" value="1" required>
                                 <label class="form-check-label" for="agree">
-                                    تعهدنامه فوق و ضوابط و مقررات ارسال پیامک را مطالعه نموده و با مفاد آن موافقم.
+                                    تعهدنامه فوق و ضوابط و مقررات ارسال پیامک را مطالعه نموده و با مفاد آن موافقم. تایید اینجانب به منزله امضای دیجیتال می‌باشد.
                                 </label>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-bold">نام و نام خانوادگی (امضای الکترونیکی) <span class="text-danger">*</span></label>
                                 <input type="text" name="signature_name" id="signatureName" value="{{ old('signature_name') }}" class="form-control" placeholder="نام و نام خانوادگی خود را به‌عنوان تایید امضا وارد کنید" required>
-                                <div class="form-text text-muted small">
-                                    ثبت نام و نام خانوادگی در این فیلد و ارسال فرم، به منزله امضای الکترونیکی تعهدنامه است.
-                                </div>
                             </div>
 
-                            {{-- Verification of the signature: a 6-digit code SMS'd to the signer's OWN number --}}
+                            {{-- Step 2: 6-digit OTP verification --}}
+                            <div class="alert alert-info py-2 px-3 mb-2" id="stepTwoHeader">
+                                <strong>مرحله دوم:</strong> دریافت و ثبت کد تایید پیامک‌شده
+                            </div>
                             <div class="border rounded p-3 mb-3 bg-light" id="otpBox"
                                  data-send-url="{{ route('admin.sms.contract.otp') }}"
                                  data-business-id="{{ $business->id }}"
                                  data-resend="{{ $otpResendSeconds }}">
-                                <div class="fw-bold mb-1"><i class="fa fa-shield me-1"></i> تایید امضا با کد یکبار مصرف</div>
                                 @if($otpPhoneMasked)
                                     <p class="small text-muted mb-2">
-                                        برای تایید هویت امضاکننده، یک کد ۶ رقمی به شماره‌ی <strong dir="ltr">{{ $otpPhoneMasked }}</strong> (شماره‌ی ثبت‌شده در حساب شما) پیامک می‌شود.
+                                        کد تایید ۶ رقمی به شماره تماس <strong dir="ltr">{{ $otpPhoneMasked }}</strong> پیامک خواهد شد.
                                     </p>
-                                    <div class="d-flex flex-wrap align-items-start gap-2">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" id="sendOtpBtn">
-                                            <i class="fa fa-commenting-o me-1"></i> ارسال کد تایید
-                                        </button>
-                                        <div>
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-12 col-sm-auto">
+                                            <button type="button" class="btn btn-primary btn-sm" id="sendOtpBtn">
+                                                <i class="fa fa-paper-plane me-1"></i> درخواست کد تایید
+                                            </button>
+                                        </div>
+                                        <div class="col-12 col-sm-auto">
                                             <input type="text" name="otp" id="otpInput" class="form-control form-control-sm text-center font-monospace"
                                                    inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9۰-۹]{6}"
-                                                   placeholder="------" style="width: 9rem; letter-spacing: .4rem;" required>
+                                                   placeholder="کد ۶ رقمی" style="width: 10rem; letter-spacing: .25rem;" required>
+                                        </div>
+                                        <div class="col-12 col-sm-auto">
+                                            <button type="submit" class="btn btn-success btn-sm px-3" id="submitSignBtn">
+                                                <i class="fa fa-check me-1"></i> تایید نهایی و ثبت امضا
+                                            </button>
                                         </div>
                                     </div>
                                     <div id="otpMessage" class="small mt-2" role="status" aria-live="polite"></div>
@@ -126,11 +135,6 @@
                                     </div>
                                 @endif
                             </div>
-
-                            <button type="submit" class="btn btn-success px-4" @if(!$otpPhoneMasked) disabled @endif>
-                                <i class="fa fa-check me-1"></i> تایید و امضای تعهدنامه
-                            </button>
-                        </div>
                     </div>
                 </form>
             @endif
@@ -222,14 +226,26 @@
             var errors = res.body && res.body.errors ? Object.keys(res.body.errors).map(function (k) { return res.body.errors[k][0]; }).join(' ') : '';
             say('danger', (res.body && res.body.message) || errors || 'ارسال کد ناموفق بود.');
             if (res.body && res.body.retry_after && res.status === 429) {
-                countdown(Math.min(res.body.retry_after, 3600));
-            } else {
-                sendBtn.disabled = false;
-            }
         }).catch(function () {
             say('danger', 'ارتباط با سرور برقرار نشد.');
             sendBtn.disabled = false;
         });
+    });
+
+    // Auto-submit form when 6 digits are typed (matching platform pattern)
+    otpInput.addEventListener('input', function () {
+        var cleanVal = otpInput.value.replace(/\D/g, '');
+        if (cleanVal.length === 6) {
+            var form = otpInput.closest('form');
+            if (form && agree.checked && nameInput.value.trim().length >= 3) {
+                var submitBtn = document.getElementById('submitSignBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> در حال تایید و ثبت امضا...';
+                }
+                form.submit();
+            }
+        }
     });
 })();
 </script>
