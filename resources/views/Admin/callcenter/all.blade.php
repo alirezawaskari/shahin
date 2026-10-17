@@ -34,13 +34,13 @@
         <div class="card-body">
             <div class="row">
                 @include('Admin.callcenter.partials.filter-fields')
-                <div class="col-12 col-md-3 mb-2">
-                    <div class="custom-control custom-switch mt-2">
+                <div class="col-12 col-md-3 mb-2 d-flex align-items-end">
+                    <div class="custom-control custom-switch mb-2">
                         <input type="checkbox" class="custom-control-input" name="exel" id="exel">
                         <label class="custom-control-label" for="exel">خروجی اکسل</label>
                     </div>
                 </div>
-                <div class="col-12 col-md-3 mb-2">
+                <div class="col-12 col-md-3 mb-2 d-flex align-items-end gap-2">
                     <button type="button" class="btn btn-outline-primary py-2 px-4" id="do_filter">فیلتر کن</button>
                     @if($url === 'filter')
                         @include('Admin.callcenter.partials.sms-to-filter-button')

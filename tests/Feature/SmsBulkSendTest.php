@@ -337,13 +337,36 @@ class SmsBulkSendTest extends TestCase
         $this->tierService->assertCanQuery($this->diamondUser, ['business' => 'all'], 'normal');
     }
 
+    public function test_silver_user_cannot_query_user_database(): void
+    {
+        // Direct querying on User database (e.g. gender or province) requires Gold
+        $this->expectException(TierAccessDeniedException::class);
+        $this->tierService->assertCanQuery($this->silverUser, ['gender' => 1], 'normal');
+    }
+
+    public function test_diamond_user_cannot_query_organization_database(): void
+    {
+        // Organization Database Access is exclusive to Titanium
+        $this->expectException(TierAccessDeniedException::class);
+        $this->tierService->assertCanQuery($this->diamondUser, ['organization_id' => 10], 'normal');
+    }
+
+    public function test_gold_user_cannot_query_representation_database(): void
+    {
+        // Representation Database Access is exclusive to Titanium
+        $this->expectException(TierAccessDeniedException::class);
+        $this->tierService->assertCanQuery($this->goldUser, ['representation_id' => 3], 'normal');
+    }
+
     public function test_titanium_user_has_full_pool_access(): void
     {
-        // Titanium can query cross-business advertising pool
+        // Titanium can query cross-business advertising pool and organizations
         $this->tierService->assertCanQuery($this->titaniumUser, [
             'business' => 'all',
             'role' => 2,
             'service_category_id' => 1,
+            'organization_id' => 10,
+            'representation_id' => 3,
         ], 'advertising');
 
         $this->assertTrue(true);

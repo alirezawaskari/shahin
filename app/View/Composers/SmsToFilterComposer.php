@@ -48,8 +48,8 @@ class SmsToFilterComposer
             'smsSenders' => $senders,
             'smsTemplates' => $templates,
             'smsBalance' => $balance,
-            // Who sees the button at all: anyone allowed to send group SMS.
-            'smsCanSend' => (bool) $business && $user && ($user->isSuperAdmin() || $user->isAbleTo('send-group-sms')),
+            // Who sees the button at all: anyone allowed to send group SMS (superAdmin, ghorfeAdmin, or explicitly permitted).
+            'smsCanSend' => (bool) $business && $user && ($user->isSuperAdmin() || $user->isAbleTo('send-group-sms') || $user->isAdmin()),
         ]);
     }
 }

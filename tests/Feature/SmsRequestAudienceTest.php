@@ -105,6 +105,77 @@ class SmsRequestAudienceTest extends TestCase
             $t->unsignedInteger('permission_id');
             $t->unsignedInteger('role_id');
         });
+        Schema::create('employees', function (Blueprint $t) {
+            $t->increments('id');
+            $t->unsignedInteger('user_id')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('categories', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('title')->nullable();
+            $t->integer('type')->default(1);
+            $t->integer('parent_id')->default(0);
+            $t->integer('status')->default(1);
+            $t->integer('price')->default(0);
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('services', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('title')->nullable();
+            $t->integer('category_id')->nullable();
+            $t->integer('status')->default(1);
+            $t->integer('price')->default(0);
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('reasons', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('title')->nullable();
+            $t->timestamps();
+        });
+        Schema::create('representations', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('fa_name')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('provinces', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('name')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('organizations', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('name')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('recruitment_notices', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('title')->nullable();
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('tasks', function (Blueprint $t) {
+            $t->increments('id');
+            $t->unsignedInteger('user_id')->nullable();
+            $t->timestamps();
+        });
+        Schema::create('areas', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('name')->nullable();
+            $t->timestamps();
+        });
+        Schema::create('centers', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('title')->nullable();
+            $t->integer('status')->default(1);
+            $t->softDeletes();
+            $t->timestamps();
+        });
 
         $this->bizA = GhorfeOnlineList::create(['title' => 'A']);
         $this->bizB = GhorfeOnlineList::create(['title' => 'B']);
@@ -188,7 +259,39 @@ class SmsRequestAudienceTest extends TestCase
 
         $silver = new User(['level' => 'user']);
         $silver->access_tier = 'silver';
+        $this->assertSame('titanium', $tier->getRequiredTier(['request_filter' => ['representation' => '2']]));
+
         $this->expectException(TierAccessDeniedException::class);
         $tier->assertCanQuery($silver, ['request_filter' => ['service_category' => ['2']]]);
     }
+
+    public function test_requests_filter_partial_contains_clear_labels_and_select2_classes(): void
+    {
+        $content = file_get_contents(resource_path('views/Admin/callcenter/partials/filter-fields.blade.php'));
+
+        $this->assertStringContainsString('نام', $content);
+        $this->assertStringContainsString('نام خانوادگی', $content);
+        $this->assertStringContainsString('شماره همراه', $content);
+        $this->assertStringContainsString('موضوع درخواست', $content);
+        $this->assertStringContainsString('از تاریخ ثبت', $content);
+        $this->assertStringContainsString('تا تاریخ ثبت', $content);
+        $this->assertStringContainsString('دسته‌بندی کالا', file_get_contents(resource_path('views/Admin/filter/productServiceFilterInputs.blade.php')));
+        $this->assertStringContainsString('دسته‌بندی خدمت', file_get_contents(resource_path('views/Admin/filter/productServiceFilterInputs.blade.php')));
+        $this->assertStringContainsString('خدمت درخواستی', file_get_contents(resource_path('views/Admin/filter/productServiceFilterInputs.blade.php')));
+        $this->assertStringContainsString('کارشناس / کالسنتر', $content);
+        $this->assertStringContainsString('data-placeholder', $content);
+        $this->assertStringContainsString('select2', $content);
+    }
+
+    public function test_filter_modal_contains_separated_header_and_clean_actions(): void
+    {
+        $content = file_get_contents(resource_path('views/Admin/callcenter/partials/filter-modal.blade.php'));
+
+        $this->assertStringContainsString('modal-header d-flex justify-content-between align-items-center', $content);
+        $this->assertStringContainsString('requestFilterModalLabel', $content);
+        $this->assertStringContainsString('btn-close m-0', $content);
+        $this->assertStringContainsString('request_filter_apply', $content);
+        $this->assertStringContainsString('request_filter_clear', $content);
+    }
 }
+

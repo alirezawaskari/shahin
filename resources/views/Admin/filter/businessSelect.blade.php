@@ -22,9 +22,10 @@
 
 @if($business_filter_options->isNotEmpty())
     <div class="{{ $wrapper_class ?? 'col-12 col-md-3 mb-2' }}">
+        <label class="form-label small fw-bold text-dark mb-1">کسب‌وکار (غرفه)</label>
         {{-- select2 (with its search box) is applied at runtime by select2-init.js --}}
-        <select name="{{ \App\Helpers\FilterHelper::GHORFE_REQUEST_KEY }}" class="custom-select select2">
-            <option value="all">انتخاب کسب و کار</option>
+        <select name="{{ \App\Helpers\FilterHelper::GHORFE_REQUEST_KEY }}" class="custom-select select2 form-select form-select-sm" data-placeholder="انتخاب کسب و کار">
+            <option value="all">همه کسب‌وکارها</option>
             @foreach($business_filter_options as $business_filter_option)
                 <option value="{{ $business_filter_option->id }}"
                         @if((string) $business_filter_selected === (string) $business_filter_option->id) selected @endif>

@@ -527,6 +527,18 @@ class SmsAiCampaignTest extends TestCase
         ]);
         $this->business->users()->attach($customer->id);
 
+        $this->actingAs($this->superAdmin)->postJson(route('admin.sms.ai.approveAudience'), [
+            'goal' => 'تست موجودی',
+            'filters' => [],
+            'approved' => true,
+        ]);
+
+        $this->actingAs($this->superAdmin)->postJson(route('admin.sms.ai.calculateCost'), [
+            'message' => 'پیام تستی',
+            'filters' => [],
+            'sender_number_id' => $this->advSender->id,
+        ]);
+
         $response = $this->actingAs($this->superAdmin)->postJson(route('admin.sms.ai.confirmAndLaunch'), [
             'human_confirmed' => true,
             'goal' => 'تست موجودی',

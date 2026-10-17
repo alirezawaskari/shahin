@@ -1,5 +1,5 @@
 /*!
- * requestFilterPicker.js — پنجره‌ی «فیلتر بر اساس درخواست‌ها» در صفحه‌ی ارسال پیامک گروهی.
+ * requestFilterPicker.js — کامپوننت «فیلتر بر اساس درخواست‌ها» در صفحه‌ی ارسال پیامک گروهی.
  *
  * فیلدهای پنجره همان فیلدهای صفحه‌ی درخواست‌هاست. با «اعمال فیلتر»، مقادیر پرشده به‌صورت
  * inputهای مخفی filters[request_filter][...] داخل فرم ارسال گروهی قرار می‌گیرند؛ چون صفحه
@@ -19,18 +19,123 @@
     var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     var $filterForm = $('#request_filter_form');
     var badge = document.getElementById('requestFilterBadge');
+    var badgeContainer = document.getElementById('requestFilterBadgeContainer');
+    var summaryEl = document.getElementById('requestFilterSummary');
+    var quickClearBtn = document.getElementById('request_filter_quick_clear');
 
-    // Province -> city, same endpoint the requests page uses.
-    $('#province_id').on('change', function () {
+    // Friendly labels for summary chips
+    var FIELD_LABELS = {
+        'name': 'نام',
+        'family': 'نام خانوادگی',
+        'user_phone': 'موبایل',
+        'description': 'موضوع درخواست',
+        'startDate': 'از تاریخ',
+        'endDate': 'تا تاریخ',
+        'sex': 'جنسیت',
+        'has_factor': 'فاکتور',
+        'type': 'روش ورود',
+        'request_type': 'نوع درخواست',
+        'status': 'وضعیت',
+        'province': 'استان',
+        'city': 'شهر',
+        'product_category': 'دسته کالا',
+        'service_category': 'دسته خدمت',
+        'sub_service_category': 'خدمت',
+        'service_items': 'نوع خدمت',
+        'users': 'کارشناس',
+        'agents': 'بازاریاب',
+        'representation': 'نمایندگی',
+        'ghorfe_online_id': 'کسب‌وکار'
+    };
+
+    function initFilterSelect2() {
+        $filterForm.find('select').each(function () {
+            var $el = $(this);
+            var ph = $el.attr('data-placeholder') || 'انتخاب کنید';
+            if ($el.hasClass('select2-hidden-accessible')) {
+                $el.select2('destroy');
+            }
+            $el.select2({
+                dir: 'rtl',
+                placeholder: ph,
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $(modalEl)
+            });
+        });
+    }
+
+    // Initialize Select2 when modal is shown so dimensions and positions calculate properly
+    modalEl.addEventListener('shown.bs.modal', function () {
+        initFilterSelect2();
+    });
+
+    // Cascading: Province -> City
+    $filterForm.on('change', '#province_id', function () {
         var token = $('meta[name="csrf-token"]').attr('content');
+        var provId = $(this).val();
+        var $city = $filterForm.find('#city_id').empty().append('<option value="all">همه شهرها</option>');
+        if (!provId || provId === 'all') {
+            $city.trigger('change');
+            return;
+        }
         $.ajax({
             url: '/city/select', type: 'post', dataType: 'json',
-            data: {_token: token, id: $(this).val()},
+            data: { _token: token, id: provId },
             success: function (data) {
-                var $city = $('#city_id').empty().append('<option value="all">انتخاب شهر</option>');
-                $.each(data.cities, function (i, d) {
-                    $city.append('<option value="' + d.id + '">' + d.name + '</option>');
-                });
+                if (data && data.cities) {
+                    $.each(data.cities, function (i, d) {
+                        $city.append('<option value="' + d.id + '">' + d.name + '</option>');
+                    });
+                }
+                $city.trigger('change');
+            }
+        });
+    });
+
+    // Cascading: Service Category -> Sub Service Category
+    $filterForm.on('change', '#service_category', function () {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var catId = $(this).val();
+        var $sub = $filterForm.find('#sub_service_category').empty();
+        $filterForm.find('#service_items').empty().trigger('change');
+        if (!catId || (Array.isArray(catId) && catId.length === 0)) {
+            $sub.trigger('change');
+            return;
+        }
+        $.ajax({
+            url: '/dashboard/service/selectByCategory', type: 'post', dataType: 'json',
+            data: { _token: token, id: catId },
+            success: function (response) {
+                if (response && response.services) {
+                    $.each(response.services, function (i, d) {
+                        $sub.append('<option value="' + d.id + '">' + (d.title || d.name) + '</option>');
+                    });
+                }
+                $sub.trigger('change');
+            }
+        });
+    });
+
+    // Cascading: Sub Service Category -> Service Items
+    $filterForm.on('change', '#sub_service_category', function () {
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var sId = $(this).val();
+        var $items = $filterForm.find('#service_items').empty();
+        if (!sId || (Array.isArray(sId) && sId.length === 0)) {
+            $items.trigger('change');
+            return;
+        }
+        $.ajax({
+            url: '/dashboard/service/fetch-serviceitem-by-service', type: 'post', dataType: 'json',
+            data: { _token: token, id: sId },
+            success: function (response) {
+                if (response && response.service_items) {
+                    $.each(response.service_items, function (i, d) {
+                        $items.append('<option value="' + d.id + '">' + (d.title || d.name) + '</option>');
+                    });
+                }
+                $items.trigger('change');
             }
         });
     });
@@ -41,15 +146,52 @@
         });
     }
 
-    function render(count) {
-        if (count === null) {
+    function renderSummary(fields) {
+        if (!summaryEl) return;
+        summaryEl.innerHTML = '';
+        if (!fields || !fields.length) return;
+
+        // Group fields by base name
+        var grouped = {};
+        fields.forEach(function (f) {
+            var baseName = f.name.replace('[]', '');
+            if (!grouped[baseName]) {
+                grouped[baseName] = [];
+            }
+            grouped[baseName].push(f.value);
+        });
+
+        Object.keys(grouped).forEach(function (key) {
+            var label = FIELD_LABELS[key] || key;
+            var vals = grouped[key];
+            var displayText = label + ': ' + (vals.length > 1 ? vals.length + ' مورد' : vals[0]);
+
+            var chip = document.createElement('span');
+            chip.className = 'badge bg-light text-dark border py-1 px-2 small';
+            chip.textContent = displayText;
+            summaryEl.appendChild(chip);
+        });
+    }
+
+    function render(count, fields) {
+        if (count === null || count === 0) {
             host.innerHTML = '';
-            badge.classList.add('d-none');
+            if (badge) badge.classList.add('d-none');
+            if (badgeContainer) badgeContainer.classList.add('d-none');
+            if (quickClearBtn) quickClearBtn.classList.add('d-none');
+            if (summaryEl) summaryEl.innerHTML = '';
             document.body.classList.remove('has-request-filter');
             return;
         }
-        badge.classList.remove('d-none');
-        badge.querySelector('[data-count]').textContent = count.toLocaleString('fa-IR');
+
+        if (badge) {
+            badge.classList.remove('d-none');
+            var countEl = badge.querySelector('[data-count]');
+            if (countEl) countEl.textContent = count.toLocaleString('fa-IR');
+        }
+        if (badgeContainer) badgeContainer.classList.remove('d-none');
+        if (quickClearBtn) quickClearBtn.classList.remove('d-none');
+        renderSummary(fields);
         document.body.classList.add('has-request-filter');
     }
 
@@ -57,8 +199,14 @@
         var fields = activeFields();
         host.innerHTML = '';
 
-        // The sentinel makes "no criteria" still mean "audience = all requests" on the server,
-        // rather than silently falling back to the user-field filters.
+        if (fields.length === 0) {
+            render(0, []);
+            modal.hide();
+            triggerPreviewSafe();
+            return;
+        }
+
+        // The sentinel makes criteria mean "audience = requests matching filter"
         var inputs = [['filters[request_filter][__source]', 'requests']];
         fields.forEach(function (field) {
             var bracket = field.name.indexOf('[');
@@ -76,19 +224,38 @@
             host.appendChild(input);
         });
 
-        render(fields.length);
+        render(fields.length, fields);
         modal.hide();
+        triggerPreviewSafe();
     }
 
     function clear() {
         $filterForm[0].reset();
         $filterForm.find('select').val(null).trigger('change');
-        render(null);
+        render(null, []);
         modal.hide();
+        triggerPreviewSafe();
     }
 
-    document.getElementById('request_filter_apply').addEventListener('click', apply);
-    document.getElementById('request_filter_clear').addEventListener('click', clear);
-    document.getElementById('open_request_filter').addEventListener('click', function () { modal.show(); });
-    document.getElementById('request_filter_remove').addEventListener('click', clear);
+    function triggerPreviewSafe() {
+        if (typeof window.triggerPreview === 'function') {
+            window.triggerPreview();
+        } else if (typeof triggerPreview === 'function') {
+            triggerPreview();
+        }
+    }
+
+    var applyBtn = document.getElementById('request_filter_apply');
+    if (applyBtn) applyBtn.addEventListener('click', apply);
+
+    var clearBtn = document.getElementById('request_filter_clear');
+    if (clearBtn) clearBtn.addEventListener('click', clear);
+
+    var openBtn = document.getElementById('open_request_filter');
+    if (openBtn) openBtn.addEventListener('click', function () { modal.show(); });
+
+    var removeBtn = document.getElementById('request_filter_remove');
+    if (removeBtn) removeBtn.addEventListener('click', clear);
+
+    if (quickClearBtn) quickClearBtn.addEventListener('click', clear);
 })();

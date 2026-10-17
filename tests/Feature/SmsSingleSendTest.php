@@ -500,7 +500,7 @@ class SmsSingleSendTest extends TestCase
             'sender_number_id' => $this->advSender->id,
             'recipient_phone' => '09120000001',
             'sender_phone' => $this->advSender->number,
-            'content' => 'پیامک مهم برای پیگیری سفارش',
+            'content' => "پیامک مهم برای پیگیری سفارش\nلغو 11",
             'character_count' => 27,
             'page_count' => 1,
             'status' => 'sent',

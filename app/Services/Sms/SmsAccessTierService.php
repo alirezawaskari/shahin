@@ -38,8 +38,7 @@ class SmsAccessTierService
     public function getRequiredTier(array $filters = [], string $recipientType = 'normal', ?int $ownBusinessId = null): string
     {
         // 1. Cross-business targeting requires Titanium: "all businesses", or — when the
-        //    sender's own business is known — any business other than their own. Without this a
-        //    lower tier could post another business' id and message that business' customers.
+        //    sender's own business is known — any business other than their own.
         $businessIds = $this->businessFilterIds($filters);
         if (in_array('all', $businessIds, true)) {
             return self::TIER_TITANIUM;
@@ -52,14 +51,30 @@ class SmsAccessTierService
             }
         }
 
+        // 1b. Organization & Representation Database Access requires Titanium
+        foreach (['organization_id', 'organization', 'representation_id', 'representation'] as $orgKey) {
+            $val = $filters[$orgKey] ?? null;
+            if ($val !== null && $val !== '' && $val !== 'all') {
+                return self::TIER_TITANIUM;
+            }
+        }
+
         // 2. Advertising recipient pool requires Diamond
         if (strtolower($recipientType) === 'advertising') {
             return self::TIER_DIAMOND;
         }
 
-        // 2b. Requests-page audience: same category rule as the user filters below, so a Silver
-        //     account cannot reach a category-based audience through the requests filter either.
+        // 2b. Requests-page audience (Customer CRM):
         if (!empty($filters['request_filter']) && is_array($filters['request_filter'])) {
+            // Organization/representation inside request_filter requires Titanium
+            foreach (['organization', 'organization_id', 'representation', 'representation_id'] as $orgKey) {
+                $val = $filters['request_filter'][$orgKey] ?? null;
+                if ($val !== null && $val !== '' && $val !== 'all') {
+                    return self::TIER_TITANIUM;
+                }
+            }
+
+            // Category / service filters inside request_filter require Diamond
             foreach (['product_category', 'service_category', 'sub_service_category', 'service_items', 'service'] as $key) {
                 $value = $filters['request_filter'][$key] ?? null;
                 $value = array_filter((array) $value, fn ($v) => $v !== null && $v !== '' && $v !== 'all');
@@ -68,20 +83,29 @@ class SmsAccessTierService
                 }
             }
 
+            // Base clinic requests / customer CRM is permitted on Silver
             return self::TIER_SILVER;
         }
 
-        // 3. Service or Product category filters require Diamond
+        // 3. Service or Product category filters require Diamond (Service Provider Database Access)
         if (!empty($filters['service_category_id']) || !empty($filters['product_category_id']) || !empty($filters['service_id'])) {
             return self::TIER_DIAMOND;
         }
 
-        // 4. Role, Birth date/year, or special filters require Gold
-        if (!empty($filters['role']) || !empty($filters['birth_year']) || !empty($filters['birth_month']) || !empty($filters['birth_day']) || !empty($filters['level'])) {
-            return self::TIER_GOLD;
+        // 4. User Database Access requires Gold (Silver has NO access to user database)
+        $userFilterKeys = [
+            'role', 'level', 'birth_year', 'birth_month', 'birth_day',
+            'gender', 'sex', 'province_id', 'city_id',
+            'start_date', 'startDate', 'end_date', 'endDate'
+        ];
+        foreach ($userFilterKeys as $uKey) {
+            $uVal = $filters[$uKey] ?? null;
+            if ($uVal !== null && $uVal !== '' && $uVal !== 'all') {
+                return self::TIER_GOLD;
+            }
         }
 
-        // 5. Default/basic filters (gender, date range, own business customers) require Silver
+        // 5. Default/basic (own clinic customer requests, manual custom numbers, Excel uploads) require Silver
         return self::TIER_SILVER;
     }
 
@@ -148,11 +172,11 @@ class SmsAccessTierService
 
         if (!$this->canAccess($user, $requiredTier)) {
             $reason = match ($requiredTier) {
-                self::TIER_TITANIUM => 'جستجو در کل کسب‌وکارها و بانک شماره‌های عمومی نیازمند سطح دسترسی تیتانیوم (Titanium) است.',
+                self::TIER_TITANIUM => 'دسترسی به بانک سازمان‌ها، ارگان‌ها و نمایندگی‌ها یا کل کسب‌وکارها نیازمند سطح دسترسی تیتانیوم (Titanium) است.',
                 self::TIER_DIAMOND => strtolower($recipientType) === 'advertising'
                     ? 'ارسال پیامک به مخاطبین تبلیغاتی نیازمند سطح دسترسی الماس (Diamond) یا بالاتر است.'
-                    : 'فیلتر بر اساس دسته‌بندی خدمات یا محصولات نیازمند سطح دسترسی الماس (Diamond) یا بالاتر است.',
-                self::TIER_GOLD => 'استفاده از فیلترهای پیشرفته (مانند نقش، سطح، یا تاریخ تولد) نیازمند سطح دسترسی طلایی (Gold) یا بالاتر است.',
+                    : 'فیلتر بر اساس دسته‌بندی خدمات، کالاها و خدمت‌دهندگان نیازمند سطح دسترسی الماس (Diamond) یا بالاتر است.',
+                self::TIER_GOLD => 'دسترسی به بانک کاربران سامانه نیازمند سطح دسترسی طلایی (Gold) یا بالاتر است. کاربران سطح نقره‌ای صرفاً می‌توانند به پرونده‌ها و مشتریان کلینیک خود پیامک ارسال کنند.',
                 default => 'سطح دسترسی شما برای این عملیات کافی نمی‌باشد.',
             };
 

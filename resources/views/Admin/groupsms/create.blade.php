@@ -297,123 +297,55 @@
                         @endif
                     </div>
 
-                    <!-- Multi-field Filters Grid -->
+                    <!-- Audience Filter Section (Requests Filter) -->
                     <div class="p-3 bg-light rounded border mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold text-dark small">
-                                <i class="fa fa-filter text-secondary me-1"></i> فیلترهای مخاطبان:
+                                <i class="fa fa-filter text-primary me-1"></i> فیلتر مخاطبان (بر اساس پرونده‌ها و درخواست‌ها):
                             </span>
                             <span class="badge bg-secondary small" id="tierGateHint">سطح مورد نیاز: نقره‌ای</span>
                         </div>
 
-                        <!-- Audience from requests: the requests page's filter section as a pop-up -->
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 pb-3 border-bottom">
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="open_request_filter">
-                                <i class="fa fa-filter ms-1"></i> فیلتر بر اساس درخواست‌ها
-                            </button>
-                            <span id="requestFilterBadge" class="badge bg-success d-none align-items-center">
-                                فیلتر درخواست‌ها فعال است (<span data-count>0</span> فیلد)
-                                <button type="button" class="btn-close btn-close-white ms-2" id="request_filter_remove" aria-label="حذف فیلتر درخواست‌ها" style="font-size: .6rem;"></button>
-                            </span>
-                            <span class="text-muted small">با فعال بودن این فیلتر، مخاطبان از روی درخواست‌ها تعیین می‌شوند و فیلترهای کاربری زیر نادیده گرفته می‌شوند.</span>
+                        <!-- Requests Filter Actions & Status Card -->
+                        <div class="card border bg-white mb-3 shadow-none">
+                            <div class="card-body p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <div>
+                                        <div class="fw-bold small text-dark mb-1">
+                                            <i class="fa fa-list-alt text-primary ms-1"></i> فیلتر پیشرفته درخواست‌ها
+                                        </div>
+                                        <div class="text-muted small">
+                                            مخاطبان این پیامک بر اساس فیلترهای بخش «درخواست‌ها» تعیین می‌شوند.
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-primary btn-sm px-3 fw-bold" id="open_request_filter">
+                                            <i class="fa fa-sliders ms-1"></i> تنظیم و ویرایش فیلترها
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm d-none" id="request_filter_quick_clear">
+                                            <i class="fa fa-trash-o ms-1"></i> حذف فیلترها
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="requestFilterBadgeContainer" class="mt-2 pt-2 border-top d-none">
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <span id="requestFilterBadge" class="badge bg-success d-inline-flex align-items-center py-1 px-2 small">
+                                            <i class="fa fa-check-circle ms-1"></i> فیلتر درخواست‌ها فعال است (<span data-count>0</span> فیلد)
+                                            <button type="button" class="btn-close btn-close-white ms-2" id="request_filter_remove" aria-label="حذف فیلتر درخواست‌ها" style="font-size: .55rem;"></button>
+                                        </span>
+                                        <div id="requestFilterSummary" class="d-flex flex-wrap gap-1 align-items-center"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                         <div id="requestFilterInputs"></div>
 
+                        <!-- Manual / Custom Numbers Addition -->
                         <div class="row g-3">
-                            <!-- Role Filter (Gold+) -->
-                            <div class="col-md-4">
-                                <label class="form-label small">نقش سازمانی:</label>
-                                <select name="filters[role]" class="form-select form-select-sm" id="filter_role" {{ in_array($userTier, ['gold', 'diamond', 'titanium']) ? '' : 'disabled' }}>
-                                    <option value="all">همه نقش‌ها</option>
-                                    @foreach($roles as $role)
-                                        <option value="{{ $role->id }}">{{ $role->display_name ?? $role->name }}</option>
-                                    @endforeach
-                                </select>
-                                @if(!in_array($userTier, ['gold', 'diamond', 'titanium']))
-                                    <small class="text-muted d-block mt-1"><i class="fa fa-lock"></i> نیازمند سطح طلایی</small>
-                                @endif
-                            </div>
-
-                            <!-- Business Filter (Titanium for cross-business) -->
-                            <div class="col-md-4">
-                                <label class="form-label small">کسب‌وکار (غرفه):</label>
-                                <select name="filters[business]" class="form-select form-select-sm" id="filter_business">
-                                    @if($userTier === 'titanium')
-                                        <option value="all">کل کسب‌وکارها (همه)</option>
-                                    @endif
-                                    @if($business)
-                                        <option value="{{ $business->id }}" selected>{{ $business->title }} (کسب‌وکار شما)</option>
-                                    @endif
-                                    @if($userTier === 'titanium')
-                                        @foreach($businesses as $b)
-                                            @if(!$business || $b->id != $business->id)
-                                                <option value="{{ $b->id }}">{{ $b->title }}</option>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </select>
-                                @if($userTier !== 'titanium')
-                                    <small class="text-muted d-block mt-1">محدود به کسب‌وکار جاری (تیتانیوم برای همه)</small>
-                                @endif
-                            </div>
-
-                            <!-- Gender Filter (Silver+) -->
-                            <div class="col-md-4">
-                                <label class="form-label small">جنسیت:</label>
-                                <select name="filters[gender]" class="form-select form-select-sm" id="filter_gender">
-                                    <option value="all">همه (زن و مرد)</option>
-                                    <option value="0">آقایان</option>
-                                    <option value="1">بانوان</option>
-                                </select>
-                            </div>
-
-                            <!-- Date Range (Silver+) -->
-                            <div class="col-md-6">
-                                <label class="form-label small">از تاریخ عضویت:</label>
-                                <input type="date" name="filters[start_date]" class="form-control form-control-sm" id="filter_start_date">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small">تا تاریخ عضویت:</label>
-                                <input type="date" name="filters[end_date]" class="form-control form-control-sm" id="filter_end_date">
-                            </div>
-
-                            <!-- Birth Date / Year (Gold+) -->
-                            <div class="col-md-4">
-                                <label class="form-label small">سال تولد:</label>
-                                <input type="number" name="filters[birth_year]" placeholder="مثال: 1370" class="form-control form-control-sm" id="filter_birth_year" {{ in_array($userTier, ['gold', 'diamond', 'titanium']) ? '' : 'disabled' }}>
-                                @if(!in_array($userTier, ['gold', 'diamond', 'titanium']))
-                                    <small class="text-muted d-block mt-1"><i class="fa fa-lock"></i> نیازمند سطح طلایی</small>
-                                @endif
-                            </div>
-
-                            <!-- Service Category (Diamond+) -->
-                            <div class="col-md-4">
-                                <label class="form-label small">دسته‌بندی خدمات:</label>
-                                <select name="filters[service_category_id]" class="form-select form-select-sm" id="filter_service_cat" {{ in_array($userTier, ['diamond', 'titanium']) ? '' : 'disabled' }}>
-                                    <option value="all">همه دسته‌ها</option>
-                                    @foreach($categories as $cat)
-                                        <option value="{{ $cat->id }}">{{ $cat->title }}</option>
-                                    @endforeach
-                                </select>
-                                @if(!in_array($userTier, ['diamond', 'titanium']))
-                                    <small class="text-muted d-block mt-1"><i class="fa fa-lock"></i> نیازمند سطح الماس</small>
-                                @endif
-                            </div>
-
-                            <!-- Province (Silver+) -->
-                            <div class="col-md-4">
-                                <label class="form-label small">استان:</label>
-                                <select name="filters[province_id]" class="form-select form-select-sm" id="filter_province">
-                                    <option value="all">همه استان‌ها</option>
-                                    @foreach($provinces as $prov)
-                                        <option value="{{ $prov->id }}">{{ $prov->name ?? $prov->title }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Manual / Custom Numbers Addition -->
                             <div class="col-12">
-                                <label class="form-label small">شماره‌های همراه اضافی (اختیاری - با خط جدید یا کاما جدا کنید):</label>
+                                <label class="form-label small fw-bold text-dark">شماره‌های همراه اضافی (اختیاری - با خط جدید یا کاما جدا کنید):</label>
                                 <textarea name="custom_numbers" id="custom_numbers" rows="2" class="form-control form-control-sm font-monospace" placeholder="09120000000, 09350000000 ..."></textarea>
                                 <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
                                     <input type="file" id="excel_numbers_file" accept=".xlsx,.xls,.csv" class="d-none">
@@ -751,7 +683,7 @@
                         <h5 class="modal-title fw-bold text-dark mb-0 fs-6" id="quickPaymentModalLabel">
                             درگاه پرداخت سریع و افزایش آنی اعتبار پیامک
                         </h5>
-                        <small class="text-muted">شارژ مستقیم خط و فعال‌سازی فوری کمپین بدون رفرش صفحه</small>
+                        <small class="text-muted">شارژ مستقیم پنل و فعال‌سازی فوری کمپین بدون رفرش صفحه</small>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
@@ -764,7 +696,7 @@
                         <strong class="text-dark fs-6 font-monospace" id="qpModalSenderNumber" dir="ltr">-</strong>
                     </div>
                     <div class="col-sm-4 border-end">
-                        <small class="text-muted d-block">موجودی فعلی خط:</small>
+                        <small class="text-muted d-block">موجودی فعلی پنل تبلیغاتی:</small>
                         <strong class="text-dark fs-6" id="qpModalCurrentBalance">۰ ریال</strong>
                     </div>
                     <div class="col-sm-4">
@@ -1191,18 +1123,17 @@
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
 
-                // Update balance on sender card
+                // Update balance on sender cards (shared panel balance)
                 const newBal = data.transaction?.balance_after ?? 0;
-                const balEl = document.getElementById('sender_balance_' + currentQuickSenderId);
-                if (balEl) {
-                    balEl.innerText = Number(newBal).toLocaleString('fa-IR') + ' ریال';
-                }
+                document.querySelectorAll('[id^="sender_balance_"]').forEach(el => {
+                    el.innerText = Number(newBal).toLocaleString('fa-IR') + ' ریال';
+                });
 
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: 'success',
                         title: 'شارژ آنلاین با موفقیت انجام شد!',
-                        html: `موجودی خط <b>${currentQuickSenderNumber}</b> به میزان <b>${Number(amount).toLocaleString('fa-IR')} ریال</b> افزایش یافت.<br><small class="text-muted">شناسه رهگیری بانکی: ${trackingId}</small>`,
+                        html: `موجودی پنل تبلیغاتی کسب‌وکار به میزان <b>${Number(amount).toLocaleString('fa-IR')} ریال</b> افزایش یافت.<br><small class="text-muted">شناسه رهگیری بانکی: ${trackingId}</small>`,
                         confirmButtonText: 'عالی، بازگشت به کمپین'
                     });
                 }

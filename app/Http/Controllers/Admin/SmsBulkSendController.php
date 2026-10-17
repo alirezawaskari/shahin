@@ -204,6 +204,23 @@ class SmsBulkSendController extends Controller
         $balanceDeficit = ($totalEstimatedCost > $currentBalance) ? ($totalEstimatedCost - $currentBalance) : 0;
         $isLowBalance = ($currentBalance < 100000) || ($balanceDeficit > 0);
 
+        $canViewRawPhones = $user && ($user->isSuperAdmin() || $user->can('export-callcenter'));
+        $maskedValidSample = array_map(function ($rec) use ($canViewRawPhones) {
+            if (!$canViewRawPhones && !empty($rec['phone'])) {
+                $p = (string) $rec['phone'];
+                $rec['phone'] = strlen($p) >= 7 ? substr($p, 0, 4) . '***' . substr($p, -3) : '***';
+            }
+            return $rec;
+        }, array_slice($filterResult['valid_recipients'], 0, 5));
+
+        $maskedInvalidSample = array_map(function ($rec) use ($canViewRawPhones) {
+            if (!$canViewRawPhones && !empty($rec['phone']) && $rec['phone'] !== '(خالی)') {
+                $p = (string) $rec['phone'];
+                $rec['phone'] = strlen($p) >= 7 ? substr($p, 0, 4) . '***' . substr($p, -3) : '***';
+            }
+            return $rec;
+        }, array_slice($filterResult['invalid_recipients'], 0, 5));
+
         return response()->json([
             'status' => 'success',
             'recipient_summary' => [
@@ -211,8 +228,8 @@ class SmsBulkSendController extends Controller
                 'valid_count' => $filterResult['valid_count'],
                 'invalid_count' => $filterResult['invalid_count'],
                 'duplicate_count' => $filterResult['duplicate_count'],
-                'invalid_sample' => array_slice($filterResult['invalid_recipients'], 0, 5),
-                'valid_sample' => array_slice($filterResult['valid_recipients'], 0, 5),
+                'invalid_sample' => $maskedInvalidSample,
+                'valid_sample' => $maskedValidSample,
             ],
             'message_summary' => [
                 'raw_text' => $rawMessage,

@@ -35,8 +35,9 @@ class SmsMessageGroupController extends Controller
     /**
      * Display listing of message groups and subgroups for the current business.
      */
-    public function index(Request $request): View
+    public function index(?Request $request = null): View
     {
+        $request = $request ?? request();
         $business = $this->resolveBusiness($request);
         $all_businesses = auth()->user()?->isSuperAdmin() ? GhorfeOnlineList::select('id', 'title')->get() : collect();
 

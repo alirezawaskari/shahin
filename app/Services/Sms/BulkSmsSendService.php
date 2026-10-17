@@ -199,7 +199,7 @@ class BulkSmsSendService
         if ($balanceInfo['balance'] < $requiredCost) {
             throw new InsufficientBalanceException(
                 sprintf(
-                    'موجودی شماره فرستنده برای این کمپین کافی نیست. موجودی فعلی: %s ریال، هزینه مورد نیاز: %s ریال.',
+                    'موجودی پنل تبلیغاتی برای این کمپین کافی نیست. موجودی فعلی: %s ریال، هزینه مورد نیاز: %s ریال.',
                     number_format($balanceInfo['balance']),
                     number_format($requiredCost)
                 ),

@@ -1,0 +1,7 @@
+.git
+.claude
+task.md
+node_modules
+docker
+/tmp/shahin_build
+.phpunit.result.cache

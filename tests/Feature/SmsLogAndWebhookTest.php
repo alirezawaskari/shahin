@@ -567,11 +567,14 @@ class SmsLogAndWebhookTest extends TestCase
             'recipient_phone' => '09121112233',
         ]);
 
+        config(['services.sms.webhook_secret' => 'test-secret']);
+
         // Post delivery report to API route
-        $response = $this->postJson('/api/sms/webhook/delivery', [
-            'tracking_id' => 'TRK-HTTP-123',
-            'status' => 'delivered',
-        ]);
+        $response = $this->withHeader(\App\Http\Middleware\VerifySmsWebhookSecret::HEADER, 'test-secret')
+            ->postJson('/api/sms/webhook/delivery', [
+                'tracking_id' => 'TRK-HTTP-123',
+                'status' => 'delivered',
+            ]);
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
