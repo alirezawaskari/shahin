@@ -83,9 +83,11 @@ final readonly class AdminAuthService {
     * @return GhorfeOnlineList|null
     */
     public static function getGhorfe() : GhorfeOnlineList| null {
-        $ghorfe_online_list =  auth()->user()->employee ? auth()->user()->employee->ghorfeOnline : null;
-        // $ghorfe_domain_active = GhorfeOnlineList::getActiveDomainName();
-        // $GhorfeOnlineList = GhorfeOnlineList::where( 'domain_active', $ghorfe_domain_active )->first();
+        $user = auth()->user();
+        if (!$user) {
+            return null;
+        }
+        $ghorfe_online_list = $user->employee ? $user->employee->ghorfeOnline : null;
         return $ghorfe_online_list ?? null;
     }
     public function logout(): void {

@@ -89,15 +89,14 @@ class FilterServiceProvider extends ServiceProvider
         $service_categories = Category::invoiceRows(2)->get();
         $permission = false;
 
-        if (auth()->user()->center_id && !auth()->user()->hasPermission('center-all-services')) {
-            $services = Service::filter()->whereIn('id' , auth()->user()->center->services->pluck('id')->toArray())->get();
-            $service_categories = auth()->user()->center->centerable_type == Service::class && auth()->user()->center->centerable ? Category::where('id', auth()->user()->center->centerable->category_id)->get() : collect([]);
-            $product_categories = Category::filter()->where('parent_id', 1)->where('id', auth()->user()->center->centerable_id)->get();
-        }elseif ($user->admin_representation) {
+        if ($user && $user->center_id && !$user->hasPermission('center-all-services')) {
+            $services = Service::filter()->whereIn('id' , $user->center->services->pluck('id')->toArray())->get();
+            $service_categories = $user->center->centerable_type == Service::class && $user->center->centerable ? Category::where('id', $user->center->centerable->category_id)->get() : collect([]);
+            $product_categories = Category::filter()->where('parent_id', 1)->where('id', $user->center->centerable_id)->get();
+        } elseif ($user && $user->admin_representation) {
             $admin_users = User::filter()->where('level', 'admin')->where('admin_representation_id', $user->admin_representation->id)->withCount('tasks')->get();
         }
-        if($user->isAbleTo('record_payment'))
-        {
+        if ($user && $user->isAbleTo('record_payment')) {
             $permission = true;
         }
 
