@@ -30,6 +30,7 @@ class ContractUsageController extends Controller
         'service' => Service::class,
         'role' => Role::class,
         'product' => Product::class,
+        'ghorfe_online_list' => \App\Models\GhorfeOnlineList::class,
     ];
 
     /**

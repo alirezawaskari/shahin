@@ -63,41 +63,22 @@
         </div>
 
         <div class="row g-3">
-            <!-- Box 1 -->
+            <!-- Box 1: Merged Legal & Contracts -->
             <div class="col-12 col-md-6 col-xl-3">
                 <div style="background-color: #1e293b !important; border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 10px; padding: 18px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         <h6 class="fw-bold mb-2" style="color: #ffffff !important;">
-                            <i class="fa fa-balance-scale" style="color: #fbbf24 !important; margin-left: 8px;"></i> متون حقوقی و ضوابط
+                            <i class="fa fa-file-text-o" style="color: #38bdf8 !important; margin-left: 8px;"></i> قراردادها، تعهدنامه و ضوابط
                         </h6>
                         <p class="small mb-3" style="color: #94a3b8 !important; font-size: 13px; line-height: 1.7;">
-                            تنظیم قوانین رگولاتوری، متن پیش‌فرض تعهدنامه و پسوند اجباری لغو ۱۱.
-                        </p>
-                    </div>
-                    <a href="{{ route('admin.sms.settings.content.index') }}" class="btn btn-sm w-100" style="background-color: rgba(255,255,255,0.08) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important;">
-                        ویرایش قوانین <i class="fa fa-arrow-left" style="margin-right: 6px;"></i>
-                    </a>
-                </div>
-            </div>
-
-            @if(auth()->user()?->isSuperAdmin())
-            <!-- Box 2 -->
-            <div class="col-12 col-md-6 col-xl-3">
-                <div style="background-color: #1e293b !important; border: 1px solid rgba(255,255,255,0.12) !important; border-radius: 10px; padding: 18px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <h6 class="fw-bold mb-2" style="color: #ffffff !important;">
-                            <i class="fa fa-file-text-o" style="color: #38bdf8 !important; margin-left: 8px;"></i> قراردادها و تعهدنامه‌ها
-                        </h6>
-                        <p class="small mb-3" style="color: #94a3b8 !important; font-size: 13px; line-height: 1.7;">
-                            مشاهده و تایید قراردادهای امضاشده توسط غرفه‌ها و استعلام وضعیت.
+                            مدیریت الگوها و انتساب قراردادها، ویرایش ضوابط مخابراتی و مشاهده وضعیت امضای OTP غرفه‌ها.
                         </p>
                     </div>
                     <a href="{{ route('admin.sms.settings.contracts.index') }}" class="btn btn-sm w-100" style="background-color: rgba(255,255,255,0.08) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important;">
-                        مدیریت قراردادها <i class="fa fa-arrow-left" style="margin-right: 6px;"></i>
+                        مدیریت قراردادها و ضوابط <i class="fa fa-arrow-left" style="margin-right: 6px;"></i>
                     </a>
                 </div>
             </div>
-            @endif
 
             <!-- Box 3 -->
             <div class="col-12 col-md-6 col-xl-3">
@@ -160,7 +141,8 @@
 
     <!-- Summary Stats -->
     <div class="row g-3 mb-4">
-        <!-- Panels -->
+        @if(auth()->user()?->isSuperAdmin())
+        <!-- Panels (SuperAdmin Only) -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #3b82f6 !important; background: #ffffff !important;">
                 <div class="card-body p-3">
@@ -178,13 +160,36 @@
                 </div>
             </div>
         </div>
+        @else
+        <!-- Contracts & Legal Status (Business User Card) -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #3b82f6 !important; background: #ffffff !important;">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small fw-bold">وضعیت تعهدنامه و ضوابط</span>
+                        <i class="fa fa-file-text-o text-primary"></i>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        @if($business && $business->sms_contract_accepted)
+                            <span class="badge bg-success py-2 px-3">امضا شده (فعال)</span>
+                        @else
+                            <span class="badge bg-warning text-dark py-2 px-3">در انتظار امضا</span>
+                        @endif
+                    </div>
+                    <a href="{{ route('admin.sms.settings.contracts.index') }}" class="small text-decoration-none fw-bold text-primary">
+                        مشاهده قراردادها و ضوابط <i class="fa fa-angle-left ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Sender Numbers -->
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100" style="border-top: 4px solid #10b981 !important; background: #ffffff !important;">
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small fw-bold">خطوط اختصاصی</span>
+                        <span class="text-muted small fw-bold">خطوط پیامک</span>
                         <i class="fa fa-phone text-success"></i>
                     </div>
                     <div class="d-flex align-items-baseline gap-2 mb-2">
@@ -192,7 +197,7 @@
                         <span class="badge bg-secondary small">{{ $stats['adv_senders_count'] }} تبلیغاتی</span>
                     </div>
                     <a href="{{ route('admin.sms.settings.senders.index') }}" class="small text-decoration-none fw-bold text-success">
-                        مدیریت خطوط <i class="fa fa-angle-left ms-1"></i>
+                        مشاهده خطوط <i class="fa fa-angle-left ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -250,7 +255,7 @@
                 <div class="card-body">
                     <div class="mb-3 p-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">شماره فرستنده OTP سراسری:</span>
+                            <span class="text-muted">شماره فرستنده OTP سامانه:</span>
                             @if($stats['otp_sender'])
                                 <span class="badge bg-success font-monospace px-3 py-2 fs-6" dir="ltr">
                                     {{ $stats['otp_sender']->number }}
@@ -259,10 +264,12 @@
                                 <span class="badge bg-danger">تنظیم نشده</span>
                             @endif
                         </div>
+                        @if(auth()->user()?->isSuperAdmin())
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">پنل ارتباطی OTP:</span>
+                            <span class="text-muted">درگاه ارتباطی OTP:</span>
                             <span class="fw-bold text-dark">{{ $stats['otp_sender']->sms_panel ?? '—' }}</span>
                         </div>
+                        @endif
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-muted">وضعیت خط OTP:</span>
                             <span class="badge {{ ($stats['otp_sender'] && $stats['otp_sender']->status === 'active') ? 'bg-success' : 'bg-secondary' }}">
@@ -273,7 +280,7 @@
 
                     <div class="p-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">قرارداد عمومی OTP:</span>
+                            <span class="text-muted">قرارداد سرویس OTP:</span>
                             @if($stats['otp_contract'] && $stats['otp_contract']->contract)
                                 <span class="badge bg-success">
                                     {{ $stats['otp_contract']->contract->title }}
@@ -289,7 +296,7 @@
                         @endif
                         <div class="text-end mt-2">
                             <a href="{{ route('admin.sms.settings.contracts.index') }}" class="btn btn-sm btn-outline-primary">
-                                مشاهده و تغییر قرارداد
+                                مشاهده قرارداد و ضوابط
                             </a>
                         </div>
                     </div>
@@ -310,7 +317,7 @@
                         <div class="mb-3 p-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                             <h6 class="fw-bold mb-2 text-dark">اطلاعات کسب‌وکار فعلی ({{ $business->title }})</h6>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted">خطوط اختصاصی تخصیص داده شده:</span>
+                                <span class="text-muted">خطوط تخصیص‌یافته از مخزن:</span>
                                 <span class="fw-bold text-dark">{{ $stats['senders_count'] }} شماره</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -325,7 +332,7 @@
                             </div>
                             <div class="text-end mt-3">
                                 <a href="{{ route('admin.sms.settings.contracts.index') }}" class="btn btn-sm btn-outline-success">
-                                    تنظیم قرارداد پیامک تبلیغاتی
+                                    مشاهده قرارداد پیامک تبلیغاتی
                                 </a>
                             </div>
                         </div>
@@ -333,7 +340,7 @@
                         <div class="mb-3 p-3 rounded" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                             <h6 class="fw-bold mb-2 text-dark">مدیریت کل سیستم (سطح سوپرادمین)</h6>
                             <p class="small text-muted mb-2">
-                                در این سطح می‌توانید پنل‌های ارتباطی، تمامی خطوط فرستنده، نحوه تخصیص آن‌ها به کسب‌وکارها و قراردادهای هر کسب‌وکار را کنترل کنید.
+                                در این سطح می‌توانید پنل‌های ارتباطی، تمامی خطوط فرستنده، نحوه تخصیص اشتراکی آن‌ها به کسب‌وکارها و قراردادهای هر کسب‌وکار را کنترل کنید.
                             </p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="text-muted">تعداد قراردادهای تبلیغاتی فعال کسب‌وکارها:</span>
@@ -343,9 +350,15 @@
                     @endif
 
                     <div class="d-flex gap-2">
-                        <a href="{{ route('admin.sms.settings.senders.create') }}" class="btn btn-primary flex-fill">
-                            <i class="fa fa-plus me-1"></i> افزودن خط اختصاصی
-                        </a>
+                        @if(auth()->user()?->isSuperAdmin())
+                            <a href="{{ route('admin.sms.settings.senders.create') }}" class="btn btn-primary flex-fill">
+                                <i class="fa fa-plus me-1"></i> افزودن خط به مخزن
+                            </a>
+                        @else
+                            <a href="{{ route('admin.sms.settings.senders.index') }}" class="btn btn-outline-success flex-fill">
+                                <i class="fa fa-phone me-1"></i> مشاهده خطوط مجاز کسب‌وکار
+                            </a>
+                        @endif
                         <a href="{{ route('admin.sms.settings.templates.create') }}" class="btn btn-outline-primary flex-fill">
                             <i class="fa fa-plus me-1"></i> ایجاد الگوی پیامک
                         </a>

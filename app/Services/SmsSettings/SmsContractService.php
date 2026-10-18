@@ -33,13 +33,39 @@ class SmsContractService
     }
 
     /**
-     * Get the active global OTP contract usage and contract.
+     * Get the active global OTP contract usage (template/master contract).
      */
     public function getOtpContract(): ?ContractUsage
     {
         return ContractUsage::query()
             ->location('sms_otp')
             ->global()
+            ->active()
+            ->with(['contract.folder', 'contract.media'])
+            ->first();
+    }
+
+    /**
+     * Get the active global Advertising contract usage (template/master contract).
+     */
+    public function getGlobalAdvertisingContract(): ?ContractUsage
+    {
+        return ContractUsage::query()
+            ->location('sms_advertising')
+            ->global()
+            ->active()
+            ->with(['contract.folder', 'contract.media'])
+            ->first();
+    }
+
+    /**
+     * Get the specific OTP contract usage for a single business.
+     */
+    public function getBusinessOtpContract(GhorfeOnlineList $business): ?ContractUsage
+    {
+        return ContractUsage::query()
+            ->location('sms_otp')
+            ->for(GhorfeOnlineList::class, $business->id)
             ->active()
             ->with(['contract.folder', 'contract.media'])
             ->first();
@@ -59,7 +85,7 @@ class SmsContractService
     }
 
     /**
-     * Get all businesses with their advertising contract status.
+     * Get all businesses with their OTP and Advertising contract status.
      */
     public function getAdvertisingContractsList(array $filters = []): LengthAwarePaginator
     {
@@ -75,9 +101,9 @@ class SmsContractService
 
         $paginator = $query->paginate($filters['per_page'] ?? 15);
 
-        // Load active advertising contract usage for each business
         $businessIds = $paginator->pluck('id')->toArray();
-        $usages = ContractUsage::query()
+
+        $advUsages = ContractUsage::query()
             ->location('sms_advertising')
             ->where('usable_type', GhorfeOnlineList::class)
             ->whereIn('usable_id', $businessIds)
@@ -86,22 +112,31 @@ class SmsContractService
             ->get()
             ->keyBy('usable_id');
 
+        $otpUsages = ContractUsage::query()
+            ->location('sms_otp')
+            ->where('usable_type', GhorfeOnlineList::class)
+            ->whereIn('usable_id', $businessIds)
+            ->active()
+            ->with(['contract.folder', 'contract.media'])
+            ->get()
+            ->keyBy('usable_id');
+
         foreach ($paginator->items() as $business) {
-            $business->advertising_contract_usage = $usages->get($business->id);
+            $business->advertising_contract_usage = $advUsages->get($business->id);
+            $business->otp_contract_usage = $otpUsages->get($business->id);
         }
 
         return $paginator;
     }
 
     /**
-     * Save an SMS contract (Global OTP or Per-Business Advertising).
+     * Save an SMS contract or template (OTP or Advertising).
      *
-     * @param string $serviceType 'otp' or 'advertising'
-     * @param array $data Form data
-     * @param GhorfeOnlineList|null $business
-     * @param UploadedFile|null $file
-     * @param string|null $filePath
-     * @return ContractUsage
+     * Legal immutability rule: Existing contracts are NEVER mutated in place.
+     * Super Admin can:
+     * 1) Create a template in the contract bank (and optionally set it as the active global default for the panel).
+     * 2) Assign a template from the bank to a business (or set as panel default).
+     * 3) Create a custom one-off contract and assign it directly to a business (without saving it to the template folder unless `save_as_template` is checked).
      */
     public function saveContract(
         string $serviceType,
@@ -109,36 +144,44 @@ class SmsContractService
         ?GhorfeOnlineList $business = null,
         ?UploadedFile $file = null,
         ?string $filePath = null
-    ): ContractUsage {
+    ): ContractUsage|Contract {
         $location = ($serviceType === 'otp') ? 'sms_otp' : 'sms_advertising';
-        $ownerType = ($serviceType === 'otp') ? null : GhorfeOnlineList::class;
-        $ownerId = ($serviceType === 'otp') ? null : $business?->id;
+        $isGlobalTemplate = !empty($data['is_global_template'])
+            || !empty($data['is_global_advertising'])
+            || (!$business && $serviceType === 'otp' && !array_key_exists('is_global_template', $data) && !array_key_exists('save_as_template', $data) && !array_key_exists('template_only', $data));
+        $saveAsTemplate = !empty($data['save_as_template']) || $isGlobalTemplate;
+        $templateOnly = !empty($data['template_only']) || ($saveAsTemplate && !$business && !$isGlobalTemplate);
 
-        if ($serviceType === 'advertising' && !$ownerId && empty($data['is_global_advertising'])) {
+        $ownerType = $isGlobalTemplate ? null : ($business ? GhorfeOnlineList::class : null);
+        $ownerId = $isGlobalTemplate ? null : $business?->id;
+
+        if (!$saveAsTemplate && !$ownerId && !$isGlobalTemplate) {
             throw ValidationException::withMessages([
-                'business_id' => ['انتخاب کسب‌وکار برای قرارداد پیامک تبلیغاتی الزامی است.'],
+                'business_id' => ['باید حداقل یکی از دو گزینه «ذخیره به‌عنوان الگو» یا «انتساب به کسب‌وکار» انتخاب شود.'],
             ]);
         }
 
-        return DB::transaction(function () use ($location, $ownerType, $ownerId, $data, $file, $filePath) {
+        if (!$templateOnly && $serviceType === 'advertising' && !$ownerId && !$isGlobalTemplate) {
+            throw ValidationException::withMessages([
+                'business_id' => ['انتخاب کسب‌وکار برای انتساب قرارداد پیامک تبلیغاتی الزامی است.'],
+            ]);
+        }
+
+        return DB::transaction(function () use ($location, $ownerType, $ownerId, $data, $file, $filePath, $templateOnly, $saveAsTemplate) {
             $contractId = null;
 
             if (($data['mode'] ?? 'new') === 'existing' && !empty($data['contract_id'])) {
                 $contractId = (int) $data['contract_id'];
                 $contract = Contract::findOrFail($contractId);
-
-                // If edits to existing contract are submitted:
-                if (!empty($data['edit_title'])) {
-                    $contract->update([
-                        'title' => $data['edit_title'],
-                        'content' => $data['edit_content'] ?? $contract->content,
-                    ]);
-                }
             } else {
-                // Create new Contract in contract bank
-                $folder = !empty($data['contract_folder_id'])
-                    ? ContractFolder::find($data['contract_folder_id'])
-                    : $this->getOrCreateSmsFolder();
+                // Only place in the SMS Templates folder if saving as a reusable template;
+                // one-off custom contracts created directly for an assignee stay uncategorised (folder = null).
+                $folder = null;
+                if ($saveAsTemplate) {
+                    $folder = !empty($data['contract_folder_id'])
+                        ? ContractFolder::find($data['contract_folder_id'])
+                        : $this->getOrCreateSmsFolder();
+                }
 
                 $contract = Contract::create([
                     'title' => $data['title'] ?? ('قرارداد پیامک ' . ($location === 'sms_otp' ? 'خدماتی' : 'تبلیغاتی')),
@@ -151,21 +194,26 @@ class SmsContractService
                 $contractId = $contract->id;
             }
 
-            // Handle file upload
-            if ($file instanceof UploadedFile) {
-                $contract->addMedia($file)
-                    ->toMediaCollection('file');
-            } elseif (!empty($filePath)) {
-                MediaLibraryHelper::attachTo($contract, $filePath, 'file');
+            // Handle file upload for newly created contract/template
+            if (($data['mode'] ?? 'new') !== 'existing') {
+                if ($file instanceof UploadedFile) {
+                    $contract->addMedia($file)
+                        ->toMediaCollection('file');
+                } elseif (!empty($filePath)) {
+                    MediaLibraryHelper::attachTo($contract, $filePath, 'file');
+                }
+
+                if (Auth::id()) {
+                    ContractHistory::create([
+                        'contract_id' => $contract->id,
+                        'user_id' => Auth::id(),
+                        'file' => $contract->file,
+                    ]);
+                }
             }
 
-            // Record history
-            if (Auth::id()) {
-                ContractHistory::create([
-                    'contract_id' => $contract->id,
-                    'user_id' => Auth::id(),
-                    'file' => $contract->file,
-                ]);
+            if ($templateOnly) {
+                return $contract;
             }
 
             // Detach previous active contract for this location & owner

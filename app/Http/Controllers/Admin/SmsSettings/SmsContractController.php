@@ -22,16 +22,12 @@ class SmsContractController extends Controller
     }
 
     /**
-     * Display SMS contracts management view.
-     * Shows SMS usage agreement (sign once, view-only once signed),
-     * global OTP contract, and per-business advertising contracts.
+     * Display SMS contracts & legal rules view.
+     * For SuperAdmin: Management table (OTP & Adv tabs) + Templates/General Contracts modal + Assign modal + Legal/Regulatory Rules modal.
+     * For Business Users: Read-only / Sign-ready view of their OTP & Advertising contracts, usage agreement, and regulatory rules.
      */
-    public function index(Request $request): View|RedirectResponse
+    public function index(Request $request): View
     {
-        if (!auth()->user()?->isSuperAdmin() && !app()->environment('testing')) {
-            return redirect()->route('admin.sms.contract.sign');
-        }
-
         $business = ghorfe();
 
         if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
@@ -44,12 +40,15 @@ class SmsContractController extends Controller
             : collect();
 
         $otpContractUsage = $this->contractService->getOtpContract();
+        $advContractUsage = $this->contractService->getGlobalAdvertisingContract();
 
         $advertisingContracts = null;
         $businessAdvUsage = null;
+        $businessOtpUsage = null;
 
         if ($business) {
             $businessAdvUsage = $this->contractService->getBusinessAdvertisingContract($business);
+            $businessOtpUsage = $this->contractService->getBusinessOtpContract($business);
         } else {
             $filters = $request->only(['search', 'per_page']);
             $advertisingContracts = $this->contractService->getAdvertisingContractsList($filters);
@@ -64,9 +63,21 @@ class SmsContractController extends Controller
         $contractSigner = $business?->sms_contract_signature_name;
         $contractSignedAt = $business?->sms_contract_accepted_at;
 
+        // Masked phone for OTP signing if business user hasn't signed yet
+        $rawPhone = (string) preg_replace('/\D/', '', strtr((string) auth()->user()?->phone, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]));
+        $otpPhoneMasked = strlen($rawPhone) >= 11
+            ? substr($rawPhone, 0, 4) . '***' . substr($rawPhone, -4)
+            : null;
+        $otpResendSeconds = (int) config('admin_auth.contract_otp.resend_cooldown_seconds', 60);
+
         return view('Admin.sms.settings.contracts.index', compact(
             'otpContractUsage',
+            'advContractUsage',
             'businessAdvUsage',
+            'businessOtpUsage',
             'advertisingContracts',
             'business',
             'all_businesses',
@@ -76,12 +87,14 @@ class SmsContractController extends Controller
             'regulatoryRulesText',
             'isContractSigned',
             'contractSigner',
-            'contractSignedAt'
+            'contractSignedAt',
+            'otpPhoneMasked',
+            'otpResendSeconds'
         ));
     }
 
     /**
-     * Store or attach an SMS contract (OTP global or Advertising per-business).
+     * Store or attach an SMS contract (OTP or Advertising — Global Template or Per-Business).
      */
     public function store(Request $request): RedirectResponse
     {
@@ -92,6 +105,10 @@ class SmsContractController extends Controller
         $validated = $request->validate([
             'service_type' => 'required|in:otp,advertising',
             'mode' => 'required|in:new,existing',
+            'is_global_template' => 'nullable|boolean',
+            'is_global_advertising' => 'nullable|boolean',
+            'save_as_template' => 'nullable|boolean',
+            'template_only' => 'nullable|boolean',
             'business_id' => 'nullable|exists:ghorfe_online_lists,id',
             'contract_id' => 'required_if:mode,existing|nullable|exists:contracts,id',
             'title' => 'required_if:mode,new|nullable|string|max:191',
@@ -105,20 +122,19 @@ class SmsContractController extends Controller
         ], [
             'service_type.required' => 'نوع سرویس قرارداد را مشخص کنید.',
             'mode.required' => 'نحوه انتساب قرارداد را مشخص کنید.',
-            'contract_id.required_if' => 'قرارداد مورد نظر از بانک قراردادها را انتخاب کنید.',
-            'title.required_if' => 'عنوان قرارداد جدید را وارد کنید.',
+            'contract_id.required_if' => 'الگو یا قرارداد مورد نظر را انتخاب کنید.',
+            'title.required_if' => 'عنوان قرارداد یا الگو را وارد کنید.',
         ]);
 
         $serviceType = $validated['service_type'];
         $business = ghorfe();
 
-        // If superAdmin specifies a business for advertising contract:
         if (!$business && !empty($validated['business_id'])) {
             $business = GhorfeOnlineList::find($validated['business_id']);
         }
 
         try {
-            $usage = $this->contractService->saveContract(
+            $this->contractService->saveContract(
                 $serviceType,
                 $validated,
                 $business,
@@ -129,10 +145,12 @@ class SmsContractController extends Controller
             return redirect()->back()->withInput()->withErrors($e->errors());
         }
 
-        $label = ($serviceType === 'otp') ? 'قرارداد سراسری OTP' : 'قرارداد پیامک تبلیغاتی';
+        $label = !empty($validated['template_only'])
+            ? 'الگوی قرارداد جدید'
+            : (($serviceType === 'otp') ? 'قرارداد پیامک خدماتی (OTP)' : 'قرارداد پیامک تبلیغاتی');
 
         return redirect()->route('admin.sms.settings.contracts.index')
-            ->with('success', "{$label} با موفقیت ثبت و فعال گردید.");
+            ->with('success', "{$label} با موفقیت ثبت گردید.");
     }
 
     /**

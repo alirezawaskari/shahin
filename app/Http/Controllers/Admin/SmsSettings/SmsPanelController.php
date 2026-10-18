@@ -17,11 +17,17 @@ class SmsPanelController extends Controller
     ) {
     }
 
+    protected function ensureSuperAdmin(): void
+    {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403, 'تنها مدیر ارشد سامانه به تنظیمات پنل‌های پیامک دسترسی دارد.');
+    }
+
     /**
      * Display listing of SMS panels.
      */
     public function index(Request $request): View
     {
+        $this->ensureSuperAdmin();
         $business = ghorfe();
         $filters = $request->only(['type', 'status', 'search', 'per_page']);
         $panels = $this->panelService->list($filters, $business);
@@ -34,6 +40,7 @@ class SmsPanelController extends Controller
      */
     public function create(): View
     {
+        $this->ensureSuperAdmin();
         $business = ghorfe();
         return view('Admin.sms.settings.panels.create', compact('business'));
     }
@@ -43,6 +50,7 @@ class SmsPanelController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->ensureSuperAdmin();
         $validated = $request->validate([
             'name' => 'required|string|max:191',
             'slug' => 'nullable|string|max:191',
@@ -80,6 +88,7 @@ class SmsPanelController extends Controller
      */
     public function edit(SmsPanel $panel): View
     {
+        $this->ensureSuperAdmin();
         $business = ghorfe();
         return view('Admin.sms.settings.panels.edit', compact('panel', 'business'));
     }
@@ -89,6 +98,7 @@ class SmsPanelController extends Controller
      */
     public function update(Request $request, SmsPanel $panel): RedirectResponse
     {
+        $this->ensureSuperAdmin();
         $validated = $request->validate([
             'name' => 'required|string|max:191',
             'slug' => 'nullable|string|max:191',
@@ -125,6 +135,7 @@ class SmsPanelController extends Controller
      */
     public function destroy(SmsPanel $panel): RedirectResponse
     {
+        $this->ensureSuperAdmin();
         $name = $panel->name;
         $this->panelService->delete($panel);
 
@@ -137,6 +148,7 @@ class SmsPanelController extends Controller
      */
     public function toggleStatus(Request $request, SmsPanel $panel): JsonResponse|RedirectResponse
     {
+        $this->ensureSuperAdmin();
         $updated = $this->panelService->toggleStatus($panel);
 
         if ($request->wantsJson()) {

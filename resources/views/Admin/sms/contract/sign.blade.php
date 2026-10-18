@@ -30,12 +30,28 @@
 
     <div class="row g-4">
         <div class="col-12 col-lg-8">
+            @if(isset($businessAdvUsage) && $businessAdvUsage)
+                @include('Admin.contract.partials.show', [
+                    'usage' => $businessAdvUsage,
+                    'contract' => $businessAdvUsage->contract,
+                    'title' => 'قرارداد پیامک تبلیغاتی (' . $business->title . ')',
+                ])
+            @endif
+
+            @if(isset($otpContractUsage) && $otpContractUsage)
+                @include('Admin.contract.partials.show', [
+                    'usage' => $otpContractUsage,
+                    'contract' => $otpContractUsage->contract,
+                    'title' => 'قرارداد پیامک خدماتی (OTP)',
+                ])
+            @endif
+
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white py-3">
-                    <h5 class="fw-bold mb-0"><i class="fa fa-file-text-o me-1"></i> متن تعهدنامه</h5>
+                    <h5 class="fw-bold mb-0"><i class="fa fa-file-text-o me-1"></i> متن تعهدنامه عمومی و ضوابط</h5>
                 </div>
-                <div class="card-body" style="max-height: 420px; overflow-y: auto;">
-                    <p style="white-space: pre-wrap;">{{ $contractText }}</p>
+                <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                    <p style="white-space: pre-wrap;" class="mb-0">{{ $contractText }}</p>
                 </div>
             </div>
 
@@ -226,6 +242,10 @@
             var errors = res.body && res.body.errors ? Object.keys(res.body.errors).map(function (k) { return res.body.errors[k][0]; }).join(' ') : '';
             say('danger', (res.body && res.body.message) || errors || 'ارسال کد ناموفق بود.');
             if (res.body && res.body.retry_after && res.status === 429) {
+                countdown(res.body.retry_after);
+            } else {
+                sendBtn.disabled = false;
+            }
         }).catch(function () {
             say('danger', 'ارتباط با سرور برقرار نشد.');
             sendBtn.disabled = false;

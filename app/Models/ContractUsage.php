@@ -41,7 +41,7 @@ class ContractUsage extends Model
         'registration_invoice' => [Service::class],
         'purchase_invoice' => [Service::class, Product::class, null],
         'employee' => [Role::class],
-        'sms_otp' => [null],
+        'sms_otp' => [GhorfeOnlineList::class, null],
         'sms_advertising' => [GhorfeOnlineList::class, null],
     ];
 

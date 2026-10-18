@@ -21,14 +21,9 @@ class SmsCmsSettingsController extends Controller
     ) {
     }
 
-    public function index(): View
+    public function index(): RedirectResponse
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403, 'این بخش فقط برای مدیر ارشد سامانه (superAdmin) در دسترس است.');
-
-        return view('Admin.sms.settings.content.index', [
-            'regulatoryRulesText' => $this->content->regulatoryRulesText(),
-            'contractText' => $this->content->contractText(),
-        ]);
+        return redirect()->route('admin.sms.settings.contracts.index');
     }
 
     public function update(Request $request): RedirectResponse
@@ -43,7 +38,7 @@ class SmsCmsSettingsController extends Controller
         $this->content->setRegulatoryRulesText($validated['regulatory_rules_text'] ?? '');
         $this->content->setContractText($validated['contract_text'] ?? '');
 
-        return redirect()->route('admin.sms.settings.content.index')
+        return redirect()->route('admin.sms.settings.contracts.index')
             ->with('success', 'متون حقوقی و ضوابط پیامک با موفقیت ذخیره شد.');
     }
 }

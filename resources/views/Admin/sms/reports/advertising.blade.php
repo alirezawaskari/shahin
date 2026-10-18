@@ -180,7 +180,9 @@
                     <thead class="table-light">
                         <tr>
                             <th>شماره خط</th>
-                            <th>پنل</th>
+                            @if(auth()->user()?->isSuperAdmin())
+                                <th>درگاه</th>
+                            @endif
                             <th>تعداد پیامک‌ها</th>
                             <th>تعداد کمپین‌ها</th>
                             <th>مجموع هزینه (ریال)</th>
@@ -192,7 +194,9 @@
                         @foreach($sender_breakdown as $sb)
                             <tr>
                                 <td class="fw-bold">{{ $sb['sender']->number }}</td>
-                                <td>{{ $sb['sender']->sms_panel ?? '-' }}</td>
+                                @if(auth()->user()?->isSuperAdmin())
+                                    <td>{{ $sb['sender']->sms_panel ?? '-' }}</td>
+                                @endif
                                 <td>{{ number_format($sb['messages_count']) }}</td>
                                 <td>{{ number_format($sb['campaigns_count']) }}</td>
                                 <td class="text-danger fw-bold">{{ number_format($sb['cost']) }}</td>

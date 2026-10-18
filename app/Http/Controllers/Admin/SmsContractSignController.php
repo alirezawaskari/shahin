@@ -61,10 +61,20 @@ class SmsContractSignController extends Controller
         $business = $this->resolveBusiness($request);
         $phone = $this->otp->maskPhone((string) preg_replace('/\D/', '', $this->asciiDigits(auth()->user()?->phone)));
 
+        $otpContractUsage = null;
+        $businessAdvUsage = null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('contract_usages')) {
+            $contractService = app(\App\Services\SmsSettings\SmsContractService::class);
+            $otpContractUsage = $contractService->getBusinessOtpContract($business) ?: $contractService->getOtpContract();
+            $businessAdvUsage = $contractService->getBusinessAdvertisingContract($business) ?: $contractService->getGlobalAdvertisingContract();
+        }
+
         return view('Admin.sms.contract.sign', [
             'business' => $business,
             'contractText' => $this->cmsContent->contractText(),
             'regulatoryRulesText' => $this->cmsContent->regulatoryRulesText(),
+            'otpContractUsage' => $otpContractUsage,
+            'businessAdvUsage' => $businessAdvUsage,
             'isSigned' => (bool) $business->sms_contract_accepted,
             'otpPhoneMasked' => strlen($phone) >= 11 ? $phone : null,
             'otpResendSeconds' => (int) config('admin_auth.contract_otp.resend_cooldown_seconds'),

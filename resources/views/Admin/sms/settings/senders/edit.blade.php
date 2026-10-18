@@ -98,19 +98,17 @@
                         @endif
                     </div>
 
-                    @if(!$business)
-                        <div class="col-12 col-md-6" id="businessAssignmentGroup">
-                            <label class="form-label fw-bold">تخصیص به کسب‌وکارها</label>
-                            <select name="business_ids[]" class="form-select" multiple size="4">
-                                @foreach($businesses as $b)
-                                    <option value="{{ $b->id }}" {{ in_array($b->id, (array) old('business_ids', $assignedBusinessIds)) ? 'selected' : '' }}>
-                                        {{ $b->title }} (کد {{ $b->id }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted">کسب‌وکارهای مجاز برای ارسال پیامک از طریق این خط.</small>
-                        </div>
-                    @endif
+                    <div class="col-12 col-md-6" id="businessAssignmentGroup">
+                        <label class="form-label fw-bold">تخصیص اشتراکی به کسب‌وکارها</label>
+                        <select name="business_ids[]" class="form-select" multiple size="5">
+                            @foreach($businesses as $b)
+                                <option value="{{ $b->id }}" {{ in_array($b->id, (array) old('business_ids', $assignedBusinessIds)) ? 'selected' : '' }}>
+                                    {{ $b->title }} (کد {{ $b->id }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">کسب‌وکارهای مجاز برای استفاده مشترک یا اختصاصی از این خط.</small>
+                    </div>
 
                     <div class="col-12">
                         <label class="form-label fw-bold">توضیحات</label>

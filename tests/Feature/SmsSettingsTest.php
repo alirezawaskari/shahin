@@ -230,7 +230,7 @@ class SmsSettingsTest extends TestCase
             'name' => 'ادمین',
             'family' => 'اصلی',
             'phone' => '09120000000',
-            'level' => 'admin',
+            'level' => 'superAdmin',
             'active' => true,
         ]);
 
@@ -599,5 +599,63 @@ class SmsSettingsTest extends TestCase
         $contractView = $contractController->index(request());
         $this->assertEquals('Admin.sms.settings.contracts.index', $contractView->name());
         $this->assertArrayHasKey('folders', $contractView->getData());
+    }
+
+    public function test_business_users_cannot_configure_panels_or_raw_senders_and_can_view_unified_contracts_and_legal_tab(): void
+    {
+        $silverBusinessUser = User::create([
+            'name' => 'کاربر',
+            'family' => 'نقره‌ای',
+            'phone' => '09123334455',
+            'level' => 'ghorfeAdmin',
+            'active' => true,
+        ]);
+
+        DB::table('employees')->insert([
+            'user_id' => $silverBusinessUser->id,
+            'ghorfe_online_list_id' => $this->businessA->id,
+        ]);
+
+        // SuperAdmin creates a shared line in the pool and assigns it to BOTH Business A and Business B (many-to-many)
+        $this->actingAs($this->adminUser);
+        $sharedSender = SenderNumber::create([
+            'number' => '3000777888',
+            'type' => 'advertising',
+            'sms_panel' => 'IranSms',
+            'status' => 'active',
+        ]);
+        app(SmsSenderNumberService::class)->assignBusinesses($sharedSender, [$this->businessA->id, $this->businessB->id]);
+
+        $this->assertCount(2, $sharedSender->fresh()->businesses);
+
+        // Now act as the Silver-tier business user
+        $this->actingAs($silverBusinessUser);
+
+        // 1. Business user CANNOT access SMS Panels (upstream gateways are completely hidden & forbidden)
+        $panelController = app(\App\Http\Controllers\Admin\SmsSettings\SmsPanelController::class);
+        try {
+            $panelController->index(request());
+            $this->fail('Business user should not be able to access SmsPanelController::index');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            $this->assertEquals(403, $e->getStatusCode());
+        }
+
+        // 2. Business user CANNOT access sender create/store/edit/update/destroy
+        $senderController = app(\App\Http\Controllers\Admin\SmsSettings\SmsSenderNumberController::class);
+        try {
+            $senderController->create();
+            $this->fail('Business user should not be able to access SmsSenderNumberController::create');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            $this->assertEquals(403, $e->getStatusCode());
+        }
+
+        // 3. Business user CAN view the unified Contracts & Legal tab (read-only / sign-ready)
+        $contractController = app(\App\Http\Controllers\Admin\SmsSettings\SmsContractController::class);
+        $contractView = $contractController->index(request());
+        $this->assertEquals('Admin.sms.settings.contracts.index', $contractView->name());
+        $viewData = $contractView->getData();
+        $this->assertArrayHasKey('regulatoryRulesText', $viewData);
+        $this->assertArrayHasKey('contractText', $viewData);
+        $this->assertArrayHasKey('otpPhoneMasked', $viewData);
     }
 }

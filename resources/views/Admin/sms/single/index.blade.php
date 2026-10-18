@@ -301,7 +301,9 @@
                                             <div>
                                                 <span class="badge bg-success me-2">تخصیص خودکار سامانه</span>
                                                 <strong class="font-monospace fs-6">{{ $otpSender->number }}</strong>
-                                                <span class="text-muted ms-2">(پنل: {{ $otpSender->sms_panel }})</span>
+                                                @if(auth()->user()?->isSuperAdmin())
+                                                    <span class="text-muted ms-2">(پنل: {{ $otpSender->sms_panel }})</span>
+                                                @endif
                                             </div>
                                             <span class="badge bg-info text-dark">موجودی OTP: {{ number_format($otpBalance) }} ریال</span>
                                         </div>
