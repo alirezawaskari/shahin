@@ -111,19 +111,6 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         'ghorfeAdmin' => 'همکار کسب و کار',
         'superAdmin' => 'همکار کل',
     ];
-
-    public const ACCESS_TIER_SILVER = 'silver';
-    public const ACCESS_TIER_GOLD = 'gold';
-    public const ACCESS_TIER_DIAMOND = 'diamond';
-    public const ACCESS_TIER_TITANIUM = 'titanium';
-
-    public const ACCESS_TIERS = [
-        self::ACCESS_TIER_SILVER => 'نقره‌ای (Silver)',
-        self::ACCESS_TIER_GOLD => 'طلایی (Gold)',
-        self::ACCESS_TIER_DIAMOND => 'الماسی (Diamond)',
-        self::ACCESS_TIER_TITANIUM => 'تیتانیوم (Titanium)',
-    ];
-
     /**
      * @var string[]
      */
@@ -153,7 +140,6 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         'imgsignature',
         'imgturnover',
         'level',
-        'access_tier',
         'confirm',
         'active',
         'lalecard_code',
@@ -203,15 +189,6 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
             $model->token = self::makeUniqueToken();
             $model->api_token = self::makeUniqueApiToken();
             $model->avatar = '/img/user.png';
-        });
-
-        static::updating(function ($model) {
-            if ($model->isDirty('access_tier')) {
-                $actor = auth()->user();
-                if ($actor && !$actor->isSuperAdmin()) {
-                    throw new \Illuminate\Auth\Access\AuthorizationException('تنها مدیر کل (superAdmin) مجاز به تغییر سطح دسترسی کاربران می‌باشد.');
-                }
-            }
         });
     }
 
@@ -280,32 +257,6 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
     public function isSuperAdmin(): bool
     {
         return $this->level === 'superAdmin' || $this->hasRole('superadmin');
-    }
-
-    public function getAccessTierAttribute($value): string
-    {
-        return $value ?: self::ACCESS_TIER_SILVER;
-    }
-
-    public function canChangeAccessTier(): bool
-    {
-        return $this->isSuperAdmin();
-    }
-
-    public function setAccessTier(string $tier, ?User $actor = null): bool
-    {
-        $actor = $actor ?? auth()->user();
-        if ($actor && !$actor->isSuperAdmin()) {
-            throw new \Illuminate\Auth\Access\AuthorizationException('تنها مدیر کل (superAdmin) مجاز به تغییر سطح دسترسی کاربران می‌باشد.');
-        }
-
-        $tier = strtolower($tier);
-        if (!array_key_exists($tier, self::ACCESS_TIERS)) {
-            throw new \InvalidArgumentException("سطح دسترسی نامعتبر است: {$tier}");
-        }
-
-        $this->access_tier = $tier;
-        return $this->save();
     }
 
     public function canCreateEmployee(): bool
@@ -528,11 +479,6 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
     public function histories()
     {
         return $this->hasMany(History::class , 'user_id');
-    }
-
-    public function smsMessages()
-    {
-        return $this->hasMany(\App\Models\SmsMessage::class, 'user_id');
     }
 
     /**

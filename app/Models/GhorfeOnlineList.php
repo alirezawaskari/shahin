@@ -10,7 +10,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class GhorfeOnlineList extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia, \App\Models\Concerns\HasSenderNumbers, \App\Models\Concerns\HasContractUsages;
+    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
 
     /**
      * Touch-to-migrate: legacy single-image columns -> Spatie single-file collections.
@@ -73,9 +73,7 @@ class GhorfeOnlineList extends Model implements HasMedia
      */
     protected $casts = [
         'sms_code' => 'array',
-        'footer_tag' => 'array',
-        'sms_contract_accepted' => 'boolean',
-        'sms_contract_accepted_at' => 'datetime',
+        'footer_tag' => 'array'
     ];
     /**
      * Return the sluggable configuration array for this model.
