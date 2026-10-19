@@ -93,19 +93,26 @@
 
 
                         <!-- Parameter tokens picker -->
-                        <div class="mb-2">
-                            <label class="form-label fw-bold small text-muted">درج متغیرهای پویا (با کلیک درج می‌شود):</label>
-                            <div class="d-flex flex-wrap gap-1">
-                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{نام کاربر}">{نام کاربر}</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{نام خانوادگی}">{نام خانوادگی}</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{تاریخ}">{تاریخ}</button>
+                        <div class="mb-3 p-2 bg-light rounded border">
+                            <label class="form-label fw-bold small text-muted mb-2 d-block">
+                                <i class="fa fa-magic text-primary me-1"></i> درج متغیرهای پویا (با کلیک در متن درج می‌شود):
+                            </label>
+                            <div class="d-flex flex-wrap gap-1 align-items-center mb-1">
+                                <span class="small fw-bold text-secondary me-1">مخاطب:</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary insert-token" data-token="{نام کاربر}">{نام کاربر}</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary insert-token" data-token="{نام خانوادگی}">{نام خانوادگی}</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary insert-token" data-token="{تاریخ تولد}">{تاریخ تولد}</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary insert-token" data-token="{روز تولد}">{روز تولد}</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary insert-token" data-token="{ماه تولد}">{ماه تولد}</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary insert-token" data-token="{شماره مخاطب}">{شماره مخاطب}</button>
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                <span class="small fw-bold text-secondary me-1">عمومی:</span>
+                                <button type="button" class="btn btn-sm btn-outline-success insert-token" data-token="{نام فروشگاه}">{نام فروشگاه}</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{تاریخ}">{تاریخ امروز}</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{ساعت}">{ساعت}</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{شناسه فاکتور}">{شناسه فاکتور}</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{لینک پرداخت}">{لینک پرداخت}</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{شناسه درخواست}">{شناسه درخواست}</button>
-                                <button type="button" class="btn btn-sm btn-outline-info insert-token" data-token="{company_name}">{company_name}</button>
-                                <button type="button" class="btn btn-sm btn-outline-info insert-token" data-token="{phone}">{phone}</button>
-                                <button type="button" class="btn btn-sm btn-outline-info insert-token" data-token="{address}">{address}</button>
                             </div>
                         </div>
 

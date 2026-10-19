@@ -286,6 +286,7 @@ class SingleSmsSendService
             $context['user'] = $recipient;
             $context['first_name'] = $context['first_name'] ?? $recipient->name;
             $context['last_name'] = $context['last_name'] ?? $recipient->family;
+            $context['recipient_phone'] = $context['recipient_phone'] ?? $recipient->phone;
         }
 
         return $this->dynamicParameterResolver->applyTo($rawContent, $context);

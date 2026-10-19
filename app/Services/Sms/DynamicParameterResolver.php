@@ -28,6 +28,9 @@ class DynamicParameterResolver
     public const TOKEN_FACTOR_ID       = '{شناسه فاکتور}';
     public const TOKEN_PAYMENT_LINK    = '{لینک پرداخت}';
     public const TOKEN_REQUEST_ID      = '{شناسه درخواست}';
+    public const TOKEN_BIRTH_DATE      = '{تاریخ تولد}';
+    public const TOKEN_RECIPIENT_PHONE = '{شماره مخاطب}';
+    public const TOKEN_BUSINESS_NAME   = '{نام فروشگاه}';
 
     /**
      * Pluggable registry of parameter resolvers: [placeholder => callable].
@@ -207,12 +210,50 @@ class DynamicParameterResolver
             return (string) ($context['request_id'] ?? '');
         });
 
+        // {تاریخ تولد} - Recipient birth date
+        $this->register(self::TOKEN_BIRTH_DATE, function (array $context): string {
+            if (!empty($context['birth_date'])) {
+                return (string) $context['birth_date'];
+            }
+
+            $user = $this->extractUser($context);
+            if ($user) {
+                if (!empty($user->birth_year) && !empty($user->birth_month) && !empty($user->birth_day)) {
+                    return sprintf('%04d/%02d/%02d', (int) $user->birth_year, (int) $user->birth_month, (int) $user->birth_day);
+                }
+                if (!empty($user->birth_month) && !empty($user->birth_day)) {
+                    return sprintf('%02d/%02d', (int) $user->birth_month, (int) $user->birth_day);
+                }
+            }
+
+            return '';
+        });
+
+        // {روز تولد} & {ماه تولد}
+        $this->register('{روز تولد}', function (array $context): string {
+            $user = $this->extractUser($context);
+            return (string) ($context['birth_day'] ?? $user?->birth_day ?? '');
+        });
+        $this->register('{ماه تولد}', function (array $context): string {
+            $user = $this->extractUser($context);
+            return (string) ($context['birth_month'] ?? $user?->birth_month ?? '');
+        });
+
+        // {شماره مخاطب} - Explicit recipient phone (never sender/manager)
+        $this->register(self::TOKEN_RECIPIENT_PHONE, function (array $context): string {
+            $user = $this->extractUser($context);
+            return (string) ($context['recipient_phone'] ?? $context['phone'] ?? $user?->phone ?? '');
+        });
+
+        // {نام فروشگاه} & {نام کسب‌وکار}
+        $this->register(self::TOKEN_BUSINESS_NAME, fn($ctx) => (string) ($ctx['company_name'] ?? $ctx['business_name'] ?? ghorfe()?->title ?? ''));
+        $this->register('{نام کسب‌وکار}', fn($ctx) => (string) ($ctx['company_name'] ?? $ctx['business_name'] ?? ghorfe()?->title ?? ''));
+
         // Common token aliases for maximum usability
         $this->register('{نام}', fn($ctx) => (string) ($this->extractUser($ctx)?->name ?? $ctx['first_name'] ?? $ctx['name'] ?? ''));
         $this->register('{first_name}', fn($ctx) => (string) ($this->extractUser($ctx)?->name ?? $ctx['first_name'] ?? $ctx['name'] ?? ''));
         $this->register('{last_name}', fn($ctx) => (string) ($this->extractUser($ctx)?->family ?? $ctx['family'] ?? $ctx['last_name'] ?? ''));
-        $this->register('{phone}', fn($ctx) => (string) ($this->extractUser($ctx)?->phone ?? $ctx['phone'] ?? $ctx['mobile'] ?? ''));
-        $this->register('{موبایل}', fn($ctx) => (string) ($this->extractUser($ctx)?->phone ?? $ctx['phone'] ?? $ctx['mobile'] ?? ''));
+        $this->register('{موبایل مخاطب}', fn($ctx) => (string) ($context['recipient_phone'] ?? $this->extractUser($ctx)?->phone ?? $ctx['phone'] ?? ''));
         $this->register('{company_name}', fn($ctx) => (string) ($ctx['company_name'] ?? ghorfe()?->title ?? ''));
         $this->register('{نام شرکت}', fn($ctx) => (string) ($ctx['company_name'] ?? ghorfe()?->title ?? ''));
         $this->register('{کد}', fn($ctx) => (string) ($ctx['code'] ?? $ctx['otp'] ?? ''));
