@@ -27,7 +27,7 @@
             <li class="nav-item flex-shrink-0">
                 <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.settings.templates.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
                    href="{{ route('admin.sms.settings.templates.index') }}">
-                    <i class="fa fa-file-text-o ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> الگوهای پیامک
+                    <i class="fa fa-file-text-o ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> قالب‌های پیامک
                 </a>
             </li>
             <li class="nav-item flex-shrink-0">

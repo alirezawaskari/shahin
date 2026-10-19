@@ -69,7 +69,6 @@ class SmsFinancialController extends Controller
      */
     public function otpView(Request $request): View|JsonResponse|RedirectResponse
     {
-        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
 
         if ($this->superAdminWithoutBusiness($request)) {
             $firstBusinessId = GhorfeOnlineList::query()->value('id');

@@ -237,9 +237,9 @@
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.logs.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
-                                <i class="fa fa-list d-block fs-4 mb-1"></i>
-                                <span class="fw-bold">فهرست و لاگ پیامک‌ها</span>
+                            <a href="{{ route('admin.sms.reports.advertising.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
+                                <i class="fa fa-bar-chart d-block fs-4 mb-1"></i>
+                                <span class="fw-bold">گزارش پیامک‌ها</span>
                             </a>
                         </div>
                     </div>

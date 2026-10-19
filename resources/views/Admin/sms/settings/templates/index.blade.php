@@ -1,12 +1,12 @@
 @extends('Admin.master')
 
-@section('title', 'مدیریت الگوهای پیامک')
+@section('title', 'مدیریت قالبهای پیامک')
 
 @section('content')
 <div class="container-fluid py-3">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h3 class="fw-bold mb-1">الگوهای پیامک (Templates)</h3>
+            <h3 class="fw-bold mb-1">قالبهای پیامک (Templates)</h3>
             <p class="text-muted small mb-0">تعریف متن‌های پیش‌فرض، متغیرهای پویا و تاریخچه تغییرات</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
@@ -28,7 +28,7 @@
                 </span>
             @endif
             <a href="{{ route('admin.sms.settings.templates.create', $business && auth()->user()?->isSuperAdmin() ? ['business_id' => $business->id] : []) }}" class="btn btn-primary btn-sm">
-                <i class="fa fa-plus ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> ایجاد الگوی جدید
+                <i class="fa fa-plus ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> ایجاد قالبی جدید
             </a>
         </div>
     </div>
@@ -47,7 +47,7 @@
         <div class="card-body">
             <form action="{{ route('admin.sms.settings.templates.index') }}" method="GET" class="row g-2 align-items-center">
                 <div class="col-12 col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="جستجو در عنوان یا متن الگو..." value="{{ $filters['search'] ?? '' }}">
+                    <input type="text" name="search" class="form-control" placeholder="جستجو در عنوان یا متن قالب..." value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="col-6 col-md-3">
                     <select name="service_type" class="form-select">
@@ -98,11 +98,11 @@
                     <thead class="table-light">
                         <tr>
                             <th scope="col" class="ps-3">#</th>
-                            <th scope="col">عنوان الگو</th>
+                            <th scope="col">عنوان قالب</th>
                             <th scope="col">گروه / زیرگروه</th>
                             <th scope="col">نوع سرویس</th>
                             <th scope="col">وضعیت</th>
-                            <th scope="col">متن الگو</th>
+                            <th scope="col">متن قالب</th>
                             <th scope="col">ویرایش‌ها</th>
                             <th scope="col">ایجادکننده</th>
                             <th scope="col" class="text-end pe-3">عملیات</th>
@@ -174,7 +174,7 @@
                                         <a href="{{ route('admin.sms.settings.templates.edit', $tmpl) }}" class="btn btn-outline-primary" title="ویرایش">
                                             <i class="fa fa-pencil"></i>
                                         </a>
-                                        <form action="{{ route('admin.sms.settings.templates.destroy', $tmpl) }}" method="POST" class="d-inline" onsubmit="return confirm('آیا از حذف این الگو اطمینان دارید؟');">
+                                        <form action="{{ route('admin.sms.settings.templates.destroy', $tmpl) }}" method="POST" class="d-inline" onsubmit="return confirm('آیا از حذف این قالب اطمینان دارید؟');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger" title="حذف">
@@ -187,7 +187,7 @@
                         @empty
                             <tr>
                                 <td colspan="9" class="text-center py-4 text-muted">
-                                    هیچ الگوی پیامکی یافت نشد.
+                                    هیچ قالبی پیامکی یافت نشد.
                                 </td>
                             </tr>
                         @endforelse

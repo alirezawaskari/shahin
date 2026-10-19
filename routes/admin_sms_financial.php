@@ -15,8 +15,8 @@ Route::group([
     // Financial Routes
     Route::group(['prefix' => 'financial', 'as' => 'financial.'], function () {
         // OTP Balance
-        Route::get('/otp', [SmsFinancialController::class, 'otpView'])->name('otp.index')->middleware(EnsureSmsOtpAccess::class);
-        Route::post('/otp/topup', [SmsFinancialController::class, 'otpTopUp'])->name('otp.topup')->middleware(EnsureSmsOtpAccess::class);
+        Route::get('/otp', [SmsFinancialController::class, 'otpView'])->name('otp.index');
+        Route::post('/otp/topup', [SmsFinancialController::class, 'otpTopUp'])->name('otp.topup');
 
         // Advertising Balance
         Route::get('/advertising', [SmsFinancialController::class, 'advertisingView'])->name('advertising.index');
@@ -32,8 +32,8 @@ Route::group([
     // Report Routes
     Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
         // OTP Reports
-        Route::get('/otp', [SmsReportController::class, 'otpReport'])->name('otp.index')->middleware(EnsureSmsOtpAccess::class);
-        Route::get('/otp/export', [SmsReportController::class, 'otpReportExport'])->name('otp.export')->middleware(EnsureSmsOtpAccess::class);
+        Route::get('/otp', [SmsReportController::class, 'otpReport'])->name('otp.index');
+        Route::get('/otp/export', [SmsReportController::class, 'otpReportExport'])->name('otp.export');
 
         // Advertising Reports (per-sender)
         Route::get('/advertising', [SmsReportController::class, 'advertisingReport'])->name('advertising.index');

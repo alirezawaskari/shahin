@@ -1,12 +1,12 @@
 @extends('Admin.master')
 
-@section('title', 'ویرایش الگوی پیامک: ' . $template->title)
+@section('title', 'ویرایش قالبی پیامک: ' . $template->title)
 
 @section('content')
 <div class="container-fluid py-3">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h3 class="fw-bold mb-1">ویرایش الگوی پیامک: {{ $template->title }}</h3>
+            <h3 class="fw-bold mb-1">ویرایش قالبی پیامک: {{ $template->title }}</h3>
             <p class="text-muted small mb-0">هرگونه ویرایش متن به صورت خودکار در تاریخچه نگارش‌ها ثبت می‌شود.</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
@@ -39,11 +39,11 @@
             <div class="col-12 col-lg-7">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-white py-3">
-                        <h5 class="fw-bold mb-0">اطلاعات الگو</h5>
+                        <h5 class="fw-bold mb-0">اطلاعات قالب</h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">عنوان الگو <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">عنوان قالب <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control" value="{{ old('title', $template->title) }}" required>
                         </div>
 
@@ -79,7 +79,7 @@
                                 @endforeach
                             </select>
                             @error('otp_category')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            <div class="form-text">یکی از چهار دسته‌بندی ثابت سیستم؛ فقط برای الگوهای OTP.</div>
+                            <div class="form-text">یکی از چهار دسته‌بندی ثابت سیستم؛ فقط برای قالبهای OTP.</div>
                         </div>
                         @endif
 
@@ -114,7 +114,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">متن الگو <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold">متن قالب <span class="text-danger">*</span></label>
                             <textarea name="content" id="templateContent" class="form-control font-sans-serif" rows="6" required>{{ old('content', $template->content) }}</textarea>
                             <div class="d-flex justify-content-between text-muted small mt-1">
                                 <span>تعداد کاراکتر: <span id="charCount">0</span></span>
@@ -124,7 +124,7 @@
 
                         <div class="text-end pt-2">
                             <button type="submit" class="btn btn-primary px-4">
-                                <i class="fa fa-check me-1"></i> به‌روزرسانی الگو
+                                <i class="fa fa-check me-1"></i> به‌روزرسانی قالب
                             </button>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h5 class="fw-bold mb-0">
-                            <i class="fa fa-mobile fa-lg text-primary me-1"></i> پیش‌نمایش زنده الگو
+                            <i class="fa fa-mobile fa-lg text-primary me-1"></i> پیش‌نمایش زنده قالب
                         </h5>
                         <span class="badge bg-light text-dark border small" id="previewStatus">زنده</span>
                     </div>

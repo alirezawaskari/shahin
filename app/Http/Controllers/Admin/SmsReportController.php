@@ -102,8 +102,6 @@ class SmsReportController extends Controller
      */
     public function otpReport(Request $request): View|JsonResponse|RedirectResponse
     {
-        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
-
         if ($this->superAdminWithoutBusiness($request)) {
             $firstBusinessId = GhorfeOnlineList::query()->value('id');
             if ($firstBusinessId) {
@@ -143,8 +141,6 @@ class SmsReportController extends Controller
      */
     public function otpReportExport(Request $request): BinaryFileResponse|RedirectResponse
     {
-        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
-
         if ($redirect = $this->exportBusinessFallback($request)) {
             return $redirect;
         }

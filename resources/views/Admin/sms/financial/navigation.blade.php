@@ -21,14 +21,12 @@
 <div class="card mb-3 shadow-sm border-0 sms-financial-nav">
     <div class="card-body p-2">
         <ul class="nav nav-pills d-flex flex-row flex-nowrap overflow-x-auto gap-2 py-1" style="white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
-            @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
             <li class="nav-item flex-shrink-0">
                 <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.financial.otp.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
                    href="{{ route('admin.sms.financial.otp.index', $businessParam) }}">
                     <i class="fa fa-shield ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> اعتبار و تراکنش‌های OTP
                 </a>
             </li>
-            @endif
             <li class="nav-item flex-shrink-0">
                 <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.financial.advertising.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
                    href="{{ route('admin.sms.financial.advertising.index', $businessParam) }}">

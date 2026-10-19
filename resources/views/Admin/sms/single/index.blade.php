@@ -214,8 +214,8 @@
             <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-outline-primary btn-sm">
                 <i class="fa fa-users me-1"></i> ارسال انبوه
             </a>
-            <a href="{{ route('admin.sms.logs.index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fa fa-list me-1"></i> مشاهده لاگ‌ها
+            <a href="{{ route('admin.sms.reports.advertising.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa fa-bar-chart me-1"></i> گزارش پیامک‌ها
             </a>
         </div>
     </div>
