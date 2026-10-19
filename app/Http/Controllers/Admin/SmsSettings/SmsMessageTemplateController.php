@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Admin\SmsSettings;
 
+use App\Enums\SmsOtpCategory;
 use App\Http\Controllers\Controller;
 use App\Models\GhorfeOnlineList;
 use App\Models\SmsMessageGroup;
 use App\Models\SmsMessageTemplate;
+use App\Services\Sms\SmsAccessTierService;
 use App\Services\SmsSettings\SmsMessageGroupService;
 use App\Services\SmsSettings\SmsMessageTemplateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SmsMessageTemplateController extends Controller
@@ -37,6 +40,32 @@ class SmsMessageTemplateController extends Controller
     }
 
     /**
+     * OTP templates are staff-only: same audience as OTP sending (Titanium / superadmin).
+     */
+    protected function canManageOtpTemplates(): bool
+    {
+        return app(SmsAccessTierService::class)->canUseOtp(auth()->user());
+    }
+
+    /**
+     * Non-staff can neither see nor touch an existing OTP template.
+     */
+    protected function guardOtpTemplate(SmsMessageTemplate $template): void
+    {
+        if ($template->service_type === 'otp' && !$this->canManageOtpTemplates()) {
+            abort(403, 'مدیریت الگوهای OTP فقط برای مدیران سیستم مجاز است.');
+        }
+    }
+
+    /**
+     * Allowed service types for the submitted form.
+     */
+    protected function serviceTypeRule(): string
+    {
+        return $this->canManageOtpTemplates() ? 'required|in:otp,normal,advertising' : 'required|in:normal,advertising';
+    }
+
+    /**
      * Display listing of templates for the current business.
      */
     public function index(Request $request): View
@@ -45,7 +74,7 @@ class SmsMessageTemplateController extends Controller
         $all_businesses = auth()->user()?->isSuperAdmin() ? GhorfeOnlineList::select('id', 'title')->get() : collect();
 
         $filters = $request->only(['service_type', 'status', 'group_id', 'search', 'per_page']);
-        $templates = $this->templateService->list($filters, $business?->id);
+        $templates = $this->templateService->list($filters, $business?->id, $this->canManageOtpTemplates());
         $groups = $this->groupService->tree($business?->id);
 
         return view('Admin.sms.settings.templates.index', compact('templates', 'groups', 'filters', 'business', 'all_businesses'));
@@ -60,7 +89,11 @@ class SmsMessageTemplateController extends Controller
         $groupOptions = $this->groupService->options($business?->id);
         $groups = $this->groupService->tree($business?->id);
 
-        return view('Admin.sms.settings.templates.create', compact('groupOptions', 'groups', 'business'));
+        $otpCategories = $this->canManageOtpTemplates() ? SmsOtpCategory::options() : [];
+
+        $promotionalGroupIds = SmsMessageGroup::promotional()->pluck('id')->all();
+
+        return view('Admin.sms.settings.templates.create', compact('groupOptions', 'groups', 'business', 'otpCategories', 'promotionalGroupIds'));
     }
 
     /**
@@ -74,14 +107,20 @@ class SmsMessageTemplateController extends Controller
             'title' => 'required|string|max:191',
             'content' => 'required|string|max:1000',
             'sms_message_group_id' => 'nullable|exists:sms_message_groups,id',
-            'service_type' => 'required|in:otp,normal,advertising',
+            'service_type' => $this->serviceTypeRule(),
+            'otp_category' => ['nullable', 'required_if:service_type,otp', Rule::in(SmsOtpCategory::values())],
             'status' => 'required|in:active,inactive',
         ], [
+            'otp_category.required_if' => 'برای الگوی OTP انتخاب دسته‌بندی سیستمی الزامی است.',
+            'otp_category.in' => 'دسته‌بندی OTP انتخاب‌شده معتبر نیست.',
             'title.required' => 'عنوان الگو الزامی است.',
             'content.required' => 'متن الگو الزامی است.',
             'service_type.required' => 'نوع سرویس الگو را مشخص کنید.',
+            'service_type.in' => 'نوع سرویس انتخاب‌شده برای شما مجاز نیست.',
             'status.required' => 'وضعیت الگو را مشخص کنید.',
         ]);
+
+        $this->assertPromotionalGroup($validated);
 
         // Security: verify chosen group belongs to the same business
         if (!empty($validated['sms_message_group_id']) && $business) {
@@ -102,9 +141,24 @@ class SmsMessageTemplateController extends Controller
     /**
      * Show form for editing a template.
      */
+    /**
+     * Non-OTP templates (promotional / normal) only support the promotional subject groups;
+     * OTP templates keep the full tree (they use fixed OTP categories on top).
+     */
+    private function assertPromotionalGroup(array $validated): void
+    {
+        if (($validated['service_type'] ?? null) !== 'otp'
+            && !SmsMessageGroup::isPromotionalId($validated['sms_message_group_id'] ?? null)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'sms_message_group_id' => 'دسته‌بندی موضوعی انتخاب‌شده برای الگوی تبلیغاتی مجاز نیست (فقط مناسبتی/تبریک، فروش و پشتیبانی).',
+            ]);
+        }
+    }
+
     public function edit(Request $request, SmsMessageTemplate $template): View
     {
         $business = $this->resolveBusiness($request);
+        $this->guardOtpTemplate($template);
 
         // Security: customer cannot edit another customer's template
         if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
@@ -115,7 +169,11 @@ class SmsMessageTemplateController extends Controller
         $groupOptions = $this->groupService->options($targetBizId);
         $groups = $this->groupService->tree($targetBizId);
 
-        return view('Admin.sms.settings.templates.edit', compact('template', 'groupOptions', 'groups', 'business'));
+        $otpCategories = $this->canManageOtpTemplates() ? SmsOtpCategory::options() : [];
+
+        $promotionalGroupIds = SmsMessageGroup::promotional()->pluck('id')->all();
+
+        return view('Admin.sms.settings.templates.edit', compact('template', 'groupOptions', 'groups', 'business', 'otpCategories', 'promotionalGroupIds'));
     }
 
     /**
@@ -124,6 +182,7 @@ class SmsMessageTemplateController extends Controller
     public function update(Request $request, SmsMessageTemplate $template): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
+        $this->guardOtpTemplate($template);
 
         // Security: customer cannot update another customer's template
         if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
@@ -134,14 +193,23 @@ class SmsMessageTemplateController extends Controller
             'title' => 'required|string|max:191',
             'content' => 'required|string|max:1000',
             'sms_message_group_id' => 'nullable|exists:sms_message_groups,id',
-            'service_type' => 'required|in:otp,normal,advertising',
+            'service_type' => $this->serviceTypeRule(),
+            'otp_category' => ['nullable', 'required_if:service_type,otp', Rule::in(SmsOtpCategory::values())],
             'status' => 'required|in:active,inactive',
         ], [
+            'otp_category.required_if' => 'برای الگوی OTP انتخاب دسته‌بندی سیستمی الزامی است.',
+            'otp_category.in' => 'دسته‌بندی OTP انتخاب‌شده معتبر نیست.',
             'title.required' => 'عنوان الگو الزامی است.',
             'content.required' => 'متن الگو الزامی است.',
             'service_type.required' => 'نوع سرویس الگو را مشخص کنید.',
+            'service_type.in' => 'نوع سرویس انتخاب‌شده برای شما مجاز نیست.',
             'status.required' => 'وضعیت الگو را مشخص کنید.',
         ]);
+
+        // An unchanged legacy group stays editable; a newly chosen one must be promotional (non-OTP).
+        if ((int) ($validated['sms_message_group_id'] ?? 0) !== (int) $template->sms_message_group_id) {
+            $this->assertPromotionalGroup($validated);
+        }
 
         $this->templateService->update($template, $validated, Auth::id());
 
@@ -157,6 +225,7 @@ class SmsMessageTemplateController extends Controller
     public function destroy(Request $request, SmsMessageTemplate $template): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
+        $this->guardOtpTemplate($template);
 
         // Security: customer cannot delete another customer's template
         if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
@@ -194,6 +263,7 @@ class SmsMessageTemplateController extends Controller
     public function toggleStatus(Request $request, SmsMessageTemplate $template): JsonResponse|RedirectResponse
     {
         $business = $this->resolveBusiness($request);
+        $this->guardOtpTemplate($template);
 
         // Security: customer cannot toggle another customer's template
         if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {
@@ -219,6 +289,7 @@ class SmsMessageTemplateController extends Controller
     public function history(Request $request, SmsMessageTemplate $template): View
     {
         $business = $this->resolveBusiness($request);
+        $this->guardOtpTemplate($template);
 
         // Security: customer cannot view history of another customer's template
         if ($template->ghorfe_online_list_id && $business && $template->ghorfe_online_list_id !== $business->id && !auth()->user()?->isSuperAdmin()) {

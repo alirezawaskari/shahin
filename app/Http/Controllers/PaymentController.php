@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\sendlinkFactor;
+use App\Lib\BankVerifier;
 use App\Lib\zarinpal;
+use App\Services\Sms\SmsTopUpCallbackHandler;
 use App\Lib\saman;
 use App\Models\Employee;
 use App\Models\Factor;
@@ -139,19 +141,12 @@ class PaymentController extends Controller
     protected function handleZarinpalCallback(Request $request)
     {
         $Authority = $request->get('Authority') ;
+        if ($smsResponse = app(SmsTopUpCallbackHandler::class)->handleZarinpal($request)) {
+            return $smsResponse;
+        }
         $factor = Factor::where('factorable_type', $Authority)->firstOrFail();
         if ($request->get('Status') == 'OK') {
-            $client = new nusoap_client(config( 'services.zarinpal.url' ).'/pg/services/WebGate/wsdl', 'wsdl');
-            $client->soap_defencoding = 'UTF-8';
-            //در خط زیر یک درخواست به زرین پال ارسال می کنیم تا از صحت پرداخت کاربر مطمئن شویم
-            $result = $client->call('PaymentVerification', [
-                [
-                    //این مقادیر را به سایت زرین پال برای دریافت تاییدیه نهایی ارسال می کنیم
-                    'MerchantID'     => config( 'services.zarinpal.id' ),
-                    'Authority'      => $Authority,
-                    'Amount'         => $factor->price/10,
-                ],
-            ]);
+            $result = app(BankVerifier::class)->zarinpal($Authority, $factor->price/10);
 
             if ($result['Status'] == 100) {
                 $factor->update([
@@ -183,6 +178,9 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
     {
         try {
 
+            if ($smsResponse = app(SmsTopUpCallbackHandler::class)->handleSaman($request)) {
+                return $smsResponse;
+            }
             $token = $request->get('Token');
             $State = $request->get('State');
 			$RefNum = $request->get('RefNum', $request->get('RefNum'));
@@ -194,14 +192,7 @@ return 'عضو محترم شبکه لاله ؛ در حال حاضر اتصال �
                     اداره کل فناوری و‌اطلاعات سجا
                     شبکه خدمات درمانی و‌رفاهی لاله';
             }
-            $response = \Illuminate\Support\Facades\Http::post('https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTranscation', [
-                'TerminalNumber' => '14541809',
-                'RefNum' => $RefNum,
-                'IgnoreNationalcode' => true,
-                'NationalCode' => '',
-            ]);
-            $jsonResponse = $response->body();
-            $data = json_decode($jsonResponse, true);
+            $data = app(BankVerifier::class)->saman($RefNum);
 
 
             $transaction_detail = $data['TransactionDetail'];

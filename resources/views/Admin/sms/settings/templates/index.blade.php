@@ -53,7 +53,9 @@
                     <select name="service_type" class="form-select">
                         <option value="all">همه انواع سرویس</option>
                         <option value="normal" {{ ($filters['service_type'] ?? '') === 'normal' ? 'selected' : '' }}>عادی</option>
+                        @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
                         <option value="otp" {{ ($filters['service_type'] ?? '') === 'otp' ? 'selected' : '' }}>کد تایید (OTP)</option>
+                        @endif
                         <option value="advertising" {{ ($filters['service_type'] ?? '') === 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
                     </select>
                 </div>
@@ -112,6 +114,9 @@
                                 <td class="ps-3">{{ $tmpl->id }}</td>
                                 <td class="fw-bold">
                                     {{ $tmpl->title }}
+                                    @if(!$business && $tmpl->business)
+                                        <div class="small fw-normal text-muted">{{ $tmpl->business->title }}</div>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($tmpl->group)
@@ -129,6 +134,9 @@
                                 <td>
                                     @if($tmpl->service_type === 'otp')
                                         <span class="badge bg-warning text-dark">OTP</span>
+                                        @if($tmpl->otp_category)
+                                            <span class="badge bg-light text-dark border">{{ \App\Enums\SmsOtpCategory::labelFor($tmpl->otp_category) }}</span>
+                                        @endif
                                     @elseif($tmpl->service_type === 'advertising')
                                         <span class="badge bg-info text-dark">تبلیغاتی</span>
                                     @else

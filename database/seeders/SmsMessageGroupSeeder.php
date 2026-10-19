@@ -9,6 +9,10 @@ class SmsMessageGroupSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * Canonical spellings (with ZWNJ) match migration 2026_10_12_000002 and
+     * SmsMessageGroupService::ensureDefaultGroupsForBusiness(); keep all three in sync, otherwise the
+     * same group shows up under two spellings across businesses.
      */
     public function run(): void
     {
@@ -17,7 +21,7 @@ class SmsMessageGroupSeeder extends Seeder
                 'name' => 'مالی',
                 'slug' => 'mali',
                 'subgroups' => [
-                    ['name' => 'واریز پیشپرداخت', 'slug' => 'variz-pish-pardakht'],
+                    ['name' => 'واریز پیش‌پرداخت', 'slug' => 'variz-pish-pardakht'],
                     ['name' => 'پرداخت فاکتور', 'slug' => 'pardakht-factor'],
                 ],
             ],
@@ -40,7 +44,7 @@ class SmsMessageGroupSeeder extends Seeder
                 'name' => 'اجرایی',
                 'slug' => 'ejraei',
                 'subgroups' => [
-                    ['name' => 'نوبتدهی', 'slug' => 'nobat-dehi'],
+                    ['name' => 'نوبت‌دهی', 'slug' => 'nobat-dehi'],
                     ['name' => 'تأیید جلسه', 'slug' => 'taeed-jalase'],
                 ],
             ],
@@ -49,6 +53,14 @@ class SmsMessageGroupSeeder extends Seeder
                 'slug' => 'foroush',
                 'subgroups' => [
                     ['name' => 'پیگیری مشتری', 'slug' => 'peygiri-moshtari'],
+                ],
+            ],
+            [
+                'name' => 'مناسبتی/تبریک',
+                'slug' => 'monasebati',
+                'subgroups' => [
+                    ['name' => 'تبریک مناسبت‌ها', 'slug' => 'tabrik-monasebat'],
+                    ['name' => 'تعطیلات و جشن‌ها', 'slug' => 'tatilat-va-jashn'],
                 ],
             ],
         ];

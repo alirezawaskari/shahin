@@ -95,7 +95,7 @@
                             @endif
                         </td>
                         <td>{{ number_format((float) $camp->cost_estimate) }} ریال</td>
-                        <td>{{ $camp->created_at->format('Y/m/d H:i') }}</td>
+                        <td>{{ \App\Helpers\Helper::jalaliDate($camp->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                         <td>
                             <a href="{{ route('admin.sms.ai.campaigns.show', $camp) }}" class="btn btn-sm btn-outline-primary py-0 px-2" title="مشاهده وضعیت">
                                 <i class="fa fa-eye"></i> جزئیات

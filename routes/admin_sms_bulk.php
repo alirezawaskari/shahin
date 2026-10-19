@@ -12,6 +12,10 @@ Route::group([
     Route::post('/preview', [SmsBulkSendController::class, 'preview'])->name('preview');
     Route::post('/send', [SmsBulkSendController::class, 'send'])->name('send');
     Route::post('/excel-numbers', [SmsBulkSendController::class, 'parseExcel'])->name('excel');
+    Route::post('/queue/save', [SmsBulkSendController::class, 'saveToQueue'])->name('queue.save');
+    Route::get('/queue', [SmsBulkSendController::class, 'queue'])->name('queue');
+    Route::post('/queue/{campaign}/send', [SmsBulkSendController::class, 'sendQueued'])->name('queue.send');
+    Route::delete('/queue/{campaign}', [SmsBulkSendController::class, 'destroyQueued'])->name('queue.destroy');
     Route::get('/campaigns', [SmsBulkSendController::class, 'campaigns'])->name('campaigns');
     Route::get('/campaigns/{campaign}', [SmsBulkSendController::class, 'statusView'])->name('campaigns.show');
     Route::get('/campaigns/{campaign}/status', [SmsBulkSendController::class, 'statusApi'])->name('campaigns.status');

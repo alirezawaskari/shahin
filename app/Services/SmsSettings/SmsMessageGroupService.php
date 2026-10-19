@@ -17,7 +17,7 @@ class SmsMessageGroupService
         return SmsMessageGroup::query()
             ->whereNull('parent_id')
             ->when($businessId, fn($q) => $q->where('ghorfe_online_list_id', $businessId))
-            ->with(['children' => function ($q) use ($businessId) {
+            ->with(['business:id,title', 'children' => function ($q) use ($businessId) {
                 $q->when($businessId, fn($sq) => $sq->where('ghorfe_online_list_id', $businessId))
                   ->withCount('templates');
             }])
@@ -33,7 +33,7 @@ class SmsMessageGroupService
     {
         $roots = SmsMessageGroup::whereNull('parent_id')
             ->when($businessId, fn($q) => $q->where('ghorfe_online_list_id', $businessId))
-            ->with(['children' => function ($q) use ($businessId) {
+            ->with(['business', 'children' => function ($q) use ($businessId) {
                 $q->when($businessId, fn($sq) => $sq->where('ghorfe_online_list_id', $businessId));
             }])
             ->orderBy('name')
@@ -41,9 +41,11 @@ class SmsMessageGroupService
 
         $options = [];
         foreach ($roots as $root) {
-            $options[$root->id] = $root->name;
+            // Cross-business listing (no business pinned): tell identical-looking groups apart.
+            $rootLabel = (!$businessId && $root->business) ? "{$root->name} ({$root->business->title})" : $root->name;
+            $options[$root->id] = $rootLabel;
             foreach ($root->children as $child) {
-                $options[$child->id] = "— {$child->name} ({$root->name})";
+                $options[$child->id] = "— {$child->name} ({$rootLabel})";
             }
         }
 

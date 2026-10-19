@@ -3,6 +3,7 @@
 @section('title', 'ارسال پیامک انبوه و کمپین‌ها')
 
 @section('css')
+<link rel="stylesheet" href="{{ asset('assets/dashboard/css/sms-forms.css') }}">
 <style>
     .tier-badge {
         display: inline-flex;
@@ -85,7 +86,7 @@
         padding: 14px;
         cursor: pointer;
         transition: all 0.2s;
-        margin-bottom: 10px;
+        height: 100%;
     }
     .sender-radio-card:hover {
         border-color: #94a3b8;
@@ -220,7 +221,7 @@
                 default => 'tier-silver',
             };
             $tierLabel = match($userTier) {
-                'titanium' => 'تیتانیومی (Titanium)',
+                'titanium' => 'تیتانیوم (Titanium)',
                 'diamond' => 'الماسی (Diamond)',
                 'gold' => 'طلایی (Gold)',
                 default => 'نقره‌ای (Silver)',
@@ -231,6 +232,12 @@
         </div>
         <a href="{{ route('admin.sms.bulk.campaigns') }}" class="btn btn-outline-secondary btn-sm">
             <i class="fa fa-list me-1"></i> تاریخچه کمپین‌ها
+        </a>
+        <a href="{{ route('admin.sms.bulk.queue') }}" class="btn btn-outline-warning btn-sm text-dark">
+            <i class="fa fa-clock-o me-1"></i> صف ارسال
+            @if(($queuedCount ?? 0) > 0)
+                <span class="badge bg-warning text-dark">{{ number_format($queuedCount) }}</span>
+            @endif
         </a>
         <a href="{{ route('admin.sms.single.index') }}" class="btn btn-outline-primary btn-sm">
             <i class="fa fa-envelope me-1"></i> ارسال تکی
@@ -258,35 +265,38 @@
 
 <form id="bulkSmsForm" method="POST" action="{{ route('admin.sms.bulk.send') }}">
     @csrf
+    {{-- «کاهش تعداد مخاطبین» cap (re-validated against the balance server-side) and the queue entry being resumed --}}
+    <input type="hidden" name="max_recipients" id="max_recipients" value="">
+    <input type="hidden" name="queue_id" id="queue_id" value="{{ $queuedCampaign?->id }}">
     <div class="row">
         <!-- Main Form Column -->
         <div class="col-lg-8">
             <!-- 1. Recipient Type & Target Audience -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <span class="badge bg-primary me-2">۱</span> انتخاب نوع مخاطبان و فیلترهای هدفمند
+            <div class="card sms-section">
+                <div class="card-header">
+                    <h6 class="sms-section-title">
+                        <span class="badge bg-primary">۱</span> انتخاب نوع مخاطبان و فیلترهای هدفمند
                     </h6>
                 </div>
                 <div class="card-body">
                     <!-- Recipient Type Toggle -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold small text-muted">نوع مخاطبان:</label>
-                        <div class="d-flex gap-3">
-                            <div class="form-check form-check-inline border rounded p-2 px-3 flex-fill">
+                    <div class="sms-field">
+                        <span class="sms-label">نوع مخاطبان</span>
+                        <div class="sms-choice-row">
+                            <label class="sms-choice fw-semibold" for="type_normal">
                                 <input class="form-check-input" type="radio" name="recipient_type" id="type_normal" value="normal" checked>
-                                <label class="form-check-label fw-semibold" for="type_normal">
+                                <span>
                                     <i class="fa fa-users text-primary me-1"></i> مخاطبان عادی / مشتریان
-                                    <div class="text-muted small fw-normal">مشتریان ثبت‌شده و مرتبط با کسب‌وکار (کلیه سطوح)</div>
-                                </label>
-                            </div>
-                            <div class="form-check form-check-inline border rounded p-2 px-3 flex-fill">
+                                    <small>مشتریان ثبت‌شده و مرتبط با کسب‌وکار (کلیه سطوح)</small>
+                                </span>
+                            </label>
+                            <label class="sms-choice fw-semibold {{ in_array($userTier, ['diamond', 'titanium']) ? '' : 'text-muted' }}" for="type_advertising">
                                 <input class="form-check-input" type="radio" name="recipient_type" id="type_advertising" value="advertising" {{ in_array($userTier, ['diamond', 'titanium']) ? '' : 'disabled' }}>
-                                <label class="form-check-label fw-semibold {{ in_array($userTier, ['diamond', 'titanium']) ? '' : 'text-muted' }}" for="type_advertising">
+                                <span>
                                     <i class="fa fa-bullhorn text-warning me-1"></i> مخاطبان تبلیغاتی / انبوه
-                                    <div class="text-muted small fw-normal">بانک شماره‌های تبلیغاتی (نیازمند سطح الماس یا تیتانیوم)</div>
-                                </label>
-                            </div>
+                                    <small>بانک شماره‌های تبلیغاتی (نیازمند سطح الماس یا تیتانیوم)</small>
+                                </span>
+                            </label>
                         </div>
                         @if(!in_array($userTier, ['diamond', 'titanium']))
                             <div class="alert alert-warning py-1 px-2 mt-2 small mb-0">
@@ -296,7 +306,7 @@
                     </div>
 
                     <!-- Audience Filter Section (Requests Filter) -->
-                    <div class="p-3 bg-light rounded border mb-3">
+                    <div class="sms-subbox">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold text-dark small">
                                 <i class="fa fa-filter text-primary me-1"></i> فیلتر مخاطبان (بر اساس پرونده‌ها و درخواست‌ها):
@@ -370,25 +380,25 @@
                                 <i class="fa fa-calculator text-primary me-1"></i> نتیجه پالایش و اعتبارسنجی شماره‌ها:
                             </h6>
                             <div class="row g-2 text-center">
-                                <div class="col-3">
+                                <div class="col-6 col-md-3">
                                     <div class="stat-card stat-card-total p-2">
                                         <div class="text-muted small">کل شماره‌ها</div>
                                         <div class="stat-value text-secondary" id="stat_total">۰</div>
                                     </div>
                                 </div>
-                                <div class="col-3">
+                                <div class="col-6 col-md-3">
                                     <div class="stat-card stat-card-valid p-2">
                                         <div class="stat-label">شماره‌های معتبر نهایی</div>
                                         <div class="stat-value" id="stat_valid">۰</div>
                                     </div>
                                 </div>
-                                <div class="col-3">
+                                <div class="col-6 col-md-3">
                                     <div class="stat-card stat-card-invalid p-2">
                                         <div class="stat-label">شماره‌های نامعتبر</div>
                                         <div class="stat-value" id="stat_invalid">۰</div>
                                     </div>
                                 </div>
-                                <div class="col-3">
+                                <div class="col-6 col-md-3">
                                     <div class="stat-card stat-card-duplicate p-2">
                                         <div class="stat-label">تکراری (حذف‌شده)</div>
                                         <div class="stat-value" id="stat_duplicate">۰</div>
@@ -403,113 +413,84 @@
             </div>
 
             <!-- 2. Message Composition & Template -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <span class="badge bg-primary me-2">۲</span> تنظیم متن پیامک و قالب
+            <div class="card sms-section">
+                <div class="card-header">
+                    <h6 class="sms-section-title">
+                        <span class="badge bg-primary">۲</span> تنظیم متن پیامک و قالب
                     </h6>
                 </div>
                 <div class="card-body">
-                    {{-- Message Category / Folders & Type (Classified / Regular) --}}
-                    <div class="row mb-3 p-3 bg-light rounded border g-3">
-                        <div class="col-md-7">
-                            <label class="form-label fw-bold text-dark small mb-1">
-                                <i class="fa fa-folder text-primary ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> دسته‌بندی موضوعی / پوشه پیام:
-                            </label>
-                            <select name="sms_message_group_id" id="messageGroupSelect" class="form-select form-select-sm">
-                                <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
-                                @if(isset($groups))
-                                    @foreach($groups as $grp)
-                                        <optgroup label="📁 {{ $grp->name }}">
-                                            <option value="{{ $grp->id }}" data-slug="{{ $grp->slug }}" data-confidential="{{ $grp->isConfidential() ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
-                                                {{ $grp->name }} (دسته اصلی)
-                                            </option>
-                                            @foreach($grp->subgroups as $sub)
-                                                <option value="{{ $sub->id }}" data-slug="{{ $sub->slug }}" data-confidential="{{ ($sub->isConfidential() || $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
-                                                    {{ $grp->name }} › {{ $sub->name }}
+                    {{-- Message Category / Folders. Bulk messages are always promotional: no classification field. --}}
+                    <div class="sms-subbox">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="sms-label" for="messageGroupSelect">
+                                    <i class="fa fa-folder text-primary me-1"></i> دسته‌بندی موضوعی / پوشه پیام
+                                </label>
+                                <select name="sms_message_group_id" id="messageGroupSelect" class="form-select">
+                                    <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
+                                    @if(isset($groups))
+                                        @foreach($groups as $grp)
+                                            <optgroup label="📁 {{ $grp->name }}">
+                                                <option value="{{ $grp->id }}" data-slug="{{ $grp->slug }}" data-confidential="{{ $grp->isConfidential() ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
+                                                    {{ $grp->name }} (دسته اصلی)
                                                 </option>
-                                            @endforeach
-                                        </optgroup>
-                                    @endforeach
-                                @endif
-                            </select>
-                            <div class="form-text small text-muted">
-                                سازمان‌دهی پیام در پوشه‌های موضوعی (اجرایی، پشتیبانی، حقوقی، مالی، فروش و زیرگروه‌ها)
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label fw-bold text-dark small mb-1">
-                                <i class="fa fa-shield text-info ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> نوع پیام (سطح طبقه‌بندی):
-                            </label>
-                            <div class="d-flex gap-2 p-1 border rounded bg-white mt-1">
-                                <div class="form-check flex-fill text-center p-2 mb-0 border rounded bg-light" id="typeRegularWrapper">
-                                    <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" checked readonly>
-                                    <label class="form-check-label small fw-semibold cursor-pointer" for="typeRegular">
-                                        <i class="fa fa-envelope-o text-secondary ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> عادی (تبلیغاتی)
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-text small mt-1" id="classificationHint">
-                                <span class="text-success"><i class="fa fa-check-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های تبلیغاتی منحصراً دارای طبقه‌بندی عادی هستند. طبقه‌بندی محرمانه تنها برای پیامک‌های OTP مجاز است.</span>
+                                                @foreach($grp->subgroups as $sub)
+                                                    <option value="{{ $sub->id }}" data-slug="{{ $sub->slug }}" data-confidential="{{ ($sub->isConfidential() || $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
+                                                        {{ $grp->name }} › {{ $sub->name }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                <div class="sms-hint">سازمان‌دهی پیام در پوشه‌های موضوعی (مناسبتی و تبریک، فروش، پشتیبانی و زیرگروه‌ها)</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">انتخاب از قالب‌های ذخیره‌شده:</label>
-                            <select name="sms_message_template_id" id="sms_message_template_id" class="form-select form-select-sm">
-                                <option value="">-- بدون قالب (تایپ متن دلخواه) --</option>
-                                @foreach($templates as $tmpl)
-                                    <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
-                                        {{ $tmpl->title }} ({{ $tmpl->group?->name ?? 'عمومی' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 d-flex align-items-end">
-                            <div class="small text-muted mb-1">
-                                <i class="fa fa-info-circle"></i>
-                                عبارت الزامی مخابراتی «لغو ۱۱» همواره و بدون امکان غیرفعال‌سازی به انتهای پیامک افزوده می‌شود.
-                            </div>
-                        </div>
+                    <div class="sms-field">
+                        <label class="sms-label" for="sms_message_template_id">انتخاب از قالب‌های ذخیره‌شده</label>
+                        <select name="sms_message_template_id" id="sms_message_template_id" class="form-select">
+                            <option value="">-- بدون قالب (تایپ متن دلخواه) --</option>
+                            @foreach($templates as $tmpl)
+                                <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
+                                    {{ $tmpl->title }} ({{ $tmpl->group?->name ?? 'عمومی' }})
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">متن پیامک:</label>
-                        <textarea name="message" id="sms_message" rows="4" class="form-control" placeholder="متن پیامک تبلیغاتی یا اطلاع‌رسانی خود را بنویسید..."></textarea>
-                    </div>
-
-                    <div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-2 rounded small">
-                        <div>
-                            کاراکترها: <strong id="char_count" class="text-primary">۰</strong>
-                            <span class="text-muted small" id="char_count_breakdown" style="display: none;"></span> |
-                            تعداد بخش (صفحه): <strong id="page_count" class="text-primary">۱</strong> |
-                            باقیمانده تا صفحه بعد: <strong id="remaining_count" class="text-primary">۷۰</strong> |
-                            نوع رمزگذاری: <span id="encoding_type" class="badge bg-secondary">Unicode (فارسی)</span>
-                        </div>
-                        <div>
-                            تعرفه هر صفحه: <strong class="text-dark">۱,۲۰۰ ریال</strong>
-                        </div>
-                    </div>
+                    {{-- Shared editor: textarea + dynamic-parameter chips + live counter --}}
+                    @include('Admin.sms.partials.message-editor', [
+                        'editorLabel' => 'متن پیامک',
+                        'id' => 'sms_message',
+                        'name' => 'message',
+                        'value' => '',
+                        'rows' => 6,
+                        'placeholder' => 'متن پیامک تبلیغاتی یا اطلاع‌رسانی خود را بنویسید...',
+                        'costPerPage' => $costPerPage,
+                        'advertising' => true,
+                        'chips' => [],
+                    ])
                 </div>
             </div>
 
             <!-- 3. Advertising Sender Number & Cost Estimate -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <span class="badge bg-primary me-2">۳</span> انتخاب شماره فرستنده تبلیغاتی و بررسی مالی
+            <div class="card sms-section">
+                <div class="card-header">
+                    <h6 class="sms-section-title">
+                        <span class="badge bg-primary">۳</span> انتخاب شماره فرستنده تبلیغاتی و بررسی مالی
                     </h6>
                 </div>
                 <div class="card-body">
-                    <label class="form-label small fw-bold mb-2">شماره‌های تبلیغاتی تخصیص‌یافته به کسب‌وکار:</label>
+                    <span class="sms-label">شماره‌های تبلیغاتی تخصیص‌یافته به کسب‌وکار</span>
                     @if($advertisingNumbers->isEmpty())
                         <div class="alert alert-danger mb-3">
                             <i class="fa fa-exclamation-triangle me-1"></i> هیچ شماره اختصاصی تبلیغاتی به این کسب‌وکار تخصیص داده نشده است. لطفا با پشتیبانی تماس بگیرید.
                         </div>
                     @else
-                        <div class="row g-2 mb-3">
+                        <div class="row g-3 mb-3">
                             @foreach($advertisingNumbers as $index => $sender)
                                 <div class="col-md-6">
                                     <div class="sender-radio-card {{ $index === 0 ? 'active' : '' }}" onclick="selectSenderNumber({{ $sender->id }})">
@@ -538,16 +519,16 @@
                     @endif
 
                     <!-- Financial Summary & Balance Check Box -->
-                    <div id="financialSummaryCard" class="p-3 rounded border bg-light">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 border-end">
+                    <div id="financialSummaryCard" class="sms-summary">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-4">
                                 <div class="text-muted small">هزینه هر پیامک:</div>
                                 <div class="fw-bold text-dark fs-6" id="cost_per_sms">۰ ریال</div>
                             </div>
-                            <div class="col-md-4 border-end">
+                            <div class="col-md-4">
                                 <div class="text-muted small">هزینه تخمینی کل کمپین:</div>
                                 <div class="fw-bold text-primary fs-5" id="campaign_total_cost">۰ ریال</div>
-                                <div class="text-muted small" style="font-size: 11px;">(مخاطبین معتبر × صفحات × ۱,۲۰۰ ریال)</div>
+                                <div class="text-muted small" style="font-size: 11px;">(مخاطبین معتبر × صفحات × تعرفه هر صفحه)</div>
                             </div>
                             <div class="col-md-4">
                                 <div id="balanceSufficiencyStatus">
@@ -574,10 +555,18 @@
                                     </p>
                                 </div>
                             </div>
-                            <div>
+                            <div class="d-flex flex-column gap-2">
                                 <button type="button" class="btn btn-warning text-dark fw-bold btn-sm px-3 shadow-sm text-nowrap" id="btnOpenQuickPaymentFromCallout" onclick="openQuickPaymentGate()">
                                     <i class="fa fa-bolt me-1"></i> اتصال به درگاه پرداخت سریع
                                 </button>
+                                <div id="insufficientBalanceActions" class="d-flex flex-column gap-2" style="display: none !important;">
+                                    <button type="button" class="btn btn-outline-primary btn-sm fw-bold text-nowrap" id="btnReduceRecipients" onclick="reduceRecipients()">
+                                        <i class="fa fa-users me-1"></i> کاهش تعداد مخاطبین
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm fw-bold text-nowrap" onclick="reopenAudienceFilter()">
+                                        <i class="fa fa-filter me-1"></i> فیلتر مجدد
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -585,10 +574,10 @@
             </div>
 
             <!-- 4. Scheduling & Confirmation -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <h6 class="fw-bold mb-0 text-dark">
-                        <span class="badge bg-primary me-2">۴</span> زمان ارسال و تأیید نهایی
+            <div class="card sms-section">
+                <div class="card-header">
+                    <h6 class="sms-section-title">
+                        <span class="badge bg-primary">۴</span> زمان ارسال و تأیید نهایی
                     </h6>
                 </div>
                 <div class="card-body">
@@ -616,6 +605,9 @@
                         <button type="submit" id="btnLaunchCampaign" class="btn btn-success btn-lg fw-bold" {{ $advertisingNumbers->isEmpty() ? 'disabled' : '' }}>
                             <i class="fa fa-send me-2"></i> تأیید و ثبت کمپین پیامکی
                         </button>
+                        <button type="button" id="btnSaveToQueue" class="btn btn-outline-warning text-dark fw-bold mt-2">
+                            <i class="fa fa-clock-o me-2"></i> ذخیره در صف ارسال
+                        </button>
                     </div>
                 </div>
             </div>
@@ -641,7 +633,6 @@
                         <div class="phone-chat-body">
                             <div class="sms-bubble">
                                 <div id="phoneBubbleText">متن پیامک شما اینجا نمایش داده خواهد شد...</div>
-                                <div class="sms-opt-out" id="phoneBubbleOptOut">لغو 11</div>
                             </div>
                         </div>
                     </div>
@@ -662,7 +653,7 @@
 </form>
 
 {{-- The requests-filter pop-up lives OUTSIDE #bulkSmsForm: its fields are criteria, not form fields. --}}
-@include('Admin.callcenter.partials.filter-modal')
+@include('Admin.callcenter.partials.filter-modal', ['restrictUsersToBusiness' => $business ?? null])
 
 <!-- Quick Payment Gate Modal (مودال درگاه پرداخت سریع) -->
 <div class="modal fade" id="quickPaymentModal" tabindex="-1" aria-labelledby="quickPaymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -787,6 +778,12 @@
             </div>
             <div class="modal-footer bg-light border-top py-3">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-outline-primary fw-bold" id="qpBtnReduceRecipients" onclick="reduceRecipients()" style="display: none;">
+                    <i class="fa fa-users me-1"></i> کاهش تعداد مخاطبین
+                </button>
+                <button type="button" class="btn btn-outline-secondary fw-bold" onclick="reopenAudienceFilter()">
+                    <i class="fa fa-filter me-1"></i> فیلتر مجدد
+                </button>
                 <button type="button" class="btn btn-success fw-bold px-4" id="btnExecuteQuickPay" onclick="executeQuickPayment()">
                     <i class="fa fa-shield me-1"></i> پرداخت و افزایش آنی موجودی
                 </button>
@@ -801,10 +798,16 @@
 <script src="{{ asset('assets/dashboard/js/requestFilterPicker.js?v=1.0') }}"></script>
 <script src="{{ asset('assets/dashboard/js/excelNumbers.js?v=1.0') }}"></script>
 <script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
+<script src="{{ asset('assets/dashboard/js/sms-message-editor.js') }}"></script>
 <script>
     // Dynamic parameter tokens inside a selected template render as styled,
     // non-text-editable chips instead of raw "{...}" text.
-    const bulkMessageChipEditor = SmsParamChips.attach(document.getElementById('sms_message'), []);
+    // Tariff per SMS page, from config('services.sms.cost_per_page') — used by the live estimate.
+    const COST_PER_PAGE = @json($costPerPage);
+
+    // Shared editor: owns the chip editor + the in-field counter (chars / remaining / pages / encoding).
+    const bulkSmsEditor = SmsMessageEditor.get('sms_message');
+    const bulkMessageChipEditor = bulkSmsEditor.chips;
 
     function selectSenderNumber(id) {
         document.querySelectorAll('.sender-radio-card').forEach(el => el.classList.remove('active'));
@@ -839,158 +842,23 @@
         const groupId = selected.getAttribute('data-group-id');
         if (groupId && messageGroupSelect) {
             messageGroupSelect.value = groupId;
-            updateClassificationFromGroup();
         }
     });
 
-    // Message Category (Group) & Classification Type Reaction
+    // Subject category (دسته‌بندی موضوعی). Bulk messages are always promotional: no classification.
     const messageGroupSelect = document.getElementById('messageGroupSelect');
-    const typeRegular = document.getElementById('typeRegular');
-    const typeClassified = document.getElementById('typeClassified');
-    const classificationHint = document.getElementById('classificationHint');
 
-    function updateClassificationFromGroup() {
-        if (!messageGroupSelect) return;
-        const selected = messageGroupSelect.selectedOptions[0];
-        if (!selected || !selected.value) {
-            if (classificationHint) {
-                classificationHint.innerHTML = '<span class="text-muted"><i class="fa fa-info-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های مالی و حقوقی به‌طور خودکار «محرمانه» تعیین می‌شوند.</span>';
-            }
-            return;
-        }
-
-        const isConfidential = selected.getAttribute('data-confidential') === '1';
-        const slug = (selected.getAttribute('data-slug') || '').toLowerCase();
-
-        // hoghoghi / mali are by default classified
-        if (isConfidential || slug === 'hoghoghi' || slug === 'mali' || slug.includes('hoghoghi') || slug.includes('mali')) {
-            if (typeClassified) typeClassified.checked = true;
-            if (classificationHint) {
-                classificationHint.innerHTML = '<span class="text-danger fw-bold"><i class="fa fa-lock ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> سطح پیام به صورت خودکار به دلیل ماهیت مالی/حقوقی «محرمانه» تعیین شد.</span>';
-            }
-        } else {
-            if (typeRegular) typeRegular.checked = true;
-            if (classificationHint) {
-                classificationHint.innerHTML = '<span class="text-success"><i class="fa fa-check-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> سطح پیام به صورت پیش‌فرض «عادی» است.</span>';
-            }
-        }
-    }
-
-    if (messageGroupSelect) {
-        messageGroupSelect.addEventListener('change', updateClassificationFromGroup);
-    }
-
-    // Real-time phone mockup and live message stats update
-    function isUnicode(str) {
-        if (!str) return false;
-        return /[^\u0020-\u007E\r\n\t]/.test(str);
-    }
-
-    function calculateSegmentation(text, isAdvertising, autoAppend) {
-        const rawText = text || '';
-        const typedLen = [...rawText].length;
-
-        let final = rawText;
-        let appended = false;
-        if (isAdvertising && autoAppend) {
-            if (!final.includes('لغو 11') && !final.includes('لغو ۱۱')) {
-                // Ensure separator newline before telecom phrase if user text exists
-                final = (final.length > 0 ? (final + '\n') : '') + 'لغو 11';
-                appended = true;
-            }
-        }
-
-        const totalLen = [...final].length;
-        const unicode = isUnicode(final);
-
-        if (totalLen === 0) {
-            return {
-                text: final,
-                typedCount: 0,
-                charCount: 0,
-                pageCount: 1,
-                remaining: unicode ? 70 : 160,
-                isUnicode: unicode,
-                appended: appended
-            };
-        }
-
-        let pages = 1;
-        let remaining = 0;
-
-        if (unicode) {
-            if (totalLen <= 70) {
-                pages = 1;
-                remaining = 70 - totalLen;
-            } else if (totalLen <= 134) {
-                pages = 2;
-                remaining = 134 - totalLen;
-            } else {
-                pages = 2 + Math.ceil((totalLen - 134) / 67);
-                const maxChars = 134 + (pages - 2) * 67;
-                remaining = maxChars - totalLen;
-            }
-        } else {
-            if (totalLen <= 160) {
-                pages = 1;
-                remaining = 160 - totalLen;
-            } else if (totalLen <= 306) {
-                pages = 2;
-                remaining = 306 - totalLen;
-            } else {
-                pages = Math.ceil(totalLen / 153);
-                const maxChars = pages * 153;
-                remaining = maxChars - totalLen;
-            }
-        }
-
-        return {
-            text: final,
-            typedCount: typedLen,
-            charCount: totalLen,
-            pageCount: pages,
-            remaining: remaining,
-            isUnicode: unicode,
-            appended: appended
-        };
-    }
-
-    document.getElementById('sms_message').addEventListener('input', function () {
-        updateMessageStatsAndMockup();
-    });
+    // Real-time phone mockup and per-SMS cost; counting itself lives in the shared editor.
+    bulkSmsEditor.onChange(function () { updateMessageStatsAndMockup(); });
 
     function updateMessageStatsAndMockup() {
-        const text = document.getElementById('sms_message').value;
-        document.getElementById('phoneBubbleText').innerText = text.trim() ? text : 'متن پیامک شما اینجا نمایش داده خواهد شد...';
-        // "لغو 11" is mandatory and unconditional for advertising messages — always shown.
-        document.getElementById('phoneBubbleOptOut').style.display = 'block';
+        const seg = bulkSmsEditor.getStats();
+        // Preview shows the final text as it will be sent: the mandatory «لغو 11» is part of it.
+        document.getElementById('phoneBubbleText').innerText = seg.empty ? 'متن پیامک شما اینجا نمایش داده خواهد شد...' : seg.finalText;
 
-        // Calculate live characters, page count, and encoding
-        const seg = calculateSegmentation(text, true, true);
-        const charCountEl = document.getElementById('char_count');
-        const breakdownEl = document.getElementById('char_count_breakdown');
-        const pageCountEl = document.getElementById('page_count');
-        const remainingCountEl = document.getElementById('remaining_count');
-        const encodingEl = document.getElementById('encoding_type');
         const costPerSmsEl = document.getElementById('cost_per_sms');
-
-        if (charCountEl) {
-            charCountEl.innerText = Number(seg.typedCount).toLocaleString('fa-IR');
-        }
-        if (breakdownEl) {
-            if (seg.typedCount > 0) {
-                breakdownEl.style.display = 'inline';
-                breakdownEl.innerText = ` (${Number(seg.charCount).toLocaleString('fa-IR')} کاراکتر با احتساب «لغو ۱۱»)`;
-            } else {
-                breakdownEl.style.display = 'none';
-                breakdownEl.innerText = '';
-            }
-        }
-        if (pageCountEl) pageCountEl.innerText = Number(seg.pageCount).toLocaleString('fa-IR');
-        if (remainingCountEl) remainingCountEl.innerText = Number(seg.remaining).toLocaleString('fa-IR');
-        if (encodingEl) encodingEl.innerText = seg.isUnicode ? 'Unicode (فارسی)' : 'GSM-7 (انگلیسی)';
         if (costPerSmsEl && (!costPerSmsEl.dataset.serverCalculated || costPerSmsEl.dataset.serverCalculated !== '1')) {
-            costPerSmsEl.innerText = Number(seg.pageCount * 1200).toLocaleString('fa-IR') + ' ریال';
+            costPerSmsEl.innerText = Number(seg.pageCount * COST_PER_PAGE).toLocaleString('fa-IR') + ' ریال';
         }
     }
 
@@ -1027,6 +895,12 @@
                 const rec = body.recipient_summary;
                 const msg = body.message_summary;
                 const fin = body.financial_summary;
+                previewDone = Number(rec.valid_count) > 0;
+                lastMaxAffordable = Number(fin.max_affordable_recipients || 0);
+                const insufficientActions = document.getElementById('insufficientBalanceActions');
+                if (insufficientActions) insufficientActions.style.setProperty('display', 'none', 'important');
+                const qpReduceBtn = document.getElementById('qpBtnReduceRecipients');
+                if (qpReduceBtn) qpReduceBtn.style.display = 'none';
 
                 // Update audit stats
                 document.getElementById('filterAuditCard').style.display = 'block';
@@ -1035,7 +909,8 @@
                 document.getElementById('stat_invalid').innerText = Number(rec.invalid_count).toLocaleString('fa-IR');
                 document.getElementById('stat_duplicate').innerText = Number(rec.duplicate_count).toLocaleString('fa-IR');
 
-                if (rec.invalid_count > 0 && rec.invalid_sample.length > 0) {
+                // invalid_sample is absent for users without view-phone-numbers (counts only)
+                if (rec.invalid_count > 0 && rec.invalid_sample && rec.invalid_sample.length > 0) {
                     const sampleList = rec.invalid_sample.map(i => `<code>${i.phone}</code>: ${i.reason}`).join(' | ');
                     document.getElementById('invalidNumbersDetails').style.display = 'block';
                     document.getElementById('invalidNumbersDetails').innerHTML = `<strong>نمونه شماره‌های نامعتبر رد شده:</strong> ${sampleList}`;
@@ -1044,9 +919,7 @@
                 }
 
                 // Update message stats
-                document.getElementById('char_count').innerText = msg.character_count;
-                document.getElementById('page_count').innerText = msg.page_count;
-                document.getElementById('encoding_type').innerText = msg.is_unicode ? 'Unicode (فارسی)' : 'GSM-7 (انگلیسی)';
+                // (character/page/encoding counters live inside the editor field — shared SmsMessageEditor)
 
                 // Update finance
                 document.getElementById('cost_per_sms').innerText = Number(msg.cost_per_message).toLocaleString('fa-IR') + ' ریال';
@@ -1063,6 +936,9 @@
                     if (callout) callout.style.display = 'none';
                 } else if (fin.has_sufficient_balance) {
                     statusBadge.innerHTML = `<span class="badge bg-success p-2 d-block"><i class="fa fa-check-circle me-1"></i> موجودی کافی است (باقی‌مانده: ${Number(fin.balance_after).toLocaleString('fa-IR')} ریال)</span>`;
+                    if (Number(fin.effective_recipient_count) < Number(rec.valid_count)) {
+                        statusBadge.innerHTML += `<div class="small text-primary mt-1"><i class="fa fa-users me-1"></i> ارسال به ${Number(fin.effective_recipient_count).toLocaleString('fa-IR')} نفر از ${Number(rec.valid_count).toLocaleString('fa-IR')} مخاطب (کاهش تعداد مخاطبین فعال است)</div>`;
+                    }
                     btnLaunch.disabled = false;
                     if (fin.is_low_balance) {
                         if (callout) {
@@ -1085,6 +961,18 @@
                         </button>
                     `;
                     btnLaunch.disabled = true;
+                    // Alternatives to topping up: shrink the audience to what the balance affords, or re-filter.
+                    if (insufficientActions) insufficientActions.style.setProperty('display', 'flex', 'important');
+                    const reduceLabel = lastMaxAffordable > 0
+                        ? `<i class="fa fa-users me-1"></i> کاهش تعداد مخاطبین (به ${lastMaxAffordable.toLocaleString('fa-IR')} نفر)`
+                        : '<i class="fa fa-users me-1"></i> کاهش تعداد مخاطبین';
+                    ['btnReduceRecipients', 'qpBtnReduceRecipients'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        el.innerHTML = reduceLabel;
+                        el.disabled = lastMaxAffordable < 1;
+                        if (id === 'qpBtnReduceRecipients') el.style.display = 'inline-block';
+                    });
                     if (callout) {
                         callout.style.display = 'block';
                         document.getElementById('quickPaymentCalloutTitle').innerText = 'موجودی خط برای ارسال این کمپین ناکافی است';
@@ -1190,9 +1078,7 @@
         const btn = document.getElementById('btnExecuteQuickPay');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> در حال اتصال به درگاه شاپرک و شارژ آنی...';
-
-        const trackingId = 'QP-' + selectedGw.toUpperCase() + '-' + Date.now().toString().slice(-8);
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> در حال انتقال به درگاه پرداخت...';
 
         fetch("{{ route('admin.sms.financial.advertising.topup') }}", {
             method: 'POST',
@@ -1204,12 +1090,13 @@
             body: JSON.stringify({
                 sender_number_id: currentQuickSenderId,
                 amount: amount,
-                business_id: currentQuickBusinessId,
-                tracking_id: trackingId
+                business_id: currentQuickBusinessId
             })
         })
         .then(r => r.json().then(data => ({ status: r.status, data })))
         .then(({ status, data }) => {
+            // Payment flow: nothing is credited here; go to the gateway and return to this page after payment.
+            if (status === 200 && data.success && data.redirect_url) { window.location.href = data.redirect_url; return; }
             btn.disabled = false;
             btn.innerHTML = originalText;
 
@@ -1229,7 +1116,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'شارژ آنلاین با موفقیت انجام شد!',
-                        html: `موجودی پنل تبلیغاتی کسب‌وکار به میزان <b>${Number(amount).toLocaleString('fa-IR')} ریال</b> افزایش یافت.<br><small class="text-muted">شناسه رهگیری بانکی: ${trackingId}</small>`,
+                        html: `موجودی پنل تبلیغاتی کسب‌وکار به میزان <b>${Number(amount).toLocaleString('fa-IR')} ریال</b> افزایش یافت.`,
                         confirmButtonText: 'عالی، بازگشت به کمپین'
                     });
                 }
@@ -1256,9 +1143,182 @@
         });
     }
 
+    // ---- Insufficient balance: «کاهش تعداد مخاطبین» / «فیلتر مجدد» ----
+    let lastMaxAffordable = 0;
+
+    function reduceRecipients() {
+        if (lastMaxAffordable < 1) return;
+        // The server re-caps this to what the balance really affords; the client number is only a request.
+        document.getElementById('max_recipients').value = lastMaxAffordable;
+        const modalEl = document.getElementById('quickPaymentModal');
+        const modal = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+        if (modal) modal.hide();
+        triggerPreview();
+    }
+
+    function clearRecipientCap() {
+        document.getElementById('max_recipients').value = '';
+    }
+
+    function reopenAudienceFilter() {
+        clearRecipientCap();
+        const modalEl = document.getElementById('quickPaymentModal');
+        const modal = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+        if (modal) {
+            modalEl.addEventListener('hidden.bs.modal', function openFilter() {
+                modalEl.removeEventListener('hidden.bs.modal', openFilter);
+                document.getElementById('open_request_filter').click();
+            });
+            modal.hide();
+        } else {
+            document.getElementById('open_request_filter').click();
+        }
+    }
+
+    // A new audience filter invalidates any earlier recipient cap (capture: runs before the picker's own handler).
+    ['request_filter_apply', 'request_filter_clear', 'request_filter_remove', 'request_filter_quick_clear'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', clearRecipientCap, true);
+    });
+
+    // ---- Outgoing queue («صف ارسال»): unsent content is parked, never debited or sent ----
+    const QUEUE_SAVE_URL = "{{ route('admin.sms.bulk.queue.save') }}";
+    let previewDone = false;
+    let formSubmitting = false;
+    let lastQueuedSignature = null;
+
+    function queuePayload() {
+        const fd = new FormData(document.getElementById('bulkSmsForm'));
+        fd.delete('max_recipients');
+        fd.delete('type');
+        if (document.querySelector('input[name="send_type"]:checked')?.value !== 'scheduled') {
+            fd.delete('scheduled_at');
+        }
+        return fd;
+    }
+
+    function queueSignature(fd) {
+        const parts = [];
+        fd.forEach((v, k) => { if (k !== '_token' && k !== 'queue_id') parts.push(k + '=' + v); });
+        return parts.join('&');
+    }
+
+    function hasUnsentContent() {
+        return previewDone && !formSubmitting && document.getElementById('sms_message').value.trim() !== '';
+    }
+
+    function persistQueueOnLeave() {
+        if (!hasUnsentContent()) return;
+        const fd = queuePayload();
+        const sig = queueSignature(fd);
+        if (sig === lastQueuedSignature) return;
+        lastQueuedSignature = sig;
+        // sendBeacon survives page unload; the response is ignored (the server de-duplicates by content).
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(QUEUE_SAVE_URL, fd);
+        } else {
+            fetch(QUEUE_SAVE_URL, { method: 'POST', body: fd, keepalive: true, headers: { 'Accept': 'application/json' } });
+        }
+    }
+
+    document.getElementById('bulkSmsForm').addEventListener('submit', function () { formSubmitting = true; });
+    window.addEventListener('pagehide', persistQueueOnLeave);
+    window.addEventListener('beforeunload', persistQueueOnLeave);
+
+    document.getElementById('btnSaveToQueue').addEventListener('click', function () {
+        const fd = queuePayload();
+        fetch(QUEUE_SAVE_URL, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: fd
+        })
+        .then(r => r.json().then(data => ({ status: r.status, data })))
+        .then(({ status, data }) => {
+            if (status === 200 && data.status === 'success') {
+                document.getElementById('queue_id').value = data.queue_id;
+                lastQueuedSignature = queueSignature(fd);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ذخیره شد',
+                    html: `${data.message}<br><a href="${data.queue_url}">مشاهده صف ارسال</a>`,
+                    confirmButtonText: 'متوجه شدم'
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'ذخیره در صف ارسال ناموفق بود', text: data.message || 'خطایی رخ داد.', confirmButtonText: 'متوجه شدم' });
+            }
+        })
+        .catch(() => Swal.fire({ icon: 'error', title: 'خطای ارتباط با سرور', confirmButtonText: 'متوجه شدم' }));
+    });
+
+    // ---- Resume an outgoing-queue entry: put the saved content back into the compose page ----
+    const QUEUED_INPUT = @json($queuedInput);
+
+    function flattenFilters(prefix, value, out) {
+        if (value !== null && typeof value === 'object') {
+            Object.keys(value).forEach(k => flattenFilters(prefix + '[' + k + ']', value[k], out));
+        } else if (value !== null && value !== undefined && value !== '') {
+            out.push([prefix, value]);
+        }
+    }
+
+    function restoreQueuedInput(q) {
+        const radio = document.querySelector('input[name="recipient_type"][value="' + q.recipient_type + '"]');
+        if (radio && !radio.disabled) radio.checked = true;
+
+        if (q.message) {
+            if (bulkMessageChipEditor) bulkMessageChipEditor.setValue(q.message);
+            else document.getElementById('sms_message').value = q.message;
+        }
+        if (q.sms_message_template_id) {
+            document.getElementById('sms_message_template_id').value = q.sms_message_template_id;
+        }
+        if (q.sms_message_group_id && messageGroupSelect) {
+            messageGroupSelect.value = q.sms_message_group_id;
+        }
+
+        const filters = q.filters || {};
+        if (filters.custom_numbers) {
+            document.getElementById('custom_numbers').value = filters.custom_numbers;
+        }
+        const pairs = [];
+        Object.keys(filters).forEach(k => { if (k !== 'custom_numbers') flattenFilters('filters[' + k + ']', filters[k], pairs); });
+        const host = document.getElementById('requestFilterInputs');
+        pairs.forEach(([name, value]) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            host.appendChild(input);
+        });
+        if (filters.request_filter) {
+            const container = document.getElementById('requestFilterBadgeContainer');
+            const countEl = document.querySelector('#requestFilterBadge [data-count]');
+            if (container) container.classList.remove('d-none');
+            if (countEl) countEl.textContent = Object.keys(filters.request_filter).length.toLocaleString('fa-IR');
+            const quickClear = document.getElementById('request_filter_quick_clear');
+            if (quickClear) quickClear.classList.remove('d-none');
+        }
+
+        if (q.scheduled_at) {
+            document.getElementById('send_scheduled').checked = true;
+            toggleScheduleInput(true);
+            document.getElementById('scheduled_at').value = String(q.scheduled_at).replace(' ', 'T').slice(0, 16);
+        }
+
+        if (q.sender_number_id && document.getElementById('sender_' + q.sender_number_id)) {
+            selectSenderNumber(q.sender_number_id);
+        } else {
+            triggerPreview();
+        }
+    }
+
     // Trigger initial preview on page load
     document.addEventListener('DOMContentLoaded', function () {
         updateMessageStatsAndMockup();
+        if (QUEUED_INPUT) {
+            restoreQueuedInput(QUEUED_INPUT);
+            updateMessageStatsAndMockup();
+        }
     });
 </script>
 @endsection

@@ -54,6 +54,7 @@ class SmsSingleSendTest extends TestCase
             $table->string('phone')->nullable();
             $table->string('password')->nullable();
             $table->string('level')->default('user');
+            $table->string('access_tier')->nullable();
             $table->boolean('active')->default(true);
             $table->string('token')->nullable();
             $table->string('api_token')->nullable();
@@ -153,6 +154,8 @@ class SmsSingleSendTest extends TestCase
             'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
             'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
             'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
+            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
+            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -352,6 +355,7 @@ class SmsSingleSendTest extends TestCase
             'recipient_phone' => '09121234567',
             'message' => 'کد تایید شما: 12345',
             'service_type' => 'otp',
+            'otp_category' => 'auth_password_reset',
         ], $this->business);
 
         $this->assertDatabaseCount('sms_messages', 0);
@@ -381,6 +385,7 @@ class SmsSingleSendTest extends TestCase
             'recipient_phone' => '09129998877',
             'message' => 'کد ورود شما: 987654',
             'service_type' => 'otp',
+            'otp_category' => 'auth_password_reset',
             'sender_number_id' => $this->advSender->id, // Malicious / accidental override attempt
         ], $this->business);
 
@@ -579,6 +584,7 @@ class SmsSingleSendTest extends TestCase
             'name' => 'ادمین',
             'phone' => '09120001133',
             'level' => 'admin',
+            'access_tier' => 'titanium', // OTP is Titanium-only
             'active' => true,
         ]);
 
@@ -591,6 +597,7 @@ class SmsSingleSendTest extends TestCase
                 'recipient_phone' => '09123334466',
                 'message' => 'کد تایید ورود: 445566',
                 'service_type' => 'otp',
+                'otp_category' => 'auth_password_reset',
                 'sender_number_id' => $this->advSender->id, // Request attempts to override
             ]);
 
@@ -685,5 +692,148 @@ class SmsSingleSendTest extends TestCase
         $this->assertArrayHasKey('advertisingNumbers', $view->getData());
         $this->assertArrayHasKey('templates', $view->getData());
         $this->assertArrayHasKey('recentMessages', $view->getData());
+    }
+
+    // ------------------------------------------------------------------
+    // SendSingleSmsRequest validation (HTTP level)
+    // ------------------------------------------------------------------
+
+    private function tierUser(string $tier, string $phone, ?GhorfeOnlineList $business = null): User
+    {
+        $user = User::create(['name' => 'کاربر ' . $tier, 'phone' => $phone, 'level' => 'admin', 'access_tier' => $tier, 'active' => true]);
+        DB::table('employees')->insert(['user_id' => $user->id, 'ghorfe_online_list_id' => ($business ?? $this->business)->id]);
+
+        return $user;
+    }
+
+    private function makeTemplate(GhorfeOnlineList $business, string $serviceType, string $title = 'قالب'): SmsMessageTemplate
+    {
+        $creator = User::firstOrCreate(['phone' => '09120009999'], ['name' => 'سازنده قالب', 'level' => 'admin', 'active' => true]);
+
+        return SmsMessageTemplate::create([
+            'title' => $title,
+            'content' => 'متن قالب ' . $title,
+            'service_type' => $serviceType,
+            'status' => 'active',
+            'ghorfe_online_list_id' => $business->id,
+            'created_by' => $creator->id,
+            'updated_by' => $creator->id,
+        ]);
+    }
+
+    private function singlePayload(array $extra = []): array
+    {
+        return array_merge([
+            'recipient_phone' => '09123334455',
+            'message' => 'پیامک آزمایشی',
+            'service_type' => 'advertising',
+            'sender_number_id' => $this->advSender->id,
+        ], $extra);
+    }
+
+    public function test_whitespace_only_message_is_rejected(): void
+    {
+        $this->service->setGatewayDispatcher(function () {});
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+
+        foreach (['   ', "\t\n  "] as $blank) {
+            $this->actingAs($this->tierUser('titanium', '09120002001' . strlen($blank)))
+                ->postJson(route('admin.sms.single.send'), $this->singlePayload(['message' => $blank]))
+                ->assertStatus(422)
+                ->assertJsonValidationErrors(['message']);
+        }
+
+        $this->assertSame(0, SmsMessage::count());
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('lowerTiers')]
+    public function test_lower_tiers_cannot_use_an_otp_template(string $tier): void
+    {
+        $this->service->setGatewayDispatcher(function () {});
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+        $otpTemplate = $this->makeTemplate($this->business, 'otp', 'کد تایید');
+
+        $this->actingAs($this->tierUser($tier, '09120003001'))
+            ->postJson(route('admin.sms.single.send'), $this->singlePayload(['template_id' => $otpTemplate->id]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['template_id']);
+
+        $this->assertSame(0, SmsMessage::count());
+    }
+
+    public static function lowerTiers(): array
+    {
+        return ['silver' => ['silver'], 'gold' => ['gold'], 'diamond' => ['diamond']];
+    }
+
+    public function test_lower_tier_cannot_use_a_template_of_another_business(): void
+    {
+        $this->service->setGatewayDispatcher(function () {});
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+        $other = GhorfeOnlineList::create(['title' => 'کسب‌وکار دیگر']);
+        $foreign = $this->makeTemplate($other, 'advertising', 'قالب بیگانه');
+
+        $this->actingAs($this->tierUser('silver', '09120004001'))
+            ->postJson(route('admin.sms.single.send'), $this->singlePayload(['template_id' => $foreign->id]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['template_id']);
+
+        $this->assertSame(0, SmsMessage::count());
+    }
+
+    public function test_titanium_may_use_an_otp_template_id(): void
+    {
+        $this->service->setGatewayDispatcher(function () {});
+        $this->seedOtpBalance($this->business->id, 20000);
+        $otpTemplate = $this->makeTemplate($this->business, 'otp', 'کد تایید');
+
+        $this->actingAs($this->tierUser('titanium', '09120005001'))
+            ->postJson(route('admin.sms.single.send'), [
+                'recipient_phone' => '09123334466',
+                'message' => 'کد تایید ورود: 445566',
+                'service_type' => 'otp',
+                'otp_category' => 'auth_password_reset',
+                'template_id' => $otpTemplate->id,
+            ])
+            ->assertOk()
+            ->assertJsonMissingValidationErrors(['template_id']);
+    }
+
+    public function test_superadmin_may_use_an_otp_template_id(): void
+    {
+        $this->service->setGatewayDispatcher(function () {});
+        $this->seedOtpBalance($this->business->id, 20000);
+        $otpTemplate = $this->makeTemplate($this->business, 'otp', 'کد تایید');
+
+        $super = User::create(['name' => 'مدیر کل', 'phone' => '09120005002', 'level' => 'superAdmin', 'active' => true]);
+
+        $this->actingAs($super)
+            ->postJson(route('admin.sms.single.send'), [
+                'recipient_phone' => '09123334466',
+                'message' => 'کد تایید ورود: 445566',
+                'service_type' => 'otp',
+                'otp_category' => 'auth_password_reset',
+                'template_id' => $otpTemplate->id,
+            ])
+            ->assertOk()
+            ->assertJsonMissingValidationErrors(['template_id']);
+    }
+
+    public function test_non_staff_tier_can_send_with_own_advertising_template(): void
+    {
+        $dispatched = 0;
+        $this->service->setGatewayDispatcher(function () use (&$dispatched) {
+            $dispatched++;
+        });
+        $this->seedAdvertisingBalance($this->business->id, 100000);
+        $template = $this->makeTemplate($this->business, 'advertising', 'قالب تبلیغاتی');
+
+        $this->actingAs($this->tierUser('silver', '09120006001'))
+            ->postJson(route('admin.sms.single.send'), $this->singlePayload(['template_id' => $template->id]))
+            ->assertOk()
+            ->assertJsonPath('status', 'success');
+
+        $this->assertSame(1, SmsMessage::count());
+        $this->assertSame(1, SmsMessage::where('recipient_phone', '09123334455')->count());
     }
 }

@@ -110,9 +110,6 @@ class SmsWebhookService
             if ($senderNumber) {
                 $business = $senderNumber->businesses()->first();
                 $businessId = $business?->id;
-            } else {
-                $business = GhorfeOnlineList::where('linenumber', $recipientPhone)->first();
-                $businessId = $business?->id;
             }
         }
 
@@ -122,6 +119,9 @@ class SmsWebhookService
 
         $receivedAt = $this->extractTimestamp($payload) ?? now();
 
+        // Same counter as outbound; always 'normal' so no opt-out suffix is appended to inbound text.
+        $segmentation = (new SingleSmsSendService(new DynamicParameterResolver()))->calculateSegmentation($content, 'normal');
+
         $smsMessage = SmsMessage::create([
             'ghorfe_online_list_id' => $businessId,
             'direction' => 'inbound',
@@ -129,6 +129,9 @@ class SmsWebhookService
             'sender_phone' => $senderPhone,
             'recipient_phone' => $recipientPhone,
             'content' => $content,
+            'character_count' => $segmentation['character_count'],
+            'page_count' => $segmentation['page_count'],
+            'cost' => 0,
             'status' => 'delivered',
             'delivery_status' => 'delivered',
             'delivered_at' => $receivedAt,
@@ -138,11 +141,15 @@ class SmsWebhookService
             'created_at' => $receivedAt,
         ]);
 
+        // Auto-responder: never allowed to break webhook processing (the engine swallows and logs its own errors).
+        $autoReply = app(SmsAutoResponderEngine::class)->handleInbound($smsMessage, $payload);
+
         return [
             'success' => true,
             'message' => 'پیامک دریافتی با موفقیت ذخیره شد.',
             'sms_message_id' => $smsMessage->id,
             'tracking_id' => $smsMessage->tracking_id,
+            'auto_reply_sms_message_id' => $autoReply?->id,
         ];
     }
 

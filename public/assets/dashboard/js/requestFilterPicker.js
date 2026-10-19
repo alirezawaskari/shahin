@@ -42,10 +42,10 @@
         'service_category': 'دسته خدمت',
         'sub_service_category': 'خدمت',
         'service_items': 'نوع خدمت',
+        'product': 'کالا',
+        'product_attribute': 'تنوع کالا',
         'users': 'کارشناس',
-        'agents': 'بازاریاب',
-        'representation': 'نمایندگی',
-        'ghorfe_online_id': 'کسب‌وکار'
+        'agents': 'بازاریاب'
     };
 
     function initFilterSelect2() {
@@ -138,6 +138,46 @@
                 $items.trigger('change');
             }
         });
+    });
+
+    // Fills a select with the options of one ajax call per selected parent id (the product
+    // endpoints take a single id), skipping anything already added.
+    function loadChildren($target, url, ids, responseKey) {
+        $target.empty();
+        if (!ids || ids.length === 0) {
+            $target.trigger('change');
+            return;
+        }
+        var token = $('meta[name="csrf-token"]').attr('content');
+        var seen = {};
+        var pending = ids.length;
+        ids.forEach(function (id) {
+            $.ajax({
+                url: url, type: 'post', dataType: 'json',
+                data: { _token: token, id: id },
+                success: function (response) {
+                    $.each((response && response[responseKey]) || [], function (i, d) {
+                        if (!seen[d.id]) {
+                            seen[d.id] = true;
+                            $target.append('<option value="' + d.id + '">' + d.label + '</option>');
+                        }
+                    });
+                },
+                complete: function () {
+                    if (--pending === 0) {
+                        $target.trigger('change');
+                    }
+                }
+            });
+        });
+    }
+
+    // Cascading: Product Category -> Product -> Product Attribute (variant)
+    $filterForm.on('change', '#product_category', function () {
+        loadChildren($filterForm.find('#product_item'), '/dashboard/callcenter/productsByCategory', $(this).val(), 'products');
+    });
+    $filterForm.on('change', '#product_item', function () {
+        loadChildren($filterForm.find('#product_attribute'), '/dashboard/callcenter/productAttributes', $(this).val(), 'product_attributes');
     });
 
     function activeFields() {

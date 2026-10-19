@@ -18,6 +18,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
+        // Scheduled bulk SMS campaigns: required in production because the default sync queue
+        // ignores job delays (needs the system cron "* * * * * php artisan schedule:run").
+        $schedule->command('sms:dispatch-due-campaigns')->everyMinute()->withoutOverlapping();
+
         $schedule->call(function () {
             $schedules = PayoutSchedule::whereNull('deleted_at')
                 ->where('next_run_at', '<=', now())

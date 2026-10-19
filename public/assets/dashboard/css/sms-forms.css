@@ -1,0 +1,58 @@
+/* Shared look for the SMS send screens (single / bulk / legacy group). */
+
+/* ---- Section cards: identical header / body / spacing everywhere ---- */
+.sms-section.card { border: 0; box-shadow: 0 1px 3px rgba(15, 23, 42, .08); margin-bottom: 1.25rem; overflow: visible; }
+.sms-section > .card-header { background: #fff; padding: .85rem 1.25rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.sms-section > .card-header .sms-section-title { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: .5rem; }
+.sms-section > .card-body { padding: 1.25rem; }
+
+/* every field block: label above, control below, fixed rhythm */
+.sms-field { margin-bottom: 1rem; min-width: 0; }
+.sms-field:last-child { margin-bottom: 0; }
+.sms-label { display: block; margin-bottom: .4rem; font-size: .8rem; font-weight: 700; color: #475569; }
+.sms-hint { margin-top: .35rem; font-size: .75rem; color: #64748b; }
+
+/* grouped sub-box (was a .row with padding/border, which bled out of its card) */
+.sms-subbox { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: .6rem; padding: 1rem; margin-bottom: 1rem; }
+.sms-subbox .sms-field { margin-bottom: 0; }
+
+/* radio "pill" choices */
+.sms-choice-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+.sms-choice { flex: 1 1 14rem; display: flex; align-items: center; gap: .6rem; padding: .65rem .85rem; border: 1px solid #cbd5e1; border-radius: .55rem; background: #fff; cursor: pointer; margin: 0; min-width: 0; }
+.sms-choice .form-check-input { position: static !important; float: none; margin: 0 !important; flex: 0 0 auto; }
+.sms-choice small { display: block; color: #64748b; font-weight: 400; }
+.sms-choice:has(input:checked) { border-color: #3b82f6; background: #eff6ff; }
+.sms-choice:has(input:disabled) { opacity: .6; cursor: not-allowed; }
+
+/* financial summary strip (shared by single + bulk) */
+.sms-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: .6rem; padding: 1rem; }
+
+/* ---- Shared message editor ---- */
+.sms-editor { margin-bottom: 1rem; }
+.sms-editor-chips { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin-bottom: .6rem; }
+.sms-editor-chips .sms-editor-chips-title { font-size: .75rem; color: #64748b; margin-inline-end: .25rem; }
+.sms-editor-box { border: 1px solid #cbd5e1; border-radius: .6rem; background: #fff; overflow: hidden; display: flex; flex-direction: column; transition: border-color .15s, box-shadow .15s; }
+.sms-editor-box:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 .2rem rgba(59, 130, 246, .18); }
+.sms-editor-box .sms-editor-input,
+.sms-editor-box .sms-param-editor { border: 0 !important; box-shadow: none !important; outline: 0; border-radius: 0; width: 100%; min-height: 8.5rem; padding: .8rem .95rem 2.3rem; background: transparent; resize: vertical; display: block; font-size: .95rem; line-height: 1.9; }
+/* wrapper that anchors the live page badge to the text area (not the whole box) */
+.sms-editor-field { position: relative; }
+/* page badge: physical bottom-left inside the text area; pointer-events off so it never blocks typing */
+.sms-editor-pagebadge { position: absolute; left: .6rem; bottom: .55rem; pointer-events: none; font-size: .72rem; font-weight: 700; line-height: 1.4; color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 999px; padding: .08rem .55rem; white-space: nowrap; }
+/* locked, read-only mandatory suffix (لغو 11) shown inside the box, under the textarea */
+.sms-editor-suffix { display: flex; align-items: center; gap: .4rem; padding: .4rem .95rem; background: #f1f5f9; border-top: 1px dashed #cbd5e1; color: #64748b; font-size: .85rem; user-select: none; cursor: default; }
+.sms-editor-suffix .fa-lock { font-size: .72rem; }
+.sms-editor-suffix-note { font-size: .72rem; color: #94a3b8; }
+.sms-editor-footer { border-top: 1px solid #e2e8f0; background: #f8fafc; padding: .5rem .85rem; display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; align-items: center; font-size: .78rem; color: #475569; }
+.sms-editor-footer .sms-stat { display: inline-flex; align-items: baseline; gap: .3rem; white-space: nowrap; }
+.sms-editor-footer .sms-stat strong { color: #0f172a; font-size: .86rem; }
+.sms-editor-footer .sms-stat-end { margin-inline-start: auto; }
+.sms-editor-footer.is-near-limit [data-sms-counter="remaining"] { color: #d97706; }
+.sms-editor-footer.is-multipage [data-sms-counter="pages"] { color: #2563eb; }
+.sms-editor-note { margin-top: .5rem; font-size: .75rem; color: #64748b; display: flex; gap: .4rem; align-items: flex-start; }
+.sms-editor-note i { margin-top: .2rem; }
+
+@media (max-width: 575.98px) {
+    .sms-section > .card-body { padding: 1rem; }
+    .sms-editor-footer .sms-stat-end { margin-inline-start: 0; }
+}

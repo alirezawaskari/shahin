@@ -121,7 +121,7 @@ class User extends Authenticatable implements LaratrustUser, HasMedia
         self::ACCESS_TIER_SILVER => 'نقره‌ای (Silver)',
         self::ACCESS_TIER_GOLD => 'طلایی (Gold)',
         self::ACCESS_TIER_DIAMOND => 'الماسی (Diamond)',
-        self::ACCESS_TIER_TITANIUM => 'تیتانیومی (Titanium)',
+        self::ACCESS_TIER_TITANIUM => 'تیتانیوم (Titanium)',
     ];
 
     /**

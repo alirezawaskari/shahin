@@ -6,7 +6,7 @@ use DB;
 use nusoap_client;
 
 class zarinpal {
-    public function pay( $amount ) {
+    public function pay( $amount, $description = "هزینه ثبت نام" ) {
         $client = new nusoap_client( config( 'services.zarinpal.url' ).'/pg/services/WebGate/wsdl', 'wsdl' );
         $client->soap_defencoding = 'UTF-8';
         $result = $client->call( 'PaymentRequest', [
@@ -14,7 +14,7 @@ class zarinpal {
                 'MerchantID'     => config( 'services.zarinpal.id' ),
                 'Amount'         => $amount,
                 'Currency'       => "IRR",
-                'Description'    => "هزینه ثبت نام",
+                'Description'    => $description,
                 'CallbackURL'    => route( 'pay.callback' ),
             ],
         ] );

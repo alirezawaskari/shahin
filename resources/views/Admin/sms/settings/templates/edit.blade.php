@@ -51,8 +51,12 @@
                             <div class="col-6">
                                 <label class="form-label fw-bold">نوع سرویس <span class="text-danger">*</span></label>
                                 <select name="service_type" class="form-select" required>
+                                    @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()) || $template->service_type === 'normal')
                                     <option value="normal" {{ old('service_type', $template->service_type) === 'normal' ? 'selected' : '' }}>عادی</option>
+                                    @endif
+                                    @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
                                     <option value="otp" {{ old('service_type', $template->service_type) === 'otp' ? 'selected' : '' }}>کد تایید (OTP)</option>
+                                    @endif
                                     <option value="advertising" {{ old('service_type', $template->service_type) === 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
                                 </select>
                             </div>
@@ -65,17 +69,32 @@
                             </div>
                         </div>
 
+                        @if(!empty($otpCategories))
+                        <div class="mb-3" id="otpCategoryWrap" style="display:none;">
+                            <label class="form-label fw-bold">دسته‌بندی سیستمی OTP <span class="text-danger">*</span></label>
+                            <select name="otp_category" id="otpCategorySelect" class="form-select @error('otp_category') is-invalid @enderror" disabled>
+                                <option value="">انتخاب کنید...</option>
+                                @foreach($otpCategories as $slug => $label)
+                                    <option value="{{ $slug }}" {{ old('otp_category', $template->otp_category) === $slug ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            @error('otp_category')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <div class="form-text">یکی از چهار دسته‌بندی ثابت سیستم؛ فقط برای الگوهای OTP.</div>
+                        </div>
+                        @endif
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">گروه / زیرگروه پیامک</label>
                             <select name="sms_message_group_id" class="form-select">
                                 <option value="">— بدون گروه —</option>
                                 @foreach($groupOptions as $id => $title)
-                                    <option value="{{ $id }}" {{ old('sms_message_group_id', $template->sms_message_group_id) == $id ? 'selected' : '' }}>
+                                    <option value="{{ $id }}" data-promotional="{{ in_array($id, $promotionalGroupIds ?? []) ? '1' : '0' }}" {{ old('sms_message_group_id', $template->sms_message_group_id) == $id ? 'selected' : '' }}>
                                         {{ $title }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+
 
                         <!-- Parameter tokens picker -->
                         <div class="mb-2">
@@ -146,6 +165,45 @@
     </form>
 </div>
 
+@endsection
+
+{{-- Scripts live outside the Vue-compiled #app root (inline <script> inside it is dropped). --}}
+@section('scripts')
+<script>
+                            (function () {
+                                var type = document.querySelector('select[name="service_type"]');
+                                var wrap = document.getElementById('otpCategoryWrap');
+                                var sel = document.getElementById('otpCategorySelect');
+                                function sync() {
+                                    var on = type && type.value === 'otp';
+                                    wrap.style.display = on ? '' : 'none';
+                                    sel.disabled = !on;
+                                    sel.required = on;
+                                }
+                                if (type) { type.addEventListener('change', sync); }
+                                sync();
+                            })();
+                        </script>
+                                                <script>
+                            (function () {
+                                // Promotional / normal templates only support the promotional subject groups.
+                                var type = document.querySelector('select[name="service_type"]');
+                                var sel = document.querySelector('select[name="sms_message_group_id"]');
+                                function syncGroups() {
+                                    if (!sel) return;
+                                    var otp = type && type.value === 'otp';
+                                    Array.prototype.forEach.call(sel.options, function (o) {
+                                        if (o.value === '') return;
+                                        var blocked = !otp && o.getAttribute('data-promotional') !== '1' && !o.defaultSelected;
+                                        o.disabled = blocked;
+                                        o.hidden = blocked;
+                                    });
+                                    if (sel.selectedOptions.length && sel.selectedOptions[0].disabled) { sel.value = ''; }
+                                }
+                                if (type) { type.addEventListener('change', syncGroups); }
+                                syncGroups();
+                            })();
+                        </script>
 <script src="{{ asset('assets/dashboard/js/sms-param-chips.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {

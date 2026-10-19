@@ -179,6 +179,9 @@ class SmsFinancialAndReportTest extends TestCase
             'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
             'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
             'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
+            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
+            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
+            'database/migrations/2026_10_21_000001_create_sms_top_up_payments_table.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -192,6 +195,7 @@ class SmsFinancialAndReportTest extends TestCase
             'family' => 'کسب‌وکار',
             'phone' => '09121111111',
             'level' => 'admin',
+            'access_tier' => 'titanium', // OTP credit/reports are Titanium-only
             'active' => true,
         ]);
 
@@ -464,7 +468,7 @@ class SmsFinancialAndReportTest extends TestCase
         $response->assertViewIs('Admin.sms.financial.otp');
         $response->assertViewHas(['balance', 'total_charged', 'total_consumed', 'message_count', 'transactions']);
 
-        // 2. Top-up POST
+        // 2. Top-up POST starts a payment only: no gateway is bound, so nothing is credited.
         $topupResponse = $this->post(route('admin.sms.financial.otp.topup'), [
             'business_id' => $this->businessA->id,
             'amount' => 250000,
@@ -472,13 +476,8 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         $topupResponse->assertRedirect();
-        $this->assertDatabaseHas('sms_transactions', [
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'credit_type' => 'otp',
-            'charge_amount' => 250000,
-            'tracking_id' => 'BANK-OTP-999',
-        ]);
-        $this->assertEquals(250000, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertDatabaseMissing('sms_transactions', ['tracking_id' => 'BANK-OTP-999']);
+        $this->assertEquals(0, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
     }
 
     public function test_http_advertising_view_and_topup(): void
@@ -494,7 +493,7 @@ class SmsFinancialAndReportTest extends TestCase
         $response->assertViewHas(['balance', 'total_charged', 'total_consumed', 'message_count', 'transactions']);
         $response->assertViewMissing('senders_summary');
 
-        // 2. Top-up POST
+        // 2. Top-up POST starts a payment only: no gateway is bound, so nothing is credited.
         $topupResponse = $this->post(route('admin.sms.financial.advertising.topup'), [
             'business_id' => $this->businessA->id,
             'amount' => 300000,
@@ -502,14 +501,8 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         $topupResponse->assertRedirect();
-        $this->assertDatabaseHas('sms_transactions', [
-            'ghorfe_online_list_id' => $this->businessA->id,
-            'credit_type' => 'advertising',
-            'sender_number_id' => null,
-            'charge_amount' => 300000,
-            'tracking_id' => 'BANK-ADV-888',
-        ]);
-        $this->assertEquals(300000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertDatabaseMissing('sms_transactions', ['tracking_id' => 'BANK-ADV-888']);
+        $this->assertEquals(0, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
     }
 
     public function test_http_balance_check_api(): void
@@ -741,5 +734,32 @@ class SmsFinancialAndReportTest extends TestCase
         $superRes = $this->get(route('admin.sms.reports.superadmin.export'));
         $superRes->assertOk();
         $this->assertStringContainsString('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', $superRes->headers->get('Content-Type'));
+    }
+
+    public function test_exports_without_business_id_redirect_super_admin_instead_of_403(): void
+    {
+        $this->actingAs($this->superAdminUser);
+
+        foreach (['admin.sms.reports.otp.export', 'admin.sms.reports.advertising.export'] as $name) {
+            $res = $this->get(route($name, ['status' => 'sent']));
+            $res->assertRedirect();
+            $location = $res->headers->get('Location');
+            $this->assertStringContainsString('business_id=' . GhorfeOnlineList::query()->value('id'), $location);
+            $this->assertStringContainsString('status=sent', $location);
+            $this->get($location)->assertOk();
+        }
+    }
+
+    public function test_export_without_any_business_is_still_forbidden_for_non_super_admin(): void
+    {
+        $loner = User::create([
+            'name' => 'بی', 'family' => 'کسب‌وکار', 'phone' => '09125550000',
+            'level' => 'admin', 'access_tier' => 'titanium', 'active' => true,
+        ]);
+        $this->actingAs($loner);
+
+        $this->get(route('admin.sms.reports.advertising.export', ['business_id' => $this->businessB->id]))
+            ->assertForbidden();
+        $this->get(route('admin.sms.reports.advertising.export'))->assertForbidden();
     }
 }

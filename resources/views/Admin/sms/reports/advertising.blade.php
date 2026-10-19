@@ -169,11 +169,17 @@
         </div>
     </div>
 
+@include('Admin.sms.reports.partials.direction-tiles')
+    <div class="text-muted small mb-3">
+        <i class="fa fa-info-circle ms-1"></i>
+        این گزارش پیامک‌های تبلیغاتی و عادی (از جمله پاسخ‌های خودکار و پیام‌های تکی عادی) را نشان می‌دهد؛ آمار هزینه و تحویل شامل پیامک‌های ارسالی از هر دو نوع است. پیامک‌های اعتبارسنجی (OTP) فقط در گزارش OTP می‌آیند.
+    </div>
+
     <!-- Per-Sender Breakdown -->
     @if($sender_breakdown->isNotEmpty())
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0 py-3">
-                <h6 class="fw-bold mb-0"><i class="fa fa-list-alt me-1"></i> تفکیک عملکرد بر اساس خطوط فرستنده</h6>
+                <h6 class="fw-bold mb-0"><i class="fa fa-list-alt me-1"></i> تفکیک عملکرد بر اساس خطوط فرستنده <small class="text-muted">(تبلیغاتی و عادی؛ هزینه و نرخ موفقیت فقط ارسالی‌ها)</small></h6>
             </div>
             <div class="card-body p-0 table-responsive">
                 <table class="table table-hover align-middle mb-0 text-center small">
@@ -183,7 +189,8 @@
                             @if(auth()->user()?->isSuperAdmin())
                                 <th>درگاه</th>
                             @endif
-                            <th>تعداد پیامک‌ها</th>
+                            <th>پیامک‌های ارسالی</th>
+                            <th>پیامک‌های دریافتی</th>
                             <th>تعداد کمپین‌ها</th>
                             <th>مجموع هزینه (ریال)</th>
                             <th>نرخ موفقیت</th>
@@ -198,6 +205,7 @@
                                     <td>{{ $sb['sender']->sms_panel ?? '-' }}</td>
                                 @endif
                                 <td>{{ number_format($sb['messages_count']) }}</td>
+                                <td>{{ number_format($sb['inbound_count']) }}</td>
                                 <td>{{ number_format($sb['campaigns_count']) }}</td>
                                 <td class="text-danger fw-bold">{{ number_format($sb['cost']) }}</td>
                                 <td>
@@ -206,7 +214,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="{{ route('admin.sms.reports.advertising.index', ['sender_number_id' => $sb['sender']->id]) }}" 
+                                    <a href="{{ route('admin.sms.reports.advertising.index', array_filter(array_merge(request()->except(['sender_number_id', 'messages_page', 'campaigns_page']), ['sender_number_id' => $sb['sender']->id]))) }}" 
                                        class="btn btn-sm btn-outline-primary py-0">
                                         مشاهده گزارش این خط
                                     </a>
@@ -223,6 +231,9 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('admin.sms.reports.advertising.index') }}" class="row g-3">
+                @if(auth()->user()?->isSuperAdmin() && isset($business) && $business)
+                    <input type="hidden" name="business_id" value="{{ $business->id }}">
+                @endif
                 <div class="col-12 col-md-3">
                     <label class="form-label small fw-bold">خط فرستنده</label>
                     <select name="sender_number_id" class="form-select form-select-sm">
@@ -248,6 +259,15 @@
                     <label class="form-label small fw-bold">جستجو (شماره یا کد رهگیری)</label>
                     <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="شماره گیرنده یا متن">
                 </div>
+@include('Admin.sms.reports.partials.direction-filter')
+                <div class="col-12 col-md-2">
+                    <label class="form-label small fw-bold">نوع پیام</label>
+                    <select name="service_type" class="form-select form-select-sm">
+                        <option value="">همه</option>
+                        <option value="advertising" {{ request('service_type') === 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
+                        <option value="normal" {{ request('service_type') === 'normal' ? 'selected' : '' }}>عادی</option>
+                    </select>
+                </div>
                 <div class="col-12 col-md-2">
                     <label class="form-label small fw-bold">از تاریخ</label>
                     <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
@@ -257,7 +277,7 @@
                     <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                 </div>
                 <div class="col-12 text-end">
-                    <a href="{{ route('admin.sms.reports.advertising.index') }}" class="btn btn-light btn-sm me-2">پاکسازی فیلترها</a>
+                    <a href="{{ route('admin.sms.reports.advertising.index', array_filter(['business_id' => request('business_id')])) }}" class="btn btn-light btn-sm me-2">پاکسازی فیلترها</a>
                     <button type="submit" class="btn btn-primary btn-sm px-4">
                         <i class="fa fa-filter me-1"></i> اعمال فیلتر
                     </button>
@@ -303,10 +323,10 @@
                                 <td>{{ $camp->cost_estimate ? number_format($camp->cost_estimate) : '-' }} ریال</td>
                                 <td>
                                     <span class="badge {{ $camp->status === 'completed' ? 'bg-success' : ($camp->status === 'failed' ? 'bg-danger' : 'bg-warning text-dark') }}">
-                                        {{ $camp->status }}
+                                        {{ \App\Support\SmsLabels::status($camp->status) }}
                                     </span>
                                 </td>
-                                <td>{{ $camp->created_at->format('Y/m/d H:i') }}</td>
+                                <td>{{ \App\Helpers\Helper::jalaliDate($camp->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -323,7 +343,7 @@
     <!-- Messages Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h6 class="fw-bold mb-0"><i class="fa fa-envelope-o me-1"></i> پیامک‌های تبلیغاتی</h6>
+            <h6 class="fw-bold mb-0"><i class="fa fa-envelope-o me-1"></i> پیامک‌های تبلیغاتی و عادی (ارسالی و دریافتی)</h6>
             <span class="badge bg-light text-dark">{{ $messages->total() }} پیامک</span>
         </div>
         <div class="card-body p-0 table-responsive">
@@ -331,13 +351,17 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
+                        <th>جهت</th>
+                        <th>نوع پیام</th>
                         <th>خط فرستنده</th>
                         <th>گیرنده</th>
                         <th>متن پیامک</th>
+                        <th>درخواست</th>
                         <th>کاراکتر / صفحه</th>
                         <th>هزینه (ریال)</th>
                         <th>وضعیت</th>
                         <th>شناسه پیگیری</th>
+                        <th>گروه</th>
                         <th>تاریخ</th>
                     </tr>
                 </thead>
@@ -345,6 +369,8 @@
                     @forelse($messages as $msg)
                         <tr>
                             <td>{{ $msg->id }}</td>
+                            <td>@include('Admin.sms.reports.partials.direction-badge')</td>
+                            <td><span class="badge {{ $msg->service_type === 'advertising' ? 'badge-soft-primary' : 'badge-soft-secondary' }}">{{ \App\Support\SmsLabels::serviceType($msg->service_type ?: 'normal') }}</span></td>
                             <td>{{ $msg->senderNumber?->number ?? $msg->sender_phone ?? '-' }}</td>
                             <td class="fw-bold">{{ $msg->recipient_phone }}</td>
                             <td class="text-start" style="max-width: 320px;">
@@ -352,7 +378,7 @@
                                     <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
                                 @else
                                     <div class="d-flex align-items-center gap-1">
-                                        <span class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</span>
+                                        <span class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</span>@if(method_exists($msg, 'isConfidential') && $msg->isConfidential())<span class="badge bg-danger ms-1">محرمانه</span>@endif
                                         <button type="button" class="btn btn-sm btn-link p-0 text-primary view-details-btn" 
                                                 title="مشاهده متن کامل"
                                                 data-bs-toggle="modal" 
@@ -368,16 +394,23 @@
                                                 data-pages="{{ $msg->page_count }}"
                                                 data-chars="{{ $msg->character_count }}"
                                                 data-tracking="{{ $msg->tracking_id ?: '-' }}"
-                                                data-date="{{ $msg->created_at->format('Y/m/d H:i') }}">
+                                                data-date="{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}">
                                             <i class="fa fa-eye"></i>
                                         </button>
                                     </div>
                                 @endif
                             </td>
+                            <td class="small">{{ $msg->request_breadcrumb ?: '-' }}</td>
                             <td>{{ $msg->character_count }} / {{ $msg->page_count }}</td>
-                            <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
+                            @if(($msg->direction ?? '') === 'inbound')
+                                <td class="text-muted">-</td>
+                            @else
+                                <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
+                            @endif
                             <td>
-                                @if(in_array($msg->status, ['delivered', 'sent']))
+                                @if(($msg->direction ?? '') === 'inbound')
+                                    <span class="badge badge-soft-info">دریافت شد</span>
+                                @elseif(in_array($msg->status, ['delivered', 'sent']))
                                     <span class="badge badge-soft-success">موفق</span>
                                 @elseif($msg->status === 'queued')
                                     <span class="badge badge-soft-warning">در صف</span>
@@ -386,11 +419,12 @@
                                 @endif
                             </td>
                             <td><code>{{ $msg->tracking_id ?? '-' }}</code></td>
-                            <td>{{ $msg->created_at->format('Y/m/d H:i') }}</td>
+                            <td>{{ $msg->group?->name ?? '-' }}</td>
+                            <td>{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-muted py-4">پیامک تبلیغاتی منطبق با فیلترها یافت نشد.</td>
+                            <td colspan="13" class="text-muted py-4">پیامک تبلیغاتی منطبق با فیلترها یافت نشد.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -431,6 +465,7 @@
                 </div>
             </div>
             <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copyMsgBtn">کپی متن</button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-dismiss="modal">بستن</button>
             </div>
         </div>
@@ -441,6 +476,11 @@
 @section('js')
 <script>
 $(document).ready(function() {
+    $(document).on('click', '#copyMsgBtn', function() {
+        var t = $('#mContent').text();
+        if (navigator.clipboard) { navigator.clipboard.writeText(t); }
+        $(this).text('کپی شد');
+    });
     $(document).on('click', '.view-details-btn', function() {
         var btn = $(this);
         $('#mSender').text(btn.data('sender') || '-');
@@ -452,6 +492,7 @@ $(document).ready(function() {
         $('#mCost').text(btn.data('cost') || '0');
         $('#mDate').text(btn.data('date') || '-');
         $('#mContent').text(btn.data('content') || '');
+        $('#copyMsgBtn').text('کپی متن');
 
         var modalEl = document.getElementById('smsDetailsModal');
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {

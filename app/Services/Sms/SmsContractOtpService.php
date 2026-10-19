@@ -88,6 +88,11 @@ class SmsContractOtpService
             throw new ContractOtpException('send_failed', 'ارسال پیامک کد تایید ناموفق بود. چند لحظه بعد دوباره تلاش کنید.');
         }
 
+        app(SmsAuditService::class)->record($signer, SmsAuditService::CHANNEL_OTP, [
+            'business_id' => $business->id,
+            'service_type' => 'otp',
+        ]);
+
         return [
             'expires_in' => $this->ttlSeconds,
             'resend_after' => $this->resendCooldownSeconds,

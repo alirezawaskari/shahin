@@ -17,9 +17,10 @@ class SmsLogService
      * @param array<string, mixed> $filters
      * @param GhorfeOnlineList|null $business
      * @param bool $isSuperAdmin
+     * @param bool $canUseOtp Whether the viewer may see OTP rows (SmsAccessTierService::canUseOtp()).
      * @return Builder
      */
-    public function buildQuery(array $filters = [], ?GhorfeOnlineList $business = null, bool $isSuperAdmin = false): Builder
+    public function buildQuery(array $filters = [], ?GhorfeOnlineList $business = null, bool $isSuperAdmin = false, bool $canUseOtp = true): Builder
     {
         $query = SmsMessage::query()
             ->with(['business', 'senderNumber', 'template', 'group', 'campaign', 'user', 'creator', 'request']);
@@ -40,6 +41,16 @@ class SmsLogService
         // 2. Service type (otp, advertising, normal)
         if (!empty($filters['service_type']) && $filters['service_type'] !== 'all') {
             $query->where('service_type', $filters['service_type']);
+        }
+
+        // 2b. OTP rows are hidden from viewers who cannot use OTP, whatever filter was requested.
+        if (!$canUseOtp) {
+            $query->where(fn (Builder $q) => $q->whereNull('service_type')->orWhere('service_type', '!=', 'otp'));
+        }
+
+        // 2c. Fixed OTP system category filter: staff only (lower tiers never see OTP rows at all).
+        if ($canUseOtp && !empty($filters['otp_category']) && $filters['otp_category'] !== 'all') {
+            $query->where('service_type', 'otp')->where('otp_category', (string) $filters['otp_category']);
         }
 
         // 3. Direction (outbound = sent, inbound = received)
@@ -130,9 +141,14 @@ class SmsLogService
         array $filters = [],
         ?GhorfeOnlineList $business = null,
         bool $isSuperAdmin = false,
-        int $perPage = 20
+        int $perPage = 20,
+        bool $canUseOtp = true
     ): LengthAwarePaginator {
-        return $this->buildQuery($filters, $business, $isSuperAdmin)->paginate($perPage);
+        $logs = $this->buildQuery($filters, $business, $isSuperAdmin, $canUseOtp)->paginate($perPage);
+
+        app(CatalogBreadcrumbResolver::class)->annotateMessages($logs->getCollection());
+
+        return $logs;
     }
 
     /**
@@ -146,9 +162,10 @@ class SmsLogService
     public function getSummaryMetrics(
         array $filters = [],
         ?GhorfeOnlineList $business = null,
-        bool $isSuperAdmin = false
+        bool $isSuperAdmin = false,
+        bool $canUseOtp = true
     ): array {
-        $baseQuery = $this->buildQuery($filters, $business, $isSuperAdmin);
+        $baseQuery = $this->buildQuery($filters, $business, $isSuperAdmin, $canUseOtp);
 
         $total = (clone $baseQuery)->count();
         $outbound = (clone $baseQuery)->where('direction', 'outbound')->count();

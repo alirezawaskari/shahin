@@ -24,6 +24,7 @@ use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class SmsBulkSendController extends Controller
@@ -56,6 +57,22 @@ class SmsBulkSendController extends Controller
     }
 
     /**
+     * «ارسال پیامک» of the requests page (flagged __direct by requestFilterSms.js) is for
+     * holders of view-phone-numbers only; the same endpoints serve the bulk page, which is not.
+     */
+    protected function denyDirectSms(array $filters): ?JsonResponse
+    {
+        if (empty($filters['request_filter']['__direct']) || $this->accessTierService->canViewPhoneNumbers(auth()->user())) {
+            return null;
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'شما مجوز ارسال پیامک مستقیم از نتیجه فیلتر را ندارید.',
+        ], 403);
+    }
+
+    /**
      * Display the Bulk SMS Send Interface.
      */
     public function index(Request $request): View
@@ -77,8 +94,9 @@ class SmsBulkSendController extends Controller
                 });
         }
 
-        // Active SMS templates (scoped to business)
+        // Active promotional templates only (scoped to business) — OTP/normal templates never appear here
         $templates = SmsMessageTemplate::active()
+            ->forAdvertising()
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with('group')
             ->latest()
@@ -94,6 +112,7 @@ class SmsBulkSendController extends Controller
         $recentCampaigns = collect();
         if ($business) {
             $recentCampaigns = SmsCampaign::where('ghorfe_online_list_id', $business->id)
+                ->where('status', '!=', SmsCampaign::STATUS_PENDING_QUEUE)
                 ->with(['senderNumber', 'template'])
                 ->latest()
                 ->take(10)
@@ -102,7 +121,8 @@ class SmsBulkSendController extends Controller
 
         $userTier = $this->accessTierService->effectiveTier($user);
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
-        $groups = SmsMessageGroup::whereNull('parent_id')
+        // Promotional subject categories only (event/greeting, sales, support) — see SmsMessageGroup::PROMOTIONAL_ROOT_SLUGS.
+        $groups = SmsMessageGroup::promotionalRoots()
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with(['subgroups' => function ($q) use ($business) {
                 $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
@@ -110,7 +130,23 @@ class SmsBulkSendController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Resuming an entry of the outgoing queue: prefill the compose page from it.
+        $queuedCampaign = null;
+        $queuedInput = null;
+        if ($request->filled('queue')) {
+            $queuedCampaign = $this->loadQueuedCampaign((int) $request->input('queue'), $business);
+            $queuedInput = $this->bulkSmsSendService->queuedCampaignToInput($queuedCampaign);
+            // datetime-local format, so the picker can be refilled as-is
+            $queuedInput['scheduled_at'] = $queuedInput['scheduled_at']?->format('Y-m-d\TH:i');
+        }
+        $queuedCount = SmsCampaign::pendingQueue()->where('ghorfe_online_list_id', $business->id)->count();
+        $costPerPage = (float) config('services.sms.cost_per_page', 1200);
+
         return view('Admin.sms.bulk.index', compact(
+            'queuedCampaign',
+            'queuedInput',
+            'queuedCount',
+            'costPerPage',
             'business',
             'user',
             'userTier',
@@ -136,6 +172,10 @@ class SmsBulkSendController extends Controller
 
         $recipientType = (string) $request->input('recipient_type', 'normal');
         $filters = (array) $request->input('filters', []);
+
+        if ($denied = $this->denyDirectSms($filters)) {
+            return $denied;
+        }
 
         // Include manual numbers if passed
         if ($request->filled('custom_numbers')) {
@@ -181,7 +221,6 @@ class SmsBulkSendController extends Controller
         $tariff = $segmentation['tariff'];
 
         $validCount = $filterResult['valid_count'];
-        $totalEstimatedCost = $this->bulkSmsSendService->calculateCampaignCost($validCount, $pageCount);
 
         // 4. Resolve sender number & balance
         $senderNumberId = $request->input('sender_number_id');
@@ -198,39 +237,34 @@ class SmsBulkSendController extends Controller
             }
         }
 
-        $totalEstimatedCost = $filterResult['valid_count'] * $segmentation['cost_per_message'];
+        // «کاهش تعداد مخاطبین»: what the balance can pay for, and the (capped) audience actually priced.
+        $maxAffordable = $this->bulkSmsSendService->maxAffordableRecipients($currentBalance, $pageCount);
+        $effectiveCount = $validCount;
+        if ((int) $request->input('max_recipients') > 0) {
+            $effectiveCount = min($validCount, (int) $request->input('max_recipients'), $maxAffordable);
+        }
+        $totalEstimatedCost = $effectiveCount * $segmentation['cost_per_message'];
 
         $hasSufficientBalance = ($totalEstimatedCost > 0) ? ($currentBalance >= $totalEstimatedCost) : true;
         $balanceDeficit = ($totalEstimatedCost > $currentBalance) ? ($totalEstimatedCost - $currentBalance) : 0;
         $isLowBalance = ($currentBalance < 100000) || ($balanceDeficit > 0);
 
-        $canViewRawPhones = $user && ($user->isSuperAdmin() || $user->can('export-callcenter'));
-        $maskedValidSample = array_map(function ($rec) use ($canViewRawPhones) {
-            if (!$canViewRawPhones && !empty($rec['phone'])) {
-                $p = (string) $rec['phone'];
-                $rec['phone'] = strlen($p) >= 7 ? substr($p, 0, 4) . '***' . substr($p, -3) : '***';
-            }
-            return $rec;
-        }, array_slice($filterResult['valid_recipients'], 0, 5));
-
-        $maskedInvalidSample = array_map(function ($rec) use ($canViewRawPhones) {
-            if (!$canViewRawPhones && !empty($rec['phone']) && $rec['phone'] !== '(خالی)') {
-                $p = (string) $rec['phone'];
-                $rec['phone'] = strlen($p) >= 7 ? substr($p, 0, 4) . '***' . substr($p, -3) : '***';
-            }
-            return $rec;
-        }, array_slice($filterResult['invalid_recipients'], 0, 5));
+        // Phone numbers (even masked) are shown only to holders of view-phone-numbers; everyone
+        // else gets the aggregated counts and no samples at all.
+        $recipientSummary = [
+            'total_candidates' => $filterResult['total_candidates'],
+            'valid_count' => $filterResult['valid_count'],
+            'invalid_count' => $filterResult['invalid_count'],
+            'duplicate_count' => $filterResult['duplicate_count'],
+        ];
+        if ($this->accessTierService->canViewPhoneNumbers($user)) {
+            $recipientSummary['invalid_sample'] = array_slice($filterResult['invalid_recipients'], 0, 5);
+            $recipientSummary['valid_sample'] = array_slice($filterResult['valid_recipients'], 0, 5);
+        }
 
         return response()->json([
             'status' => 'success',
-            'recipient_summary' => [
-                'total_candidates' => $filterResult['total_candidates'],
-                'valid_count' => $filterResult['valid_count'],
-                'invalid_count' => $filterResult['invalid_count'],
-                'duplicate_count' => $filterResult['duplicate_count'],
-                'invalid_sample' => $maskedInvalidSample,
-                'valid_sample' => $maskedValidSample,
-            ],
+            'recipient_summary' => $recipientSummary,
             'message_summary' => [
                 'raw_text' => $rawMessage,
                 'resolved_text' => $segmentation['text'],
@@ -246,6 +280,9 @@ class SmsBulkSendController extends Controller
                 'balance_after' => max(0, $currentBalance - $totalEstimatedCost),
                 'has_sufficient_balance' => $hasSufficientBalance,
                 'balance_deficit' => $balanceDeficit,
+                'max_affordable_recipients' => $maxAffordable,
+                'effective_recipient_count' => $effectiveCount,
+                'cost_per_page' => (float) config('services.sms.cost_per_page', 1200),
                 'is_low_balance' => $isLowBalance,
                 'sender_number' => $senderNumber ? $senderNumber->number : null,
                 'sender_number_id' => $senderNumber ? $senderNumber->id : null,
@@ -278,6 +315,10 @@ class SmsBulkSendController extends Controller
             return redirect()->back()->withErrors(['business' => 'کسب‌وکار معتبری برای ارسال پیامک یافت نشد.']);
         }
 
+        if ($denied = $this->denyDirectSms((array) $request->input('filters', []))) {
+            return $denied;
+        }
+
         $validatedData = $request->validated();
         if ($request->filled('custom_numbers')) {
             $filters = $validatedData['filters'] ?? [];
@@ -287,6 +328,14 @@ class SmsBulkSendController extends Controller
 
         try {
             $campaign = $this->bulkSmsSendService->createCampaign($validatedData, $user, $business);
+
+            // The send was resumed from the outgoing queue: that entry is now a real campaign.
+            if (!empty($validatedData['queue_id'])) {
+                SmsCampaign::pendingQueue()
+                    ->where('ghorfe_online_list_id', $business->id)
+                    ->whereKey($validatedData['queue_id'])
+                    ->delete();
+            }
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -310,6 +359,8 @@ class SmsBulkSendController extends Controller
                     'message' => $e->getMessage(),
                     'current_balance' => $e->currentBalance,
                     'required_amount' => $e->requiredAmount,
+                    'deficit' => max(0, $e->requiredAmount - $e->currentBalance),
+                    'max_affordable_recipients' => $e->maxAffordableRecipients,
                 ], 422);
             }
             return redirect()->back()->withInput()->withErrors(['balance' => $e->getMessage()]);
@@ -375,6 +426,145 @@ class SmsBulkSendController extends Controller
     }
 
     /**
+     * Persist unsent compose-page content as a pending_queue campaign (no debit, no send).
+     * Called by the explicit «ذخیره در صف ارسال» button and by the page-leave beacon.
+     */
+    public function saveToQueue(Request $request): JsonResponse
+    {
+        $business = $this->resolveBusiness($request);
+        $user = auth()->user();
+
+        $validator = Validator::make($request->all(), [
+            'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
+            'message' => ['nullable', 'string'],
+            'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
+            'sms_message_group_id' => ['nullable', 'integer', 'exists:sms_message_groups,id', function ($attr, $value, $fail) {
+                if (!SmsMessageGroup::isPromotionalId($value)) {
+                    $fail('دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.');
+                }
+            }],
+            'sender_number_id' => ['nullable', 'integer', 'exists:sender_numbers,id'],
+            'filters' => ['nullable', 'array'],
+            'scheduled_at' => ['nullable', 'date'],
+            'custom_numbers' => ['nullable', 'string'],
+            'queue_id' => ['nullable', 'integer'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' => $validator->errors()->first()], 422);
+        }
+
+        $filters = (array) $request->input('filters', []);
+        if ($denied = $this->denyDirectSms($filters)) {
+            return $denied;
+        }
+        if ($request->filled('custom_numbers')) {
+            $filters['custom_numbers'] = $request->input('custom_numbers');
+        }
+
+        $data = $request->only([
+            'recipient_type', 'message', 'sms_message_template_id', 'sms_message_group_id',
+            'sender_number_id', 'scheduled_at',
+        ]);
+        $data['recipient_type'] = $data['recipient_type'] ?? 'normal';
+        $data['filters'] = $filters;
+
+        try {
+            $existing = $request->filled('queue_id')
+                ? $this->loadQueuedCampaign((int) $request->input('queue_id'), $business)
+                : null;
+
+            $queued = $this->bulkSmsSendService->saveToQueue($data, $user, $business, $existing);
+        } catch (TierAccessDeniedException $e) {
+            return response()->json([
+                'status' => 'error',
+                'error_type' => 'tier_denied',
+                'message' => $e->getMessage(),
+            ], 403);
+        } catch (DomainException $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'پیش‌نویس در صف ارسال ذخیره شد.',
+            'queue_id' => $queued->id,
+            'queue_url' => route('admin.sms.bulk.queue'),
+        ]);
+    }
+
+    /**
+     * Outgoing queue («صف ارسال»): the current business' unsent pending_queue campaigns.
+     */
+    public function queue(Request $request): View
+    {
+        $business = $this->resolveBusiness($request);
+
+        $queued = SmsCampaign::pendingQueue()
+            ->where('ghorfe_online_list_id', $business->id)
+            ->with(['senderNumber', 'template', 'creator'])
+            ->latest()
+            ->paginate(15);
+
+        return view('Admin.sms.bulk.queue', compact('business', 'queued'));
+    }
+
+    /**
+     * «ارسال اکنون»: goes through the normal send path (tier gate + balance guard).
+     */
+    public function sendQueued(Request $request, SmsCampaign $campaign): RedirectResponse
+    {
+        $business = $this->resolveBusiness($request);
+        $queued = $this->loadQueuedCampaign($campaign->id, $business);
+
+        try {
+            $sent = $this->bulkSmsSendService->sendQueuedCampaign(
+                $queued,
+                auth()->user(),
+                $business,
+                $request->filled('max_recipients') ? (int) $request->input('max_recipients') : null
+            );
+        } catch (InsufficientBalanceException $e) {
+            return redirect()->route('admin.sms.bulk.queue')->withErrors(['balance' => $e->getMessage()]);
+        } catch (TierAccessDeniedException $e) {
+            return redirect()->route('admin.sms.bulk.queue')->withErrors(['tier' => $e->getMessage()]);
+        } catch (DomainException $e) {
+            return redirect()->route('admin.sms.bulk.queue')->withErrors(['error' => $e->getMessage()]);
+        }
+
+        return redirect()->route('admin.sms.bulk.campaigns.show', $sent)
+            ->with('success', 'کمپین پیامکی با موفقیت ثبت گردید.');
+    }
+
+    public function destroyQueued(Request $request, SmsCampaign $campaign): RedirectResponse
+    {
+        $business = $this->resolveBusiness($request);
+        $this->loadQueuedCampaign($campaign->id, $business)->delete();
+
+        return redirect()->route('admin.sms.bulk.queue')->with('success', 'مورد از صف ارسال حذف شد.');
+    }
+
+    /**
+     * Fetch a pending_queue campaign of THIS business and re-run the tier gate on its stored
+     * audience filter (the user may have lost access since it was saved). 404 otherwise.
+     */
+    protected function loadQueuedCampaign(int $id, GhorfeOnlineList $business): SmsCampaign
+    {
+        $queued = SmsCampaign::pendingQueue()
+            ->where('ghorfe_online_list_id', $business->id)
+            ->whereKey($id)
+            ->firstOrFail();
+
+        $input = $this->bulkSmsSendService->queuedCampaignToInput($queued);
+        try {
+            $this->accessTierService->assertCanQuery(auth()->user(), $input['filters'], $input['recipient_type'], $business->id);
+        } catch (TierAccessDeniedException $e) {
+            abort(403, $e->getMessage());
+        }
+
+        return $queued;
+    }
+
+    /**
      * List all bulk campaigns.
      */
     public function campaigns(Request $request): View
@@ -383,6 +573,7 @@ class SmsBulkSendController extends Controller
 
         $query = SmsCampaign::query()
             ->where('type', 'bulk')
+            ->where('status', '!=', SmsCampaign::STATUS_PENDING_QUEUE)
             ->with(['senderNumber', 'template', 'creator'])
             ->latest();
 
@@ -436,6 +627,7 @@ class SmsBulkSendController extends Controller
                 'status' => $campaign->status,
                 'status_label' => match ($campaign->status) {
                     'draft' => 'پیش‌نویس',
+                    'pending_queue' => 'در صف ارسال',
                     'scheduled' => 'زمان‌بندی شده',
                     'sending' => 'در حال ارسال',
                     'completed' => 'تکمیل شده',

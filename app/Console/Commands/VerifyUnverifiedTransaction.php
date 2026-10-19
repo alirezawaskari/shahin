@@ -49,6 +49,19 @@ class VerifyUnverifiedTransaction extends Command {
         $authorities = json_decode($result['Authorities']);
         foreach($authorities as $authority)
         {
+            // SMS top-up tokens are not invoices: settle them through the SMS service.
+            $smsHandler = app(\App\Services\Sms\SmsTopUpCallbackHandler::class);
+            $smsPayment = $smsHandler->find(str_replace('"', '', $authority->Authority));
+            if ($smsPayment) {
+                if ($smsPayment->isPending()) {
+                    try {
+                        $smsHandler->verifyZarinpal($smsPayment);
+                    } catch (\Throwable $e) {
+                        \Log::error('SMS top-up unverified settle failed: ' . $e->getMessage(), ['payment' => $smsPayment->id]);
+                    }
+                }
+                continue;
+            }
             $factor = Factor::where('factorable_type' , str_replace('"', '', $authority->Authority))->first();
             if($factor && $factor->status != 1)
             {

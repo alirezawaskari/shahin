@@ -1,11 +1,5 @@
-<style>
-    /* RTL Icon Spacing */
-    .sms-logs-nav .nav-link i.fa,
-    .nav-pills .nav-link i.fa {
-        margin-left: 0.45rem !important;
-        margin-right: 0 !important;
-    }
-</style>
+{{-- Stylesheet link instead of <style>: the page body is Vue-compiled, which drops <style>/<script> tags. --}}
+<link rel="stylesheet" href="{{ asset('assets/dashboard/css/sms-nav.css') }}">
 
 <div class="card mb-3 shadow-sm border-0 sms-logs-nav">
     <div class="card-body p-2">
@@ -35,7 +29,7 @@
             @if(Route::has('admin.sms.financial.otp.index'))
                 <li class="nav-item flex-shrink-0">
                     <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.financial.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
-                       href="{{ route('admin.sms.financial.otp.index') }}">
+                       href="{{ route(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()) ? 'admin.sms.financial.otp.index' : 'admin.sms.financial.advertising.index') }}">
                         <i class="fa fa-money ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> امور مالی و موجودی
                     </a>
                 </li>
@@ -43,7 +37,7 @@
             @if(Route::has('admin.sms.reports.otp.index'))
                 <li class="nav-item flex-shrink-0">
                     <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.reports.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
-                       href="{{ route('admin.sms.reports.otp.index') }}">
+                       href="{{ route(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()) ? 'admin.sms.reports.otp.index' : 'admin.sms.reports.advertising.index') }}">
                         <i class="fa fa-bar-chart ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> گزارشات آماری
                     </a>
                 </li>

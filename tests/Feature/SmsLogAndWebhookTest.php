@@ -73,7 +73,6 @@ class SmsLogAndWebhookTest extends TestCase
             $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
             $table->string('title');
             $table->string('slug')->nullable();
-            $table->string('linenumber')->nullable();
             $table->boolean('status')->default(true);
             $table->softDeletes();
             $table->timestamps();
@@ -264,6 +263,7 @@ class SmsLogAndWebhookTest extends TestCase
             'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
             'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
             'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
+            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -272,8 +272,8 @@ class SmsLogAndWebhookTest extends TestCase
         }
 
         // Seed basic fixtures
-        $this->businessA = GhorfeOnlineList::create(['title' => 'فروشگاه آلفا', 'slug' => 'alpha', 'linenumber' => '30001111']);
-        $this->businessB = GhorfeOnlineList::create(['title' => 'فروشگاه بتا', 'slug' => 'beta', 'linenumber' => '30002222']);
+        $this->businessA = GhorfeOnlineList::create(['title' => 'فروشگاه آلفا', 'slug' => 'alpha']);
+        $this->businessB = GhorfeOnlineList::create(['title' => 'فروشگاه بتا', 'slug' => 'beta']);
 
         $this->sender1 = SenderNumber::create(['number' => '10001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
         $this->sender2 = SenderNumber::create(['number' => '20002222', 'type' => 'advertising', 'sms_panel' => 'NeginSms', 'status' => 'active']);
@@ -330,9 +330,6 @@ class SmsLogAndWebhookTest extends TestCase
 
         \Illuminate\Support\Facades\Cache::flush();
         \App\Models\Setting::create(['key' => 'title', 'value' => 'Laleh']);
-        \Illuminate\Support\Facades\RateLimiter::for('api', function () {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(1000);
-        });
 
         $this->logService = app(SmsLogService::class);
         $this->webhookService = app(SmsWebhookService::class);
@@ -537,7 +534,7 @@ class SmsLogAndWebhookTest extends TestCase
     {
         $payload = [
             'sender' => '09123334455',
-            'recipient' => '30001111',
+            'recipient' => '20002222',
             'message' => 'درخواست لغو سرویس',
             'tracking_id' => 'INB-PARSA-999',
         ];
@@ -550,7 +547,7 @@ class SmsLogAndWebhookTest extends TestCase
         $this->assertNotNull($saved);
         $this->assertEquals('inbound', $saved->direction);
         $this->assertEquals('09123334455', $saved->sender_phone);
-        $this->assertEquals('30001111', $saved->recipient_phone);
+        $this->assertEquals('20002222', $saved->recipient_phone);
         $this->assertEquals('درخواست لغو سرویس', $saved->content);
         $this->assertEquals($this->regularCustomer->id, $saved->user_id);
         $this->assertEquals($this->businessA->id, $saved->ghorfe_online_list_id);
@@ -724,5 +721,117 @@ class SmsLogAndWebhookTest extends TestCase
         $jsonResponse = $this->getJson(route('admin.sms.logs.index'));
         $jsonResponse->assertStatus(200);
         $jsonResponse->assertJsonStructure(['success', 'data', 'summary']);
+    }
+
+    public function test_webhook_goes_through_real_api_throttle_and_secret_middleware(): void
+    {
+        config(['services.sms.webhook_secret' => 'test-secret']);
+        $this->assertNotNull(\Illuminate\Support\Facades\RateLimiter::limiter('api'), 'api rate limiter must be defined');
+
+        $header = \App\Http\Middleware\VerifySmsWebhookSecret::HEADER;
+
+        $this->withHeader($header, 'test-secret')
+            ->postJson('/api/sms/webhook/inbound', ['sender' => '09123334455', 'recipient' => '20002222', 'message' => 'سلام'])
+            ->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->withHeader($header, 'wrong')
+            ->postJson('/api/sms/webhook/inbound', ['sender' => '09123334455', 'message' => 'سلام'])
+            ->assertStatus(401);
+    }
+
+    public function test_inbound_to_unknown_line_is_stored_without_business_and_does_not_error(): void
+    {
+        $res = $this->webhookService->handleInboundMessage([
+            'sender' => '09123334455', 'recipient' => '99990000', 'message' => 'سلام', 'tracking_id' => 'INB-UNKNOWN-1',
+        ]);
+
+        $this->assertTrue($res['success']);
+        $this->assertNull(SmsMessage::where('tracking_id', 'INB-UNKNOWN-1')->value('ghorfe_online_list_id'));
+    }
+
+    public function test_log_detail_page_renders_for_allowed_and_hides_otp_from_lower_tiers(): void
+    {
+        $normal = SmsMessage::create([
+            'ghorfe_online_list_id' => $this->businessA->id,
+            'direction' => 'outbound',
+            'service_type' => 'normal',
+            'content' => 'متن عادی تست',
+            'status' => 'delivered',
+            'recipient_phone' => '09121112233',
+        ]);
+        $otp = SmsMessage::create([
+            'ghorfe_online_list_id' => $this->businessA->id,
+            'direction' => 'outbound',
+            'service_type' => 'otp',
+            'content' => 'کد تایید 1234',
+            'status' => 'delivered',
+            'recipient_phone' => '09121112233',
+        ]);
+
+        $this->actingAs($this->superAdminUser);
+        $this->get(route('admin.sms.logs.show', $normal))
+            ->assertStatus(200)
+            ->assertViewIs('Admin.sms.logs.show')
+            ->assertSee('متن عادی تست');
+        $this->get(route('admin.sms.logs.show', $otp))->assertStatus(200)->assertSee('کد تایید 1234');
+
+        // A silver-tier business admin may see normal rows but never OTP rows, even by direct id.
+        $this->actingAs($this->adminUser);
+        $this->get(route('admin.sms.logs.show', $normal))->assertStatus(200);
+        $this->get(route('admin.sms.logs.show', $otp))->assertStatus(404);
+    }
+
+    public function test_inbound_webhook_computes_character_and_page_counts_with_zero_cost(): void
+    {
+        config(['services.sms.webhook_secret' => 'test-secret']);
+        $header = \App\Http\Middleware\VerifySmsWebhookSecret::HEADER;
+        $text = str_repeat('س', 80);
+
+        $this->withHeader($header, 'test-secret')
+            ->postJson('/api/sms/webhook/inbound', [
+                'sender' => '09123334455', 'recipient' => '20002222', 'message' => $text,
+                'tracking_id' => 'INB-COUNT-1', 'service_type' => 'advertising',
+            ])
+            ->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $saved = SmsMessage::where('tracking_id', 'INB-COUNT-1')->first();
+        $this->assertSame(80, (int) $saved->character_count);
+        $this->assertSame(2, (int) $saved->page_count);
+        $this->assertEquals(0, (float) $saved->cost);
+        $this->assertStringNotContainsString('لغو 11', $saved->content);
+    }
+
+    public function test_log_list_links_to_detail_page_and_shows_persian_labels(): void
+    {
+        $this->actingAs($this->superAdminUser);
+
+        $msg = SmsMessage::create([
+            'ghorfe_online_list_id' => $this->businessA->id,
+            'direction' => 'inbound',
+            'service_type' => 'otp',
+            'content' => 'برچسب تست',
+            'status' => 'delivered',
+            'delivery_status' => 'delivered',
+            'recipient_phone' => '09121112233',
+        ]);
+
+        $show = route('admin.sms.logs.show', $msg->id);
+
+        $html = $this->get(route('admin.sms.logs.index'))->assertStatus(200)->getContent();
+        $this->assertStringContainsString('data-show-url="' . $show . '"', $html);
+        $this->assertStringContainsString('id="mShowLink"', $html);
+        $this->assertStringContainsString('data-service="اعتبارسنجی (OTP)"', $html);
+        $this->assertStringContainsString('data-status="تحویل شد"', $html);
+        $this->assertStringContainsString('data-delivery="تحویل شد"', $html);
+        $this->assertStringNotContainsString('data-service="otp"', $html);
+
+        $detail = $this->get($show)->assertStatus(200)->getContent();
+        $this->assertStringContainsString('اعتبارسنجی (OTP)', $detail);
+        $this->assertStringNotContainsString('>delivered<', $detail);
+        $this->assertSame('عادی', \App\Support\SmsLabels::serviceType('normal'));
+        $this->assertSame('تبلیغاتی', \App\Support\SmsLabels::serviceType('advertising'));
+        $this->assertSame('ناموفق', \App\Support\SmsLabels::status('failed'));
     }
 }

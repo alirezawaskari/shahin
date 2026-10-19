@@ -255,12 +255,9 @@ class BulkSmsRecipientFilterService
             });
         }
 
-        // 10. Organization / Representation filters
+        // 10. Organization filter
         if (!empty($filters['organization_id']) && $filters['organization_id'] !== 'all') {
             $query->where('organization_id', $filters['organization_id']);
-        }
-        if (!empty($filters['representation_id']) && $filters['representation_id'] !== 'all') {
-            $query->where('representation_id', $filters['representation_id']);
         }
 
         return $query;
@@ -349,6 +346,12 @@ class BulkSmsRecipientFilterService
         // Callcenter::accessScoped() reads the signed-in user; refuse to run it for anyone else.
         if (auth()->id() !== $actor->id) {
             throw new DomainException('فیلتر درخواست‌ها فقط برای کاربر واردشده قابل اجراست.');
+        }
+
+        // The audience picker has no representation filter: only the requests page's own
+        // direct SMS (__direct) may carry it.
+        if (empty($criteria['__direct'])) {
+            unset($criteria['representation']);
         }
 
         $candidates = [];

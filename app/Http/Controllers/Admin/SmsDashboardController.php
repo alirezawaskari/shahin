@@ -68,6 +68,10 @@ class SmsDashboardController extends Controller
         if ($business) {
             $baseQuery->where('ghorfe_online_list_id', $business->id);
         }
+        // OTP rows are excluded from volume and recent messages for viewers who cannot use OTP.
+        if (!app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user())) {
+            $baseQuery->where(fn ($q) => $q->whereNull('service_type')->orWhere('service_type', '!=', 'otp'));
+        }
 
         $volume = [
             'sent' => (clone $baseQuery)->where('direction', 'outbound')->count(),

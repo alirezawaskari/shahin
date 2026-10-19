@@ -17,8 +17,10 @@ use App\Models\SmsTransaction;
 use App\Models\User;
 use Carbon\Carbon;
 use DomainException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class BulkSmsSendService
@@ -45,8 +47,10 @@ class BulkSmsSendService
     public function __construct(
         protected SingleSmsSendService $singleSmsSendService,
         protected BulkSmsRecipientFilterService $recipientFilterService,
-        protected SmsAccessTierService $accessTierService
+        protected SmsAccessTierService $accessTierService,
+        protected ?SmsAuditService $audit = null
     ) {
+        $this->audit ??= new SmsAuditService();
     }
 
     /**
@@ -188,11 +192,22 @@ class BulkSmsSendService
     }
 
     /**
+     * How many recipients a balance can pay for: floor(balance / (pages × cost_per_page)).
+     */
+    public function maxAffordableRecipients(float $balance, int $pageCount): int
+    {
+        $costPerMessage = max(1, $pageCount) * (float) config('services.sms.cost_per_page', 1200);
+
+        return $costPerMessage > 0 ? (int) floor(max(0.0, $balance) / $costPerMessage) : 0;
+    }
+
+    /**
      * Check balance sufficiency and throw InsufficientBalanceException if insufficient.
+     * $pageCount (when known) lets the exception carry the max affordable recipient count.
      *
      * @throws InsufficientBalanceException
      */
-    public function verifyBalance(GhorfeOnlineList $business, float $requiredCost): array
+    public function verifyBalance(GhorfeOnlineList $business, float $requiredCost, ?int $pageCount = null): array
     {
         $balanceInfo = $this->getBalance($business);
 
@@ -204,11 +219,31 @@ class BulkSmsSendService
                     number_format($requiredCost)
                 ),
                 $balanceInfo['balance'],
-                $requiredCost
+                $requiredCost,
+                null,
+                $pageCount !== null ? $this->maxAffordableRecipients($balanceInfo['balance'], $pageCount) : null
             );
         }
 
         return $balanceInfo;
+    }
+
+    /**
+     * Bulk campaigns are promotional: an OTP template can never be used here, whether it comes
+     * from the picker or a hand-crafted request.
+     *
+     * @throws DomainException
+     */
+    public function assertPromotionalTemplate(?int $templateId): void
+    {
+        if (!$templateId) {
+            return;
+        }
+
+        $serviceType = SmsMessageTemplate::whereKey($templateId)->value('service_type');
+        if ($serviceType === 'otp') {
+            throw new DomainException('قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');
+        }
     }
 
     /**
@@ -248,6 +283,7 @@ class BulkSmsSendService
         // as "{نام کاربر}" — and must NOT be segmented/counted directly (see
         // below, after recipients are known).
         $templateId = !empty($data['sms_message_template_id']) ? (int) $data['sms_message_template_id'] : null;
+        $this->assertPromotionalTemplate($templateId);
         $rawMessage = $data['message'] ?? '';
         if ($templateId && empty($rawMessage)) {
             $template = SmsMessageTemplate::find($templateId);
@@ -280,11 +316,30 @@ class BulkSmsSendService
         $segmentation = $this->calculateMessageSegmentation($resolvedForEstimate);
         $pageCount = $segmentation['page_count'];
 
+        // 4c. «کاهش تعداد مخاطبین»: the client may ask to cap the audience, but the cap is never
+        // trusted beyond what the balance can actually pay for (computed here, server-side).
+        if (isset($data['max_recipients']) && (int) $data['max_recipients'] > 0) {
+            $affordable = $this->maxAffordableRecipients($this->getBalance($business)['balance'], $pageCount);
+            $cap = min((int) $data['max_recipients'], $affordable, $recipientCount);
+
+            if ($cap <= 0) {
+                $recipientCount = 0;
+            } elseif ($cap < $recipientCount) {
+                $validRecipients = array_slice($validRecipients, 0, $cap);
+                $recipientCount = $cap;
+            }
+
+            if ($recipientCount === 0) {
+                // Nothing affordable: report it as the usual insufficient-balance failure.
+                $this->verifyBalance($business, $this->calculateCampaignCost(1, $pageCount), $pageCount);
+            }
+        }
+
         // 5. Calculate total cost = recipients × pages × tariff
         $totalCost = $this->calculateCampaignCost($recipientCount, $pageCount);
 
         // 6. Hard block balance verification BEFORE any send or campaign queue
-        $this->verifyBalance($business, $totalCost);
+        $this->verifyBalance($business, $totalCost, $pageCount);
 
         // 7. Parse scheduled time if provided
         $scheduledAt = null;
@@ -391,6 +446,11 @@ class BulkSmsSendService
             return;
         }
 
+        if (SmsGatewaySimulator::shouldSimulate($smsPanel)) {
+            SmsGatewaySimulator::dispatch($smsPanel, $phone, $message);
+            return;
+        }
+
         if (strtolower($smsPanel) === 'neginsms') {
             NeginSms::sendSingleSms($message, $phone, 'single');
         } else {
@@ -406,11 +466,217 @@ class BulkSmsSendService
     {
         $campaign->refresh();
 
-        // If scheduled and future, don't execute yet
+        // Only a live campaign can run: finished, failed or queue-only (pending_queue / draft)
+        // campaigns are never sent from here.
+        if (!in_array($campaign->status, ['scheduled', 'sending'], true)) {
+            return;
+        }
+
+        // If scheduled and future, don't execute yet (under the sync queue the delayed job
+        // runs immediately and lands here; sms:dispatch-due-campaigns picks it up later).
         if ($campaign->status === 'scheduled' && $campaign->scheduled_at && $campaign->scheduled_at->isFuture()) {
             return;
         }
 
+        // One runner per campaign: the delayed job and the due-campaign command may race.
+        $lock = Cache::lock('sms-campaign-execute:' . $campaign->id, 3600);
+        if (!$lock->get()) {
+            return;
+        }
+
+        try {
+            $campaign->refresh();
+            if (in_array($campaign->status, ['scheduled', 'sending'], true)) {
+                $this->runCampaign($campaign);
+            }
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
+     * Find campaigns whose scheduled time has arrived and execute each exactly once.
+     * Safe to call every minute (see sms:dispatch-due-campaigns): executeCampaign() holds a
+     * per-campaign lock and a finished campaign leaves the "scheduled" status.
+     *
+     * @return int number of campaigns picked up
+     */
+    public function dispatchDueCampaigns(): int
+    {
+        $picked = 0;
+
+        SmsCampaign::where('status', 'scheduled')
+            ->where('scheduled_at', '<=', now())
+            ->orderBy('scheduled_at')
+            ->pluck('id')
+            ->each(function ($id) use (&$picked) {
+                $campaign = SmsCampaign::find($id);
+                if ($campaign && $campaign->status === 'scheduled') {
+                    $picked++;
+                    $this->executeCampaign($campaign);
+                }
+            });
+
+        return $picked;
+    }
+
+    /**
+     * Park unsent compose-page content in the outgoing queue (status pending_queue):
+     * no recipient rows, no balance debit, nothing sent. Tier-checked like a real send.
+     * Re-saving the same content (or passing $existing) updates the row instead of duplicating it.
+     *
+     * @param array<string, mixed> $data same shape as createCampaign() (+ max_recipients ignored)
+     * @throws TierAccessDeniedException|DomainException
+     */
+    public function saveToQueue(array $data, User $actor, GhorfeOnlineList $business, ?SmsCampaign $existing = null): SmsCampaign
+    {
+        $recipientType = $data['recipient_type'] ?? 'normal';
+        $filters = (array) ($data['filters'] ?? []);
+
+        $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business->id);
+        $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType, $business->id);
+
+        $templateId = !empty($data['sms_message_template_id']) ? (int) $data['sms_message_template_id'] : null;
+        $this->assertPromotionalTemplate($templateId);
+
+        $rawMessage = (string) ($data['message'] ?? '');
+        if ($templateId && trim($rawMessage) === '') {
+            $rawMessage = (string) SmsMessageTemplate::whereKey($templateId)->value('content');
+        }
+        if (trim($rawMessage) === '') {
+            throw new DomainException('متن پیامک نمی‌تواند خالی باشد.');
+        }
+        if (empty($filters)) {
+            throw new DomainException('برای ذخیره در صف ارسال ابتدا مخاطبان را فیلتر کنید.');
+        }
+
+        $senderNumberId = !empty($data['sender_number_id'])
+            ? $this->resolveAdvertisingSenderNumber($business, (int) $data['sender_number_id'])->id
+            : null;
+
+        $groupId = $data['sms_message_group_id'] ?? null;
+        $filterResult = $this->recipientFilterService->filterRecipients($filters, $actor, $business, $recipientType);
+        $recipientCount = (int) $filterResult['valid_count'];
+        $representative = $this->resolveWorstCaseRecipient($filterResult['valid_recipients']);
+        $pageCount = $this->calculateMessageSegmentation(
+            $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $representative)
+        )['page_count'];
+
+        $stored = array_merge($filters, [
+            'message' => $rawMessage,
+            'message_preview' => Str::limit($rawMessage, 200),
+            'recipient_type' => $recipientType,
+            'sms_message_group_id' => $groupId,
+        ]);
+
+        // Same content saved again (beacon on every page leave) must not pile up duplicates.
+        $fingerprint = sha1(json_encode([$rawMessage, $templateId, $senderNumberId, $filters, $recipientType]));
+        $existing ??= SmsCampaign::pendingQueue()
+            ->where('ghorfe_online_list_id', $business->id)
+            ->where('created_by', $actor->id)
+            ->get()
+            ->first(fn (SmsCampaign $c) => ($c->filters['_fingerprint'] ?? null) === $fingerprint);
+        $stored['_fingerprint'] = $fingerprint;
+
+        $attributes = [
+            'type' => 'bulk',
+            'sms_message_template_id' => $templateId,
+            'sms_message_group_id' => $groupId,
+            'sender_number_id' => $senderNumberId,
+            'filters' => $stored,
+            'access_tier_required' => $requiredTier,
+            'total_recipients' => $recipientCount,
+            'pending_count' => $recipientCount,
+            'status' => SmsCampaign::STATUS_PENDING_QUEUE,
+            'scheduled_at' => !empty($data['scheduled_at']) ? Carbon::parse($data['scheduled_at']) : null,
+            'cost_estimate' => $this->calculateCampaignCost($recipientCount, $pageCount),
+        ];
+
+        if ($existing && $existing->status === SmsCampaign::STATUS_PENDING_QUEUE
+            && (int) $existing->ghorfe_online_list_id === (int) $business->id) {
+            $existing->update($attributes);
+            return $existing;
+        }
+
+        return SmsCampaign::create($attributes + [
+            'ghorfe_online_list_id' => $business->id,
+            'classification' => 'regular',
+            'sent_count' => 0,
+            'success_count' => 0,
+            'failed_count' => 0,
+            'created_by' => $actor->id,
+        ]);
+    }
+
+    /**
+     * Turn a queued entry back into compose-page input (message, template, sender, audience filter).
+     *
+     * @return array<string, mixed>
+     */
+    public function queuedCampaignToInput(SmsCampaign $queued): array
+    {
+        $stored = (array) $queued->filters;
+
+        return [
+            'recipient_type' => $stored['recipient_type'] ?? 'normal',
+            'message' => $stored['message'] ?? ($stored['message_preview'] ?? ''),
+            'sms_message_template_id' => $queued->sms_message_template_id,
+            'sms_message_group_id' => $queued->sms_message_group_id,
+            'sender_number_id' => $queued->sender_number_id,
+            'scheduled_at' => $queued->scheduled_at,
+            'filters' => Arr::except($stored, [
+                'message', 'message_preview', 'recipient_type', 'sms_message_group_id',
+                'classification', '_fingerprint',
+            ]),
+        ];
+    }
+
+    /**
+     * «ارسال اکنون» from the outgoing queue: runs the normal createCampaign() path (tier gate,
+     * balance guard, template check) and removes the queue entry only once that succeeded.
+     *
+     * @throws InsufficientBalanceException|TierAccessDeniedException|DomainException
+     */
+    public function sendQueuedCampaign(SmsCampaign $queued, User $actor, GhorfeOnlineList $business, ?int $maxRecipients = null): SmsCampaign
+    {
+        if ((int) $queued->ghorfe_online_list_id !== (int) $business->id || $queued->status !== SmsCampaign::STATUS_PENDING_QUEUE) {
+            throw new DomainException('این مورد در صف ارسال یافت نشد.');
+        }
+
+        // Claim the entry so a double click cannot send it twice; 'draft' = being processed.
+        $claimed = SmsCampaign::whereKey($queued->id)
+            ->where('status', SmsCampaign::STATUS_PENDING_QUEUE)
+            ->update(['status' => 'draft']);
+        if ($claimed !== 1) {
+            throw new DomainException('این مورد در حال ارسال است یا قبلاً ارسال شده است.');
+        }
+
+        $input = $this->queuedCampaignToInput($queued);
+        // A queued schedule that has already passed simply means "send now".
+        if (!empty($input['scheduled_at']) && !Carbon::parse($input['scheduled_at'])->isFuture()) {
+            $input['scheduled_at'] = null;
+        }
+        if ($maxRecipients) {
+            $input['max_recipients'] = $maxRecipients;
+        }
+
+        try {
+            $campaign = $this->createCampaign($input, $actor, $business);
+        } catch (\Throwable $e) {
+            SmsCampaign::whereKey($queued->id)->update(['status' => SmsCampaign::STATUS_PENDING_QUEUE]);
+            throw $e;
+        }
+
+        $queued->delete();
+
+        return $campaign;
+    }
+
+    /**
+     * Execute a claimed campaign. Callers go through executeCampaign() for the guards + lock.
+     */
+    protected function runCampaign(SmsCampaign $campaign): void
+    {
         $campaign->update(['status' => 'sending']);
 
         $business = $campaign->business;
@@ -494,8 +760,13 @@ class BulkSmsSendService
                         'user_id' => $recipientUser?->id,
                         'callcenter_id' => $recipientRecord->callcenter_id,
                         'created_by' => $creator?->id,
+                        'sender_role' => $this->audit->resolveSenderRole($creator),
                         'is_bulk' => true,
                         'sms_campaign_id' => $campaign->id,
+                    ]);
+
+                    $this->audit->record($creator, SmsAuditService::CHANNEL_BULK, [
+                        'sms_message' => $smsMessage,
                     ]);
 
                     // Create sms_transaction record

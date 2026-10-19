@@ -43,6 +43,8 @@
             data.append('sms_message_template_id', el('fsms_template').value);
         }
         data.append('filters[request_filter][__source]', 'requests');
+        // Direct SMS: the server requires the view-phone-numbers permission for this flag.
+        data.append('filters[request_filter][__direct]', '1');
 
         var businessId = modalEl.getAttribute('data-business-id');
 

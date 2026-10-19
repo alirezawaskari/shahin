@@ -11,6 +11,9 @@ class SmsCampaign extends Model
 {
     use HasFactory;
 
+    /** Unsent compose-page content parked in the «صف ارسال»: no recipients rows, no debit, no send. */
+    public const STATUS_PENDING_QUEUE = 'pending_queue';
+
     protected $guarded = [];
 
     protected $casts = [
@@ -23,6 +26,11 @@ class SmsCampaign extends Model
         'failed_count' => 'integer',
         'pending_count' => 'integer',
     ];
+
+    public function scopePendingQueue($query)
+    {
+        return $query->where('status', self::STATUS_PENDING_QUEUE);
+    }
 
     public function business(): BelongsTo
     {

@@ -2,20 +2,36 @@
 
 namespace App\Http\Requests\Admin\Sms;
 
+use App\Enums\SmsOtpCategory;
+use App\Services\Sms\SmsAccessTierService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SendSingleSmsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check();
+        if (!auth()->check()) {
+            return false;
+        }
+
+        // OTP send is internal-only (Titanium / superAdmin); lower tiers have no OTP access at all.
+        if ($this->input('service_type') === 'otp') {
+            return app(SmsAccessTierService::class)->canUseOtp(auth()->user());
+        }
+
+        return true;
     }
 
     public function rules(): array
     {
         return [
             'recipient_phone' => ['required', 'string', 'regex:/^(09|\+989|9)[0-9]{9}$/'],
-            'message' => ['required', 'string', 'min:1'],
+            'message' => ['required', 'string', 'min:1', function ($attribute, $value, $fail) {
+                if (trim((string) $value) === '') {
+                    $fail('متن پیامک نمی‌تواند خالی باشد.');
+                }
+            }],
             'service_type' => ['required', 'string', 'in:otp,advertising,normal'],
             'sender_number_id' => ['nullable', 'integer', 'exists:sender_numbers,id'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
@@ -24,6 +40,8 @@ class SendSingleSmsRequest extends FormRequest
             'type' => ['nullable', 'string', 'in:regular,classified'],
             'classification' => ['nullable', 'string', 'in:regular,classified'],
             'context' => ['nullable', 'array'],
+            // Fixed OTP system category; required (here or via the template) for OTP, ignored otherwise.
+            'otp_category' => ['nullable', 'string', Rule::in(SmsOtpCategory::values())],
         ];
     }
 
@@ -35,12 +53,66 @@ class SendSingleSmsRequest extends FormRequest
             'message.required' => 'متن پیامک نمی‌تواند خالی باشد.',
             'service_type.required' => 'نوع سرویس پیامک الزامی است.',
             'service_type.in' => 'نوع سرویس انتخاب شده معتبر نیست.',
+            'otp_category.in' => 'دسته‌بندی OTP انتخاب‌شده معتبر نیست.',
             'sender_number_id.exists' => 'شماره فرستنده انتخاب شده معتبر نیست.',
         ];
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->input('service_type') === 'otp' && !$validator->errors()->has('otp_category')) {
+                $templateCategory = null;
+                if (!empty($this->input('template_id')) && !$validator->errors()->has('template_id')) {
+                    $templateCategory = \App\Models\SmsMessageTemplate::whereKey($this->input('template_id'))->value('otp_category');
+                }
+                $chosen = $this->input('otp_category') ?: null;
+                if (!$chosen && !$templateCategory) {
+                    $validator->errors()->add('otp_category', 'برای پیامک OTP انتخاب دسته‌بندی سیستمی (احراز هویت، فروش، مالی یا حقوقی) الزامی است.');
+                } elseif ($chosen && $templateCategory && $chosen !== $templateCategory) {
+                    $validator->errors()->add('otp_category', 'دسته‌بندی انتخابی با دسته‌بندی الگوی OTP مطابقت ندارد.');
+                }
+            }
+
+            // Promotional sends only support event/greeting, sales and support subject categories (OTP unaffected).
+            if ($this->input('service_type') !== 'otp' && !empty($this->input('sms_message_group_id'))
+                && !$validator->errors()->has('sms_message_group_id')
+                && !\App\Models\SmsMessageGroup::isPromotionalId($this->input('sms_message_group_id'))) {
+                $validator->errors()->add('sms_message_group_id', 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست (فقط مناسبتی/تبریک، فروش و پشتیبانی).');
+            }
+
+            $templateId = $this->input('template_id');
+            if (empty($templateId) || $validator->errors()->has('template_id')) {
+                return;
+            }
+
+            $user = auth()->user();
+            if ($user && app(SmsAccessTierService::class)->canUseOtp($user)) {
+                return;
+            }
+
+            $template = \App\Models\SmsMessageTemplate::find($templateId);
+            if (!$template) {
+                return;
+            }
+
+            $business = ghorfe();
+            $foreign = $business && $template->ghorfe_online_list_id !== null
+                && (int) $template->ghorfe_online_list_id !== (int) $business->id;
+
+            if ($template->service_type === 'otp' || $foreign) {
+                $validator->errors()->add('template_id', 'قالب پیامک انتخاب شده معتبر نیست.');
+            }
+        });
+    }
+
     protected function prepareForValidation(): void
     {
+        // The OTP category only exists on OTP sends; anything posted alongside another type is dropped.
+        if ($this->input('service_type') !== 'otp' && $this->has('otp_category')) {
+            $this->merge(['otp_category' => null]);
+        }
+
         if ($this->has('recipient_phone')) {
             $phone = (string) $this->recipient_phone;
             // Normalize Persian / Arabic digits to English

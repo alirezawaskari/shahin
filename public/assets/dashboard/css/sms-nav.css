@@ -1,0 +1,16 @@
+/* RTL Icon Spacing (SMS logs / financial / reports navigation) */
+.sms-logs-nav .nav-link i.fa,
+.nav-pills .nav-link i.fa {
+    margin-left: 0.45rem !important;
+    margin-right: 0 !important;
+}
+.sms-financial-nav .nav-link i.fa,
+.nav-pills .nav-link i.fa {
+    margin-left: 0.45rem !important;
+    margin-right: 0 !important;
+}
+.sms-reports-nav .nav-link i.fa,
+.nav-pills .nav-link i.fa {
+    margin-left: 0.45rem !important;
+    margin-right: 0 !important;
+}

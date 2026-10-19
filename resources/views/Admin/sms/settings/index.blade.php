@@ -129,9 +129,11 @@
                         <a href="{{ route('admin.sms.financial.advertising.index') }}" class="btn btn-sm flex-fill" style="background-color: rgba(255,255,255,0.08) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important;">
                             تبلیغاتی
                         </a>
+                        @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
                         <a href="{{ route('admin.sms.financial.otp.index') }}" class="btn btn-sm flex-fill" style="background-color: rgba(255,255,255,0.08) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important;">
                             OTP
                         </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -291,7 +293,7 @@
                         </div>
                         @if($stats['otp_contract'] && $stats['otp_contract']->contract)
                             <div class="small text-muted mb-2">
-                                شماره قرارداد: {{ $stats['otp_contract']->contract_number ?: 'بدون شماره' }} | تاریخ: {{ $stats['otp_contract']->contract_date ?: '—' }}
+                                شماره قرارداد: {{ $stats['otp_contract']->contract_number ?: 'بدون شماره' }} | تاریخ: {{ \App\Helpers\Helper::jalaliDate($stats['otp_contract']->contract_date) ?? '—' }}
                             </div>
                         @endif
                         <div class="text-end mt-2">

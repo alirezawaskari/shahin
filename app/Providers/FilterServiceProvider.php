@@ -47,7 +47,11 @@ class FilterServiceProvider extends ServiceProvider
         // group-message page: both reuse the requests page's filter data / send data.
         view()->composer(['Admin.callcenter.partials.sms-to-filter-modal'], \App\View\Composers\SmsToFilterComposer::class);
         view()->composer(['Admin.callcenter.partials.filter-modal', 'Admin.callcenter.partials.filter-fields'], function ($view) {
-            $view->with($this->tasks_requires());
+            // The SMS audience pop-up pins the audience to the sending business (Callcenter::accessScoped),
+            // so its expert / marketer lists may only offer that business's own users — for every viewer,
+            // super-admin included (an out-of-business pick could only ever match nothing).
+            $business = $view->getData()['restrictUsersToBusiness'] ?? null;
+            $view->with($this->tasks_requires($business instanceof \App\Models\GhorfeOnlineList ? $business : null));
         });
         view()->composer(['Admin.accounting.all','Admin.accounting.installments'], function ($view) {
             $view->with([
@@ -75,7 +79,7 @@ class FilterServiceProvider extends ServiceProvider
         });
     }
 
-    public function tasks_requires()
+    public function tasks_requires(?\App\Models\GhorfeOnlineList $onlyBusiness = null)
     {
         $user = auth()->user();
         $role_users = Role::where('name', 'callcenter')->orWhere('name', 'presentore')->orWhere('name', 'influencer-marketing')->with('users')->get();
@@ -108,6 +112,10 @@ class FilterServiceProvider extends ServiceProvider
                     $old_callcenters[] = $u;
                 }
             }
+        }
+
+        if ($onlyBusiness) {
+            $admin_users = self::onlyBusinessMembers($admin_users, $onlyBusiness);
         }
 
         $callcenters = [];
@@ -145,5 +153,27 @@ class FilterServiceProvider extends ServiceProvider
             'recruitment_notices' => RecruitmentNotice::all(),
             'permission' => $permission,
         ];
+    }
+
+    /** Keep only the users that belong to the business (see businessUserIds()). */
+    public static function onlyBusinessMembers($users, \App\Models\GhorfeOnlineList $business)
+    {
+        $memberIds = self::businessUserIds($business);
+
+        return $users->filter(fn ($u) => in_array((int) $u->id, $memberIds, true))->values();
+    }
+
+    /**
+     * Ids of the staff users that belong to the business: attached through the business pivot
+     * (ghorfe_online_list_user, what User::filter() scopes by) or employed by it.
+     *
+     * @return int[]
+     */
+    public static function businessUserIds(\App\Models\GhorfeOnlineList $business): array
+    {
+        $pivot = $business->users()->pluck('users.id')->all();
+        $employees = \App\Models\Employee::where('ghorfe_online_list_id', $business->id)->whereNotNull('user_id')->pluck('user_id')->all();
+
+        return array_map('intval', array_values(array_unique(array_merge($pivot, $employees))));
     }
 }

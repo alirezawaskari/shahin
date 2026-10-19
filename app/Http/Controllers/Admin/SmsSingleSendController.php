@@ -16,6 +16,7 @@ use App\Models\SmsMessageGroup;
 use App\Models\SmsMessageTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
+use App\Services\Sms\SmsAccessTierService;
 use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\SmsSettings\SmsCmsContentService;
 use Carbon\Carbon;
@@ -29,7 +30,8 @@ class SmsSingleSendController extends Controller
 {
     public function __construct(
         protected SingleSmsSendService $singleSmsSendService,
-        protected SmsCmsContentService $cmsContent
+        protected SmsCmsContentService $cmsContent,
+        protected SmsAccessTierService $accessTierService
     ) {
     }
 
@@ -87,6 +89,8 @@ class SmsSingleSendController extends Controller
 
         // Active SMS templates (scoped to business)
         $templates = SmsMessageTemplate::active()
+            ->when(!$this->accessTierService->canUseOtp(auth()->user()),
+                fn($q) => $q->where(fn($w) => $w->whereNull('service_type')->orWhere('service_type', '!=', 'otp')))
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with('group')
             ->latest()
@@ -109,8 +113,19 @@ class SmsSingleSendController extends Controller
             SmsConfidentialityGuard::redactMany($recentMessages, auth()->user());
         }
 
+        // Lower tiers get no trace of OTP: no sender line, no balance, no option in the form.
+        $canUseOtp = $this->accessTierService->canUseOtp(auth()->user());
+        if (!$canUseOtp) {
+            $otpSender = null;
+            $otpBalance = 0.0;
+        }
+
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
-        $groups = SmsMessageGroup::whereNull('parent_id')
+        $costPerPage = (float) config('services.sms.cost_per_page', 1200);
+        // OTP-capable users keep the full tree (OTP mode unaffected; the form hides non-promotional
+        // groups when advertising is selected); everyone else only sees the promotional groups.
+        $groups = SmsMessageGroup::query()
+            ->when(!$canUseOtp, fn ($q) => $q->promotionalRoots(), fn ($q) => $q->whereNull('parent_id'))
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with(['subgroups' => function ($q) use ($business) {
                 $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
@@ -122,10 +137,12 @@ class SmsSingleSendController extends Controller
             'business',
             'otpSender',
             'otpBalance',
+            'canUseOtp',
             'advertisingNumbers',
             'templates',
             'recentMessages',
             'regulatoryRulesText',
+            'costPerPage',
             'groups'
         ));
     }
@@ -190,6 +207,7 @@ class SmsSingleSendController extends Controller
         $business = $this->resolveBusiness($request);
         $text = (string) $request->input('message', '');
         $serviceType = (string) $request->input('service_type', 'advertising');
+        abort_if($serviceType === 'otp' && !$this->accessTierService->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
         $userId = $request->input('user_id');
         $senderNumberId = $request->input('sender_number_id');
 

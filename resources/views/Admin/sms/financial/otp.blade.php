@@ -242,7 +242,7 @@
                             <tbody>
                                 @foreach($history as $item)
                                     <tr>
-                                        <td>{{ $item->date }}</td>
+                                        <td>{{ \App\Helpers\Helper::jalaliDate($item->date) ?? $item->date }}</td>
                                         <td class="text-success fw-bold">{{ $item->total_charged > 0 ? '+' . number_format($item->total_charged) : '-' }}</td>
                                         <td class="text-danger fw-bold">{{ $item->total_consumed > 0 ? '-' . number_format($item->total_consumed) : '-' }}</td>
                                     </tr>
@@ -307,7 +307,7 @@
                                             سیستم
                                         @endif
                                     </td>
-                                    <td>{{ $tx->created_at->format('Y/m/d H:i') }}</td>
+                                    <td>{{ \App\Helpers\Helper::jalaliDate($tx->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -350,15 +350,12 @@
                         <label class="form-label fw-bold">مبلغ شارژ (ریال) <span class="text-danger">*</span></label>
                         <input type="number" name="amount" class="form-control" placeholder="مثال: 500000" min="1000" step="1000" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">شناسه فیش / رهگیری بانکی (اختیاری)</label>
-                        <input type="text" name="tracking_id" class="form-control" placeholder="مثال: BANK-12345678">
-                    </div>
+                    <p class="text-muted small mb-0"><i class="fa fa-lock me-1"></i> پس از تایید به درگاه پرداخت بانکی منتقل می‌شوید و موجودی فقط پس از پرداخت موفق افزایش می‌یابد.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
                     <button type="submit" class="btn btn-primary px-4">
-                        <i class="fa fa-check me-1"></i> تایید و افزایش موجودی
+                        <i class="fa fa-credit-card me-1"></i> پرداخت آنلاین
                     </button>
                 </div>
             </form>

@@ -19,6 +19,17 @@ use Illuminate\Http\Request;
 class GroupsmsController extends Controller
 {
     /**
+     * The legacy list page is retired from the UI: every redirect lands on the SMS reports page
+     * of the user's tier (same choice as the sidebar «گزارش های پیامک» item).
+     */
+    protected function reportsRouteName(): string
+    {
+        return app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user())
+            ? 'admin.sms.reports.otp.index'
+            : 'admin.sms.reports.advertising.index';
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -61,6 +72,8 @@ class GroupsmsController extends Controller
      */
     public function create()
     {
+        return redirect()->route('admin.sms.bulk.index');
+
         $services = Service::filter()->get();
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $user = auth()->user();
@@ -104,7 +117,7 @@ class GroupsmsController extends Controller
 
         $userTier = app(\App\Services\Sms\SmsAccessTierService::class)->effectiveTier($user);
         $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
-        $groups = \App\Models\SmsMessageGroup::whereNull('parent_id')
+        $groups = \App\Models\SmsMessageGroup::promotionalRoots()
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->with(['subgroups' => function ($q) use ($business) {
                 $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
@@ -152,6 +165,11 @@ class GroupsmsController extends Controller
 
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $groupId = $request->input('sms_message_group_id') ?: null;
+        if (!\App\Models\SmsMessageGroup::isPromotionalId($groupId)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'sms_message_group_id' => 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.',
+            ]);
+        }
         $classification = 'regular';
 
         $groupsms = Groupsms::create(array_merge($inputs, [
@@ -167,7 +185,7 @@ class GroupsmsController extends Controller
             $groupsms->services()->sync($request->input("service_id"));
         }
 
-        return redirect(route('groupsms.index'))->with([
+        return redirect(route($this->reportsRouteName()))->with([
             'create' => 'success'
         ]);
     }
@@ -227,7 +245,7 @@ class GroupsmsController extends Controller
             $groupsm->services()->sync($request->input("service_id"));
         }
 
-        return redirect(route('groupsms.index'))->with([
+        return redirect(route($this->reportsRouteName()))->with([
             'update' => 'success'
         ]);
     }
@@ -243,7 +261,7 @@ class GroupsmsController extends Controller
     {
         $groupsm->delete();
 
-        return redirect(route('groupsms.index'))->with([
+        return redirect(route($this->reportsRouteName()))->with([
             'delete' => 'success'
         ]);
     }
@@ -254,6 +272,8 @@ class GroupsmsController extends Controller
      */
     public function single()
     {
+        return redirect()->route('admin.sms.single.index');
+
         $business = ghorfe() ?? GhorfeOnlineList::first();
 
         // System-wide active OTP sender number (singleton)
@@ -360,7 +380,7 @@ class GroupsmsController extends Controller
                 ]);
             }
 
-            return redirect(route('groupsms.index'))->with([
+            return redirect(route($this->reportsRouteName()))->with([
                 'create' => 'success',
                 'success' => 'پیامک با موفقیت ارسال شد.',
             ]);
@@ -403,7 +423,7 @@ class GroupsmsController extends Controller
             'classification' => 'regular',
         ]));
 
-        return redirect(route('groupsms.index'))->with([
+        return redirect(route($this->reportsRouteName()))->with([
             'create' => 'success'
         ]);
 
@@ -429,6 +449,11 @@ class GroupsmsController extends Controller
 
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $groupId = $request->input('sms_message_group_id') ?: null;
+        if (!\App\Models\SmsMessageGroup::isPromotionalId($groupId)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'sms_message_group_id' => 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.',
+            ]);
+        }
         $classification = 'regular';
         $inputs['ghorfe_online_list_id'] = $business?->id;
         $inputs['sms_message_group_id'] = $groupId;
@@ -440,7 +465,7 @@ class GroupsmsController extends Controller
             Groupsms::create(array_merge($inputs, ['send_at' => Carbon::createFromTimestamp($inputs['send_at'] / 1000)->toDateString(), 'phone_list_id' => $request->input('phone_list_id'), 'type' => 'groupsPhone']));
         }
 
-        return redirect(route('groupsms.index'))->with([
+        return redirect(route($this->reportsRouteName()))->with([
             'create' => 'success'
         ]);
 
@@ -480,7 +505,7 @@ class GroupsmsController extends Controller
             }
         }
 
-        return redirect(route('groupsms.index'))->with([
+        return redirect(route($this->reportsRouteName()))->with([
             'update' => 'success'
         ]);
     }

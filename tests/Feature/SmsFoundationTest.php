@@ -87,6 +87,8 @@ class SmsFoundationTest extends TestCase
             'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
             'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
             'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
+            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
+            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -184,8 +186,9 @@ class SmsFoundationTest extends TestCase
         $seeder = new SmsMessageGroupSeeder();
         $seeder->run();
 
-        // 5 base root groups
-        $this->assertEquals(5, SmsMessageGroup::root()->count());
+        // 6 base root groups (incl. monasebati: event/greeting)
+        $this->assertEquals(6, SmsMessageGroup::root()->count());
+        $this->assertNotNull(SmsMessageGroup::where('slug', 'monasebati')->first());
 
         $financial = SmsMessageGroup::where('slug', 'mali')->first();
         $this->assertNotNull($financial);
@@ -193,7 +196,7 @@ class SmsFoundationTest extends TestCase
 
         $subgroups = $financial->subgroups;
         $this->assertCount(2, $subgroups);
-        $this->assertTrue($subgroups->pluck('name')->contains('واریز پیشپرداخت'));
+        $this->assertTrue($subgroups->pluck('name')->contains('واریز پیش‌پرداخت'));
         $this->assertTrue($subgroups->pluck('name')->contains('پرداخت فاکتور'));
 
         $sales = SmsMessageGroup::where('slug', 'foroush')->first();

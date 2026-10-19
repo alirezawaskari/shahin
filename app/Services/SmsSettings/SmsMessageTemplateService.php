@@ -24,14 +24,18 @@ class SmsMessageTemplateService
     /**
      * List templates with filters.
      */
-    public function list(array $filters = [], ?int $businessId = null): LengthAwarePaginator
+    public function list(array $filters = [], ?int $businessId = null, bool $includeOtp = true): LengthAwarePaginator
     {
-        $query = SmsMessageTemplate::with(['group.parent', 'creator', 'updater'])
+        $query = SmsMessageTemplate::with(['group.parent', 'creator', 'updater', 'business:id,title'])
             ->withCount('histories')
             ->latest('id');
 
         if ($businessId) {
             $query->where('ghorfe_online_list_id', $businessId);
+        }
+
+        if (!$includeOtp) {
+            $query->where(fn ($q) => $q->whereNull('service_type')->orWhere('service_type', '!=', 'otp'));
         }
 
         if (!empty($filters['service_type']) && $filters['service_type'] !== 'all') {
@@ -70,6 +74,7 @@ class SmsMessageTemplateService
             'sms_message_group_id' => $data['sms_message_group_id'] ?? null,
             'ghorfe_online_list_id' => $businessId,
             'service_type' => $data['service_type'] ?? 'normal',
+            'otp_category' => ($data['service_type'] ?? 'normal') === 'otp' ? ($data['otp_category'] ?? null) : null,
             'status' => $data['status'] ?? 'active',
             'created_by' => $userId,
             'updated_by' => $userId,
@@ -106,6 +111,10 @@ class SmsMessageTemplateService
             ? $data['sms_message_group_id']
             : $template->sms_message_group_id;
         $template->service_type = $data['service_type'] ?? $template->service_type;
+        // The OTP category only exists on OTP templates; switching away from OTP clears it.
+        $template->otp_category = $template->service_type === 'otp'
+            ? ($data['otp_category'] ?? $template->otp_category)
+            : null;
         $template->status = $data['status'] ?? $template->status;
         $template->updated_by = $userId;
 

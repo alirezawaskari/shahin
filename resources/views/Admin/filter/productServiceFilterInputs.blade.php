@@ -1,3 +1,5 @@
+@php $showField = $showField ?? (fn (string $key) => !isset($visibleFields) || in_array($key, (array) $visibleFields, true)); @endphp
+@if($showField('product_category'))
 <div class="col-12 col-md-3 mb-2">
     <label class="form-label small fw-bold text-dark mb-1">دسته‌بندی کالا</label>
     <select name="product_category[]" id="product_category" class="custom-select select2 form-select form-select-sm" multiple="multiple" data-placeholder="انتخاب دسته‌بندی کالا">
@@ -8,6 +10,8 @@
         @endif
     </select>
 </div>
+@endif
+@if($showField('service_category'))
 <div class="col-12 col-md-3 mb-2">
     <label class="form-label small fw-bold text-dark mb-1">دسته‌بندی خدمت</label>
     <select name="service_category[]" id="service_category" class="custom-select select2 form-select form-select-sm" multiple="multiple" data-placeholder="انتخاب دسته‌بندی خدمت">
@@ -18,6 +22,8 @@
         @endif
     </select>
 </div>
+@endif
+@if($showField('sub_service_category'))
 <div class="col-12 col-md-3 mb-2">
     <label class="form-label small fw-bold text-dark mb-1">خدمت درخواستی</label>
     <select name="sub_service_category[]" id="sub_service_category" class="custom-select select2 form-select form-select-sm" multiple="multiple" data-placeholder="انتخاب خدمت درخواستی">
@@ -28,8 +34,11 @@
         @endif
     </select>
 </div>
+@endif
+@if($showField('service_items'))
 <div class="col-12 col-md-3 mb-2">
     <label class="form-label small fw-bold text-dark mb-1">آیتم و نوع خدمت</label>
     <select name="service_items[]" id="service_items" class="custom-select select2 form-select form-select-sm" multiple="multiple" data-placeholder="انتخاب نوع خدمت">
     </select>
 </div>
+@endif

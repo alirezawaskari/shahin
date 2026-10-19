@@ -52,17 +52,6 @@
         </div>
     @endif
 
-    <style>
-        /* RTL Icon Spacing */
-        .card-header h5 i.fa,
-        .list-group-item > div > i.fa,
-        .card-footer i.fa,
-        .btn i.fa:first-child:not(:only-child),
-        .nav-link i.fa:first-child:not(:only-child) {
-            margin-left: 0.5rem !important;
-            margin-right: 0 !important;
-        }
-    </style>
 
     <div class="row g-4">
         @forelse($groups as $group)
@@ -76,6 +65,9 @@
                             <span class="font-monospace small" style="color: #64748b !important; direction: ltr; display: inline-block;">
                                 ({{ $group->slug }})
                             </span>
+                            @if(!$business && $group->business)
+                                <span class="badge bg-light text-dark border ms-1">{{ $group->business->title }}</span>
+                            @endif
                         </div>
                         <div class="btn-group btn-group-sm">
                             <a href="{{ route('admin.sms.settings.groups.edit', $group) }}" class="btn btn-outline-secondary" title="ویرایش گروه">

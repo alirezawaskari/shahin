@@ -122,6 +122,110 @@ class SmsBulkSendTest extends TestCase
             $table->primary(['user_id', 'role_id', 'user_type']);
         });
 
+        Schema::create('category_permissions', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('position')->default(0);
+            $table->softDeletes();
+            $table->timestamps();
+        });
+        Schema::create('permissions', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->string('display_name')->nullable();
+            $table->unsignedInteger('cat_id')->nullable();
+            $table->boolean('isMenu')->default(false);
+            $table->integer('position')->default(0);
+            $table->timestamps();
+        });
+        Schema::create('permission_user', function (Blueprint $table) {
+            $table->unsignedInteger('permission_id');
+            $table->unsignedInteger('user_id');
+            $table->string('user_type');
+        });
+        Schema::create('permission_role', function (Blueprint $table) {
+            $table->unsignedInteger('permission_id');
+            $table->unsignedInteger('role_id');
+        });
+
+        // Admin layout dependencies (menu, settings, contexts) so real HTML pages render
+        Schema::create('menus', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->string('icon')->nullable();
+            $table->string('link')->nullable();
+            $table->integer('sort')->default(0);
+            $table->integer('parent_id')->default(0);
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('key')->nullable();
+            $table->text('value')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->timestamps();
+        });
+
+        Schema::create('employee_terms', function (Blueprint $table) {
+            $table->id();
+            $table->string('role_category')->unique();
+            $table->string('file_path')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('contexts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('key', 200)->nullable();
+            $table->text('value')->nullable();
+            $table->text('description')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+        Schema::create('provinces', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('cities', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('province_id')->nullable();
+            $table->string('name')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('campaigns', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('media', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('model');
+            $table->uuid()->nullable()->unique();
+            $table->string('collection_name');
+            $table->string('name');
+            $table->string('file_name');
+            $table->string('mime_type')->nullable();
+            $table->string('disk');
+            $table->string('conversions_disk')->nullable();
+            $table->unsignedBigInteger('size')->default(0);
+            $table->text('manipulations')->nullable();
+            $table->text('custom_properties')->nullable();
+            $table->text('generated_conversions')->nullable();
+            $table->text('responsive_images')->nullable();
+            $table->unsignedInteger('order_column')->nullable()->index();
+            $table->nullableTimestamps();
+        });
+
+
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('title');
@@ -156,6 +260,8 @@ class SmsBulkSendTest extends TestCase
             'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
             'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
             'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
+            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
+            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
         ];
 
         foreach ($migrationFiles as $file) {
@@ -351,13 +457,6 @@ class SmsBulkSendTest extends TestCase
         $this->tierService->assertCanQuery($this->diamondUser, ['organization_id' => 10], 'normal');
     }
 
-    public function test_gold_user_cannot_query_representation_database(): void
-    {
-        // Representation Database Access is exclusive to Titanium
-        $this->expectException(TierAccessDeniedException::class);
-        $this->tierService->assertCanQuery($this->goldUser, ['representation_id' => 3], 'normal');
-    }
-
     public function test_titanium_user_has_full_pool_access(): void
     {
         // Titanium can query cross-business advertising pool and organizations
@@ -366,7 +465,6 @@ class SmsBulkSendTest extends TestCase
             'role' => 2,
             'service_category_id' => 1,
             'organization_id' => 10,
-            'representation_id' => 3,
         ], 'advertising');
 
         $this->assertTrue(true);
@@ -548,6 +646,11 @@ class SmsBulkSendTest extends TestCase
         $statusResp->assertJsonPath('status', 'success');
         $statusResp->assertJsonPath('campaign.total_recipients', 2);
 
+        // 3b. The real HTML status page (the redirect target after every launch) must render
+        $htmlResp = $this->get(route('admin.sms.bulk.campaigns.show', $campaignId));
+        $htmlResp->assertStatus(200);
+        $this->assertMatchesRegularExpression('/let isPolling = (true|false);/', $htmlResp->getContent());
+
         // 4. Controller status view and index view preparation
         $controller = app(\App\Http\Controllers\Admin\SmsBulkSendController::class);
         $campaign = SmsCampaign::findOrFail($campaignId);
@@ -667,6 +770,84 @@ class SmsBulkSendTest extends TestCase
         );
     }
 
+    /**
+     * Product filters travel inside request_filter (HTTP level): a Diamond user gets an audience
+     * narrowed to buyers of those products, while a Silver user is refused on tier.
+     */
+    public function test_http_preview_accepts_product_filters_for_diamond_and_refuses_silver(): void
+    {
+        $this->prepareRequestTables();
+
+        foreach (['factors' => fn ($t) => $t->unsignedInteger('task_id')->nullable(),
+                  'factor_items' => function ($t) {
+                      $t->unsignedInteger('factor_id')->nullable();
+                      $t->string('factoritemable_type')->nullable();
+                      $t->unsignedInteger('factoritemable_id')->nullable();
+                  },
+                  'factor_item_products' => function ($t) {
+                      $t->unsignedInteger('factor_item_id')->nullable();
+                      $t->unsignedInteger('product_id')->nullable();
+                      $t->unsignedInteger('product_attribute_id')->nullable();
+                  }] as $table => $columns) {
+            \Illuminate\Support\Facades\Schema::create($table, function (Blueprint $t) use ($columns) {
+                $t->increments('id');
+                $columns($t);
+                $t->softDeletes();
+                $t->timestamps();
+            });
+        }
+
+        $buy = function (\App\Models\Callcenter $request, int $productId, ?int $attributeId = null) {
+            $factorId = \DB::table('factors')->insertGetId(['task_id' => $request->id, 'created_at' => now(), 'updated_at' => now()]);
+            $itemId = \DB::table('factor_items')->insertGetId(['factor_id' => $factorId, 'factoritemable_type' => \App\Models\Category::class, 'factoritemable_id' => 1, 'created_at' => now(), 'updated_at' => now()]);
+            \DB::table('factor_item_products')->insert(['factor_item_id' => $itemId, 'product_id' => $productId, 'product_attribute_id' => $attributeId, 'created_at' => now(), 'updated_at' => now()]);
+        };
+        $buy($this->makeRequest($this->business, '09121110001'), 10, 100);
+        $buy($this->makeRequest($this->business, '09121110002'), 11, 110);
+        $this->makeRequest($this->business, '09121110003'); // never bought anything
+
+        // Both tier users work for this business and may see requests.
+        $permissionId = \DB::table('permissions')->where('name', 'callcenter-detail')->value('id');
+        foreach ([$this->diamondUser, $this->silverUser] as $user) {
+            \DB::table('employees')->insert(['user_id' => $user->id, 'ghorfe_online_list_id' => $this->business->id]);
+            \DB::table('permission_user')->insert(['permission_id' => $permissionId, 'user_id' => $user->id, 'user_type' => User::class]);
+        }
+
+        $payload = fn (array $requestFilter) => [
+            'recipient_type' => 'normal',
+            'message' => 'پیامک آزمایشی',
+            'sender_number_id' => $this->advSender->id,
+            'filters' => ['request_filter' => ['__source' => 'requests'] + $requestFilter],
+        ];
+
+        $this->actingAs($this->diamondUser);
+
+        $this->postJson(route('admin.sms.bulk.preview'), $payload([]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 3);
+
+        $this->postJson(route('admin.sms.bulk.preview'), $payload(['product' => ['10']]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 1);
+
+        $this->postJson(route('admin.sms.bulk.preview'), $payload(['product_attribute' => ['110']]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 1);
+
+        $this->postJson(route('admin.sms.bulk.preview'), $payload(['product' => ['10', '11']]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 2);
+
+        $this->postJson(route('admin.sms.bulk.preview'), $payload(['product' => ['10'], 'product_attribute' => ['110']]))
+            ->assertOk()->assertJsonPath('recipient_summary.valid_count', 0);
+
+        $this->actingAs($this->silverUser);
+
+        foreach (['product_category' => ['5'], 'product' => ['10'], 'product_attribute' => ['100']] as $key => $value) {
+            $this->postJson(route('admin.sms.bulk.preview'), $payload([$key => $value]))
+                ->assertStatus(403)
+                ->assertJsonPath('error_type', 'tier_denied')
+                ->assertJsonPath('required_tier', 'diamond')
+                ->assertJsonPath('user_tier', 'silver');
+        }
+    }
+
     // ------------------------------------------------------------------
     // Enter recipients from Excel
     // ------------------------------------------------------------------
@@ -765,22 +946,6 @@ class SmsBulkSendTest extends TestCase
         \Illuminate\Support\Facades\Schema::create('callcenter_ghorfe_online_list', function (Blueprint $t) {
             $t->unsignedInteger('callcenter_id');
             $t->unsignedBigInteger('ghorfe_online_list_id');
-        });
-
-        \Illuminate\Support\Facades\Schema::create('permissions', function (Blueprint $t) {
-            $t->increments('id');
-            $t->string('name')->nullable();
-            $t->string('display_name')->nullable();
-            $t->timestamps();
-        });
-        \Illuminate\Support\Facades\Schema::create('permission_user', function (Blueprint $t) {
-            $t->unsignedInteger('permission_id');
-            $t->unsignedInteger('user_id');
-            $t->string('user_type');
-        });
-        \Illuminate\Support\Facades\Schema::create('permission_role', function (Blueprint $t) {
-            $t->unsignedInteger('permission_id');
-            $t->unsignedInteger('role_id');
         });
 
         $this->actingAs($this->titaniumUser);

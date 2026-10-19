@@ -173,6 +173,8 @@ class Callcenter extends Model implements AuditableContract
         $subServiceCategory = self::idList($c['sub_service_category'] ?? null);
         $serviceItems = self::idList($c['service_items'] ?? null);
         $service = self::idList($c['service'] ?? null);
+        $product = self::idList($c['product'] ?? null);
+        $productAttribute = self::idList($c['product_attribute'] ?? null);
 
         if ($description !== null) {
             $query->where(function ($q) use ($description) {
@@ -273,6 +275,18 @@ class Callcenter extends Model implements AuditableContract
                         $q->where('factoritemable_type', '=', Category::class)->whereIn('factoritemable_id', $productCategory);
                     });
                 })->orWhereHas('categories', fn ($q) => $q->whereIn('callcenterable_id', $productCategory));
+            });
+        }
+
+        // A product line is one factor item per category with a factor_item_products row per کالا.
+        if ($product) {
+            $query->whereHas('factors', function ($q) use ($product) {
+                $q->whereHas('factorItems', fn ($q) => $q->whereHas('products', fn ($q) => $q->whereIn('product_id', $product)));
+            });
+        }
+        if ($productAttribute) {
+            $query->whereHas('factors', function ($q) use ($productAttribute) {
+                $q->whereHas('factorItems', fn ($q) => $q->whereHas('products', fn ($q) => $q->whereIn('product_attribute_id', $productAttribute)));
             });
         }
 

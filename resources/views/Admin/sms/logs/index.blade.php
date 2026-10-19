@@ -110,11 +110,26 @@
                         <label class="form-label small fw-bold">نوع سرویس</label>
                         <select name="service_type" class="form-control form-control-sm">
                             <option value="all" {{ ($filters['service_type'] ?? '') == 'all' ? 'selected' : '' }}>همه سرویس‌ها</option>
+                            @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
                             <option value="otp" {{ ($filters['service_type'] ?? '') == 'otp' ? 'selected' : '' }}>اعتبارسنجی (OTP)</option>
+                            @endif
                             <option value="advertising" {{ ($filters['service_type'] ?? '') == 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
                             <option value="normal" {{ ($filters['service_type'] ?? '') == 'normal' ? 'selected' : '' }}>عادی / اطلاع‌رسانی</option>
                         </select>
                     </div>
+
+                    @if($canUseOtp ?? false)
+                    <!-- OTP system category (staff only) -->
+                    <div class="col-12 col-sm-6 col-md-3 mb-3">
+                        <label class="form-label small fw-bold">دسته‌بندی OTP</label>
+                        <select name="otp_category" class="form-control form-control-sm">
+                            <option value="all">همه دسته‌بندی‌ها</option>
+                            @foreach(\App\Enums\SmsOtpCategory::options() as $slug => $label)
+                                <option value="{{ $slug }}" {{ ($filters['otp_category'] ?? '') == $slug ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
 
                     <!-- Single / Bulk -->
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
@@ -157,7 +172,7 @@
                             <option value="all">همه گروه‌ها</option>
                             @foreach($groups as $grp)
                                 <option value="{{ $grp->id }}" {{ ($filters['sms_message_group_id'] ?? '') == $grp->id ? 'selected' : '' }}>
-                                    📁 {{ $grp->name }}
+                                    📁 {{ $grp->name }}@if(!$business && $grp->business) ({{ $grp->business->title }})@endif
                                 </option>
                                 @foreach($grp->subgroups as $sub)
                                     <option value="{{ $sub->id }}" {{ ($filters['sms_message_group_id'] ?? '') == $sub->id ? 'selected' : '' }}>
@@ -265,7 +280,10 @@
                                 </td>
                                 <td>
                                     @if($msg->service_type === 'otp')
-                                        <span class="badge badge-warning text-dark px-2 py-1">OTP</span>
+                                        <span class="badge badge-warning text-dark px-2 py-1">{{ \App\Support\SmsLabels::serviceType('otp') }}</span>
+                                        @if($msg->otp_category)
+                                            <span class="badge badge-light border px-2 py-1">{{ \App\Enums\SmsOtpCategory::labelFor($msg->otp_category) }}</span>
+                                        @endif
                                     @elseif($msg->service_type === 'advertising')
                                         <span class="badge badge-primary px-2 py-1">تبلیغاتی</span>
                                     @else
@@ -294,6 +312,7 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @php($msgStatusLabel = \App\Support\SmsLabels::status($msg->status))
                                     @if($msg->status === 'delivered' || $msg->delivery_status === 'delivered')
                                         <span class="badge badge-success px-2 py-1"><i class="fa fa-check me-1"></i> تحویل شد</span>
                                     @elseif($msg->status === 'sent')
@@ -301,7 +320,7 @@
                                     @elseif($msg->status === 'failed')
                                         <span class="badge badge-danger px-2 py-1" title="{{ $msg->error_reason }}"><i class="fa fa-times me-1"></i> ناموفق</span>
                                     @else
-                                        <span class="badge badge-warning text-dark px-2 py-1"><i class="fa fa-clock-o me-1"></i> {{ $msg->status }}</span>
+                                        <span class="badge badge-warning text-dark px-2 py-1"><i class="fa fa-clock-o me-1"></i> {{ $msgStatusLabel }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -313,13 +332,15 @@
                                 <td>
                                     <button type="button" class="btn btn-outline-info btn-sm view-details-btn" 
                                             data-id="{{ $msg->id }}"
+                                            data-show-url="{{ route('admin.sms.logs.show', $msg->id) }}"
                                             data-content="{{ ($msg->content_redacted ?? false) ? 'محرمانه - دسترسی محدود' : e($msg->content) }}"
                                             data-sender="{{ $msg->sender_phone }}"
                                             data-recipient="{{ $msg->recipient_phone }}"
-                                            data-direction="{{ $msg->direction === 'inbound' ? 'دریافتی' : 'ارسالی' }}"
-                                            data-service="{{ $msg->service_type }}"
-                                            data-status="{{ $msg->status }}"
-                                            data-delivery="{{ $msg->delivery_status ?: '-' }}"
+                                            data-direction="{{ \App\Support\SmsLabels::direction($msg->direction) }}"
+                                            data-service="{{ \App\Support\SmsLabels::serviceType($msg->service_type) }}"
+                                            data-otp-category="{{ $msg->service_type === 'otp' ? \App\Enums\SmsOtpCategory::labelFor($msg->otp_category) : '' }}"
+                                            data-status="{{ $msgStatusLabel }}"
+                                            data-delivery="{{ \App\Support\SmsLabels::status($msg->delivery_status) }}"
                                             data-cost="{{ number_format($msg->cost ?? 0) }}"
                                             data-pages="{{ $msg->page_count }}"
                                             data-chars="{{ $msg->character_count }}"
@@ -327,7 +348,8 @@
                                             data-date="{{ verta($msg->created_at)->format('Y/m/d H:i:s') }}"
                                             data-delivered-at="{{ $msg->delivered_at ? verta($msg->delivered_at)->format('Y/m/d H:i:s') : '-' }}"
                                             data-error="{{ e($msg->error_reason ?: '') }}"
-                                            data-request-id="{{ $msg->request_id ?: '' }}"
+                                            data-request-id="{{ $msg->callcenter_id ?: $msg->request_id ?: '' }}"
+                                            data-request-label="{{ $msg->request_breadcrumb }}"
                                             data-toggle="modal" data-target="#messageDetailModal">
                                         <i class="fa fa-eye"></i>
                                     </button>
@@ -366,7 +388,7 @@
             <div class="modal-body">
                 <div class="row mb-3">
                     <div class="col-6 col-md-3"><strong>جهت:</strong> <span id="mDirection"></span></div>
-                    <div class="col-6 col-md-3"><strong>نوع:</strong> <span id="mService"></span></div>
+                    <div class="col-6 col-md-3"><strong>نوع:</strong> <span id="mService"></span> <span id="mOtpCategory" class="badge badge-light border"></span></div>
                     <div class="col-6 col-md-3"><strong>وضعیت کلی:</strong> <span id="mStatus"></span></div>
                     <div class="col-6 col-md-3"><strong>وضعیت تحویل:</strong> <span id="mDelivery"></span></div>
                 </div>
@@ -383,7 +405,7 @@
                     <div class="col-6 col-md-3"><strong>زمان تحویل:</strong> <span id="mDeliveredAt"></span></div>
                 </div>
                 <div class="mb-3" id="mRequestRow" style="display: none;">
-                    <strong>شناسه درخواست مرتبط:</strong> <span id="mRequestId"></span>
+                    <strong>درخواست مرتبط:</strong> <span id="mRequestId"></span>
                 </div>
                 <div class="mb-3" id="mErrorRow" style="display: none;">
                     <div class="alert alert-danger mb-0">
@@ -396,6 +418,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <a href="#" id="mShowLink" class="btn btn-primary"><i class="fa fa-external-link me-1"></i> جزئیات کامل</a>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
             </div>
         </div>
@@ -410,6 +433,7 @@ $(document).ready(function() {
         var btn = $(this);
         $('#mDirection').text(btn.data('direction'));
         $('#mService').text(btn.data('service'));
+        $('#mOtpCategory').text(btn.data('otp-category') || '').toggle(!!btn.data('otp-category'));
         $('#mStatus').text(btn.data('status'));
         $('#mDelivery').text(btn.data('delivery'));
         $('#mSender').text(btn.data('sender'));
@@ -421,10 +445,11 @@ $(document).ready(function() {
         $('#mDate').text(btn.data('date'));
         $('#mDeliveredAt').text(btn.data('delivered-at'));
         $('#mContent').text(btn.data('content'));
+        $('#mShowLink').attr('href', btn.attr('data-show-url'));
 
         var reqId = btn.data('request-id');
         if (reqId) {
-            $('#mRequestId').text('#' + reqId);
+            $('#mRequestId').text(btn.data('request-label') || ('#' + reqId));
             $('#mRequestRow').show();
         } else {
             $('#mRequestRow').hide();

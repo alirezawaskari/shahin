@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\GhorfeOnlineList;
 use App\Models\SenderNumber;
+use App\Models\SmsTopUpPayment;
+use App\Exceptions\Sms\SmsPaymentUnavailableException;
+use App\Services\Sms\SmsTopUpPaymentService;
 use App\Services\Sms\BalanceGuard;
 use App\Services\Sms\SmsFinancialService;
 use DomainException;
@@ -66,6 +69,8 @@ class SmsFinancialController extends Controller
      */
     public function otpView(Request $request): View|JsonResponse|RedirectResponse
     {
+        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
+
         if ($this->superAdminWithoutBusiness($request)) {
             $firstBusinessId = GhorfeOnlineList::query()->value('id');
             if ($firstBusinessId) {
@@ -101,15 +106,25 @@ class SmsFinancialController extends Controller
     }
 
     /**
-     * Top-up OTP balance for the business.
-     * Credits ONLY this business's otp_balances row.
+     * Start an online payment for the OTP balance of the business.
+     * Nothing is credited here: the balance is credited by SmsTopUpPaymentService
+     * only after the payment module reports a verified success.
      */
     public function otpTopUp(Request $request): RedirectResponse|JsonResponse
+    {
+        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
+
+        return $this->startTopUpPayment($request, 'otp');
+    }
+
+    /**
+     * Shared initiator for both balance types. Client-supplied tracking ids are ignored.
+     */
+    protected function startTopUpPayment(Request $request, string $creditType): RedirectResponse|JsonResponse
     {
         $request->validate([
             'amount' => 'required|numeric|min:1000',
             'business_id' => 'nullable|exists:ghorfe_online_lists,id',
-            'tracking_id' => 'nullable|string|max:100',
         ]);
 
         $business = $this->resolveBusiness($request);
@@ -120,35 +135,67 @@ class SmsFinancialController extends Controller
                 : redirect()->back()->withErrors('کسب‌وکار معتبری یافت نشد.');
         }
 
+        // Return target is derived server-side from the referring page, only if same-host.
+        $previous = url()->previous();
+        $returnUrl = parse_url($previous, PHP_URL_HOST) === $request->getHost() ? $previous : null;
+
         try {
-            $transaction = $this->financialService->topUpOtp(
+            [$payment, $gatewayUrl] = app(SmsTopUpPaymentService::class)->initiate(
                 $business,
+                $creditType,
                 (float) $request->input('amount'),
                 auth()->user(),
-                $request->input('tracking_id')
+                $returnUrl
             );
-
-            $msg = sprintf(
-                'شارژ پیامک اعتبارسنجی (OTP) به مبلغ %s ریال با موفقیت انجام شد. شناسه تراکنش: %s',
-                number_format((float) $request->input('amount')),
-                $transaction->tracking_id
-            );
-
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $msg,
-                    'transaction' => $transaction,
-                ]);
-            }
-
-            return redirect()->back()->with('success', $msg);
         } catch (DomainException $e) {
+            $status = $e instanceof SmsPaymentUnavailableException ? 503 : 422;
             if ($request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+                return response()->json(['success' => false, 'message' => $e->getMessage()], $status);
             }
             return redirect()->back()->withErrors($e->getMessage());
         }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'redirect_url' => $gatewayUrl,
+                'payment_id' => $payment->id,
+            ]);
+        }
+
+        return redirect()->away($gatewayUrl);
+    }
+
+    /**
+     * Landing page after the payment module has handled the bank callback.
+     * Read-only: shows the stored outcome and sends the user back to where they came from.
+     */
+    public function topUpResult(Request $request, SmsTopUpPayment $payment): RedirectResponse
+    {
+        $user = auth()->user();
+        abort_unless(
+            $user && ($user->isSuperAdmin() || (ghorfe() && (int) ghorfe()->id === (int) $payment->ghorfe_online_list_id)),
+            403
+        );
+
+        $fallback = $payment->credit_type === 'otp'
+            ? route('admin.sms.financial.otp.index', ['business_id' => $payment->ghorfe_online_list_id])
+            : route('admin.sms.financial.advertising.index', ['business_id' => $payment->ghorfe_online_list_id]);
+        $target = $payment->return_url ?: $fallback;
+
+        if ($payment->isPaid()) {
+            return redirect($target)->with('success', sprintf(
+                'پرداخت موفق بود و %s ریال به موجودی شما افزوده شد. شناسه رهگیری: %s',
+                number_format((float) $payment->amount),
+                $payment->ref_number ?: $payment->id
+            ));
+        }
+
+        if ($payment->isPending()) {
+            return redirect($target)->with('success', 'پرداخت شما در حال بررسی است؛ پس از تایید بانک موجودی افزایش می‌یابد.');
+        }
+
+        return redirect($target)->withErrors('پرداخت ناموفق بود یا لغو شد و مبلغی به موجودی شما افزوده نشد.');
     }
 
     /**
@@ -191,54 +238,12 @@ class SmsFinancialController extends Controller
     }
 
     /**
-     * Top-up the Advertising panel balance.
-     * Credits ONLY this business's advertising_balances row. Never cross-credits.
+     * Start an online payment for the Advertising panel balance (one balance per business).
+     * Credits nothing until the payment module reports a verified success.
      */
     public function advertisingTopUp(Request $request): RedirectResponse|JsonResponse
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:1000',
-            'business_id' => 'nullable|exists:ghorfe_online_lists,id',
-            'tracking_id' => 'nullable|string|max:100',
-        ]);
-
-        $business = $this->resolveBusiness($request);
-
-        if (!$business) {
-            return $request->wantsJson()
-                ? response()->json(['success' => false, 'message' => 'کسب‌وکار معتبری یافت نشد.'], 404)
-                : redirect()->back()->withErrors('کسب‌وکار معتبری یافت نشد.');
-        }
-
-        try {
-            $transaction = $this->financialService->topUpAdvertising(
-                $business,
-                (float) $request->input('amount'),
-                auth()->user(),
-                $request->input('tracking_id')
-            );
-
-            $msg = sprintf(
-                'شارژ پنل پیامک تبلیغاتی به مبلغ %s ریال با موفقیت انجام شد. شناسه تراکنش: %s',
-                number_format((float) $request->input('amount')),
-                $transaction->tracking_id
-            );
-
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $msg,
-                    'transaction' => $transaction,
-                ]);
-            }
-
-            return redirect()->back()->with('success', $msg);
-        } catch (DomainException $e) {
-            if ($request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
-            }
-            return redirect()->back()->withErrors($e->getMessage());
-        }
+        return $this->startTopUpPayment($request, 'advertising');
     }
 
     /**
@@ -256,6 +261,8 @@ class SmsFinancialController extends Controller
         $cost = (float) $request->input('cost', 0);
 
         if ($type === 'otp') {
+            abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
+
             $status = $this->balanceGuard->checkOtp($business, $cost);
             return response()->json(['success' => true, 'status' => $status]);
         }

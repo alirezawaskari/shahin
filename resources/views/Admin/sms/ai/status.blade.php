@@ -22,7 +22,7 @@
         <p class="text-muted mb-0 small">
             کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |
             ایجادکننده: <strong>{{ $campaign->creator ? ($campaign->creator->name . ' ' . $campaign->creator->family) : 'کاربر' }}</strong> |
-            تاریخ ثبت: {{ $campaign->created_at->format('Y/m/d H:i') }}
+            تاریخ ثبت: {{ \App\Helpers\Helper::jalaliDate($campaign->created_at, 'Y/m/d H:i') ?? '-' }}
         </p>
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2">
@@ -178,7 +178,7 @@
 <script>
     // Live status polling. Same JSON endpoint as bulk campaigns (shared sms_campaigns table).
     const statusApiUrl = "{{ route('admin.sms.ai.campaigns.status', $campaign) }}";
-    let isPolling = @json(!in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']));
+    let isPolling = {{ in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']) ? 'false' : 'true' }};
 
     function pollStatus() {
         if (!isPolling) return;

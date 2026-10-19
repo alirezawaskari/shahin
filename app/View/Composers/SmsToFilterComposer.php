@@ -5,6 +5,7 @@ namespace App\View\Composers;
 use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
 use App\Models\SmsMessageTemplate;
+use App\Services\Sms\SmsAccessTierService;
 use Illuminate\View\View;
 
 /**
@@ -48,8 +49,9 @@ class SmsToFilterComposer
             'smsSenders' => $senders,
             'smsTemplates' => $templates,
             'smsBalance' => $balance,
-            // Who sees the button at all: anyone allowed to send group SMS (superAdmin, ghorfeAdmin, or explicitly permitted).
-            'smsCanSend' => (bool) $business && $user && ($user->isSuperAdmin() || $user->isAbleTo('send-group-sms') || $user->isAdmin()),
+            // Who sees the button at all: holders of view-phone-numbers (superAdmin always) who may also send group SMS.
+            'smsCanSend' => (bool) $business && $user && app(SmsAccessTierService::class)->canViewPhoneNumbers($user)
+                && ($user->isSuperAdmin() || $user->isAbleTo('send-group-sms') || $user->isAdmin()),
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\User;
+use App\Services\Sms\CatalogBreadcrumbResolver;
 use App\Services\Sms\SmsConfidentialityGuard;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -24,7 +25,11 @@ class SmsAdvertisingReportExport implements FromCollection, ShouldAutoSize, With
 
     public function collection(): Collection
     {
-        return $this->query->get()->map(function ($message) {
+        $messages = $this->query->get();
+        // One batched lookup for every row's request -> "Category > Subcategory > Service" label.
+        app(CatalogBreadcrumbResolver::class)->annotateMessages($messages);
+
+        return $messages->map(function ($message) {
             $date = $message->created_at;
             if (function_exists('verta')) {
                 $dateStr = verta($date)->format('Y/m/d H:i:s');
@@ -34,10 +39,13 @@ class SmsAdvertisingReportExport implements FromCollection, ShouldAutoSize, With
 
             return [
                 'id' => $message->id,
+                'direction' => \App\Support\SmsLabels::direction($message->direction),
+                'service_type' => \App\Support\SmsLabels::serviceType($message->service_type ?: 'normal'),
                 'sender_number' => $message->senderNumber?->number ?? $message->sender_phone ?? '-',
                 'recipient_phone' => $message->recipient_phone,
                 'campaign' => $message->campaign?->id ? ('کمپین #' . $message->campaign->id) : '-',
                 'content' => SmsConfidentialityGuard::visibleContent($message, $this->viewer) ?? '*** محرمانه - دسترسی محدود ***',
+                'request' => $message->request_breadcrumb ?: '-',
                 'character_count' => $message->character_count,
                 'page_count' => $message->page_count,
                 'cost' => $message->cost ? number_format((float) $message->cost) : '0',
@@ -58,10 +66,13 @@ class SmsAdvertisingReportExport implements FromCollection, ShouldAutoSize, With
     {
         return [
             'شناسه',
+            'جهت',
+            'نوع پیام',
             'شماره فرستنده',
             'شماره گیرنده',
             'کمپین',
             'متن پیام',
+            'درخواست',
             'تعداد کاراکتر',
             'تعداد صفحه',
             'هزینه (ریال)',

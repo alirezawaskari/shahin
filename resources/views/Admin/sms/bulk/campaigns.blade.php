@@ -16,6 +16,9 @@
         <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary btn-sm">
             <i class="fa fa-plus me-1"></i> ایجاد کمپین جدید
         </a>
+        <a href="{{ route('admin.sms.bulk.queue') }}" class="btn btn-outline-warning btn-sm text-dark">
+            <i class="fa fa-clock-o me-1"></i> صف ارسال
+        </a>
         <a href="{{ route('admin.sms.single.index') }}" class="btn btn-outline-primary btn-sm">
             <i class="fa fa-envelope me-1"></i> ارسال تکی
         </a>
@@ -99,7 +102,7 @@
                             </div>
                         </td>
                         <td class="text-primary">{{ number_format($camp->cost_estimate) }} ریال</td>
-                        <td class="text-muted">{{ $camp->created_at->format('Y/m/d H:i') }}</td>
+                        <td class="text-muted">{{ \App\Helpers\Helper::jalaliDate($camp->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                         <td>
                             <a href="{{ route('admin.sms.bulk.campaigns.show', $camp) }}" class="btn btn-outline-primary btn-sm px-2" title="مشاهده وضعیت زنده">
                                 <i class="fa fa-eye"></i> مشاهده

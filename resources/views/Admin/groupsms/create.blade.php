@@ -221,7 +221,7 @@
                     default => 'tier-silver',
                 };
                 $tierLabel = match($currentTier) {
-                    'titanium' => 'تیتانیومی (Titanium)',
+                    'titanium' => 'تیتانیوم (Titanium)',
                     'diamond' => 'الماسی (Diamond)',
                     'gold' => 'طلایی (Gold)',
                     default => 'نقره‌ای (Silver)',
@@ -933,7 +933,8 @@
                 document.getElementById('stat_invalid').innerText = Number(rec.invalid_count).toLocaleString('fa-IR');
                 document.getElementById('stat_duplicate').innerText = Number(rec.duplicate_count).toLocaleString('fa-IR');
 
-                if (rec.invalid_count > 0 && rec.invalid_sample.length > 0) {
+                // invalid_sample is absent for users without view-phone-numbers (counts only)
+                if (rec.invalid_count > 0 && rec.invalid_sample && rec.invalid_sample.length > 0) {
                     const sampleList = rec.invalid_sample.map(i => `<code>${i.phone}</code>: ${i.reason}`).join(' | ');
                     document.getElementById('invalidNumbersDetails').style.display = 'block';
                     document.getElementById('invalidNumbersDetails').innerHTML = `<strong>نمونه شماره‌های نامعتبر رد شده:</strong> ${sampleList}`;
@@ -1088,9 +1089,7 @@
         const btn = document.getElementById('btnExecuteQuickPay');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> در حال اتصال به درگاه شاپرک و شارژ آنی...';
-
-        const trackingId = 'QP-' + selectedGw.toUpperCase() + '-' + Date.now().toString().slice(-8);
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> در حال انتقال به درگاه پرداخت...';
 
         fetch("{{ route('admin.sms.financial.advertising.topup') }}", {
             method: 'POST',
@@ -1102,12 +1101,13 @@
             body: JSON.stringify({
                 sender_number_id: currentQuickSenderId,
                 amount: amount,
-                business_id: currentQuickBusinessId,
-                tracking_id: trackingId
+                business_id: currentQuickBusinessId
             })
         })
         .then(r => r.json().then(data => ({ status: r.status, data })))
         .then(({ status, data }) => {
+            // Payment flow: nothing is credited here; go to the gateway and return to this page after payment.
+            if (status === 200 && data.success && data.redirect_url) { window.location.href = data.redirect_url; return; }
             btn.disabled = false;
             btn.innerHTML = originalText;
 
@@ -1127,7 +1127,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'شارژ آنلاین با موفقیت انجام شد!',
-                        html: `موجودی پنل تبلیغاتی کسب‌وکار به میزان <b>${Number(amount).toLocaleString('fa-IR')} ریال</b> افزایش یافت.<br><small class="text-muted">شناسه رهگیری بانکی: ${trackingId}</small>`,
+                        html: `موجودی پنل تبلیغاتی کسب‌وکار به میزان <b>${Number(amount).toLocaleString('fa-IR')} ریال</b> افزایش یافت.`,
                         confirmButtonText: 'عالی، بازگشت به کمپین'
                     });
                 }

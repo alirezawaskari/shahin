@@ -34,7 +34,6 @@ class AiCampaignAssistant
         'service_category_id',
         'product_category_id',
         'organization_id',
-        'representation_id',
         'custom_numbers',
     ];
 
@@ -95,7 +94,7 @@ class AiCampaignAssistant
                 continue;
             }
 
-            if (in_array($key, ['gender', 'province_id', 'city_id', 'service_id', 'service_category_id', 'product_category_id', 'organization_id', 'representation_id', 'birth_year', 'birth_month', 'birth_day'], true)) {
+            if (in_array($key, ['gender', 'province_id', 'city_id', 'service_id', 'service_category_id', 'product_category_id', 'organization_id', 'birth_year', 'birth_month', 'birth_day'], true)) {
                 $sanitized[$key] = is_numeric($value) ? (int) $value : $value;
                 continue;
             }

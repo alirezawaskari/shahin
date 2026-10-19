@@ -10,7 +10,7 @@
                 <div class="col-sm-12">
 
                     <div class="form-group">
-                        <a class="btn btn-primary waves-effect waves-light" href="{{ route('groupsms.index') }}"> <i
+                        <a class="btn btn-primary waves-effect waves-light" href="{{ route(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()) ? 'admin.sms.reports.otp.index' : 'admin.sms.reports.advertising.index') }}"> <i
                                     class="fa fa-share"></i>
                             باز گشت</a>
                     </div>

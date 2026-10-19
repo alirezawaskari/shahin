@@ -78,14 +78,36 @@ class SmsReportController extends Controller
     }
 
     /**
+     * Export without a business context: a super-admin is redirected to the same URL with
+     * business_id (like the report pages do). Foreign/unknown ids still hit resolveBusiness().
+     */
+    protected function exportBusinessFallback(Request $request): ?RedirectResponse
+    {
+        if (!$this->superAdminWithoutBusiness($request)) {
+            return null;
+        }
+
+        $firstBusinessId = GhorfeOnlineList::query()->value('id');
+        if (!$firstBusinessId) {
+            return null;
+        }
+
+        return redirect()->to($request->url() . '?' . http_build_query(
+            array_merge($request->query(), ['business_id' => $firstBusinessId])
+        ));
+    }
+
+    /**
      * OTP report for current business.
      */
     public function otpReport(Request $request): View|JsonResponse|RedirectResponse
     {
+        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
+
         if ($this->superAdminWithoutBusiness($request)) {
             $firstBusinessId = GhorfeOnlineList::query()->value('id');
             if ($firstBusinessId) {
-                return redirect()->route('admin.sms.reports.otp.index', ['business_id' => $firstBusinessId]);
+                return redirect()->route('admin.sms.reports.otp.index', array_merge($request->query(), ['business_id' => $firstBusinessId]));
             }
             return redirect()->route('admin.sms.reports.superadmin.index');
         }
@@ -96,7 +118,7 @@ class SmsReportController extends Controller
             abort(404, 'هیچ کسب‌وکاری در سیستم تعریف نشده است.');
         }
 
-        $filters = $request->only(['status', 'sms_message_template_id', 'sms_message_group_id', 'search', 'date_from', 'date_to']);
+        $filters = $request->only(['status', 'sms_message_template_id', 'sms_message_group_id', 'search', 'date_from', 'date_to', 'direction']);
         $data = $this->reportService->getOtpReport($business, $filters);
         $data = $this->redactReportMessages($data, $request);
 
@@ -119,15 +141,21 @@ class SmsReportController extends Controller
     /**
      * Export OTP report to Excel.
      */
-    public function otpReportExport(Request $request): BinaryFileResponse
+    public function otpReportExport(Request $request): BinaryFileResponse|RedirectResponse
     {
+        abort_unless(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()), 403, 'دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
+
+        if ($redirect = $this->exportBusinessFallback($request)) {
+            return $redirect;
+        }
+
         $business = $this->resolveBusiness($request);
 
         if (!$business) {
             abort(404, 'کسب‌وکاری یافت نشد.');
         }
 
-        $filters = $request->only(['status', 'sms_message_template_id', 'sms_message_group_id', 'search', 'date_from', 'date_to']);
+        $filters = $request->only(['status', 'sms_message_template_id', 'sms_message_group_id', 'search', 'date_from', 'date_to', 'direction']);
         $query = $this->reportService->buildOtpReportQuery($business, $filters);
 
         $fileName = 'otp-sms-report-' . now()->format('Y-m-d-His') . '.xlsx';
@@ -142,7 +170,7 @@ class SmsReportController extends Controller
         if ($this->superAdminWithoutBusiness($request)) {
             $firstBusinessId = GhorfeOnlineList::query()->value('id');
             if ($firstBusinessId) {
-                return redirect()->route('admin.sms.reports.advertising.index', ['business_id' => $firstBusinessId]);
+                return redirect()->route('admin.sms.reports.advertising.index', array_merge($request->query(), ['business_id' => $firstBusinessId]));
             }
             return redirect()->route('admin.sms.reports.superadmin.index');
         }
@@ -153,7 +181,7 @@ class SmsReportController extends Controller
             abort(404, 'هیچ کسب‌وکاری در سیستم تعریف نشده است.');
         }
 
-        $filters = $request->only(['sender_number_id', 'sms_campaign_id', 'status', 'sms_message_group_id', 'search', 'date_from', 'date_to']);
+        $filters = $request->only(['sender_number_id', 'sms_campaign_id', 'status', 'sms_message_group_id', 'search', 'date_from', 'date_to', 'direction', 'service_type']);
         $data = $this->reportService->getAdvertisingReport($business, $filters);
         $data = $this->redactReportMessages($data, $request);
 
@@ -176,15 +204,19 @@ class SmsReportController extends Controller
     /**
      * Export Advertising messages report to Excel.
      */
-    public function advertisingReportExport(Request $request): BinaryFileResponse
+    public function advertisingReportExport(Request $request): BinaryFileResponse|RedirectResponse
     {
+        if ($redirect = $this->exportBusinessFallback($request)) {
+            return $redirect;
+        }
+
         $business = $this->resolveBusiness($request);
 
         if (!$business) {
             abort(404, 'کسب‌وکاری یافت نشد.');
         }
 
-        $filters = $request->only(['sender_number_id', 'sms_campaign_id', 'status', 'sms_message_group_id', 'search', 'date_from', 'date_to']);
+        $filters = $request->only(['sender_number_id', 'sms_campaign_id', 'status', 'sms_message_group_id', 'search', 'date_from', 'date_to', 'direction', 'service_type']);
         $query = $this->reportService->buildAdvertisingMessagesQuery($business, $filters);
 
         $fileName = 'advertising-sms-report-' . now()->format('Y-m-d-His') . '.xlsx';
@@ -217,6 +249,7 @@ class SmsReportController extends Controller
             'group',
             'sms_message_group_id',
             'search',
+            'direction',
         ]);
 
         $data = $this->reportService->getSuperAdminReport($filters);
@@ -257,6 +290,7 @@ class SmsReportController extends Controller
             'group',
             'sms_message_group_id',
             'search',
+            'direction',
         ]);
 
         $query = $this->reportService->buildSuperAdminReportQuery($filters);

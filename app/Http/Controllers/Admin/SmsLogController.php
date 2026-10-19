@@ -8,6 +8,7 @@ use App\Models\GhorfeOnlineList;
 use App\Models\SenderNumber;
 use App\Models\SmsMessage;
 use App\Models\SmsMessageGroup;
+use App\Services\Sms\SmsAccessTierService;
 use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\Sms\SmsLogService;
 use Illuminate\Http\JsonResponse;
@@ -34,11 +35,13 @@ class SmsLogController extends Controller
             $business = GhorfeOnlineList::find($request->input('business_id'));
         }
 
+        $canUseOtp = app(SmsAccessTierService::class)->canUseOtp($user);
+
         $filters = $request->all();
-        $messages = $this->logService->getPaginatedLogs($filters, $business, $isSuperAdmin, 25);
+        $messages = $this->logService->getPaginatedLogs($filters, $business, $isSuperAdmin, 25, $canUseOtp);
         $messages->appends($request->query());
 
-        $summary = $this->logService->getSummaryMetrics($filters, $business, $isSuperAdmin);
+        $summary = $this->logService->getSummaryMetrics($filters, $business, $isSuperAdmin, $canUseOtp);
 
         // Confidentiality enforcement (task.md §13): the body of a message in a
         // confidential group (مالی/حقوقی) is removed server-side for anyone
@@ -57,7 +60,13 @@ class SmsLogController extends Controller
         }
         $senderNumbers = $senderNumbersQuery->orderBy('number')->get();
 
-        $groups = SmsMessageGroup::whereNull('parent_id')->with('subgroups')->orderBy('name')->get();
+        // Subject groups belong to a business: pin to the active one so the dropdown never lists the
+        // same group once per business (super-admin 'all businesses' view keeps every business).
+        $groups = SmsMessageGroup::whereNull('parent_id')
+            ->when($business, fn ($q) => $q->where('ghorfe_online_list_id', $business->id))
+            ->with(['business', 'subgroups' => fn ($q) => $q->when($business, fn ($sq) => $sq->where('ghorfe_online_list_id', $business->id))])
+            ->orderBy('name')
+            ->get();
 
         $statuses = [
             'queued' => 'در صف ارسال',
@@ -89,7 +98,8 @@ class SmsLogController extends Controller
             'statuses',
             'business',
             'isSuperAdmin',
-            'filters'
+            'filters',
+            'canUseOtp'
         ));
     }
 
@@ -106,6 +116,12 @@ class SmsLogController extends Controller
             abort(403, 'شما دسترسی به این پیامک را ندارید.');
         }
 
+        // OTP rows are not visible to viewers who cannot use OTP, even by direct ID.
+        abort_if(
+            $smsMessage->service_type === 'otp' && !app(SmsAccessTierService::class)->canUseOtp($user),
+            404
+        );
+
         $smsMessage->load(['business', 'senderNumber', 'template', 'group', 'campaign', 'user', 'creator', 'request']);
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -118,6 +134,7 @@ class SmsLogController extends Controller
         // Also redact for the server-rendered view: confidentiality is
         // enforced regardless of output format.
         SmsConfidentialityGuard::redact($smsMessage, $user);
+        app(\App\Services\Sms\CatalogBreadcrumbResolver::class)->annotateMessages([$smsMessage]);
 
         return view('Admin.sms.logs.show', compact('smsMessage'));
     }

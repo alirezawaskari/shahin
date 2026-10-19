@@ -195,7 +195,7 @@
                 default => 'tier-silver',
             };
             $tierLabel = match($userTier) {
-                'titanium' => 'تیتانیومی (Titanium)',
+                'titanium' => 'تیتانیوم (Titanium)',
                 'diamond' => 'الماسی (Diamond)',
                 'gold' => 'طلایی (Gold)',
                 default => 'نقره‌ای (Silver)',

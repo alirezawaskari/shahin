@@ -49,6 +49,13 @@ return [
         // Shared secret the SMS gateway must send in the X-Webhook-Secret header
         // on every delivery/inbound callback. Required for webhooks to be accepted.
         'webhook_secret' => env('SMS_WEBHOOK_SECRET'),
+        // Per-page SMS tariff (in Rials) used for cost estimation.
+        'cost_per_page' => (int) env('SMS_COST_PER_PAGE', 1200),
+        // Auto-responder: minutes during which one sender gets at most one reply per rule.
+        'auto_reply_window_minutes' => (int) env('SMS_AUTO_REPLY_WINDOW_MINUTES', 10),
+        // Simulator: when true, or when the sender's panel is listed (lower-case), no real provider is called.
+        'simulate' => (bool) env('SMS_SIMULATE', false),
+        'simulated_panels' => ['simulator', 'testsmspanel'],
     ],
 
     'iranSms' => [

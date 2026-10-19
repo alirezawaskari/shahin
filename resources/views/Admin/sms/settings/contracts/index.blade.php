@@ -985,6 +985,10 @@
 </div>
 @endif
 
+@endsection
+
+{{-- Scripts live outside the Vue-compiled #app root (inline <script> inside it is dropped). --}}
+@section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Read-Only Contract Viewer Modal

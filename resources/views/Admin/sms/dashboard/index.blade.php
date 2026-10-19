@@ -44,6 +44,7 @@
 
     {{-- Balance & KPI cards --}}
     <div class="row g-3 mb-4">
+        @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #10b981 !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
@@ -62,6 +63,7 @@
                 </div>
             </div>
         </div>
+        @endif
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #3b82f6 !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
@@ -189,12 +191,12 @@
                                 @forelse($recentMessages as $msg)
                                     <tr>
                                         <td class="small">#{{ $msg->id }}</td>
-                                        <td class="small">{{ $msg->direction === 'inbound' ? 'دریافتی' : 'ارسالی' }}</td>
+                                        <td class="small">{{ \App\Support\SmsLabels::direction($msg->direction) }}</td>
                                         <td class="small">{{ $msg->group?->name ?? '-' }}</td>
                                         <td>
-                                            <span class="badge bg-light text-dark border small">{{ $msg->status }}</span>
+                                            <span class="badge bg-light text-dark border small">{{ \App\Support\SmsLabels::status($msg->status) }}</span>
                                         </td>
-                                        <td class="small text-muted">{{ $msg->created_at?->format('Y/m/d H:i') }}</td>
+                                        <td class="small text-muted">{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                                     </tr>
                                 @empty
                                     <tr>

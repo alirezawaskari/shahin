@@ -3,6 +3,7 @@
 namespace App\Services\Sms;
 
 use App\Classes\External\IranSms;
+use App\Enums\SmsOtpCategory;
 use App\Classes\External\NeginSms;
 use App\Exceptions\Sms\InsufficientBalanceException;
 use App\Models\AdvertisingBalance;
@@ -38,8 +39,10 @@ class SingleSmsSendService
 
     public function __construct(
         protected DynamicParameterResolver $dynamicParameterResolver,
-        protected ?SettingsService $settingsService = null
+        protected ?SettingsService $settingsService = null,
+        protected ?SmsAuditService $audit = null
     ) {
+        $this->audit ??= new SmsAuditService();
     }
 
     /**
@@ -168,9 +171,16 @@ class SingleSmsSendService
     public function resolveSenderNumber(
         string $serviceType,
         GhorfeOnlineList $business,
-        ?int $requestedSenderNumberId = null
+        ?int $requestedSenderNumberId = null,
+        ?User $actor = null
     ): SenderNumber {
         if ($serviceType === 'otp') {
+            // OTP is Titanium-only. A system caller (no signed-in user, no actor) is not an end user and passes.
+            $actor = $actor ?? auth()->user();
+            if ($actor && !app(SmsAccessTierService::class)->canUseOtp($actor)) {
+                throw new DomainException('دسترسی به سرویس پیامک اعتبارسنجی (OTP) برای سطح دسترسی شما مجاز نیست.');
+            }
+
             // OTP sends NEVER allow a sender-number override.
             // Always resolve the active OTP system sender number.
             $otpSender = SenderNumber::query()
@@ -291,11 +301,42 @@ class SingleSmsSendService
             return;
         }
 
+        if (SmsGatewaySimulator::shouldSimulate($smsPanel)) {
+            SmsGatewaySimulator::dispatch($smsPanel, $phone, $message);
+            return;
+        }
+
         if (strtolower($smsPanel) === 'neginsms') {
             NeginSms::sendSingleSms($message, $phone, 'single');
         } else {
             IranSms::sendSingleSms($phone, $message);
         }
+    }
+
+    /**
+     * The category of an OTP send: the explicit one, else the template's. It must be one of the fixed
+     * SmsOtpCategory values and, when a template carries a category, agree with it.
+     *
+     * @param array<string, mixed> $data
+     * @throws DomainException
+     */
+    public function resolveOtpCategory(array $data): string
+    {
+        $templateId = $data['sms_message_template_id'] ?? $data['template_id'] ?? null;
+        $templateCategory = $templateId
+            ? \App\Models\SmsMessageTemplate::whereKey($templateId)->value('otp_category')
+            : null;
+        $chosen = !empty($data['otp_category']) ? (string) $data['otp_category'] : null;
+
+        $category = $chosen ?: $templateCategory;
+        if (!$category || SmsOtpCategory::tryFrom($category) === null) {
+            throw new DomainException('برای پیامک OTP انتخاب دسته‌بندی سیستمی (احراز هویت، فروش، مالی یا حقوقی) الزامی است.');
+        }
+        if ($templateCategory && $templateCategory !== $category) {
+            throw new DomainException('دسته‌بندی انتخابی با دسته‌بندی الگوی OTP مطابقت ندارد.');
+        }
+
+        return $category;
     }
 
     /**
@@ -316,6 +357,9 @@ class SingleSmsSendService
 
         $creator = $creator ?? auth()->user();
         $serviceType = $data['service_type'] ?? 'advertising';
+
+        // 0. OTP messages carry exactly one fixed system category; promotional ones never do.
+        $otpCategory = $serviceType === 'otp' ? $this->resolveOtpCategory($data) : null;
 
         // 1. Resolve recipient user if exists
         $recipientPhone = $data['recipient_phone'];
@@ -341,7 +385,7 @@ class SingleSmsSendService
 
         // 5. Resolve sender number (OTP: auto-selected, strictly NO override; Advertising: business assigned)
         $requestedSenderId = !empty($data['sender_number_id']) ? (int) $data['sender_number_id'] : null;
-        $senderNumber = $this->resolveSenderNumber($serviceType, $business, $requestedSenderId);
+        $senderNumber = $this->resolveSenderNumber($serviceType, $business, $requestedSenderId, $creator);
 
         // 6. Resolve the balance row. The authoritative sufficiency check runs under a
         //    row lock inside the transaction below (an unlocked pre-check here would race).
@@ -363,7 +407,8 @@ class SingleSmsSendService
             $cost,
             $trackingId,
             $balanceInfo,
-            $data
+            $data,
+            $otpCategory
         ) {
             $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
             // OTP is the only message type that can be classified (محرمانه).
@@ -390,6 +435,7 @@ class SingleSmsSendService
                 'sms_message_template_id' => $data['sms_message_template_id'] ?? null,
                 'sms_message_group_id' => $groupId,
                 'classification' => $classification,
+                'otp_category' => $otpCategory,
                 'content' => $finalContent,
                 'character_count' => $characterCount,
                 'page_count' => $pageCount,
@@ -399,7 +445,12 @@ class SingleSmsSendService
                 'user_id' => $recipientUser?->id,
                 'request_id' => $data['request_id'] ?? null,
                 'created_by' => $creator?->id,
+                'sender_role' => $this->audit->resolveSenderRole($creator),
                 'is_bulk' => false,
+            ]);
+
+            $this->audit->record($creator, $serviceType === 'otp' ? SmsAuditService::CHANNEL_OTP : SmsAuditService::CHANNEL_SINGLE, [
+                'sms_message' => $smsMessage,
             ]);
 
             // Lock the balance row, verify it covers the cost, and debit atomically.
@@ -482,6 +533,7 @@ class SingleSmsSendService
             'message' => $originalMessage->content,
             'service_type' => $originalMessage->service_type,
             'sender_number_id' => $originalMessage->sender_number_id,
+            'otp_category' => $originalMessage->service_type === 'otp' ? $originalMessage->otp_category : null,
         ];
 
         $newMessage = $this->send($sendData, $business, $referrer);

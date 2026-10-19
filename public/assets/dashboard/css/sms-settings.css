@@ -1,0 +1,59 @@
+/* RTL Icon Spacing */
+.sms-settings-nav .nav-link i.fa,
+.nav-pills .nav-link i.fa {
+    margin-left: 0.45rem !important;
+    margin-right: 0 !important;
+}
+.btn i.fa:first-child:not(:only-child),
+.badge i.fa:first-child:not(:only-child),
+h1 i.fa:first-child:not(:only-child),
+h2 i.fa:first-child:not(:only-child),
+h3 i.fa:first-child:not(:only-child),
+h4 i.fa:first-child:not(:only-child),
+h5 i.fa:first-child:not(:only-child),
+h6 i.fa:first-child:not(:only-child),
+.card-title i.fa:first-child:not(:only-child),
+.card-header i.fa:first-child:not(:only-child),
+.list-group-item > div > i.fa,
+.card-footer i.fa {
+    margin-left: 0.45rem !important;
+    margin-right: 0 !important;
+}
+i.fa.me-1 {
+    margin-left: 0.35rem !important;
+    margin-right: 0 !important;
+}
+i.fa.me-2 {
+    margin-left: 0.55rem !important;
+    margin-right: 0 !important;
+}
+.card-header h5 i.fa {
+    margin-left: 0.5rem !important;
+    margin-right: 0 !important;
+}
+
+/* Auto-responder rules table: fixed layout so the status badge and actions never overlap or clip */
+.sms-rules-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.sms-rules-table {
+    table-layout: fixed;
+    min-width: 760px;
+    width: 100%;
+}
+.sms-rules-table th,
+.sms-rules-table td {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    vertical-align: middle;
+}
+.sms-rules-table .col-id { width: 52px; }
+.sms-rules-table .col-name { width: 140px; }
+.sms-rules-table .col-business { width: 130px; }
+.sms-rules-table .col-keyword { width: 120px; }
+.sms-rules-table .col-match { width: 110px; }
+.sms-rules-table .col-reply { width: auto; min-width: 180px; white-space: normal; }
+.sms-rules-table .col-status { width: 90px; white-space: nowrap; }
+.sms-rules-table .col-actions { width: 110px; white-space: nowrap; }
+.sms-rules-table .badge { white-space: nowrap; }

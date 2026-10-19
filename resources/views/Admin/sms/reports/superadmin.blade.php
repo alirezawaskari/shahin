@@ -222,6 +222,8 @@
     </div>
 
     <!-- Advanced Super-Admin Filter Bar -->
+@include('Admin.sms.reports.partials.direction-tiles')
+
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white border-0 py-3">
             <h6 class="fw-bold mb-0"><i class="fa fa-sliders me-1"></i> فیلترهای پیشرفته بین‌سازمانی</h6>
@@ -309,6 +311,8 @@
                     <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="شماره، شناسه یا متن">
                 </div>
 
+@include('Admin.sms.reports.partials.direction-filter', ['colClass' => 'col-12 col-sm-6 col-md-2'])
+
                 <!-- Date Range -->
                 <div class="col-12 col-sm-6 col-md-2">
                     <label class="form-label small fw-bold">از تاریخ</label>
@@ -341,11 +345,13 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
+                        <th>جهت</th>
                         <th>کسب‌وکار</th>
                         <th>نوع</th>
                         <th>خط فرستنده</th>
                         <th>گیرنده</th>
                         <th>متن پیامک</th>
+                        <th>درخواست</th>
                         <th>صفحه</th>
                         <th>هزینه (ریال)</th>
                         <th>وضعیت</th>
@@ -358,6 +364,7 @@
                     @forelse($messages as $msg)
                         <tr>
                             <td>{{ $msg->id }}</td>
+                            <td>@include('Admin.sms.reports.partials.direction-badge')</td>
                             <td class="fw-bold text-primary">{{ $msg->business?->title ?? '-' }}</td>
                             <td>
                                 @if($msg->service_type === 'otp')
@@ -374,13 +381,20 @@
                                 @if($msg->content_redacted ?? false)
                                     <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
                                 @else
-                                    <div class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</div>
+                                    <div class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</div>@if(method_exists($msg, 'isConfidential') && $msg->isConfidential())<span class="badge bg-danger ms-1">محرمانه</span>@endif
                                 @endif
                             </td>
+                            <td class="small">{{ $msg->request_breadcrumb ?: '-' }}</td>
                             <td>{{ $msg->page_count }}</td>
-                            <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
+                            @if(($msg->direction ?? '') === 'inbound')
+                                <td class="text-muted">-</td>
+                            @else
+                                <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
+                            @endif
                             <td>
-                                @if(in_array($msg->status, ['delivered', 'sent']))
+                                @if(($msg->direction ?? '') === 'inbound')
+                                    <span class="badge badge-soft-info">دریافت شد</span>
+                                @elseif(in_array($msg->status, ['delivered', 'sent']))
                                     <span class="badge badge-soft-success">موفق</span>
                                 @elseif($msg->status === 'queued')
                                     <span class="badge badge-soft-warning">در صف</span>
@@ -389,7 +403,7 @@
                                 @endif
                             </td>
                             <td><code>{{ $msg->tracking_id ?? '-' }}</code></td>
-                            <td>{{ $msg->created_at->format('Y/m/d H:i') }}</td>
+                            <td>{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                             <td>
                                 <button type="button" class="btn btn-outline-info btn-sm view-details-btn" 
                                         data-id="{{ $msg->id }}"
@@ -399,7 +413,7 @@
                                         data-recipient="{{ $msg->recipient_phone }}"
                                         data-service="{{ $msg->service_type === 'otp' ? 'اعتبارسنجی (OTP)' : ($msg->service_type === 'advertising' ? 'تبلیغاتی' : 'عادی') }}"
                                         data-status="{{ in_array($msg->status, ['delivered', 'sent']) ? 'تحویل شد' : ($msg->status === 'queued' ? 'در صف' : 'ناموفق') }}"
-                                        data-delivery="{{ $msg->delivery_status ?: '-' }}"
+                                        data-delivery="{{ \App\Support\SmsLabels::status($msg->delivery_status) }}"
                                         data-cost="{{ number_format($msg->cost ?? 0) }}"
                                         data-pages="{{ $msg->page_count }}"
                                         data-chars="{{ $msg->character_count }}"
@@ -407,7 +421,8 @@
                                         data-date="{{ verta($msg->created_at)->format('Y/m/d H:i:s') }}"
                                         data-delivered-at="{{ $msg->delivered_at ? verta($msg->delivered_at)->format('Y/m/d H:i:s') : '-' }}"
                                         data-error="{{ e($msg->error_reason ?: '') }}"
-                                        data-request-id="{{ $msg->request_id ?: '' }}"
+                                        data-request-id="{{ $msg->callcenter_id ?: $msg->request_id ?: '' }}"
+                                            data-request-label="{{ $msg->request_breadcrumb }}"
                                         data-bs-toggle="modal" data-bs-target="#smsDetailsModal"
                                         data-toggle="modal" data-target="#smsDetailsModal"
                                         title="مشاهده جزئیات">
@@ -417,7 +432,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="12" class="text-muted py-4">پیامکی منطبق با فیلترها یافت نشد.</td>
+                            <td colspan="14" class="text-muted py-4">پیامکی منطبق با فیلترها یافت نشد.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -459,7 +474,7 @@
                     <div class="col-6 col-md-3"><strong>زمان تحویل:</strong> <span id="mDeliveredAt"></span></div>
                 </div>
                 <div class="mb-3" id="mRequestRow" style="display: none;">
-                    <strong>شناسه درخواست مرتبط:</strong> <span id="mRequestId"></span>
+                    <strong>درخواست مرتبط:</strong> <span id="mRequestId"></span>
                 </div>
                 <div class="mb-3" id="mErrorRow" style="display: none;">
                     <div class="alert alert-danger mb-0">
@@ -472,6 +487,7 @@
                 </div>
             </div>
             <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copyMsgBtn">کپی متن</button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-dismiss="modal">بستن</button>
             </div>
         </div>
@@ -482,6 +498,11 @@
 @section('js')
 <script>
 $(document).ready(function() {
+    $(document).on('click', '#copyMsgBtn', function() {
+        var t = $('#mContent').text();
+        if (navigator.clipboard) { navigator.clipboard.writeText(t); }
+        $(this).text('کپی شد');
+    });
     $(document).on('click', '.view-details-btn', function() {
         var btn = $(this);
         $('#mBusiness').text(btn.data('business') || '-');
@@ -497,10 +518,11 @@ $(document).ready(function() {
         $('#mDate').text(btn.data('date') || '-');
         $('#mDeliveredAt').text(btn.data('delivered-at') || '-');
         $('#mContent').text(btn.data('content') || '');
+        $('#copyMsgBtn').text('کپی متن');
 
         var reqId = btn.data('request-id');
         if (reqId) {
-            $('#mRequestId').text('#' + reqId);
+            $('#mRequestId').text(btn.data('request-label') || ('#' + reqId));
             $('#mRequestRow').show();
         } else {
             $('#mRequestRow').hide();

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Services\Sms\SmsConfidentialityGuard;
+use App\Support\SmsLabels;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,7 +25,11 @@ class SmsMessageResource extends JsonResource
         return [
             'id' => $this->id,
             'direction' => $this->direction,
+            'direction_label' => SmsLabels::direction($this->direction),
             'service_type' => $this->service_type,
+            'service_type_label' => SmsLabels::serviceType($this->service_type),
+            'otp_category' => $this->service_type === 'otp' ? $this->otp_category : null,
+            'otp_category_label' => $this->service_type === 'otp' ? \App\Enums\SmsOtpCategory::labelFor($this->otp_category) : null,
             'is_bulk' => (bool) $this->is_bulk,
             'sender_phone' => $this->sender_phone,
             'recipient_phone' => $this->recipient_phone,
@@ -34,6 +39,8 @@ class SmsMessageResource extends JsonResource
             'character_count' => $this->character_count,
             'page_count' => $this->page_count,
             'status' => $this->status,
+            'status_label' => SmsLabels::status($this->status),
+            'delivery_status_label' => SmsLabels::status($this->delivery_status),
             'cost' => $this->cost,
             'tracking_id' => $this->tracking_id,
             'error_reason' => $this->error_reason,

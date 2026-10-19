@@ -1,34 +1,5 @@
-<style>
-    /* RTL Icon Spacing */
-    .sms-settings-nav .nav-link i.fa,
-    .nav-pills .nav-link i.fa {
-        margin-left: 0.45rem !important;
-        margin-right: 0 !important;
-    }
-    .btn i.fa:first-child:not(:only-child),
-    .badge i.fa:first-child:not(:only-child),
-    h1 i.fa:first-child:not(:only-child),
-    h2 i.fa:first-child:not(:only-child),
-    h3 i.fa:first-child:not(:only-child),
-    h4 i.fa:first-child:not(:only-child),
-    h5 i.fa:first-child:not(:only-child),
-    h6 i.fa:first-child:not(:only-child),
-    .card-title i.fa:first-child:not(:only-child),
-    .card-header i.fa:first-child:not(:only-child),
-    .list-group-item > div > i.fa,
-    .card-footer i.fa {
-        margin-left: 0.45rem !important;
-        margin-right: 0 !important;
-    }
-    i.fa.me-1 {
-        margin-left: 0.35rem !important;
-        margin-right: 0 !important;
-    }
-    i.fa.me-2 {
-        margin-left: 0.55rem !important;
-        margin-right: 0 !important;
-    }
-</style>
+{{-- Stylesheet link instead of <style>: the page body is Vue-compiled, which drops <style>/<script> tags. --}}
+<link rel="stylesheet" href="{{ asset('assets/dashboard/css/sms-settings.css') }}">
 
 <div class="card mb-3 shadow-sm border-0 sms-settings-nav">
     <div class="card-body p-2">
@@ -57,6 +28,12 @@
                 <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.settings.templates.*') ? 'active bg-primary text-white' : 'text-dark' }}" 
                    href="{{ route('admin.sms.settings.templates.index') }}">
                     <i class="fa fa-file-text-o ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> الگوهای پیامک
+                </a>
+            </li>
+            <li class="nav-item flex-shrink-0">
+                <a class="nav-link py-2 px-3 text-nowrap {{ request()->routeIs('admin.sms.settings.auto-responders.*') ? 'active bg-primary text-white' : 'text-dark' }}"
+                   href="{{ route('admin.sms.settings.auto-responders.index') }}">
+                    <i class="fa fa-reply ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> پاسخ‌گوی خودکار
                 </a>
             </li>
             <li class="nav-item flex-shrink-0">

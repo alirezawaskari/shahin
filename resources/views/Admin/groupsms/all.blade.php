@@ -105,8 +105,8 @@
                 <i class="fa fa-plus ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> ایجاد پیامک
             </button>
             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDrop1">
-                <a class="dropdown-item" href="{{ route('sms.single') }}">پیامک تکی</a>
-                <a class="dropdown-item" href="{{ route('groupsms.create') }}">پیامک گروهی</a>
+                <a class="dropdown-item" href="{{ route('admin.sms.single.index') }}">پیامک تکی</a>
+                <a class="dropdown-item" href="{{ route('admin.sms.bulk.index') }}">پیامک گروهی</a>
                 <a class="dropdown-item" data-toggle="modal" data-target="#sendConsentModal" data-bs-toggle="modal" data-bs-target="#sendConsentModal">پیامک ثبت رضایت مشتری</a>
             </div>
         </div>

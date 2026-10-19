@@ -309,6 +309,12 @@
     </div>
 </div>
 
+@endif
+@endsection
+
+{{-- Scripts live outside the Vue-compiled #app root (inline <script> inside it is dropped). --}}
+@section('scripts')
+@if(auth()->user()?->isSuperAdmin())
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const modalEl = document.getElementById('shareLineModal');

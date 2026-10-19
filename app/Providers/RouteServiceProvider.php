@@ -9,6 +9,9 @@ use App\Models\PhoneList;
 use App\Models\Representation;
 use App\Models\Service;
 use App\Models\ServiceItem;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -42,7 +45,25 @@ class RouteServiceProvider extends ServiceProvider
             return Article::whereSlug($value)->firstOrFail();
         });
 
+        $this->configureRateLimiting();
+
         parent::boot();
+    }
+
+    /**
+     * The "api" limiter referenced by the api middleware group.
+     * SMS gateway callbacks (already authenticated by a shared secret) get a higher
+     * per-IP ceiling so a delivery-report burst is not throttled.
+     */
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            if ($request->is('api/sms/webhook*')) {
+                return Limit::perMinute(600)->by('sms-webhook|' . $request->ip());
+            }
+
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SmsSettings\SmsAutoResponderController;
 use App\Http\Controllers\Admin\SmsSettings\SmsCmsSettingsController;
 use App\Http\Controllers\Admin\SmsSettings\SmsContractController;
 use App\Http\Controllers\Admin\SmsSettings\SmsMessageGroupController;
@@ -81,6 +82,17 @@ Route::group([
     Route::group(['prefix' => 'access-tiers', 'as' => 'access-tiers.'], function () {
         Route::get('/', [App\Http\Controllers\Admin\SmsSettings\SmsUserAccessTierController::class, 'index'])->name('index');
         Route::put('/{user}', [App\Http\Controllers\Admin\SmsSettings\SmsUserAccessTierController::class, 'update'])->name('update');
+    });
+
+    // 9. Auto-responder (keyword -> automatic reply), per business
+    Route::group(['prefix' => 'auto-responders', 'as' => 'auto-responders.'], function () {
+        Route::get('/', [SmsAutoResponderController::class, 'index'])->name('index');
+        Route::get('/create', [SmsAutoResponderController::class, 'create'])->name('create');
+        Route::post('/', [SmsAutoResponderController::class, 'store'])->name('store');
+        Route::get('/{rule}/edit', [SmsAutoResponderController::class, 'edit'])->name('edit');
+        Route::put('/{rule}', [SmsAutoResponderController::class, 'update'])->name('update');
+        Route::delete('/{rule}', [SmsAutoResponderController::class, 'destroy'])->name('destroy');
+        Route::post('/{rule}/toggle-status', [SmsAutoResponderController::class, 'toggleStatus'])->name('toggle-status');
     });
 
     // 8. AI & LLM Models configuration (superAdmin only)

@@ -33,6 +33,12 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
+        // SMS top-ups are paid through the project's payment module (Zarinpal / Saman).
+        $this->app->bind(
+            \App\Services\Sms\SmsPaymentGateway::class,
+            \App\Services\Sms\PaymentModuleSmsGateway::class
+        );
+
         $this->app->singleton(
             \App\Contracts\Ai\LlmClientInterface::class,
             \App\Services\Ai\HttpLlmClient::class

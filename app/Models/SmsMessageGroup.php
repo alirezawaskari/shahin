@@ -13,6 +13,14 @@ class SmsMessageGroup extends Model
 
     protected $guarded = [];
 
+    /**
+     * Top-level subject categories offered to PROMOTIONAL sends (bulk, single in advertising mode):
+     * event/greeting, sales and support, with all their subgroups. mali / hoghoghi / ejraei belong
+     * to the OTP/system side and are neither offered nor accepted for promotional sends.
+     * OTP has its own fixed categories (App\Enums\SmsOtpCategory).
+     */
+    public const PROMOTIONAL_ROOT_SLUGS = ['monasebati', 'foroush', 'poshtibani'];
+
     public function business(): BelongsTo
     {
         return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
@@ -61,6 +69,49 @@ class SmsMessageGroup extends Model
     public function scopeRoot($query)
     {
         return $query->whereNull('parent_id');
+    }
+
+    /** Root groups that promotional sends may use (their subgroups come along via the relation). */
+    public function scopePromotionalRoots($query)
+    {
+        return $query->whereNull('parent_id')->whereIn('slug', self::PROMOTIONAL_ROOT_SLUGS);
+    }
+
+    /** The promotional roots plus every direct subgroup of them. */
+    public function scopePromotional($query)
+    {
+        return $query->where(function ($q) {
+            $q->where(fn ($r) => $r->whereNull('parent_id')->whereIn('slug', self::PROMOTIONAL_ROOT_SLUGS))
+                ->orWhereIn('parent_id', function ($sub) {
+                    $sub->select('id')->from('sms_message_groups')
+                        ->whereNull('parent_id')
+                        ->whereIn('slug', self::PROMOTIONAL_ROOT_SLUGS);
+                });
+        });
+    }
+
+    /** Whether the group (or its parent) is one of the promotional groups. */
+    public function isPromotional(): bool
+    {
+        if ($this->parent_id) {
+            $parent = $this->relationLoaded('parent') ? $this->parent : $this->parent()->first();
+
+            return $parent !== null && $parent->parent_id === null
+                && in_array($parent->slug, self::PROMOTIONAL_ROOT_SLUGS, true);
+        }
+
+        return in_array($this->slug, self::PROMOTIONAL_ROOT_SLUGS, true);
+    }
+
+    /** Whether a group id is acceptable on a promotional send (empty / null always is). */
+    public static function isPromotionalId($id): bool
+    {
+        if ($id === null || $id === '') {
+            return true;
+        }
+        $group = self::find($id);
+
+        return $group !== null && $group->isPromotional();
     }
 
     public function isConfidential(): bool

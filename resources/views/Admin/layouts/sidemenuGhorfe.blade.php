@@ -602,23 +602,22 @@
                     <li><a href="{{ route('admin.sms.settings.index') }}">تنظیمات پنل پیامک</a></li>
                     @endpermission
                     @permission('send-single-sms')
-                    <li><a href="{{ route('sms.single') }}">پیامک تکی</a></li>
+                    <li><a href="{{ route('admin.sms.single.index') }}">پیامک تکی</a></li>
                     @endpermission
                     @permission('send-group-sms')
-                    <li><a href="{{ route('groupsms.create') }}">پیامک گروهی</a></li>
+                    <li><a href="{{ route('admin.sms.bulk.index') }}">پیامک گروهی</a></li>
                     @endpermission
                     @permission('sms-ai')
                     <li><a href="{{ route('admin.sms.ai.index') }}">ارسال هوشمند با AI</a></li>
                     @endpermission
 
                     @permission('sms-list')
-                    <li><a href="{{ route('groupsms.index') }}">فهرست پیامک ها</a></li>
                     @endpermission
                     @permission('sms-financial')
-                    <li><a href="{{ route('admin.sms.financial.otp.index') }}">مدیریت مالی و اعتبار</a></li>
+                    <li><a href="{{ route(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()) ? 'admin.sms.financial.otp.index' : 'admin.sms.financial.advertising.index') }}">مدیریت مالی و اعتبار</a></li>
                     @endpermission
                     @permission('sms-reports')
-                    <li><a href="{{ route('admin.sms.reports.otp.index') }}">گزارش های پیامک</a></li>
+                    <li><a href="{{ route(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()) ? 'admin.sms.reports.otp.index' : 'admin.sms.reports.advertising.index') }}">گزارش های پیامک</a></li>
                     @endpermission
                 </ul>
             </li>

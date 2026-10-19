@@ -112,7 +112,7 @@
                         <i class="fa fa-paper-plane"></i>
                     </div>
                     <div>
-                        <div class="text-muted small">کل پیامک‌های OTP</div>
+                        <div class="text-muted small">پیامک‌های OTP ارسالی</div>
                         <h4 class="fw-bold mb-0">{{ number_format($summary['total_messages']) }}</h4>
                         <small class="text-muted">در بازه انتخابی</small>
                     </div>
@@ -169,10 +169,15 @@
         </div>
     </div>
 
+@include('Admin.sms.reports.partials.direction-tiles')
+
     <!-- Filters Bar -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" action="{{ route('admin.sms.reports.otp.index') }}" class="row g-3">
+                @if(auth()->user()?->isSuperAdmin() && isset($business) && $business)
+                    <input type="hidden" name="business_id" value="{{ $business->id }}">
+                @endif
                 <div class="col-12 col-md-3">
                     <label class="form-label small fw-bold">جستجو (شماره، شناسه یا متن)</label>
                     <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="0912... یا کد رهگیری">
@@ -198,6 +203,7 @@
                         @endforeach
                     </select>
                 </div>
+@include('Admin.sms.reports.partials.direction-filter')
                 <div class="col-12 col-md-2">
                     <label class="form-label small fw-bold">از تاریخ</label>
                     <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
@@ -218,7 +224,7 @@
     <!-- Messages Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h6 class="fw-bold mb-0"><i class="fa fa-envelope-o me-1"></i> لیست پیامک‌های ارسالی OTP</h6>
+            <h6 class="fw-bold mb-0"><i class="fa fa-envelope-o me-1"></i> لیست پیامک‌های OTP (ارسالی و دریافتی)</h6>
             <span class="badge bg-light text-dark">{{ $messages->total() }} پیامک</span>
         </div>
         <div class="card-body p-0 table-responsive">
@@ -226,27 +232,33 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
+                        <th>جهت</th>
+                        <th>فرستنده</th>
                         <th>گیرنده</th>
                         <th>متن پیامک</th>
+                        <th>درخواست</th>
                         <th>کاراکتر / صفحه</th>
                         <th>هزینه (ریال)</th>
                         <th>وضعیت</th>
                         <th>شناسه پیگیری</th>
                         <th>الگو</th>
-                        <th>تاریخ ارسال</th>
+                        <th>گروه</th>
+                        <th>تاریخ</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($messages as $msg)
                         <tr>
                             <td>{{ $msg->id }}</td>
+                            <td>@include('Admin.sms.reports.partials.direction-badge')</td>
+                            <td>{{ $msg->senderNumber?->number ?? $msg->sender_phone ?? '-' }}</td>
                             <td class="fw-bold">{{ $msg->recipient_phone }}</td>
                             <td class="text-start" style="max-width: 320px;">
                                 @if($msg->content_redacted ?? false)
                                     <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
                                 @else
                                     <div class="d-flex align-items-center gap-1">
-                                        <span class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</span>
+                                        <span class="sms-content-cell" title="{{ $msg->content }}">{{ $msg->content }}</span>@if(method_exists($msg, 'isConfidential') && $msg->isConfidential())<span class="badge bg-danger ms-1">محرمانه</span>@endif
                                         <button type="button" class="btn btn-sm btn-link p-0 text-primary view-details-btn" 
                                                 title="مشاهده متن کامل"
                                                 data-bs-toggle="modal" 
@@ -262,16 +274,23 @@
                                                 data-pages="{{ $msg->page_count }}"
                                                 data-chars="{{ $msg->character_count }}"
                                                 data-tracking="{{ $msg->tracking_id ?: '-' }}"
-                                                data-date="{{ $msg->created_at->format('Y/m/d H:i') }}">
+                                                data-date="{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}">
                                             <i class="fa fa-eye"></i>
                                         </button>
                                     </div>
                                 @endif
                             </td>
+                            <td class="small">{{ $msg->request_breadcrumb ?: '-' }}</td>
                             <td>{{ $msg->character_count }} / {{ $msg->page_count }}</td>
-                            <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
+                            @if(($msg->direction ?? '') === 'inbound')
+                                <td class="text-muted">-</td>
+                            @else
+                                <td class="fw-bold text-danger">{{ $msg->cost ? number_format($msg->cost) : '0' }}</td>
+                            @endif
                             <td>
-                                @if(in_array($msg->status, ['delivered', 'sent']))
+                                @if(($msg->direction ?? '') === 'inbound')
+                                    <span class="badge badge-soft-info">دریافت شد</span>
+                                @elseif(in_array($msg->status, ['delivered', 'sent']))
                                     <span class="badge badge-soft-success">موفق</span>
                                 @elseif($msg->status === 'queued')
                                     <span class="badge badge-soft-warning">در صف</span>
@@ -281,11 +300,12 @@
                             </td>
                             <td><code>{{ $msg->tracking_id ?? '-' }}</code></td>
                             <td>{{ $msg->template?->title ?? '-' }}</td>
-                            <td>{{ $msg->created_at->format('Y/m/d H:i') }}</td>
+                            <td>{{ $msg->group?->name ?? '-' }}</td>
+                            <td>{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-muted py-4">پیامکی منطبق با فیلترهای انتخابی یافت نشد.</td>
+                            <td colspan="13" class="text-muted py-4">پیامکی منطبق با فیلترهای انتخابی یافت نشد.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -326,6 +346,7 @@
                 </div>
             </div>
             <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="copyMsgBtn">کپی متن</button>
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" data-dismiss="modal">بستن</button>
             </div>
         </div>
@@ -336,6 +357,11 @@
 @section('js')
 <script>
 $(document).ready(function() {
+    $(document).on('click', '#copyMsgBtn', function() {
+        var t = $('#mContent').text();
+        if (navigator.clipboard) { navigator.clipboard.writeText(t); }
+        $(this).text('کپی شد');
+    });
     $(document).on('click', '.view-details-btn', function() {
         var btn = $(this);
         $('#mSender').text(btn.data('sender') || '-');
@@ -347,6 +373,7 @@ $(document).ready(function() {
         $('#mCost').text(btn.data('cost') || '0');
         $('#mDate').text(btn.data('date') || '-');
         $('#mContent').text(btn.data('content') || '');
+        $('#copyMsgBtn').text('کپی متن');
 
         var modalEl = document.getElementById('smsDetailsModal');
         if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {

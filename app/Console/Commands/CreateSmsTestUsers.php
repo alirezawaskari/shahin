@@ -146,7 +146,7 @@ class CreateSmsTestUsers extends Command
 
         $this->attachEmployee($owner, $business, '02100000002');
 
-        $senderNumber = $this->upsertAdvertisingSenderNumber('+989000000002', 'TestSmsPanel');
+        $senderNumber = $this->upsertAdvertisingSenderNumber('+989000000002', 'simulator');
         $business->senderNumbers()->syncWithoutDetaching([
             $senderNumber->id => ['assigned_at' => now()],
         ]);
@@ -353,7 +353,8 @@ class CreateSmsTestUsers extends Command
     /** An advertising sender number assigned to a business (never OTP: the app allows only one OTP number system-wide). */
     private function upsertAdvertisingSenderNumber(string $number, string $panel): SenderNumber
     {
-        return SenderNumber::updateOrCreate(
+        // firstOrCreate: existing rows keep their panel (e.g. legacy TestSmsPanel, also simulated).
+        return SenderNumber::firstOrCreate(
             ['number' => $number],
             [
                 'type' => 'advertising',

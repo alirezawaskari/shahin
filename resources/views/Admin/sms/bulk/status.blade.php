@@ -25,7 +25,7 @@
         <p class="text-muted mb-0 small">
             کسب‌وکار: <strong>{{ $campaign->business?->title ?? 'سیستم' }}</strong> |
             ایجادکننده: <strong>{{ $campaign->creator ? ($campaign->creator->name . ' ' . $campaign->creator->family) : 'کاربر' }}</strong> |
-            تاریخ ثبت: {{ $campaign->created_at->format('Y/m/d H:i') }}
+            تاریخ ثبت: {{ \App\Helpers\Helper::jalaliDate($campaign->created_at, 'Y/m/d H:i') ?? '-' }}
         </p>
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2">
@@ -158,7 +158,7 @@
                         </td>
                         <td class="font-monospace text-muted">{{ $r->tracking_id ?? '-' }}</td>
                         <td class="text-danger small">{{ $r->error_reason ?? '-' }}</td>
-                        <td class="text-muted">{{ $r->created_at->format('Y/m/d H:i') }}</td>
+                        <td class="text-muted">{{ \App\Helpers\Helper::jalaliDate($r->created_at, 'Y/m/d H:i') ?? '-' }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -181,7 +181,7 @@
 @section('scripts')
 <script>
     const statusApiUrl = "{{ route('admin.sms.bulk.campaigns.status', $campaign) }}";
-    let isPolling = @json(!in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']));
+    let isPolling = {{ in_array($campaign->status, ['completed', 'completed_with_errors', 'failed']) ? 'false' : 'true' }};
 
     function pollStatus() {
         if (!isPolling) return;

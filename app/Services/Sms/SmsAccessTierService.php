@@ -51,8 +51,8 @@ class SmsAccessTierService
             }
         }
 
-        // 1b. Organization & Representation Database Access requires Titanium
-        foreach (['organization_id', 'organization', 'representation_id', 'representation'] as $orgKey) {
+        // 1b. Organization Database Access requires Titanium
+        foreach (['organization_id', 'organization'] as $orgKey) {
             $val = $filters[$orgKey] ?? null;
             if ($val !== null && $val !== '' && $val !== 'all') {
                 return self::TIER_TITANIUM;
@@ -66,8 +66,13 @@ class SmsAccessTierService
 
         // 2b. Requests-page audience (Customer CRM):
         if (!empty($filters['request_filter']) && is_array($filters['request_filter'])) {
-            // Organization/representation inside request_filter requires Titanium
-            foreach (['organization', 'organization_id', 'representation', 'representation_id'] as $orgKey) {
+            // Organization inside request_filter requires Titanium. The representation filter only
+            // exists on the requests page's own «ارسال پیامک» (__direct); the audience picker has none.
+            $orgKeys = ['organization', 'organization_id'];
+            if (!empty($filters['request_filter']['__direct'])) {
+                $orgKeys = array_merge($orgKeys, ['representation', 'representation_id']);
+            }
+            foreach ($orgKeys as $orgKey) {
                 $val = $filters['request_filter'][$orgKey] ?? null;
                 if ($val !== null && $val !== '' && $val !== 'all') {
                     return self::TIER_TITANIUM;
@@ -75,7 +80,7 @@ class SmsAccessTierService
             }
 
             // Category / service filters inside request_filter require Diamond
-            foreach (['product_category', 'service_category', 'sub_service_category', 'service_items', 'service'] as $key) {
+            foreach (['product_category', 'product', 'product_attribute', 'service_category', 'sub_service_category', 'service_items', 'service'] as $key) {
                 $value = $filters['request_filter'][$key] ?? null;
                 $value = array_filter((array) $value, fn ($v) => $v !== null && $v !== '' && $v !== 'all');
                 if (!empty($value)) {
@@ -110,6 +115,50 @@ class SmsAccessTierService
     }
 
     /**
+     * Requests-page audience filter fields (request_filter[...]) => minimum tier needed to use them.
+     * Mirrors getRequiredTier(): category / product / service filters need Diamond, organization /
+     * representation / business need Titanium, everything else is basic (Silver). The server still
+     * enforces via getRequiredTier(); this map only drives which fields the UI renders.
+     *
+     * @return array<string, string>
+     */
+    public function requestFilterFieldTiers(): array
+    {
+        $silver = ['name', 'family', 'user_phone', 'description', 'startDate', 'endDate', 'sex', 'has_factor',
+            'type', 'request_type', 'status', 'province', 'city', 'users', 'agents'];
+        $diamond = ['product_category', 'service_category', 'sub_service_category', 'service_items', 'product', 'product_attribute'];
+        $titanium = ['organization', 'representation', 'business'];
+
+        $map = [];
+        foreach ($silver as $k) {
+            $map[$k] = self::TIER_SILVER;
+        }
+        foreach ($diamond as $k) {
+            $map[$k] = self::TIER_DIAMOND;
+        }
+        foreach ($titanium as $k) {
+            $map[$k] = self::TIER_TITANIUM;
+        }
+
+        return $map;
+    }
+
+    /**
+     * Field keys of requestFilterFieldTiers() the user's effective tier may use.
+     *
+     * @return array<int, string>
+     */
+    public function requestFilterFieldsFor(?User $user): array
+    {
+        $rank = $this->getTierRank($this->effectiveTier($user));
+
+        return array_keys(array_filter(
+            $this->requestFilterFieldTiers(),
+            fn (string $tier) => $rank >= $this->getTierRank($tier)
+        ));
+    }
+
+    /**
      * The business ids a filter set targets, from either key, as a list of strings
      * (a scalar, a list, or the literal "all").
      *
@@ -141,6 +190,29 @@ class SmsAccessTierService
         }
 
         return $user->access_tier ?: self::TIER_SILVER;
+    }
+
+    /**
+     * The permission that unlocks recipient phone numbers (bulk preview samples) and the
+     * «ارسال پیامک» button of the requests page.
+     */
+    public const PERMISSION_VIEW_PHONE_NUMBERS = 'view-phone-numbers';
+
+    /**
+     * Whether the user may see recipient phone numbers / use Direct SMS (superAdmin always).
+     */
+    public function canViewPhoneNumbers(?User $user): bool
+    {
+        return $user && ($user->isSuperAdmin() || $user->isAbleTo(self::PERMISSION_VIEW_PHONE_NUMBERS));
+    }
+
+    /**
+     * OTP send/receive, OTP credit and OTP reports are internal-only: Titanium (superAdmin
+     * is always Titanium). Lower tiers get no access to any of it.
+     */
+    public function canUseOtp(?User $user): bool
+    {
+        return $user && $this->getTierRank($this->effectiveTier($user)) >= self::TIER_RANKS[self::TIER_TITANIUM];
     }
 
     /**

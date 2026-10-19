@@ -17,6 +17,70 @@ use Illuminate\Support\Facades\DB;
 class SmsReportService
 {
     /**
+     * Direction filter («جهت پیام»): only 'inbound' / 'outbound' are honoured, anything else means "all".
+     */
+    protected function applyDirectionFilter(Builder $query, array $filters): Builder
+    {
+        $direction = $filters['direction'] ?? null;
+        if (in_array($direction, ['inbound', 'outbound'], true)) {
+            $query->where('direction', $direction);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Routing of the advertising report («تبلیغاتی و عادی»): every non-OTP row, outbound or inbound
+     * (service_type advertising / normal / unset), so each message lands on exactly one of the
+     * OTP / advertising reports. Only service_type = otp belongs to the OTP report.
+     */
+    protected function applyAdvertisingRouting(Builder $query): Builder
+    {
+        return $query->where(fn ($t) => $t->whereNull('service_type')->orWhere('service_type', '!=', 'otp'));
+    }
+
+    /**
+     * Service-type filter («نوع پیام») of the advertising report: 'advertising' or 'normal'
+     * (normal also covers rows without a service_type); anything else means "all".
+     */
+    protected function applyAdvertisingServiceTypeFilter(Builder $query, array $filters): Builder
+    {
+        $type = $filters['service_type'] ?? null;
+        if ($type === 'advertising') {
+            $query->where('service_type', 'advertising');
+        } elseif ($type === 'normal') {
+            $query->where(fn ($t) => $t->whereNull('service_type')->orWhere('service_type', 'normal'));
+        }
+
+        return $query;
+    }
+
+    /**
+     * Sent-vs-received tiles. Cost, delivery and failure stats are computed on OUTBOUND rows only
+     * (received messages cost 0 and are always "delivered", which would distort the rates).
+     *
+     * @return array<string, int|float>
+     */
+    protected function directionStats(Builder $query): array
+    {
+        $out = (clone $query)->where('direction', 'outbound');
+        $outbound = (clone $out)->count();
+        $delivered = (clone $out)->whereIn('status', ['delivered', 'sent'])->count();
+
+        return [
+            'total_messages' => $outbound,
+            'outbound_count' => $outbound,
+            'inbound_count' => (clone $query)->where('direction', 'inbound')->count(),
+            'all_count' => (clone $query)->count(),
+            'total_cost' => (float) (clone $out)->sum('cost'),
+            'delivered_count' => $delivered,
+            'failed_count' => (clone $out)->where('status', 'failed')->count(),
+            'queued_count' => (clone $out)->where('status', 'queued')->count(),
+            'delivery_rate' => $outbound > 0 ? round(($delivered / $outbound) * 100, 1) : 0,
+        ];
+    }
+
+    /**
      * Build base query for OTP report of a specific business.
      */
     public function buildOtpReportQuery(GhorfeOnlineList $business, array $filters = []): Builder
@@ -25,6 +89,8 @@ class SmsReportService
             ->with(['template', 'group', 'senderNumber', 'user', 'creator'])
             ->where('ghorfe_online_list_id', $business->id)
             ->where('service_type', 'otp');
+
+        $this->applyDirectionFilter($query, $filters);
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
@@ -67,17 +133,10 @@ class SmsReportService
     {
         $baseQuery = $this->buildOtpReportQuery($business, $filters);
 
-        // Calculate KPI summary
-        $summaryQuery = clone $baseQuery;
-        $totalMessages = $summaryQuery->count();
-        $totalCost = (float) (clone $baseQuery)->sum('cost');
-        $deliveredCount = (clone $baseQuery)->whereIn('status', ['delivered', 'sent'])->count();
-        $failedCount = (clone $baseQuery)->where('status', 'failed')->count();
-        $queuedCount = (clone $baseQuery)->where('status', 'queued')->count();
+        $summary = $this->directionStats($baseQuery);
 
-        $deliveryRate = $totalMessages > 0 ? round(($deliveredCount / $totalMessages) * 100, 1) : 0;
-
-        $messages = $baseQuery->paginate($perPage);
+        $messages = $baseQuery->paginate($perPage)->withQueryString();
+        app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
 
         // Available filter options. `type` (confidential/normal, added in
         // 509f35d7) is a different, auto-derived column — service_type is
@@ -88,14 +147,7 @@ class SmsReportService
         return [
             'business' => $business,
             'filters' => $filters,
-            'summary' => [
-                'total_messages' => $totalMessages,
-                'total_cost' => $totalCost,
-                'delivered_count' => $deliveredCount,
-                'failed_count' => $failedCount,
-                'queued_count' => $queuedCount,
-                'delivery_rate' => $deliveryRate,
-            ],
+            'summary' => $summary,
             'messages' => $messages,
             'templates' => $templates,
             'groups' => $groups,
@@ -109,11 +161,22 @@ class SmsReportService
     {
         $query = SmsMessage::query()
             ->with(['template', 'group', 'senderNumber', 'campaign', 'creator'])
-            ->where('ghorfe_online_list_id', $business->id)
-            ->where('service_type', 'advertising');
+            ->where('ghorfe_online_list_id', $business->id);
+
+        $this->applyAdvertisingRouting($query);
+        $this->applyAdvertisingServiceTypeFilter($query, $filters);
+        $this->applyDirectionFilter($query, $filters);
 
         if (!empty($filters['sender_number_id'])) {
-            $query->where('sender_number_id', $filters['sender_number_id']);
+            // Inbound rows have no sender_number_id: they are tied to the line by the number they were received on.
+            $senderId = (int) $filters['sender_number_id'];
+            $senderNumber = SenderNumber::query()->whereKey($senderId)->value('number');
+            $query->where(function ($w) use ($senderId, $senderNumber) {
+                $w->where('sender_number_id', $senderId);
+                if ($senderNumber) {
+                    $w->orWhere(fn ($i) => $i->where('direction', 'inbound')->where('recipient_phone', $senderNumber));
+                }
+            });
         }
 
         if (!empty($filters['sms_campaign_id'])) {
@@ -191,16 +254,10 @@ class SmsReportService
         $messagesQuery = $this->buildAdvertisingMessagesQuery($business, $filters);
         $campaignsQuery = $this->buildAdvertisingCampaignsQuery($business, $filters);
 
-        // Summary metrics
-        $totalMessages = (clone $messagesQuery)->count();
-        $totalCost = (float) (clone $messagesQuery)->sum('cost');
-        $deliveredCount = (clone $messagesQuery)->whereIn('status', ['delivered', 'sent'])->count();
-        $failedCount = (clone $messagesQuery)->where('status', 'failed')->count();
-
-        $totalCampaigns = (clone $campaignsQuery)->count();
-        $totalRecipients = (int) (clone $campaignsQuery)->sum('total_recipients');
-
-        $deliveryRate = $totalMessages > 0 ? round(($deliveredCount / $totalMessages) * 100, 1) : 0;
+        // Summary metrics (cost / delivery on outbound rows only, received counted separately)
+        $summary = $this->directionStats($messagesQuery);
+        $summary['total_campaigns'] = (clone $campaignsQuery)->count();
+        $summary['total_recipients'] = (int) (clone $campaignsQuery)->sum('total_recipients');
 
         // Per-sender breakdown
         $senderBreakdown = $assignedSenders->map(function ($sender) use ($business, $filters) {
@@ -208,14 +265,17 @@ class SmsReportService
             $msgQ = $this->buildAdvertisingMessagesQuery($business, $senderFilter);
             $campQ = $this->buildAdvertisingCampaignsQuery($business, $senderFilter);
 
-            $msgCount = (clone $msgQ)->count();
-            $cost = (float) (clone $msgQ)->sum('cost');
-            $success = (clone $msgQ)->whereIn('status', ['delivered', 'sent'])->count();
+            $out = (clone $msgQ)->where('direction', 'outbound');
+            $msgCount = (clone $out)->count();
+            $inboundCount = (clone $msgQ)->where('direction', 'inbound')->count();
+            $cost = (float) (clone $out)->sum('cost');
+            $success = (clone $out)->whereIn('status', ['delivered', 'sent'])->count();
             $campsCount = (clone $campQ)->count();
 
             return [
                 'sender' => $sender,
                 'messages_count' => $msgCount,
+                'inbound_count' => $inboundCount,
                 'campaigns_count' => $campsCount,
                 'cost' => $cost,
                 'success_count' => $success,
@@ -223,23 +283,16 @@ class SmsReportService
             ];
         });
 
-        $messages = $messagesQuery->paginate($perPage, ['*'], 'messages_page');
-        $campaigns = $campaignsQuery->paginate(15, ['*'], 'campaigns_page');
+        $messages = $messagesQuery->paginate($perPage, ['*'], 'messages_page')->withQueryString();
+        app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
+        $campaigns = $campaignsQuery->paginate(15, ['*'], 'campaigns_page')->withQueryString();
         $groups = SmsMessageGroup::query()->get();
 
         return [
             'business' => $business,
             'filters' => $filters,
             'assigned_senders' => $assignedSenders,
-            'summary' => [
-                'total_messages' => $totalMessages,
-                'total_cost' => $totalCost,
-                'delivered_count' => $deliveredCount,
-                'failed_count' => $failedCount,
-                'total_campaigns' => $totalCampaigns,
-                'total_recipients' => $totalRecipients,
-                'delivery_rate' => $deliveryRate,
-            ],
+            'summary' => $summary,
             'sender_breakdown' => $senderBreakdown,
             'messages' => $messages,
             'campaigns' => $campaigns,
@@ -270,6 +323,8 @@ class SmsReportService
         } elseif (!empty($filters['ghorfe_online_list_id'])) {
             $query->where('ghorfe_online_list_id', (int) $filters['ghorfe_online_list_id']);
         }
+
+        $this->applyDirectionFilter($query, $filters);
 
         // 2. Sender filter
         if (!empty($filters['sender'])) {
@@ -353,25 +408,25 @@ class SmsReportService
     {
         $baseQuery = $this->buildSuperAdminReportQuery($filters);
 
-        // Overall KPIs
-        $totalMessages = (clone $baseQuery)->count();
-        $totalCost = (float) (clone $baseQuery)->sum('cost');
-        $deliveredCount = (clone $baseQuery)->whereIn('status', ['delivered', 'sent'])->count();
-        $failedCount = (clone $baseQuery)->where('status', 'failed')->count();
-        $deliveryRate = $totalMessages > 0 ? round(($deliveredCount / $totalMessages) * 100, 1) : 0;
+        // Overall KPIs (cost / delivery on outbound rows only, received counted separately)
+        $summary = $this->directionStats($baseQuery);
 
         // Unique businesses count in this filtered dataset
         $businessesCount = (clone $baseQuery)->distinct('ghorfe_online_list_id')->count('ghorfe_online_list_id');
+        $summary['businesses_count'] = $businessesCount;
+
+        // Breakdowns below are outbound-only (volume and cost of what was actually sent)
+        $outboundQuery = (clone $baseQuery)->where('direction', 'outbound');
 
         // Breakdown by message type (service_type)
-        $messageTypeBreakdown = (clone $baseQuery)
+        $messageTypeBreakdown = (clone $outboundQuery)
             ->selectRaw('service_type, COUNT(*) as count, SUM(cost) as cost')
             ->groupBy('service_type')
             ->get()
             ->keyBy('service_type');
 
         // Top businesses by SMS consumption
-        $businessBreakdown = (clone $baseQuery)
+        $businessBreakdown = (clone $outboundQuery)
             ->whereNotNull('ghorfe_online_list_id')
             ->selectRaw('ghorfe_online_list_id, COUNT(*) as message_count, SUM(cost) as total_cost')
             ->groupBy('ghorfe_online_list_id')
@@ -381,7 +436,7 @@ class SmsReportService
             ->get();
 
         // Breakdown by sender number
-        $senderBreakdown = (clone $baseQuery)
+        $senderBreakdown = (clone $outboundQuery)
             ->whereNotNull('sender_number_id')
             ->selectRaw('sender_number_id, COUNT(*) as message_count, SUM(cost) as total_cost')
             ->groupBy('sender_number_id')
@@ -390,7 +445,8 @@ class SmsReportService
             ->with('senderNumber')
             ->get();
 
-        $messages = $baseQuery->paginate($perPage);
+        $messages = $baseQuery->paginate($perPage)->withQueryString();
+        app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
 
         // Filter selector options
         $businesses = GhorfeOnlineList::query()->select('id', 'title')->orderBy('title')->get();
@@ -400,14 +456,7 @@ class SmsReportService
 
         return [
             'filters' => $filters,
-            'summary' => [
-                'total_messages' => $totalMessages,
-                'total_cost' => $totalCost,
-                'businesses_count' => $businessesCount,
-                'delivered_count' => $deliveredCount,
-                'failed_count' => $failedCount,
-                'delivery_rate' => $deliveryRate,
-            ],
+            'summary' => $summary,
             'message_type_breakdown' => $messageTypeBreakdown,
             'business_breakdown' => $businessBreakdown,
             'sender_breakdown' => $senderBreakdown,

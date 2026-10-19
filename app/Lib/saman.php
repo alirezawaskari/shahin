@@ -18,10 +18,16 @@ class saman
 
     public function token(Factor $factor , int $amount)
     {
-        $shaba = $this->settings->get('shaba_number');
-
         $resNum = session('resnumber') ?: uniqid();
         session(['resnumber' => $resNum]);
+
+        return $this->requestToken($amount, $resNum, $factor->user->phone);
+    }
+
+    /** Token request without a Factor (used by the SMS top-up adapter); token() delegates here. */
+    public function requestToken(int $amount, string $resNum, $cellNumber)
+    {
+        $shaba = $this->settings->get('shaba_number');
 
         $IBANInfo = [
             [
@@ -35,7 +41,7 @@ class saman
             'Amount'      => $amount,
             'ResNum'      => $resNum,
             'RedirectUrl' => 'https://lalecard.ir/callback',
-            'CellNumber'  => $factor->user->phone,
+            'CellNumber'  => $cellNumber,
             'SettlementIBANInfo'  => $IBANInfo,
         ];
         $response = Http::asForm()->post('https://sep.shaparak.ir/onlinepg/onlinepg', $payload);

@@ -259,7 +259,11 @@ class SmsRequestAudienceTest extends TestCase
 
         $silver = new User(['level' => 'user']);
         $silver->access_tier = 'silver';
-        $this->assertSame('titanium', $tier->getRequiredTier(['request_filter' => ['representation' => '2']]));
+        // The audience picker has no representation filter; only the requests page's direct SMS keeps it.
+        $this->assertSame('silver', $tier->getRequiredTier(['request_filter' => ['representation' => '2']]));
+        $this->assertSame('titanium', $tier->getRequiredTier(['request_filter' => ['__direct' => '1', 'representation' => '2']]));
+        $this->assertSame('diamond', $tier->getRequiredTier(['request_filter' => ['product' => ['4']]]));
+        $this->assertSame('diamond', $tier->getRequiredTier(['request_filter' => ['product_attribute' => ['9']]]));
 
         $this->expectException(TierAccessDeniedException::class);
         $tier->assertCanQuery($silver, ['request_filter' => ['service_category' => ['2']]]);
