@@ -221,4 +221,32 @@ class TargetSmsRoutesTest extends TestCase
             $this->assertEquals(200, $response->getStatusCode(), "Route {$route} failed with status " . $response->getStatusCode());
         }
     }
+
+    public function test_groupsms_mass_assignment_create()
+    {
+        $message = \App\Models\Groupsms::create([
+            'title' => 'تست پیامک جدید',
+            'message' => 'این یک متن تستی برای بررسی mass assignment است.',
+            'type' => 'single',
+            'status' => 1,
+            'phones' => '09123456789',
+        ]);
+        $this->assertNotNull($message->id);
+        $this->assertEquals('تست پیامک جدید', $message->title);
+        $message->delete();
+    }
+
+    public function test_sms_single_send_endpoint()
+    {
+        $sender = \App\Models\Setting::where('key', 'sms_sender_number')->first();
+        $senderId = $sender ? $sender->id : 1;
+
+        $response = $this->actingAs($this->user)->postJson('/dashboard/sms/single/send', [
+            'recipient_phone' => '09121111111',
+            'message' => 'متن پیامک تست جهت بررسی ارسال',
+            'sender_id' => $senderId,
+            'business_id' => 1,
+        ]);
+        $this->assertContains($response->getStatusCode(), [200, 302, 422]);
+    }
 }

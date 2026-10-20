@@ -18,6 +18,8 @@ class Groupsms extends Model
     /**
      * @var array
      */
+    protected $guarded = [];
+
     public function newEloquentBuilder($query)
     {
         return new class($query) extends \Illuminate\Database\Eloquent\Builder {
