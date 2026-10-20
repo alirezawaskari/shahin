@@ -13,7 +13,7 @@ return new class extends Migration
      * Subitems in exact required order:
      *   1. تنظیمات سامانه -> admin.sms.settings.index
      *   2. گزارش های پیامک -> admin.sms.reports.otp.index
-     *   3. پیشخوان پیامک -> admin.sms.dashboard.index
+     *   3. مدیریت ارسال و دریافت -> admin.sms.dashboard.index
      *   4. ارسال پیامک تکی -> sms.single
      *   5. ارسال پیامک گروهی -> groupsms.create
      *   6. ارسال هوشمند با AI -> admin.sms.ai.index
@@ -78,7 +78,7 @@ return new class extends Migration
             ],
             [
                 'name' => 'sms-dashboard',
-                'display_name' => 'پیشخوان پیامک',
+                'display_name' => 'مدیریت ارسال و دریافت',
                 'link' => 'admin.sms.dashboard.index',
                 'position' => 3,
             ],
