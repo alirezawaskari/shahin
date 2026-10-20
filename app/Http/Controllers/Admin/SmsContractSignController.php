@@ -37,7 +37,7 @@ class SmsContractSignController extends Controller
         $business = ghorfe();
         if (!$business && (auth()->user()?->isSuperAdmin() || app()->environment('testing'))) {
             $targetBusinessId = $request->input('business_id') ?: $request->input('business');
-            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : null;
+            $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : GhorfeOnlineList::first();
         }
 
         if (!$business) {

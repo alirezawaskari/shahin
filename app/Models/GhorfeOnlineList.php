@@ -59,6 +59,30 @@ class GhorfeOnlineList extends Model implements HasMedia
      */
     protected $guarded = [];
 
+    protected static function booted(): void
+    {
+        static::saving(function (GhorfeOnlineList $model) {
+            $virtualKeys = [
+                'sms_contract_accepted',
+                'sms_contract_accepted_at',
+                'sms_contract_signature_name',
+                'sms_contract_accepted_by',
+                'sms_contract_signed_phone',
+                'sms_contract_text_hash',
+                'sms_contract_otp_verified_at',
+                'otp_balance',
+                'advertising_balance',
+            ];
+            foreach ($virtualKeys as $key) {
+                if (array_key_exists($key, $model->attributes) && !\Illuminate\Support\Facades\Schema::hasColumn('ghorfe_online_lists', $key)) {
+                    $val = $model->attributes[$key];
+                    unset($model->attributes[$key]);
+                    $model->settings()->updateOrCreate(['key' => $key], ['value' => (string) $val]);
+                }
+            }
+        });
+    }
+
 
     /**
      *types of ghorfeOnline
@@ -526,5 +550,24 @@ class GhorfeOnlineList extends Model implements HasMedia
             return true;
         }
         return ($this->status ?? 0) == 1;
+    }
+
+    public function getSmsContractAcceptedAttribute(): bool
+    {
+        return $this->hasSignedSmsContract();
+    }
+
+    public function getSmsContractAcceptedAtAttribute()
+    {
+        return $this->attributes['sms_contract_accepted_at']
+            ?? $this->settings()->where('key', 'sms_contract_accepted_at')->value('value')
+            ?? ($this->hasSignedSmsContract() ? $this->created_at : null);
+    }
+
+    public function getSmsContractSignatureNameAttribute()
+    {
+        return $this->attributes['sms_contract_signature_name']
+            ?? $this->settings()->where('key', 'sms_contract_signature_name')->value('value')
+            ?? $this->title;
     }
 }

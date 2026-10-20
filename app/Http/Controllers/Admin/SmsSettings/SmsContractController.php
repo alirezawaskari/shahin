@@ -35,8 +35,11 @@ class SmsContractController extends Controller
             $business = $targetBusinessId ? GhorfeOnlineList::find($targetBusinessId) : null;
         }
 
+        $hasContractCols = \Illuminate\Support\Facades\Schema::hasColumn('ghorfe_online_lists', 'sms_contract_accepted');
         $all_businesses = auth()->user()?->isSuperAdmin()
-            ? GhorfeOnlineList::select('id', 'title', 'sms_contract_accepted', 'sms_contract_accepted_at', 'sms_contract_signature_name')->get()
+            ? ($hasContractCols
+                ? GhorfeOnlineList::select('id', 'title', 'sms_contract_accepted', 'sms_contract_accepted_at', 'sms_contract_signature_name')->get()
+                : GhorfeOnlineList::select('id', 'title')->get())
             : collect();
 
         $otpContractUsage = $this->contractService->getOtpContract();

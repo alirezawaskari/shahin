@@ -33,7 +33,7 @@ class SmsToFilterComposer
             $senders = $business->senderNumbers()
                 ->where('type', 'advertising')
                 ->where('status', 'active')
-                ->get(['id', 'number']);
+                ->get();
 
             $templates = SmsTemplate::active()
                 ->where('ghorfe_online_list_id', $business->id)

@@ -48,6 +48,88 @@ class Setting extends Model
                 'is_active',
             ];
 
+            protected function transformColumns(array $columns): array
+            {
+                $transformed = [];
+                $hasVirtual = false;
+                foreach ($columns as $column) {
+                    $cleanCol = is_string($column) ? str_replace('ghorfe_settings.', '', $column) : $column;
+                    if (is_string($cleanCol) && in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
+                        $transformed[] = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanCol}\"')) as `{$cleanCol}`");
+                        $hasVirtual = true;
+                    } else {
+                        $transformed[] = $column;
+                    }
+                }
+                if ($hasVirtual && !in_array('*', $columns, true) && !in_array('value', $columns, true) && !in_array('ghorfe_settings.value', $columns, true)) {
+                    $transformed[] = 'ghorfe_settings.value';
+                }
+                return $transformed;
+            }
+
+            public function select($columns = ['*'])
+            {
+                $cols = is_array($columns) ? $columns : func_get_args();
+                return parent::select($this->transformColumns($cols));
+            }
+
+            public function addSelect($column)
+            {
+                $cols = is_array($column) ? $column : func_get_args();
+                return parent::addSelect($this->transformColumns($cols));
+            }
+
+            public function get($columns = ['*'])
+            {
+                $cols = is_array($columns) ? $columns : func_get_args();
+                if ($cols !== ['*']) {
+                    $cols = $this->transformColumns($cols);
+                }
+                return parent::get($cols);
+            }
+
+            public function pluck($column, $key = null)
+            {
+                $cleanCol = is_string($column) ? str_replace('ghorfe_settings.', '', $column) : $column;
+                if (is_string($cleanCol) && in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
+                    $column = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanCol}\"')) as `{$cleanCol}`");
+                }
+                if ($key !== null) {
+                    $cleanKey = is_string($key) ? str_replace('ghorfe_settings.', '', $key) : $key;
+                    if (is_string($cleanKey) && in_array($cleanKey, self::VIRTUAL_COLUMNS, true)) {
+                        $key = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanKey}\"')) as `{$cleanKey}`");
+                    }
+                }
+                return parent::pluck($column, $key);
+            }
+
+            public function orderBy($column, $direction = 'asc')
+            {
+                if (is_string($column)) {
+                    $cleanCol = str_replace('ghorfe_settings.', '', $column);
+                    if (in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
+                        $column = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanCol}\"'))");
+                    }
+                }
+                return parent::orderBy($column, $direction);
+            }
+
+            public function whereNull($columns, $boolean = 'and', $not = false)
+            {
+                if (is_string($columns)) {
+                    $cleanCol = str_replace('ghorfe_settings.', '', $columns);
+                    if (in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
+                        $columns = 'value->' . $cleanCol;
+                    }
+                }
+                return parent::whereNull($columns, $boolean, $not);
+            }
+
+            public function whereNotNull($columns, $boolean = 'and')
+            {
+                return $this->whereNull($columns, $boolean, true);
+            }
+
             public function where($column, $operator = null, $value = null, $boolean = 'and')
             {
                 if (is_string($column)) {

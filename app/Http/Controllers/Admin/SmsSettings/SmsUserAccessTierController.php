@@ -38,22 +38,52 @@ class SmsUserAccessTierController extends Controller
             });
         }
 
+        $hasTierCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'access_tier');
+
         // Filter by tier
         if ($tier = $request->input('tier')) {
             if ($tier !== 'all') {
-                $query->where('access_tier', $tier);
+                if ($hasTierCol) {
+                    $query->where('access_tier', $tier);
+                } else {
+                    if ($tier === SmsAccessTierService::TIER_SILVER) {
+                        $query->whereDoesntHave('settings', fn ($q) => $q->where('key', 'access_tier')->whereIn('value', [
+                            SmsAccessTierService::TIER_GOLD,
+                            SmsAccessTierService::TIER_DIAMOND,
+                            SmsAccessTierService::TIER_TITANIUM,
+                        ]));
+                    } else {
+                        $query->whereHas('settings', fn ($q) => $q->where('key', 'access_tier')->where('value', $tier));
+                    }
+                }
             }
         }
 
         $users = $query->latest('id')->paginate(15)->withQueryString();
 
-        $tierStats = [
-            'total' => User::whereNotNull('phone')->count(),
-            'silver' => User::where('access_tier', SmsAccessTierService::TIER_SILVER)->count(),
-            'gold' => User::where('access_tier', SmsAccessTierService::TIER_GOLD)->count(),
-            'diamond' => User::where('access_tier', SmsAccessTierService::TIER_DIAMOND)->count(),
-            'titanium' => User::where('access_tier', SmsAccessTierService::TIER_TITANIUM)->count(),
-        ];
+        if ($hasTierCol) {
+            $tierStats = [
+                'total' => User::whereNotNull('phone')->count(),
+                'silver' => User::where('access_tier', SmsAccessTierService::TIER_SILVER)->count(),
+                'gold' => User::where('access_tier', SmsAccessTierService::TIER_GOLD)->count(),
+                'diamond' => User::where('access_tier', SmsAccessTierService::TIER_DIAMOND)->count(),
+                'titanium' => User::where('access_tier', SmsAccessTierService::TIER_TITANIUM)->count(),
+            ];
+        } else {
+            $total = User::whereNotNull('phone')->count();
+            $gold = User::whereHas('settings', fn ($q) => $q->where('key', 'access_tier')->where('value', SmsAccessTierService::TIER_GOLD))->count();
+            $diamond = User::whereHas('settings', fn ($q) => $q->where('key', 'access_tier')->where('value', SmsAccessTierService::TIER_DIAMOND))->count();
+            $titanium = User::whereHas('settings', fn ($q) => $q->where('key', 'access_tier')->where('value', SmsAccessTierService::TIER_TITANIUM))->count();
+            $silver = max(0, $total - ($gold + $diamond + $titanium));
+
+            $tierStats = [
+                'total' => $total,
+                'silver' => $silver,
+                'gold' => $gold,
+                'diamond' => $diamond,
+                'titanium' => $titanium,
+            ];
+        }
 
         return view('Admin.sms.settings.access_tiers.index', compact('users', 'tierStats'));
     }

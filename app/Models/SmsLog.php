@@ -24,17 +24,63 @@ class SmsLog extends Model
                 'sender_role',
                 'sms_message_id',
                 'sms_campaign_id',
+                'credit_type',
+                'charge_amount',
+                'consume_amount',
+                'amount',
+                'payment_method',
+                'sender_number_id',
+                'balance_after',
             ];
 
             public function where($column, $operator = null, $value = null, $boolean = 'and')
             {
                 if (is_string($column)) {
                     $cleanCol = str_replace('sms_logs.', '', $column);
+                    if ($cleanCol === 'credit_type') {
+                        return $this->whereRaw('1 = 0');
+                    }
                     if (in_array($cleanCol, self::IGNORED_COLUMNS, true)) {
                         return $this;
                     }
                 }
                 return parent::where($column, $operator, $value, $boolean);
+            }
+
+            public function whereNull($columns, $boolean = 'and', $not = false)
+            {
+                foreach ((array) $columns as $col) {
+                    $cleanCol = is_string($col) ? str_replace('sms_logs.', '', $col) : $col;
+                    if (is_string($cleanCol) && in_array($cleanCol, self::IGNORED_COLUMNS, true)) {
+                        return $not ? $this->whereRaw('1 = 0') : $this;
+                    }
+                }
+                return parent::whereNull($columns, $boolean, $not);
+            }
+
+            public function sum($column)
+            {
+                $col = is_array($column) ? ($column[0] ?? '*') : $column;
+                $cleanCol = is_string($col) ? str_replace('sms_logs.', '', trim($col, '` ')) : $col;
+                $actualColumns = ['id', 'phone', 'type', 'created_at', 'updated_at'];
+                if (is_string($cleanCol) && !in_array($cleanCol, $actualColumns, true)) {
+                    return 0.0;
+                }
+                return parent::__call('sum', [$column]);
+            }
+
+            public function aggregate($function, $columns = ['*'])
+            {
+                $col = is_array($columns) ? ($columns[0] ?? '*') : $columns;
+                $cleanCol = is_string($col) ? str_replace('sms_logs.', '', trim($col, '` ')) : $col;
+
+                $actualColumns = ['id', 'phone', 'type', 'created_at', 'updated_at'];
+
+                if (is_string($cleanCol) && $cleanCol !== '*' && !in_array($cleanCol, $actualColumns, true)) {
+                    return 0;
+                }
+
+                return parent::aggregate($function, $columns);
             }
 
             public function whereIn($column, $values, $boolean = 'and', $not = false)
