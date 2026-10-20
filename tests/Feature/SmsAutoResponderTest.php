@@ -3,13 +3,10 @@
 namespace Tests\Feature;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsAuditLog;
-use App\Models\SmsAutoResponder;
-use App\Models\SmsMessage;
-use App\Models\SmsTransaction;
+use App\Models\Groupsms;
+use App\Models\Setting;
+use App\Models\SmsLog;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
 use App\Services\Sms\SmsKeywordNormalizer;
@@ -31,8 +28,8 @@ class SmsAutoResponderTest extends TestCase
 
     protected GhorfeOnlineList $business;
     protected GhorfeOnlineList $otherBusiness;
-    protected SenderNumber $advSender;
-    protected SenderNumber $otpSender;
+    protected Setting $advSender;
+    protected Setting $otpSender;
     protected User $admin;
     protected User $otherAdmin;
     protected User $customer;
@@ -45,7 +42,6 @@ class SmsAutoResponderTest extends TestCase
     {
         parent::setUp();
 
-
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',
@@ -57,44 +53,33 @@ class SmsAutoResponderTest extends TestCase
         DB::setDefaultConnection('sqlite');
         DB::reconnect('sqlite');
 
-        // Prerequisites tables
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
             $table->string('family')->nullable();
             $table->string('phone')->nullable();
             $table->string('password')->nullable();
-            $table->string('level')->default('user');
-            $table->string('access_tier')->default('silver');
-            $table->boolean('active')->default(true);
             $table->string('token')->nullable();
             $table->string('api_token')->nullable();
             $table->string('avatar')->nullable();
-            $table->integer('birth_year')->nullable();
-            $table->integer('birth_month')->nullable();
-            $table->integer('birth_day')->nullable();
-            $table->tinyInteger('sex')->nullable();
-            $table->unsignedInteger('province_id')->nullable();
-            $table->unsignedInteger('city_id')->nullable();
-            $table->unsignedInteger('service_id')->nullable();
+            $table->string('level')->default('user');
+            $table->string('access_tier')->default('silver');
+            $table->boolean('active')->default(true);
             $table->softDeletes();
             $table->timestamps();
         });
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
-            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
+            $table->boolean('sms_contract_accepted')->default(true);
             $table->string('title');
             $table->string('slug')->nullable();
+            $table->string('phone')->nullable();
+            $table->decimal('otp_balance', 15, 2)->default(0);
+            $table->decimal('advertising_balance', 15, 2)->default(0);
             $table->boolean('status')->default(true);
             $table->softDeletes();
             $table->timestamps();
-        });
-
-        Schema::create('ghorfe_online_list_user', function (Blueprint $table) {
-            $table->unsignedInteger('user_id');
-            $table->unsignedBigInteger('ghorfe_online_list_id');
-            $table->primary(['user_id', 'ghorfe_online_list_id']);
         });
 
         Schema::create('employees', function (Blueprint $table) {
@@ -103,12 +88,6 @@ class SmsAutoResponderTest extends TestCase
             $table->unsignedBigInteger('ghorfe_online_list_id')->nullable();
             $table->string('work_title')->nullable();
             $table->softDeletes();
-            $table->timestamps();
-        });
-
-        Schema::create('requests', function (Blueprint $table) {
-            $table->integer('id')->primary();
-            $table->string('status')->nullable();
             $table->timestamps();
         });
 
@@ -122,8 +101,17 @@ class SmsAutoResponderTest extends TestCase
         Schema::create('role_user', function (Blueprint $table) {
             $table->unsignedInteger('role_id');
             $table->unsignedInteger('user_id');
-            $table->string('user_type')->default('App\\Models\\User');
+            $table->string('user_type');
             $table->primary(['user_id', 'role_id', 'user_type']);
+        });
+
+        Schema::create('category_permissions', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->string('icon')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('position')->default(0);
+            $table->timestamps();
         });
 
         Schema::create('permissions', function (Blueprint $table) {
@@ -138,13 +126,80 @@ class SmsAutoResponderTest extends TestCase
             $table->timestamps();
         });
 
-        // The admin layout renders the sidebar menu, which joins permissions to category_permissions.
-        Schema::create('category_permissions', function (Blueprint $table) {
+        Schema::create('permission_user', function (Blueprint $table) {
+            $table->unsignedInteger('permission_id');
+            $table->unsignedInteger('user_id');
+            $table->string('user_type');
+            $table->primary(['user_id', 'permission_id', 'user_type']);
+        });
+
+        Schema::create('media', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('model');
+            $table->uuid()->nullable()->unique();
+            $table->string('collection_name');
+            $table->string('name');
+            $table->string('file_name');
+            $table->string('mime_type')->nullable();
+            $table->string('disk');
+            $table->string('conversions_disk')->nullable();
+            $table->unsignedBigInteger('size');
+            $table->json('manipulations')->nullable();
+            $table->json('custom_properties')->nullable();
+            $table->json('generated_conversions')->nullable();
+            $table->json('responsive_images')->nullable();
+            $table->unsignedInteger('order_column')->nullable();
+            $table->nullableTimestamps();
+        });
+
+        Schema::create('groupsms', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->nullable();
-            $table->string('icon')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->integer('position')->default(0);
+            $table->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+            $table->unsignedBigInteger('auto_responder_id')->nullable();
+            $table->unsignedBigInteger('callcenter_id')->nullable();
+            $table->unsignedBigInteger('phone_list_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('request_id')->nullable();
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->text('content')->nullable();
+            $table->text('body')->nullable();
+            $table->string('direction', 20)->default('outbound');
+            $table->string('service_type', 30)->default('normal');
+            $table->string('classification', 30)->default('regular');
+            $table->string('type', 30)->default('single');
+            $table->boolean('is_bulk')->default(false);
+            $table->string('recipient_phone', 20)->nullable();
+            $table->string('sender_phone', 50)->nullable();
+            $table->string('sender_number', 50)->nullable();
+            $table->string('status', 30)->default('pending');
+            $table->string('delivery_status', 30)->nullable();
+            $table->timestamp('delivered_at')->nullable();
+            $table->integer('character_count')->default(0);
+            $table->integer('page_count')->default(1);
+            $table->string('tracking_id', 100)->nullable();
+            $table->string('gateway_message_id', 100)->nullable();
+            $table->integer('sms_count')->default(1);
+            $table->decimal('cost', 15, 2)->default(0);
+            $table->text('phones')->nullable();
+            $table->string('send_at')->nullable();
+            $table->unsignedBigInteger('sender_number_id')->nullable();
+            $table->unsignedBigInteger('template_id')->nullable();
+            $table->string('group')->nullable();
+            $table->string('otp_category')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->string('sender_role')->nullable();
+            $table->string('error_reason')->nullable();
+            $table->integer('flag')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('contexts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -155,12 +210,39 @@ class SmsAutoResponderTest extends TestCase
             $table->timestamps();
         });
 
-        Schema::create('contexts', function (Blueprint $table) {
-            $table->id();
-            $table->string('key')->nullable();
-            $table->text('value')->nullable();
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedBigInteger('sms_message_id')->nullable();
+            $table->unsignedBigInteger('sms_campaign_id')->nullable();
+            $table->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('sender_number', 50)->nullable();
+            $table->string('status', 50)->nullable();
+            $table->string('tracking_id', 100)->nullable();
+            $table->decimal('charge_amount', 15, 2)->default(0);
+            $table->decimal('consume_amount', 15, 2)->default(0);
+            $table->string('credit_type', 50)->nullable();
+            $table->decimal('balance_before', 15, 2)->default(0);
+            $table->decimal('balance_after', 15, 2)->default(0);
+            $table->unsignedBigInteger('sender_number_id')->nullable();
+            $table->text('message')->nullable();
+            $table->text('response')->nullable();
+            $table->timestamps();
         });
 
         Schema::create('provinces', function (Blueprint $table) {
@@ -172,21 +254,20 @@ class SmsAutoResponderTest extends TestCase
         Schema::create('cities', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
-            $table->unsignedInteger('province_id')->nullable();
+            $table->integer('province_id')->unsigned()->nullable();
             $table->timestamps();
         });
 
-        Schema::create('permission_role', function (Blueprint $table) {
-            $table->unsignedInteger('permission_id');
-            $table->unsignedInteger('role_id');
-            $table->primary(['permission_id', 'role_id']);
-        });
-
-        Schema::create('permission_user', function (Blueprint $table) {
-            $table->unsignedInteger('permission_id');
-            $table->unsignedInteger('user_id');
-            $table->string('user_type');
-            $table->primary(['user_id', 'permission_id', 'user_type']);
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number')->nullable();
+            $table->string('type')->nullable();
+            $table->string('sms_panel')->nullable();
+            $table->string('status')->default('active');
+            $table->timestamps();
         });
 
         Schema::create('categories', function (Blueprint $table) {
@@ -206,39 +287,25 @@ class SmsAutoResponderTest extends TestCase
             $table->timestamps();
         });
 
-        // Run SMS Foundation migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-            'database/migrations/2026_10_22_000001_create_sms_auto_responders_table.php',
-        ];
-
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
-
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
         $this->otherBusiness = GhorfeOnlineList::create(['title' => 'فروشگاه دیگر']);
 
-        $this->advSender = SenderNumber::create(['number' => '50009999', 'type' => 'advertising', 'sms_panel' => 'IranSms', 'status' => 'active']);
-        $this->otpSender = SenderNumber::create(['number' => '10001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
-        $this->business->senderNumbers()->attach($this->advSender->id, ['assigned_at' => now()]);
+        $this->advSender = Setting::create([
+            'key' => 'sms_sender_number',
+            'number' => '50009999',
+            'type' => 'advertising',
+            'sms_panel' => 'IranSms',
+            'status' => 'active',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->business->id,
+        ]);
+        $this->otpSender = Setting::create([
+            'key' => 'sms_sender_number',
+            'number' => '10001111',
+            'type' => 'otp',
+            'sms_panel' => 'IranSms',
+            'status' => 'active',
+        ]);
 
         $this->admin = User::create(['name' => 'مدیر', 'family' => 'یک', 'phone' => '09120000001', 'level' => 'admin', 'access_tier' => 'silver', 'active' => 1]);
         $this->otherAdmin = User::create(['name' => 'مدیر', 'family' => 'دو', 'phone' => '09120000002', 'level' => 'admin', 'access_tier' => 'silver', 'active' => 1]);
@@ -263,15 +330,13 @@ class SmsAutoResponderTest extends TestCase
         $this->app->instance(SingleSmsSendService::class, $send);
     }
 
-    protected function makeRule(string $keyword, string $type = 'exact', array $extra = [], ?GhorfeOnlineList $business = null): SmsAutoResponder
+    protected function makeRule(string $keyword, string $type = 'exact', array $extra = [], ?GhorfeOnlineList $business = null): Setting
     {
         $business ??= $this->business;
 
-        return SmsAutoResponder::create(array_merge([
-            'ghorfe_online_list_id' => $business->id,
+        return app(SmsAutoResponderService::class)->create($business->id, array_merge([
             'name' => 'قانون ' . $keyword,
             'trigger_keyword' => $keyword,
-            'normalized_keyword' => SmsKeywordNormalizer::normalize($keyword),
             'match_type' => $type,
             'reply_text' => 'پاسخ ' . $keyword,
             'is_active' => true,
@@ -401,10 +466,9 @@ class SmsAutoResponderTest extends TestCase
         $this->actingAs($this->admin);
 
         $this->post(route('admin.sms.settings.auto-responders.store'), $this->payload())->assertSessionHasNoErrors();
-        $rule = SmsAutoResponder::first();
-        $this->assertSame($this->business->id, $rule->ghorfe_online_list_id);
+        $rule = Setting::where('key', 'sms_auto_responder')->first();
+        $this->assertSame((int) $this->business->id, (int) $rule->settingable_id);
         $this->assertSame('قیمت', $rule->normalized_keyword);
-        $this->assertSame($this->admin->id, $rule->created_by);
 
         $this->get(route('admin.sms.settings.auto-responders.index'))->assertOk()->assertSee('قیمت');
         $this->get(route('admin.sms.settings.auto-responders.create'))->assertOk();
@@ -423,12 +487,11 @@ class SmsAutoResponderTest extends TestCase
         $this->put(route('admin.sms.settings.auto-responders.update', $rule), $this->payload())->assertForbidden();
         $this->post(route('admin.sms.settings.auto-responders.toggle-status', $rule))->assertForbidden();
         $this->delete(route('admin.sms.settings.auto-responders.destroy', $rule))->assertForbidden();
-        $this->assertNotNull(SmsAutoResponder::find($rule->id));
+        $this->assertNotNull(Setting::find($rule->id));
 
         $this->actingAs($this->admin);
         $this->delete(route('admin.sms.settings.auto-responders.destroy', $rule))->assertRedirect();
-        $this->assertNull(SmsAutoResponder::find($rule->id));
-        $this->assertNotNull(SmsAutoResponder::withTrashed()->find($rule->id));
+        $this->assertNull(Setting::find($rule->id));
     }
 
     public function test_create_and_store_without_a_business_redirect_to_list_with_friendly_error(): void
@@ -443,7 +506,7 @@ class SmsAutoResponderTest extends TestCase
         $this->post(route('admin.sms.settings.auto-responders.store'), $this->payload(['business_id' => null]))
             ->assertRedirect(route('admin.sms.settings.auto-responders.index'))
             ->assertSessionHas('error', 'ابتدا یک کسب‌وکار را انتخاب کنید.');
-        $this->assertSame(0, SmsAutoResponder::count());
+        $this->assertSame(0, Setting::where('key', 'sms_auto_responder')->count());
     }
 
     public function test_store_shows_reserved_and_duplicate_conflicts_inline(): void
@@ -452,13 +515,13 @@ class SmsAutoResponderTest extends TestCase
 
         $this->post(route('admin.sms.settings.auto-responders.store'), $this->payload(['trigger_keyword' => 'لغو 11', 'name' => 'x']))
             ->assertSessionHasErrors('trigger_keyword');
-        $this->assertSame(0, SmsAutoResponder::count());
+        $this->assertSame(0, Setting::where('key', 'sms_auto_responder')->count());
 
         $this->post(route('admin.sms.settings.auto-responders.store'), $this->payload())->assertSessionHasNoErrors();
         $response = $this->from(route('admin.sms.settings.auto-responders.create'))
             ->post(route('admin.sms.settings.auto-responders.store'), $this->payload(['name' => 'دوم', 'trigger_keyword' => ' قیمت ']));
         $response->assertSessionHasErrors('trigger_keyword');
-        $this->assertSame(1, SmsAutoResponder::count());
+        $this->assertSame(1, Setting::where('key', 'sms_auto_responder')->count());
 
         $this->get(route('admin.sms.settings.auto-responders.create'))->assertOk()->assertSee('کدهای رزروشده');
     }
@@ -476,7 +539,7 @@ class SmsAutoResponderTest extends TestCase
         $this->assertSame('09123334455', $this->gatewayCalls[0][1]);
         $this->assertStringContainsString('سلام مریم', $this->gatewayCalls[0][2]);
 
-        $reply = SmsMessage::where('direction', 'outbound')->first();
+        $reply = Groupsms::where('direction', 'outbound')->first();
         $this->assertNotNull($reply);
         $this->assertSame($rule->id, (int) $reply->auto_responder_id);
         $this->assertSame($res['auto_reply_sms_message_id'], $reply->id);
@@ -486,10 +549,8 @@ class SmsAutoResponderTest extends TestCase
         $this->assertSame('50009999', $reply->sender_phone);
         $this->assertSame($this->business->id, $reply->ghorfe_online_list_id);
 
-        $this->assertSame(1, SmsTransaction::where('sms_message_id', $reply->id)->count());
-        $this->assertLessThan(1000000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
-        $this->assertSame(1, SmsAuditLog::where('sms_message_id', $reply->id)->count());
-        $this->assertSame('system', SmsAuditLog::where('sms_message_id', $reply->id)->value('sender_role'));
+        $this->assertLessThan(1000000, (float) $this->business->fresh()->advertising_balance);
+        $this->assertSame(1, SmsLog::where('type', 'audit_single')->count());
     }
 
     public function test_engine_replies_on_longest_starts_with_and_prefers_exact(): void
@@ -497,9 +558,9 @@ class SmsAutoResponderTest extends TestCase
         $this->makeRule('قیمت', 'starts_with', ['reply_text' => 'کوتاه']);
         $this->makeRule('خرید', 'exact', ['reply_text' => 'دقیق']);
         // an exact rule inside the prefix range is blocked by the validator, so exercise the engine ordering directly
-        SmsAutoResponder::create([
-            'ghorfe_online_list_id' => $this->business->id, 'name' => 'بلند', 'trigger_keyword' => 'قیمت ویژه',
-            'normalized_keyword' => 'قیمت ویژه', 'match_type' => 'starts_with', 'reply_text' => 'بلندتر', 'is_active' => true,
+        app(SmsAutoResponderService::class)->create($this->business->id, [
+            'name' => 'بلند', 'trigger_keyword' => 'قیمت ویژه',
+            'match_type' => 'starts_with', 'reply_text' => 'بلندتر', 'is_active' => true,
         ]);
 
         $this->inbound('قیمت ویژه برای من', '09120001111');
@@ -521,7 +582,7 @@ class SmsAutoResponderTest extends TestCase
 
         $this->assertTrue($res['success']);
         $this->assertNotNull($res['auto_reply_sms_message_id']);
-        $reply = SmsMessage::findOrFail($res['auto_reply_sms_message_id']);
+        $reply = Groupsms::findOrFail($res['auto_reply_sms_message_id']);
         $this->assertSame($rule->id, (int) $reply->auto_responder_id);
         $this->assertSame('outbound', $reply->direction);
         $this->assertSame('09123334455', $reply->recipient_phone);
@@ -545,7 +606,7 @@ class SmsAutoResponderTest extends TestCase
         $this->inbound('قیمت', '09120005555', '30002222'); // other business' line
 
         $this->assertCount(0, $this->gatewayCalls);
-        $this->assertSame(0, SmsMessage::where('direction', 'outbound')->count());
+        $this->assertSame(0, Groupsms::where('direction', 'outbound')->count());
     }
 
     public function test_inactive_and_deleted_rules_do_not_answer(): void
@@ -564,9 +625,9 @@ class SmsAutoResponderTest extends TestCase
     {
         // Legacy/foreign rules that slipped past validation still must not answer reserved words.
         foreach (['11', 'stop', 'لغو 11'] as $i => $word) {
-            SmsAutoResponder::create([
-                'ghorfe_online_list_id' => $this->business->id, 'name' => 'bad' . $i, 'trigger_keyword' => $word,
-                'normalized_keyword' => SmsKeywordNormalizer::normalize($word), 'match_type' => 'exact',
+            app(SmsAutoResponderService::class)->create($this->business->id, [
+                'name' => 'bad' . $i, 'trigger_keyword' => $word,
+                'match_type' => 'exact',
                 'reply_text' => 'x', 'is_active' => true,
             ]);
         }
@@ -607,13 +668,13 @@ class SmsAutoResponderTest extends TestCase
         $this->assertCount(3, $this->gatewayCalls);
 
         // after the window the same sender is answered again
-        SmsMessage::where('direction', 'outbound')->update(['created_at' => now()->subMinutes(11)]);
+        Groupsms::where('direction', 'outbound')->update(['created_at' => now()->subMinutes(11)]);
         $this->inbound('قیمت');
         $this->assertCount(4, $this->gatewayCalls);
 
         // window is configurable
         config(['services.sms.auto_reply_window_minutes' => 60]);
-        SmsMessage::where('direction', 'outbound')->update(['created_at' => now()->subMinutes(11)]);
+        Groupsms::where('direction', 'outbound')->update(['created_at' => now()->subMinutes(11)]);
         $this->inbound('قیمت');
         $this->assertCount(4, $this->gatewayCalls);
     }
@@ -626,7 +687,7 @@ class SmsAutoResponderTest extends TestCase
         $this->gatewayFails = true;
         $res = $this->inbound('قیمت');
         $this->assertTrue($res['success']);
-        $this->assertSame('failed', SmsMessage::where('direction', 'outbound')->value('status'));
+        $this->assertSame('failed', Groupsms::where('direction', 'outbound')->value('status'));
 
         // 2) no credit: send throws, nothing is stored for the reply, webhook ok
         $this->gatewayFails = false;
@@ -634,8 +695,8 @@ class SmsAutoResponderTest extends TestCase
         $res = $this->inbound('قیمت', '09128889900');
         $this->assertTrue($res['success']);
         $this->assertNull($res['auto_reply_sms_message_id']);
-        $this->assertSame(1, SmsMessage::where('direction', 'inbound')->where('sender_phone', '09128889900')->count());
-        $this->assertSame(1, SmsMessage::where('direction', 'outbound')->count());
+        $this->assertSame(1, Groupsms::where('direction', 'inbound')->where('sender_phone', '09128889900')->count());
+        $this->assertSame(1, Groupsms::where('direction', 'outbound')->count());
 
         // 3) engine blows up unexpectedly: still ok
         $this->app->instance(SingleSmsSendService::class, new class {

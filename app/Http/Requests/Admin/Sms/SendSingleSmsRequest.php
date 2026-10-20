@@ -33,10 +33,10 @@ class SendSingleSmsRequest extends FormRequest
                 }
             }],
             'service_type' => ['required', 'string', 'in:otp,advertising,normal'],
-            'sender_number_id' => ['nullable', 'integer', 'exists:sender_numbers,id'],
+            'sender_number_id' => ['nullable', 'integer', 'exists:ghorfe_settings,id'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
-            'template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
-            'sms_message_group_id' => ['nullable', 'integer', 'exists:sms_message_groups,id'],
+            'template_id' => ['nullable', 'integer', 'exists:sms_templates,id'],
+            'sms_message_group_id' => ['nullable', 'integer'],
             'type' => ['nullable', 'string', 'in:regular,classified'],
             'classification' => ['nullable', 'string', 'in:regular,classified'],
             'context' => ['nullable', 'array'],
@@ -64,7 +64,7 @@ class SendSingleSmsRequest extends FormRequest
             if ($this->input('service_type') === 'otp' && !$validator->errors()->has('otp_category')) {
                 $templateCategory = null;
                 if (!empty($this->input('template_id')) && !$validator->errors()->has('template_id')) {
-                    $templateCategory = \App\Models\SmsMessageTemplate::whereKey($this->input('template_id'))->value('otp_category');
+                    $templateCategory = \App\Models\SmsTemplate::whereKey($this->input('template_id'))->value('otp_category');
                 }
                 $chosen = $this->input('otp_category') ?: null;
                 if (!$chosen && !$templateCategory) {
@@ -77,7 +77,7 @@ class SendSingleSmsRequest extends FormRequest
             // Promotional sends only support event/greeting, sales and support subject categories (OTP unaffected).
             if ($this->input('service_type') !== 'otp' && !empty($this->input('sms_message_group_id'))
                 && !$validator->errors()->has('sms_message_group_id')
-                && !\App\Models\SmsMessageGroup::isPromotionalId($this->input('sms_message_group_id'))) {
+                && !\App\Models\Groupsms::isPromotionalGroup($this->input('sms_message_group_id'))) {
                 $validator->errors()->add('sms_message_group_id', 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست (فقط مناسبتی/تبریک، فروش و پشتیبانی).');
             }
 
@@ -91,7 +91,7 @@ class SendSingleSmsRequest extends FormRequest
                 return;
             }
 
-            $template = \App\Models\SmsMessageTemplate::find($templateId);
+            $template = \App\Models\SmsTemplate::find($templateId);
             if (!$template) {
                 return;
             }

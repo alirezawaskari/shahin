@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\SmsCampaign;
+use App\Models\Groupsms;
 use App\Services\Sms\BulkSmsSendService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +18,7 @@ class SendBulkSmsCampaignJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        public SmsCampaign $campaign
+        public Groupsms $campaign
     ) {
     }
 

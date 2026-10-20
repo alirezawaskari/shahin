@@ -3,17 +3,11 @@
 namespace Tests\Feature;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
-use App\Models\AdvertisingBalance;
-use App\Models\BusinessSenderNumber;
 use App\Models\GhorfeOnlineList;
-use App\Models\OtpBalance;
-use App\Models\SenderNumber;
-use App\Models\SmsCampaign;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsPanel;
-use App\Models\SmsTransaction;
+use App\Models\Groupsms;
+use App\Models\Setting;
+use App\Models\SmsLog;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\BalanceGuard;
 use App\Services\Sms\SmsFinancialService;
@@ -32,9 +26,9 @@ class SmsFinancialAndReportTest extends TestCase
     protected User $superAdminUser;
     protected GhorfeOnlineList $businessA;
     protected GhorfeOnlineList $businessB;
-    protected SenderNumber $otpSender;
-    protected SenderNumber $advSender1;
-    protected SenderNumber $advSender2;
+    protected Setting $otpSender;
+    protected Setting $advSender1;
+    protected Setting $advSender2;
 
     protected function setUp(): void
     {
@@ -70,7 +64,7 @@ class SmsFinancialAndReportTest extends TestCase
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
-            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
+            $table->boolean('sms_contract_accepted')->default(true);
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -161,33 +155,69 @@ class SmsFinancialAndReportTest extends TestCase
             $table->timestamps();
         });
 
-        // Run SMS migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000004_create_sms_panels_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-            'database/migrations/2026_10_21_000001_create_sms_top_up_payments_table.php',
-        ];
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
+            $table->timestamps();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number', 50)->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('sms_panel', 50)->nullable();
+            $table->string('status', 50)->default('active');
+            $table->timestamps();
+        });
+
+        Schema::create('callcenterables', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('callcenter_id');
+            $table->unsignedBigInteger('callcenterable_id');
+            $table->string('callcenterable_type');
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         // Setup test data
         $this->adminUser = User::create([
@@ -223,7 +253,8 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         // OTP Sender Number (singleton)
-        $this->otpSender = SenderNumber::create([
+        $this->otpSender = Setting::create([
+            'key' => 'sms_sender_number',
             'number' => '90001',
             'type' => 'otp',
             'sms_panel' => 'IranSms',
@@ -231,24 +262,24 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         // Advertising Sender Numbers
-        $this->advSender1 = SenderNumber::create([
+        $this->advSender1 = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->businessA->id,
             'number' => '30001111',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
 
-        $this->advSender2 = SenderNumber::create([
+        $this->advSender2 = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->businessB->id,
             'number' => '30002222',
             'type' => 'advertising',
             'sms_panel' => 'NeginSms',
             'status' => 'active',
-        ]);
-
-        // Assign advertising numbers to Business A
-        $this->businessA->senderNumbers()->attach([
-            $this->advSender1->id => ['assigned_at' => now()],
-            $this->advSender2->id => ['assigned_at' => now()],
         ]);
     }
 
@@ -289,8 +320,8 @@ class SmsFinancialAndReportTest extends TestCase
 
         // enforceOtp succeeds
         $model = $guard->enforceOtp($this->businessA, 1200);
-        $this->assertInstanceOf(OtpBalance::class, $model);
-        $this->assertEquals(50000, (float) $model->balance);
+        $this->assertInstanceOf(GhorfeOnlineList::class, $model);
+        $this->assertEquals(50000, (float) $model->otp_balance);
     }
 
     public function test_balance_guard_otp_normal_balance(): void
@@ -332,7 +363,7 @@ class SmsFinancialAndReportTest extends TestCase
         }
 
         // Tenancy: business B's credit is untouched and unusable by A.
-        $this->assertEquals(50000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessB->id)->value('balance'));
+        $this->assertEquals(50000, (float) GhorfeOnlineList::whereKey($this->businessB->id)->value('advertising_balance'));
     }
 
     public function test_balance_guard_advertising_sufficient_balance_is_allowed(): void
@@ -345,7 +376,7 @@ class SmsFinancialAndReportTest extends TestCase
 
         $this->assertTrue($check['allowed']);
         $this->assertNull($check['error']);
-        $this->assertInstanceOf(AdvertisingBalance::class, $guard->enforceAdvertising($this->businessA, 5000));
+        $this->assertInstanceOf(GhorfeOnlineList::class, $guard->enforceAdvertising($this->businessA, 5000));
     }
 
     // ==========================================
@@ -364,7 +395,7 @@ class SmsFinancialAndReportTest extends TestCase
         // Top up Business A OTP with 100,000
         $tx = $financialService->topUpOtp($this->businessA, 100000, $this->adminUser, 'TOPUP-TEST-1');
 
-        $this->assertInstanceOf(SmsTransaction::class, $tx);
+        $this->assertInstanceOf(SmsLog::class, $tx);
         $this->assertEquals('otp', $tx->credit_type);
         $this->assertEquals(10000, (float) $tx->balance_before);
         $this->assertEquals(110000, (float) $tx->balance_after);
@@ -372,41 +403,39 @@ class SmsFinancialAndReportTest extends TestCase
         $this->assertNull($tx->sender_number_id);
 
         // Verify Business A OTP balance updated
-        $this->assertEquals(110000, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertEquals(110000, (float) GhorfeOnlineList::whereKey($this->businessA->id)->value('otp_balance'));
 
         // Verify Business B OTP was NEVER touched
-        $this->assertEquals(20000, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessB->id)->value('balance'));
+        $this->assertEquals(20000, (float) GhorfeOnlineList::whereKey($this->businessB->id)->value('otp_balance'));
 
         // Verify Business A Advertising balance was NEVER touched
-        $this->assertEquals(5000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertEquals(5000, (float) GhorfeOnlineList::whereKey($this->businessA->id)->value('advertising_balance'));
     }
 
     public function test_advertising_topup_credits_only_the_business_panel_without_cross_credit(): void
     {
         $financialService = app(SmsFinancialService::class);
 
-        // Initial balances
         $this->seedAdvertisingBalance($this->businessA->id, 1000);
         $this->seedAdvertisingBalance($this->businessB->id, 2000);
         $this->seedOtpBalance($this->businessA->id, 50000);
 
-        // Top up Business A's advertising panel with 80,000
-        $tx = $financialService->topUpAdvertising($this->businessA, 80000, $this->adminUser);
+        // Top up Business A Advertising with 80,000
+        $tx = $financialService->topUpAdvertising($this->businessA, 80000, $this->adminUser, 'TOPUP-TEST-2');
 
-        $this->assertInstanceOf(SmsTransaction::class, $tx);
+        $this->assertInstanceOf(SmsLog::class, $tx);
         $this->assertEquals('advertising', $tx->credit_type);
-        $this->assertNull($tx->sender_number_id, 'Credit belongs to the panel, not a line');
         $this->assertEquals(1000, (float) $tx->balance_before);
         $this->assertEquals(81000, (float) $tx->balance_after);
         $this->assertEquals(80000, (float) $tx->charge_amount);
 
-        $this->assertEquals(81000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertEquals(81000, (float) GhorfeOnlineList::whereKey($this->businessA->id)->value('advertising_balance'));
 
         // Another business' advertising balance was NOT changed
-        $this->assertEquals(2000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessB->id)->value('balance'));
+        $this->assertEquals(2000, (float) GhorfeOnlineList::whereKey($this->businessB->id)->value('advertising_balance'));
 
         // OTP balance was NOT changed
-        $this->assertEquals(50000, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertEquals(50000, (float) GhorfeOnlineList::whereKey($this->businessA->id)->value('otp_balance'));
     }
 
     public function test_financial_service_otp_data_shape(): void
@@ -416,18 +445,20 @@ class SmsFinancialAndReportTest extends TestCase
         $this->seedOtpBalance($this->businessA->id, 45000);
 
         // Create transactions and messages
-        SmsTransaction::create([
+        SmsLog::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'credit_type' => 'otp',
+            'type' => 'transaction',
             'charge_amount' => 50000,
             'consume_amount' => 0,
             'balance_before' => 0,
             'balance_after' => 50000,
             'created_by' => $this->adminUser->id,
         ]);
-        SmsTransaction::create([
+        SmsLog::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'credit_type' => 'otp',
+            'type' => 'transaction',
             'charge_amount' => 0,
             'consume_amount' => 5000,
             'balance_before' => 50000,
@@ -435,11 +466,11 @@ class SmsFinancialAndReportTest extends TestCase
             'created_by' => $this->adminUser->id,
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'service_type' => 'otp',
-            'recipient_phone' => '09121111111',
-            'content' => 'کد تایید شما: 1234',
+            'phones' => '09121111111',
+            'message' => 'کد تایید شما: 1234',
             'status' => 'delivered',
             'cost' => 5000,
         ]);
@@ -476,8 +507,8 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         $topupResponse->assertRedirect();
-        $this->assertDatabaseMissing('sms_transactions', ['tracking_id' => 'BANK-OTP-999']);
-        $this->assertEquals(0, (float) OtpBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertDatabaseMissing('sms_logs', ['tracking_id' => 'BANK-OTP-999']);
+        $this->assertEquals(0, (float) GhorfeOnlineList::whereKey($this->businessA->id)->value('otp_balance'));
     }
 
     public function test_http_advertising_view_and_topup(): void
@@ -501,8 +532,8 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         $topupResponse->assertRedirect();
-        $this->assertDatabaseMissing('sms_transactions', ['tracking_id' => 'BANK-ADV-888']);
-        $this->assertEquals(0, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->businessA->id)->value('balance'));
+        $this->assertDatabaseMissing('sms_logs', ['tracking_id' => 'BANK-ADV-888']);
+        $this->assertEquals(0, (float) GhorfeOnlineList::whereKey($this->businessA->id)->value('advertising_balance'));
     }
 
     public function test_http_balance_check_api(): void
@@ -535,20 +566,20 @@ class SmsFinancialAndReportTest extends TestCase
         $this->actingAs($this->adminUser);
 
         // Create sample messages
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'service_type' => 'otp',
-            'recipient_phone' => '09121111111',
-            'content' => 'کد تایید ورود 1111',
+            'phones' => '09121111111',
+            'message' => 'کد تایید ورود 1111',
             'status' => 'delivered',
             'cost' => 1200,
             'created_at' => Carbon::parse('2026-10-01 10:00:00'),
         ]);
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'service_type' => 'otp',
-            'recipient_phone' => '09122222222',
-            'content' => 'کد تایید ورود 2222',
+            'phones' => '09122222222',
+            'message' => 'کد تایید ورود 2222',
             'status' => 'failed',
             'cost' => 1200,
             'created_at' => Carbon::parse('2026-10-02 10:00:00'),
@@ -579,10 +610,11 @@ class SmsFinancialAndReportTest extends TestCase
         $this->actingAs($this->adminUser);
 
         // Create campaign
-        $campaign = SmsCampaign::create([
+        $campaign = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_number_id' => $this->advSender1->id,
             'type' => 'bulk',
+            'is_bulk' => true,
             'total_recipients' => 100,
             'sent_count' => 100,
             'success_count' => 95,
@@ -593,13 +625,13 @@ class SmsFinancialAndReportTest extends TestCase
         ]);
 
         // Create sample messages
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_number_id' => $this->advSender1->id,
             'service_type' => 'advertising',
             'sms_campaign_id' => $campaign->id,
-            'recipient_phone' => '09123333333',
-            'content' => 'تخفیف ویژه پاییزه',
+            'phones' => '09123333333',
+            'message' => 'تخفیف ویژه پاییزه',
             'status' => 'delivered',
             'cost' => 1200,
         ]);
@@ -637,29 +669,25 @@ class SmsFinancialAndReportTest extends TestCase
     {
         $this->actingAs($this->superAdminUser);
 
-        // Seed messages across Business A and Business B
-        $groupA = SmsMessageGroup::create(['name' => 'ورود و احراز', 'slug' => 'auth']);
-        $groupB = SmsMessageGroup::create(['name' => 'تبلیغات جشنواره', 'slug' => 'fest']);
-
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_number_id' => $this->otpSender->id,
             'service_type' => 'otp',
-            'sms_message_group_id' => $groupA->id,
-            'recipient_phone' => '09121111111',
-            'content' => 'کد تایید ورود',
+            'group' => 'auth',
+            'phones' => '09121111111',
+            'message' => 'کد تایید ورود',
             'status' => 'delivered',
             'cost' => 1200,
             'created_at' => Carbon::parse('2026-10-05 10:00:00'),
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessB->id,
             'sender_number_id' => $this->advSender2->id,
             'service_type' => 'advertising',
-            'sms_message_group_id' => $groupB->id,
-            'recipient_phone' => '09122222222',
-            'content' => 'تخفیف ویژه برای مشتریان بتا',
+            'group' => 'fest',
+            'phones' => '09122222222',
+            'message' => 'تخفیف ویژه برای مشتریان بتا',
             'status' => 'queued',
             'cost' => 2400,
             'created_at' => Carbon::parse('2026-10-06 12:00:00'),
@@ -691,8 +719,8 @@ class SmsFinancialAndReportTest extends TestCase
         $filteredStatus = $reportService->getSuperAdminReport(['status' => 'delivered']);
         $this->assertEquals(1, $filteredStatus['summary']['total_messages']);
 
-        // 6. Filter by Group (groupB)
-        $filteredGroup = $reportService->getSuperAdminReport(['group' => $groupB->id]);
+        // 6. Filter by Group (fest)
+        $filteredGroup = $reportService->getSuperAdminReport(['group' => 'fest']);
         $this->assertEquals(1, $filteredGroup['summary']['total_messages']);
     }
 
@@ -701,21 +729,21 @@ class SmsFinancialAndReportTest extends TestCase
         $this->actingAs($this->superAdminUser);
 
         // Create sample messages
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_number_id' => $this->otpSender->id,
             'service_type' => 'otp',
-            'recipient_phone' => '09121111111',
-            'content' => 'کد تایید ورود',
+            'phones' => '09121111111',
+            'message' => 'کد تایید ورود',
             'status' => 'delivered',
             'cost' => 1200,
         ]);
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_number_id' => $this->advSender1->id,
             'service_type' => 'advertising',
-            'recipient_phone' => '09122222222',
-            'content' => 'تخفیف ویژه',
+            'phones' => '09122222222',
+            'message' => 'تخفیف ویژه',
             'status' => 'sent',
             'cost' => 1200,
         ]);

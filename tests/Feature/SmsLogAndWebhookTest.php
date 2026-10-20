@@ -2,14 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\BusinessSenderNumber;
 use App\Models\GhorfeOnlineList;
+use App\Models\Groupsms;
 use App\Models\History;
 use App\Models\Permission;
 use App\Models\Request as UserReqModel;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageGroup;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserRequest;
 use App\Services\Sms\SmsLogService;
@@ -27,10 +25,10 @@ class SmsLogAndWebhookTest extends TestCase
     protected User $regularCustomer;
     protected GhorfeOnlineList $businessA;
     protected GhorfeOnlineList $businessB;
-    protected SenderNumber $sender1;
-    protected SenderNumber $sender2;
-    protected SmsMessageGroup $normalGroup;
-    protected SmsMessageGroup $confidentialGroup;
+    protected Setting $sender1;
+    protected Setting $sender2;
+    protected Setting $normalGroup;
+    protected Setting $confidentialGroup;
     protected SmsLogService $logService;
     protected SmsWebhookService $webhookService;
 
@@ -182,6 +180,13 @@ class SmsLogAndWebhookTest extends TestCase
             $table->string('key')->nullable();
             $table->text('value')->nullable();
             $table->nullableMorphs('settingable');
+            $table->string('number')->nullable();
+            $table->string('type')->nullable();
+            $table->string('sms_panel')->nullable();
+            $table->string('status')->default('active');
+            $table->string('name')->nullable();
+            $table->string('slug')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
         });
 
@@ -251,39 +256,77 @@ class SmsLogAndWebhookTest extends TestCase
             $table->nullableTimestamps();
         });
 
-        // Run SMS migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-        ];
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->text('content')->nullable();
+            $table->text('body')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
+            $table->timestamps();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         // Seed basic fixtures
         $this->businessA = GhorfeOnlineList::create(['title' => 'فروشگاه آلفا', 'slug' => 'alpha']);
         $this->businessB = GhorfeOnlineList::create(['title' => 'فروشگاه بتا', 'slug' => 'beta']);
 
-        $this->sender1 = SenderNumber::create(['number' => '10001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
-        $this->sender2 = SenderNumber::create(['number' => '20002222', 'type' => 'advertising', 'sms_panel' => 'NeginSms', 'status' => 'active']);
+        $this->sender1 = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->businessA->id,
+            'number' => '10001111',
+            'type' => 'otp',
+            'sms_panel' => 'IranSms',
+            'status' => 'active',
+        ]);
+        $this->sender2 = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->businessA->id,
+            'number' => '20002222',
+            'type' => 'advertising',
+            'sms_panel' => 'NeginSms',
+            'status' => 'active',
+        ]);
 
-        BusinessSenderNumber::create(['ghorfe_online_list_id' => $this->businessA->id, 'sender_number_id' => $this->sender1->id]);
-        BusinessSenderNumber::create(['ghorfe_online_list_id' => $this->businessA->id, 'sender_number_id' => $this->sender2->id]);
-        BusinessSenderNumber::create(['ghorfe_online_list_id' => $this->businessB->id, 'sender_number_id' => $this->sender2->id]);
-
-        $this->normalGroup = SmsMessageGroup::create(['name' => 'پشتیبانی', 'slug' => 'poshtibani']);
-        $this->confidentialGroup = SmsMessageGroup::create(['name' => 'حقوقی و اخطار', 'slug' => 'hoghoghi']);
+        $this->normalGroup = Setting::create(['key' => 'sms_message_group', 'name' => 'پشتیبانی', 'slug' => 'poshtibani']);
+        $this->confidentialGroup = Setting::create(['key' => 'sms_message_group', 'name' => 'حقوقی و اخطار', 'slug' => 'hoghoghi']);
 
         $this->adminUser = User::create([
             'name' => 'علی',
@@ -337,7 +380,7 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_log_service_filters_by_service_type(): void
     {
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'service_type' => 'otp',
@@ -346,7 +389,7 @@ class SmsLogAndWebhookTest extends TestCase
             'recipient_phone' => '09123334455',
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'service_type' => 'advertising',
@@ -367,7 +410,7 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_log_service_filters_by_direction(): void
     {
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'service_type' => 'normal',
@@ -376,7 +419,7 @@ class SmsLogAndWebhookTest extends TestCase
             'recipient_phone' => '09123334455',
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'inbound',
             'service_type' => 'normal',
@@ -397,14 +440,14 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_log_service_filters_by_is_bulk(): void
     {
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'is_bulk' => false,
             'content' => 'تکی',
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'is_bulk' => true,
@@ -423,14 +466,14 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_log_service_filters_by_sender_and_recipient_phone(): void
     {
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_phone' => '10001111',
             'recipient_phone' => '09121112233',
             'content' => 'پیام تست ۱',
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sender_phone' => '20002222',
             'recipient_phone' => '09359998877',
@@ -448,12 +491,12 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_log_service_business_scoping_and_superadmin(): void
     {
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'content' => 'پیام بیزینس آ',
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessB->id,
             'content' => 'پیام بیزینس ب',
         ]);
@@ -475,7 +518,7 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_webhook_delivery_report_updates_status(): void
     {
-        $message = SmsMessage::create([
+        $message = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'content' => 'کد تایید',
@@ -505,7 +548,7 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_webhook_delivery_failure_updates_error(): void
     {
-        $message = SmsMessage::create([
+        $message = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'content' => 'تست خطا',
@@ -542,7 +585,7 @@ class SmsLogAndWebhookTest extends TestCase
         $res = $this->webhookService->handleInboundMessage($payload);
 
         $this->assertTrue($res['success']);
-        $saved = SmsMessage::where('tracking_id', 'INB-PARSA-999')->first();
+        $saved = Groupsms::where('tracking_id', 'INB-PARSA-999')->first();
 
         $this->assertNotNull($saved);
         $this->assertEquals('inbound', $saved->direction);
@@ -555,7 +598,7 @@ class SmsLogAndWebhookTest extends TestCase
 
     public function test_webhook_http_endpoint(): void
     {
-        $message = SmsMessage::create([
+        $message = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'content' => 'تست HTTP وب‌هوک',
@@ -594,7 +637,7 @@ class SmsLogAndWebhookTest extends TestCase
         $this->assertEquals(0, $initialHistoriesCount);
 
         // Create outbound SMS message tied to request
-        $msg = SmsMessage::create([
+        $msg = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'content' => 'درخواست شما در انبار تایید شد.',
@@ -632,7 +675,7 @@ class SmsLogAndWebhookTest extends TestCase
             'description' => 'درخواست آزمایشی',
         ]);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'inbound',
             'content' => 'پاسخ مشتری به درخواست',
@@ -645,7 +688,7 @@ class SmsLogAndWebhookTest extends TestCase
     public function test_customer_profile_messages_normal_vs_confidential_gating(): void
     {
         // 1. Create a normal message for customer
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sms_message_group_id' => $this->normalGroup->id,
             'direction' => 'outbound',
@@ -655,7 +698,7 @@ class SmsLogAndWebhookTest extends TestCase
         ]);
 
         // 2. Create a confidential message for customer
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'sms_message_group_id' => $this->confidentialGroup->id,
             'direction' => 'outbound',
@@ -705,7 +748,7 @@ class SmsLogAndWebhookTest extends TestCase
     {
         $this->actingAs($this->superAdminUser);
 
-        SmsMessage::create([
+        Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'content' => 'پیام لاگ ۱',
             'status' => 'delivered',
@@ -747,12 +790,12 @@ class SmsLogAndWebhookTest extends TestCase
         ]);
 
         $this->assertTrue($res['success']);
-        $this->assertNull(SmsMessage::where('tracking_id', 'INB-UNKNOWN-1')->value('ghorfe_online_list_id'));
+        $this->assertNull(Groupsms::where('tracking_id', 'INB-UNKNOWN-1')->value('ghorfe_online_list_id'));
     }
 
     public function test_log_detail_page_renders_for_allowed_and_hides_otp_from_lower_tiers(): void
     {
-        $normal = SmsMessage::create([
+        $normal = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'service_type' => 'normal',
@@ -760,7 +803,7 @@ class SmsLogAndWebhookTest extends TestCase
             'status' => 'delivered',
             'recipient_phone' => '09121112233',
         ]);
-        $otp = SmsMessage::create([
+        $otp = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'outbound',
             'service_type' => 'otp',
@@ -796,7 +839,7 @@ class SmsLogAndWebhookTest extends TestCase
             ->assertStatus(200)
             ->assertJsonPath('success', true);
 
-        $saved = SmsMessage::where('tracking_id', 'INB-COUNT-1')->first();
+        $saved = Groupsms::where('tracking_id', 'INB-COUNT-1')->first();
         $this->assertSame(80, (int) $saved->character_count);
         $this->assertSame(2, (int) $saved->page_count);
         $this->assertEquals(0, (float) $saved->cost);
@@ -807,7 +850,7 @@ class SmsLogAndWebhookTest extends TestCase
     {
         $this->actingAs($this->superAdminUser);
 
-        $msg = SmsMessage::create([
+        $msg = Groupsms::create([
             'ghorfe_online_list_id' => $this->businessA->id,
             'direction' => 'inbound',
             'service_type' => 'otp',

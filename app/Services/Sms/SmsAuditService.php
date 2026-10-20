@@ -2,8 +2,8 @@
 
 namespace App\Services\Sms;
 
-use App\Models\SmsAuditLog;
-use App\Models\SmsMessage;
+use App\Models\Groupsms;
+use App\Models\SmsLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
@@ -30,29 +30,36 @@ class SmsAuditService
     }
 
     /**
-     * Write one audit row. $context keys: sms_message (SmsMessage), sms_campaign_id, business_id,
+     * Write one audit row. $context keys: sms_message (Groupsms), sms_campaign_id, business_id,
      * request_id, callcenter_id, service_type.
      *
      * @param array<string, mixed> $context
      */
-    public function record(?User $sender, string $channel, array $context = []): ?SmsAuditLog
+    public function record(?User $sender, string $channel, array $context = []): ?SmsLog
     {
         try {
-            /** @var SmsMessage|null $message */
+            /** @var Groupsms|null $message */
             $message = $context['sms_message'] ?? null;
 
-            return SmsAuditLog::create([
+            return SmsLog::create([
+                'type' => 'audit_' . $channel,
                 'sms_message_id' => $message?->id,
                 'sms_campaign_id' => $context['sms_campaign_id'] ?? $message?->sms_campaign_id,
                 'ghorfe_online_list_id' => $context['business_id'] ?? $message?->ghorfe_online_list_id,
-                'sender_id' => $sender?->id,
-                'sender_role' => $this->resolveSenderRole($sender),
-                'access_tier' => $sender?->access_tier,
-                'request_id' => $context['request_id'] ?? $message?->request_id,
-                'callcenter_id' => $context['callcenter_id'] ?? $message?->callcenter_id,
-                'channel' => $channel,
-                'service_type' => $context['service_type'] ?? $message?->service_type,
-                'sent_at' => now(),
+                'user_id' => $sender?->id,
+                'created_by' => $sender?->id,
+                'message' => $message?->body ?? $message?->content,
+                'sender_number' => $message?->sender_number ?? $message?->sender_phone,
+                'status' => 'sent',
+                'tracking_id' => $message?->tracking_id,
+                'response' => json_encode([
+                    'sender_role' => $this->resolveSenderRole($sender),
+                    'access_tier' => $sender?->access_tier,
+                    'request_id' => $context['request_id'] ?? $message?->request_id,
+                    'callcenter_id' => $context['callcenter_id'] ?? $message?->callcenter_id,
+                    'channel' => $channel,
+                    'service_type' => $context['service_type'] ?? $message?->service_type,
+                ]),
             ]);
         } catch (\Throwable $e) {
             Log::error('SMS audit write failed: ' . $e->getMessage(), [
@@ -65,3 +72,4 @@ class SmsAuditService
         }
     }
 }
+

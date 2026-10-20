@@ -2,11 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\AdvertisingBalance;
-use App\Models\SenderNumber;
-use App\Models\SmsAuditLog;
-use App\Models\SmsMessage;
-use App\Models\SmsTransaction;
+use App\Models\Groupsms;
+use App\Models\Setting;
+use App\Models\SmsLog;
 use App\Services\Sms\BulkSmsSendService;
 use App\Services\Sms\SingleSmsSendService;
 use App\Services\Sms\SmsGatewaySimulator;
@@ -90,9 +88,9 @@ class SmsGatewaySimulatorTest extends SmsBulkQueueTest
 
         // A real gateway call in this sandbox would throw and mark the message failed.
         $this->assertSame('sent', $message->fresh()->status);
-        $this->assertEquals(8800, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
-        $this->assertNotNull(SmsTransaction::where('sms_message_id', $message->id)->first());
-        $this->assertGreaterThan(0, SmsAuditLog::count());
+        $this->assertEquals(8800, (float) $this->business->fresh()->advertising_balance);
+        $this->assertNotNull(SmsLog::where('sms_message_id', $message->id)->first());
+        $this->assertGreaterThan(0, SmsLog::count());
         Http::assertNothingSent();
         $this->assertSimulatedLogged();
     }
@@ -137,9 +135,9 @@ class SmsGatewaySimulatorTest extends SmsBulkQueueTest
 
         $campaign->refresh();
         $this->assertSame('completed', $campaign->status);
-        $this->assertSame(2, SmsMessage::where('sms_campaign_id', $campaign->id)->where('status', 'sent')->count());
-        $this->assertEquals(50000 - 2 * 1200, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
-        $this->assertGreaterThan(0, SmsAuditLog::count());
+        $this->assertSame(2, Groupsms::where('request_id', $campaign->id)->where('status', 'sent')->count());
+        $this->assertEquals(50000 - 2 * 1200, (float) $this->business->fresh()->advertising_balance);
+        $this->assertGreaterThan(0, SmsLog::count());
         Http::assertNothingSent();
         $this->assertSimulatedLogged();
     }

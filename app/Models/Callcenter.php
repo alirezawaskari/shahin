@@ -78,52 +78,34 @@ class Callcenter extends Model implements AuditableContract
     }
 
     /**
+     * Access scoping (tenancy, permissions, representation) + the filter criteria.
+     *
      * @param $query
+     * @param array<string, mixed>|null $criteria defaults to the current HTTP request's input
      * @return mixed
      */
-    public function scopeFilter($query)
+    public function scopeFilter($query, ?array $criteria = null)
     {
-        $name = request('name');
-        $family = request('family');
-        $description = request('description');
-        $phone = request('user_phone');
-        $type = request('type');
-        $request_type = request('request_type');
-        $startDate = request('startDate');
-        $endDate = request('endDate');
-        $status = request('status');
-        $users = request('users');
-        $agents = request('agents');
-        $sex = request('sex');
-        $service = request('service');
-        $representation = request('representation');
-        $province = request('province');
-        $city = json_decode(request('city'));
-        $area = json_decode(request('area'));
-        $productCategory = request('product_category');
-        $serviceCategory = request('service_category');
-        $subServiceCategory = request('sub_service_category');
-        $serviceItems = request('service_items');
-        $has_factor = request('has_factor');
+        return $query->accessScoped()->applyCriteria($criteria ?? request()->all());
+    }
 
-        if (isset($description) && trim($description) != '') {
-            $query->where(function ($q) use ($description) {
-                $q->where('description', 'LIKE', '%' . $description . '%')
-                    ->orWhereHas('register', function ($q) use ($description) {
-                    $q->whereHas('callcenters', function ($q) use ($description) {
-                    $q->whereHas('histories', function ($q) use ($description) {
-                        $q->where('description', 'LIKE', '%' . $description . '%');
-                    });
-                });
-            })
-            ->orWhereHas('sms', function ($q) use ($description) {
-                $q->where('body', 'LIKE', '%' . $description . '%');
-            });
-        });
-        }
-        else{
-            $query = FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
-        }
+    /**
+     * Restrict a requests query to what the signed-in user may see.
+     *
+     * @param $query
+     * @param \App\Models\GhorfeOnlineList|null $business scope explicitly to this business
+     *        (e.g. the business a campaign is sent from) instead of the signed-in user's own
+     *        tenancy rules.
+     * @return mixed
+     */
+    public function scopeAccessScoped($query, ?GhorfeOnlineList $business = null)
+    {
+        // Business scoping must apply to EVERY listing. It used to live in the `else` of the
+        // description check, so searching by description silently dropped tenancy.
+        $query = $business
+            ? FilterHelper::filterWithHaveGhorfeOnline($query, 'belongsToMany', null, $business)
+            : FilterHelper::getDataByCheckGhorfeExistOrNot($query , 'belongsToMany' , null);
+
         if (auth()->user()->admin_representation) {
             $query->where('representation_id', auth()->user()->admin_representation->id);
         }
@@ -140,7 +122,7 @@ class Callcenter extends Model implements AuditableContract
             $query->where(function ($query){
 			$query->whereHas('factors', function ($query)  {
                 $query->whereHas('factorItems', function ($query)  {
-                    $query->where('factoritemable_id', auth()->user()->center->services->pluck('id')->toArray());
+                    $query->whereIn('factoritemable_id', auth()->user()->center->services->pluck('id')->toArray());
                     });
                 })->orWhereHas('callcenter',function ($query){
                     $query->whereHas('employee',function ($query){
@@ -149,164 +131,234 @@ class Callcenter extends Model implements AuditableContract
                 })->orWhere('agent_id', auth()->user()->id)->orWhere('user_id', auth()->user()->id);
             });
 		}
-        if (isset($status) && !is_null($status) && is_array($status)) {
-            $query->whereIn('status',$status);
+
+        return $query;
+    }
+
+    /**
+     * Pure filter criteria, independent of the HTTP request so the same filter can be
+     * stored and replayed (e.g. "send SMS to this filter result").
+     *
+     * Every optional criterion is skipped when empty / "all", every multi-value input is
+     * accepted as scalar or array, and every OR is grouped so it can never escape the
+     * other criteria.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array<string, mixed> $c
+     */
+    public function scopeApplyCriteria($query, array $c)
+    {
+        $text = fn ($key) => (isset($c[$key]) && is_scalar($c[$key]) && trim((string) $c[$key]) !== '') ? trim((string) $c[$key]) : null;
+
+        $name = $text('name');
+        $family = $text('family');
+        $description = $text('description');
+        $phone = $text('user_phone');
+        $requestType = $text('request_type');
+        $hasFactor = $text('has_factor');
+        $sex = $text('sex');
+        $representation = $text('representation');
+        $startDate = $text('startDate');
+        $endDate = $text('endDate');
+
+        $status = self::idList($c['status'] ?? null);
+        $type = self::idList($c['type'] ?? null);
+        $users = self::idList($c['users'] ?? null);
+        $agents = self::idList($c['agents'] ?? null);
+        $province = self::decodeIds($c['province'] ?? null);
+        $city = self::decodeIds($c['city'] ?? null);
+        $area = self::decodeIds($c['area'] ?? null);
+        $productCategory = self::idList($c['product_category'] ?? null);
+        $serviceCategory = self::idList($c['service_category'] ?? null);
+        $subServiceCategory = self::idList($c['sub_service_category'] ?? null);
+        $serviceItems = self::idList($c['service_items'] ?? null);
+        $service = self::idList($c['service'] ?? null);
+        $product = self::idList($c['product'] ?? null);
+        $productAttribute = self::idList($c['product_attribute'] ?? null);
+
+        if ($description !== null) {
+            $query->where(function ($q) use ($description) {
+                $q->where('description', 'LIKE', '%' . $description . '%')
+                    ->orWhereHas('register', function ($q) use ($description) {
+                        $q->whereHas('callcenters', function ($q) use ($description) {
+                            $q->whereHas('histories', function ($q) use ($description) {
+                                $q->where('description', 'LIKE', '%' . $description . '%');
+                            });
+                        });
+                    })
+                    ->orWhereHas('sms', function ($q) use ($description) {
+                        $q->where('body', 'LIKE', '%' . $description . '%');
+                    });
+            });
         }
 
-        if (isset($type) && !is_null($type)  && is_array($type) ) {
+        if ($status) {
+            $query->whereIn('status', $status);
+        }
+
+        if ($type) {
             $query->whereIn('type', $type);
         }
 
-        if (isset($request_type) && trim($request_type) != '' && $request_type != 'all') {
-            $query->where('request_type', $request_type);
+        if ($requestType !== null && $requestType !== 'all') {
+            $query->where('request_type', $requestType);
         }
 
-        if ($province!='all' && $province != null) {
-            $query->whereHas('register', function ($query) use ($province) {
-                $query->where('province_id', $province);
-            });
+        if ($province) {
+            $query->whereHas('register', fn ($q) => $q->whereIn('province_id', $province));
         }
-        if ($province!='all' && $city != null) {
-            $query->whereHas('register', function ($query) use ($city) {
-                $query->where('city_id', $city);
+        if ($city) {
+            $query->whereHas('register', fn ($q) => $q->whereIn('city_id', $city));
+        }
+        if ($area) {
+            $query->whereHas('register', fn ($q) => $q->whereIn('area_id', $area));
+        }
+
+        // The phone lives on the registered user (site / call / visit) or on the incoming SMS.
+        // Whichever request types are selected, match either: the `type` filter above already
+        // narrows the types, and ANDing "site" with "sms" conditions matched nothing.
+        if ($phone !== null) {
+            $query->where(function ($q) use ($phone) {
+                $q->whereHas('register', fn ($q) => $q->where('phone', $phone))
+                    ->orWhereHas('sms', fn ($q) => $q->where('sender_number', $phone));
             });
         }
 
-        if (isset($phone) && trim($phone) != '') {
-            if ( is_null($type) || count(array_intersect($type, [2,3,4])) > 0  ) {
-                $query->where(function ($query) use ($phone , $name){
-                    $query->whereHas('register', function ($query) use ($phone , $name) {
-                        $query->where('phone', $phone);
-                    })->orWhereHas('sms', function ($query) use ($phone) {
-                        $query->where('sender_number', $phone);
+        if ($name !== null) {
+            $query->whereHas('register', fn ($q) => $q->where('name', 'LIKE', '%' . $name . '%'));
+        }
+
+        if ($family !== null) {
+            $query->whereHas('register', fn ($q) => $q->where('family', 'LIKE', '%' . $family . '%'));
+        }
+
+        if ($hasFactor !== null) {
+            if ($hasFactor == 1) {
+                $query->whereHas('factors');
+            } elseif ($hasFactor == 0) {
+                $query->where('request_type', 'link')->doesntHave('factors');
+            }
+        }
+
+        if ($sex !== null && $sex !== 'all') {
+            $query->whereHas('register', fn ($q) => $q->where('sex', $sex));
+        }
+
+        if ($serviceItems) {
+            $query->whereHas('factors', function ($q) use ($serviceItems) {
+                $q->whereHas('factorItems', fn ($q) => $q->whereIn('service_item_id', $serviceItems));
+            });
+        }
+
+        // Each bound applies on its own: picking only "from" or only "to" used to be ignored.
+        if ($startDate !== null) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate !== null) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        if ($service) {
+            $serviceIds = ServiceItem::whereIn('id', $service)->pluck('service_id')->filter()->unique()->all();
+            $query->whereHas('factors', function ($q) use ($serviceIds) {
+                $q->whereHas('factorItems', function ($q) use ($serviceIds) {
+                    $q->where('factoritemable_type', '=', Service::class)->whereIn('factoritemable_id', $serviceIds);
+                });
+            });
+        }
+
+        // Grouped: an ungrouped orWhereHas used to escape every other criterion (and tenancy).
+        if ($productCategory) {
+            $query->where(function ($q) use ($productCategory) {
+                $q->whereHas('factors', function ($q) use ($productCategory) {
+                    $q->whereHas('factorItems', function ($q) use ($productCategory) {
+                        $q->where('factoritemable_type', '=', Category::class)->whereIn('factoritemable_id', $productCategory);
                     });
-                });
-            }
-            if (is_array($type) && in_array(0,$type)) {
-                $query->whereHas('register', function ($query) use ($phone,$name,$family) {
-                    $query->where('phone', $phone)->
-                    where('name', 'LIKE', '%'.$name.'%')->
-                    where('family', 'LIKE', '%'.$family.'%');
-                });
-            }
-            if (is_array($type) && in_array(1,$type)) {
-                $query->whereHas('sms', function ($query) use ($phone) {
-                    $query->where('sender_number', $phone);
-                });
-            }
-        }
-
-        if (isset($name) && trim($name) != '') {
-            $query->whereHas('register', function ($query) use ($name) {
-                $query->where('name', 'LIKE', '%'.$name.'%');
+                })->orWhereHas('categories', fn ($q) => $q->whereIn('callcenterable_id', $productCategory));
             });
         }
 
-        if (isset($has_factor) && trim($has_factor) != '') {
-                if ($has_factor == 1 ){
-                    $query->whereHas('factors');
-                }elseif ($has_factor == 0){
-                    $query->where('request_type', 'link')->doesntHave('factors');
-                }
+        // A product line is one factor item per category with a factor_item_products row per کالا.
+        if ($product) {
+            $query->whereHas('factors', function ($q) use ($product) {
+                $q->whereHas('factorItems', fn ($q) => $q->whereHas('products', fn ($q) => $q->whereIn('product_id', $product)));
+            });
         }
-
-        if (isset($family) && trim($family) != '') {
-            $query->whereHas('register', function ($query) use ($family) {
-                $query->where('family', 'LIKE', '%'.$family.'%');
+        if ($productAttribute) {
+            $query->whereHas('factors', function ($q) use ($productAttribute) {
+                $q->whereHas('factorItems', fn ($q) => $q->whereHas('products', fn ($q) => $q->whereIn('product_attribute_id', $productAttribute)));
             });
         }
 
-        if (isset($sex) && $sex != 'all') {
-            $query->whereHas('register', function ($query) use ($sex) {
-                $query->where('sex', $sex);
+        if ($subServiceCategory) {
+            $query->where(function ($q) use ($subServiceCategory) {
+                $q->whereHas('factors', function ($q) use ($subServiceCategory) {
+                    $q->whereHas('factorItems', function ($q) use ($subServiceCategory) {
+                        $q->where('factoritemable_type', '=', Service::class)->whereIn('factoritemable_id', $subServiceCategory);
+                    });
+                })->orWhereHas('services', fn ($q) => $q->whereIn('callcenterable_id', $subServiceCategory));
+            });
+        } elseif ($serviceCategory) {
+            $serviceIds = Service::whereIn('category_id', $serviceCategory)->pluck('id')->all();
+            $query->where(function ($q) use ($serviceIds) {
+                $q->whereHas('factors', function ($q) use ($serviceIds) {
+                    $q->whereHas('factorItems', function ($q) use ($serviceIds) {
+                        $q->where('factoritemable_type', '=', Service::class)->whereIn('factoritemable_id', $serviceIds);
+                    });
+                })->orWhereHas('services', fn ($q) => $q->whereIn('callcenterable_id', $serviceIds));
             });
         }
 
-        if (isset($serviceItems) && is_array($serviceItems) ) {
-            $query->whereHas('factors', function ($query) use ($serviceItems) {
-                $query->whereHas('factorItems', function ($query) use ($serviceItems) {
-                    $query->whereIn('service_item_id',$serviceItems);
-                });
-            });
-        }
-
-        if (isset($startDate) && trim($startDate) != '' && isset($endDate) && trim($endDate) != '') {
-            $query->whereDate('created_at', '>=' ,$startDate)->whereDate('created_at', '<=' ,$endDate);
-        }
-
-        if ($area != null) {
-            $query->whereHas('register', function ($query) use ($area) {
-                $query->where('area_id', $area);
-            });
-        }
-
-        if (isset($service) && trim($service) != 'all') {
-            $service = ServiceItem::find($service)->service->id;
-            $query->where(function ($query) use ($service){
-            $query->whereHas('factors', function ($query) use ($service) {
-                $query->whereHas('factor_items', function ($query) use ($service) {
-                    $query->where('service_id', '=', $service);
-                });
-            });
-            });
-        }
-
-        if (isset($productCategory) && trim($productCategory) != 'all') {
-            $query->whereHas('factors', function ($query) use ($productCategory) {
-                $query->whereHas('factorItems', function ($query) use ($productCategory) {
-                    $query->where('factoritemable_type', '=', Category::class)->where('factoritemable_id',$productCategory);
-                });
-            })->orWhereHas('categories',function ($query)use($productCategory){
-                $query->where('callcenterable_id',$productCategory);
-            });
-        }
-
-        if (isset($subServiceCategory) && $subServiceCategory != 'all'){
-            $query->where(function ($query) use ($subServiceCategory){
-            $query->whereHas('factors', function ($query) use ($subServiceCategory) {
-                $query->whereHas('factorItems', function ($query) use ($subServiceCategory) {
-                    $query->where('factoritemable_type', '=', Service::class)->where('factoritemable_id',$subServiceCategory);
-                });
-            })->orWhereHas('services',function ($query)use($subServiceCategory){
-                $query->where('callcenterable_id',$subServiceCategory);
-            });
-        });
-        }
-
-        if ( (is_null($subServiceCategory) || $subServiceCategory == 'all' ) && isset($serviceCategory) && $serviceCategory!='all' ){
-            $serviceCategory=Category::find($serviceCategory);
-            $query->where(function ($query) use ($serviceCategory){
-            $query->whereHas('factors', function ($query) use ($serviceCategory) {
-                $query->whereHas('factorItems', function ($query) use ($serviceCategory) {
-                    $query->where('factoritemable_type', '=', Service::class)->whereIn('factoritemable_id',$serviceCategory->services->pluck('id')->toArray());
-                });
-            })->orWhereHas('services',function ($query)use($serviceCategory){
-                $query->whereIn('callcenterable_id',$serviceCategory->services->pluck('id')->toArray());
-            });
-        });
-        }
-
-        if (isset($representation) && trim($representation) != 'all') {
-           if(trim($representation) == 'center')
-            {
-                $query->where('representation_id', null);
-            }
-            else
-            {
+        if ($representation !== null && $representation !== 'all') {
+            if ($representation === 'center') {
+                $query->whereNull('representation_id');
+            } else {
                 $query->where('representation_id', $representation);
             }
         }
 
-        if (isset($users) && count($users) > 0) {
-            $query->whereIn('user_id',$users);
+        if ($users) {
+            $query->whereIn('user_id', $users);
         }
 
-        if (isset($agents) && count($agents) > 0) {
-            $query->whereIn('agent_id',$agents);
+        if ($agents) {
+            $query->whereIn('agent_id', $agents);
         }
+
         return $query;
     }
 
+    /**
+     * Scalar-or-array input -> list of non-empty values, without the "all" placeholder
+     * the selects use for "no filter".
+     *
+     * @return array<int, mixed>
+     */
+    private static function idList(mixed $value): array
+    {
+        return array_values(array_filter(
+            \Illuminate\Support\Arr::wrap($value),
+            fn ($v) => $v !== null && $v !== '' && $v !== 'all' && is_scalar($v)
+        ));
+    }
+
+    /**
+     * Like idList(), but also accepts a JSON-encoded value ("5", "[5,6]") as the area/city
+     * pickers send it.
+     *
+     * @return array<int, mixed>
+     */
+    private static function decodeIds(mixed $value): array
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $value = $decoded;
+            }
+        }
+
+        return self::idList($value);
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

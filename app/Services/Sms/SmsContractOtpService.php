@@ -7,8 +7,9 @@ use App\Contracts\Auth\OtpNotifierInterface;
 use App\Exceptions\Auth\OtpNotificationException;
 use App\Exceptions\Sms\ContractOtpException;
 use App\Models\GhorfeOnlineList;
-use App\Models\SmsContractOtp;
+use App\Models\SmsLog;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -48,13 +49,19 @@ class SmsContractOtpService
             throw new ContractOtpException('missing_phone', 'شماره موبایل معتبری برای حساب کاربری شما ثبت نشده است. ابتدا شماره موبایل خود را در پروفایل تکمیل کنید.');
         }
 
-        $latest = SmsContractOtp::where('user_id', $signer->id)->latest('id')->first();
+        $latest = SmsLog::where('user_id', $signer->id)
+            ->where('type', 'contract_otp')
+            ->latest('id')
+            ->first();
         if ($latest && $latest->created_at->diffInSeconds(now(), true) < $this->resendCooldownSeconds) {
             $wait = (int) ceil($this->resendCooldownSeconds - $latest->created_at->diffInSeconds(now(), true));
             throw new ContractOtpException('cooldown', "برای دریافت کد جدید {$wait} ثانیه صبر کنید.", $wait);
         }
 
-        $sentLastHour = SmsContractOtp::where('user_id', $signer->id)->where('created_at', '>=', now()->subHour())->count();
+        $sentLastHour = SmsLog::where('user_id', $signer->id)
+            ->where('type', 'contract_otp')
+            ->where('created_at', '>=', now()->subHour())
+            ->count();
         if ($sentLastHour >= $this->maxSendsPerHour) {
             throw new ContractOtpException('hourly_limit', 'تعداد درخواست کد در یک ساعت گذشته به سقف مجاز رسیده است. بعدا دوباره تلاش کنید.', 3600);
         }
@@ -64,19 +71,25 @@ class SmsContractOtpService
 
         $otp = DB::transaction(function () use ($signer, $business, $phone, $code, $contractHash, $signatureName) {
             // Only the newest code is ever valid.
-            SmsContractOtp::where('user_id', $signer->id)
+            SmsLog::where('user_id', $signer->id)
                 ->where('ghorfe_online_list_id', $business->id)
-                ->whereNull('used_at')
-                ->update(['used_at' => now()]);
+                ->where('type', 'contract_otp')
+                ->where('status', 'pending')
+                ->update(['status' => 'superseded']);
 
-            return SmsContractOtp::create([
+            return SmsLog::create([
                 'ghorfe_online_list_id' => $business->id,
                 'user_id' => $signer->id,
-                'phone' => $phone,
-                'code_hash' => $this->codeHash($signer->id, $business->id, $contractHash, $signatureName, $code),
-                'contract_hash' => $contractHash,
-                'signature_name_hash' => $this->nameHash($signatureName),
-                'expires_at' => now()->addSeconds($this->ttlSeconds),
+                'type' => 'contract_otp',
+                'sender_number' => $phone,
+                'status' => 'pending',
+                'tracking_id' => $this->codeHash($signer->id, $business->id, $contractHash, $signatureName, $code),
+                'response' => json_encode([
+                    'contract_hash' => $contractHash,
+                    'signature_name_hash' => $this->nameHash($signatureName),
+                    'attempts' => 0,
+                    'expires_at' => now()->addSeconds($this->ttlSeconds)->toIso8601String(),
+                ]),
             ]);
         });
 
@@ -106,14 +119,15 @@ class SmsContractOtpService
      *
      * @throws ContractOtpException
      */
-    public function verify(User $signer, GhorfeOnlineList $business, string $contractText, string $rulesText, string $signatureName, string $code): SmsContractOtp
+    public function verify(User $signer, GhorfeOnlineList $business, string $contractText, string $rulesText, string $signatureName, string $code): object
     {
         // The wrong-attempt counter must be COMMITTED even though we then throw, so the outcome is
         // computed inside the transaction and the exception is raised after it has committed.
         $outcome = DB::transaction(function () use ($signer, $business, $contractText, $rulesText, $signatureName, $code) {
-            $otp = SmsContractOtp::where('user_id', $signer->id)
+            $otp = SmsLog::where('user_id', $signer->id)
                 ->where('ghorfe_online_list_id', $business->id)
-                ->whereNull('used_at')
+                ->where('type', 'contract_otp')
+                ->where('status', 'pending')
                 ->latest('id')
                 ->lockForUpdate() // two simultaneous submissions must not both consume one code
                 ->first();
@@ -121,26 +135,35 @@ class SmsContractOtpService
             if (!$otp) {
                 return ['error' => ['not_requested', 'ابتدا کد تایید را دریافت کنید.']];
             }
-            if ($otp->expires_at->isPast()) {
+
+            $meta = json_decode($otp->response, true) ?: [];
+            $expiresAt = isset($meta['expires_at']) ? Carbon::parse($meta['expires_at']) : null;
+            if ($expiresAt && $expiresAt->isPast()) {
                 return ['error' => ['expired', 'کد تایید منقضی شده است. کد جدید دریافت کنید.']];
             }
-            if ($otp->attempts >= $this->maxAttempts) {
-                $otp->update(['used_at' => now()]);
+
+            $attempts = (int) ($meta['attempts'] ?? 0);
+            if ($attempts >= $this->maxAttempts) {
+                $otp->update(['status' => 'locked']);
                 return ['error' => ['locked', 'تعداد تلاش‌های ناموفق به سقف رسید. کد جدید دریافت کنید.']];
             }
 
             $contractHash = $this->contractHash($contractText, $rulesText);
-            if (!hash_equals($otp->contract_hash, $contractHash)) {
+            if (!hash_equals($meta['contract_hash'] ?? '', $contractHash)) {
                 return ['error' => ['contract_changed', 'متن تعهدنامه یا ضوابط پس از ارسال کد تغییر کرده است. کد جدید دریافت کنید.']];
             }
-            if (!hash_equals($otp->signature_name_hash, $this->nameHash($signatureName))) {
+            if (!hash_equals($meta['signature_name_hash'] ?? '', $this->nameHash($signatureName))) {
                 return ['error' => ['name_changed', 'نام امضاکننده پس از ارسال کد تغییر کرده است. کد جدید دریافت کنید.']];
             }
 
             $expected = $this->codeHash($signer->id, $business->id, $contractHash, $signatureName, trim($code));
-            if (!hash_equals($otp->code_hash, $expected)) {
-                $attempts = $otp->attempts + 1;
-                $otp->update(['attempts' => $attempts, 'used_at' => $attempts >= $this->maxAttempts ? now() : null]);
+            if (!hash_equals($otp->tracking_id, $expected)) {
+                $attempts++;
+                $meta['attempts'] = $attempts;
+                $otp->update([
+                    'status' => $attempts >= $this->maxAttempts ? 'locked' : 'pending',
+                    'response' => json_encode($meta),
+                ]);
                 $left = $this->maxAttempts - $attempts;
 
                 return ['error' => $left > 0
@@ -148,9 +171,13 @@ class SmsContractOtpService
                     : ['locked', 'تعداد تلاش‌های ناموفق به سقف رسید. کد جدید دریافت کنید.']];
             }
 
-            $otp->update(['used_at' => now()]);
+            $otp->update(['status' => 'used']);
 
-            return ['otp' => $otp];
+            return ['otp' => (object) [
+                'phone' => $otp->sender_number,
+                'contract_hash' => $contractHash,
+                'verified_at' => now(),
+            ]];
         });
 
         if (isset($outcome['error'])) {

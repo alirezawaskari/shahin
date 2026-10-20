@@ -6,7 +6,7 @@ use App\Contracts\Ai\LlmClientInterface;
 use App\Exceptions\Sms\TierAccessDeniedException;
 use App\Models\AiSetting;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
+use App\Models\Setting;
 use App\Models\User;
 use DomainException;
 use InvalidArgumentException;

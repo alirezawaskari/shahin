@@ -228,14 +228,14 @@ class ProfileController extends Controller
     public function messages()
     {
         $user = auth()->user();
-        $allMessages = \App\Models\SmsMessage::where('user_id', $user->id)
+        $allMessages = \App\Models\Groupsms::where('user_id', $user->id)
             ->orWhere(function ($q) use ($user) {
                 if (!empty($user->phone)) {
                     $q->where('recipient_phone', $user->phone)
                       ->orWhere('sender_phone', $user->phone);
                 }
             })
-            ->with(['group', 'template', 'senderNumber'])
+            ->with(['template', 'senderNumber'])
             ->latest()
             ->get();
 

@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\SmsOtpCategory;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageTemplate;
+use App\Models\Groupsms;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
 use Illuminate\Support\Facades\DB;
@@ -78,11 +78,11 @@ class SmsOtpCategoryTest extends TestCase
             ->assertSessionHasErrors('otp_category');
         $this->post(route('admin.sms.settings.templates.store'), $this->templatePayload('otp', ['otp_category' => 'marketing']))
             ->assertSessionHasErrors('otp_category');
-        $this->assertSame(0, SmsMessageTemplate::where('service_type', 'otp')->count());
+        $this->assertSame(0, SmsTemplate::where('service_type', 'otp')->count());
 
         $this->post(route('admin.sms.settings.templates.store'), $this->templatePayload('otp', ['title' => 'کد مالی', 'otp_category' => 'finance']))
             ->assertSessionHasNoErrors();
-        $this->assertSame('finance', SmsMessageTemplate::where('title', 'کد مالی')->value('otp_category'));
+        $this->assertSame('finance', SmsTemplate::where('name', 'کد مالی')->value('otp_category'));
     }
 
     public function test_advertising_template_ignores_a_posted_otp_category(): void
@@ -91,15 +91,15 @@ class SmsOtpCategoryTest extends TestCase
 
         $this->post(route('admin.sms.settings.templates.store'), $this->templatePayload('advertising', ['title' => 'تبلیغ', 'otp_category' => 'legal']))
             ->assertSessionHasNoErrors();
-        $this->assertNull(SmsMessageTemplate::where('title', 'تبلیغ')->value('otp_category'));
+        $this->assertNull(SmsTemplate::where('name', 'تبلیغ')->value('otp_category'));
     }
 
     public function test_switching_a_template_away_from_otp_clears_its_category(): void
     {
         $this->actingAs($this->adminUser);
-        $tpl = SmsMessageTemplate::create([
+        $tpl = SmsTemplate::create([
             'title' => 'قدیمی', 'content' => 'x', 'service_type' => 'otp', 'otp_category' => 'sales', 'status' => 'active',
-            'ghorfe_online_list_id' => $this->businessA->id, 'created_by' => $this->adminUser->id,
+            'ghorfe_online_list_id' => $this->businessA->id, 'user_id' => $this->adminUser->id,
         ]);
 
         $this->put(route('admin.sms.settings.templates.update', $tpl), $this->templatePayload('advertising', ['title' => 'قدیمی', 'otp_category' => 'sales']))
@@ -124,7 +124,7 @@ class SmsOtpCategoryTest extends TestCase
 
         $this->post(route('admin.sms.settings.templates.store'), $this->templatePayload('otp', ['otp_category' => 'sales']))
             ->assertSessionHasErrors('service_type');
-        $this->assertSame(0, SmsMessageTemplate::count());
+        $this->assertSame(0, SmsTemplate::count());
     }
 
     // ---- single send ----
@@ -138,7 +138,7 @@ class SmsOtpCategoryTest extends TestCase
             ->postJson(route('admin.sms.single.send'), $this->otpPayload(['otp_category' => 'bogus']))
             ->assertStatus(422)->assertJsonValidationErrors(['otp_category']);
 
-        $this->assertSame(0, SmsMessage::count());
+        $this->assertSame(0, Groupsms::count());
     }
 
     public function test_otp_send_stores_the_category_on_the_message(): void
@@ -149,14 +149,14 @@ class SmsOtpCategoryTest extends TestCase
                 ->assertOk();
         }
 
-        $this->assertEqualsCanonicalizing(SmsOtpCategory::values(), SmsMessage::pluck('otp_category')->all());
+        $this->assertEqualsCanonicalizing(SmsOtpCategory::values(), Groupsms::pluck('otp_category')->all());
     }
 
     public function test_otp_send_with_a_template_uses_the_template_category_and_rejects_a_mismatch(): void
     {
-        $tpl = SmsMessageTemplate::create([
+        $tpl = SmsTemplate::create([
             'title' => 'کد حقوقی', 'content' => 'x', 'service_type' => 'otp', 'otp_category' => 'legal', 'status' => 'active',
-            'ghorfe_online_list_id' => $this->businessA->id, 'created_by' => $this->adminUser->id,
+            'ghorfe_online_list_id' => $this->businessA->id, 'user_id' => $this->adminUser->id,
         ]);
 
         $this->actingAs($this->adminUser)
@@ -166,7 +166,7 @@ class SmsOtpCategoryTest extends TestCase
         $this->actingAs($this->adminUser)
             ->postJson(route('admin.sms.single.send'), $this->otpPayload(['template_id' => $tpl->id]))
             ->assertOk();
-        $this->assertSame('legal', SmsMessage::firstOrFail()->otp_category);
+        $this->assertSame('legal', Groupsms::firstOrFail()->otp_category);
     }
 
     public function test_service_layer_enforces_the_category_even_without_the_http_request(): void
@@ -186,7 +186,7 @@ class SmsOtpCategoryTest extends TestCase
             ])
             ->assertOk();
 
-        $this->assertNull(SmsMessage::firstOrFail()->otp_category);
+        $this->assertNull(Groupsms::firstOrFail()->otp_category);
     }
 
     public function test_lower_tier_cannot_send_otp_at_all(): void
@@ -195,7 +195,7 @@ class SmsOtpCategoryTest extends TestCase
             ->postJson(route('admin.sms.single.send'), $this->otpPayload(['otp_category' => 'sales']))
             ->assertForbidden();
 
-        $this->assertSame(0, SmsMessage::count());
+        $this->assertSame(0, Groupsms::count());
     }
 
     public function test_single_send_form_shows_the_category_select_to_staff_only(): void
@@ -218,9 +218,9 @@ class SmsOtpCategoryTest extends TestCase
 
     // ---- logs ----
 
-    protected function logMessage(array $attrs): SmsMessage
+    protected function logMessage(array $attrs): Groupsms
     {
-        return SmsMessage::create(array_merge([
+        return Groupsms::create(array_merge([
             'ghorfe_online_list_id' => $this->businessA->id, 'direction' => 'outbound', 'service_type' => 'otp',
             'sender_number_id' => $this->otpSender->id, 'sender_phone' => '90001', 'recipient_phone' => '09123334455',
             'content' => 'محتوا', 'status' => 'sent', 'cost' => 1200, 'tracking_id' => 'T' . random_int(1, 999999),

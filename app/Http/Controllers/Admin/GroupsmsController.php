@@ -4,14 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
 use App\Models\Groupsms;
-use App\Models\OtpBalance;
-use App\Models\SenderNumber;
 use App\Models\Service;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageTemplate;
+use App\Models\Setting;
+use App\Models\SmsTemplate;
 use App\Services\Sms\SingleSmsSendService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -50,7 +47,7 @@ class GroupsmsController extends Controller
 
         $all_businesses = $isSuperAdmin ? GhorfeOnlineList::orderBy('title')->get() : collect();
 
-        $query = Groupsms::with(['group', 'services', 'phone_list', 'smsMessage'])->latest();
+        $query = Groupsms::with(['services', 'phone_list'])->latest();
 
         if (!$isSuperAdmin && $business) {
             $query->where('ghorfe_online_list_id', $business->id);
@@ -81,21 +78,29 @@ class GroupsmsController extends Controller
         // Advertising sender numbers assigned to this business with balances
         $advertisingNumbers = collect();
         if ($business) {
+            $balance = (float) ($business->advertising_balance ?? 0);
             $advertisingNumbers = $business->senderNumbers()
-                ->where('sender_numbers.type', 'advertising')
-                ->where('sender_numbers.status', 'active')
+                ->where('type', 'advertising')
+                ->where('status', 'active')
                 ->get()
-                ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
-                    $sender->current_balance = (float) $balance;
+                ->map(function ($sender) use ($balance) {
+                    $sender->current_balance = $balance;
                     return $sender;
                 });
         }
 
+        if ($advertisingNumbers->isEmpty()) {
+            $defaultSender = Setting::where('key', 'sms_sender_number')->first()
+                ?? Setting::where('key', 'iranSms_linenumber')->first();
+            if ($defaultSender) {
+                $defaultSender->current_balance = (float) ($business?->advertising_balance ?? 0);
+                $advertisingNumbers = collect([$defaultSender]);
+            }
+        }
+
         // Active SMS templates (scoped to business)
-        $templates = SmsMessageTemplate::active()
+        $templates = SmsTemplate::active()
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with('group')
             ->latest()
             ->get();
 
@@ -108,8 +113,8 @@ class GroupsmsController extends Controller
         // Recent campaigns
         $recentCampaigns = collect();
         if ($business) {
-            $recentCampaigns = \App\Models\SmsCampaign::where('ghorfe_online_list_id', $business->id)
-                ->with(['senderNumber', 'template'])
+            $recentCampaigns = Groupsms::campaigns()
+                ->where('ghorfe_online_list_id', $business->id)
                 ->latest()
                 ->take(10)
                 ->get();
@@ -117,13 +122,12 @@ class GroupsmsController extends Controller
 
         $userTier = app(\App\Services\Sms\SmsAccessTierService::class)->effectiveTier($user);
         $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
-        $groups = \App\Models\SmsMessageGroup::promotionalRoots()
-            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with(['subgroups' => function ($q) use ($business) {
-                $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
-            }])
-            ->orderBy('name')
-            ->get();
+        $groups = Setting::promotional()
+            ->when($business, fn($q) => $q->where('settingable_id', $business->id))
+            ->get()
+            ->filter(fn($s) => empty($s->parent_id))
+            ->sortBy('name')
+            ->values();
 
         return view('Admin.groupsms.create', compact(
             'services',
@@ -165,7 +169,7 @@ class GroupsmsController extends Controller
 
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $groupId = $request->input('sms_message_group_id') ?: null;
-        if (!\App\Models\SmsMessageGroup::isPromotionalId($groupId)) {
+        if (!Setting::isPromotionalId($groupId)) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'sms_message_group_id' => 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.',
             ]);
@@ -273,64 +277,6 @@ class GroupsmsController extends Controller
     public function single()
     {
         return redirect()->route('admin.sms.single.index');
-
-        $business = ghorfe() ?? GhorfeOnlineList::first();
-
-        // System-wide active OTP sender number (singleton)
-        $otpSender = SenderNumber::query()
-            ->where('type', 'otp')
-            ->where('status', 'active')
-            ->first();
-
-        // OTP Balance for current business
-        $otpBalance = 0.0;
-        if ($business) {
-            $otpBalance = (float) (OtpBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
-        }
-
-        // Advertising sender numbers assigned to this business with balances
-        $advertisingNumbers = collect();
-        if ($business) {
-            $advertisingNumbers = $business->senderNumbers()
-                ->where('sender_numbers.type', 'advertising')
-                ->where('sender_numbers.status', 'active')
-                ->get()
-                ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
-                    $sender->current_balance = (float) $balance;
-                    return $sender;
-                });
-        }
-
-        // Active SMS templates
-        $templates = SmsMessageTemplate::active()
-            ->with('group')
-            ->latest()
-            ->get();
-
-        // Recent sent messages for reference & forwarding
-        $recentMessages = collect();
-        if ($business) {
-            $recentMessages = SmsMessage::where('ghorfe_online_list_id', $business->id)
-                ->with(['senderNumber', 'user'])
-                ->latest()
-                ->take(15)
-                ->get();
-        }
-
-        $regulatoryRulesText = app(\App\Services\SmsSettings\SmsCmsContentService::class)->regulatoryRulesText();
-        $groups = \App\Models\SmsMessageGroup::whereNull('parent_id')->with('subgroups')->orderBy('name')->get();
-
-        return view('Admin.groupsms.single', compact(
-            'business',
-            'otpSender',
-            'otpBalance',
-            'advertisingNumbers',
-            'templates',
-            'recentMessages',
-            'regulatoryRulesText',
-            'groups'
-        ));
     }
 
 
@@ -449,7 +395,7 @@ class GroupsmsController extends Controller
 
         $business = ghorfe() ?? GhorfeOnlineList::first();
         $groupId = $request->input('sms_message_group_id') ?: null;
-        if (!\App\Models\SmsMessageGroup::isPromotionalId($groupId)) {
+        if (!Setting::isPromotionalId($groupId)) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'sms_message_group_id' => 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.',
             ]);

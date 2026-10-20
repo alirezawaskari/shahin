@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\SmsSettings;
 
 use App\Http\Controllers\Controller;
 use App\Models\GhorfeOnlineList;
-use App\Models\SmsAutoResponder;
+use App\Models\Setting;
 use App\Services\Sms\SmsReservedCodes;
 use App\Services\SmsSettings\SmsAutoResponderService;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -37,7 +37,7 @@ class SmsAutoResponderController extends Controller
     /**
      * A rule is reachable only inside its own business (superadmin may cross).
      */
-    protected function guardRule(SmsAutoResponder $rule, ?GhorfeOnlineList $business): void
+    protected function guardRule(Setting $rule, ?GhorfeOnlineList $business): void
     {
         if (auth()->user()?->isSuperAdmin()) {
             return;
@@ -131,7 +131,7 @@ class SmsAutoResponderController extends Controller
     {
         $entries = SmsReservedCodes::all();
         $reserved = SmsReservedCodes::find($keyword, $entries)
-            ?? ($matchType === SmsAutoResponder::MATCH_STARTS_WITH ? SmsReservedCodes::shadowedBy($keyword, $entries) : null);
+            ?? ($matchType === Setting::MATCH_STARTS_WITH ? SmsReservedCodes::shadowedBy($keyword, $entries) : null);
 
         return $reserved ? array_slice($conflicts, 0, 1) : [];
     }
@@ -139,7 +139,7 @@ class SmsAutoResponderController extends Controller
     protected function senderOptions(?GhorfeOnlineList $business)
     {
         return $business
-            ? $business->senderNumbers()->where('sender_numbers.type', 'advertising')->where('sender_numbers.status', 'active')->get(['sender_numbers.id', 'sender_numbers.number'])
+            ? $business->senderNumbers()->where('type', 'advertising')->where('status', 'active')->get()
             : collect();
     }
 
@@ -177,7 +177,7 @@ class SmsAutoResponderController extends Controller
             ->with('success', "قانون پاسخ‌گوی خودکار «{$rule->name}» با موفقیت افزوده شد.");
     }
 
-    public function edit(Request $request, SmsAutoResponder $rule): View
+    public function edit(Request $request, Setting $rule): View
     {
         $business = $this->resolveBusiness($request);
         $this->guardRule($rule, $business);
@@ -189,7 +189,7 @@ class SmsAutoResponderController extends Controller
         return view('Admin.sms.settings.auto_responders.edit', compact('rule', 'business', 'senders', 'reserved'));
     }
 
-    public function update(Request $request, SmsAutoResponder $rule): RedirectResponse
+    public function update(Request $request, Setting $rule): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
         $this->guardRule($rule, $business);
@@ -202,7 +202,7 @@ class SmsAutoResponderController extends Controller
             ->with('success', "قانون «{$rule->name}» با موفقیت ویرایش شد.");
     }
 
-    public function destroy(Request $request, SmsAutoResponder $rule): RedirectResponse
+    public function destroy(Request $request, Setting $rule): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
         $this->guardRule($rule, $business);
@@ -213,7 +213,7 @@ class SmsAutoResponderController extends Controller
             ->with('success', 'قانون پاسخ‌گوی خودکار حذف شد.');
     }
 
-    public function toggleStatus(Request $request, SmsAutoResponder $rule): RedirectResponse
+    public function toggleStatus(Request $request, Setting $rule): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
         $this->guardRule($rule, $business);

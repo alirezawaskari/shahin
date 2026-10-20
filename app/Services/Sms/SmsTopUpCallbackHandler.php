@@ -3,7 +3,7 @@
 namespace App\Services\Sms;
 
 use App\Lib\BankVerifier;
-use App\Models\SmsTopUpPayment;
+use App\Models\SmsLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -76,7 +76,7 @@ class SmsTopUpCallbackHandler
      * Verify a Zarinpal payment with the bank and settle it. Also used by
      * verify:unverifiedTransaction. Zarinpal amounts are toman (rials / 10).
      */
-    public function verifyZarinpal(SmsTopUpPayment $payment): SmsTopUpPayment
+    public function verifyZarinpal(SmsLog $payment): SmsLog
     {
         $tomans = (float) $payment->amount / 10;
         $result = $this->verifier->zarinpal((string) $payment->authority, $tomans);
@@ -88,16 +88,18 @@ class SmsTopUpCallbackHandler
         return $this->service->settleFailed($payment, 'verification_failed');
     }
 
-    public function find(string $authority): ?SmsTopUpPayment
+    public function find(string $authority): ?SmsLog
     {
         if ($authority === '') {
             return null;
         }
 
-        return SmsTopUpPayment::where('authority', $authority)->first();
+        return SmsLog::where('tracking_id', $authority)
+            ->orWhere('response', 'like', "%{$authority}%")
+            ->first();
     }
 
-    protected function result(SmsTopUpPayment $payment): RedirectResponse
+    protected function result(SmsLog $payment): RedirectResponse
     {
         return redirect()->route('admin.sms.financial.topup.result', $payment->id);
     }

@@ -2,9 +2,7 @@
 
 namespace App\Services\SmsSettings;
 
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsMessageTemplateHistory;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\DynamicParameterResolver;
 use App\Services\Sms\SmsSenderInfoResolver;
@@ -26,8 +24,7 @@ class SmsMessageTemplateService
      */
     public function list(array $filters = [], ?int $businessId = null, bool $includeOtp = true): LengthAwarePaginator
     {
-        $query = SmsMessageTemplate::with(['group.parent', 'creator', 'updater', 'business:id,title'])
-            ->withCount('histories')
+        $query = SmsTemplate::with(['creator', 'updater', 'business:id,title'])
             ->latest('id');
 
         if ($businessId) {
@@ -47,13 +44,13 @@ class SmsMessageTemplateService
         }
 
         if (!empty($filters['group_id']) && $filters['group_id'] !== 'all') {
-            $query->where('sms_message_group_id', $filters['group_id']);
+            $query->where('group', $filters['group_id']);
         }
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                     ->orWhere('content', 'like', "%{$search}%");
             });
         }
@@ -64,61 +61,44 @@ class SmsMessageTemplateService
     /**
      * Create a template.
      */
-    public function create(array $data, ?int $userId = null, ?int $businessId = null): SmsMessageTemplate
+    public function create(array $data, ?int $userId = null, ?int $businessId = null): SmsTemplate
     {
         $userId = $userId ?: Auth::id();
 
-        $template = SmsMessageTemplate::create([
-            'title' => $data['title'],
+        $template = SmsTemplate::create([
+            'name' => $data['title'] ?? $data['name'],
             'content' => $data['content'],
-            'sms_message_group_id' => $data['sms_message_group_id'] ?? null,
+            'group' => $data['sms_message_group_id'] ?? $data['group'] ?? null,
             'ghorfe_online_list_id' => $businessId,
             'service_type' => $data['service_type'] ?? 'normal',
             'otp_category' => ($data['service_type'] ?? 'normal') === 'otp' ? ($data['otp_category'] ?? null) : null,
             'status' => $data['status'] ?? 'active',
-            'created_by' => $userId,
-            'updated_by' => $userId,
+            'user_id' => $userId,
         ]);
-
-        // Observer automatically creates initial history if Auth::id() is set.
-        // Fallback for non-auth contexts:
-        if (!Auth::id() && $userId) {
-            SmsMessageTemplateHistory::firstOrCreate(
-                [
-                    'sms_message_template_id' => $template->id,
-                    'content' => $template->content,
-                ],
-                [
-                    'changed_by' => $userId,
-                ]
-            );
-        }
 
         return $template;
     }
 
     /**
      * Update an existing template.
-     * Guaranteed to trigger Eloquent model save so the SmsMessageTemplateObserver fires.
      */
-    public function update(SmsMessageTemplate $template, array $data, ?int $userId = null): SmsMessageTemplate
+    public function update(SmsTemplate $template, array $data, ?int $userId = null): SmsTemplate
     {
-        $userId = $userId ?: Auth::id() ?: $template->created_by;
+        $userId = $userId ?: Auth::id() ?: $template->user_id;
 
-        $template->title = $data['title'] ?? $template->title;
+        $template->name = $data['title'] ?? $data['name'] ?? $template->name;
         $template->content = $data['content'] ?? $template->content;
-        $template->sms_message_group_id = array_key_exists('sms_message_group_id', $data)
-            ? $data['sms_message_group_id']
-            : $template->sms_message_group_id;
+        if (array_key_exists('sms_message_group_id', $data) || array_key_exists('group', $data)) {
+            $template->group = $data['sms_message_group_id'] ?? $data['group'] ?? null;
+        }
         $template->service_type = $data['service_type'] ?? $template->service_type;
-        // The OTP category only exists on OTP templates; switching away from OTP clears it.
         $template->otp_category = $template->service_type === 'otp'
             ? ($data['otp_category'] ?? $template->otp_category)
             : null;
-        $template->status = $data['status'] ?? $template->status;
-        $template->updated_by = $userId;
-
-        // Model save fires observer if content was changed!
+        if (isset($data['status'])) {
+            $template->status = $data['status'];
+        }
+        $template->user_id = $userId;
         $template->save();
 
         return $template;
@@ -127,7 +107,7 @@ class SmsMessageTemplateService
     /**
      * Delete a template.
      */
-    public function delete(SmsMessageTemplate $template): bool
+    public function delete(SmsTemplate $template): bool
     {
         return (bool) $template->delete();
     }
@@ -135,10 +115,10 @@ class SmsMessageTemplateService
     /**
      * Toggle active/inactive status.
      */
-    public function toggleStatus(SmsMessageTemplate $template): SmsMessageTemplate
+    public function toggleStatus(SmsTemplate $template): SmsTemplate
     {
         $template->status = ($template->status === 'active') ? 'inactive' : 'active';
-        $template->updated_by = Auth::id() ?: $template->updated_by;
+        $template->user_id = Auth::id() ?: $template->user_id;
         $template->save();
 
         return $template;
@@ -193,12 +173,9 @@ class SmsMessageTemplateService
     /**
      * Retrieve history of revisions and structured diff for a template.
      */
-    public function getHistoryWithDiff(SmsMessageTemplate $template, ?int $historyId = null): array
+    public function getHistoryWithDiff(SmsTemplate $template, ?int $historyId = null): array
     {
-        $histories = $template->histories()
-            ->with('changer')
-            ->orderBy('id', 'desc')
-            ->get();
+        $histories = method_exists($template, 'histories') ? $template->histories()->with('changer')->orderBy('id', 'desc')->get() : collect();
 
         $selectedHistory = null;
         $previousHistory = null;

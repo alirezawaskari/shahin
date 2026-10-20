@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\SmsAuditLog;
+use App\Models\SmsLog;
 use App\Models\User;
 use App\Services\Sms\SmsAuditService;
 use Illuminate\Database\Schema\Blueprint;
@@ -29,20 +29,19 @@ class SmsAuditServiceTest extends TestCase
         DB::setDefaultConnection('sqlite');
         DB::reconnect('sqlite');
 
-        // Same shape as database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php
-        Schema::create('sms_audit_logs', function (Blueprint $t) {
+        Schema::create('sms_logs', function (Blueprint $t) {
             $t->id();
             $t->unsignedBigInteger('sms_message_id')->nullable();
             $t->unsignedBigInteger('sms_campaign_id')->nullable();
             $t->unsignedBigInteger('ghorfe_online_list_id')->nullable();
-            $t->unsignedBigInteger('sender_id')->nullable();
-            $t->string('sender_role', 64)->nullable();
-            $t->string('access_tier', 32)->nullable();
-            $t->unsignedInteger('request_id')->nullable();
-            $t->unsignedInteger('callcenter_id')->nullable();
-            $t->string('channel', 32);
-            $t->string('service_type', 32)->nullable();
-            $t->timestamp('sent_at')->nullable();
+            $t->unsignedBigInteger('user_id')->nullable();
+            $t->unsignedBigInteger('created_by')->nullable();
+            $t->string('type', 50)->nullable();
+            $t->string('sender_number', 50)->nullable();
+            $t->string('status', 50)->nullable();
+            $t->string('tracking_id', 100)->nullable();
+            $t->text('message')->nullable();
+            $t->text('response')->nullable();
             $t->timestamps();
         });
 
@@ -90,8 +89,8 @@ class SmsAuditServiceTest extends TestCase
             'service_type' => 'advertising',
         ]);
 
-        $this->assertInstanceOf(SmsAuditLog::class, $log);
-        $this->assertSame(1, SmsAuditLog::count());
+        $this->assertInstanceOf(SmsLog::class, $log);
+        $this->assertSame(1, SmsLog::count());
         $this->assertSame(7, (int) $log->sender_id);
         $this->assertSame('admin', $log->sender_role);
         $this->assertSame('bulk', $log->channel);
@@ -103,7 +102,7 @@ class SmsAuditServiceTest extends TestCase
 
     public function test_record_does_not_throw_when_the_write_fails(): void
     {
-        Schema::drop('sms_audit_logs');
+        Schema::drop('sms_logs');
 
         $this->assertNull($this->audit->record(null, SmsAuditService::CHANNEL_OTP, ['business_id' => 1]));
     }

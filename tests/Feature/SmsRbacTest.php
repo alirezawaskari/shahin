@@ -3,8 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\GhorfeOnlineList;
+use App\Models\Groupsms;
 use App\Models\Permission;
-use App\Models\SenderNumber;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\Sms\BulkSmsSendService;
 use App\Services\Sms\SmsAccessTierService;
@@ -22,7 +23,7 @@ class SmsRbacTest extends TestCase
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
-    protected SenderNumber $advSender;
+    protected Setting $advSender;
     protected User $superAdmin;
     protected User $silverUser;
     protected User $goldUser;
@@ -195,42 +196,76 @@ class SmsRbacTest extends TestCase
             $table->timestamps();
         });
 
-        // Run SMS Foundation migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-        ];
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->text('content')->nullable();
+            $table->text('body')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
+            $table->timestamps();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number')->nullable();
+            $table->string('type')->nullable();
+            $table->string('sms_panel')->nullable();
+            $table->string('status')->default('active');
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         // Test business & advertising number
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
 
-        $this->advSender = SenderNumber::create([
+        $this->advSender = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->business->id,
             'number' => '50009999',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
-        $this->business->senderNumbers()->attach($this->advSender->id, ['assigned_at' => now()]);
 
         // Users with different tiers
         $this->superAdmin = User::create([
@@ -425,7 +460,7 @@ class SmsRbacTest extends TestCase
 
     public function test_otp_single_send_and_preview_are_denied_for_lower_tiers(): void
     {
-        SenderNumber::create(['number' => '90001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
+        Setting::create(['key' => 'sms_sender_number', 'number' => '90001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
         $this->seedOtpBalance($this->business->id, 20000.00);
 
         $this->actingAs($this->diamondUser);
@@ -441,12 +476,12 @@ class SmsRbacTest extends TestCase
             'service_type' => 'otp',
         ])->assertForbidden();
 
-        $this->assertDatabaseCount('sms_messages', 0);
+        $this->assertDatabaseCount('groupsms', 0);
     }
 
     public function test_otp_sender_resolution_refuses_lower_tier_actor(): void
     {
-        SenderNumber::create(['number' => '90001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
+        Setting::create(['key' => 'sms_sender_number', 'number' => '90001111', 'type' => 'otp', 'sms_panel' => 'IranSms', 'status' => 'active']);
         $service = app(\App\Services\Sms\SingleSmsSendService::class);
 
         $this->expectException(\DomainException::class);
@@ -471,9 +506,9 @@ class SmsRbacTest extends TestCase
         }
     }
 
-    protected function seedLogMessage(string $serviceType): \App\Models\SmsMessage
+    protected function seedLogMessage(string $serviceType): Groupsms
     {
-        return \App\Models\SmsMessage::create([
+        return Groupsms::create([
             'ghorfe_online_list_id' => $this->business->id,
             'direction' => 'outbound',
             'service_type' => $serviceType,

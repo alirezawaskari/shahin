@@ -3,7 +3,8 @@
 namespace App\Services\Sms;
 
 use App\Models\GhorfeOnlineList;
-use App\Models\SmsMessage;
+use App\Models\Groupsms;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Hekmatinasser\Verta\Verta;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -22,8 +23,8 @@ class SmsLogService
      */
     public function buildQuery(array $filters = [], ?GhorfeOnlineList $business = null, bool $isSuperAdmin = false, bool $canUseOtp = true): Builder
     {
-        $query = SmsMessage::query()
-            ->with(['business', 'senderNumber', 'template', 'group', 'campaign', 'user', 'creator', 'request']);
+        $query = Groupsms::query()
+            ->with(['business', 'senderNumber', 'template', 'campaign', 'user', 'creator']);
 
         // 1. Business scoping
         if (!$isSuperAdmin) {
@@ -74,28 +75,35 @@ class SmsLogService
             $query->where('sender_number_id', (int) $filters['sender_number_id']);
         }
         if (!empty($filters['sender_phone'])) {
-            $query->where('sender_phone', 'like', '%' . trim($filters['sender_phone']) . '%');
+            $query->where(function ($sq) use ($filters) {
+                $val = trim($filters['sender_phone']);
+                $sq->where('sender_number', 'like', "%{$val}%")
+                   ->orWhere('sender_phone', 'like', "%{$val}%");
+            });
         }
 
         // 7. Recipient Phone
         if (!empty($filters['recipient_phone'])) {
-            $query->where('recipient_phone', 'like', '%' . trim($filters['recipient_phone']) . '%');
+            $query->where(function ($rq) use ($filters) {
+                $val = trim($filters['recipient_phone']);
+                $rq->where('phones', 'like', "%{$val}%")
+                   ->orWhere('recipient_phone', 'like', "%{$val}%");
+            });
         }
 
         // 8. Message Group
         if (!empty($filters['sms_message_group_id']) && $filters['sms_message_group_id'] !== 'all') {
-            $query->where('sms_message_group_id', (int) $filters['sms_message_group_id']);
+            $query->where('group', $filters['sms_message_group_id']);
         } elseif (!empty($filters['group']) && $filters['group'] !== 'all') {
-            if (is_numeric($filters['group'])) {
-                $query->where('sms_message_group_id', (int) $filters['group']);
-            } else {
-                $query->whereHas('group', fn ($gq) => $gq->where('name', 'like', '%' . $filters['group'] . '%'));
-            }
+            $query->where('group', $filters['group']);
         }
 
-        // 9. Request ID
+        // 9. Request ID / Callcenter ID
         if (!empty($filters['request_id'])) {
-            $query->where('request_id', (int) $filters['request_id']);
+            $query->where(function ($rq) use ($filters) {
+                $id = (int) $filters['request_id'];
+                $rq->where('callcenter_id', $id)->orWhere('request_id', $id);
+            });
         }
 
         // 10. User ID
@@ -118,10 +126,10 @@ class SmsLogService
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);
             $query->where(function (Builder $sq) use ($search) {
-                $sq->where('recipient_phone', 'like', "%{$search}%")
-                    ->orWhere('sender_phone', 'like', "%{$search}%")
+                $sq->where('phones', 'like', "%{$search}%")
+                    ->orWhere('sender_number', 'like', "%{$search}%")
                     ->orWhere('tracking_id', 'like', "%{$search}%")
-                    ->orWhere('content', 'like', "%{$search}%");
+                    ->orWhere('message', 'like', "%{$search}%");
             });
         }
 

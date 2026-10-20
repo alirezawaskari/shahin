@@ -2,7 +2,7 @@
 
 namespace App\Services\Sms;
 
-use App\Models\SmsMessage;
+use App\Models\Groupsms;
 use App\Models\User;
 
 /**
@@ -42,13 +42,13 @@ class SmsConfidentialityGuard
      * from JSON/export output rather than ending up as a client-visible
      * placeholder that still round-trips through the network as text.
      */
-    public static function visibleContent(SmsMessage $message, ?User $viewer): ?string
+    public static function visibleContent(object $message, ?User $viewer): ?string
     {
-        if ($message->isConfidential() && !self::canViewConfidential($viewer)) {
+        if (method_exists($message, 'isConfidential') && $message->isConfidential() && !self::canViewConfidential($viewer)) {
             return null;
         }
 
-        return $message->content;
+        return $message->content ?? $message->message ?? null;
     }
 
     /**
@@ -56,22 +56,37 @@ class SmsConfidentialityGuard
      * as a server-rendered Blade list, that read the Eloquent attribute
      * directly rather than going through a resource/array transform).
      */
-    public static function redact(SmsMessage $message, ?User $viewer): SmsMessage
+    public static function redact(object $message, ?User $viewer): object
     {
-        if ($message->isConfidential() && !self::canViewConfidential($viewer)) {
-            $message->setAttribute('content', null);
-            $message->setAttribute('content_redacted', true);
+        $isConfidential = method_exists($message, 'isConfidential')
+            ? $message->isConfidential()
+            : (in_array($message->classification ?? null, ['confidential', 'classified'], true));
+
+        if ($isConfidential && !self::canViewConfidential($viewer)) {
+            if ($message instanceof \Illuminate\Database\Eloquent\Model) {
+                $message->setAttribute('content', null);
+                $message->setAttribute('message', null);
+                $message->setAttribute('content_redacted', true);
+            } else {
+                $message->content = null;
+                $message->message = null;
+                $message->content_redacted = true;
+            }
         } else {
-            $message->setAttribute('content_redacted', false);
+            if ($message instanceof \Illuminate\Database\Eloquent\Model) {
+                $message->setAttribute('content_redacted', false);
+            } else {
+                $message->content_redacted = false;
+            }
         }
 
         return $message;
     }
 
     /**
-     * Redact every item of a collection/paginator of SmsMessage models.
+     * Redact every item of a collection/paginator of SmsMessage/Groupsms models.
      *
-     * @param iterable<SmsMessage> $messages
+     * @param iterable<Groupsms|object> $messages
      */
     public static function redactMany(iterable $messages, ?User $viewer): iterable
     {

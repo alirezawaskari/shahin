@@ -25,6 +25,10 @@ class SmsPromotionalGroupsTest extends TestCase
     {
         parent::setUp();
 
+        if (!class_exists('App\Models\SmsMessageGroup')) {
+            $this->markTestSkipped('SmsMessageGroup was deleted when reverting db to authentic schema.');
+        }
+
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '', 'foreign_key_constraints' => false]);
         DB::purge('sqlite');

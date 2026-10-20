@@ -3,16 +3,12 @@
 namespace Tests\Feature;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
-use App\Models\AdvertisingBalance;
-use App\Models\BusinessSenderNumber;
 use App\Models\GhorfeOnlineList;
+use App\Models\Groupsms;
 use App\Models\History;
-use App\Models\OtpBalance;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsTransaction;
+use App\Models\Setting;
+use App\Models\SmsLog;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
 use Carbon\Carbon;
@@ -27,8 +23,8 @@ class SmsSingleSendTest extends TestCase
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
-    protected SenderNumber $otpSender;
-    protected SenderNumber $advSender;
+    protected Setting $otpSender;
+    protected Setting $advSender;
     protected SingleSmsSendService $service;
 
     protected function setUp(): void
@@ -137,50 +133,81 @@ class SmsSingleSendTest extends TestCase
             $table->softDeletes();
         });
 
-        // SMS migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-        ];
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
+            $table->timestamps();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number', 50)->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('sms_panel', 50)->nullable();
+            $table->string('status', 50)->default('active');
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه تستی']);
 
-        $this->otpSender = SenderNumber::create([
+        $this->otpSender = Setting::create([
+            'key' => 'sms_sender_number',
             'number' => '90001111',
             'type' => 'otp',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
 
-        $this->advSender = SenderNumber::create([
+        $this->advSender = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->business->id,
             'number' => '50002222',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
-
-        // Attach advertising number to business
-        $this->business->senderNumbers()->attach($this->advSender->id, ['assigned_at' => now()]);
 
         $this->service = app(SingleSmsSendService::class);
     }
@@ -396,7 +423,7 @@ class SmsSingleSendTest extends TestCase
         $this->assertNotEquals($this->advSender->number, $message->sender_phone);
 
         // Transaction must also be logged for OTP credit type and OTP sender number
-        $transaction = SmsTransaction::where('sms_message_id', $message->id)->first();
+        $transaction = SmsLog::where('sms_message_id', $message->id)->first();
         $this->assertNotNull($transaction);
         $this->assertEquals('otp', $transaction->credit_type);
         $this->assertEquals($this->otpSender->id, $transaction->sender_number_id);
@@ -433,10 +460,10 @@ class SmsSingleSendTest extends TestCase
         $this->assertStringContainsString('لغو 11', $message->content);
 
         // Check balance decremented
-        $this->assertEquals(8800.00, (float) $advBalance->fresh()->balance);
+        $this->assertEquals(8800.00, (float) $this->business->fresh()->advertising_balance);
 
         // Check transaction row
-        $transaction = SmsTransaction::where('sms_message_id', $message->id)->first();
+        $transaction = SmsLog::where('sms_message_id', $message->id)->first();
         $this->assertNotNull($transaction);
         $this->assertEquals(10000.00, (float) $transaction->balance_before);
         $this->assertEquals(8800.00, (float) $transaction->balance_after);
@@ -498,14 +525,18 @@ class SmsSingleSendTest extends TestCase
     {
         $advBalance = $this->seedAdvertisingBalance($this->business->id, 20000.00);
 
-        $original = SmsMessage::create([
+        $original = Groupsms::create([
             'ghorfe_online_list_id' => $this->business->id,
             'direction' => 'outbound',
             'service_type' => 'advertising',
+            'type' => 'single',
             'sender_number_id' => $this->advSender->id,
             'recipient_phone' => '09120000001',
+            'phones' => '09120000001',
             'sender_phone' => $this->advSender->number,
+            'sender_number' => $this->advSender->number,
             'content' => "پیامک مهم برای پیگیری سفارش\nلغو 11",
+            'message' => "پیامک مهم برای پیگیری سفارش\nلغو 11",
             'character_count' => 27,
             'page_count' => 1,
             'status' => 'sent',
@@ -536,7 +567,7 @@ class SmsSingleSendTest extends TestCase
         $this->assertEquals($original->content, $forwarded->content);
 
         // Check history row logged
-        $history = History::where('historiable_type', SmsMessage::class)
+        $history = History::where('historiable_type', Groupsms::class)
             ->where('historiable_id', $forwarded->id)
             ->first();
 
@@ -604,7 +635,7 @@ class SmsSingleSendTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(['status' => 'success']);
 
-        $created = SmsMessage::where('recipient_phone', '09123334466')->first();
+        $created = Groupsms::where('recipient_phone', '09123334466')->first();
         $this->assertNotNull($created);
         $this->assertEquals($this->otpSender->id, $created->sender_number_id);
         $this->assertEquals($this->otpSender->number, $created->sender_phone);
@@ -706,18 +737,17 @@ class SmsSingleSendTest extends TestCase
         return $user;
     }
 
-    private function makeTemplate(GhorfeOnlineList $business, string $serviceType, string $title = 'قالب'): SmsMessageTemplate
+    private function makeTemplate(GhorfeOnlineList $business, string $serviceType, string $title = 'قالب'): SmsTemplate
     {
         $creator = User::firstOrCreate(['phone' => '09120009999'], ['name' => 'سازنده قالب', 'level' => 'admin', 'active' => true]);
 
-        return SmsMessageTemplate::create([
-            'title' => $title,
+        return SmsTemplate::create([
+            'name' => $title,
             'content' => 'متن قالب ' . $title,
             'service_type' => $serviceType,
-            'status' => 'active',
+            'status' => 1,
             'ghorfe_online_list_id' => $business->id,
-            'created_by' => $creator->id,
-            'updated_by' => $creator->id,
+            'user_id' => $creator->id,
         ]);
     }
 
@@ -743,7 +773,7 @@ class SmsSingleSendTest extends TestCase
                 ->assertJsonValidationErrors(['message']);
         }
 
-        $this->assertSame(0, SmsMessage::count());
+        $this->assertSame(0, Groupsms::count());
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('lowerTiers')]
@@ -758,7 +788,7 @@ class SmsSingleSendTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['template_id']);
 
-        $this->assertSame(0, SmsMessage::count());
+        $this->assertSame(0, Groupsms::count());
     }
 
     public static function lowerTiers(): array
@@ -778,7 +808,7 @@ class SmsSingleSendTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['template_id']);
 
-        $this->assertSame(0, SmsMessage::count());
+        $this->assertSame(0, Groupsms::count());
     }
 
     public function test_titanium_may_use_an_otp_template_id(): void
@@ -833,7 +863,7 @@ class SmsSingleSendTest extends TestCase
             ->assertOk()
             ->assertJsonPath('status', 'success');
 
-        $this->assertSame(1, SmsMessage::count());
-        $this->assertSame(1, SmsMessage::where('recipient_phone', '09123334455')->count());
+        $this->assertSame(1, Groupsms::count());
+        $this->assertSame(1, Groupsms::where('recipient_phone', '09123334455')->count());
     }
 }

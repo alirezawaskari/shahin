@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\GhorfeOnlineList;
+use App\Models\Groupsms;
 use App\Models\Permission;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageTemplate;
+use App\Models\Setting;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\SmsAccessTierService;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,7 +22,7 @@ class SmsTemplateAccessTest extends TestCase
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
-    protected SenderNumber $advSender;
+    protected Setting $advSender;
     protected User $superAdmin;
     protected User $silverUser;
     protected User $goldUser;
@@ -194,42 +194,76 @@ class SmsTemplateAccessTest extends TestCase
             $table->timestamps();
         });
 
-        // Run SMS Foundation migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-        ];
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->text('content')->nullable();
+            $table->text('body')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
+            $table->timestamps();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number')->nullable();
+            $table->string('type')->nullable();
+            $table->string('sms_panel')->nullable();
+            $table->string('status')->default('active');
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         // Test business & advertising number
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
 
-        $this->advSender = SenderNumber::create([
+        $this->advSender = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->business->id,
             'number' => '50009999',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
-        $this->business->senderNumbers()->attach($this->advSender->id, ['assigned_at' => now()]);
 
         // Users with different tiers
         $this->superAdmin = User::create([
@@ -296,9 +330,9 @@ class SmsTemplateAccessTest extends TestCase
         ], $extra);
     }
 
-    protected function makeTemplate(string $serviceType, string $title = 'الگو'): SmsMessageTemplate
+    protected function makeTemplate(string $serviceType, string $title = 'الگو'): SmsTemplate
     {
-        return SmsMessageTemplate::create([
+        return SmsTemplate::create([
             'title' => $title,
             'content' => 'متن ' . $title,
             'service_type' => $serviceType,
@@ -315,12 +349,12 @@ class SmsTemplateAccessTest extends TestCase
             $this->actingAs($user);
 
             $this->post(route('admin.sms.settings.templates.store'), $this->payload('otp'))->assertSessionHasErrors('service_type');
-            $this->assertSame(0, SmsMessageTemplate::where('service_type', 'otp')->count());
+            $this->assertSame(0, SmsTemplate::where('service_type', 'otp')->count());
         }
 
         $this->actingAs($this->silverUser);
         $this->post(route('admin.sms.settings.templates.store'), $this->payload('advertising'))->assertSessionHasNoErrors();
-        $this->assertSame(1, SmsMessageTemplate::where('service_type', 'advertising')->count());
+        $this->assertSame(1, SmsTemplate::where('service_type', 'advertising')->count());
     }
 
     public function test_staff_can_create_edit_and_delete_otp_template(): void
@@ -330,7 +364,7 @@ class SmsTemplateAccessTest extends TestCase
 
             $this->post(route('admin.sms.settings.templates.store'), $this->payload('otp', ['title' => 'کد ' . $staff->id, 'otp_category' => 'sales']))
                 ->assertSessionHasNoErrors();
-            $template = SmsMessageTemplate::where('title', 'کد ' . $staff->id)->firstOrFail();
+            $template = SmsTemplate::where('title', 'کد ' . $staff->id)->firstOrFail();
             $this->assertSame('otp', $template->service_type);
 
             $this->put(route('admin.sms.settings.templates.update', $template), $this->payload('otp', ['title' => 'ویرایش ' . $staff->id, 'otp_category' => 'finance']))
@@ -338,7 +372,7 @@ class SmsTemplateAccessTest extends TestCase
             $this->assertSame('ویرایش ' . $staff->id, $template->fresh()->title);
 
             $this->delete(route('admin.sms.settings.templates.destroy', $template), ['business_id' => $this->business->id]);
-            $this->assertNull(SmsMessageTemplate::find($template->id));
+            $this->assertNull(SmsTemplate::find($template->id));
         }
     }
 
@@ -380,7 +414,7 @@ class SmsTemplateAccessTest extends TestCase
         $this->assertSame('تبلیغ ویرایش', $adv->fresh()->title);
 
         $this->delete(route('admin.sms.settings.templates.destroy', $adv), ['business_id' => $this->business->id]);
-        $this->assertNull(SmsMessageTemplate::find($adv->id));
+        $this->assertNull(SmsTemplate::find($adv->id));
     }
 
     public function test_otp_templates_are_hidden_from_non_staff_lists_and_visible_to_staff(): void

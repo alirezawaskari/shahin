@@ -3,14 +3,11 @@
 namespace Tests\Feature;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsCampaign;
-use App\Models\SmsCampaignRecipient;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsTransaction;
+use App\Models\Groupsms;
+use App\Models\Setting;
+use App\Models\SmsLog;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\BulkSmsSendService;
 use DomainException;
@@ -30,7 +27,7 @@ class SmsBulkQueueTest extends TestCase
 
     protected GhorfeOnlineList $business;
     protected GhorfeOnlineList $otherBusiness;
-    protected SenderNumber $advSender;
+    protected Setting $advSender;
     protected User $titaniumUser;
     protected BulkSmsSendService $bulkSendService;
 
@@ -134,64 +131,76 @@ class SmsBulkQueueTest extends TestCase
             $table->timestamps();
         });
 
-        // sms_campaigns is created inline: its status column is an ENUM in the real migration and the
-        // 'pending_queue' value is only added to it on MySQL (2026_10_19_000002), so SQLite needs a plain string.
-        Schema::create('sms_campaigns', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('ghorfe_online_list_id')->constrained('ghorfe_online_lists')->cascadeOnDelete();
-            $table->string('type');
-            $table->unsignedBigInteger('sms_message_template_id')->nullable();
-            $table->unsignedBigInteger('sender_number_id')->nullable();
-            $table->json('filters')->nullable();
-            $table->string('access_tier_required')->nullable();
-            $table->integer('total_recipients')->default(0);
-            $table->integer('sent_count')->default(0);
-            $table->integer('success_count')->default(0);
-            $table->integer('failed_count')->default(0);
-            $table->integer('pending_count')->default(0);
-            $table->string('status')->default('draft');
-            $table->timestamp('scheduled_at')->nullable();
-            $table->decimal('cost_estimate', 12, 2)->nullable();
-            $table->text('ai_goal_prompt')->nullable();
-            $table->unsignedInteger('created_by');
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->text('content')->nullable();
+            $table->text('body')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
             $table->timestamps();
         });
 
-        // Run SMS Foundation migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-        ];
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number')->nullable();
+            $table->string('type')->nullable();
+            $table->string('sms_panel')->nullable();
+            $table->string('status')->default('active');
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
         $this->otherBusiness = GhorfeOnlineList::create(['title' => 'فروشگاه دیگر']);
 
-        $this->advSender = SenderNumber::create([
+        $this->advSender = Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->business->id,
             'number' => '50009999',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
-        $this->business->senderNumbers()->attach($this->advSender->id, ['assigned_at' => now()]);
 
         $this->titaniumUser = User::create([
             'name' => 'کاربر',
@@ -256,17 +265,17 @@ class SmsBulkQueueTest extends TestCase
 
         $queued = $this->bulkSendService->saveToQueue($this->payload(), $this->titaniumUser, $this->business);
 
-        $this->assertSame(SmsCampaign::STATUS_PENDING_QUEUE, $queued->status);
+        $this->assertSame(Groupsms::STATUS_PENDING_QUEUE, $queued->status);
         $this->assertSame(3, $queued->total_recipients);
-        $this->assertEquals(50000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
-        $this->assertSame(0, SmsCampaignRecipient::count());
-        $this->assertSame(0, SmsMessage::count());
-        $this->assertSame(0, SmsTransaction::count());
+        $this->assertEquals(50000, (float) $this->business->fresh()->advertising_balance);
+        $this->assertSame(0, Groupsms::whereNotNull('request_id')->count());
+        $this->assertSame(0, Groupsms::whereNotNull('request_id')->count());
+        $this->assertSame(0, SmsLog::whereNotNull('consume_amount')->where('consume_amount', '>', 0)->count());
         $this->assertSame(0, $dispatched);
 
         // Leaving the page twice with the same content must not create a second entry.
         $this->bulkSendService->saveToQueue($this->payload(), $this->titaniumUser, $this->business);
-        $this->assertSame(1, SmsCampaign::pendingQueue()->count());
+        $this->assertSame(1, Groupsms::pendingQueue()->count());
     }
 
     public function test_queue_save_endpoint_persists_without_debit(): void
@@ -279,8 +288,8 @@ class SmsBulkQueueTest extends TestCase
             ->assertOk()
             ->assertJsonPath('status', 'success');
 
-        $this->assertSame(1, SmsCampaign::pendingQueue()->where('ghorfe_online_list_id', $this->business->id)->count());
-        $this->assertEquals(50000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
+        $this->assertSame(1, Groupsms::pendingQueue()->where('ghorfe_online_list_id', $this->business->id)->count());
+        $this->assertEquals(50000, (float) $this->business->fresh()->advertising_balance);
     }
 
     public function test_queue_page_and_actions_are_scoped_to_the_business(): void
@@ -291,11 +300,11 @@ class SmsBulkQueueTest extends TestCase
 
         $mine = $this->bulkSendService->saveToQueue($this->payload(), $this->titaniumUser, $this->business);
 
-        $foreign = SmsCampaign::create([
+        $foreign = Groupsms::create([
             'ghorfe_online_list_id' => $this->otherBusiness->id,
             'type' => 'bulk',
             'filters' => ['business' => $this->otherBusiness->id, 'message' => 'x', 'message_preview' => 'x', 'recipient_type' => 'normal'],
-            'status' => SmsCampaign::STATUS_PENDING_QUEUE,
+            'status' => Groupsms::STATUS_PENDING_QUEUE,
             'created_by' => $this->titaniumUser->id,
         ]);
 
@@ -308,18 +317,18 @@ class SmsBulkQueueTest extends TestCase
         $this->post(route('admin.sms.bulk.queue.send', $foreign))->assertNotFound();
         $this->delete(route('admin.sms.bulk.queue.destroy', $foreign))->assertNotFound();
         $this->get(route('admin.sms.bulk.index', ['queue' => $foreign->id]))->assertNotFound();
-        $this->assertNotNull(SmsCampaign::find($foreign->id));
+        $this->assertNotNull(Groupsms::find($foreign->id));
 
         // Own entry: send now goes through the normal path (debit + campaign), then leaves the queue.
         $this->post(route('admin.sms.bulk.queue.send', $mine))->assertRedirect();
-        $this->assertNull(SmsCampaign::find($mine->id));
-        $this->assertSame(1, SmsCampaign::where('status', 'completed')->count());
-        $this->assertEquals(50000 - 2 * 1200, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
+        $this->assertNull(Groupsms::find($mine->id));
+        $this->assertSame(1, Groupsms::campaigns()->where('status', 'completed')->count());
+        $this->assertEquals(50000 - 2 * 1200, (float) $this->business->fresh()->advertising_balance);
 
         // Delete removes only the queue entry.
         $again = $this->bulkSendService->saveToQueue($this->payload(['message' => 'متن دیگر']), $this->titaniumUser, $this->business);
         $this->delete(route('admin.sms.bulk.queue.destroy', $again))->assertRedirect();
-        $this->assertNull(SmsCampaign::find($again->id));
+        $this->assertNull(Groupsms::find($again->id));
     }
 
     public function test_send_now_from_queue_still_enforces_balance_guard(): void
@@ -337,8 +346,8 @@ class SmsBulkQueueTest extends TestCase
         }
 
         // The entry stays queued and nothing was debited.
-        $this->assertSame(SmsCampaign::STATUS_PENDING_QUEUE, $queued->fresh()->status);
-        $this->assertEquals(1000, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
+        $this->assertSame(Groupsms::STATUS_PENDING_QUEUE, $queued->fresh()->status);
+        $this->assertEquals(1000, (float) $this->business->fresh()->advertising_balance);
     }
 
     // ------------------------------------------------------------------
@@ -375,8 +384,8 @@ class SmsBulkQueueTest extends TestCase
         $campaign->refresh();
         $this->assertSame('completed', $campaign->status);
         $this->assertSame(2, $dispatched);
-        $this->assertSame(2, SmsMessage::where('sms_campaign_id', $campaign->id)->count());
-        $this->assertEquals(50000 - 2 * 1200, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
+        $this->assertSame(2, Groupsms::where('request_id', $campaign->id)->count());
+        $this->assertEquals(50000 - 2 * 1200, (float) $this->business->fresh()->advertising_balance);
     }
 
     public function test_queued_campaign_is_never_executed_by_the_runner(): void
@@ -387,8 +396,8 @@ class SmsBulkQueueTest extends TestCase
         $queued = $this->bulkSendService->saveToQueue($this->payload(), $this->titaniumUser, $this->business);
         $this->bulkSendService->executeCampaign($queued);
 
-        $this->assertSame(SmsCampaign::STATUS_PENDING_QUEUE, $queued->fresh()->status);
-        $this->assertSame(0, SmsMessage::count());
+        $this->assertSame(Groupsms::STATUS_PENDING_QUEUE, $queued->fresh()->status);
+        $this->assertSame(0, Groupsms::whereNotNull('request_id')->count());
     }
 
     // ------------------------------------------------------------------
@@ -400,13 +409,13 @@ class SmsBulkQueueTest extends TestCase
         $this->seedAdvertisingBalance($this->business->id, 50000);
         $this->makeRecipients(2);
 
-        $otp = SmsMessageTemplate::create([
+        $otp = SmsTemplate::create([
             'ghorfe_online_list_id' => $this->business->id,
-            'title' => 'کد تایید',
+            'name' => 'کد تایید',
             'content' => 'کد شما {کد}',
             'service_type' => 'otp',
-            'status' => 'active',
-            'created_by' => $this->titaniumUser->id,
+            'status' => 1,
+            'user_id' => $this->titaniumUser->id,
         ]);
 
         // Service level
@@ -420,7 +429,7 @@ class SmsBulkQueueTest extends TestCase
         } catch (DomainException $e) {
             $this->assertStringContainsString('OTP', $e->getMessage());
         }
-        $this->assertSame(0, SmsCampaign::count());
+        $this->assertSame(0, Groupsms::campaigns()->count());
 
         // Request level
         $this->actAsBusinessAdmin();
@@ -429,18 +438,18 @@ class SmsBulkQueueTest extends TestCase
             ->assertJsonValidationErrors('sms_message_template_id');
         $this->postJson(route('admin.sms.bulk.preview'), $this->payload(['sms_message_template_id' => $otp->id]))
             ->assertStatus(422);
-        $this->assertSame(0, SmsCampaign::count());
+        $this->assertSame(0, Groupsms::campaigns()->count());
     }
 
     public function test_bulk_template_selector_lists_only_advertising_templates(): void
     {
-        $make = fn (string $title, string $type) => SmsMessageTemplate::create([
+        $make = fn (string $title, string $type) => SmsTemplate::create([
             'ghorfe_online_list_id' => $this->business->id,
-            'title' => $title,
+            'name' => $title,
             'content' => 'متن',
             'service_type' => $type,
-            'status' => 'active',
-            'created_by' => $this->titaniumUser->id,
+            'status' => 1,
+            'user_id' => $this->titaniumUser->id,
         ]);
         $make('کد', 'otp');
         $make('پشتیبانی', 'normal');
@@ -486,7 +495,7 @@ class SmsBulkQueueTest extends TestCase
             $this->business
         );
         $this->assertSame(1, $clamped->total_recipients);
-        $this->assertEquals(0, (float) AdvertisingBalance::where('ghorfe_online_list_id', $this->business->id)->value('balance'));
+        $this->assertEquals(0, (float) $this->business->fresh()->advertising_balance);
     }
 
     public function test_insufficient_balance_json_carries_deficit_and_max_affordable(): void

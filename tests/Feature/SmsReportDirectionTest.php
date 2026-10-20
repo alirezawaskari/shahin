@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Exports\SmsAdvertisingReportExport;
 use App\Exports\SmsOtpReportExport;
 use App\Exports\SmsSuperAdminReportExport;
-use App\Models\SmsMessage;
+use App\Models\Groupsms;
 use App\Services\Sms\SmsReportService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -27,9 +27,9 @@ class SmsReportDirectionTest extends TestCase
         $this->actingAs($this->adminUser);
     }
 
-    protected function msg(string $direction, string $type, array $extra = []): SmsMessage
+    protected function msg(string $direction, string $type, array $extra = []): Groupsms
     {
-        return SmsMessage::create(array_merge([
+        return Groupsms::create(array_merge([
             'ghorfe_online_list_id' => $this->businessA->id, 'direction' => $direction, 'service_type' => $type,
             'sender_number_id' => $direction === 'outbound' ? ($type === 'otp' ? $this->otpSender->id : $this->advSender1->id) : null,
             'sender_phone' => $direction === 'inbound' ? '09120001122' : '90001',
@@ -171,12 +171,14 @@ class SmsReportDirectionTest extends TestCase
 
     public function test_legacy_list_redirects_land_on_reports(): void
     {
-        Schema::create('groupsms', function (Blueprint $t) {
-            $t->increments('id');
-            $t->unsignedBigInteger('ghorfe_online_list_id')->nullable();
-            $t->softDeletes();
-            $t->timestamps();
-        });
+        if (!Schema::hasTable('groupsms')) {
+            Schema::create('groupsms', function (Blueprint $t) {
+                $t->increments('id');
+                $t->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+                $t->softDeletes();
+                $t->timestamps();
+            });
+        }
         $id = \DB::table('groupsms')->insertGetId(['ghorfe_online_list_id' => $this->businessA->id]);
 
         $this->delete(route('groupsms.destroy', $id))
@@ -209,7 +211,7 @@ class SmsReportDirectionTest extends TestCase
         $otpIds = $svc->buildOtpReportQuery($this->businessA)->pluck('id')->all();
         $this->assertSame([], array_intersect($advIds, $otpIds));
         $this->assertSame(
-            SmsMessage::where('ghorfe_online_list_id', $this->businessA->id)->count(),
+            Groupsms::where('ghorfe_online_list_id', $this->businessA->id)->count(),
             count($advIds) + count($otpIds)
         );
     }

@@ -286,17 +286,18 @@ class CallcenterController extends Controller
             ];
         }
 
-        $messages = \App\Models\SmsMessage::query()
+        $messages = \App\Models\Groupsms::query()
             ->where('callcenter_id', $task->id)
-            ->with('senderNumber')
             ->get();
         \App\Services\Sms\SmsConfidentialityGuard::redactMany($messages, $viewer);
 
         foreach ($messages as $message) {
+            $sender = $message->sender_phone ?: $message->sender_number;
+            $recipient = $message->recipient_phone ?: $message->phones;
             $items[] = [
                 'direction' => $message->direction === 'inbound' ? 'inbound' : 'outbound',
-                'party' => $message->direction === 'inbound' ? $message->sender_phone : $message->recipient_phone,
-                'content' => $message->content,
+                'party' => $message->direction === 'inbound' ? $sender : $recipient,
+                'content' => $message->content ?? $message->message,
                 'redacted' => (bool) ($message->content_redacted ?? false),
                 'status' => $message->delivery_status === 'delivered' ? 'delivered' : $message->status,
                 'service' => match ($message->service_type) {
@@ -304,7 +305,7 @@ class CallcenterController extends Controller
                     'advertising' => 'تبلیغاتی',
                     default => 'عادی',
                 },
-                'sender' => $message->sender_phone ?: $message->senderNumber?->number,
+                'sender' => $sender,
                 'date' => verta($message->created_at)->format('Y/m/d H:i'),
                 'at' => $message->created_at?->timestamp ?? 0,
             ];

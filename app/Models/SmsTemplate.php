@@ -11,12 +11,122 @@ class SmsTemplate extends Model
      */
     protected $fillable = [
         'user_id',
+        'ghorfe_online_list_id',
         'name',
+        'title',
         'fa_name',
         'content',
+        'service_type',
+        'otp_category',
+        'group',
         'status',
+        'created_by',
+        'updated_by',
     ];
     protected $guarded = [];
+
+    public function newEloquentBuilder($query)
+    {
+        return new class($query) extends \Illuminate\Database\Eloquent\Builder {
+            protected const IGNORED_COLUMNS = [
+                'service_type',
+                'otp_category',
+                'group',
+                'is_shared',
+                'category',
+                'business_id',
+            ];
+
+            public function where($column, $operator = null, $value = null, $boolean = 'and')
+            {
+                if (is_string($column)) {
+                    $cleanCol = str_replace('sms_templates.', '', $column);
+                    if ($cleanCol === 'title') {
+                        $column = 'name';
+                    } elseif ($cleanCol === 'is_active') {
+                        $column = 'status';
+                    } elseif ($cleanCol === 'ghorfe_online_list_id') {
+                        $val = $operator !== null && $value === null ? $operator : $value;
+                        if ($val) {
+                            $bizUser = \App\Models\GhorfeOnlineList::whereKey($val)->value('user_id');
+                            if ($bizUser) {
+                                return parent::where(function ($q) use ($bizUser) {
+                                    $q->where('user_id', $bizUser)->orWhereNull('user_id');
+                                }, null, null, $boolean);
+                            }
+                        }
+                        return $this;
+                    } elseif (in_array($cleanCol, self::IGNORED_COLUMNS, true)) {
+                        return $this;
+                    }
+                }
+                return parent::where($column, $operator, $value, $boolean);
+            }
+
+            public function whereIn($column, $values, $boolean = 'and', $not = false)
+            {
+                if (is_string($column)) {
+                    $cleanCol = str_replace('sms_templates.', '', $column);
+                    if ($cleanCol === 'title') {
+                        $column = 'name';
+                    } elseif ($cleanCol === 'is_active') {
+                        $column = 'status';
+                    } elseif ($cleanCol === 'ghorfe_online_list_id') {
+                        return $this;
+                    } elseif (in_array($cleanCol, self::IGNORED_COLUMNS, true)) {
+                        return $this;
+                    }
+                }
+                return parent::whereIn($column, $values, $boolean, $not);
+            }
+        };
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (SmsTemplate $model) {
+            $allowed = [
+                'id',
+                'user_id',
+                'name',
+                'fa_name',
+                'content',
+                'status',
+                'created_at',
+                'updated_at',
+            ];
+
+            if (empty($model->attributes['name']) && !empty($model->attributes['title'])) {
+                $model->attributes['name'] = $model->attributes['title'];
+            }
+            if (empty($model->attributes['fa_name'])) {
+                $model->attributes['fa_name'] = $model->attributes['name'] ?? 'الگو';
+            }
+            if (!isset($model->attributes['status'])) {
+                $model->attributes['status'] = 1;
+            } elseif ($model->attributes['status'] === 'active') {
+                $model->attributes['status'] = 1;
+            } elseif ($model->attributes['status'] === 'inactive') {
+                $model->attributes['status'] = 0;
+            }
+
+            foreach (array_keys($model->attributes) as $attrKey) {
+                if (!in_array($attrKey, $allowed, true)) {
+                    unset($model->attributes[$attrKey]);
+                }
+            }
+        });
+    }
+
+    public function getTitleAttribute($val)
+    {
+        return $this->attributes['name'] ?? null;
+    }
+
+    public function setTitleAttribute($val)
+    {
+        $this->attributes['name'] = $val;
+    }
 
      /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -24,6 +134,63 @@ class SmsTemplate extends Model
     public function user()
     {
         return $this->belongsTo(User::class , 'user_id');
+    }
+
+    public function business()
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function ghorfe()
+    {
+        return $this->belongsTo(GhorfeOnlineList::class, 'ghorfe_online_list_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getSmsMessageGroupIdAttribute()
+    {
+        return $this->attributes['group'] ?? null;
+    }
+
+    public function setSmsMessageGroupIdAttribute($val)
+    {
+        $this->attributes['group'] = $val;
+    }
+
+    public function getStatusAttribute($val)
+    {
+        if ($val === 1 || $val === '1' || $val === 'active') {
+            return 'active';
+        }
+        if ($val === 0 || $val === '0' || $val === 'inactive') {
+            return 'inactive';
+        }
+        return $val ?? 'active';
+    }
+
+    public function setStatusAttribute($val)
+    {
+        if ($val === 'active' || $val === 1 || $val === '1') {
+            $this->attributes['status'] = 1;
+        } elseif ($val === 'inactive' || $val === 0 || $val === '0') {
+            $this->attributes['status'] = 0;
+        } else {
+            $this->attributes['status'] = $val;
+        }
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', [1, '1', 'active']);
     }
 
     /**

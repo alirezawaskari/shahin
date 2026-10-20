@@ -2,7 +2,7 @@
 
 namespace App\Services\Sms;
 
-use App\Models\SmsTopUpPayment;
+use App\Models\SmsLog;
 
 /**
  * Boundary between the SMS module and the project's payment module.
@@ -22,5 +22,5 @@ interface SmsPaymentGateway
      *
      * @throws \App\Exceptions\Sms\SmsPaymentUnavailableException when no payment can be started
      */
-    public function start(SmsTopUpPayment $payment): string;
+    public function start(object $payment): string;
 }

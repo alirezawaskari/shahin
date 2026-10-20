@@ -3,9 +3,8 @@
 namespace App\Services\Sms;
 
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsAutoResponder;
-use App\Models\SmsMessage;
+use App\Models\Groupsms;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
@@ -26,9 +25,9 @@ class SmsAutoResponderEngine
 {
     /**
      * @param array<string, mixed> $payload raw webhook payload (only service_type is consulted)
-     * @return SmsMessage|null the outbound reply, or null when nothing was sent
+     * @return Groupsms|null the outbound reply, or null when nothing was sent
      */
-    public function handleInbound(SmsMessage $inbound, array $payload = []): ?SmsMessage
+    public function handleInbound(Groupsms $inbound, array $payload = []): ?Groupsms
     {
         try {
             return $this->process($inbound, $payload);
@@ -42,9 +41,9 @@ class SmsAutoResponderEngine
         }
     }
 
-    protected function process(SmsMessage $inbound, array $payload): ?SmsMessage
+    protected function process(Groupsms $inbound, array $payload): ?Groupsms
     {
-        if (!$inbound->ghorfe_online_list_id || !Schema::hasTable('sms_auto_responders')) {
+        if (!$inbound->ghorfe_online_list_id) {
             return null;
         }
 
@@ -98,34 +97,34 @@ class SmsAutoResponderEngine
     /**
      * Exact match first, then the longest starts_with prefix.
      */
-    public function findRule(int $businessId, string $normalizedContent): ?SmsAutoResponder
+    public function findRule(int $businessId, string $normalizedContent): ?Setting
     {
-        $rules = SmsAutoResponder::query()
-            ->where('ghorfe_online_list_id', $businessId)
-            ->where('is_active', true)
+        $rules = Setting::where('key', 'sms_auto_responder')
+            ->where('settingable_id', $businessId)
+            ->where('status', 'active')
             ->get();
 
-        $exact = $rules->first(fn ($r) => $r->match_type === SmsAutoResponder::MATCH_EXACT && $r->normalized_keyword === $normalizedContent);
+        $exact = $rules->first(fn ($r) => $r->match_type === Setting::MATCH_EXACT && $r->normalized_keyword === $normalizedContent);
         if ($exact) {
             return $exact;
         }
 
         return $rules
-            ->filter(fn ($r) => $r->match_type === SmsAutoResponder::MATCH_STARTS_WITH
+            ->filter(fn ($r) => $r->match_type === Setting::MATCH_STARTS_WITH
                 && $r->normalized_keyword !== ''
                 && str_starts_with($normalizedContent, $r->normalized_keyword))
             ->sortByDesc(fn ($r) => mb_strlen($r->normalized_keyword))
             ->first();
     }
 
-    protected function recentlyAnswered(SmsAutoResponder $rule, string $sender): bool
+    protected function recentlyAnswered(Setting $rule, string $sender): bool
     {
         $minutes = max(0, (int) config('services.sms.auto_reply_window_minutes', 10));
         if ($minutes === 0) {
             return false;
         }
 
-        return SmsMessage::query()
+        return Groupsms::query()
             ->where('auto_responder_id', $rule->id)
             ->where('recipient_phone', $sender)
             ->where('created_at', '>=', now()->subMinutes($minutes))
@@ -134,20 +133,19 @@ class SmsAutoResponderEngine
 
     protected function isOwnLine(string $phone): bool
     {
-        // Own lines live in sender_numbers only (ghorfe_online_lists has no line-number column).
-        return $phone !== '' && SenderNumber::where('number', $phone)->exists();
+        return $phone !== '' && Setting::where('key', 'sms_sender_number')->where('number', $phone)->exists();
     }
 
     protected function isOtpLine(string $phone): bool
     {
-        return $phone !== '' && SenderNumber::where('number', $phone)->where('type', 'otp')->exists();
+        return $phone !== '' && Setting::otp()->where('number', $phone)->exists();
     }
 
     /**
      * Rule's own line, else the line the customer texted (when it is one of the business' advertising lines),
      * else null (the send service picks the business' first advertising line).
      */
-    protected function resolveSenderNumberId(SmsAutoResponder $rule, GhorfeOnlineList $business, string $recipientLine): ?int
+    protected function resolveSenderNumberId(Setting $rule, GhorfeOnlineList $business, string $recipientLine): ?int
     {
         if ($rule->sender_number_id) {
             return (int) $rule->sender_number_id;
@@ -158,9 +156,9 @@ class SmsAutoResponderEngine
         }
 
         $line = $business->senderNumbers()
-            ->where('sender_numbers.type', 'advertising')
-            ->where('sender_numbers.status', 'active')
-            ->where('sender_numbers.number', $recipientLine)
+            ->where('type', 'advertising')
+            ->where('status', 'active')
+            ->where('number', $recipientLine)
             ->first();
 
         return $line?->id;

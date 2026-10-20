@@ -6,8 +6,8 @@ use App\Exports\SmsAdvertisingReportExport;
 use App\Exports\SmsOtpReportExport;
 use App\Exports\SmsSuperAdminReportExport;
 use App\Models\Category;
+use App\Models\Groupsms;
 use App\Models\Service;
-use App\Models\SmsMessage;
 use App\Services\Sms\SmsReportService;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -61,9 +61,9 @@ class SmsReportBreadcrumbTest extends TestCase
         $this->actingAs($this->adminUser);
     }
 
-    protected function message(string $type, array $extra = []): SmsMessage
+    protected function message(string $type, array $extra = []): Groupsms
     {
-        return SmsMessage::create(array_merge([
+        return Groupsms::create(array_merge([
             'ghorfe_online_list_id' => $this->businessA->id, 'direction' => 'outbound', 'service_type' => $type,
             'sender_number_id' => $type === 'otp' ? $this->otpSender->id : $this->advSender1->id,
             'sender_phone' => '90001', 'recipient_phone' => '09123334455', 'content' => 'متن', 'status' => 'sent',

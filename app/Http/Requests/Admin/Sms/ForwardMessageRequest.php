@@ -14,7 +14,7 @@ class ForwardMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'original_message_id' => ['required', 'integer', 'exists:sms_messages,id'],
+            'original_message_id' => ['required', 'integer', 'exists:groupsms,id'],
             'recipient_phone' => ['required', 'string', 'regex:/^(09|\+989|9)[0-9]{9}$/'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'referrer_id' => ['nullable', 'integer', 'exists:users,id'],

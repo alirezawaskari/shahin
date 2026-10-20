@@ -2,9 +2,8 @@
 
 namespace App\Services\SmsSettings;
 
-use App\Models\BusinessSenderNumber;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
+use App\Models\Setting;
 use DomainException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -19,47 +18,52 @@ class SmsSenderNumberService
     public function list(?GhorfeOnlineList $business = null, array $filters = []): LengthAwarePaginator
     {
         if ($business) {
-            $query = $business->senderNumbers()->withPivot('assigned_at');
+            $query = $business->senderNumbers();
         } else {
-            $query = SenderNumber::with('businesses');
+            $query = Setting::where('key', 'sms_sender_number');
         }
 
         if (!empty($filters['type']) && $filters['type'] !== 'all') {
-            $query->where('sender_numbers.type', $filters['type']);
+            $query->where('type', $filters['type']);
         }
 
         if (!empty($filters['status']) && $filters['status'] !== 'all') {
-            $query->where('sender_numbers.status', $filters['status']);
+            $query->where('status', $filters['status']);
         }
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
-                $q->where('sender_numbers.number', 'like', "%{$search}%")
-                    ->orWhere('sender_numbers.sms_panel', 'like', "%{$search}%")
-                    ->orWhere('sender_numbers.description', 'like', "%{$search}%");
+                $q->where('number', 'like', "%{$search}%")
+                    ->orWhere('sms_panel', 'like', "%{$search}%")
+                    ->orWhere('value', 'like', "%{$search}%");
             });
         }
 
         if (empty($business) && !empty($filters['ghorfe_id']) && $filters['ghorfe_id'] !== 'all') {
-            $query->whereHas('businesses', function ($q) use ($filters) {
-                $q->where('ghorfe_online_lists.id', $filters['ghorfe_id']);
+            $query->where(function ($q) use ($filters) {
+                $q->where('settingable_id', $filters['ghorfe_id'])
+                  ->orWhere('value', 'like', '%"business_ids":%' . $filters['ghorfe_id'] . '%');
             });
         }
 
-        return $query->latest('sender_numbers.id')->paginate($filters['per_page'] ?? 15);
+        return $query->latest('id')->paginate($filters['per_page'] ?? 15);
     }
 
     /**
      * Determine whether the given business has access to this sender number.
      */
-    public function canAccess(SenderNumber $senderNumber, ?GhorfeOnlineList $business = null): bool
+    public function canAccess(Setting $senderNumber, ?GhorfeOnlineList $business = null): bool
     {
         if (!$business) {
             return true; // SuperAdmin has access to all
         }
 
-        return $senderNumber->businesses()->where('ghorfe_online_lists.id', $business->id)->exists();
+        if ($senderNumber->settingable_id == $business->id) {
+            return true;
+        }
+
+        return $senderNumber->businesses->contains('id', $business->id);
     }
 
     /**
@@ -67,15 +71,20 @@ class SmsSenderNumberService
      *
      * @throws ValidationException
      */
-    public function create(array $data, array $businessIds = []): SenderNumber
+    public function create(array $data, array $businessIds = []): Setting
     {
+        $primaryId = !empty($businessIds) ? reset($businessIds) : null;
+
         try {
-            $senderNumber = SenderNumber::create([
+            $senderNumber = Setting::create([
+                'key' => 'sms_sender_number',
+                'settingable_type' => $primaryId ? GhorfeOnlineList::class : null,
+                'settingable_id' => $primaryId,
                 'number' => $data['number'],
                 'type' => $data['type'],
                 'sms_panel' => $data['sms_panel'],
                 'status' => $data['status'] ?? 'active',
-                'contract_status' => $data['contract_status'] ?? null,
+                'contract_status' => $data['contract_status'] ?? 'تایید شده',
                 'description' => $data['description'] ?? null,
             ]);
         } catch (DomainException $e) {
@@ -96,7 +105,7 @@ class SmsSenderNumberService
      *
      * @throws ValidationException
      */
-    public function update(SenderNumber $senderNumber, array $data, ?array $businessIds = null): SenderNumber
+    public function update(Setting $senderNumber, array $data, ?array $businessIds = null): Setting
     {
         try {
             $senderNumber->update([
@@ -123,7 +132,7 @@ class SmsSenderNumberService
     /**
      * Delete a sender number.
      */
-    public function delete(SenderNumber $senderNumber): bool
+    public function delete(Setting $senderNumber): bool
     {
         return (bool) $senderNumber->delete();
     }
@@ -131,7 +140,7 @@ class SmsSenderNumberService
     /**
      * Toggle active/inactive status.
      */
-    public function toggleStatus(SenderNumber $senderNumber): SenderNumber
+    public function toggleStatus(Setting $senderNumber): Setting
     {
         $senderNumber->status = ($senderNumber->status === 'active') ? 'inactive' : 'active';
         $senderNumber->save();
@@ -142,16 +151,21 @@ class SmsSenderNumberService
     /**
      * Assign businesses to the sender number.
      */
-    public function assignBusinesses(SenderNumber $senderNumber, array $businessIds): void
+    public function assignBusinesses(Setting $senderNumber, array $businessIds): void
     {
-        $syncData = [];
-        $now = now();
-        foreach ($businessIds as $id) {
-            if ($id) {
-                $syncData[$id] = ['assigned_at' => $now];
-            }
-        }
+        $businessIds = array_values(array_filter($businessIds));
+        $primaryId = $businessIds[0] ?? null;
 
-        $senderNumber->businesses()->sync($syncData);
+        $senderNumber->settingable_type = $primaryId ? GhorfeOnlineList::class : null;
+        $senderNumber->settingable_id = $primaryId;
+
+        $val = $senderNumber->attributes['value'] ?? null;
+        $data = [];
+        if (is_string($val) && (str_starts_with($val, '{') || str_starts_with($val, '['))) {
+            $data = json_decode($val, true) ?: [];
+        }
+        $data['business_ids'] = $businessIds;
+        $senderNumber->value = json_encode($data);
+        $senderNumber->save();
     }
 }

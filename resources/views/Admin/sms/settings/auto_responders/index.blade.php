@@ -103,7 +103,7 @@
                                 <td class="fw-bold">{{ $rule->name }}</td>
                                 @if(!$business)<td class="small">{{ $rule->business?->title }}</td>@endif
                                 <td><span class="badge bg-light text-dark border font-monospace">{{ $rule->trigger_keyword }}</span></td>
-                                <td class="small">{{ \App\Models\SmsAutoResponder::matchTypeLabel($rule->match_type) }}</td>
+                                <td class="small">{{ \App\Models\Setting::matchTypeLabel($rule->match_type) }}</td>
                                 <td class="small text-muted col-reply">{{ Str::limit($rule->reply_text, 70) }}</td>
                                 <td class="col-status">
                                     <form action="{{ route('admin.sms.settings.auto-responders.toggle-status', $rule) }}" method="POST" class="d-inline">

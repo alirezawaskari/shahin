@@ -2,9 +2,8 @@
 
 namespace App\View\Composers;
 
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\SmsMessageTemplate;
+use App\Models\SmsTemplate;
 use App\Services\Sms\SmsAccessTierService;
 use Illuminate\View\View;
 
@@ -32,16 +31,20 @@ class SmsToFilterComposer
 
         if ($business) {
             $senders = $business->senderNumbers()
-                ->where('sender_numbers.type', 'advertising')
-                ->where('sender_numbers.status', 'active')
-                ->get(['sender_numbers.id', 'sender_numbers.number']);
+                ->where('type', 'advertising')
+                ->where('status', 'active')
+                ->get(['id', 'number']);
 
-            $templates = SmsMessageTemplate::active()
+            $templates = SmsTemplate::active()
                 ->where('ghorfe_online_list_id', $business->id)
                 ->latest()
-                ->get(['id', 'title', 'content']);
+                ->get(['id', 'name', 'content'])
+                ->map(function ($t) {
+                    $t->title = $t->name;
+                    return $t;
+                });
 
-            $balance = (float) (AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
+            $balance = (float) ($business->advertising_balance ?? 0);
         }
 
         $view->with([

@@ -70,11 +70,15 @@ class SmsContractSigningOtpTest extends TestCase
             $t->softDeletes();
             $t->timestamps();
         });
-        Schema::create('sms_cms_contents', function (Blueprint $t) {
+        Schema::create('ghorfe_settings', function (Blueprint $t) {
             $t->id();
-            $t->string('key')->unique();
-            $t->longText('value')->nullable();
-            $t->unsignedInteger('updated_by')->nullable();
+            $t->text('value')->nullable();
+            $t->string('key')->nullable();
+            $t->nullableMorphs('settingable');
+            $t->string('number')->nullable();
+            $t->string('type')->nullable();
+            $t->string('sms_panel')->nullable();
+            $t->integer('status')->default(1);
             $t->timestamps();
         });
         foreach (['roles', 'permissions'] as $table) {
@@ -90,8 +94,25 @@ class SmsContractSigningOtpTest extends TestCase
             $t->string('user_type');
         });
 
-        // The real migration: creates sms_contract_otps and adds the signature-evidence columns.
-        (require base_path('database/migrations/2026_10_16_000002_create_sms_contract_otps_table.php'))->up();
+        if (!Schema::hasTable('sms_logs')) {
+            Schema::create('sms_logs', function (Blueprint $t) {
+                $t->id();
+                $t->unsignedInteger('ghorfe_online_list_id')->nullable();
+                $t->unsignedInteger('user_id')->nullable();
+                $t->string('type', 50)->nullable();
+                $t->string('sender_number', 50)->nullable();
+                $t->string('status', 50)->nullable();
+                $t->string('tracking_id', 100)->nullable();
+                $t->text('message')->nullable();
+                $t->text('response')->nullable();
+                $t->timestamps();
+            });
+        }
+        Schema::table('ghorfe_online_lists', function (Blueprint $t) {
+            $t->string('sms_contract_signed_phone', 20)->nullable();
+            $t->string('sms_contract_text_hash', 64)->nullable();
+            $t->timestamp('sms_contract_otp_verified_at')->nullable();
+        });
 
         $this->business = GhorfeOnlineList::create(['title' => 'کسب‌وکار تست']);
         $this->signer = User::create(['name' => 'امضا', 'family' => 'کننده', 'phone' => '09121234567', 'level' => 'admin', 'active' => 1]);
@@ -155,7 +176,7 @@ class SmsContractSigningOtpTest extends TestCase
         $this->assertNotNull($business->sms_contract_otp_verified_at);
 
         // Single use: the same code cannot sign again, and a signed contract is final.
-        $this->assertNotNull(DB::table('sms_contract_otps')->value('used_at'));
+        $this->assertSame('used', DB::table('sms_logs')->where('type', 'contract_otp')->value('status'));
         $this->sendOtp()->assertStatus(409);
     }
 
@@ -198,7 +219,8 @@ class SmsContractSigningOtpTest extends TestCase
         $wrong = $good === '000000' ? '111111' : '000000';
 
         $this->accept($wrong)->assertSessionHasErrors('otp');
-        $this->assertSame(1, (int) DB::table('sms_contract_otps')->value('attempts'), 'the failed attempt must be committed');
+        $meta = json_decode(DB::table('sms_logs')->where('type', 'contract_otp')->value('response'), true);
+        $this->assertSame(1, (int) ($meta['attempts'] ?? 0), 'the failed attempt must be committed');
 
         foreach (range(1, 4) as $i) {
             $this->accept($wrong);
@@ -231,7 +253,8 @@ class SmsContractSigningOtpTest extends TestCase
         $this->sendOtp(null, 'علی رضایی');
 
         $this->accept($this->sms->lastCode(), null, 'شخص دیگری')->assertSessionHasErrors('otp');
-        $this->assertSame(0, (int) DB::table('sms_contract_otps')->value('attempts'), 'a name mismatch is not a guess');
+        $meta = json_decode(DB::table('sms_logs')->where('type', 'contract_otp')->value('response'), true);
+        $this->assertSame(0, (int) ($meta['attempts'] ?? 0), 'a name mismatch is not a guess');
 
         // The original name still works with the same code.
         $this->accept($this->sms->lastCode(), null, 'علی رضایی')->assertSessionHasNoErrors();
@@ -275,14 +298,14 @@ class SmsContractSigningOtpTest extends TestCase
         // Only the newest code is valid
         $this->travel(1)->hours();
         $this->sendOtp()->assertOk();
-        $this->assertSame(1, DB::table('sms_contract_otps')->whereNull('used_at')->count());
+        $this->assertSame(1, DB::table('sms_logs')->where('type', 'contract_otp')->where('status', 'pending')->count());
     }
 
     public function test_a_failed_sms_does_not_cost_the_signer_a_cooldown(): void
     {
         $this->sms->fail = true;
         $this->sendOtp()->assertStatus(503)->assertJsonPath('reason', 'send_failed');
-        $this->assertSame(0, DB::table('sms_contract_otps')->count());
+        $this->assertSame(0, DB::table('sms_logs')->where('type', 'contract_otp')->count());
 
         $this->sms->fail = false;
         $this->sendOtp()->assertOk(); // immediately, no cooldown
@@ -293,8 +316,8 @@ class SmsContractSigningOtpTest extends TestCase
         $this->sendOtp();
         $code = $this->sms->lastCode();
 
-        $stored = DB::table('sms_contract_otps')->first();
-        $this->assertSame(64, strlen($stored->code_hash));
+        $stored = DB::table('sms_logs')->where('type', 'contract_otp')->first();
+        $this->assertSame(64, strlen($stored->tracking_id));
         $this->assertStringNotContainsString($code, json_encode($stored));
 
         $persian = strtr($code, ['0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴', '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹']);

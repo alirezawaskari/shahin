@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\SmsSettings;
 
 use App\Http\Controllers\Controller;
-use App\Models\SmsPanel;
+use App\Models\Setting;
 use App\Services\SmsSettings\SmsPanelService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -86,7 +86,7 @@ class SmsPanelController extends Controller
     /**
      * Show form for editing an SMS panel.
      */
-    public function edit(SmsPanel $panel): View
+    public function edit(Setting $panel): View
     {
         $this->ensureSuperAdmin();
         $business = ghorfe();
@@ -96,7 +96,7 @@ class SmsPanelController extends Controller
     /**
      * Update an SMS panel.
      */
-    public function update(Request $request, SmsPanel $panel): RedirectResponse
+    public function update(Request $request, Setting $panel): RedirectResponse
     {
         $this->ensureSuperAdmin();
         $validated = $request->validate([
@@ -133,7 +133,7 @@ class SmsPanelController extends Controller
     /**
      * Delete an SMS panel.
      */
-    public function destroy(SmsPanel $panel): RedirectResponse
+    public function destroy(Setting $panel): RedirectResponse
     {
         $this->ensureSuperAdmin();
         $name = $panel->name;
@@ -146,7 +146,7 @@ class SmsPanelController extends Controller
     /**
      * Toggle active/inactive status.
      */
-    public function toggleStatus(Request $request, SmsPanel $panel): JsonResponse|RedirectResponse
+    public function toggleStatus(Request $request, Setting $panel): JsonResponse|RedirectResponse
     {
         $this->ensureSuperAdmin();
         $updated = $this->panelService->toggleStatus($panel);

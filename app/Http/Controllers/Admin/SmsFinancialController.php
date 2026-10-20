@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsTopUpPayment;
+use App\Models\Setting;
+use App\Models\SmsLog;
 use App\Exceptions\Sms\SmsPaymentUnavailableException;
 use App\Services\Sms\SmsTopUpPaymentService;
 use App\Services\Sms\BalanceGuard;
@@ -37,9 +37,9 @@ class SmsFinancialController extends Controller
                 $business = GhorfeOnlineList::find($businessId);
             }
             if (!$business && $request->filled('sender_number_id')) {
-                $sender = SenderNumber::find($request->input('sender_number_id'));
-                if ($sender) {
-                    $business = $sender->businesses()->first();
+                $sender = Setting::find($request->input('sender_number_id'));
+                if ($sender && $sender->settingable instanceof GhorfeOnlineList) {
+                    $business = $sender->settingable;
                 }
             }
             if (!$business) {
@@ -169,8 +169,9 @@ class SmsFinancialController extends Controller
      * Landing page after the payment module has handled the bank callback.
      * Read-only: shows the stored outcome and sends the user back to where they came from.
      */
-    public function topUpResult(Request $request, SmsTopUpPayment $payment): RedirectResponse
+    public function topUpResult(Request $request, $payment): RedirectResponse
     {
+        $payment = $payment instanceof SmsLog ? $payment : SmsLog::findOrFail($payment);
         $user = auth()->user();
         abort_unless(
             $user && ($user->isSuperAdmin() || (ghorfe() && (int) ghorfe()->id === (int) $payment->ghorfe_online_list_id)),

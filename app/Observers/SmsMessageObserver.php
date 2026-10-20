@@ -2,26 +2,26 @@
 
 namespace App\Observers;
 
+use App\Models\Groupsms;
 use App\Models\History;
 use App\Models\Request;
-use App\Models\SmsMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class SmsMessageObserver
 {
     /**
-     * Handle the SmsMessage "created" event.
+     * Handle the Groupsms "created" event.
      */
-    public function created(SmsMessage $message): void
+    public function created(Groupsms $message): void
     {
         $this->recordRequestHistory($message);
     }
 
     /**
-     * Handle the SmsMessage "updated" event.
+     * Handle the Groupsms "updated" event.
      */
-    public function updated(SmsMessage $message): void
+    public function updated(Groupsms $message): void
     {
         if ($message->wasChanged('request_id') && $message->request_id) {
             $this->recordRequestHistory($message);
@@ -31,7 +31,7 @@ class SmsMessageObserver
     /**
      * Record a History row for a Request when an SMS is tied to that request.
      */
-    public function recordRequestHistory(SmsMessage $message): void
+    public function recordRequestHistory(Groupsms $message): void
     {
         if (!$message->request_id) {
             return;

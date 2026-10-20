@@ -373,13 +373,20 @@
                                         <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
                                         @if(isset($groups))
                                             @foreach($groups as $grp)
-                                                @php $grpPromo = $grp->isPromotional(); $grpHide = !$otpModeInitial && !$grpPromo; @endphp
+                                                @php
+                                                    $grpPromo = method_exists($grp, 'isPromotional') ? $grp->isPromotional() : true;
+                                                    $grpHide = !$otpModeInitial && !$grpPromo;
+                                                    $grpConf = method_exists($grp, 'isConfidential') && $grp->isConfidential();
+                                                @endphp
                                                 <optgroup label="📁 {{ $grp->name }}" @if($grpHide) hidden disabled @endif>
-                                                    <option value="{{ $grp->id }}" @if($grpHide) hidden disabled @endif data-promotional="{{ $grp->isPromotional() ? '1' : '0' }}" data-slug="{{ $grp->slug }}" data-confidential="{{ $grp->isConfidential() ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
+                                                    <option value="{{ $grp->id }}" @if($grpHide) hidden disabled @endif data-promotional="{{ $grpPromo ? '1' : '0' }}" data-slug="{{ $grp->slug ?? '' }}" data-confidential="{{ $grpConf ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
                                                         {{ $grp->name }} (دسته اصلی)
                                                     </option>
-                                                    @foreach($grp->subgroups as $sub)
-                                                        <option value="{{ $sub->id }}" @if($grpHide) hidden disabled @endif data-promotional="{{ $grp->isPromotional() ? '1' : '0' }}" data-slug="{{ $sub->slug }}" data-confidential="{{ ($sub->isConfidential() || $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
+                                                    @foreach(($grp->subgroups ?? $grp->children ?? collect()) as $sub)
+                                                        @php
+                                                            $subConf = method_exists($sub, 'isConfidential') && $sub->isConfidential();
+                                                        @endphp
+                                                        <option value="{{ $sub->id }}" @if($grpHide) hidden disabled @endif data-promotional="{{ $grpPromo ? '1' : '0' }}" data-slug="{{ $sub->slug ?? '' }}" data-confidential="{{ ($subConf || $grpConf) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
                                                             {{ $grp->name }} › {{ $sub->name }}
                                                         </option>
                                                     @endforeach

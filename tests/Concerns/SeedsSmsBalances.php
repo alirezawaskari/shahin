@@ -2,28 +2,39 @@
 
 namespace Tests\Concerns;
 
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\OtpBalance;
 
 /**
- * Balances are deliberately not mass-assignable, so tests seed them explicitly.
+ * Balances are stored directly on GhorfeOnlineList.
  */
 trait SeedsSmsBalances
 {
-    protected function seedOtpBalance(GhorfeOnlineList|int $business, float $balance, ?float $threshold = null): OtpBalance
+    protected function seedOtpBalance(GhorfeOnlineList|int $business, float $balance, ?float $threshold = null)
     {
-        $row = OtpBalance::firstOrCreate(['ghorfe_online_list_id' => $business instanceof GhorfeOnlineList ? $business->id : $business]);
-        $row->forceFill(array_filter(['balance' => $balance, 'low_balance_threshold' => $threshold], fn ($v) => $v !== null))->save();
+        $b = $business instanceof GhorfeOnlineList ? $business : GhorfeOnlineList::findOrFail($business);
+        $data = ['otp_balance' => $balance];
+        if ($threshold !== null) {
+            $data['otp_low_balance_threshold'] = $threshold;
+        }
+        $b->forceFill($data)->save();
+        if ($business instanceof GhorfeOnlineList) {
+            $business->otp_balance = $balance;
+            if ($threshold !== null) {
+                $business->otp_low_balance_threshold = $threshold;
+            }
+        }
 
-        return $row->refresh();
+        return $b;
     }
 
-    protected function seedAdvertisingBalance(GhorfeOnlineList|int $business, float $balance): AdvertisingBalance
+    protected function seedAdvertisingBalance(GhorfeOnlineList|int $business, float $balance)
     {
-        $row = AdvertisingBalance::firstOrCreate(['ghorfe_online_list_id' => $business instanceof GhorfeOnlineList ? $business->id : $business]);
-        $row->forceFill(['balance' => $balance])->save();
+        $b = $business instanceof GhorfeOnlineList ? $business : GhorfeOnlineList::findOrFail($business);
+        $b->forceFill(['advertising_balance' => $balance])->save();
+        if ($business instanceof GhorfeOnlineList) {
+            $business->advertising_balance = $balance;
+        }
 
-        return $row->refresh();
+        return $b;
     }
 }

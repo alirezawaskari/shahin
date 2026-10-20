@@ -3,7 +3,7 @@
 namespace App\Services\Sms;
 
 use App\Exceptions\Sms\SmsPaymentUnavailableException;
-use App\Models\SmsTopUpPayment;
+use App\Models\SmsLog;
 
 /**
  * Fail-closed default: the payment module has no generic "pay for a custom
@@ -12,7 +12,7 @@ use App\Models\SmsTopUpPayment;
  */
 class UnconfiguredSmsPaymentGateway implements SmsPaymentGateway
 {
-    public function start(SmsTopUpPayment $payment): string
+    public function start(object $payment): string
     {
         throw new SmsPaymentUnavailableException('درگاه پرداخت برای شارژ پیامک هنوز متصل نشده است. لطفاً با پشتیبانی تماس بگیرید.');
     }

@@ -4,7 +4,6 @@ namespace App\Services\SmsSettings;
 
 use App\Models\GhorfeOnlineList;
 use App\Models\Setting;
-use App\Models\SmsPanel;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -16,12 +15,12 @@ class SmsPanelService
      */
     public function list(array $filters = [], ?GhorfeOnlineList $business = null): LengthAwarePaginator
     {
-        $query = SmsPanel::query()->latest();
+        $query = Setting::where('key', 'sms_panel')->latest();
 
         if ($business) {
             $query->where(function ($q) use ($business) {
-                $q->where('ghorfe_online_list_id', $business->id)
-                    ->orWhereNull('ghorfe_online_list_id');
+                $q->where('settingable_id', $business->id)
+                    ->orWhereNull('settingable_id');
             });
         }
 
@@ -35,10 +34,7 @@ class SmsPanelService
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
+            $query->where('value', 'like', "%{$search}%");
         }
 
         return $query->paginate($filters['per_page'] ?? 15);
@@ -47,22 +43,38 @@ class SmsPanelService
     /**
      * Create a new SMS panel.
      */
-    public function create(array $data, ?GhorfeOnlineList $business = null): SmsPanel
+    public function create(array $data, ?GhorfeOnlineList $business = null): Setting
     {
+        $name = $data['name'];
+        $slug = $data['slug'] ?? Str::slug($name);
+        $type = $data['type'] ?? 'normal-advertising';
+        $status = $data['status'] ?? 'active';
+        $description = $data['description'] ?? null;
+        $connectionInfo = $data['connection_info'] ?? [];
+        $sendSettings = $data['send_settings'] ?? [];
+        $receiveSettings = $data['receive_settings'] ?? [];
+        $deliverySettings = $data['delivery_settings'] ?? [];
+        $businessId = $data['ghorfe_online_list_id'] ?? $business?->id;
+
         $payload = [
-            'name' => $data['name'],
-            'slug' => $data['slug'] ?? Str::slug($data['name']),
-            'type' => $data['type'] ?? 'normal-advertising',
-            'status' => $data['status'] ?? 'active',
-            'connection_info' => $data['connection_info'] ?? [],
-            'send_settings' => $data['send_settings'] ?? [],
-            'receive_settings' => $data['receive_settings'] ?? [],
-            'delivery_settings' => $data['delivery_settings'] ?? [],
-            'description' => $data['description'] ?? null,
-            'ghorfe_online_list_id' => $data['ghorfe_online_list_id'] ?? $business?->id,
+            'name' => $name,
+            'slug' => $slug,
+            'connection_info' => $connectionInfo,
+            'send_settings' => $sendSettings,
+            'receive_settings' => $receiveSettings,
+            'delivery_settings' => $deliverySettings,
+            'description' => $description,
         ];
 
-        $panel = SmsPanel::create($payload);
+        $panel = Setting::create([
+            'key' => 'sms_panel',
+            'type' => $type,
+            'status' => $status,
+            'settingable_type' => $businessId ? GhorfeOnlineList::class : null,
+            'settingable_id' => $businessId,
+            'value' => json_encode($payload),
+        ]);
+
         $this->syncToSetting($panel);
 
         return $panel;
@@ -71,37 +83,43 @@ class SmsPanelService
     /**
      * Update an existing SMS panel.
      */
-    public function update(SmsPanel $panel, array $data): SmsPanel
+    public function update(Setting $panel, array $data): Setting
     {
-        $payload = [
-            'name' => $data['name'] ?? $panel->name,
-            'slug' => $data['slug'] ?? $panel->slug ?? Str::slug($data['name'] ?? $panel->name),
-            'type' => $data['type'] ?? $panel->type,
-            'status' => $data['status'] ?? $panel->status,
-            'description' => $data['description'] ?? $panel->description,
-        ];
+        $currentVal = json_decode($panel->getRawOriginal('value'), true) ?: [];
+
+        $name = $data['name'] ?? $panel->name;
+        $slug = $data['slug'] ?? $panel->slug ?? Str::slug($name);
+        $type = $data['type'] ?? $panel->type;
+        $status = $data['status'] ?? $panel->status;
+        $description = $data['description'] ?? $panel->description;
+
+        $currentVal['name'] = $name;
+        $currentVal['slug'] = $slug;
+        $currentVal['description'] = $description;
 
         if (isset($data['connection_info'])) {
-            $payload['connection_info'] = $data['connection_info'];
+            $currentVal['connection_info'] = $data['connection_info'];
         }
-
         if (isset($data['send_settings'])) {
-            $payload['send_settings'] = $data['send_settings'];
+            $currentVal['send_settings'] = $data['send_settings'];
         }
-
         if (isset($data['receive_settings'])) {
-            $payload['receive_settings'] = $data['receive_settings'];
+            $currentVal['receive_settings'] = $data['receive_settings'];
         }
-
         if (isset($data['delivery_settings'])) {
-            $payload['delivery_settings'] = $data['delivery_settings'];
+            $currentVal['delivery_settings'] = $data['delivery_settings'];
         }
 
-        if (array_key_exists('ghorfe_online_list_id', $data)) {
-            $payload['ghorfe_online_list_id'] = $data['ghorfe_online_list_id'];
-        }
+        $businessId = array_key_exists('ghorfe_online_list_id', $data) ? $data['ghorfe_online_list_id'] : $panel->settingable_id;
 
-        $panel->update($payload);
+        $panel->update([
+            'type' => $type,
+            'status' => $status,
+            'settingable_type' => $businessId ? GhorfeOnlineList::class : null,
+            'settingable_id' => $businessId,
+            'value' => json_encode($currentVal),
+        ]);
+
         $this->syncToSetting($panel);
 
         return $panel;
@@ -110,7 +128,7 @@ class SmsPanelService
     /**
      * Delete an SMS panel.
      */
-    public function delete(SmsPanel $panel): bool
+    public function delete(Setting $panel): bool
     {
         return (bool) $panel->delete();
     }
@@ -118,7 +136,7 @@ class SmsPanelService
     /**
      * Toggle active/inactive status.
      */
-    public function toggleStatus(SmsPanel $panel): SmsPanel
+    public function toggleStatus(Setting $panel): Setting
     {
         $panel->status = ($panel->status === 'active') ? 'inactive' : 'active';
         $panel->save();
@@ -130,7 +148,7 @@ class SmsPanelService
     /**
      * Sync panel config to Setting polymorphic table for compatibility with legacy readers.
      */
-    public function syncToSetting(SmsPanel $panel): void
+    public function syncToSetting(Setting $panel): void
     {
         $keyPrefix = 'sms_panel_' . Str::snake($panel->name);
 
@@ -141,8 +159,8 @@ class SmsPanelService
             "{$keyPrefix}_delivery" => json_encode($panel->delivery_settings),
         ];
 
-        $ownerType = $panel->ghorfe_online_list_id ? GhorfeOnlineList::class : null;
-        $ownerId = $panel->ghorfe_online_list_id;
+        $ownerType = $panel->settingable_type;
+        $ownerId = $panel->settingable_id;
 
         foreach ($keys as $key => $val) {
             Setting::updateOrCreate(

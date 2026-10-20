@@ -2,15 +2,15 @@
 
 namespace App\Services\SmsSettings;
 
-use App\Models\SmsCmsContent;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Super-admin-editable plain text content for the SMS module (task.md
  * §2-4 / §2-6): the telecom-regulatory rules text and the usage
  * contract/agreement text. Neither is known/final yet — the real legal and
- * category copy must come from the client — so this is deliberately a
- * plain key-value text store (SmsCmsContent / sms_cms_contents table)
+ * category copy must come from the client — so this is deliberately stored
+ * in the authentic ghorfe_settings table (Setting model)
  * rather than a rich CMS, and the getters below return an honest
  * "not configured yet" notice instead of placeholder legal text.
  */
@@ -23,12 +23,8 @@ class SmsCmsContentService
 
     public function get(string $key, string $default = ''): string
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('sms_cms_contents')) {
-            return $default;
-        }
-
         $value = Cache::rememberForever(self::CACHE_PREFIX . $key, function () use ($key) {
-            return SmsCmsContent::where('key', $key)->value('value');
+            return Setting::where('key', $key)->value('value');
         });
 
         return $value !== null && $value !== '' ? $value : $default;
@@ -36,13 +32,9 @@ class SmsCmsContentService
 
     public function set(string $key, string $value): void
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('sms_cms_contents')) {
-            return;
-        }
-
-        SmsCmsContent::updateOrCreate(
+        Setting::updateOrCreate(
             ['key' => $key],
-            ['value' => $value, 'updated_by' => auth()->id()]
+            ['value' => $value]
         );
 
         Cache::forget(self::CACHE_PREFIX . $key);

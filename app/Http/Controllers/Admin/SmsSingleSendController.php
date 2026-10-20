@@ -7,13 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Sms\ForwardMessageRequest;
 use App\Http\Requests\Admin\Sms\SendSingleSmsRequest;
 use App\Http\Requests\Admin\Sms\StoreContactRequest;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\OtpBalance;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
+use App\Models\Groupsms;
+use App\Models\Setting;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\SingleSmsSendService;
 use App\Services\Sms\SmsAccessTierService;
@@ -62,44 +59,61 @@ class SmsSingleSendController extends Controller
         $business = $this->resolveBusiness($request);
 
         // System-wide active OTP sender number (singleton)
-        $otpSender = SenderNumber::query()
+        $otpSender = Setting::query()
             ->where('type', 'otp')
             ->where('status', 'active')
-            ->first();
+            ->first()
+            ?? Setting::where('key', 'sms_sender_number')->first()
+            ?? Setting::where('key', 'iranSms_linenumber')->first();
 
         // OTP Balance for current business
         $otpBalance = 0.0;
         if ($business) {
-            $otpBalance = (float) (OtpBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0);
+            $otpBalance = (float) ($business->otp_balance ?? 0);
         }
 
         // Advertising sender numbers assigned to this business with balances
         $advertisingNumbers = collect();
         if ($business) {
-            $advertisingNumbers = $business->senderNumbers()
-                ->where('sender_numbers.type', 'advertising')
-                ->where('sender_numbers.status', 'active')
+            $advertisingNumbers = Setting::query()
+                ->where(function ($q) use ($business) {
+                    $q->where(function ($sub) use ($business) {
+                        $sub->where('settingable_type', GhorfeOnlineList::class)
+                            ->where('settingable_id', $business->id);
+                    })->orWhere(function ($sub) {
+                        $sub->whereNull('settingable_id');
+                    });
+                })
+                ->where('type', 'advertising')
+                ->where('status', 'active')
                 ->get()
                 ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
-                    $sender->current_balance = (float) $balance;
+                    $sender->current_balance = (float) ($business->advertising_balance ?? 0);
                     return $sender;
                 });
         }
 
+        if ($advertisingNumbers->isEmpty()) {
+            $defaultSender = Setting::where('key', 'sms_sender_number')->first()
+                ?? Setting::where('key', 'iranSms_linenumber')->first();
+            if ($defaultSender) {
+                $defaultSender->current_balance = (float) ($business?->advertising_balance ?? 0);
+                $advertisingNumbers = collect([$defaultSender]);
+            }
+        }
+
         // Active SMS templates (scoped to business)
-        $templates = SmsMessageTemplate::active()
+        $templates = SmsTemplate::active()
             ->when(!$this->accessTierService->canUseOtp(auth()->user()),
                 fn($q) => $q->where(fn($w) => $w->whereNull('service_type')->orWhere('service_type', '!=', 'otp')))
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with('group')
             ->latest()
             ->get();
 
         // Recent sent messages for reference & forwarding
         $recentMessages = collect();
         if ($business) {
-            $recentMessages = SmsMessage::where('ghorfe_online_list_id', $business->id)
+            $recentMessages = Groupsms::where('ghorfe_online_list_id', $business->id)
                 ->with(['senderNumber', 'user'])
                 ->latest()
                 ->take(15)
@@ -122,16 +136,7 @@ class SmsSingleSendController extends Controller
 
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
         $costPerPage = (float) config('services.sms.cost_per_page', 1200);
-        // OTP-capable users keep the full tree (OTP mode unaffected; the form hides non-promotional
-        // groups when advertising is selected); everyone else only sees the promotional groups.
-        $groups = SmsMessageGroup::query()
-            ->when(!$canUseOtp, fn ($q) => $q->promotionalRoots(), fn ($q) => $q->whereNull('parent_id'))
-            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with(['subgroups' => function ($q) use ($business) {
-                $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
-            }])
-            ->orderBy('name')
-            ->get();
+        $groups = collect();
 
         return view('Admin.sms.single.index', compact(
             'business',
@@ -218,6 +223,7 @@ class SmsSingleSendController extends Controller
         $cost = $this->singleSmsSendService->calculateCost($segmentation['page_count'], $segmentation['is_unicode']);
 
         $currentBalance = 0.0;
+        $senderNumber = null;
         if ($business) {
             try {
                 $senderNumber = $this->singleSmsSendService->resolveSenderNumber($serviceType, $business, $senderNumberId ? (int) $senderNumberId : null);
@@ -292,7 +298,7 @@ class SmsSingleSendController extends Controller
     public function forward(ForwardMessageRequest $request): JsonResponse|RedirectResponse
     {
         $business = $this->resolveBusiness($request);
-        $originalMessage = SmsMessage::findOrFail($request->original_message_id);
+        $originalMessage = Groupsms::findOrFail($request->original_message_id);
 
         try {
             $newMessage = $this->singleSmsSendService->forwardMessage(

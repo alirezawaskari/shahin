@@ -3,33 +3,29 @@
 namespace App\Services\Sms;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\OtpBalance;
 use Illuminate\Support\Facades\DB;
 
 class BalanceGuard
 {
     /**
-     * Get or create the OTP balance record for a business.
+     * Get or initialize the OTP balance on the business.
      */
-    public function getOtpBalance(GhorfeOnlineList $business): OtpBalance
+    public function getOtpBalance(GhorfeOnlineList $business): GhorfeOnlineList
     {
-        return OtpBalance::firstOrCreate(
-            ['ghorfe_online_list_id' => $business->id],
-            [
-                'low_balance_threshold' => 1000000, // 100,000 Tomans (1,000,000 Rials)
-            ]
-        );
+        $fresh = GhorfeOnlineList::find($business->id) ?? $business;
+        if ($fresh->otp_balance === null) {
+            $fresh->otp_balance = 0;
+        }
+        if ($fresh->otp_low_balance_threshold === null) {
+            $fresh->otp_low_balance_threshold = 1000000;
+        }
+        return $fresh;
     }
 
     /**
      * Check OTP balance status and determine if sending is allowed,
      * whether low balance warning is triggered, or if a hard-stop is required.
-     *
-     * Rules:
-     * - Hard-stop: when balance <= 0 OR balance < requiredCost.
-     * - Warning: when balance <= low_balance_threshold (even if sending is still permitted).
      *
      * @return array{
      *     allowed: bool,
@@ -48,10 +44,10 @@ class BalanceGuard
     /**
      * Evaluate an already-loaded OTP balance row against the required cost.
      */
-    protected function evaluateOtp(OtpBalance $otpBalance, float $requiredCost = 0.0): array
+    protected function evaluateOtp(GhorfeOnlineList $business, float $requiredCost = 0.0): array
     {
-        $balance = (float) $otpBalance->balance;
-        $threshold = (float) $otpBalance->low_balance_threshold;
+        $balance = (float) ($business->otp_balance ?? 0);
+        $threshold = (float) ($business->otp_low_balance_threshold ?? 1000000);
         $isLowBalance = $balance <= $threshold;
 
         // Hard-stop check: zero balance or less than required cost
@@ -106,14 +102,11 @@ class BalanceGuard
      *
      * @throws InsufficientBalanceException
      */
-    public function enforceOtp(GhorfeOnlineList $business, float $requiredCost = 0.0): OtpBalance
+    public function enforceOtp(GhorfeOnlineList $business, float $requiredCost = 0.0): GhorfeOnlineList
     {
-        // The check runs against a locked row. The lock is held until the enclosing
-        // transaction ends, so callers that debit must do so within this same transaction.
         return DB::transaction(function () use ($business, $requiredCost) {
-            $otpBalance = $this->getOtpBalance($business);
-            $locked = OtpBalance::query()
-                ->whereKey($otpBalance->getKey())
+            $locked = GhorfeOnlineList::query()
+                ->whereKey($business->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -132,16 +125,15 @@ class BalanceGuard
     }
 
     /**
-     * Get or create the advertising balance for a business.
-     * Credit belongs to the advertising panel, so every advertising line of the
-     * business spends from this one balance.
+     * Get or initialize the advertising balance for a business.
      */
-    public function getAdvertisingBalance(GhorfeOnlineList $business): AdvertisingBalance
+    public function getAdvertisingBalance(GhorfeOnlineList $business): GhorfeOnlineList
     {
-        return AdvertisingBalance::firstOrCreate(
-            ['ghorfe_online_list_id' => $business->id],
-            []
-        );
+        $fresh = GhorfeOnlineList::find($business->id) ?? $business;
+        if ($fresh->advertising_balance === null) {
+            $fresh->advertising_balance = 0;
+        }
+        return $fresh;
     }
 
     /**
@@ -153,7 +145,7 @@ class BalanceGuard
     {
         $advBalance = $this->getAdvertisingBalance($business);
 
-        return $this->evaluateAdvertising((float) $advBalance->balance, $requiredCost);
+        return $this->evaluateAdvertising((float) ($advBalance->advertising_balance ?? 0), $requiredCost);
     }
 
     /**
@@ -189,17 +181,15 @@ class BalanceGuard
      *
      * @throws InsufficientBalanceException
      */
-    public function enforceAdvertising(GhorfeOnlineList $business, float $requiredCost): AdvertisingBalance
+    public function enforceAdvertising(GhorfeOnlineList $business, float $requiredCost): GhorfeOnlineList
     {
-        // Same locking contract as enforceOtp(): call from within the debit transaction.
         return DB::transaction(function () use ($business, $requiredCost) {
-            $advBalance = $this->getAdvertisingBalance($business);
-            $locked = AdvertisingBalance::query()
-                ->whereKey($advBalance->getKey())
+            $locked = GhorfeOnlineList::query()
+                ->whereKey($business->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $check = $this->evaluateAdvertising((float) $locked->balance, $requiredCost);
+            $check = $this->evaluateAdvertising((float) ($locked->advertising_balance ?? 0), $requiredCost);
 
             if (!$check['allowed']) {
                 throw new InsufficientBalanceException(

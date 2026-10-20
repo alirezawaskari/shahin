@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SmsMessageResource;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageGroup;
+use App\Models\Groupsms;
+use App\Models\Setting;
 use App\Services\Sms\SmsAccessTierService;
 use App\Services\Sms\SmsConfidentialityGuard;
 use App\Services\Sms\SmsLogService;
@@ -43,30 +42,31 @@ class SmsLogController extends Controller
 
         $summary = $this->logService->getSummaryMetrics($filters, $business, $isSuperAdmin, $canUseOtp);
 
-        // Confidentiality enforcement (task.md §13): the body of a message in a
-        // confidential group (مالی/حقوقی) is removed server-side for anyone
-        // without the view-confidential-sms permission, for both the JSON
-        // response below AND the server-rendered Blade table — mutating the
-        // attribute here means the raw text is never serialized to the client
-        // in either path, rather than merely hidden behind an @if in the view.
         SmsConfidentialityGuard::redactMany($messages->getCollection(), $user);
 
         // Filter options for dropdowns
         $businesses = $isSuperAdmin ? GhorfeOnlineList::orderBy('title')->get() : collect([$business])->filter();
 
-        $senderNumbersQuery = SenderNumber::query();
+        $senderNumbersQuery = Setting::query()->where('key', 'sms_sender_number');
         if (!$isSuperAdmin && $business) {
-            $senderNumbersQuery->whereHas('businesses', fn ($q) => $q->where('ghorfe_online_lists.id', $business->id));
+            $senderNumbersQuery->where('settingable_type', GhorfeOnlineList::class)->where('settingable_id', $business->id);
         }
-        $senderNumbers = $senderNumbersQuery->orderBy('number')->get();
+        $senderNumbers = $senderNumbersQuery->latest()->get();
+        if ($senderNumbers->isEmpty()) {
+            $defaultSender = Setting::where('key', 'sms_sender_number')->first()
+                ?? Setting::where('key', 'iranSms_linenumber')->first();
+            if ($defaultSender) {
+                $senderNumbers = collect([$defaultSender]);
+            }
+        }
 
-        // Subject groups belong to a business: pin to the active one so the dropdown never lists the
-        // same group once per business (super-admin 'all businesses' view keeps every business).
-        $groups = SmsMessageGroup::whereNull('parent_id')
-            ->when($business, fn ($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with(['business', 'subgroups' => fn ($q) => $q->when($business, fn ($sq) => $sq->where('ghorfe_online_list_id', $business->id))])
-            ->orderBy('name')
-            ->get();
+        $groups = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'group')
+            ? Groupsms::select('group')->distinct()->whereNotNull('group')->get()->map(fn ($r) => (object)[
+                'id' => $r->group,
+                'name' => $r->group,
+                'subgroups' => collect(),
+            ])
+            : collect();
 
         $statuses = [
             'queued' => 'در صف ارسال',
@@ -106,8 +106,9 @@ class SmsLogController extends Controller
     /**
      * Display details of a specific SMS message.
      */
-    public function show(Request $request, SmsMessage $smsMessage): View|JsonResponse
+    public function show(Request $request, $smsMessage): View|JsonResponse
     {
+        $smsMessage = $smsMessage instanceof Groupsms ? $smsMessage : Groupsms::findOrFail($smsMessage);
         $user = auth()->user();
         $isSuperAdmin = $user?->isSuperAdmin() ?? false;
         $business = ghorfe();
@@ -122,7 +123,7 @@ class SmsLogController extends Controller
             404
         );
 
-        $smsMessage->load(['business', 'senderNumber', 'template', 'group', 'campaign', 'user', 'creator', 'request']);
+        $smsMessage->load(['business', 'senderNumber', 'template', 'campaign', 'user', 'creator']);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -131,8 +132,6 @@ class SmsLogController extends Controller
             ]);
         }
 
-        // Also redact for the server-rendered view: confidentiality is
-        // enforced regardless of output format.
         SmsConfidentialityGuard::redact($smsMessage, $user);
         app(\App\Services\Sms\CatalogBreadcrumbResolver::class)->annotateMessages([$smsMessage]);
 

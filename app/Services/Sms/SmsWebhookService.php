@@ -3,8 +3,8 @@
 namespace App\Services\Sms;
 
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
+use App\Models\Groupsms;
+use App\Models\Setting;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -30,11 +30,11 @@ class SmsWebhookService
             ];
         }
 
-        $message = SmsMessage::where('tracking_id', $trackingId)->first();
+        $message = Groupsms::where('tracking_id', $trackingId)->first();
 
         // If not found by tracking_id, check if numeric and matches ID
         if (!$message && is_numeric($trackingId)) {
-            $message = SmsMessage::find((int) $trackingId);
+            $message = Groupsms::find((int) $trackingId);
         }
 
         if (!$message) {
@@ -106,9 +106,9 @@ class SmsWebhookService
         // Resolve business by recipient number or sender number relation
         $businessId = null;
         if (!empty($recipientPhone)) {
-            $senderNumber = SenderNumber::where('number', $recipientPhone)->first();
+            $senderNumber = Setting::where('key', 'sms_sender_number')->where('number', $recipientPhone)->first();
             if ($senderNumber) {
-                $business = $senderNumber->businesses()->first();
+                $business = $senderNumber->business;
                 $businessId = $business?->id;
             }
         }
@@ -122,13 +122,14 @@ class SmsWebhookService
         // Same counter as outbound; always 'normal' so no opt-out suffix is appended to inbound text.
         $segmentation = (new SingleSmsSendService(new DynamicParameterResolver()))->calculateSegmentation($content, 'normal');
 
-        $smsMessage = SmsMessage::create([
+        $smsMessage = Groupsms::create([
             'ghorfe_online_list_id' => $businessId,
             'direction' => 'inbound',
             'service_type' => $payload['service_type'] ?? 'normal',
             'sender_phone' => $senderPhone,
             'recipient_phone' => $recipientPhone,
-            'content' => $content,
+            'phones' => $senderPhone,
+            'body' => $content,
             'character_count' => $segmentation['character_count'],
             'page_count' => $segmentation['page_count'],
             'cost' => 0,
@@ -171,7 +172,7 @@ class SmsWebhookService
 
         // 2. If tracking ID exists and matches an existing message -> delivery report
         $trackingId = $this->extractTrackingId($payload);
-        if ($trackingId && SmsMessage::where('tracking_id', $trackingId)->exists()) {
+        if ($trackingId && Groupsms::where('tracking_id', $trackingId)->exists()) {
             return $this->handleDeliveryReport($payload);
         }
 

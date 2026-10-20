@@ -5,7 +5,7 @@ namespace App\Services\Sms;
 use App\Exceptions\Sms\SmsPaymentUnavailableException;
 use App\Lib\saman;
 use App\Lib\zarinpal;
-use App\Models\SmsTopUpPayment;
+use App\Models\SmsLog;
 
 /**
  * Wires SMS top-ups to the project's payment module: same gateways and same
@@ -17,7 +17,7 @@ class PaymentModuleSmsGateway implements SmsPaymentGateway
 {
     public const DESCRIPTION = 'شارژ اعتبار پیامک';
 
-    public function start(SmsTopUpPayment $payment): string
+    public function start(object $payment): string
     {
         $gateway = request()->input('gateway');
         $gateway = in_array($gateway, ['zarinpal', 'saman'], true) ? $gateway : 'saman';
@@ -34,7 +34,7 @@ class PaymentModuleSmsGateway implements SmsPaymentGateway
         return $url;
     }
 
-    protected function startZarinpal(SmsTopUpPayment $payment): string
+    protected function startZarinpal(object $payment): string
     {
         if (!config('services.zarinpal.id')) {
             throw new SmsPaymentUnavailableException('درگاه زرین‌پال پیکربندی نشده است.');
@@ -50,7 +50,7 @@ class PaymentModuleSmsGateway implements SmsPaymentGateway
         return config('services.zarinpal.url') . '/pg/StartPay/' . $authority;
     }
 
-    protected function startSaman(SmsTopUpPayment $payment): string
+    protected function startSaman(object $payment): string
     {
         $token = app(saman::class)->requestToken(
             (int) round((float) $payment->amount),

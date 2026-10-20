@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Admin\SmsSettings;
 
 use App\Http\Controllers\Controller;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsPanel;
+use App\Models\Setting;
 use App\Services\SmsSettings\SmsSenderNumberService;
 use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -40,8 +40,8 @@ class SmsSenderNumberController extends Controller
         $filters = $request->only(['type', 'status', 'search', 'ghorfe_id', 'per_page']);
         $senderNumbers = $this->senderNumberService->list($business, $filters);
         $businesses = $business ? collect([$business]) : GhorfeOnlineList::orderBy('title')->get();
-        $panels = $this->isSuperAdmin() ? SmsPanel::active()->get() : collect();
-        $otpSender = SenderNumber::where('type', 'otp')->first();
+        $panels = $this->isSuperAdmin() ? Setting::where('key', 'sms_panel')->where('status', 'active')->get() : collect();
+        $otpSender = Setting::otp()->first();
 
         return view('Admin.sms.settings.senders.index', compact(
             'senderNumbers',
@@ -62,7 +62,7 @@ class SmsSenderNumberController extends Controller
 
         $business = ghorfe();
         $businesses = GhorfeOnlineList::orderBy('title')->get();
-        $panels = SmsPanel::active()->get();
+        $panels = Setting::where('key', 'sms_panel')->where('status', 'active')->get();
 
         return view('Admin.sms.settings.senders.create', compact('business', 'businesses', 'panels'));
     }
@@ -76,7 +76,19 @@ class SmsSenderNumberController extends Controller
         abort_unless($this->isSuperAdmin(), 403, 'تعریف شماره جدید در مخزن خطوط منحصراً در اختیار مدیریت ارشد سامانه است.');
 
         $validated = $request->validate([
-            'number' => 'required|string|max:50|unique:sender_numbers,number',
+            'number' => [
+                'required',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) {
+                    $exists = Setting::where('key', 'sms_sender_number')
+                        ->where('value->number', $value)
+                        ->exists();
+                    if ($exists) {
+                        $fail('این شماره قبلاً در سامانه ثبت شده است.');
+                    }
+                },
+            ],
             'type' => 'required|in:otp,advertising',
             'sms_panel' => 'required|string|max:100',
             'status' => 'required|in:active,inactive',
@@ -110,14 +122,14 @@ class SmsSenderNumberController extends Controller
     /**
      * Show form for editing a sender number in the global pool (SuperAdmin only).
      */
-    public function edit(SenderNumber $senderNumber): View
+    public function edit(Setting $senderNumber): View
     {
         abort_unless($this->isSuperAdmin(), 403, 'ویرایش مشخصات پایه خطوط منحصراً در اختیار مدیریت ارشد سامانه است.');
 
         $business = ghorfe();
         $businesses = GhorfeOnlineList::orderBy('title')->get();
-        $assignedBusinessIds = $senderNumber->businesses()->pluck('ghorfe_online_lists.id')->toArray();
-        $panels = SmsPanel::active()->get();
+        $assignedBusinessIds = $senderNumber->businesses->pluck('id')->toArray();
+        $panels = Setting::where('key', 'sms_panel')->where('status', 'active')->get();
 
         return view('Admin.sms.settings.senders.edit', compact('senderNumber', 'business', 'businesses', 'assignedBusinessIds', 'panels'));
     }
@@ -126,12 +138,25 @@ class SmsSenderNumberController extends Controller
      * Update an existing sender number in the global pool (SuperAdmin only).
      * Catches single-OTP-row guard and surfaces as a clean validation error.
      */
-    public function update(Request $request, SenderNumber $senderNumber): RedirectResponse
+    public function update(Request $request, Setting $senderNumber): RedirectResponse
     {
         abort_unless($this->isSuperAdmin(), 403, 'ویرایش مشخصات پایه خطوط منحصراً در اختیار مدیریت ارشد سامانه است.');
 
         $validated = $request->validate([
-            'number' => 'required|string|max:50|unique:sender_numbers,number,' . $senderNumber->id,
+            'number' => [
+                'required',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) use ($senderNumber) {
+                    $exists = Setting::where('key', 'sms_sender_number')
+                        ->where('value->number', $value)
+                        ->where('id', '!=', $senderNumber->id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('این شماره قبلاً در سامانه ثبت شده است.');
+                    }
+                },
+            ],
             'type' => 'required|in:otp,advertising',
             'sms_panel' => 'required|string|max:100',
             'status' => 'required|in:active,inactive',
@@ -164,7 +189,7 @@ class SmsSenderNumberController extends Controller
     /**
      * Delete a sender number from the global pool (SuperAdmin only).
      */
-    public function destroy(SenderNumber $senderNumber): RedirectResponse
+    public function destroy(Setting $senderNumber): RedirectResponse
     {
         abort_unless($this->isSuperAdmin(), 403, 'حذف خط از مخزن سامانه منحصراً در اختیار مدیریت ارشد است.');
 
@@ -178,7 +203,7 @@ class SmsSenderNumberController extends Controller
     /**
      * Toggle active/inactive status of a sender number in the global pool (SuperAdmin only).
      */
-    public function toggleStatus(Request $request, SenderNumber $senderNumber): JsonResponse|RedirectResponse
+    public function toggleStatus(Request $request, Setting $senderNumber): JsonResponse|RedirectResponse
     {
         abort_unless($this->isSuperAdmin(), 403, 'تغییر وضعیت سراسری خط در مخزن منحصراً در اختیار مدیریت ارشد سامانه است.');
 
@@ -198,7 +223,7 @@ class SmsSenderNumberController extends Controller
     /**
      * Assign businesses to a sender number (SuperAdmin only; many-to-many).
      */
-    public function assignBusinesses(Request $request, SenderNumber $senderNumber): RedirectResponse
+    public function assignBusinesses(Request $request, Setting $senderNumber): RedirectResponse
     {
         abort_unless($this->isSuperAdmin(), 403, 'فقط مدیر ارشد سامانه می‌تواند تخصیص خطوط به کسب‌وکارها را تغییر دهد.');
 

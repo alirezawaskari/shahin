@@ -8,14 +8,13 @@ use App\Helpers\FilterHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Sms\PreviewBulkSmsRequest;
 use App\Http\Requests\Admin\Sms\SendBulkSmsRequest;
-use App\Models\AdvertisingBalance;
 use App\Models\Category;
 use App\Models\GhorfeOnlineList;
+use App\Models\Groupsms;
 use App\Models\Province;
 use App\Models\Role;
-use App\Models\SmsCampaign;
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
+use App\Models\Setting;
+use App\Models\SmsTemplate;
 use App\Services\Sms\BulkSmsRecipientFilterService;
 use App\Services\Sms\BulkSmsSendService;
 use App\Services\Sms\SmsAccessTierService;
@@ -84,21 +83,28 @@ class SmsBulkSendController extends Controller
         $advertisingNumbers = collect();
         if ($business) {
             $advertisingNumbers = $business->senderNumbers()
-                ->where('sender_numbers.type', 'advertising')
-                ->where('sender_numbers.status', 'active')
+                ->where('type', 'advertising')
+                ->where('status', 'active')
                 ->get()
                 ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
-                    $sender->current_balance = (float) $balance;
+                    $sender->current_balance = (float) ($business->advertising_balance ?? 0);
                     return $sender;
                 });
         }
 
+        if ($advertisingNumbers->isEmpty()) {
+            $defaultSender = Setting::where('key', 'sms_sender_number')->first()
+                ?? Setting::where('key', 'iranSms_linenumber')->first();
+            if ($defaultSender) {
+                $defaultSender->current_balance = (float) ($business?->advertising_balance ?? 0);
+                $advertisingNumbers = collect([$defaultSender]);
+            }
+        }
+
         // Active promotional templates only (scoped to business) — OTP/normal templates never appear here
-        $templates = SmsMessageTemplate::active()
-            ->forAdvertising()
+        $templates = SmsTemplate::active()
+            ->where('service_type', 'advertising')
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with('group')
             ->latest()
             ->get();
 
@@ -111,8 +117,9 @@ class SmsBulkSendController extends Controller
         // Recent campaigns
         $recentCampaigns = collect();
         if ($business) {
-            $recentCampaigns = SmsCampaign::where('ghorfe_online_list_id', $business->id)
-                ->where('status', '!=', SmsCampaign::STATUS_PENDING_QUEUE)
+            $recentCampaigns = Groupsms::campaigns()
+                ->where('ghorfe_online_list_id', $business->id)
+                ->where('status', '!=', Groupsms::STATUS_PENDING_QUEUE)
                 ->with(['senderNumber', 'template'])
                 ->latest()
                 ->take(10)
@@ -121,14 +128,19 @@ class SmsBulkSendController extends Controller
 
         $userTier = $this->accessTierService->effectiveTier($user);
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
-        // Promotional subject categories only (event/greeting, sales, support) — see SmsMessageGroup::PROMOTIONAL_ROOT_SLUGS.
-        $groups = SmsMessageGroup::promotionalRoots()
-            ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
-            ->with(['subgroups' => function ($q) use ($business) {
-                $q->when($business, fn($sq) => $sq->where('ghorfe_online_list_id', $business->id));
-            }])
-            ->orderBy('name')
-            ->get();
+        // Promotional subject categories only (event/greeting, sales, support)
+        $dbGroups = Setting::where('key', 'sms_message_group')
+            ->when($business, fn($q) => $q->where('settingable_id', $business->id))
+            ->get()
+            ->filter(fn($s) => empty($s->parent_id))
+            ->filter(fn($s) => $s->isPromotional())
+            ->values();
+
+        $groups = $dbGroups->isNotEmpty() ? $dbGroups : collect([
+            new Setting(['id' => 1, 'key' => 'sms_message_group', 'value' => json_encode(['slug' => 'monasebati', 'name' => 'مناسبتی و تبریک'], JSON_UNESCAPED_UNICODE)]),
+            new Setting(['id' => 2, 'key' => 'sms_message_group', 'value' => json_encode(['slug' => 'foroush', 'name' => 'فروش و بازاریابی'], JSON_UNESCAPED_UNICODE)]),
+            new Setting(['id' => 3, 'key' => 'sms_message_group', 'value' => json_encode(['slug' => 'poshtibani', 'name' => 'پشتیبانی مشتریان'], JSON_UNESCAPED_UNICODE)]),
+        ]);
 
         // Resuming an entry of the outgoing queue: prefill the compose page from it.
         $queuedCampaign = null;
@@ -139,7 +151,7 @@ class SmsBulkSendController extends Controller
             // datetime-local format, so the picker can be refilled as-is
             $queuedInput['scheduled_at'] = $queuedInput['scheduled_at']?->format('Y-m-d\TH:i');
         }
-        $queuedCount = SmsCampaign::pendingQueue()->where('ghorfe_online_list_id', $business->id)->count();
+        $queuedCount = Groupsms::pendingQueue()->where('ghorfe_online_list_id', $business->id)->count();
         $costPerPage = (float) config('services.sms.cost_per_page', 1200);
 
         return view('Admin.sms.bulk.index', compact(
@@ -210,7 +222,7 @@ class SmsBulkSendController extends Controller
         $rawMessage = (string) $request->input('message', '');
         $templateId = $request->input('sms_message_template_id');
         if ($templateId && empty($rawMessage)) {
-            $template = SmsMessageTemplate::find($templateId);
+            $template = SmsTemplate::find($templateId);
             $rawMessage = $template?->content ?? '';
         }
 
@@ -331,7 +343,7 @@ class SmsBulkSendController extends Controller
 
             // The send was resumed from the outgoing queue: that entry is now a real campaign.
             if (!empty($validatedData['queue_id'])) {
-                SmsCampaign::pendingQueue()
+                Groupsms::pendingQueue()
                     ->where('ghorfe_online_list_id', $business->id)
                     ->whereKey($validatedData['queue_id'])
                     ->delete();
@@ -437,13 +449,13 @@ class SmsBulkSendController extends Controller
         $validator = Validator::make($request->all(), [
             'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
             'message' => ['nullable', 'string'],
-            'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
-            'sms_message_group_id' => ['nullable', 'integer', 'exists:sms_message_groups,id', function ($attr, $value, $fail) {
-                if (!SmsMessageGroup::isPromotionalId($value)) {
+            'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_templates,id'],
+            'sms_message_group_id' => ['nullable', function ($attr, $value, $fail) {
+                if (!Groupsms::isPromotionalGroup($value)) {
                     $fail('دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.');
                 }
             }],
-            'sender_number_id' => ['nullable', 'integer', 'exists:sender_numbers,id'],
+            'sender_number_id' => ['nullable', 'integer', 'exists:ghorfe_settings,id'],
             'filters' => ['nullable', 'array'],
             'scheduled_at' => ['nullable', 'date'],
             'custom_numbers' => ['nullable', 'string'],
@@ -499,7 +511,7 @@ class SmsBulkSendController extends Controller
     {
         $business = $this->resolveBusiness($request);
 
-        $queued = SmsCampaign::pendingQueue()
+        $queued = Groupsms::pendingQueue()
             ->where('ghorfe_online_list_id', $business->id)
             ->with(['senderNumber', 'template', 'creator'])
             ->latest()
@@ -511,7 +523,7 @@ class SmsBulkSendController extends Controller
     /**
      * «ارسال اکنون»: goes through the normal send path (tier gate + balance guard).
      */
-    public function sendQueued(Request $request, SmsCampaign $campaign): RedirectResponse
+    public function sendQueued(Request $request, Groupsms $campaign): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
         $queued = $this->loadQueuedCampaign($campaign->id, $business);
@@ -535,7 +547,7 @@ class SmsBulkSendController extends Controller
             ->with('success', 'کمپین پیامکی با موفقیت ثبت گردید.');
     }
 
-    public function destroyQueued(Request $request, SmsCampaign $campaign): RedirectResponse
+    public function destroyQueued(Request $request, Groupsms $campaign): RedirectResponse
     {
         $business = $this->resolveBusiness($request);
         $this->loadQueuedCampaign($campaign->id, $business)->delete();
@@ -547,9 +559,9 @@ class SmsBulkSendController extends Controller
      * Fetch a pending_queue campaign of THIS business and re-run the tier gate on its stored
      * audience filter (the user may have lost access since it was saved). 404 otherwise.
      */
-    protected function loadQueuedCampaign(int $id, GhorfeOnlineList $business): SmsCampaign
+    protected function loadQueuedCampaign(int $id, GhorfeOnlineList $business): Groupsms
     {
-        $queued = SmsCampaign::pendingQueue()
+        $queued = Groupsms::pendingQueue()
             ->where('ghorfe_online_list_id', $business->id)
             ->whereKey($id)
             ->firstOrFail();
@@ -571,9 +583,9 @@ class SmsBulkSendController extends Controller
     {
         $business = $this->resolveBusiness($request);
 
-        $query = SmsCampaign::query()
+        $query = Groupsms::campaigns()
             ->where('type', 'bulk')
-            ->where('status', '!=', SmsCampaign::STATUS_PENDING_QUEUE)
+            ->where('status', '!=', Groupsms::STATUS_PENDING_QUEUE)
             ->with(['senderNumber', 'template', 'creator'])
             ->latest();
 
@@ -593,7 +605,7 @@ class SmsBulkSendController extends Controller
     /**
      * Live Campaign Status View.
      */
-    public function statusView(SmsCampaign $campaign): View
+    public function statusView(Groupsms $campaign): View
     {
         $this->abortUnlessCampaignInBusiness($campaign);
 
@@ -610,7 +622,7 @@ class SmsBulkSendController extends Controller
     /**
      * Live Campaign Status JSON endpoint for polling.
      */
-    public function statusApi(SmsCampaign $campaign): JsonResponse
+    public function statusApi(Groupsms $campaign): JsonResponse
     {
         $this->abortUnlessCampaignInBusiness($campaign);
 
@@ -653,7 +665,7 @@ class SmsBulkSendController extends Controller
      * Ensure the campaign belongs to the current business (superAdmin bypasses).
      * Fails closed when no business is active.
      */
-    private function abortUnlessCampaignInBusiness(SmsCampaign $campaign): void
+    private function abortUnlessCampaignInBusiness(Groupsms $campaign): void
     {
         $business = ghorfe();
 

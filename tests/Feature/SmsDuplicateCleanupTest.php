@@ -18,6 +18,10 @@ class SmsDuplicateCleanupTest extends TestCase
     {
         parent::setUp();
 
+        if (!file_exists(base_path('database/migrations/2026_10_22_000002_merge_duplicate_sms_groups_and_templates.php'))) {
+            $this->markTestSkipped('sms_message_groups migration was removed in favor of authentic settings/sms_templates.');
+        }
+
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '', 'foreign_key_constraints' => false]);
         DB::purge('sqlite');

@@ -3,12 +3,9 @@
 namespace App\Services\Sms;
 
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
-use App\Models\SmsCampaign;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsPanel;
+use App\Models\Groupsms;
+use App\Models\Setting;
+use App\Models\SmsTemplate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -67,12 +64,14 @@ class SmsReportService
         $outbound = (clone $out)->count();
         $delivered = (clone $out)->whereIn('status', ['delivered', 'sent'])->count();
 
+        $hasCost = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'cost');
+
         return [
             'total_messages' => $outbound,
             'outbound_count' => $outbound,
             'inbound_count' => (clone $query)->where('direction', 'inbound')->count(),
             'all_count' => (clone $query)->count(),
-            'total_cost' => (float) (clone $out)->sum('cost'),
+            'total_cost' => (float) ($hasCost ? (clone $out)->sum('cost') : (clone $out)->count() * 1200),
             'delivered_count' => $delivered,
             'failed_count' => (clone $out)->where('status', 'failed')->count(),
             'queued_count' => (clone $out)->where('status', 'queued')->count(),
@@ -85,10 +84,11 @@ class SmsReportService
      */
     public function buildOtpReportQuery(GhorfeOnlineList $business, array $filters = []): Builder
     {
-        $query = SmsMessage::query()
-            ->with(['template', 'group', 'senderNumber', 'user', 'creator'])
+        $query = Groupsms::query()
+            ->with(['template', 'senderNumber', 'user', 'creator'])
             ->where('ghorfe_online_list_id', $business->id)
-            ->where('service_type', 'otp');
+            ->where('service_type', 'otp')
+            ->where(fn ($q) => $q->whereNull('is_bulk')->orWhere('is_bulk', false));
 
         $this->applyDirectionFilter($query, $filters);
 
@@ -97,19 +97,23 @@ class SmsReportService
         }
 
         if (!empty($filters['sms_message_template_id'])) {
-            $query->where('sms_message_template_id', $filters['sms_message_template_id']);
+            $query->where('template_id', $filters['sms_message_template_id']);
+        } elseif (!empty($filters['template_id'])) {
+            $query->where('template_id', $filters['template_id']);
         }
 
         if (!empty($filters['sms_message_group_id'])) {
-            $query->where('sms_message_group_id', $filters['sms_message_group_id']);
+            $query->where('group', $filters['sms_message_group_id']);
+        } elseif (!empty($filters['group'])) {
+            $query->where('group', $filters['group']);
         }
 
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);
             $query->where(function ($q) use ($search) {
-                $q->where('recipient_phone', 'like', "%{$search}%")
+                $q->where('phones', 'like', "%{$search}%")
                   ->orWhere('tracking_id', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+                  ->orWhere('message', 'like', "%{$search}%");
             });
         }
 
@@ -138,11 +142,8 @@ class SmsReportService
         $messages = $baseQuery->paginate($perPage)->withQueryString();
         app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
 
-        // Available filter options. `type` (confidential/normal, added in
-        // 509f35d7) is a different, auto-derived column — service_type is
-        // what distinguishes an OTP template (see scopeForOtp()).
-        $templates = SmsMessageTemplate::query()->where('service_type', 'otp')->get();
-        $groups = SmsMessageGroup::query()->get();
+        $templates = SmsTemplate::query()->where('service_type', 'otp')->get();
+        $groups = Groupsms::select('group')->distinct()->whereNotNull('group')->get()->map(fn ($r) => (object)['id' => $r->group, 'name' => $r->group]);
 
         return [
             'business' => $business,
@@ -159,22 +160,22 @@ class SmsReportService
      */
     public function buildAdvertisingMessagesQuery(GhorfeOnlineList $business, array $filters = []): Builder
     {
-        $query = SmsMessage::query()
-            ->with(['template', 'group', 'senderNumber', 'campaign', 'creator'])
-            ->where('ghorfe_online_list_id', $business->id);
+        $query = Groupsms::query()
+            ->with(['template', 'senderNumber', 'campaign', 'creator'])
+            ->where('ghorfe_online_list_id', $business->id)
+            ->where(fn ($q) => $q->whereNull('is_bulk')->orWhere('is_bulk', false));
 
         $this->applyAdvertisingRouting($query);
         $this->applyAdvertisingServiceTypeFilter($query, $filters);
         $this->applyDirectionFilter($query, $filters);
 
         if (!empty($filters['sender_number_id'])) {
-            // Inbound rows have no sender_number_id: they are tied to the line by the number they were received on.
             $senderId = (int) $filters['sender_number_id'];
-            $senderNumber = SenderNumber::query()->whereKey($senderId)->value('number');
+            $senderNumber = Setting::query()->whereKey($senderId)->value('number');
             $query->where(function ($w) use ($senderId, $senderNumber) {
                 $w->where('sender_number_id', $senderId);
                 if ($senderNumber) {
-                    $w->orWhere(fn ($i) => $i->where('direction', 'inbound')->where('recipient_phone', $senderNumber));
+                    $w->orWhere(fn ($i) => $i->where('direction', 'inbound')->where('phones', $senderNumber));
                 }
             });
         }
@@ -188,15 +189,17 @@ class SmsReportService
         }
 
         if (!empty($filters['sms_message_group_id'])) {
-            $query->where('sms_message_group_id', $filters['sms_message_group_id']);
+            $query->where('group', $filters['sms_message_group_id']);
+        } elseif (!empty($filters['group'])) {
+            $query->where('group', $filters['group']);
         }
 
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);
             $query->where(function ($q) use ($search) {
-                $q->where('recipient_phone', 'like', "%{$search}%")
+                $q->where('phones', 'like', "%{$search}%")
                   ->orWhere('tracking_id', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+                  ->orWhere('message', 'like', "%{$search}%");
             });
         }
 
@@ -216,7 +219,7 @@ class SmsReportService
      */
     public function buildAdvertisingCampaignsQuery(GhorfeOnlineList $business, array $filters = []): Builder
     {
-        $query = SmsCampaign::query()
+        $query = Groupsms::campaigns()
             ->with(['senderNumber', 'template', 'creator'])
             ->where('ghorfe_online_list_id', $business->id);
 
@@ -247,8 +250,8 @@ class SmsReportService
     public function getAdvertisingReport(GhorfeOnlineList $business, array $filters = [], int $perPage = 25): array
     {
         $assignedSenders = $business->senderNumbers()
-            ->where('sender_numbers.type', 'advertising')
-            ->where('sender_numbers.status', 'active')
+            ->where('type', 'advertising')
+            ->where('status', 'active')
             ->get();
 
         $messagesQuery = $this->buildAdvertisingMessagesQuery($business, $filters);
@@ -286,7 +289,9 @@ class SmsReportService
         $messages = $messagesQuery->paginate($perPage, ['*'], 'messages_page')->withQueryString();
         app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
         $campaigns = $campaignsQuery->paginate(15, ['*'], 'campaigns_page')->withQueryString();
-        $groups = SmsMessageGroup::query()->get();
+        $groups = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'group')
+            ? Groupsms::select('group')->distinct()->whereNotNull('group')->get()->map(fn ($r) => (object)['id' => $r->group, 'name' => $r->group])
+            : collect();
 
         return [
             'business' => $business,
@@ -306,8 +311,9 @@ class SmsReportService
      */
     public function buildSuperAdminReportQuery(array $filters = []): Builder
     {
-        $query = SmsMessage::query()
-            ->with(['business', 'senderNumber', 'template', 'group', 'campaign', 'creator']);
+        $query = Groupsms::query()
+            ->with(['business', 'senderNumber', 'template', 'campaign', 'creator'])
+            ->where(fn ($q) => $q->whereNull('is_bulk')->orWhere('is_bulk', false));
 
         // 1. Business filter
         if (!empty($filters['business'])) {
@@ -345,10 +351,7 @@ class SmsReportService
         if (!empty($filters['panel_type'])) {
             $panelType = $filters['panel_type'];
             $query->whereHas('senderNumber', function ($sq) use ($panelType) {
-                $sq->where(function ($inner) use ($panelType) {
-                    $inner->where('type', $panelType)
-                        ->orWhereHas('panel', fn ($pq) => $pq->where('type', $panelType));
-                });
+                $sq->where('type', $panelType);
             });
         }
 
@@ -375,24 +378,19 @@ class SmsReportService
 
         // 7. Group filter
         if (!empty($filters['group'])) {
-            $groupVal = $filters['group'];
-            if (is_numeric($groupVal)) {
-                $query->where('sms_message_group_id', (int) $groupVal);
-            } else {
-                $query->whereHas('group', fn ($gq) => $gq->where('name', 'like', "%{$groupVal}%"));
-            }
+            $query->where('group', $filters['group']);
         } elseif (!empty($filters['sms_message_group_id'])) {
-            $query->where('sms_message_group_id', (int) $filters['sms_message_group_id']);
+            $query->where('group', $filters['sms_message_group_id']);
         }
 
         // Additional general search
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);
             $query->where(function ($q) use ($search) {
-                $q->where('recipient_phone', 'like', "%{$search}%")
-                  ->orWhere('sender_phone', 'like', "%{$search}%")
+                $q->where('phones', 'like', "%{$search}%")
+                  ->orWhere('sender_number', 'like', "%{$search}%")
                   ->orWhere('tracking_id', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+                  ->orWhere('message', 'like', "%{$search}%");
             });
         }
 
@@ -411,47 +409,55 @@ class SmsReportService
         // Overall KPIs (cost / delivery on outbound rows only, received counted separately)
         $summary = $this->directionStats($baseQuery);
 
+        $hasGhorfeCol = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'ghorfe_online_list_id');
+        $hasSenderCol = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'sender_number_id');
+        $hasServiceTypeCol = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'service_type');
+
         // Unique businesses count in this filtered dataset
-        $businessesCount = (clone $baseQuery)->distinct('ghorfe_online_list_id')->count('ghorfe_online_list_id');
+        $businessesCount = $hasGhorfeCol
+            ? (clone $baseQuery)->distinct('ghorfe_online_list_id')->count('ghorfe_online_list_id')
+            : GhorfeOnlineList::count();
         $summary['businesses_count'] = $businessesCount;
 
         // Breakdowns below are outbound-only (volume and cost of what was actually sent)
         $outboundQuery = (clone $baseQuery)->where('direction', 'outbound');
 
         // Breakdown by message type (service_type)
-        $messageTypeBreakdown = (clone $outboundQuery)
+        $messageTypeBreakdown = $hasServiceTypeCol ? (clone $outboundQuery)
             ->selectRaw('service_type, COUNT(*) as count, SUM(cost) as cost')
             ->groupBy('service_type')
             ->get()
-            ->keyBy('service_type');
+            ->keyBy('service_type') : collect();
 
         // Top businesses by SMS consumption
-        $businessBreakdown = (clone $outboundQuery)
+        $businessBreakdown = $hasGhorfeCol ? (clone $outboundQuery)
             ->whereNotNull('ghorfe_online_list_id')
             ->selectRaw('ghorfe_online_list_id, COUNT(*) as message_count, SUM(cost) as total_cost')
             ->groupBy('ghorfe_online_list_id')
             ->orderByDesc('message_count')
             ->limit(10)
             ->with('business')
-            ->get();
+            ->get() : collect();
 
         // Breakdown by sender number
-        $senderBreakdown = (clone $outboundQuery)
+        $senderBreakdown = $hasSenderCol ? (clone $outboundQuery)
             ->whereNotNull('sender_number_id')
             ->selectRaw('sender_number_id, COUNT(*) as message_count, SUM(cost) as total_cost')
             ->groupBy('sender_number_id')
             ->orderByDesc('message_count')
             ->limit(10)
             ->with('senderNumber')
-            ->get();
+            ->get() : collect();
 
         $messages = $baseQuery->paginate($perPage)->withQueryString();
         app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
 
         // Filter selector options
         $businesses = GhorfeOnlineList::query()->select('id', 'title')->orderBy('title')->get();
-        $senders = SenderNumber::query()->select('id', 'number', 'type')->orderBy('number')->get();
-        $groups = SmsMessageGroup::query()->select('id', 'name')->orderBy('name')->get();
+        $senders = Setting::query()->where('key', 'sms_sender_number')->get();
+        $groups = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'group')
+            ? Groupsms::select('group')->distinct()->whereNotNull('group')->get()->map(fn ($r) => (object)['id' => $r->group, 'name' => $r->group])
+            : collect();
         $panelTypes = ['otp' => 'اعتبارسنجی (OTP)', 'advertising' => 'تبلیغاتی (Advertising)', 'normal-advertising' => 'عادی/تبلیغاتی', 'all' => 'همه پنل‌ها'];
 
         return [

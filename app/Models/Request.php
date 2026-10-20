@@ -83,6 +83,16 @@ class Request extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
+    public function smsMessages()
+    {
+        return $this->hasMany(\App\Models\Groupsms::class, 'request_id');
+    }
+
+    public function histories()
+    {
+        return $this->morphMany(\App\Models\History::class, 'historiable');
+    }
+
 
     /**
      * @param $request_id

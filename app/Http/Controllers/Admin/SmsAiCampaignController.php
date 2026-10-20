@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Exceptions\Sms\InsufficientBalanceException;
 use App\Exceptions\Sms\TierAccessDeniedException;
 use App\Http\Controllers\Controller;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
-use App\Models\SmsCampaign;
+use App\Models\Groupsms;
 use App\Services\Sms\AiCampaignAssistant;
 use App\Services\Sms\BulkSmsSendService;
 use App\Services\Sms\SmsAccessTierService;
@@ -58,13 +57,13 @@ class SmsAiCampaignController extends Controller
         // Advertising sender numbers assigned to this business with balances
         $advertisingNumbers = collect();
         if ($business) {
+            $balance = (float) ($business->advertising_balance ?? 0);
             $advertisingNumbers = $business->senderNumbers()
-                ->where('sender_numbers.type', 'advertising')
-                ->where('sender_numbers.status', 'active')
+                ->where('type', 'advertising')
+                ->where('status', 'active')
                 ->get()
-                ->map(function ($sender) use ($business) {
-                    $balance = AdvertisingBalance::where('ghorfe_online_list_id', $business->id)->value('balance') ?? 0;
-                    $sender->current_balance = (float) $balance;
+                ->map(function ($sender) use ($balance) {
+                    $sender->current_balance = $balance;
                     return $sender;
                 });
         }
@@ -72,9 +71,8 @@ class SmsAiCampaignController extends Controller
         // Recent AI campaigns
         $recentCampaigns = collect();
         if ($business) {
-            $recentCampaigns = SmsCampaign::where('ghorfe_online_list_id', $business->id)
+            $recentCampaigns = Groupsms::campaigns()->where('ghorfe_online_list_id', $business->id)
                 ->where('type', 'ai')
-                ->with(['senderNumber', 'creator'])
                 ->latest()
                 ->take(10)
                 ->get();
@@ -467,9 +465,8 @@ class SmsAiCampaignController extends Controller
     {
         $business = $this->resolveBusiness($request);
 
-        $query = SmsCampaign::query()
+        $query = Groupsms::campaigns()
             ->where('type', 'ai')
-            ->with(['senderNumber', 'template', 'creator'])
             ->latest();
 
         if ($business) {
@@ -488,16 +485,13 @@ class SmsAiCampaignController extends Controller
     /**
      * View live status of an AI Campaign.
      */
-    public function statusView(SmsCampaign $campaign): View
+    public function statusView(Groupsms $campaign): View
     {
         $this->abortUnlessCampaignInBusiness($campaign);
 
-        $campaign->load(['senderNumber', 'template', 'creator', 'business']);
-
-        $recipients = $campaign->recipients()
-            ->with('user')
-            ->latest()
-            ->paginate(30);
+        $recipients = method_exists($campaign, 'recipients')
+            ? $campaign->recipients()->with('user')->latest()->paginate(30)
+            : collect()->paginate(30);
 
         return view('Admin.sms.ai.status', compact('campaign', 'recipients'));
     }
@@ -506,7 +500,7 @@ class SmsAiCampaignController extends Controller
      * Ensure the campaign belongs to the current business (superAdmin bypasses).
      * Fails closed when no business is active.
      */
-    private function abortUnlessCampaignInBusiness(SmsCampaign $campaign): void
+    private function abortUnlessCampaignInBusiness(Groupsms $campaign): void
     {
         $business = ghorfe();
 

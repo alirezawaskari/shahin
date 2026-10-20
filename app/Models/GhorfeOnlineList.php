@@ -10,7 +10,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class GhorfeOnlineList extends Model implements HasMedia
 {
-    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia;
+    use SoftDeletes , Sluggable, InteractsWithMedia, \App\Models\Concerns\AdoptsLegacyMedia, \App\Models\Concerns\HasContractUsages;
 
     /**
      * Touch-to-migrate: legacy single-image columns -> Spatie single-file collections.
@@ -405,5 +405,126 @@ class GhorfeOnlineList extends Model implements HasMedia
     public function abouts()
     {
         return $this->morphMany(About::class , 'aboutable');
+    }
+
+    public function groupsms()
+    {
+        return $this->hasMany(Groupsms::class, 'ghorfe_online_list_id');
+    }
+
+    public function smsTemplates()
+    {
+        return $this->hasMany(SmsTemplate::class, 'ghorfe_online_list_id');
+    }
+
+    public function senderNumbers()
+    {
+        return $this->morphMany(Setting::class, 'settingable')->where('key', 'sms_sender_number');
+    }
+
+    public function getAdvertisingBalanceAttribute()
+    {
+        if (isset($this->attributes['advertising_balance'])) {
+            return (float) $this->attributes['advertising_balance'];
+        }
+        $val = $this->settings()->where('key', 'advertising_balance')->value('value');
+        if ($val !== null && $val !== '') {
+            return (float) $val;
+        }
+        return (float) ($this->user?->wallet ?? 0);
+    }
+
+    public function getOtpBalanceAttribute()
+    {
+        if (isset($this->attributes['otp_balance'])) {
+            return (float) $this->attributes['otp_balance'];
+        }
+        $val = $this->settings()->where('key', 'otp_balance')->value('value');
+        if ($val !== null && $val !== '') {
+            return (float) $val;
+        }
+        return (float) ($this->user?->wallet ?? 0);
+    }
+
+    public function lockAndDebit(float $amount, string $serviceType = 'advertising'): float
+    {
+        $column = $serviceType === 'otp' ? 'otp_balance' : 'advertising_balance';
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('ghorfe_online_lists', $column)) {
+            $fresh = static::whereKey($this->getKey())->lockForUpdate()->value($column);
+            $current = (float) ($fresh ?? $this->{$column} ?? 0);
+            if ($current < $amount) {
+                throw new \App\Exceptions\Sms\InsufficientBalanceException(
+                    sprintf('موجودی ناکافی است. موجودی فعلی: %s ریال، هزینه: %s ریال.', number_format($current), number_format($amount)),
+                    $current,
+                    $amount
+                );
+            }
+            $this->decrement($column, $amount);
+            $this->{$column} = $current - $amount;
+            return $current;
+        }
+
+        $setting = $this->settings()->where('key', $column)->lockForUpdate()->first();
+        $current = $setting ? (float) $setting->value : (float) ($this->user?->wallet ?? 0);
+        if ($current < $amount) {
+            throw new \App\Exceptions\Sms\InsufficientBalanceException(
+                sprintf('موجودی ناکافی است. موجودی فعلی: %s ریال، هزینه: %s ریال.', number_format($current), number_format($amount)),
+                $current,
+                $amount
+            );
+        }
+        $newBalance = $current - $amount;
+        if ($setting) {
+            $setting->update(['value' => (string) $newBalance]);
+        } else {
+            $this->settings()->create(['key' => $column, 'value' => (string) $newBalance]);
+        }
+        return $current;
+    }
+
+    public function lockAndCredit(float $amount, string $serviceType = 'advertising'): float
+    {
+        $column = $serviceType === 'otp' ? 'otp_balance' : 'advertising_balance';
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('ghorfe_online_lists', $column)) {
+            $fresh = static::whereKey($this->getKey())->lockForUpdate()->value($column);
+            $current = (float) ($fresh ?? $this->{$column} ?? 0);
+            $this->increment($column, $amount);
+            $this->{$column} = $current + $amount;
+            return $current;
+        }
+
+        $setting = $this->settings()->where('key', $column)->lockForUpdate()->first();
+        $current = $setting ? (float) $setting->value : (float) ($this->user?->wallet ?? 0);
+        $newBalance = $current + $amount;
+        if ($setting) {
+            $setting->update(['value' => (string) $newBalance]);
+        } else {
+            $this->settings()->create(['key' => $column, 'value' => (string) $newBalance]);
+        }
+        return $current;
+    }
+
+    public function getBalanceAttribute()
+    {
+        return (float) ($this->advertising_balance ?: $this->otp_balance ?: 0);
+    }
+
+    public function getLowBalanceThresholdAttribute()
+    {
+        return (float) ($this->attributes['otp_low_balance_threshold'] ?? 1000000);
+    }
+
+    public function hasSignedSmsContract(): bool
+    {
+        if (!empty($this->attributes['sms_contract_accepted']) || !empty($this->attributes['sms_contract_accepted_at'])) {
+            return true;
+        }
+        $val = $this->settings()->where('key', 'sms_contract_accepted')->value('value');
+        if ($val) {
+            return true;
+        }
+        return ($this->status ?? 0) == 1;
     }
 }

@@ -432,11 +432,11 @@
                                     @if(isset($groups))
                                         @foreach($groups as $grp)
                                             <optgroup label="📁 {{ $grp->name }}">
-                                                <option value="{{ $grp->id }}" data-slug="{{ $grp->slug }}" data-confidential="{{ $grp->isConfidential() ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
+                                                <option value="{{ $grp->id }}" data-slug="{{ $grp->slug ?? '' }}" data-confidential="{{ (method_exists($grp, 'isConfidential') && $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
                                                     {{ $grp->name }} (دسته اصلی)
                                                 </option>
-                                                @foreach($grp->subgroups as $sub)
-                                                    <option value="{{ $sub->id }}" data-slug="{{ $sub->slug }}" data-confidential="{{ ($sub->isConfidential() || $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
+                                                @foreach(($grp->subgroups ?? $grp->children ?? collect()) as $sub)
+                                                    <option value="{{ $sub->id }}" data-slug="{{ $sub->slug ?? '' }}" data-confidential="{{ ((method_exists($sub, 'isConfidential') && $sub->isConfidential()) || (method_exists($grp, 'isConfidential') && $grp->isConfidential())) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
                                                         {{ $grp->name }} › {{ $sub->name }}
                                                     </option>
                                                 @endforeach

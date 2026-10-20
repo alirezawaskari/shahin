@@ -2,7 +2,8 @@
 
 namespace App\Services\SmsSettings;
 
-use App\Models\SmsMessageGroup;
+use App\Models\GhorfeOnlineList;
+use App\Models\Setting;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -14,16 +15,14 @@ class SmsMessageGroupService
      */
     public function tree(?int $businessId = null): Collection
     {
-        return SmsMessageGroup::query()
-            ->whereNull('parent_id')
-            ->when($businessId, fn($q) => $q->where('ghorfe_online_list_id', $businessId))
-            ->with(['business:id,title', 'children' => function ($q) use ($businessId) {
-                $q->when($businessId, fn($sq) => $sq->where('ghorfe_online_list_id', $businessId))
-                  ->withCount('templates');
-            }])
-            ->withCount('templates')
-            ->orderBy('name')
+        $all = Setting::query()
+            ->where('key', 'sms_message_group')
+            ->when($businessId, fn($q) => $q->where('settingable_id', $businessId))
             ->get();
+
+        $roots = $all->filter(fn ($s) => empty($s->parent_id))->values();
+
+        return new Collection($roots);
     }
 
     /**
@@ -31,17 +30,10 @@ class SmsMessageGroupService
      */
     public function options(?int $businessId = null): array
     {
-        $roots = SmsMessageGroup::whereNull('parent_id')
-            ->when($businessId, fn($q) => $q->where('ghorfe_online_list_id', $businessId))
-            ->with(['business', 'children' => function ($q) use ($businessId) {
-                $q->when($businessId, fn($sq) => $sq->where('ghorfe_online_list_id', $businessId));
-            }])
-            ->orderBy('name')
-            ->get();
+        $roots = $this->tree($businessId);
 
         $options = [];
         foreach ($roots as $root) {
-            // Cross-business listing (no business pinned): tell identical-looking groups apart.
             $rootLabel = (!$businessId && $root->business) ? "{$root->name} ({$root->business->title})" : $root->name;
             $options[$root->id] = $rootLabel;
             foreach ($root->children as $child) {
@@ -53,27 +45,46 @@ class SmsMessageGroupService
     }
 
     /**
+     * Get IDs of promotional groups.
+     */
+    public function promotionalIds(?int $businessId = null): array
+    {
+        return Setting::query()
+            ->where('key', 'sms_message_group')
+            ->when($businessId, fn($q) => $q->where('settingable_id', $businessId))
+            ->get()
+            ->filter(fn ($s) => $s->isPromotional())
+            ->pluck('id')
+            ->all();
+    }
+
+    /**
      * Create a group or subgroup.
      */
-    public function create(array $data, ?int $businessId = null): SmsMessageGroup
+    public function create(array $data, ?int $businessId = null): Setting
     {
         $slug = !empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']);
 
-        // Ensure unique slug within same parent level and business
         $originalSlug = $slug;
         $counter = 1;
-        while (SmsMessageGroup::where('slug', $slug)
-            ->where('parent_id', $data['parent_id'] ?? null)
-            ->where('ghorfe_online_list_id', $businessId)
+        while (Setting::where('key', 'sms_message_group')
+            ->where('settingable_id', $businessId)
+            ->where('value', 'like', '%"slug":"' . $slug . '"%')
             ->exists()) {
             $slug = "{$originalSlug}-" . $counter++;
         }
 
-        return SmsMessageGroup::create([
-            'name' => $data['name'],
-            'slug' => $slug,
-            'parent_id' => !empty($data['parent_id']) ? $data['parent_id'] : null,
-            'ghorfe_online_list_id' => $businessId,
+        return Setting::create([
+            'key' => 'sms_message_group',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $businessId,
+            'type' => 'group',
+            'status' => 'active',
+            'value' => json_encode([
+                'name' => $data['name'],
+                'slug' => $slug,
+                'parent_id' => !empty($data['parent_id']) ? (int) $data['parent_id'] : null,
+            ]),
         ]);
     }
 
@@ -82,7 +93,7 @@ class SmsMessageGroupService
      */
     public function ensureDefaultGroupsForBusiness(int $businessId): void
     {
-        if (SmsMessageGroup::where('ghorfe_online_list_id', $businessId)->exists()) {
+        if (Setting::where('key', 'sms_message_group')->where('settingable_id', $businessId)->exists()) {
             return;
         }
 
@@ -128,19 +139,31 @@ class SmsMessageGroupService
         ];
 
         foreach ($defaultGroups as $groupData) {
-            $parent = SmsMessageGroup::create([
-                'ghorfe_online_list_id' => $businessId,
-                'name' => $groupData['name'],
-                'slug' => $groupData['slug'],
-                'parent_id' => null,
+            $parent = Setting::create([
+                'key' => 'sms_message_group',
+                'settingable_type' => GhorfeOnlineList::class,
+                'settingable_id' => $businessId,
+                'type' => 'group',
+                'status' => 'active',
+                'value' => json_encode([
+                    'name' => $groupData['name'],
+                    'slug' => $groupData['slug'],
+                    'parent_id' => null,
+                ]),
             ]);
 
             foreach ($groupData['subgroups'] as $sub) {
-                SmsMessageGroup::create([
-                    'ghorfe_online_list_id' => $businessId,
-                    'parent_id' => $parent->id,
-                    'name' => $sub['name'],
-                    'slug' => $sub['slug'],
+                Setting::create([
+                    'key' => 'sms_message_group',
+                    'settingable_type' => GhorfeOnlineList::class,
+                    'settingable_id' => $businessId,
+                    'type' => 'group',
+                    'status' => 'active',
+                    'value' => json_encode([
+                        'name' => $sub['name'],
+                        'slug' => $sub['slug'],
+                        'parent_id' => $parent->id,
+                    ]),
                 ]);
             }
         }
@@ -149,68 +172,44 @@ class SmsMessageGroupService
     /**
      * Update an existing group.
      */
-    public function update(SmsMessageGroup $group, array $data): SmsMessageGroup
+    public function update(Setting $group, array $data): Setting
     {
         $slug = !empty($data['slug']) ? Str::slug($data['slug']) : $group->slug;
         $parentId = array_key_exists('parent_id', $data)
             ? (!empty($data['parent_id']) ? (int) $data['parent_id'] : null)
             : $group->parent_id;
 
-        // Prevent setting self as parent
         if ($parentId === $group->id) {
             throw ValidationException::withMessages([
                 'parent_id' => ['یک گروه نمی‌تواند والد خودش باشد.'],
             ]);
         }
 
-        $group->update([
+        $group->value = json_encode([
             'name' => $data['name'] ?? $group->name,
             'slug' => $slug,
             'parent_id' => $parentId,
         ]);
+        $group->save();
 
         return $group;
     }
 
     /**
      * Delete a group or subgroup.
-     * Guard against deleting groups that still contain active templates, or
-     * that have historical SmsMessage rows referencing them.
-     *
-     * The sms_message_group_id FK on sms_messages is nullOnDelete(), and
-     * SmsMessage::isConfidential() resolves purely through $this->group —
-     * so deleting a مالی/حقوقی (confidential) group with historical messages
-     * would null out their group_id and make those messages silently appear
-     * non-confidential to everyone, retroactively. Block the delete instead,
-     * the same way a group with templates is blocked.
-     *
-     * @throws ValidationException
      */
-    public function delete(SmsMessageGroup $group): bool
+    public function delete(Setting $group): bool
     {
-        if ($group->templates()->exists()) {
+        if ($group->templates_count > 0) {
             throw ValidationException::withMessages([
                 'group' => ["گروه «{$group->name}» دارای قالب‌های پیامک فعال است و امکان حذف آن وجود ندارد."],
             ]);
         }
 
-        if ($group->messages()->exists()) {
-            throw ValidationException::withMessages([
-                'group' => ["گروه «{$group->name}» دارای پیامک‌های ثبت‌شده است و امکان حذف آن وجود ندارد."],
-            ]);
-        }
-
-        // Check if any child subgroups have templates or messages
         foreach ($group->children as $child) {
-            if ($child->templates()->exists()) {
+            if ($child->templates_count > 0) {
                 throw ValidationException::withMessages([
                     'group' => ["زیرگروه «{$child->name}» دارای قالب‌های پیامک است و امکان حذف گروه اصلی وجود ندارد."],
-                ]);
-            }
-
-            if ($child->messages()->exists()) {
-                throw ValidationException::withMessages([
-                    'group' => ["زیرگروه «{$child->name}» دارای پیامک‌های ثبت‌شده است و امکان حذف گروه اصلی وجود ندارد."],
                 ]);
             }
         }

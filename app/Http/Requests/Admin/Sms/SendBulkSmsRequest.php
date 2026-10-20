@@ -16,11 +16,11 @@ class SendBulkSmsRequest extends FormRequest
         return [
             'recipient_type' => ['required', 'string', 'in:normal,advertising'],
             'message' => ['nullable', 'string'],
-            'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_message_templates,id'],
-            'sms_message_group_id' => ['nullable', 'integer', 'exists:sms_message_groups,id'],
+            'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_templates,id'],
+            'sms_message_group_id' => ['nullable'],
             'type' => ['nullable', 'string', 'in:regular,classified'],
             'classification' => ['nullable', 'string', 'in:regular,classified'],
-            'sender_number_id' => ['required', 'integer', 'exists:sender_numbers,id'],
+            'sender_number_id' => ['required', 'integer', 'exists:ghorfe_settings,id'],
             'filters' => ['nullable', 'array'],
             'scheduled_at' => ['nullable', 'date'],
             'custom_numbers' => ['nullable', 'string'],
@@ -57,13 +57,13 @@ class SendBulkSmsRequest extends FormRequest
 
             // Promotional sends only support event/greeting, sales and support subject categories.
             if (!empty($this->input('sms_message_group_id')) && !$validator->errors()->has('sms_message_group_id')
-                && !\App\Models\SmsMessageGroup::isPromotionalId($this->input('sms_message_group_id'))) {
+                && !\App\Models\Groupsms::isPromotionalGroup($this->input('sms_message_group_id'))) {
                 $validator->errors()->add('sms_message_group_id', 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست (فقط مناسبتی/تبریک، فروش و پشتیبانی).');
             }
 
             // Promotional flow only: OTP templates never go through bulk.
             if (!empty($templateId)
-                && \App\Models\SmsMessageTemplate::whereKey($templateId)->where('service_type', 'otp')->exists()) {
+                && \App\Models\SmsTemplate::whereKey($templateId)->where('service_type', 'otp')->exists()) {
                 $validator->errors()->add('sms_message_template_id', 'قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');
             }
         });

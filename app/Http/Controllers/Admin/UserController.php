@@ -119,14 +119,13 @@ class UserController extends AdminController
     {
         $factors = $user->factors()->whereStatus(true)->get();
         $total = $factors->sum('price');
-        $sms_messages = \App\Models\SmsMessage::where('user_id', $user->id)
+        $sms_messages = \App\Models\Groupsms::messages()->where('user_id', $user->id)
             ->orWhere(function ($q) use ($user) {
                 if (!empty($user->phone)) {
                     $q->where('recipient_phone', $user->phone)
                       ->orWhere('sender_phone', $user->phone);
                 }
             })
-            ->with(['senderNumber', 'group', 'template'])
             ->latest()
             ->get();
 

@@ -6,14 +6,12 @@ use App\Classes\External\IranSms;
 use App\Enums\SmsOtpCategory;
 use App\Classes\External\NeginSms;
 use App\Exceptions\Sms\InsufficientBalanceException;
-use App\Models\AdvertisingBalance;
 use App\Models\GhorfeOnlineList;
+use App\Models\Groupsms;
 use App\Models\History;
-use App\Models\OtpBalance;
-use App\Models\SenderNumber;
-use App\Models\SmsMessage;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsTransaction;
+use App\Models\Setting;
+use App\Models\SmsLog;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Settings\SettingsService;
 use Carbon\Carbon;
@@ -173,7 +171,7 @@ class SingleSmsSendService
         GhorfeOnlineList $business,
         ?int $requestedSenderNumberId = null,
         ?User $actor = null
-    ): SenderNumber {
+    ): Setting {
         if ($serviceType === 'otp') {
             // OTP is Titanium-only. A system caller (no signed-in user, no actor) is not an end user and passes.
             $actor = $actor ?? auth()->user();
@@ -183,7 +181,7 @@ class SingleSmsSendService
 
             // OTP sends NEVER allow a sender-number override.
             // Always resolve the active OTP system sender number.
-            $otpSender = SenderNumber::query()
+            $otpSender = Setting::query()
                 ->where('type', 'otp')
                 ->where('status', 'active')
                 ->first();
@@ -195,14 +193,22 @@ class SingleSmsSendService
             return $otpSender;
         }
 
-        // Advertising / normal: Must be assigned to the business through business_sender_number
-        $businessNumbersQuery = $business->senderNumbers()
-            ->where('sender_numbers.type', 'advertising')
-            ->where('sender_numbers.status', 'active');
+        // Advertising / normal: Must be assigned to the business or available active line
+        $businessNumbersQuery = Setting::query()
+            ->where(function ($q) use ($business) {
+                $q->where(function ($sub) use ($business) {
+                    $sub->where('settingable_type', GhorfeOnlineList::class)
+                        ->where('settingable_id', $business->id);
+                })->orWhere(function ($sub) {
+                    $sub->whereNull('settingable_id');
+                });
+            })
+            ->where('type', 'advertising')
+            ->where('status', 'active');
 
         if ($requestedSenderNumberId) {
             $sender = (clone $businessNumbersQuery)
-                ->where('sender_numbers.id', $requestedSenderNumberId)
+                ->where('id', $requestedSenderNumberId)
                 ->first();
 
             if (!$sender) {
@@ -222,33 +228,23 @@ class SingleSmsSendService
     }
 
     /**
-     * Retrieve the financial balance for the given service type. Advertising credit is shared by all of the business' advertising lines.
+     * Retrieve the financial balance for the given service type.
      *
-     * @return array{balance: float, model: OtpBalance|AdvertisingBalance, credit_type: string}
+     * @return array{balance: float, model: GhorfeOnlineList, credit_type: string}
      */
     public function getBalance(string $serviceType, GhorfeOnlineList $business): array
     {
         if ($serviceType === 'otp') {
-            $model = OtpBalance::firstOrCreate(
-                ['ghorfe_online_list_id' => $business->id],
-                ['low_balance_threshold' => 100000]
-            );
-
             return [
-                'balance' => (float) $model->balance,
-                'model' => $model,
+                'balance' => (float) ($business->otp_balance ?? 0),
+                'model' => $business,
                 'credit_type' => 'otp',
             ];
         }
 
-        $model = AdvertisingBalance::firstOrCreate(
-            ['ghorfe_online_list_id' => $business->id],
-            []
-        );
-
         return [
-            'balance' => (float) $model->balance,
-            'model' => $model,
+            'balance' => (float) ($business->advertising_balance ?? 0),
+            'model' => $business,
             'credit_type' => 'advertising',
         ];
     }
@@ -325,7 +321,7 @@ class SingleSmsSendService
     {
         $templateId = $data['sms_message_template_id'] ?? $data['template_id'] ?? null;
         $templateCategory = $templateId
-            ? \App\Models\SmsMessageTemplate::whereKey($templateId)->value('otp_category')
+            ? SmsTemplate::whereKey($templateId)->value('otp_category')
             : null;
         $chosen = !empty($data['otp_category']) ? (string) $data['otp_category'] : null;
 
@@ -346,9 +342,9 @@ class SingleSmsSendService
      * @param array<string, mixed> $data
      * @param GhorfeOnlineList|null $business
      * @param User|null $creator
-     * @return SmsMessage
+     * @return Groupsms
      */
-    public function send(array $data, ?GhorfeOnlineList $business = null, ?User $creator = null): SmsMessage
+    public function send(array $data, ?GhorfeOnlineList $business = null, ?User $creator = null): Groupsms
     {
         $business = $business ?? ghorfe();
 
@@ -363,7 +359,7 @@ class SingleSmsSendService
         $otpCategory = $serviceType === 'otp' ? $this->resolveOtpCategory($data) : null;
 
         // 1. Resolve recipient user if exists
-        $recipientPhone = $data['recipient_phone'];
+        $recipientPhone = $data['recipient_phone'] ?? $data['phones'] ?? null;
         $recipientUser = null;
         if (!empty($data['user_id'])) {
             $recipientUser = User::find($data['user_id']);
@@ -372,7 +368,7 @@ class SingleSmsSendService
         }
 
         // 2. Resolve dynamic parameters in template/message
-        $rawMessage = $data['message'] ?? '';
+        $rawMessage = $data['message'] ?? $data['content'] ?? '';
         $resolvedMessage = $this->resolvePlaceholders($rawMessage, $data['context'] ?? [], $recipientUser);
 
         // 3. "لغو 11" is appended unconditionally for advertising messages (see calculateSegmentation).
@@ -388,13 +384,12 @@ class SingleSmsSendService
         $requestedSenderId = !empty($data['sender_number_id']) ? (int) $data['sender_number_id'] : null;
         $senderNumber = $this->resolveSenderNumber($serviceType, $business, $requestedSenderId, $creator);
 
-        // 6. Resolve the balance row. The authoritative sufficiency check runs under a
-        //    row lock inside the transaction below (an unlocked pre-check here would race).
+        // 6. Resolve the balance row.
         $balanceInfo = $this->getBalance($serviceType, $business);
 
         $trackingId = 'TRK-' . strtoupper(Str::random(12));
 
-        // 7. Atomic DB Transaction: create sms_message, deduct balance, create sms_transaction, dispatch gateway
+        // 7. Atomic DB Transaction: create groupsms, deduct balance, create transaction log, dispatch gateway
         return DB::transaction(function () use (
             $business,
             $creator,
@@ -411,33 +406,36 @@ class SingleSmsSendService
             $data,
             $otpCategory
         ) {
-            $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
-            // OTP is the only message type that can be classified (محرمانه).
-            // Advertising messages can never have any classification other than regular (عادی).
+            $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? $data['group'] ?? null;
             if ($serviceType !== 'otp') {
                 $classification = 'regular';
             } else {
                 $classification = $data['classification'] ?? $data['type'] ?? 'regular';
                 if ($groupId) {
-                    $group = \App\Models\SmsMessageGroup::find($groupId);
-                    if ($group && $group->isConfidential()) {
+                    $isConf = in_array(strtolower((string) $groupId), ['mali', 'hoghoghi']);
+                    if ($isConf) {
                         $classification = 'classified';
                     }
                 }
             }
 
-            $smsMessage = SmsMessage::create([
+            $smsMessage = Groupsms::create([
+                'title' => $serviceType === 'otp' ? 'پیامک اعتبارسنجی' : ($serviceType === 'advertising' ? 'پیامک تبلیغاتی' : 'پیامک تکی'),
                 'ghorfe_online_list_id' => $business->id,
                 'direction' => 'outbound',
                 'service_type' => $serviceType,
+                'type' => 'single',
                 'sender_number_id' => $senderNumber->id,
-                'recipient_phone' => $recipientPhone,
+                'sender_number' => $senderNumber->number,
                 'sender_phone' => $senderNumber->number,
-                'sms_message_template_id' => $data['sms_message_template_id'] ?? null,
-                'sms_message_group_id' => $groupId,
+                'recipient_phone' => $recipientPhone,
+                'phones' => $recipientPhone,
+                'template_id' => $data['sms_message_template_id'] ?? $data['template_id'] ?? null,
+                'group' => is_numeric($groupId) ? (string) $groupId : $groupId,
                 'classification' => $classification,
                 'otp_category' => $otpCategory,
                 'content' => $finalContent,
+                'message' => $finalContent,
                 'character_count' => $characterCount,
                 'page_count' => $pageCount,
                 'status' => 'queued',
@@ -448,19 +446,15 @@ class SingleSmsSendService
                 'created_by' => $creator?->id,
                 'sender_role' => $this->audit->resolveSenderRole($creator),
                 'is_bulk' => false,
-            ]);
-
-            $this->audit->record($creator, $serviceType === 'otp' ? SmsAuditService::CHANNEL_OTP : SmsAuditService::CHANNEL_SINGLE, [
-                'sms_message' => $smsMessage,
+                'flag' => 1,
             ]);
 
             // Lock the balance row, verify it covers the cost, and debit atomically.
-            // Throws InsufficientBalanceException, which rolls back the message insert above.
-            $balanceBefore = $balanceInfo['model']->lockAndDebit($cost);
+            $balanceBefore = $balanceInfo['model']->lockAndDebit($cost, $balanceInfo['credit_type']);
             $balanceAfter = $balanceBefore - $cost;
 
-            // Record transaction
-            SmsTransaction::create([
+            // Record transaction in sms_logs
+            SmsLog::create([
                 'ghorfe_online_list_id' => $business->id,
                 'credit_type' => $balanceInfo['credit_type'],
                 'sender_number_id' => $senderNumber->id,
@@ -471,24 +465,16 @@ class SingleSmsSendService
                 'sms_message_id' => $smsMessage->id,
                 'tracking_id' => $trackingId,
                 'created_by' => $creator?->id,
+                'message' => $finalContent,
+                'sender_number' => $senderNumber->number,
+                'phone' => $recipientPhone,
+                'type' => $serviceType,
+                'status' => 'queued',
             ]);
 
-            // Legacy backward-compatibility record
-            try {
-                \App\Models\Groupsms::create([
-                    'title' => $serviceType === 'otp' ? 'پیامک اعتبارسنجی' : ($serviceType === 'advertising' ? 'پیامک تبلیغاتی' : 'پیامک تکی'),
-                    'message' => $finalContent,
-                    'phones' => $recipientPhone,
-                    'type' => 'single',
-                    'status' => 2,
-                    'flag' => true,
-                    'send_at' => now(),
-                    'ghorfe_online_list_id' => $business?->id,
-                    'sms_message_group_id' => $groupId,
-                    'classification' => $classification,
-                    'sms_message_id' => $smsMessage->id,
-                ]);
-            } catch (\Throwable) {}
+            $this->audit->record($creator, $serviceType === 'otp' ? SmsAuditService::CHANNEL_OTP : SmsAuditService::CHANNEL_SINGLE, [
+                'sms_message' => $smsMessage,
+            ]);
 
             // Dispatch through external gateway
             try {
@@ -517,13 +503,13 @@ class SingleSmsSendService
      * Forward / refer an existing message to another contact with referrer, timestamp, and history logged.
      */
     public function forwardMessage(
-        SmsMessage $originalMessage,
+        Groupsms $originalMessage,
         string $targetPhone,
         ?int $targetUserId = null,
         ?int $referrerId = null,
         ?Carbon $timestamp = null,
         ?GhorfeOnlineList $business = null
-    ): SmsMessage {
+    ): Groupsms {
         $business = $business ?? $originalMessage->business ?? ghorfe();
         $referrer = $referrerId ? User::find($referrerId) : auth()->user();
         $timestamp = $timestamp ?? now();
@@ -551,7 +537,7 @@ class SingleSmsSendService
         if (class_exists(History::class)) {
             try {
                 History::query()->create([
-                    'historiable_type' => SmsMessage::class,
+                    'historiable_type' => Groupsms::class,
                     'historiable_id' => $newMessage->id,
                     'user_id' => $referrer?->id ?? 1,
                     'callcenter_id' => $referrer?->id ?? 1,

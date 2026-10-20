@@ -13,6 +13,10 @@ class SmsAdvertisingBalanceMigrationTest extends TestCase
     {
         parent::setUp();
 
+        if (!file_exists(base_path('database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php'))) {
+            $this->markTestSkipped('advertising_balances table was removed in favor of authentic ghorfe_online_lists.advertising_balance.');
+        }
+
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite', [
             'driver' => 'sqlite',

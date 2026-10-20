@@ -22,9 +22,9 @@ trait BuildsSmsFixture
     protected User $superAdminUser;
     protected GhorfeOnlineList $businessA;
     protected GhorfeOnlineList $businessB;
-    protected SenderNumber $otpSender;
-    protected SenderNumber $advSender1;
-    protected SenderNumber $advSender2;
+    protected \App\Models\Setting $otpSender;
+    protected \App\Models\Setting $advSender1;
+    protected \App\Models\Setting $advSender2;
 
     protected function buildSmsFixture(): void
     {
@@ -34,7 +34,7 @@ trait BuildsSmsFixture
             'driver' => 'sqlite',
             'database' => ':memory:',
             'prefix' => '',
-            'foreign_key_constraints' => true,
+            'foreign_key_constraints' => false,
         ]);
         DB::purge('sqlite');
         DB::setDefaultConnection('sqlite');
@@ -59,7 +59,7 @@ trait BuildsSmsFixture
 
         Schema::create('ghorfe_online_lists', function (Blueprint $table) {
             $table->id();
-            $table->boolean('sms_contract_accepted')->default(true); // tests exercise the module, not the contract gate
+            $table->boolean('sms_contract_accepted')->default(true);
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
@@ -150,33 +150,61 @@ trait BuildsSmsFixture
             $table->timestamps();
         });
 
-        // Run SMS migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000004_create_sms_panels_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-            'database/migrations/2026_10_21_000001_create_sms_top_up_payments_table.php',
-        ];
+        Schema::create('groupsms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('message')->nullable();
+            $table->integer('status')->default(0);
+            $table->integer('flag')->nullable();
+            $table->string('send_at')->nullable();
+            $table->string('type')->default('single');
+            $table->unsignedInteger('phone_list_id')->nullable();
+            $table->text('phones')->nullable();
+            $table->timestamps();
+        });
 
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
+        Schema::create('sms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('mid')->nullable();
+            $table->string('recipient_number')->nullable();
+            $table->string('sender_number')->nullable();
+            $table->string('body')->nullable();
+            $table->dateTime('date')->nullable();
+            $table->integer('status')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->string('name')->length(121)->nullable();
+            $table->text('content')->nullable();
+            $table->integer('status')->default(1);
+            $table->timestamps();
+        });
+
+        Schema::create('sms_logs', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('phone', 20)->nullable();
+            $table->string('type', 30)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ghorfe_settings', function (Blueprint $table) {
+            $table->id();
+            $table->text('value')->nullable();
+            $table->string('key')->nullable();
+            $table->nullableMorphs('settingable');
+            $table->string('number', 50)->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('sms_panel', 50)->nullable();
+            $table->string('status', 50)->default('active');
+            $table->timestamps();
+        });
+
+        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
+        $migration->up();
 
         // Setup test data
         $this->adminUser = User::create([
@@ -184,7 +212,7 @@ trait BuildsSmsFixture
             'family' => 'کسب‌وکار',
             'phone' => '09121111111',
             'level' => 'admin',
-            'access_tier' => 'titanium', // OTP credit/reports are Titanium-only
+            'access_tier' => 'titanium',
             'active' => true,
         ]);
 
@@ -212,32 +240,33 @@ trait BuildsSmsFixture
         ]);
 
         // OTP Sender Number (singleton)
-        $this->otpSender = SenderNumber::create([
+        $this->otpSender = \App\Models\Setting::create([
+            'key' => 'sms_sender_number',
             'number' => '90001',
             'type' => 'otp',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
 
-        // Advertising Sender Numbers
-        $this->advSender1 = SenderNumber::create([
+        // Advertising Sender Numbers for Business A
+        $this->advSender1 = \App\Models\Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->businessA->id,
             'number' => '30001111',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
 
-        $this->advSender2 = SenderNumber::create([
+        $this->advSender2 = \App\Models\Setting::create([
+            'key' => 'sms_sender_number',
+            'settingable_type' => GhorfeOnlineList::class,
+            'settingable_id' => $this->businessA->id,
             'number' => '30002222',
             'type' => 'advertising',
             'sms_panel' => 'NeginSms',
             'status' => 'active',
-        ]);
-
-        // Assign advertising numbers to Business A
-        $this->businessA->senderNumbers()->attach([
-            $this->advSender1->id => ['assigned_at' => now()],
-            $this->advSender2->id => ['assigned_at' => now()],
         ]);
     }
 }

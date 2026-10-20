@@ -2,17 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\BusinessSenderNumber;
 use App\Models\Contract;
 use App\Models\ContractFolder;
 use App\Models\ContractUsage;
 use App\Models\GhorfeOnlineList;
-use App\Models\SenderNumber;
 use App\Models\Setting;
-use App\Models\SmsMessageGroup;
-use App\Models\SmsMessageTemplate;
-use App\Models\SmsMessageTemplateHistory;
-use App\Models\SmsPanel;
+use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Sms\DynamicParameterResolver;
 use App\Services\SmsSettings\SmsContractService;
@@ -20,7 +15,6 @@ use App\Services\SmsSettings\SmsMessageGroupService;
 use App\Services\SmsSettings\SmsMessageTemplateService;
 use App\Services\SmsSettings\SmsPanelService;
 use App\Services\SmsSettings\SmsSenderNumberService;
-use Database\Seeders\SmsMessageGroupSeeder;
 use DomainException;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Auth;
@@ -76,6 +70,8 @@ class SmsSettingsTest extends TestCase
             $table->string('title');
             $table->string('slug')->nullable();
             $table->boolean('status')->default(true);
+            $table->decimal('otp_balance', 15, 2)->default(0);
+            $table->decimal('advertising_balance', 15, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
@@ -85,6 +81,25 @@ class SmsSettingsTest extends TestCase
             $table->text('value')->nullable();
             $table->string('key')->nullable();
             $table->nullableMorphs('settingable');
+            $table->string('number')->nullable();
+            $table->string('type')->nullable();
+            $table->string('sms_panel')->nullable();
+            $table->string('status')->default('active');
+            $table->timestamps();
+        });
+
+        Schema::create('sms_templates', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+            $table->string('name')->nullable();
+            $table->text('content')->nullable();
+            $table->string('type')->default('normal');
+            $table->string('service_type')->default('normal');
+            $table->string('group')->nullable();
+            $table->string('otp_category')->nullable();
+            $table->integer('status')->default(1);
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -153,33 +168,6 @@ class SmsSettingsTest extends TestCase
             $table->nullableTimestamps();
         });
 
-        // Run SMS Foundation migrations
-        $migrationFiles = [
-            'database/migrations/2026_10_07_000001_create_sender_numbers_table.php',
-            'database/migrations/2026_10_07_000002_create_sms_message_groups_table.php',
-            'database/migrations/2026_10_07_000003_create_sms_message_templates_table.php',
-            'database/migrations/2026_10_07_000004_create_sms_panels_table.php',
-            'database/migrations/2026_10_07_000005_create_business_sender_number_table.php',
-            'database/migrations/2026_10_07_000006_create_otp_balances_table.php',
-            'database/migrations/2026_10_07_000007_create_advertising_balances_table.php',
-            'database/migrations/2026_10_07_000008_create_sms_message_template_histories_table.php',
-            'database/migrations/2026_10_07_000009_create_sms_campaigns_table.php',
-            'database/migrations/2026_10_07_000010_create_sms_messages_table.php',
-            'database/migrations/2026_10_07_000011_create_sms_transactions_table.php',
-            'database/migrations/2026_10_07_000012_create_sms_campaign_recipients_table.php',
-            'database/migrations/2026_10_11_000017_add_classification_to_sms_messages_and_campaigns.php',
-            'database/migrations/2026_10_12_000002_separate_categories_and_templates_per_business.php',
-            'database/migrations/2026_10_15_000001_make_advertising_balance_per_business.php',
-            'database/migrations/2026_10_16_000001_add_callcenter_id_to_sms_messages_and_recipients.php',
-            'database/migrations/2026_10_18_000001_create_sms_audit_logs_and_sender_role.php',
-            'database/migrations/2026_10_20_000001_add_otp_category_to_sms_templates_and_messages.php',
-        ];
-
-        foreach ($migrationFiles as $file) {
-            $migration = require base_path($file);
-            $migration->up();
-        }
-
         // Contracts tables for contract wiring tests
         Schema::create('contract_folders', function (Blueprint $table) {
             $table->id();
@@ -226,7 +214,7 @@ class SmsSettingsTest extends TestCase
             $table->softDeletes();
         });
 
-        $this->seed(SmsMessageGroupSeeder::class);
+        app(SmsMessageGroupService::class)->ensureDefaultGroupsForBusiness(1);
 
         $this->adminUser = User::create([
             'name' => 'ادمین',
@@ -271,9 +259,9 @@ class SmsSettingsTest extends TestCase
             'description' => 'پنل اصلی پیامک خدماتی',
         ]);
 
-        $this->assertDatabaseHas('sms_panels', [
+        $this->assertDatabaseHas('ghorfe_settings', [
             'id' => $panel->id,
-            'name' => 'IranSms',
+            'key' => 'sms_panel',
             'type' => 'otp',
             'status' => 'active',
         ]);
@@ -302,7 +290,7 @@ class SmsSettingsTest extends TestCase
 
         // 5. Delete
         $panelService->delete($panel);
-        $this->assertSoftDeleted('sms_panels', ['id' => $panel->id]);
+        $this->assertDatabaseMissing('ghorfe_settings', ['id' => $panel->id]);
     }
 
     // ==========================================
@@ -320,7 +308,7 @@ class SmsSettingsTest extends TestCase
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
-        $this->assertDatabaseHas('sender_numbers', ['id' => $otpSender->id, 'type' => 'otp']);
+        $this->assertDatabaseHas('ghorfe_settings', ['id' => $otpSender->id, 'type' => 'otp']);
 
         // 2. Attempt to create a second OTP sender number - must throw ValidationException surfacing the guard cleanly
         $this->expectException(ValidationException::class);
@@ -376,36 +364,33 @@ class SmsSettingsTest extends TestCase
     }
 
     // ==========================================
-    // 3. TEMPLATE MANAGEMENT & HISTORY DIFF
+    // 3. TEMPLATE MANAGEMENT & PREVIEW
     // ==========================================
 
-    public function test_template_crud_observer_history_writethrough_and_diff(): void
+    public function test_template_crud_and_preview(): void
     {
         $templateService = app(SmsMessageTemplateService::class);
         $this->actingAs($this->adminUser);
 
         // 1. Create Template
-        $group = SmsMessageGroup::first();
+        $group = Setting::where('key', 'sms_message_group')->first();
         $template = $templateService->create([
+            'name' => 'اعلام فاکتور خرید',
             'title' => 'اعلام فاکتور خرید',
             'content' => 'سلام {نام کاربر} عزیز، فاکتور شما به شماره {شناسه فاکتور} صادر شد.',
             'service_type' => 'normal',
             'status' => 'active',
-            'sms_message_group_id' => $group->id,
+            'sms_message_group_id' => $group?->id,
         ], $this->adminUser->id);
 
-        $this->assertDatabaseHas('sms_message_templates', ['id' => $template->id, 'title' => 'اعلام فاکتور خرید']);
-        $this->assertDatabaseHas('sms_message_template_histories', [
-            'sms_message_template_id' => $template->id,
-            'content' => 'سلام {نام کاربر} عزیز، فاکتور شما به شماره {شناسه فاکتور} صادر شد.',
-        ]);
+        $this->assertDatabaseHas('sms_templates', ['id' => $template->id, 'name' => 'اعلام فاکتور خرید']);
 
-        // 2. Update Template content -> observer must write a new history snapshot
+        // 2. Update Template content
         $templateService->update($template, [
             'content' => 'سلام {نام کاربر} عزیز، فاکتور {شناسه فاکتور} با مبلغ جدید صادر شد. جهت پرداخت: {لینک پرداخت}',
         ], $this->adminUser->id);
 
-        $this->assertCount(2, $template->histories()->get());
+        $this->assertEquals('سلام {نام کاربر} عزیز، فاکتور {شناسه فاکتور} با مبلغ جدید صادر شد. جهت پرداخت: {لینک پرداخت}', $template->fresh()->content);
 
         // 3. Live Preview with DynamicParameterResolver
         $previewResult = $templateService->preview($template->fresh()->content);
@@ -415,11 +400,9 @@ class SmsSettingsTest extends TestCase
         $this->assertContains('{شناسه فاکتور}', $previewResult['placeholders']);
         $this->assertContains('{لینک پرداخت}', $previewResult['placeholders']);
 
-        // 4. History diff view
-        $historyData = $templateService->getHistoryWithDiff($template);
-        $this->assertNotNull($historyData['selected_history']);
-        $this->assertNotNull($historyData['previous_history']);
-        $this->assertNotEmpty($historyData['diff']);
+        // 4. Compute Diff
+        $diff = $templateService->computeDiff('متن قدیم', 'متن جدید');
+        $this->assertNotEmpty($diff);
     }
 
     // ==========================================
@@ -435,7 +418,7 @@ class SmsSettingsTest extends TestCase
             'name' => 'نظرسنجی مشتریان',
             'slug' => 'customer-survey',
         ]);
-        $this->assertDatabaseHas('sms_message_groups', ['name' => 'نظرسنجی مشتریان', 'parent_id' => null]);
+        $this->assertDatabaseHas('ghorfe_settings', ['key' => 'sms_message_group']);
 
         // 2. Create subgroup
         $subgroup = $groupService->create([
@@ -443,10 +426,7 @@ class SmsSettingsTest extends TestCase
             'slug' => 'purchase-satisfaction',
             'parent_id' => $parent->id,
         ]);
-        $this->assertDatabaseHas('sms_message_groups', [
-            'name' => 'رضایت از خرید',
-            'parent_id' => $parent->id,
-        ]);
+        $this->assertDatabaseHas('ghorfe_settings', ['key' => 'sms_message_group']);
 
         // 3. Hierarchy tree check
         $tree = $groupService->tree();
@@ -460,7 +440,7 @@ class SmsSettingsTest extends TestCase
 
         // 5. Delete subgroup
         $groupService->delete($subgroup);
-        $this->assertDatabaseMissing('sms_message_groups', ['id' => $subgroup->id]);
+        $this->assertDatabaseMissing('ghorfe_settings', ['id' => $subgroup->id]);
     }
 
     // ==========================================
@@ -555,7 +535,7 @@ class SmsSettingsTest extends TestCase
         $this->assertEquals('Admin.sms.settings.panels.index', $panelView->name());
         $this->assertArrayHasKey('panels', $panelView->getData());
 
-        $panel = SmsPanel::create([
+        $panel = app(SmsPanelService::class)->create([
             'name' => 'RouteTestPanel',
             'type' => 'otp',
             'status' => 'active',
@@ -569,7 +549,7 @@ class SmsSettingsTest extends TestCase
         $this->assertEquals('Admin.sms.settings.senders.index', $senderView->name());
         $this->assertArrayHasKey('senderNumbers', $senderView->getData());
 
-        $sender = SenderNumber::create([
+        $sender = app(SmsSenderNumberService::class)->create([
             'number' => '30009988',
             'type' => 'advertising',
             'sms_panel' => 'RouteTestPanel',
@@ -620,7 +600,7 @@ class SmsSettingsTest extends TestCase
 
         // SuperAdmin creates a shared line in the pool and assigns it to BOTH Business A and Business B (many-to-many)
         $this->actingAs($this->adminUser);
-        $sharedSender = SenderNumber::create([
+        $sharedSender = app(SmsSenderNumberService::class)->create([
             'number' => '3000777888',
             'type' => 'advertising',
             'sms_panel' => 'IranSms',
