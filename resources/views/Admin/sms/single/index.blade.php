@@ -392,8 +392,8 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="متن فعلی را به عنوان قالب ذخیره کن">
-                                    <i class="fa fa-bookmark-o me-1"></i> ذخیره به‌عنوان قالب
+                                <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="ایجاد قالب پیامکی جدید">
+                                    <i class="fa fa-plus-circle me-1"></i> قالب جدید
                                 </button>
                             </div>
                             <div class="sms-hint">با انتخاب قالب، متن آن مستقیماً در کادر پیام قرار می‌گیرد و قابل ویرایش است.</div>
@@ -596,12 +596,12 @@
     </div>
 </div>
 
-{{-- Modal: save current text as a template --}}
+{{-- Modal: create an ordinary (non-OTP) SMS template --}}
 <div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="saveTemplateModalLabel"><i class="fa fa-bookmark-o me-2 text-success"></i> ذخیره به‌عنوان قالب</h5>
+                <h5 class="modal-title fw-bold" id="saveTemplateModalLabel"><i class="fa fa-plus-circle me-2 text-success"></i> ایجاد قالب پیامکی</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
             </div>
             <form id="saveTemplateForm">
@@ -611,12 +611,15 @@
                         <label class="form-label small fw-bold" for="saveTemplateTitle">عنوان قالب <span class="text-danger">*</span></label>
                         <input type="text" id="saveTemplateTitle" class="form-control" required maxlength="120" placeholder="مثال: یادآوری پرداخت">
                     </div>
-                    <div class="small fw-bold mb-1">متن قالب</div>
-                    <div id="saveTemplateContent" class="p-2 bg-light border rounded small" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap;"></div>
+                    <div class="mb-1">
+                        <label class="form-label small fw-bold" for="saveTemplateContent">متن قالب <span class="text-danger">*</span></label>
+                        <textarea id="saveTemplateContent" class="form-control" rows="5" maxlength="2000" required placeholder="مثال: عید مبعث بر شما مبارک باد"></textarea>
+                        <div class="form-text">قالب پیامکی عادی (نه OTP) ساخته می‌شود و بعداً از لیست قالب‌ها قابل انتخاب است. اگر متنی در کادر پیام نوشته باشید، اینجا پر می‌شود.</div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                    <button type="submit" class="btn btn-success">ذخیره قالب</button>
+                    <button type="submit" class="btn btn-success">ایجاد قالب</button>
                 </div>
             </form>
         </div>
@@ -949,8 +952,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (saveTplBtn) {
             saveTplBtn.disabled = serviceTypeOtp.checked;
             saveTplBtn.title = serviceTypeOtp.checked
-                ? 'ذخیره قالب برای پنل OTP هنوز فعال نیست'
-                : 'متن فعلی را به عنوان قالب ذخیره کن';
+                ? 'ایجاد قالب برای پنل OTP از این بخش فعال نیست'
+                : 'ایجاد قالب پیامکی جدید';
         }
         if (serviceTypeOtp.checked) {
             document.getElementById('advertisingSenderContainer').style.display = 'none';
@@ -1162,7 +1165,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ---- Save the current text as a template
     const saveTemplateForm = document.getElementById('saveTemplateForm');
     document.getElementById('saveTemplateModal').addEventListener('show.bs.modal', function () {
-        document.getElementById('saveTemplateContent').textContent = textarea.value;
+        document.getElementById('saveTemplateContent').value = textarea.value;
         document.getElementById('saveTemplateAlert').style.display = 'none';
     });
     saveTemplateForm.addEventListener('submit', function (e) {
@@ -1174,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`{{ route('admin.sms.single.templates.store') }}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ title: title, content: textarea.value })
+            body: JSON.stringify({ title: title, content: document.getElementById('saveTemplateContent').value })
         })
         .then(res => res.json().then(data => ({ ok: res.ok, data })))
         .then(({ ok, data }) => {
@@ -1187,6 +1190,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 opt.setAttribute('data-content', data.template.content);
                 templateSelect.appendChild(opt);
                 templateSelect.value = data.template.id;
+                templateSelect.dispatchEvent(new Event('change'));
                 bootstrap.Modal.getInstance(document.getElementById('saveTemplateModal')).hide();
                 saveTemplateForm.reset();
             } else {

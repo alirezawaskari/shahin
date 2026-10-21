@@ -530,8 +530,8 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="متن فعلی را به عنوان قالب ذخیره کن">
-                                <i class="fa fa-bookmark-o me-1"></i> ذخیره به‌عنوان قالب
+                            <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="ایجاد قالب پیامکی جدید">
+                                <i class="fa fa-plus-circle me-1"></i> قالب جدید
                             </button>
                         </div>
                         <div class="sms-hint">با انتخاب قالب، متن آن مستقیماً در کادر پیام قرار می‌گیرد و قابل ویرایش است.</div>
@@ -900,7 +900,7 @@
         const saveTplBtn = document.getElementById('saveAsTemplateBtn');
         if (saveTplBtn) {
             saveTplBtn.disabled = otp;
-            saveTplBtn.title = otp ? 'ذخیره قالب برای پنل OTP هنوز فعال نیست' : 'متن فعلی را به عنوان قالب ذخیره کن';
+            saveTplBtn.title = otp ? 'ایجاد قالب برای پنل OTP از این بخش فعال نیست' : 'ایجاد قالب پیامکی جدید';
         }
 
         const phoneSender = document.getElementById('phonePreviewSender');
@@ -1478,7 +1478,7 @@
         const formEl = document.getElementById('saveTemplateForm');
         if (!modalEl || !formEl) return;
         modalEl.addEventListener('show.bs.modal', function () {
-            document.getElementById('saveTemplateContent').textContent = document.getElementById('sms_message').value;
+            document.getElementById('saveTemplateContent').value = document.getElementById('sms_message').value;
             document.getElementById('saveTemplateAlert').style.display = 'none';
         });
         formEl.addEventListener('submit', function (e) {
@@ -1488,7 +1488,7 @@
             fetch("{{ route('admin.sms.single.templates.store') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
-                body: JSON.stringify({ title: document.getElementById('saveTemplateTitle').value.trim(), content: document.getElementById('sms_message').value })
+                body: JSON.stringify({ title: document.getElementById('saveTemplateTitle').value.trim(), content: document.getElementById('saveTemplateContent').value })
             })
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(({ ok, data }) => {
@@ -1500,6 +1500,7 @@
                     opt.setAttribute('data-content', data.template.content);
                     select.appendChild(opt);
                     select.value = data.template.id;
+                    select.dispatchEvent(new Event('change'));
                     bootstrap.Modal.getInstance(modalEl).hide();
                     formEl.reset();
                 } else {
