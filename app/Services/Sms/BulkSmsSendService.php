@@ -68,13 +68,34 @@ class BulkSmsSendService
     }
 
     /**
+     * Bulk sends run on one of two panels: the promotional panel (default) or the OTP panel.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function resolveServiceType(array $data): string
+    {
+        return ($data['service_type'] ?? 'advertising') === 'otp' ? 'otp' : 'advertising';
+    }
+
+    /**
+     * Sender line of a bulk send. OTP always uses the single system OTP line (Titanium only);
+     * the promotional panel uses one of the business' own advertising lines.
+     */
+    public function resolveSenderNumberFor(string $serviceType, GhorfeOnlineList $business, ?int $requestedSenderNumberId, User $actor): Setting
+    {
+        if ($serviceType === 'otp') {
+            return $this->singleSmsSendService->resolveSenderNumber('otp', $business, null, $actor);
+        }
+
+        return $this->resolveAdvertisingSenderNumber($business, $requestedSenderNumberId);
+    }
+
+    /**
      * Resolve and validate advertising sender number for a given business.
      */
     public function resolveAdvertisingSenderNumber(GhorfeOnlineList $business, ?int $requestedSenderNumberId = null): Setting
     {
-        $query = $business->senderNumbers()
-            ->where('type', 'advertising')
-            ->where('status', 'active');
+        $query = $this->singleSmsSendService->advertisingSenderQuery($business);
 
         if ($requestedSenderNumberId) {
             $sender = (clone $query)->where('id', $requestedSenderNumberId)->first();
@@ -97,17 +118,21 @@ class BulkSmsSendService
      *
      * @return array{balance: float, model: GhorfeOnlineList, credit_type: string}
      */
-    public function getBalance(GhorfeOnlineList $business): array
+    public function getBalance(GhorfeOnlineList $business, string $serviceType = 'advertising'): array
     {
-        $balance = GhorfeOnlineList::whereKey($business->id)->value('advertising_balance');
+        $column = $serviceType === 'otp' ? 'otp_balance' : 'advertising_balance';
+
+        $balance = \Illuminate\Support\Facades\Schema::hasColumn('ghorfe_online_lists', $column)
+            ? GhorfeOnlineList::whereKey($business->id)->value($column)
+            : null;
         if ($balance !== null) {
-            $business->advertising_balance = (float) $balance;
+            $business->{$column} = (float) $balance;
         }
 
         return [
-            'balance' => (float) ($business->advertising_balance ?? 0),
+            'balance' => (float) ($business->{$column} ?? 0),
             'model' => $business,
-            'credit_type' => 'advertising',
+            'credit_type' => $serviceType === 'otp' ? 'otp' : 'advertising',
         ];
     }
 
@@ -125,9 +150,10 @@ class BulkSmsSendService
      *     tariff: float
      * }
      */
-    public function calculateMessageSegmentation(string $content): array
+    public function calculateMessageSegmentation(string $content, string $serviceType = 'advertising'): array
     {
-        $segmentation = $this->singleSmsSendService->calculateSegmentation($content, 'advertising');
+        // Only the promotional panel gets the mandatory «لغو 11» suffix.
+        $segmentation = $this->singleSmsSendService->calculateSegmentation($content, $serviceType === 'otp' ? 'otp' : 'advertising');
         $tariff = (float) config('services.sms.cost_per_page', 1200);
         $costPerMessage = (float) ($segmentation['page_count'] * $tariff);
 
@@ -204,14 +230,15 @@ class BulkSmsSendService
      *
      * @throws InsufficientBalanceException
      */
-    public function verifyBalance(GhorfeOnlineList $business, float $requiredCost, ?int $pageCount = null): array
+    public function verifyBalance(GhorfeOnlineList $business, float $requiredCost, ?int $pageCount = null, string $serviceType = 'advertising'): array
     {
-        $balanceInfo = $this->getBalance($business);
+        $balanceInfo = $this->getBalance($business, $serviceType);
 
         if ($balanceInfo['balance'] < $requiredCost) {
             throw new InsufficientBalanceException(
                 sprintf(
-                    'موجودی پنل تبلیغاتی برای این کمپین کافی نیست. موجودی فعلی: %s ریال، هزینه مورد نیاز: %s ریال.',
+                    'موجودی %s برای این کمپین کافی نیست. موجودی فعلی: %s ریال، هزینه مورد نیاز: %s ریال.',
+                    $serviceType === 'otp' ? 'پنل OTP' : 'پنل تبلیغاتی',
                     number_format($balanceInfo['balance']),
                     number_format($requiredCost)
                 ),
@@ -262,6 +289,7 @@ class BulkSmsSendService
         $recipientType = $data['recipient_type'] ?? 'normal';
         $filters = $data['filters'] ?? [];
         $type = $data['type'] ?? 'bulk';
+        $serviceType = $this->resolveServiceType($data);
 
         if ($type === 'ai' && empty($data['human_confirmed'])) {
             throw new DomainException('ارسال کمپین هوش مصنوعی نیازمند تایید نهایی کاربر (Human Confirmation) می‌باشد.');
@@ -271,13 +299,18 @@ class BulkSmsSendService
         $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business->id);
         $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType, $business->id);
 
-        // 2. Resolve sender number (strictly restricted to business's assigned advertising numbers)
+        // 2. Resolve sender number (promotional: the business' own lines; OTP: the system OTP line, Titanium only)
         $senderNumberId = !empty($data['sender_number_id']) ? (int) $data['sender_number_id'] : null;
-        $senderNumber = $this->resolveAdvertisingSenderNumber($business, $senderNumberId);
+        $senderNumber = $this->resolveSenderNumberFor($serviceType, $business, $senderNumberId, $actor);
+
+        // OTP sends carry exactly one fixed system category and a classification; promotional ones neither.
+        $otpCategory = $serviceType === 'otp' ? $this->singleSmsSendService->resolveOtpCategory($data) : null;
 
         // 3. Resolve template & message content.
         $templateId = !empty($data['sms_message_template_id']) ? (int) $data['sms_message_template_id'] : null;
-        $this->assertPromotionalTemplate($templateId);
+        if ($serviceType !== 'otp') {
+            $this->assertPromotionalTemplate($templateId);
+        }
         $rawMessage = $data['message'] ?? '';
         if ($templateId && empty($rawMessage)) {
             $template = SmsTemplate::find($templateId);
@@ -300,12 +333,12 @@ class BulkSmsSendService
         // 4b. Resolve placeholders
         $representativeUser = $this->resolveWorstCaseRecipient($validRecipients);
         $resolvedForEstimate = $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $representativeUser);
-        $segmentation = $this->calculateMessageSegmentation($resolvedForEstimate);
+        $segmentation = $this->calculateMessageSegmentation($resolvedForEstimate, $serviceType);
         $pageCount = $segmentation['page_count'];
 
         // 4c. «کاهش تعداد مخاطبین»
         if (isset($data['max_recipients']) && (int) $data['max_recipients'] > 0) {
-            $affordable = $this->maxAffordableRecipients($this->getBalance($business)['balance'], $pageCount);
+            $affordable = $this->maxAffordableRecipients($this->getBalance($business, $serviceType)['balance'], $pageCount);
             $cap = min((int) $data['max_recipients'], $affordable, $recipientCount);
 
             if ($cap <= 0) {
@@ -316,7 +349,7 @@ class BulkSmsSendService
             }
 
             if ($recipientCount === 0) {
-                $this->verifyBalance($business, $this->calculateCampaignCost(1, $pageCount), $pageCount);
+                $this->verifyBalance($business, $this->calculateCampaignCost(1, $pageCount), $pageCount, $serviceType);
             }
         }
 
@@ -324,7 +357,7 @@ class BulkSmsSendService
         $totalCost = $this->calculateCampaignCost($recipientCount, $pageCount);
 
         // 6. Hard block balance verification BEFORE any send or campaign queue
-        $this->verifyBalance($business, $totalCost, $pageCount);
+        $this->verifyBalance($business, $totalCost, $pageCount, $serviceType);
 
         // 7. Parse scheduled time if provided
         $scheduledAt = null;
@@ -350,14 +383,20 @@ class BulkSmsSendService
             $actor,
             $validRecipients,
             $rawMessage,
-            $data
+            $data,
+            $serviceType,
+            $otpCategory
         ) {
-            $groupId = $data['sms_message_group_id'] ?? $data['category_id'] ?? null;
-            $classification = 'regular';
+            // Subject folders and the classification level exist for OTP only.
+            $groupId = $serviceType === 'otp' ? ($data['sms_message_group_id'] ?? $data['category_id'] ?? null) : null;
+            $classification = $serviceType === 'otp' && ($data['classification'] ?? null) === 'classified' ? 'classified' : 'regular';
+
+            $campaignName = trim((string) ($data['campaign_name'] ?? ''))
+                ?: 'کمپین: ' . ($rawMessage ? Str::limit($rawMessage, 30) : 'پیامک انبوه');
 
             $campaign = Groupsms::create([
-                'title' => 'کمپین: ' . ($rawMessage ? Str::limit($rawMessage, 30) : 'پیامک انبوه'),
-                'name' => 'کمپین: ' . ($rawMessage ? Str::limit($rawMessage, 30) : 'پیامک انبوه'),
+                'title' => $campaignName,
+                'name' => $campaignName,
                 'ghorfe_online_list_id' => $business->id,
                 'type' => $type,
                 'ai_goal_prompt' => $data['ai_goal_prompt'] ?? null,
@@ -389,29 +428,35 @@ class BulkSmsSendService
                 'created_by' => $actor->id,
                 'is_bulk' => true,
                 'direction' => 'outbound',
-                'service_type' => 'advertising',
+                'service_type' => $serviceType,
+                'otp_category' => $otpCategory,
             ]);
 
             // Bulk insert recipients as child Groupsms records
             $now = now();
             $recipientChunks = array_chunk($validRecipients, 500);
             foreach ($recipientChunks as $chunk) {
-                $rows = array_map(function ($r) use ($campaign, $now, $business, $senderNumber) {
+                $rows = array_map(function ($r) use ($campaign, $now, $business, $senderNumber, $serviceType, $otpCategory) {
                     return [
+                        // Raw insert bypasses the model, and the legacy table requires these three.
+                        'title' => $campaign->title,
+                        'message' => $campaign->message,
+                        'flag' => 1,
                         'request_id' => $campaign->id,
                         'ghorfe_online_list_id' => $business->id,
                         'phones' => $r['phone'],
                         'recipient_phone' => $r['phone'],
                         'user_id' => $r['user_id'],
                         'callcenter_id' => $r['callcenter_id'] ?? null,
-                        'status' => 0,
+                        'status' => 'pending',
                         'delivery_status' => null,
                         'error_reason' => null,
                         'tracking_id' => null,
                         'is_bulk' => false,
                         'type' => 'bulk_recipient',
                         'direction' => 'outbound',
-                        'service_type' => 'advertising',
+                        'service_type' => $serviceType,
+                        'otp_category' => $otpCategory,
                         'sender_number_id' => $senderNumber->id,
                         'sender_number' => $senderNumber->number,
                         'sender_phone' => $senderNumber->number,
@@ -539,11 +584,19 @@ class BulkSmsSendService
         $recipientType = $data['recipient_type'] ?? 'normal';
         $filters = (array) ($data['filters'] ?? []);
 
+        $serviceType = $this->resolveServiceType($data);
+
         $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business->id);
         $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType, $business->id);
 
+        if ($serviceType === 'otp' && !$this->accessTierService->canUseOtp($actor)) {
+            throw new DomainException('دسترسی به سرویس پیامک OTP برای سطح دسترسی شما مجاز نیست.');
+        }
+
         $templateId = !empty($data['sms_message_template_id']) ? (int) $data['sms_message_template_id'] : null;
-        $this->assertPromotionalTemplate($templateId);
+        if ($serviceType !== 'otp') {
+            $this->assertPromotionalTemplate($templateId);
+        }
 
         $rawMessage = (string) ($data['message'] ?? '');
         if ($templateId && trim($rawMessage) === '') {
@@ -556,27 +609,34 @@ class BulkSmsSendService
             throw new DomainException('برای ذخیره در صف ارسال ابتدا مخاطبان را فیلتر کنید.');
         }
 
-        $senderNumberId = !empty($data['sender_number_id'])
+        $senderNumberId = $serviceType !== 'otp' && !empty($data['sender_number_id'])
             ? $this->resolveAdvertisingSenderNumber($business, (int) $data['sender_number_id'])->id
             : null;
 
-        $groupId = $data['sms_message_group_id'] ?? null;
+        $groupId = $serviceType === 'otp' ? ($data['sms_message_group_id'] ?? null) : null;
         $filterResult = $this->recipientFilterService->filterRecipients($filters, $actor, $business, $recipientType);
         $recipientCount = (int) $filterResult['valid_count'];
         $representative = $this->resolveWorstCaseRecipient($filterResult['valid_recipients']);
         $pageCount = $this->calculateMessageSegmentation(
-            $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $representative)
+            $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $representative),
+            $serviceType
         )['page_count'];
+
+        $otpCategory = $serviceType === 'otp' && !empty($data['otp_category']) ? (string) $data['otp_category'] : null;
+        $classification = $serviceType === 'otp' && ($data['classification'] ?? null) === 'classified' ? 'classified' : 'regular';
 
         $stored = array_merge($filters, [
             'message' => $rawMessage,
             'message_preview' => Str::limit($rawMessage, 200),
             'recipient_type' => $recipientType,
             'sms_message_group_id' => $groupId,
+            'service_type' => $serviceType,
+            'otp_category' => $otpCategory,
+            'classification' => $classification,
         ]);
 
         // Same content saved again (beacon on every page leave) must not pile up duplicates.
-        $fingerprint = sha1(json_encode([$rawMessage, $templateId, $senderNumberId, $filters, $recipientType]));
+        $fingerprint = sha1(json_encode([$rawMessage, $templateId, $senderNumberId, $filters, $recipientType, $serviceType, $otpCategory]));
         $existing ??= Groupsms::pendingQueue()
             ->where('ghorfe_online_list_id', $business->id)
             ->where('created_by', $actor->id)
@@ -584,7 +644,10 @@ class BulkSmsSendService
             ->first(fn (Groupsms $c) => ($c->filters['_fingerprint'] ?? null) === $fingerprint);
         $stored['_fingerprint'] = $fingerprint;
 
+        $campaignName = trim((string) ($data['campaign_name'] ?? ''));
         $attributes = [
+            'title' => $campaignName !== '' ? $campaignName : 'پیش‌نویس: ' . Str::limit($rawMessage, 30),
+            'name' => $campaignName !== '' ? $campaignName : null,
             'type' => 'bulk',
             'template_id' => $templateId,
             'group' => $groupId,
@@ -598,6 +661,8 @@ class BulkSmsSendService
             'scheduled_at' => !empty($data['scheduled_at']) ? Carbon::parse($data['scheduled_at']) : null,
             'cost_estimate' => $this->calculateCampaignCost($recipientCount, $pageCount),
             'is_bulk' => true,
+            'service_type' => $serviceType,
+            'otp_category' => $otpCategory,
         ];
 
         if ($existing && $existing->status === Groupsms::STATUS_PENDING_QUEUE
@@ -608,13 +673,12 @@ class BulkSmsSendService
 
         return Groupsms::create($attributes + [
             'ghorfe_online_list_id' => $business->id,
-            'classification' => 'regular',
+            'classification' => $classification,
             'sent_count' => 0,
             'success_count' => 0,
             'failed_count' => 0,
             'created_by' => $actor->id,
             'direction' => 'outbound',
-            'service_type' => 'advertising',
         ]);
     }
 
@@ -629,6 +693,10 @@ class BulkSmsSendService
 
         return [
             'recipient_type' => $stored['recipient_type'] ?? 'normal',
+            'campaign_name' => $queued->name,
+            'service_type' => $stored['service_type'] ?? ($queued->service_type ?: 'advertising'),
+            'otp_category' => $stored['otp_category'] ?? $queued->otp_category,
+            'classification' => $stored['classification'] ?? 'regular',
             'message' => $stored['message'] ?? ($stored['message_preview'] ?? ''),
             'sms_message_template_id' => $queued->template_id,
             'sms_message_group_id' => $queued->group,
@@ -636,7 +704,7 @@ class BulkSmsSendService
             'scheduled_at' => $queued->scheduled_at,
             'filters' => Arr::except($stored, [
                 'message', 'message_preview', 'recipient_type', 'sms_message_group_id',
-                'classification', '_fingerprint',
+                'classification', 'service_type', 'otp_category', '_fingerprint',
             ]),
         ];
     }
@@ -689,6 +757,7 @@ class BulkSmsSendService
     {
         $campaign->update(['status' => 'sending']);
 
+        $serviceType = $campaign->service_type === 'otp' ? 'otp' : 'advertising';
         $business = $campaign->business;
         $senderNumber = $campaign->senderNumber;
         $creator = $campaign->creator;
@@ -703,9 +772,7 @@ class BulkSmsSendService
         $rawMessage = $template?->content ?? ($campaign->filters['message'] ?? $campaign->filters['message_preview'] ?? $campaign->message ?? '');
 
         $pendingRecipients = $campaign->recipients()
-            ->where(function ($q) {
-                $q->where('status', 'pending')->orWhere('status', 0);
-            })
+            ->where('status', 'pending')
             ->with('user')
             ->get();
         $stoppedForBalance = false;
@@ -716,7 +783,7 @@ class BulkSmsSendService
             $recipientUser = $recipientRecord->user;
 
             $resolvedContent = $this->singleSmsSendService->resolvePlaceholders($rawMessage, [], $recipientUser);
-            $segmentation = $this->calculateMessageSegmentation($resolvedContent);
+            $segmentation = $this->calculateMessageSegmentation($resolvedContent, $serviceType);
             $content = $segmentation['text'];
             $pageCount = $segmentation['page_count'];
             $characterCount = $segmentation['character_count'];
@@ -735,10 +802,11 @@ class BulkSmsSendService
                     $characterCount,
                     $pageCount,
                     $costPerMessage,
-                    $trackingId
+                    $trackingId,
+                    $serviceType
                 ) {
                     // Lock the balance row, verify it covers this message, and debit atomically.
-                    $balanceBefore = $business->lockAndDebit($costPerMessage, 'advertising');
+                    $balanceBefore = $business->lockAndDebit($costPerMessage, $serviceType);
                     $balanceAfter = $balanceBefore - $costPerMessage;
 
                     // Update child recipient record
@@ -756,7 +824,7 @@ class BulkSmsSendService
                     // Create transaction record in sms_logs
                     SmsLog::create([
                         'ghorfe_online_list_id' => $business->id,
-                        'credit_type' => 'advertising',
+                        'credit_type' => $serviceType,
                         'sender_number_id' => $senderNumber->id,
                         'charge_amount' => 0,
                         'consume_amount' => $costPerMessage,
@@ -769,7 +837,7 @@ class BulkSmsSendService
                         'message' => $content,
                         'sender_number' => $senderNumber->number,
                         'phone' => $recipientPhone,
-                        'type' => 'advertising',
+                        'type' => $serviceType,
                         'status' => 'queued',
                         'response' => json_encode([
                             'sender_role' => $this->audit->resolveSenderRole($creator),
@@ -820,9 +888,7 @@ class BulkSmsSendService
                 ]);
 
                 $stopped = $campaign->recipients()
-                    ->where(function ($q) {
-                        $q->where('status', 'pending')->orWhere('status', 0);
-                    })
+                    ->where('status', 'pending')
                     ->update([
                         'status' => 'failed',
                         'error_reason' => $e->getMessage(),

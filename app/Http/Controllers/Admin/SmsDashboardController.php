@@ -43,8 +43,7 @@ class SmsDashboardController extends Controller
         if ($business) {
             $otpBalance = (float) $business->otp_balance;
             $currentAdvBalance = (float) $business->advertising_balance;
-            $advertisingBalances = $business->senderNumbers()
-                ->where('type', 'advertising')
+            $advertisingBalances = app(\App\Services\Sms\SingleSmsSendService::class)->advertisingSenderQuery($business)
                 ->get()
                 ->map(function ($sender) use ($currentAdvBalance) {
                     $sender->current_balance = $currentAdvBalance;
@@ -97,6 +96,27 @@ class SmsDashboardController extends Controller
             'total_cost' => (float) (\Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'cost') ? (clone $baseQuery)->sum('cost') : (clone $baseQuery)->count() * 1200),
         ];
 
+        // Numbers that got more than one message in the last 30 days (fixed window, whatever the selector says).
+        $repeatQuery = Groupsms::query()->messages()
+            ->where('direction', 'outbound')
+            ->where('created_at', '>=', now()->subDays(30))
+            ->whereNotNull('recipient_phone');
+        if ($business) {
+            $repeatQuery->where('ghorfe_online_list_id', $business->id);
+        }
+        if (!app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user())) {
+            $repeatQuery->where(fn ($q) => $q->whereNull('service_type')->orWhere('service_type', '!=', 'otp'));
+        }
+        $repeatRows = $repeatQuery
+            ->selectRaw('recipient_phone, COUNT(*) as total')
+            ->groupBy('recipient_phone')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+        $repeats = [
+            'numbers' => $repeatRows->count(),
+            'extra_messages' => (int) $repeatRows->sum(fn ($row) => $row->total - 1),
+        ];
+
         $recentMessages = (clone $baseQuery)
             ->with(['senderNumber', 'group'])
             ->latest()
@@ -111,6 +131,7 @@ class SmsDashboardController extends Controller
             'otpBalance',
             'advertisingBalances',
             'volume',
+            'repeats',
             'recentMessages',
             'days'
         ));

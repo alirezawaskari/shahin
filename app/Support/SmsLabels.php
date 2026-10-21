@@ -14,7 +14,20 @@ class SmsLabels
         'normal' => 'عادی',
     ];
 
+    /**
+     * Panel names as shown on the send pages (OTP is never called «اعتبارسنجی» there).
+     */
+    public const PANELS = [
+        'otp' => 'پنل OTP',
+        'advertising' => 'پنل تبلیغاتی/اطلاع‌رسانی',
+        'normal' => 'عادی',
+    ];
+
     public const STATUSES = [
+        // Legacy numeric states of old `groupsms` rows (stored before readable states existed).
+        '0' => 'در انتظار',
+        '1' => 'ارسال شد',
+        '2' => 'ناموفق',
         'queued' => 'در صف ارسال',
         'pending' => 'در انتظار',
         'processing' => 'در حال پردازش',
@@ -43,13 +56,18 @@ class SmsLabels
         return self::SERVICE_TYPES[$value ?? ''] ?? ($value ? self::SERVICE_TYPES['normal'] : '-');
     }
 
-    public static function status(?string $value): string
+    public static function panel(?string $value): string
+    {
+        return self::PANELS[$value ?? ''] ?? self::PANELS['normal'];
+    }
+
+    public static function status($value): string
     {
         if ($value === null || $value === '') {
             return '-';
         }
 
-        return self::STATUSES[strtolower($value)] ?? $value;
+        return self::STATUSES[strtolower((string) $value)] ?? (string) $value;
     }
 
     public static function direction(?string $value): string

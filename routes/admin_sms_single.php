@@ -14,4 +14,5 @@ Route::group([
     Route::get('/contacts/search', [SmsSingleSendController::class, 'searchContacts'])->name('contacts.search');
     Route::post('/contacts', [SmsSingleSendController::class, 'storeContact'])->name('contacts.store');
     Route::post('/forward', [SmsSingleSendController::class, 'forward'])->name('forward');
+    Route::post('/templates', [SmsSingleSendController::class, 'storeTemplate'])->name('templates.store');
 });

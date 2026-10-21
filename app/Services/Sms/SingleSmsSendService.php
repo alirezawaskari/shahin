@@ -162,6 +162,27 @@ class SingleSmsSendService
     }
 
     /**
+     * Active promotional lines a business may send from: its own lines plus the shared (unassigned) ones.
+     * Single source of the rule for the single page, the group page and the bulk send itself.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function advertisingSenderQuery(GhorfeOnlineList $business)
+    {
+        return Setting::query()
+            ->where(function ($q) use ($business) {
+                $q->where(function ($sub) use ($business) {
+                    $sub->where('settingable_type', GhorfeOnlineList::class)
+                        ->where('settingable_id', $business->id);
+                })->orWhere(function ($sub) {
+                    $sub->whereNull('settingable_id');
+                });
+            })
+            ->where('type', 'advertising')
+            ->where('status', 'active');
+    }
+
+    /**
      * Resolve the sender number adhering to strict business rules:
      * - OTP: auto-selected singleton system number, user override is strictly forbidden.
      * - Advertising: must be assigned to the current business via business_sender_number.

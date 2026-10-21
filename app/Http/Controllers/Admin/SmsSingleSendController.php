@@ -273,6 +273,52 @@ class SmsSingleSendController extends Controller
     }
 
     /**
+     * Save the text being written as a reusable template, without leaving the page.
+     * Same people who may manage templates elsewhere (SmsTemplateController::canManageTemplates()).
+     */
+    public function storeTemplate(Request $request): JsonResponse
+    {
+        $user = auth()->user();
+        abort_unless(
+            $user && ($user->isSuperAdmin()
+                || $user->hasRole('ghorfeAdmin')
+                || $user->hasPermission('sms-template-create')
+                || $user->hasPermission('sms-template')
+                || $user->hasPermission('sms-settings')),
+            403,
+            'دسترسی ایجاد قالب پیامک برای شما فعال نیست.'
+        );
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:120'],
+            'content' => ['required', 'string', 'max:2000'],
+        ], [
+            'title.required' => 'عنوان قالب الزامی است.',
+            'content.required' => 'متن پیامک خالی است؛ ابتدا متن را بنویسید.',
+        ]);
+
+        $business = $this->resolveBusiness($request);
+
+        $template = SmsTemplate::create([
+            'user_id' => $user->id,
+            'ghorfe_online_list_id' => $business->id,
+            'title' => $validated['title'],
+            'content' => $validated['content'],
+            'service_type' => 'advertising',
+            'status' => 'active',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'template' => [
+                'id' => $template->id,
+                'title' => $template->title,
+                'content' => $template->content,
+            ],
+        ]);
+    }
+
+    /**
      * Inline contact creation without leaving the page.
      */
     public function storeContact(StoreContactRequest $request): JsonResponse

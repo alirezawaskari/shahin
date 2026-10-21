@@ -14,13 +14,18 @@ class SendBulkSmsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'recipient_type' => ['required', 'string', 'in:normal,advertising'],
+            // Derived from the sender's access tier by the controller; a client value is ignored.
+            'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
+            'campaign_name' => ['nullable', 'string', 'max:100'],
+            'service_type' => ['nullable', 'string', 'in:advertising,otp'],
+            'otp_category' => ['nullable', 'string', 'in:' . implode(',', \App\Enums\SmsOtpCategory::values())],
             'message' => ['nullable', 'string'],
             'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_templates,id'],
             'sms_message_group_id' => ['nullable'],
             'type' => ['nullable', 'string', 'in:regular,classified'],
             'classification' => ['nullable', 'string', 'in:regular,classified'],
-            'sender_number_id' => ['required', 'integer', 'exists:ghorfe_settings,id'],
+            // The OTP panel always uses the single system line, so only the promotional panel picks one.
+            'sender_number_id' => ['required_unless:service_type,otp', 'nullable', 'integer', 'exists:ghorfe_settings,id'],
             'filters' => ['nullable', 'array'],
             'scheduled_at' => ['nullable', 'date'],
             'custom_numbers' => ['nullable', 'string'],
@@ -34,10 +39,10 @@ class SendBulkSmsRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'recipient_type.required' => 'انتخاب نوع مخاطبین الزامی است.',
             'recipient_type.in' => 'نوع مخاطبین باید عادی یا تبلیغاتی باشد.',
-            'sender_number_id.required' => 'انتخاب شماره فرستنده تبلیغاتی الزامی است.',
-            'sender_number_id.exists' => 'شماره فرستنده انتخاب شده معتبر نیست.',
+            'sender_number_id.required_unless' => 'انتخاب سرشماره تبلیغاتی الزامی است.',
+            'sender_number_id.exists' => 'سرشماره انتخاب شده معتبر نیست.',
+            'otp_category.in' => 'دسته‌بندی سیستمی OTP نامعتبر است.',
             'sms_message_template_id.exists' => 'قالب پیامک انتخاب شده معتبر نیست.',
             'max_recipients.integer' => 'تعداد مخاطبین باید عدد صحیح باشد.',
             'max_recipients.min' => 'تعداد مخاطبین باید حداقل ۱ باشد.',
@@ -55,13 +60,20 @@ class SendBulkSmsRequest extends FormRequest
                 $validator->errors()->add('message', 'متن پیامک یا انتخاب قالب الزامی است.');
             }
 
-            // Promotional sends only support event/greeting, sales and support subject categories.
-            if (!empty($this->input('sms_message_group_id')) && !$validator->errors()->has('sms_message_group_id')
-                && !\App\Models\Groupsms::isPromotionalGroup($this->input('sms_message_group_id'))) {
-                $validator->errors()->add('sms_message_group_id', 'دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست (فقط مناسبتی/تبریک، فروش و پشتیبانی).');
+            $isOtp = $this->input('service_type') === 'otp';
+
+            if ($isOtp) {
+                if (!app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user())) {
+                    $validator->errors()->add('service_type', 'دسترسی به پنل OTP برای سطح دسترسی شما مجاز نیست.');
+                }
+                if (empty($this->input('otp_category'))) {
+                    $validator->errors()->add('otp_category', 'برای پنل OTP انتخاب دسته‌بندی سیستمی الزامی است.');
+                }
+
+                return;
             }
 
-            // Promotional flow only: OTP templates never go through bulk.
+            // Promotional flow only: OTP templates never go through the promotional panel.
             if (!empty($templateId)
                 && \App\Models\SmsTemplate::whereKey($templateId)->where('service_type', 'otp')->exists()) {
                 $validator->errors()->add('sms_message_template_id', 'قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');

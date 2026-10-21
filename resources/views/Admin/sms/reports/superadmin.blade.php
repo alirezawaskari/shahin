@@ -103,6 +103,133 @@
 
     @include('Admin.sms.reports.navigation')
 
+    <!-- Advanced Super-Admin Filter Bar -->
+@include('Admin.sms.reports.partials.direction-tiles')
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+            <h6 class="fw-bold mb-0"><i class="fa fa-sliders me-1"></i> فیلترهای پیشرفته بین‌سازمانی</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.sms.reports.superadmin.index') }}" class="row g-3">
+                <!-- Business -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label small fw-bold">کسب‌وکار</label>
+                    <select name="business" class="form-select form-select-sm">
+                        <option value="">همه کسب‌وکارها</option>
+                        @foreach($businesses as $b)
+                            <option value="{{ $b->id }}" {{ request('business') == $b->id ? 'selected' : '' }}>
+                                {{ $b->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Sender -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label small fw-bold">خط فرستنده</label>
+                    <select name="sender" class="form-select form-select-sm">
+                        <option value="">همه خطوط</option>
+                        @foreach($senders as $s)
+                            <option value="{{ $s->id }}" {{ request('sender') == $s->id ? 'selected' : '' }}>
+                                {{ $s->number }} ({{ $s->type }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Panel Type -->
+                <div class="col-12 col-sm-6 col-md-2">
+                    <label class="form-label small fw-bold">نوع پنل</label>
+                    <select name="panel_type" class="form-select form-select-sm">
+                        <option value="">همه پنل‌ها</option>
+                        @foreach($panel_types as $ptKey => $ptTitle)
+                            <option value="{{ $ptKey }}" {{ request('panel_type') === $ptKey ? 'selected' : '' }}>
+                                {{ $ptTitle }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Message Type -->
+                <div class="col-12 col-sm-6 col-md-2">
+                    <label class="form-label small fw-bold">نوع پیامک</label>
+                    <select name="message_type" class="form-select form-select-sm">
+                        <option value="">همه انواع</option>
+                        <option value="otp" {{ request('message_type') === 'otp' ? 'selected' : '' }}>اعتبارسنجی (OTP)</option>
+                        <option value="advertising" {{ request('message_type') === 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
+                        <option value="normal" {{ request('message_type') === 'normal' ? 'selected' : '' }}>عادی / اطلاع‌رسانی</option>
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="col-12 col-sm-6 col-md-2">
+                    <label class="form-label small fw-bold">وضعیت</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">همه وضعیت‌ها</option>
+                        <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>تحویل شده</option>
+                        <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>ارسال شده</option>
+                        <option value="queued" {{ request('status') === 'queued' ? 'selected' : '' }}>در صف</option>
+                        <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>ناموفق</option>
+                    </select>
+                </div>
+
+                <!-- Group -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label small fw-bold">گروه پیامک</label>
+                    <select name="group" class="form-select form-select-sm">
+                        <option value="">همه گروه‌ها</option>
+                        @foreach($groups as $grp)
+                            <option value="{{ $grp->id }}" {{ request('group') == $grp->id ? 'selected' : '' }}>
+                                {{ $grp->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label small fw-bold">جستجوی متن یا شماره</label>
+                    <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="شماره، شناسه یا متن">
+                </div>
+
+@include('Admin.sms.reports.partials.direction-filter', ['colClass' => 'col-12 col-sm-6 col-md-2'])
+
+                <!-- Date Range -->
+                <div class="col-12 col-sm-6 col-md-2">
+                    <label class="form-label small fw-bold">از تاریخ</label>
+                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
+                </div>
+                <div class="col-12 col-sm-6 col-md-2">
+                    <label class="form-label small fw-bold">تا تاریخ</label>
+                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-12 col-md-2 d-flex align-items-end gap-2">
+                    <a href="{{ route('admin.sms.reports.superadmin.index') }}" class="btn btn-light btn-sm flex-fill">پاکسازی</a>
+                    <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                        <i class="fa fa-filter me-1"></i> فیلتر
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- The numbers below describe exactly the rows the filters above select, not the whole module. --}}
+    @php
+        $activeFilterCount = collect(request()->except(['page', 'business_id']))->filter(fn ($v) => $v !== null && $v !== '' && $v !== 'all')->count();
+    @endphp
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <h6 class="fw-bold mb-0"><i class="fa fa-filter text-primary me-1"></i> خلاصه نتیجه فیلتر</h6>
+        @if($activeFilterCount > 0)
+            <span class="badge bg-primary">{{ $activeFilterCount }} فیلتر فعال</span>
+            <a href="{{ url()->current() }}{{ request('business_id') ? '?business_id=' . request('business_id') : '' }}" class="small text-decoration-none">حذف فیلترها</a>
+        @else
+            <span class="badge bg-light text-muted border">بدون فیلتر؛ کل داده‌های این گزارش</span>
+        @endif
+    </div>
+
     <!-- KPI Summary Cards -->
     <div class="row g-3 mb-4">
         <!-- Total Messages -->
@@ -218,119 +345,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Advanced Super-Admin Filter Bar -->
-@include('Admin.sms.reports.partials.direction-tiles')
-
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0 py-3">
-            <h6 class="fw-bold mb-0"><i class="fa fa-sliders me-1"></i> فیلترهای پیشرفته بین‌سازمانی</h6>
-        </div>
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.sms.reports.superadmin.index') }}" class="row g-3">
-                <!-- Business -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label small fw-bold">کسب‌وکار</label>
-                    <select name="business" class="form-select form-select-sm">
-                        <option value="">همه کسب‌وکارها</option>
-                        @foreach($businesses as $b)
-                            <option value="{{ $b->id }}" {{ request('business') == $b->id ? 'selected' : '' }}>
-                                {{ $b->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Sender -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label small fw-bold">خط فرستنده</label>
-                    <select name="sender" class="form-select form-select-sm">
-                        <option value="">همه خطوط</option>
-                        @foreach($senders as $s)
-                            <option value="{{ $s->id }}" {{ request('sender') == $s->id ? 'selected' : '' }}>
-                                {{ $s->number }} ({{ $s->type }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Panel Type -->
-                <div class="col-12 col-sm-6 col-md-2">
-                    <label class="form-label small fw-bold">نوع پنل</label>
-                    <select name="panel_type" class="form-select form-select-sm">
-                        <option value="">همه پنل‌ها</option>
-                        @foreach($panel_types as $ptKey => $ptTitle)
-                            <option value="{{ $ptKey }}" {{ request('panel_type') === $ptKey ? 'selected' : '' }}>
-                                {{ $ptTitle }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Message Type -->
-                <div class="col-12 col-sm-6 col-md-2">
-                    <label class="form-label small fw-bold">نوع پیامک</label>
-                    <select name="message_type" class="form-select form-select-sm">
-                        <option value="">همه انواع</option>
-                        <option value="otp" {{ request('message_type') === 'otp' ? 'selected' : '' }}>اعتبارسنجی (OTP)</option>
-                        <option value="advertising" {{ request('message_type') === 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
-                        <option value="normal" {{ request('message_type') === 'normal' ? 'selected' : '' }}>عادی / اطلاع‌رسانی</option>
-                    </select>
-                </div>
-
-                <!-- Status -->
-                <div class="col-12 col-sm-6 col-md-2">
-                    <label class="form-label small fw-bold">وضعیت</label>
-                    <select name="status" class="form-select form-select-sm">
-                        <option value="">همه وضعیت‌ها</option>
-                        <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>تحویل شده</option>
-                        <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>ارسال شده</option>
-                        <option value="queued" {{ request('status') === 'queued' ? 'selected' : '' }}>در صف</option>
-                        <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>ناموفق</option>
-                    </select>
-                </div>
-
-                <!-- Group -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label small fw-bold">گروه پیامک</label>
-                    <select name="group" class="form-select form-select-sm">
-                        <option value="">همه گروه‌ها</option>
-                        @foreach($groups as $grp)
-                            <option value="{{ $grp->id }}" {{ request('group') == $grp->id ? 'selected' : '' }}>
-                                {{ $grp->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Search -->
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label small fw-bold">جستجوی متن یا شماره</label>
-                    <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="شماره، شناسه یا متن">
-                </div>
-
-@include('Admin.sms.reports.partials.direction-filter', ['colClass' => 'col-12 col-sm-6 col-md-2'])
-
-                <!-- Date Range -->
-                <div class="col-12 col-sm-6 col-md-2">
-                    <label class="form-label small fw-bold">از تاریخ</label>
-                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
-                </div>
-                <div class="col-12 col-sm-6 col-md-2">
-                    <label class="form-label small fw-bold">تا تاریخ</label>
-                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
-                </div>
-
-                <!-- Buttons -->
-                <div class="col-12 col-md-2 d-flex align-items-end gap-2">
-                    <a href="{{ route('admin.sms.reports.superadmin.index') }}" class="btn btn-light btn-sm flex-fill">پاکسازی</a>
-                    <button type="submit" class="btn btn-primary btn-sm flex-fill">
-                        <i class="fa fa-filter me-1"></i> فیلتر
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 

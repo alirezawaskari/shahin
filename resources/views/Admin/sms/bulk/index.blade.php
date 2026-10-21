@@ -230,10 +230,10 @@
         <div class="tier-badge {{ $tierClass }}" title="سطح دسترسی شما به فیلترها و مخاطبان">
             <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
         </div>
-        <a href="{{ route('admin.sms.bulk.campaigns') }}" class="btn btn-outline-secondary btn-sm">
+        <a href="{{ route('admin.sms.bulk.index', ['tab' => 'campaigns']) }}" class="btn btn-outline-secondary btn-sm">
             <i class="fa fa-list me-1"></i> تاریخچه کمپین‌ها
         </a>
-        <a href="{{ route('admin.sms.bulk.queue') }}" class="btn btn-outline-warning btn-sm text-dark">
+        <a href="{{ route('admin.sms.bulk.index', ['tab' => 'queue']) }}" class="btn btn-outline-warning btn-sm text-dark">
             <i class="fa fa-clock-o me-1"></i> صف ارسال
             @if(($queuedCount ?? 0) > 0)
                 <span class="badge bg-warning text-dark">{{ number_format($queuedCount) }}</span>
@@ -271,47 +271,114 @@
     <div class="row">
         <!-- Main Form Column -->
         <div class="col-lg-8">
-            <!-- 1. Recipient Type & Target Audience -->
+            <!-- 1. Panel & sender number -->
             <div class="card sms-section">
                 <div class="card-header">
                     <h6 class="sms-section-title">
-                        <span class="badge bg-primary">۱</span> انتخاب نوع مخاطبان و فیلترهای هدفمند
+                        <span class="badge bg-primary">۱</span> نوع پنل و سرشماره
                     </h6>
                 </div>
                 <div class="card-body">
-                    <!-- Recipient Type Toggle -->
                     <div class="sms-field">
-                        <span class="sms-label">نوع مخاطبان</span>
-                        <div class="sms-choice-row">
-                            <label class="sms-choice fw-semibold" for="type_normal">
-                                <input class="form-check-input" type="radio" name="recipient_type" id="type_normal" value="normal" checked>
-                                <span>
-                                    <i class="fa fa-users text-primary me-1"></i> مخاطبان عادی / مشتریان
-                                    <small>مشتریان ثبت‌شده و مرتبط با کسب‌وکار (کلیه سطوح)</small>
-                                </span>
-                            </label>
-                            <label class="sms-choice fw-semibold {{ in_array($userTier, ['diamond', 'titanium']) ? '' : 'text-muted' }}" for="type_advertising">
-                                <input class="form-check-input" type="radio" name="recipient_type" id="type_advertising" value="advertising" {{ in_array($userTier, ['diamond', 'titanium']) ? '' : 'disabled' }}>
-                                <span>
-                                    <i class="fa fa-bullhorn text-warning me-1"></i> مخاطبان تبلیغاتی / انبوه
-                                    <small>بانک شماره‌های تبلیغاتی (نیازمند سطح الماس یا تیتانیوم)</small>
-                                </span>
-                            </label>
-                        </div>
-                        @if(!in_array($userTier, ['diamond', 'titanium']))
-                            <div class="alert alert-warning py-1 px-2 mt-2 small mb-0">
-                                <i class="fa fa-lock me-1"></i> سطح دسترسی شما <strong>{{ $tierLabel }}</strong> است. دسترسی به ارسال پیامک انبوه تبلیغاتی نیازمند سطح <strong>الماس (Diamond)</strong> یا <strong>تیتانیوم (Titanium)</strong> می‌باشد.
-                            </div>
-                        @endif
+                        <label class="sms-label" for="campaign_name">نام کمپین</label>
+                        <input type="text" name="campaign_name" id="campaign_name" class="form-control" maxlength="100" placeholder="مثال: جشنواره پاییزه" value="{{ old('campaign_name') }}">
+                        <div class="sms-hint">اختیاری؛ برای پیدا کردن کمپین در تب «کمپین‌ها» و «صف ارسال».</div>
                     </div>
 
+                    <div class="sms-field">
+                        <span class="sms-label">نوع پنل پیامک</span>
+                        <div class="sms-choice-row">
+                            <label class="sms-choice fw-bold" for="serviceTypeAdv">
+                                <input class="form-check-input" type="radio" name="service_type" id="serviceTypeAdv" value="advertising" checked>
+                                <span><i class="fa fa-bullhorn text-warning me-1"></i> پنل تبلیغاتی/اطلاع‌رسانی</span>
+                            </label>
+                            @if($canUseOtp ?? false)
+                                <label class="sms-choice fw-bold" for="serviceTypeOtp">
+                                    <input class="form-check-input" type="radio" name="service_type" id="serviceTypeOtp" value="otp">
+                                    <span><i class="fa fa-key text-success me-1"></i> پنل OTP</span>
+                                </label>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Promotional panel: the business' own lines --}}
+                    <div id="advertisingSenderContainer">
+                    <span class="sms-label">سرشماره‌های تخصیص‌یافته به کسب‌وکار</span>
+                    @if($advertisingNumbers->isEmpty())
+                        <div class="alert alert-danger mb-3">
+                            <i class="fa fa-exclamation-triangle me-1"></i> هیچ سرشماره اختصاصی تبلیغاتی به این کسب‌وکار تخصیص داده نشده است. لطفا با پشتیبانی تماس بگیرید.
+                        </div>
+                    @else
+                        <div class="row g-3 mb-3">
+                            @foreach($advertisingNumbers as $index => $sender)
+                                <div class="col-md-6">
+                                    <div class="sender-radio-card {{ $index === 0 ? 'active' : '' }}" onclick="selectSenderNumber({{ $sender->id }})">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="sender_number_id" id="sender_{{ $sender->id }}" value="{{ $sender->id }}" {{ $index === 0 ? 'checked' : '' }}>
+                                                <label class="form-check-label fw-bold" for="sender_{{ $sender->id }}">
+                                                    {{ $sender->number }}
+                                                </label>
+                                            </div>
+                                            <span class="badge bg-success small">فعال</span>
+                                        </div>
+                                        <div class="mt-2 text-muted small d-flex justify-content-between align-items-center">
+                                            <span>موجودی پنل تبلیغاتی:</span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <strong class="text-dark" id="sender_balance_{{ $sender->id }}">{{ number_format($sender->current_balance) }} ریال</strong>
+                                                <button type="button" class="btn btn-sm btn-outline-warning text-dark py-0 px-2 fw-semibold quick-charge-sender-btn" style="font-size: 11px;" onclick="event.stopPropagation(); openQuickPaymentGate(null, {{ $sender->id }}, '{{ $sender->number }}', {{ $sender->current_balance }});" title="شارژ سریع آنلاین پنل تبلیغاتی">
+                                                    <i class="fa fa-bolt me-1 text-warning"></i> شارژ سریع
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    </div>
+
+                    {{-- OTP panel: one fixed system line, no choice --}}
+                    @if($canUseOtp ?? false)
+                        <div id="otpSenderContainer" style="display: none;">
+                            <span class="sms-label">سرشماره OTP</span>
+                            @if($otpSender)
+                                <div class="sms-subbox mb-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <div>
+                                        <span class="badge bg-success me-2">تخصیص خودکار سامانه</span>
+                                        <strong class="font-monospace fs-6">{{ $otpSender->number }}</strong>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-info text-dark">موجودی OTP: <span id="otpBalanceDisplay">{{ number_format($otpBalance) }}</span> ریال</span>
+                                        <button type="button" class="btn btn-sm btn-outline-warning text-dark py-0 px-2 fw-semibold" style="font-size: 11px;" onclick="openQuickPaymentGate(null)" title="شارژ سریع پنل OTP">
+                                            <i class="fa fa-bolt me-1 text-warning"></i> شارژ سریع
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="alert alert-warning py-2 small mb-0">سرشماره OTP در سامانه یافت نشد.</div>
+                            @endif
+                            <div class="sms-hint text-info"><i class="fa fa-lock me-1"></i> سرشماره OTP به صورت خودکار تعیین می‌شود و قابل تغییر نیست.</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- 2. Audience filter -->
+            <div class="card sms-section">
+                <div class="card-header">
+                    <h6 class="sms-section-title">
+                        <span class="badge bg-primary">۲</span> فیلتر مخاطبان
+                    </h6>
+                </div>
+                <div class="card-body">
                     <!-- Audience Filter Section (Requests Filter) -->
                     <div class="sms-subbox">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold text-dark small">
-                                <i class="fa fa-filter text-primary me-1"></i> فیلتر مخاطبان (بر اساس پرونده‌ها و درخواست‌ها):
+                                <i class="fa fa-filter text-primary me-1"></i> فیلتر مخاطبان:
                             </span>
-                            <span class="badge bg-secondary small" id="tierGateHint">سطح مورد نیاز: نقره‌ای</span>
                         </div>
 
                         <!-- Requests Filter Actions & Status Card -->
@@ -412,53 +479,62 @@
                 </div>
             </div>
 
-            <!-- 2. Message Composition & Template -->
+            <!-- 3. Message Composition & Template -->
             <div class="card sms-section">
                 <div class="card-header">
                     <h6 class="sms-section-title">
-                        <span class="badge bg-primary">۲</span> تنظیم متن پیامک و قالب
+                        <span class="badge bg-primary">۳</span> تنظیم متن پیامک و قالب
                     </h6>
                 </div>
                 <div class="card-body">
-                    {{-- Message Category / Folders. Bulk messages are always promotional: no classification field. --}}
-                    <div class="sms-subbox">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="sms-label" for="messageGroupSelect">
-                                    <i class="fa fa-folder text-primary me-1"></i> دسته‌بندی موضوعی / پوشه پیام
-                                </label>
-                                <select name="sms_message_group_id" id="messageGroupSelect" class="form-select">
-                                    <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
-                                    @if(isset($groups))
-                                        @foreach($groups as $grp)
-                                            <optgroup label="📁 {{ $grp->name }}">
-                                                <option value="{{ $grp->id }}" data-slug="{{ $grp->slug ?? '' }}" data-confidential="{{ (method_exists($grp, 'isConfidential') && $grp->isConfidential()) ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
-                                                    {{ $grp->name }} (دسته اصلی)
-                                                </option>
-                                                @foreach(($grp->subgroups ?? $grp->children ?? collect()) as $sub)
-                                                    <option value="{{ $sub->id }}" data-slug="{{ $sub->slug ?? '' }}" data-confidential="{{ ((method_exists($sub, 'isConfidential') && $sub->isConfidential()) || (method_exists($grp, 'isConfidential') && $grp->isConfidential())) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
-                                                        {{ $grp->name }} › {{ $sub->name }}
-                                                    </option>
-                                                @endforeach
-                                            </optgroup>
+                    {{-- OTP panel only: fixed system category + classification. The promotional panel has no folder or category. --}}
+                    @if($canUseOtp ?? false)
+                        <div class="sms-subbox" id="otpExtraBox" style="display: none;">
+                            <div class="row g-3">
+                                <div class="col-md-7">
+                                    <label class="sms-label" for="otpCategorySelect"><i class="fa fa-tags text-warning me-1"></i> دسته‌بندی سیستمی OTP <span class="text-danger">*</span></label>
+                                    <select name="otp_category" id="otpCategorySelect" class="form-select" disabled>
+                                        <option value="">-- انتخاب کنید --</option>
+                                        @foreach(\App\Enums\SmsOtpCategory::options() as $otpCatSlug => $otpCatLabel)
+                                            <option value="{{ $otpCatSlug }}">{{ $otpCatLabel }}</option>
                                         @endforeach
-                                    @endif
-                                </select>
-                                <div class="sms-hint">سازمان‌دهی پیام در پوشه‌های موضوعی (مناسبتی و تبریک، فروش، پشتیبانی و زیرگروه‌ها)</div>
+                                    </select>
+                                    <div class="sms-hint">هر پیامک OTP باید دقیقاً یکی از دسته‌بندی‌های ثابت سیستم را داشته باشد.</div>
+                                </div>
+                                <div class="col-md-5">
+                                    <span class="sms-label"><i class="fa fa-shield text-info me-1"></i> نوع پیام (سطح طبقه‌بندی)</span>
+                                    <div class="sms-choice-row flex-nowrap">
+                                        <label class="sms-choice small fw-semibold" for="classRegular" style="flex-basis: 0;">
+                                            <input class="form-check-input" type="radio" name="classification" id="classRegular" value="regular" checked disabled>
+                                            <span><i class="fa fa-envelope-o text-secondary me-1"></i> عادی</span>
+                                        </label>
+                                        <label class="sms-choice small fw-bold text-danger" for="classClassified" style="flex-basis: 0;">
+                                            <input class="form-check-input" type="radio" name="classification" id="classClassified" value="classified" disabled>
+                                            <span><i class="fa fa-lock text-danger me-1"></i> محرمانه</span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
+                    {{-- Template bar: picking a template puts its text straight into the message box. --}}
                     <div class="sms-field">
-                        <label class="sms-label" for="sms_message_template_id">انتخاب از قالب‌های ذخیره‌شده</label>
-                        <select name="sms_message_template_id" id="sms_message_template_id" class="form-select">
-                            <option value="">-- بدون قالب (تایپ متن دلخواه) --</option>
-                            @foreach($templates as $tmpl)
-                                <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
-                                    {{ $tmpl->title }} ({{ $tmpl->group?->name ?? 'عمومی' }})
-                                </option>
-                            @endforeach
-                        </select>
+                        <label class="sms-label" for="sms_message_template_id">قالب آماده</label>
+                        <div class="input-group">
+                            <select name="sms_message_template_id" id="sms_message_template_id" class="form-select">
+                                <option value="">-- بدون قالب (تایپ متن دلخواه) --</option>
+                                @foreach($templates as $tmpl)
+                                    <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
+                                        {{ $tmpl->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="ایجاد قالب پیامکی جدید">
+                                <i class="fa fa-plus-circle me-1"></i> قالب جدید
+                            </button>
+                        </div>
+                        <div class="sms-hint">با انتخاب قالب، متن آن مستقیماً در کادر پیام قرار می‌گیرد و قابل ویرایش است.</div>
                     </div>
 
                     {{-- Shared editor: textarea + dynamic-parameter chips + live counter --}}
@@ -476,47 +552,22 @@
                 </div>
             </div>
 
-            <!-- 3. Advertising Sender Number & Cost Estimate -->
+            <!-- 4. Cost check -->
             <div class="card sms-section">
                 <div class="card-header">
                     <h6 class="sms-section-title">
-                        <span class="badge bg-primary">۳</span> انتخاب شماره فرستنده تبلیغاتی و بررسی مالی
+                        <span class="badge bg-primary">۴</span> بررسی مالی و هزینه
                     </h6>
                 </div>
                 <div class="card-body">
-                    <span class="sms-label">شماره‌های تبلیغاتی تخصیص‌یافته به کسب‌وکار</span>
-                    @if($advertisingNumbers->isEmpty())
-                        <div class="alert alert-danger mb-3">
-                            <i class="fa fa-exclamation-triangle me-1"></i> هیچ شماره اختصاصی تبلیغاتی به این کسب‌وکار تخصیص داده نشده است. لطفا با پشتیبانی تماس بگیرید.
+                    <!-- Recipients actually sent to: the filter decides the maximum, the sender may only lower it -->
+                    <div class="row g-3 mb-3 align-items-start">
+                        <div class="col-md-5">
+                            <label class="sms-label" for="recipient_limit">تعداد مخاطبین ارسال</label>
+                            <input type="number" id="recipient_limit" class="form-control" min="1" step="1" disabled placeholder="—">
+                            <div class="sms-hint" id="recipient_limit_hint">پس از محاسبه، تعداد مخاطبین حاصل از فیلتر اینجا نمایش داده می‌شود؛ فقط می‌توانید آن را کم کنید.</div>
                         </div>
-                    @else
-                        <div class="row g-3 mb-3">
-                            @foreach($advertisingNumbers as $index => $sender)
-                                <div class="col-md-6">
-                                    <div class="sender-radio-card {{ $index === 0 ? 'active' : '' }}" onclick="selectSenderNumber({{ $sender->id }})">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="sender_number_id" id="sender_{{ $sender->id }}" value="{{ $sender->id }}" {{ $index === 0 ? 'checked' : '' }}>
-                                                <label class="form-check-label fw-bold" for="sender_{{ $sender->id }}">
-                                                    {{ $sender->number }}
-                                                </label>
-                                            </div>
-                                            <span class="badge bg-success small">فعال</span>
-                                        </div>
-                                        <div class="mt-2 text-muted small d-flex justify-content-between align-items-center">
-                                            <span>موجودی پنل تبلیغاتی:</span>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <strong class="text-dark" id="sender_balance_{{ $sender->id }}">{{ number_format($sender->current_balance) }} ریال</strong>
-                                                <button type="button" class="btn btn-sm btn-outline-warning text-dark py-0 px-2 fw-semibold quick-charge-sender-btn" style="font-size: 11px;" onclick="event.stopPropagation(); openQuickPaymentGate(null, {{ $sender->id }}, '{{ $sender->number }}', {{ $sender->current_balance }});" title="شارژ سریع آنلاین پنل تبلیغاتی">
-                                                    <i class="fa fa-bolt me-1 text-warning"></i> شارژ سریع
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
+                    </div>
 
                     <!-- Financial Summary & Balance Check Box -->
                     <div id="financialSummaryCard" class="sms-summary">
@@ -573,11 +624,11 @@
                 </div>
             </div>
 
-            <!-- 4. Scheduling & Confirmation -->
+            <!-- 5. Scheduling & Confirmation -->
             <div class="card sms-section">
                 <div class="card-header">
                     <h6 class="sms-section-title">
-                        <span class="badge bg-primary">۴</span> زمان ارسال و تأیید نهایی
+                        <span class="badge bg-primary">۵</span> زمان ارسال و تأیید نهایی
                     </h6>
                 </div>
                 <div class="card-body">
@@ -652,8 +703,18 @@
     </div>
 </form>
 
+@include('Admin.sms.bulk.partials.tabs', [
+    'activeTab' => $activeTab,
+    'recentMessages' => $recentMessages,
+    'queuedList' => $queuedList,
+    'campaignList' => $campaignList,
+    'queuedCount' => $queuedCount ?? 0,
+])
+@include('Admin.sms.partials.forward-modal')
+@include('Admin.sms.bulk.partials.save-template-modal')
+
 {{-- The requests-filter pop-up lives OUTSIDE #bulkSmsForm: its fields are criteria, not form fields. --}}
-@include('Admin.callcenter.partials.filter-modal', ['restrictUsersToBusiness' => $business ?? null])
+@include('Admin.callcenter.partials.filter-modal', ['restrictUsersToBusiness' => $business ?? null, 'previewUrl' => route('admin.sms.bulk.preview')])
 
 <!-- Quick Payment Gate Modal (مودال درگاه پرداخت سریع) -->
 <div class="modal fade" id="quickPaymentModal" tabindex="-1" aria-labelledby="quickPaymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -809,6 +870,54 @@
     const bulkSmsEditor = SmsMessageEditor.get('sms_message');
     const bulkMessageChipEditor = bulkSmsEditor.chips;
 
+    // ---- Panel (promotional / OTP). The OTP radio only exists for tiers that may use it.
+    const serviceTypeOtp = document.getElementById('serviceTypeOtp');
+    const OTP_NUMBER = @json($otpSender?->number);
+    let otpBalance = @json((float) ($otpBalance ?? 0));
+
+    function isOtpPanel() {
+        return !!(serviceTypeOtp && serviceTypeOtp.checked);
+    }
+
+    function onServiceTypeChange(skipPreview) {
+        const otp = isOtpPanel();
+        document.getElementById('advertisingSenderContainer').style.display = otp ? 'none' : '';
+        const otpBox = document.getElementById('otpSenderContainer');
+        if (otpBox) otpBox.style.display = otp ? '' : 'none';
+
+        // Disabled fields are not submitted: the OTP panel has no chosen line, the promotional one no category.
+        document.querySelectorAll('input[name="sender_number_id"]').forEach(i => { i.disabled = otp; });
+        const extra = document.getElementById('otpExtraBox');
+        if (extra) extra.style.display = otp ? '' : 'none';
+        const cat = document.getElementById('otpCategorySelect');
+        if (cat) { cat.disabled = !otp; cat.required = otp; }
+        document.querySelectorAll('input[name="classification"]').forEach(i => { i.disabled = !otp; });
+
+        // «لغو 11» belongs to the promotional panel only.
+        bulkSmsEditor.setAdvertising(!otp);
+
+        // Templates are stored for the promotional panel only for now.
+        const saveTplBtn = document.getElementById('saveAsTemplateBtn');
+        if (saveTplBtn) {
+            saveTplBtn.disabled = otp;
+            saveTplBtn.title = otp ? 'ایجاد قالب برای پنل OTP از این بخش فعال نیست' : 'ایجاد قالب پیامکی جدید';
+        }
+
+        const phoneSender = document.getElementById('phonePreviewSender');
+        if (otp) {
+            phoneSender.innerText = OTP_NUMBER || 'OTP-System';
+        } else {
+            const checked = document.querySelector('input[name="sender_number_id"]:checked');
+            if (checked) phoneSender.innerText = checked.nextElementSibling.innerText.trim();
+        }
+
+        updateMessageStatsAndMockup();
+        if (skipPreview !== true) triggerPreview();
+    }
+
+    document.getElementById('serviceTypeAdv').addEventListener('change', () => onServiceTypeChange());
+    if (serviceTypeOtp) serviceTypeOtp.addEventListener('change', () => onServiceTypeChange());
+
     function selectSenderNumber(id) {
         document.querySelectorAll('.sender-radio-card').forEach(el => el.classList.remove('active'));
         const input = document.getElementById('sender_' + id);
@@ -897,6 +1006,7 @@
                 const fin = body.financial_summary;
                 previewDone = Number(rec.valid_count) > 0;
                 lastMaxAffordable = Number(fin.max_affordable_recipients || 0);
+                syncRecipientLimit(Number(rec.valid_count), Number(fin.effective_recipient_count));
                 const insufficientActions = document.getElementById('insufficientBalanceActions');
                 if (insufficientActions) insufficientActions.style.setProperty('display', 'none', 'important');
                 const qpReduceBtn = document.getElementById('qpBtnReduceRecipients');
@@ -988,6 +1098,33 @@
         });
     }
 
+    // ---- Recipients actually sent to: the filter sets the maximum, the sender may only lower it.
+    const recipientLimitEl = document.getElementById('recipient_limit');
+    const recipientCapEl = document.getElementById('max_recipients');
+    let recipientLimitMax = 0;
+    let recipientLimitTimer = null;
+
+    function syncRecipientLimit(validCount, effectiveCount) {
+        recipientLimitMax = validCount;
+        recipientLimitEl.disabled = validCount < 1;
+        recipientLimitEl.max = validCount;
+        recipientLimitEl.value = validCount < 1 ? '' : Math.min(effectiveCount || validCount, validCount);
+        document.getElementById('recipient_limit_hint').innerText = validCount < 1
+            ? 'مخاطب معتبری پیدا نشد؛ فیلتر را تغییر دهید.'
+            : 'حداکثر ' + validCount.toLocaleString('fa-IR') + ' نفر (حاصل فیلتر)؛ فقط می‌توانید این عدد را کم کنید.';
+    }
+
+    recipientLimitEl.addEventListener('input', function () {
+        let v = parseInt(this.value, 10);
+        if (isNaN(v)) return;
+        // Never above what the filter produced, never below one.
+        if (v > recipientLimitMax) { v = recipientLimitMax; this.value = v; }
+        if (v < 1) { v = 1; this.value = v; }
+        recipientCapEl.value = v < recipientLimitMax ? v : '';
+        clearTimeout(recipientLimitTimer);
+        recipientLimitTimer = setTimeout(triggerPreview, 500);
+    });
+
     // Quick Payment Gate Logic
     let lastCalculatedDeficit = 0;
     let currentQuickSenderId = null;
@@ -995,6 +1132,11 @@
     let currentQuickBusinessId = "{{ $business?->id }}";
 
     function openQuickPaymentGate(suggestedDeficit, senderId, senderNumber, currentBal) {
+        if (!senderId && isOtpPanel()) {
+            senderId = 'otp';
+            senderNumber = 'پنل OTP' + (OTP_NUMBER ? ' (' + OTP_NUMBER + ')' : '');
+            currentBal = otpBalance;
+        }
         if (!senderId) {
             const checkedSender = document.querySelector('input[name="sender_number_id"]:checked');
             if (checkedSender) {
@@ -1080,14 +1222,18 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> در حال انتقال به درگاه پرداخت...';
 
-        fetch("{{ route('admin.sms.financial.advertising.topup') }}", {
+        const quickPayIsOtp = currentQuickSenderId === 'otp';
+        fetch(quickPayIsOtp ? "{{ route('admin.sms.financial.otp.topup') }}" : "{{ route('admin.sms.financial.advertising.topup') }}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
+            body: JSON.stringify(quickPayIsOtp ? {
+                amount: amount,
+                business_id: currentQuickBusinessId
+            } : {
                 sender_number_id: currentQuickSenderId,
                 amount: amount,
                 business_id: currentQuickBusinessId
@@ -1108,9 +1254,15 @@
 
                 // Update balance on sender cards (shared panel balance)
                 const newBal = data.transaction?.balance_after ?? 0;
-                document.querySelectorAll('[id^="sender_balance_"]').forEach(el => {
-                    el.innerText = Number(newBal).toLocaleString('fa-IR') + ' ریال';
-                });
+                if (quickPayIsOtp) {
+                    otpBalance = Number(newBal);
+                    const otpEl = document.getElementById('otpBalanceDisplay');
+                    if (otpEl) otpEl.innerText = Number(newBal).toLocaleString('fa-IR');
+                } else {
+                    document.querySelectorAll('[id^="sender_balance_"]').forEach(el => {
+                        el.innerText = Number(newBal).toLocaleString('fa-IR') + ' ریال';
+                    });
+                }
 
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
@@ -1262,8 +1414,16 @@
     }
 
     function restoreQueuedInput(q) {
-        const radio = document.querySelector('input[name="recipient_type"][value="' + q.recipient_type + '"]');
-        if (radio && !radio.disabled) radio.checked = true;
+        if (q.campaign_name) document.getElementById('campaign_name').value = q.campaign_name;
+        const panelRadio = document.querySelector('input[name="service_type"][value="' + (q.service_type || 'advertising') + '"]');
+        if (panelRadio) panelRadio.checked = true;
+        onServiceTypeChange(true);
+        if (q.otp_category) {
+            const catEl = document.getElementById('otpCategorySelect');
+            if (catEl) catEl.value = q.otp_category;
+        }
+        const classEl = document.querySelector('input[name="classification"][value="' + (q.classification || 'regular') + '"]');
+        if (classEl) classEl.checked = true;
 
         if (q.message) {
             if (bulkMessageChipEditor) bulkMessageChipEditor.setValue(q.message);
@@ -1305,15 +1465,60 @@
             document.getElementById('scheduled_at').value = String(q.scheduled_at).replace(' ', 'T').slice(0, 16);
         }
 
-        if (q.sender_number_id && document.getElementById('sender_' + q.sender_number_id)) {
+        if (q.service_type !== 'otp' && q.sender_number_id && document.getElementById('sender_' + q.sender_number_id)) {
             selectSenderNumber(q.sender_number_id);
         } else {
             triggerPreview();
         }
     }
 
+    // ---- Save the current text as a template
+    (function () {
+        const modalEl = document.getElementById('saveTemplateModal');
+        const formEl = document.getElementById('saveTemplateForm');
+        if (!modalEl || !formEl) return;
+        modalEl.addEventListener('show.bs.modal', function () {
+            document.getElementById('saveTemplateContent').value = document.getElementById('sms_message').value;
+            document.getElementById('saveTemplateAlert').style.display = 'none';
+        });
+        formEl.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('saveTemplateAlert');
+            alertBox.style.display = 'none';
+            fetch("{{ route('admin.sms.single.templates.store') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                body: JSON.stringify({ title: document.getElementById('saveTemplateTitle').value.trim(), content: document.getElementById('saveTemplateContent').value })
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.status === 'success') {
+                    const select = document.getElementById('sms_message_template_id');
+                    const opt = document.createElement('option');
+                    opt.value = data.template.id;
+                    opt.textContent = data.template.title;
+                    opt.setAttribute('data-content', data.template.content);
+                    select.appendChild(opt);
+                    select.value = data.template.id;
+                    select.dispatchEvent(new Event('change'));
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    formEl.reset();
+                } else {
+                    const firstError = data.errors ? Object.values(data.errors)[0][0] : null;
+                    alertBox.textContent = firstError || data.message || 'خطا در ذخیره قالب.';
+                    alertBox.style.display = 'block';
+                }
+            })
+            .catch(() => {
+                alertBox.textContent = 'خطای ارتباط با سرور.';
+                alertBox.style.display = 'block';
+            });
+        });
+    })();
+
     // Trigger initial preview on page load
     document.addEventListener('DOMContentLoaded', function () {
+        onServiceTypeChange(true);
         updateMessageStatsAndMockup();
         if (QUEUED_INPUT) {
             restoreQueuedInput(QUEUED_INPUT);

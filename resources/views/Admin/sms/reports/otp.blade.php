@@ -102,6 +102,70 @@
 
     @include('Admin.sms.reports.navigation')
 
+    <!-- Filters Bar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.sms.reports.otp.index') }}" class="row g-3">
+                @if(auth()->user()?->isSuperAdmin() && isset($business) && $business)
+                    <input type="hidden" name="business_id" value="{{ $business->id }}">
+                @endif
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-bold">جستجو (شماره، شناسه یا متن)</label>
+                    <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="0912... یا کد رهگیری">
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label small fw-bold">وضعیت پیامک</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">همه وضعیت‌ها</option>
+                        <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>تحویل شده</option>
+                        <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>ارسال شده</option>
+                        <option value="queued" {{ request('status') === 'queued' ? 'selected' : '' }}>در صف</option>
+                        <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>ناموفق</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label small fw-bold">الگوی پیامک</label>
+                    <select name="sms_message_template_id" class="form-select form-select-sm">
+                        <option value="">همه الگوها</option>
+                        @foreach($templates as $tpl)
+                            <option value="{{ $tpl->id }}" {{ request('sms_message_template_id') == $tpl->id ? 'selected' : '' }}>
+                                {{ $tpl->title }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+@include('Admin.sms.reports.partials.direction-filter')
+                <div class="col-12 col-md-2">
+                    <label class="form-label small fw-bold">از تاریخ</label>
+                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label small fw-bold">تا تاریخ</label>
+                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
+                </div>
+                <div class="col-12 col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="fa fa-filter me-1"></i> فیلتر
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- The numbers below describe exactly the rows the filters above select, not the whole module. --}}
+    @php
+        $activeFilterCount = collect(request()->except(['page', 'business_id']))->filter(fn ($v) => $v !== null && $v !== '' && $v !== 'all')->count();
+    @endphp
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <h6 class="fw-bold mb-0"><i class="fa fa-filter text-primary me-1"></i> خلاصه نتیجه فیلتر</h6>
+        @if($activeFilterCount > 0)
+            <span class="badge bg-primary">{{ $activeFilterCount }} فیلتر فعال</span>
+            <a href="{{ url()->current() }}{{ request('business_id') ? '?business_id=' . request('business_id') : '' }}" class="small text-decoration-none">حذف فیلترها</a>
+        @else
+            <span class="badge bg-light text-muted border">بدون فیلتر؛ کل داده‌های این گزارش</span>
+        @endif
+    </div>
+
     <!-- KPI Summary Cards -->
     <div class="row g-3 mb-4">
         <!-- Total Messages -->
@@ -170,56 +234,6 @@
     </div>
 
 @include('Admin.sms.reports.partials.direction-tiles')
-
-    <!-- Filters Bar -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.sms.reports.otp.index') }}" class="row g-3">
-                @if(auth()->user()?->isSuperAdmin() && isset($business) && $business)
-                    <input type="hidden" name="business_id" value="{{ $business->id }}">
-                @endif
-                <div class="col-12 col-md-3">
-                    <label class="form-label small fw-bold">جستجو (شماره، شناسه یا متن)</label>
-                    <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="0912... یا کد رهگیری">
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">وضعیت پیامک</label>
-                    <select name="status" class="form-select form-select-sm">
-                        <option value="">همه وضعیت‌ها</option>
-                        <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>تحویل شده</option>
-                        <option value="sent" {{ request('status') === 'sent' ? 'selected' : '' }}>ارسال شده</option>
-                        <option value="queued" {{ request('status') === 'queued' ? 'selected' : '' }}>در صف</option>
-                        <option value="failed" {{ request('status') === 'failed' ? 'selected' : '' }}>ناموفق</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">الگوی پیامک</label>
-                    <select name="sms_message_template_id" class="form-select form-select-sm">
-                        <option value="">همه الگوها</option>
-                        @foreach($templates as $tpl)
-                            <option value="{{ $tpl->id }}" {{ request('sms_message_template_id') == $tpl->id ? 'selected' : '' }}>
-                                {{ $tpl->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-@include('Admin.sms.reports.partials.direction-filter')
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">از تاریخ</label>
-                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">تا تاریخ</label>
-                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
-                </div>
-                <div class="col-12 col-md-1 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="fa fa-filter me-1"></i> فیلتر
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- Messages Table -->
     <div class="card border-0 shadow-sm">

@@ -1,12 +1,12 @@
 @extends('Admin.master')
 
-@section('title', 'پیش‌خوان سرویس پیامک')
+@section('title', 'پیشخوان پیامک')
 
 @section('content')
 <div class="container-fluid py-3">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h3 class="fw-bold mb-1">پیش‌خوان سرویس پیامک</h3>
+            <h3 class="fw-bold mb-1">پیشخوان پیامک</h3>
             <p class="text-muted small mb-0">
                 کسب‌وکار: <strong>{{ $business ? $business->title : 'کلیه کسب‌وکارها (نمای سراسری)' }}</strong> — نمای کلی اعتبار، حجم ارسال/دریافت و دسترسی سریع
                 به بخش‌های سرویس پیامک.
@@ -42,10 +42,51 @@
         </div>
     </div>
 
+    {{-- Quick actions --}}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0"><i class="fa fa-bolt me-1"></i> دسترسی سریع</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-6 col-md">
+                    <a href="{{ route('admin.sms.single.index') }}" class="btn btn-primary w-100 py-3 shadow-sm text-white">
+                        <i class="fa fa-paper-plane d-block fs-4 mb-1"></i>
+                        <span class="fw-bold">ارسال پیامک تکی</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md">
+                    <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary w-100 py-3 shadow-sm text-white">
+                        <i class="fa fa-users d-block fs-4 mb-1"></i>
+                        <span class="fw-bold">ارسال پیامک گروهی</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md">
+                    <a href="{{ route('admin.sms.logs.index', ['direction' => 'inbound']) }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
+                        <i class="fa fa-inbox d-block fs-4 mb-1"></i>
+                        <span class="fw-bold">صندوق دریافت</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md">
+                    <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
+                        <i class="fa fa-file-text-o d-block fs-4 mb-1"></i>
+                        <span class="fw-bold">قالب‌های پیامک</span>
+                    </a>
+                </div>
+                <div class="col-12 col-md">
+                    <a href="{{ route('admin.sms.reports.advertising.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
+                        <i class="fa fa-bar-chart d-block fs-4 mb-1"></i>
+                        <span class="fw-bold">گزارش پیامک‌ها</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Balance & KPI cards --}}
     <div class="row g-3 mb-4">
         @if(app(\App\Services\Sms\SmsAccessTierService::class)->canUseOtp(auth()->user()))
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl">
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #10b981 !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div class="d-flex align-items-center justify-content-between mb-2">
@@ -64,7 +105,7 @@
             </div>
         </div>
         @endif
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl">
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #3b82f6 !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div class="d-flex align-items-center justify-content-between mb-2">
@@ -82,7 +123,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl">
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #8b5cf6 !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div class="d-flex align-items-center justify-content-between mb-2">
@@ -100,7 +141,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl">
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #f59e0b !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div class="d-flex align-items-center justify-content-between mb-2">
@@ -113,6 +154,24 @@
                         <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($volume['total_cost']) }} <small class="fs-6 text-muted">ریال</small></h4>
                         <div class="text-muted small">
                             مجموع هزینه مصرف‌شده
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl">
+            <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #ef4444 !important; border-radius: 12px;">
+                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted small fw-bold">تکرار در ۳۰ روز</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #fef2f2; color: #ef4444;">
+                            <i class="fa fa-repeat"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($repeats['numbers']) }} <small class="fs-6 text-muted">شماره</small></h4>
+                        <div class="text-muted small">
+                            شماره‌هایی که بیش از یک پیامک گرفته‌اند؛ پیامک‌های تکراری: <span class="text-danger fw-bold">{{ number_format($repeats['extra_messages']) }}</span>
                         </div>
                     </div>
                 </div>
@@ -210,42 +269,6 @@
             </div>
         </div>
 
-        {{-- Quick links --}}
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="fw-bold mb-0"><i class="fa fa-bolt me-1"></i> دسترسی سریع</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.single.index') }}" class="btn btn-primary w-100 py-3 shadow-sm text-white">
-                                <i class="fa fa-paper-plane d-block fs-4 mb-1"></i>
-                                <span class="fw-bold">ارسال پیامک تکی</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-primary w-100 py-3 shadow-sm text-white">
-                                <i class="fa fa-users d-block fs-4 mb-1"></i>
-                                <span class="fw-bold">ارسال پیامک گروهی</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.settings.templates.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
-                                <i class="fa fa-file-text-o d-block fs-4 mb-1"></i>
-                                <span class="fw-bold">قالب‌های پیامک</span>
-                            </a>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <a href="{{ route('admin.sms.reports.advertising.index') }}" class="btn btn-outline-primary w-100 py-3 shadow-sm">
-                                <i class="fa fa-bar-chart d-block fs-4 mb-1"></i>
-                                <span class="fw-bold">گزارش پیامک‌ها</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

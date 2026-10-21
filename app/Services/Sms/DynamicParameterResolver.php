@@ -25,9 +25,22 @@ class DynamicParameterResolver
     public const TOKEN_USER_LAST_NAME  = '{نام خانوادگی}';
     public const TOKEN_DATE            = '{تاریخ}';
     public const TOKEN_TIME            = '{ساعت}';
+    /** Canonical invoice token. */
+    public const TOKEN_FACTOR_NUMBER   = '{شماره فاکتور}';
+    /** @deprecated Old name, still resolved so saved templates keep working. Use TOKEN_FACTOR_NUMBER. */
     public const TOKEN_FACTOR_ID       = '{شناسه فاکتور}';
     public const TOKEN_PAYMENT_LINK    = '{لینک پرداخت}';
+    /** @deprecated Merged into {شماره فاکتور}, still resolved so saved templates keep working. */
     public const TOKEN_REQUEST_ID      = '{شناسه درخواست}';
+    public const TOKEN_SITE_LINK       = '{لینک سایت}';
+    public const TOKEN_DESIRED_DATE    = '{تاریخ مد نظر}';
+    public const TOKEN_DESIRED_TIME    = '{ساعت مد نظر}';
+    public const TOKEN_DESIRED_ADDRESS = '{نشانی مد نظر}';
+    /** The person who ordered this send (not the sender line). */
+    public const TOKEN_SENDER_PHONE    = '{شماره ارسال کننده}';
+    public const TOKEN_SENDER_NAME     = '{نام ارسال کننده}';
+    public const TOKEN_SENDER_FAMILY   = '{نام خانوادگی ارسال کننده}';
+    public const TOKEN_REQUEST_SUBJECT = '{موضوع درخواست}';
     public const TOKEN_BIRTH_DATE      = '{تاریخ تولد}';
     public const TOKEN_RECIPIENT_PHONE = '{شماره مخاطب}';
     public const TOKEN_BUSINESS_NAME   = '{نام فروشگاه}';
@@ -173,14 +186,70 @@ class DynamicParameterResolver
             return date('H:i');
         });
 
-        // {شناسه فاکتور} - Factor ID / Reference number
-        $this->register(self::TOKEN_FACTOR_ID, function (array $context): string {
+        // {شماره فاکتور} - Invoice number. {شناسه فاکتور} and {شناسه درخواست} are old names of the same value.
+        $factorNumber = function (array $context): string {
             $factor = $this->extractFactor($context);
             if ($factor) {
                 return (string) ($factor->id ?? $factor->resnumber ?? '');
             }
 
-            return (string) ($context['factor_id'] ?? $context['factor_number'] ?? '');
+            if (!empty($context['factor_id'] ?? $context['factor_number'] ?? null)) {
+                return (string) ($context['factor_id'] ?? $context['factor_number']);
+            }
+
+            $request = $this->extractRequest($context);
+            if ($request) {
+                return (string) ($request->id ?? $request->card_id ?? '');
+            }
+
+            return (string) ($context['request_id'] ?? '');
+        };
+        $this->register(self::TOKEN_FACTOR_NUMBER, $factorNumber);
+        $this->register(self::TOKEN_FACTOR_ID, $factorNumber);
+        $this->register(self::TOKEN_REQUEST_ID, $factorNumber);
+
+        // {لینک سایت} - Storefront link of the sending business
+        $this->register(self::TOKEN_SITE_LINK, function (array $context): string {
+            if (!empty($context['site_link'])) {
+                return (string) $context['site_link'];
+            }
+
+            $business = function_exists('ghorfe') ? ghorfe() : null;
+
+            return $business ? url($business->path()) : url('/');
+        });
+
+        // {تاریخ مد نظر} / {ساعت مد نظر} / {نشانی مد نظر} - the date, time and address the message is about
+        // (e.g. an appointment); empty when the caller gives none.
+        $this->register(self::TOKEN_DESIRED_DATE, function (array $context): string {
+            $value = $context['desired_date'] ?? null;
+
+            return $value instanceof \DateTimeInterface && class_exists(Verta::class)
+                ? Verta::instance($value)->format('Y/m/d')
+                : (string) ($value ?? '');
+        });
+        $this->register(self::TOKEN_DESIRED_TIME, function (array $context): string {
+            $value = $context['desired_time'] ?? null;
+
+            return $value instanceof \DateTimeInterface ? $value->format('H:i') : (string) ($value ?? '');
+        });
+        $this->register(self::TOKEN_DESIRED_ADDRESS, fn (array $context): string => (string) ($context['desired_address'] ?? ''));
+
+        // {شماره ارسال کننده} / {نام ارسال کننده} / {نام خانوادگی ارسال کننده}:
+        // the signed-in person who ordered this send, unless the caller passes another 'sender' user.
+        $this->register(self::TOKEN_SENDER_PHONE, fn (array $context): string => (string) ($this->extractSender($context)?->phone ?? ''));
+        $this->register(self::TOKEN_SENDER_NAME, fn (array $context): string => (string) ($this->extractSender($context)?->name ?? ''));
+        $this->register(self::TOKEN_SENDER_FAMILY, fn (array $context): string => (string) ($this->extractSender($context)?->family ?? ''));
+
+        // {موضوع درخواست} - Subject of the request the message is about
+        $this->register(self::TOKEN_REQUEST_SUBJECT, function (array $context): string {
+            if (!empty($context['request_subject'])) {
+                return (string) $context['request_subject'];
+            }
+
+            $request = $this->extractRequest($context);
+
+            return $request ? \Illuminate\Support\Str::limit((string) ($request->description ?? ''), 40, '') : '';
         });
 
         // {لینک پرداخت} - Payment link for factor
@@ -198,16 +267,6 @@ class DynamicParameterResolver
             }
 
             return '';
-        });
-
-        // {شناسه درخواست} - Request ID / Tracking ID
-        $this->register(self::TOKEN_REQUEST_ID, function (array $context): string {
-            $request = $this->extractRequest($context);
-            if ($request) {
-                return (string) ($request->id ?? $request->card_id ?? '');
-            }
-
-            return (string) ($context['request_id'] ?? '');
         });
 
         // {تاریخ تولد} - Recipient birth date
@@ -287,6 +346,17 @@ class DynamicParameterResolver
     /**
      * Extract Request model from context.
      */
+    protected function extractSender(array $context): ?User
+    {
+        if (($context['sender'] ?? null) instanceof User) {
+            return $context['sender'];
+        }
+
+        $authenticated = function_exists('auth') ? auth()->user() : null;
+
+        return $authenticated instanceof User ? $authenticated : null;
+    }
+
     protected function extractRequest(array $context): ?Request
     {
         if (isset($context['request']) && $context['request'] instanceof Request) {
