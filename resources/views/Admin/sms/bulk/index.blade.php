@@ -230,10 +230,10 @@
         <div class="tier-badge {{ $tierClass }}" title="سطح دسترسی شما به فیلترها و مخاطبان">
             <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
         </div>
-        <a href="{{ route('admin.sms.bulk.campaigns') }}" class="btn btn-outline-secondary btn-sm">
+        <a href="{{ route('admin.sms.bulk.index', ['tab' => 'campaigns']) }}" class="btn btn-outline-secondary btn-sm">
             <i class="fa fa-list me-1"></i> تاریخچه کمپین‌ها
         </a>
-        <a href="{{ route('admin.sms.bulk.queue') }}" class="btn btn-outline-warning btn-sm text-dark">
+        <a href="{{ route('admin.sms.bulk.index', ['tab' => 'queue']) }}" class="btn btn-outline-warning btn-sm text-dark">
             <i class="fa fa-clock-o me-1"></i> صف ارسال
             @if(($queuedCount ?? 0) > 0)
                 <span class="badge bg-warning text-dark">{{ number_format($queuedCount) }}</span>
@@ -279,6 +279,12 @@
                     </h6>
                 </div>
                 <div class="card-body">
+                    <div class="sms-field">
+                        <label class="sms-label" for="campaign_name">نام کمپین</label>
+                        <input type="text" name="campaign_name" id="campaign_name" class="form-control" maxlength="100" placeholder="مثال: جشنواره پاییزه" value="{{ old('campaign_name') }}">
+                        <div class="sms-hint">اختیاری؛ برای پیدا کردن کمپین در تب «کمپین‌ها» و «صف ارسال».</div>
+                    </div>
+
                     <div class="sms-field">
                         <span class="sms-label">نوع پنل پیامک</span>
                         <div class="sms-choice-row">
@@ -371,7 +377,7 @@
                     <div class="sms-subbox">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="fw-bold text-dark small">
-                                <i class="fa fa-filter text-primary me-1"></i> فیلتر مخاطبان (بر اساس پرونده‌ها و درخواست‌ها):
+                                <i class="fa fa-filter text-primary me-1"></i> فیلتر مخاطبان:
                             </span>
                         </div>
 
@@ -512,16 +518,23 @@
                         </div>
                     @endif
 
+                    {{-- Template bar: picking a template puts its text straight into the message box. --}}
                     <div class="sms-field">
-                        <label class="sms-label" for="sms_message_template_id">انتخاب از قالب‌های ذخیره‌شده</label>
-                        <select name="sms_message_template_id" id="sms_message_template_id" class="form-select">
-                            <option value="">-- بدون قالب (تایپ متن دلخواه) --</option>
-                            @foreach($templates as $tmpl)
-                                <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
-                                    {{ $tmpl->title }} ({{ $tmpl->group?->name ?? 'عمومی' }})
-                                </option>
-                            @endforeach
-                        </select>
+                        <label class="sms-label" for="sms_message_template_id">قالب آماده</label>
+                        <div class="input-group">
+                            <select name="sms_message_template_id" id="sms_message_template_id" class="form-select">
+                                <option value="">-- بدون قالب (تایپ متن دلخواه) --</option>
+                                @foreach($templates as $tmpl)
+                                    <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
+                                        {{ $tmpl->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="متن فعلی را به عنوان قالب ذخیره کن">
+                                <i class="fa fa-bookmark-o me-1"></i> ذخیره به‌عنوان قالب
+                            </button>
+                        </div>
+                        <div class="sms-hint">با انتخاب قالب، متن آن مستقیماً در کادر پیام قرار می‌گیرد و قابل ویرایش است.</div>
                     </div>
 
                     {{-- Shared editor: textarea + dynamic-parameter chips + live counter --}}
@@ -547,6 +560,15 @@
                     </h6>
                 </div>
                 <div class="card-body">
+                    <!-- Recipients actually sent to: the filter decides the maximum, the sender may only lower it -->
+                    <div class="row g-3 mb-3 align-items-start">
+                        <div class="col-md-5">
+                            <label class="sms-label" for="recipient_limit">تعداد مخاطبین ارسال</label>
+                            <input type="number" id="recipient_limit" class="form-control" min="1" step="1" disabled placeholder="—">
+                            <div class="sms-hint" id="recipient_limit_hint">پس از محاسبه، تعداد مخاطبین حاصل از فیلتر اینجا نمایش داده می‌شود؛ فقط می‌توانید آن را کم کنید.</div>
+                        </div>
+                    </div>
+
                     <!-- Financial Summary & Balance Check Box -->
                     <div id="financialSummaryCard" class="sms-summary">
                         <div class="row g-3 align-items-center">
@@ -681,8 +703,18 @@
     </div>
 </form>
 
+@include('Admin.sms.bulk.partials.tabs', [
+    'activeTab' => $activeTab,
+    'recentMessages' => $recentMessages,
+    'queuedList' => $queuedList,
+    'campaignList' => $campaignList,
+    'queuedCount' => $queuedCount ?? 0,
+])
+@include('Admin.sms.partials.forward-modal')
+@include('Admin.sms.bulk.partials.save-template-modal')
+
 {{-- The requests-filter pop-up lives OUTSIDE #bulkSmsForm: its fields are criteria, not form fields. --}}
-@include('Admin.callcenter.partials.filter-modal', ['restrictUsersToBusiness' => $business ?? null])
+@include('Admin.callcenter.partials.filter-modal', ['restrictUsersToBusiness' => $business ?? null, 'previewUrl' => route('admin.sms.bulk.preview')])
 
 <!-- Quick Payment Gate Modal (مودال درگاه پرداخت سریع) -->
 <div class="modal fade" id="quickPaymentModal" tabindex="-1" aria-labelledby="quickPaymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -864,6 +896,13 @@
         // «لغو 11» belongs to the promotional panel only.
         bulkSmsEditor.setAdvertising(!otp);
 
+        // Templates are stored for the promotional panel only for now.
+        const saveTplBtn = document.getElementById('saveAsTemplateBtn');
+        if (saveTplBtn) {
+            saveTplBtn.disabled = otp;
+            saveTplBtn.title = otp ? 'ذخیره قالب برای پنل OTP هنوز فعال نیست' : 'متن فعلی را به عنوان قالب ذخیره کن';
+        }
+
         const phoneSender = document.getElementById('phonePreviewSender');
         if (otp) {
             phoneSender.innerText = OTP_NUMBER || 'OTP-System';
@@ -967,6 +1006,7 @@
                 const fin = body.financial_summary;
                 previewDone = Number(rec.valid_count) > 0;
                 lastMaxAffordable = Number(fin.max_affordable_recipients || 0);
+                syncRecipientLimit(Number(rec.valid_count), Number(fin.effective_recipient_count));
                 const insufficientActions = document.getElementById('insufficientBalanceActions');
                 if (insufficientActions) insufficientActions.style.setProperty('display', 'none', 'important');
                 const qpReduceBtn = document.getElementById('qpBtnReduceRecipients');
@@ -1057,6 +1097,33 @@
             console.error('Preview error:', error);
         });
     }
+
+    // ---- Recipients actually sent to: the filter sets the maximum, the sender may only lower it.
+    const recipientLimitEl = document.getElementById('recipient_limit');
+    const recipientCapEl = document.getElementById('max_recipients');
+    let recipientLimitMax = 0;
+    let recipientLimitTimer = null;
+
+    function syncRecipientLimit(validCount, effectiveCount) {
+        recipientLimitMax = validCount;
+        recipientLimitEl.disabled = validCount < 1;
+        recipientLimitEl.max = validCount;
+        recipientLimitEl.value = validCount < 1 ? '' : Math.min(effectiveCount || validCount, validCount);
+        document.getElementById('recipient_limit_hint').innerText = validCount < 1
+            ? 'مخاطب معتبری پیدا نشد؛ فیلتر را تغییر دهید.'
+            : 'حداکثر ' + validCount.toLocaleString('fa-IR') + ' نفر (حاصل فیلتر)؛ فقط می‌توانید این عدد را کم کنید.';
+    }
+
+    recipientLimitEl.addEventListener('input', function () {
+        let v = parseInt(this.value, 10);
+        if (isNaN(v)) return;
+        // Never above what the filter produced, never below one.
+        if (v > recipientLimitMax) { v = recipientLimitMax; this.value = v; }
+        if (v < 1) { v = 1; this.value = v; }
+        recipientCapEl.value = v < recipientLimitMax ? v : '';
+        clearTimeout(recipientLimitTimer);
+        recipientLimitTimer = setTimeout(triggerPreview, 500);
+    });
 
     // Quick Payment Gate Logic
     let lastCalculatedDeficit = 0;
@@ -1347,6 +1414,7 @@
     }
 
     function restoreQueuedInput(q) {
+        if (q.campaign_name) document.getElementById('campaign_name').value = q.campaign_name;
         const panelRadio = document.querySelector('input[name="service_type"][value="' + (q.service_type || 'advertising') + '"]');
         if (panelRadio) panelRadio.checked = true;
         onServiceTypeChange(true);
@@ -1403,6 +1471,49 @@
             triggerPreview();
         }
     }
+
+    // ---- Save the current text as a template
+    (function () {
+        const modalEl = document.getElementById('saveTemplateModal');
+        const formEl = document.getElementById('saveTemplateForm');
+        if (!modalEl || !formEl) return;
+        modalEl.addEventListener('show.bs.modal', function () {
+            document.getElementById('saveTemplateContent').textContent = document.getElementById('sms_message').value;
+            document.getElementById('saveTemplateAlert').style.display = 'none';
+        });
+        formEl.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('saveTemplateAlert');
+            alertBox.style.display = 'none';
+            fetch("{{ route('admin.sms.single.templates.store') }}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                body: JSON.stringify({ title: document.getElementById('saveTemplateTitle').value.trim(), content: document.getElementById('sms_message').value })
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.status === 'success') {
+                    const select = document.getElementById('sms_message_template_id');
+                    const opt = document.createElement('option');
+                    opt.value = data.template.id;
+                    opt.textContent = data.template.title;
+                    opt.setAttribute('data-content', data.template.content);
+                    select.appendChild(opt);
+                    select.value = data.template.id;
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    formEl.reset();
+                } else {
+                    const firstError = data.errors ? Object.values(data.errors)[0][0] : null;
+                    alertBox.textContent = firstError || data.message || 'خطا در ذخیره قالب.';
+                    alertBox.style.display = 'block';
+                }
+            })
+            .catch(() => {
+                alertBox.textContent = 'خطای ارتباط با سرور.';
+                alertBox.style.display = 'block';
+            });
+        });
+    })();
 
     // Trigger initial preview on page load
     document.addEventListener('DOMContentLoaded', function () {

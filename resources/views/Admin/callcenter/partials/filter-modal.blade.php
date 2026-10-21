@@ -18,7 +18,7 @@
         $visibleFields
     )) > 0;
 @endphp
-<div class="modal fade" id="requestFilterModal" tabindex="-1" aria-labelledby="requestFilterModalLabel" aria-hidden="true">
+<div class="modal fade" id="requestFilterModal" tabindex="-1" aria-labelledby="requestFilterModalLabel" aria-hidden="true" @if(!empty($previewUrl)) data-preview-url="{{ $previewUrl }}" @endif>
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header d-flex justify-content-between align-items-center bg-light border-bottom py-3 px-4" style="height: auto; min-height: 60px;">
@@ -40,7 +40,7 @@
                     <div class="row">
                         @include('Admin.callcenter.partials.filter-fields', ['withBusinessPicker' => false, 'withRepresentation' => false, 'withProducts' => true, 'visibleFields' => $visibleFields, 'restrictUsersToBusiness' => $restrictUsersToBusiness ?? null])
                     </div>
-                    @if($hasHiddenFilters)
+                    @if($hasHiddenFilters && empty($previewUrl))
                         <p class="small text-muted mb-0 mt-2" id="request_filter_tier_hint"><i class="fa fa-info-circle ms-1"></i>فیلترهای بیشتر برای سطوح بالاتر در دسترس است</p>
                     @endif
                 </form>
@@ -49,6 +49,12 @@
                 <button type="button" class="btn btn-outline-danger btn-sm" id="request_filter_clear">
                     <i class="fa fa-trash-o ms-1"></i> پاکسازی فیلترها
                 </button>
+                @if(!empty($previewUrl))
+                    {{-- Live result of the current combination: change the filters to raise or lower it. --}}
+                    <div class="flex-grow-1 text-center px-3" id="request_filter_live" aria-live="polite">
+                        <span class="text-muted small">با انتخاب فیلترها، تعداد مخاطبین اینجا نمایش داده می‌شود.</span>
+                    </div>
+                @endif
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">انصراف</button>
                     <button type="button" class="btn btn-primary btn-sm px-4 fw-bold" id="request_filter_apply">

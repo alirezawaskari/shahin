@@ -272,6 +272,8 @@
     function clear() {
         $filterForm[0].reset();
         $filterForm.find('select').val(null).trigger('change');
+        liveSeq++;
+        liveMessage('<span class="text-muted small">با انتخاب فیلترها، تعداد مخاطبین اینجا نمایش داده می‌شود.</span>');
         render(null, []);
         modal.hide();
         triggerPreviewSafe();
@@ -283,6 +285,80 @@
         } else if (typeof triggerPreview === 'function') {
             triggerPreview();
         }
+    }
+
+    // ---- Live count inside the modal (only on pages that give the modal a preview URL) ----
+    var previewUrl = modalEl.getAttribute('data-preview-url');
+    var liveBox = document.getElementById('request_filter_live');
+    var liveTimer = null;
+    var liveSeq = 0;
+
+    function liveMessage(html) {
+        if (liveBox) liveBox.innerHTML = html;
+    }
+
+    function liveFormData(fields) {
+        var fd = new FormData();
+        fd.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        var panel = form.querySelector('input[name="service_type"]:checked');
+        if (panel) fd.append('service_type', panel.value);
+        var custom = form.querySelector('[name="custom_numbers"]');
+        if (custom && custom.value) fd.append('custom_numbers', custom.value);
+        fd.append('filters[request_filter][__source]', 'requests');
+        fields.forEach(function (field) {
+            var bracket = field.name.indexOf('[');
+            fd.append(bracket === -1
+                ? 'filters[request_filter][' + field.name + ']'
+                : 'filters[request_filter][' + field.name.slice(0, bracket) + ']' + field.name.slice(bracket), field.value);
+        });
+        return fd;
+    }
+
+    function refreshLiveCount() {
+        if (!previewUrl || !liveBox) return;
+        var fields = activeFields();
+        if (!fields.length) {
+            liveMessage('<span class="text-muted small">با انتخاب فیلترها، تعداد مخاطبین اینجا نمایش داده می‌شود.</span>');
+            return;
+        }
+        var seq = ++liveSeq;
+        liveMessage('<span class="text-muted small"><i class="fa fa-spinner fa-spin ms-1"></i> در حال شمارش...</span>');
+        fetch(previewUrl, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: liveFormData(fields)
+        })
+        .then(function (r) { return r.json().then(function (body) { return { status: r.status, body: body }; }); })
+        .then(function (res) {
+            if (seq !== liveSeq) return; // a newer combination is already being counted
+            if (res.status === 403 || res.body.status === 'error') {
+                liveMessage('<span class="text-danger small"><i class="fa fa-exclamation-circle ms-1"></i> ' + (res.body.message || 'امکان شمارش وجود ندارد.') + '</span>');
+                return;
+            }
+            var rec = res.body.recipient_summary || {};
+            var valid = Number(rec.valid_count || 0);
+            liveMessage(
+                '<span class="fw-bold ' + (valid > 0 ? 'text-success' : 'text-danger') + '">' +
+                '<i class="fa fa-users ms-1"></i> ' + valid.toLocaleString('fa-IR') + ' مخاطب معتبر</span>' +
+                '<span class="text-muted small me-2"> (کل: ' + Number(rec.total_candidates || 0).toLocaleString('fa-IR') +
+                '، نامعتبر: ' + Number(rec.invalid_count || 0).toLocaleString('fa-IR') +
+                '، تکراری: ' + Number(rec.duplicate_count || 0).toLocaleString('fa-IR') + ')</span>'
+            );
+        })
+        .catch(function () {
+            if (seq === liveSeq) liveMessage('<span class="text-danger small">خطای ارتباط با سرور</span>');
+        });
+    }
+
+    function scheduleLiveCount() {
+        clearTimeout(liveTimer);
+        liveTimer = setTimeout(refreshLiveCount, 600);
+    }
+
+    if (previewUrl) {
+        // Select2 and plain inputs both end in a change/input event on the filter form.
+        $filterForm.on('change input', scheduleLiveCount);
+        modalEl.addEventListener('shown.bs.modal', refreshLiveCount);
     }
 
     var applyBtn = document.getElementById('request_filter_apply');

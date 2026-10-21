@@ -32,7 +32,8 @@ class SmsBulkSendController extends Controller
         protected BulkSmsSendService $bulkSmsSendService,
         protected BulkSmsRecipientFilterService $recipientFilterService,
         protected SmsAccessTierService $accessTierService,
-        protected SmsCmsContentService $cmsContent
+        protected SmsCmsContentService $cmsContent,
+        protected \App\Services\Sms\SingleSmsSendService $singleSmsSendService
     ) {
     }
 
@@ -93,9 +94,7 @@ class SmsBulkSendController extends Controller
         // Advertising sender numbers assigned to this business with balances
         $advertisingNumbers = collect();
         if ($business) {
-            $advertisingNumbers = $business->senderNumbers()
-                ->where('type', 'advertising')
-                ->where('status', 'active')
+            $advertisingNumbers = $this->singleSmsSendService->advertisingSenderQuery($business)
                 ->get()
                 ->map(function ($sender) use ($business) {
                     $sender->current_balance = (float) ($business->advertising_balance ?? 0);
@@ -136,6 +135,36 @@ class SmsBulkSendController extends Controller
                 ->take(10)
                 ->get();
         }
+
+        // Bottom tabs: message log, outgoing queue, campaigns (no separate pages any more).
+        $activeTab = in_array($request->query('tab'), ['logs', 'queue', 'campaigns'], true) ? $request->query('tab') : 'logs';
+
+        $recentMessages = Groupsms::messages()
+            ->where('ghorfe_online_list_id', $business->id)
+            ->with(['senderNumber', 'user'])
+            ->latest()
+            ->take(15)
+            ->get();
+        \App\Services\Sms\SmsConfidentialityGuard::redactMany($recentMessages, $user);
+
+        $queuedList = Groupsms::pendingQueue()
+            ->where('ghorfe_online_list_id', $business->id)
+            ->with(['senderNumber', 'template', 'creator'])
+            ->latest()
+            ->paginate(10, ['*'], 'queue_page')
+            ->appends(['tab' => 'queue']);
+
+        $campaignQuery = Groupsms::campaigns()
+            ->where('type', 'bulk')
+            ->where('status', '!=', Groupsms::STATUS_PENDING_QUEUE)
+            ->where('ghorfe_online_list_id', $business->id)
+            ->with(['senderNumber', 'template', 'creator'])
+            ->latest();
+        if ($request->filled('status') && $request->query('status') !== 'all') {
+            $campaignQuery->where('status', $request->query('status'));
+        }
+        $campaignList = $campaignQuery->paginate(10, ['*'], 'campaigns_page')
+            ->appends(['tab' => 'campaigns', 'status' => $request->query('status')]);
 
         $userTier = $this->accessTierService->effectiveTier($user);
 
@@ -185,6 +214,10 @@ class SmsBulkSendController extends Controller
             'business',
             'user',
             'userTier',
+            'activeTab',
+            'recentMessages',
+            'queuedList',
+            'campaignList',
             'canUseOtp',
             'otpSender',
             'otpBalance',
@@ -486,6 +519,7 @@ class SmsBulkSendController extends Controller
 
         $validator = Validator::make($request->all(), [
             'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
+            'campaign_name' => ['nullable', 'string', 'max:100'],
             'service_type' => ['nullable', 'string', 'in:advertising,otp'],
             'otp_category' => ['nullable', 'string', 'in:' . implode(',', \App\Enums\SmsOtpCategory::values())],
             'classification' => ['nullable', 'string', 'in:regular,classified'],
@@ -511,7 +545,7 @@ class SmsBulkSendController extends Controller
         }
 
         $data = $request->only([
-            'service_type', 'otp_category', 'classification', 'message', 'sms_message_template_id',
+            'campaign_name', 'service_type', 'otp_category', 'classification', 'message', 'sms_message_template_id',
             'sms_message_group_id', 'sender_number_id', 'scheduled_at',
         ]);
         $data['recipient_type'] = $this->recipientTypeFor($user);
@@ -537,24 +571,16 @@ class SmsBulkSendController extends Controller
             'status' => 'success',
             'message' => 'پیش‌نویس در صف ارسال ذخیره شد.',
             'queue_id' => $queued->id,
-            'queue_url' => route('admin.sms.bulk.queue'),
+            'queue_url' => route('admin.sms.bulk.index', ['tab' => 'queue']),
         ]);
     }
 
     /**
      * Outgoing queue («صف ارسال»): the current business' unsent pending_queue campaigns.
      */
-    public function queue(Request $request): View
+    public function queue(Request $request): RedirectResponse
     {
-        $business = $this->resolveBusiness($request);
-
-        $queued = Groupsms::pendingQueue()
-            ->where('ghorfe_online_list_id', $business->id)
-            ->with(['senderNumber', 'template', 'creator'])
-            ->latest()
-            ->paginate(15);
-
-        return view('Admin.sms.bulk.queue', compact('business', 'queued'));
+        return redirect()->route('admin.sms.bulk.index', ['tab' => 'queue']);
     }
 
     /**
@@ -573,11 +599,11 @@ class SmsBulkSendController extends Controller
                 $request->filled('max_recipients') ? (int) $request->input('max_recipients') : null
             );
         } catch (InsufficientBalanceException $e) {
-            return redirect()->route('admin.sms.bulk.queue')->withErrors(['balance' => $e->getMessage()]);
+            return redirect()->route('admin.sms.bulk.index', ['tab' => 'queue'])->withErrors(['balance' => $e->getMessage()]);
         } catch (TierAccessDeniedException $e) {
-            return redirect()->route('admin.sms.bulk.queue')->withErrors(['tier' => $e->getMessage()]);
+            return redirect()->route('admin.sms.bulk.index', ['tab' => 'queue'])->withErrors(['tier' => $e->getMessage()]);
         } catch (DomainException $e) {
-            return redirect()->route('admin.sms.bulk.queue')->withErrors(['error' => $e->getMessage()]);
+            return redirect()->route('admin.sms.bulk.index', ['tab' => 'queue'])->withErrors(['error' => $e->getMessage()]);
         }
 
         return redirect()->route('admin.sms.bulk.campaigns.show', $sent)
@@ -589,7 +615,7 @@ class SmsBulkSendController extends Controller
         $business = $this->resolveBusiness($request);
         $this->loadQueuedCampaign($campaign->id, $business)->delete();
 
-        return redirect()->route('admin.sms.bulk.queue')->with('success', 'مورد از صف ارسال حذف شد.');
+        return redirect()->route('admin.sms.bulk.index', ['tab' => 'queue'])->with('success', 'مورد از صف ارسال حذف شد.');
     }
 
     /**
@@ -616,27 +642,9 @@ class SmsBulkSendController extends Controller
     /**
      * List all bulk campaigns.
      */
-    public function campaigns(Request $request): View
+    public function campaigns(Request $request): RedirectResponse
     {
-        $business = $this->resolveBusiness($request);
-
-        $query = Groupsms::campaigns()
-            ->where('type', 'bulk')
-            ->where('status', '!=', Groupsms::STATUS_PENDING_QUEUE)
-            ->with(['senderNumber', 'template', 'creator'])
-            ->latest();
-
-        if ($business) {
-            $query->where('ghorfe_online_list_id', $business->id);
-        }
-
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        $campaigns = $query->paginate(15);
-
-        return view('Admin.sms.bulk.campaigns', compact('business', 'campaigns'));
+        return redirect()->route('admin.sms.bulk.index', array_filter(['tab' => 'campaigns', 'status' => $request->query('status')]));
     }
 
     /**

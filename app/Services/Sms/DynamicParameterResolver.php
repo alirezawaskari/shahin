@@ -33,6 +33,13 @@ class DynamicParameterResolver
     /** @deprecated Merged into {شماره فاکتور}, still resolved so saved templates keep working. */
     public const TOKEN_REQUEST_ID      = '{شناسه درخواست}';
     public const TOKEN_SITE_LINK       = '{لینک سایت}';
+    public const TOKEN_DESIRED_DATE    = '{تاریخ مد نظر}';
+    public const TOKEN_DESIRED_TIME    = '{ساعت مد نظر}';
+    public const TOKEN_DESIRED_ADDRESS = '{نشانی مد نظر}';
+    /** The person who ordered this send (not the sender line). */
+    public const TOKEN_SENDER_PHONE    = '{شماره ارسال کننده}';
+    public const TOKEN_SENDER_NAME     = '{نام ارسال کننده}';
+    public const TOKEN_SENDER_FAMILY   = '{نام خانوادگی ارسال کننده}';
     public const TOKEN_REQUEST_SUBJECT = '{موضوع درخواست}';
     public const TOKEN_BIRTH_DATE      = '{تاریخ تولد}';
     public const TOKEN_RECIPIENT_PHONE = '{شماره مخاطب}';
@@ -212,6 +219,28 @@ class DynamicParameterResolver
             return $business ? url($business->path()) : url('/');
         });
 
+        // {تاریخ مد نظر} / {ساعت مد نظر} / {نشانی مد نظر} - the date, time and address the message is about
+        // (e.g. an appointment); empty when the caller gives none.
+        $this->register(self::TOKEN_DESIRED_DATE, function (array $context): string {
+            $value = $context['desired_date'] ?? null;
+
+            return $value instanceof \DateTimeInterface && class_exists(Verta::class)
+                ? Verta::instance($value)->format('Y/m/d')
+                : (string) ($value ?? '');
+        });
+        $this->register(self::TOKEN_DESIRED_TIME, function (array $context): string {
+            $value = $context['desired_time'] ?? null;
+
+            return $value instanceof \DateTimeInterface ? $value->format('H:i') : (string) ($value ?? '');
+        });
+        $this->register(self::TOKEN_DESIRED_ADDRESS, fn (array $context): string => (string) ($context['desired_address'] ?? ''));
+
+        // {شماره ارسال کننده} / {نام ارسال کننده} / {نام خانوادگی ارسال کننده}:
+        // the signed-in person who ordered this send, unless the caller passes another 'sender' user.
+        $this->register(self::TOKEN_SENDER_PHONE, fn (array $context): string => (string) ($this->extractSender($context)?->phone ?? ''));
+        $this->register(self::TOKEN_SENDER_NAME, fn (array $context): string => (string) ($this->extractSender($context)?->name ?? ''));
+        $this->register(self::TOKEN_SENDER_FAMILY, fn (array $context): string => (string) ($this->extractSender($context)?->family ?? ''));
+
         // {موضوع درخواست} - Subject of the request the message is about
         $this->register(self::TOKEN_REQUEST_SUBJECT, function (array $context): string {
             if (!empty($context['request_subject'])) {
@@ -317,6 +346,17 @@ class DynamicParameterResolver
     /**
      * Extract Request model from context.
      */
+    protected function extractSender(array $context): ?User
+    {
+        if (($context['sender'] ?? null) instanceof User) {
+            return $context['sender'];
+        }
+
+        $authenticated = function_exists('auth') ? auth()->user() : null;
+
+        return $authenticated instanceof User ? $authenticated : null;
+    }
+
     protected function extractRequest(array $context): ?Request
     {
         if (isset($context['request']) && $context['request'] instanceof Request) {

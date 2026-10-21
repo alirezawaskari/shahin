@@ -16,6 +16,7 @@ class SendBulkSmsRequest extends FormRequest
         return [
             // Derived from the sender's access tier by the controller; a client value is ignored.
             'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
+            'campaign_name' => ['nullable', 'string', 'max:100'],
             'service_type' => ['nullable', 'string', 'in:advertising,otp'],
             'otp_category' => ['nullable', 'string', 'in:' . implode(',', \App\Enums\SmsOtpCategory::values())],
             'message' => ['nullable', 'string'],

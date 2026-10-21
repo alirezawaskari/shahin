@@ -117,6 +117,15 @@
                                 <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{ساعت}">{ساعت}</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{شناسه فاکتور}">{شناسه فاکتور}</button>
                                 <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{لینک پرداخت}">{لینک پرداخت}</button>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{تاریخ مد نظر}">{تاریخ مد نظر}</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{ساعت مد نظر}">{ساعت مد نظر}</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary insert-token" data-token="{نشانی مد نظر}">{نشانی مد نظر}</button>
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 align-items-center mt-1">
+                                <span class="small fw-bold text-secondary me-1">ارسال‌کننده:</span>
+                                <button type="button" class="btn btn-sm btn-outline-dark insert-token" data-token="{شماره ارسال کننده}">{شماره ارسال کننده}</button>
+                                <button type="button" class="btn btn-sm btn-outline-dark insert-token" data-token="{نام ارسال کننده}">{نام ارسال کننده}</button>
+                                <button type="button" class="btn btn-sm btn-outline-dark insert-token" data-token="{نام خانوادگی ارسال کننده}">{نام خانوادگی ارسال کننده}</button>
                             </div>
                         </div>
 

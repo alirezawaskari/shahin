@@ -558,66 +558,7 @@
                     <i class="fa fa-list me-2 text-primary"></i> آخرین پیامک‌های ارسالی (امکان ارجاع و فوروارد)
                 </h6>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>شناسه</th>
-                            <th>گیرنده</th>
-                            <th>سرشماره</th>
-                            <th>نوع</th>
-                            <th>بخشی از متن</th>
-                            <th>تعداد صفحه</th>
-                            <th>هزینه (ریال)</th>
-                            <th>وضعیت</th>
-                            <th>تاریخ</th>
-                            <th>عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($recentMessages as $msg)
-                            <tr>
-                                <td>#{{ $msg->id }}</td>
-                                <td>
-                                    <span dir="ltr"><strong>{{ $msg->recipient_phone }}</strong></span>
-                                    @if($msg->user)
-                                        <div class="text-muted small">{{ $msg->user->name }} {{ $msg->user->family }}</div>
-                                    @endif
-                                </td>
-                                <td><span dir="ltr">{{ $msg->sender_phone }}</span></td>
-                                <td>
-                                    <span class="badge {{ $msg->service_type === 'otp' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                        {{ \App\Support\SmsLabels::panel($msg->service_type) }}
-                                    </span>
-                                </td>
-                                <td style="max-width: 280px;" class="text-truncate" title="{{ ($msg->content_redacted ?? false) ? 'محرمانه - دسترسی محدود' : $msg->content }}">
-                                    @if($msg->content_redacted ?? false)
-                                        <span class="text-muted"><i class="fa fa-lock me-1"></i> محرمانه - دسترسی محدود</span>
-                                    @else
-                                        {{ $msg->content }}
-                                    @endif
-                                </td>
-                                <td>{{ $msg->page_count ?: 1 }}</td>
-                                <td>{{ $msg->cost !== null ? number_format((float) $msg->cost) : '-' }}</td>
-                                <td>
-                                    <span class="badge bg-info text-dark">{{ \App\Support\SmsLabels::status($msg->status) }}</span>
-                                </td>
-                                <td class="small text-muted">{{ \App\Helpers\Helper::jalaliDate($msg->created_at, 'Y/m/d H:i') ?? '-' }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-outline-primary forward-msg-btn"
-                                        data-msg-id="{{ $msg->id }}"
-                                        data-msg-content="{{ ($msg->content_redacted ?? false) ? '' : e($msg->content) }}"
-                                        data-msg-redacted="{{ ($msg->content_redacted ?? false) ? '1' : '0' }}"
-                                        data-msg-type="{{ $msg->service_type }}"
-                                        data-bs-toggle="modal" data-bs-target="#forwardDirectModal">
-                                        <i class="fa fa-share me-1"></i> ارجاع به مخاطب
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+            @include('Admin.sms.partials.recent-messages-table', ['recentMessages' => $recentMessages])
         </div>
     @endif
 </div>
@@ -682,44 +623,7 @@
     </div>
 </div>
 
-{{-- Modal 2: Forward Message Directly to Another Contact --}}
-<div class="modal fade" id="forwardDirectModal" tabindex="-1" aria-labelledby="forwardDirectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="forwardDirectModalLabel"><i class="fa fa-share me-2 text-primary"></i> ارجاع پیامک به مخاطب دیگر</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
-            </div>
-            <form id="forwardForm" method="POST" action="{{ route('admin.sms.single.forward') }}">
-                @csrf
-                <input type="hidden" name="original_message_id" id="forwardOriginalMsgId">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">متن پیامک اصلی</label>
-                        <div id="forwardMsgContent" class="p-2 bg-light border rounded small" style="max-height: 120px; overflow-y: auto;"></div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">شماره گیرنده ارجاع <span class="text-danger">*</span></label>
-                        <input type="text" name="recipient_phone" id="forwardRecipientPhone" class="form-control font-monospace text-start" required placeholder="09xxxxxxxxx">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">ارجاع‌دهنده</label>
-                        <input type="text" class="form-control bg-light" value="{{ auth()->user() ? (auth()->user()->name . ' ' . auth()->user()->family) : 'کاربر جاری' }}" readonly>
-                        <input type="hidden" name="referrer_id" value="{{ auth()->id() }}">
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small fw-bold">تاریخ و زمان ارجاع</label>
-                        <input type="text" name="referred_at" class="form-control bg-light" value="{{ now()->format('Y-m-d H:i:s') }}" readonly>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
-                    <button type="submit" class="btn btn-primary">تایید و ارجاع پیامک</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+@include('Admin.sms.partials.forward-modal')
 
 <!-- Quick Payment Gate Modal (مودال درگاه پرداخت سریع - ارسال تکی) -->
 <div class="modal fade" id="quickPaymentSingleModal" tabindex="-1" aria-labelledby="quickPaymentSingleModalLabel" aria-hidden="true" data-bs-backdrop="static">
@@ -1335,17 +1239,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(err => {
             alertBox.textContent = 'خطای ارتباط با سرور.';
             alertBox.style.display = 'block';
-        });
-    });
-
-    // Forward Message Button click
-    document.querySelectorAll('.forward-msg-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const id = this.getAttribute('data-msg-id');
-            const isRedacted = this.getAttribute('data-msg-redacted') === '1';
-            const content = isRedacted ? 'محرمانه - دسترسی محدود' : this.getAttribute('data-msg-content');
-            document.getElementById('forwardOriginalMsgId').value = id;
-            document.getElementById('forwardMsgContent').textContent = content;
         });
     });
 

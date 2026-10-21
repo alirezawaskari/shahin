@@ -95,9 +95,7 @@ class BulkSmsSendService
      */
     public function resolveAdvertisingSenderNumber(GhorfeOnlineList $business, ?int $requestedSenderNumberId = null): Setting
     {
-        $query = $business->senderNumbers()
-            ->where('type', 'advertising')
-            ->where('status', 'active');
+        $query = $this->singleSmsSendService->advertisingSenderQuery($business);
 
         if ($requestedSenderNumberId) {
             $sender = (clone $query)->where('id', $requestedSenderNumberId)->first();
@@ -393,9 +391,12 @@ class BulkSmsSendService
             $groupId = $serviceType === 'otp' ? ($data['sms_message_group_id'] ?? $data['category_id'] ?? null) : null;
             $classification = $serviceType === 'otp' && ($data['classification'] ?? null) === 'classified' ? 'classified' : 'regular';
 
+            $campaignName = trim((string) ($data['campaign_name'] ?? ''))
+                ?: 'کمپین: ' . ($rawMessage ? Str::limit($rawMessage, 30) : 'پیامک انبوه');
+
             $campaign = Groupsms::create([
-                'title' => 'کمپین: ' . ($rawMessage ? Str::limit($rawMessage, 30) : 'پیامک انبوه'),
-                'name' => 'کمپین: ' . ($rawMessage ? Str::limit($rawMessage, 30) : 'پیامک انبوه'),
+                'title' => $campaignName,
+                'name' => $campaignName,
                 'ghorfe_online_list_id' => $business->id,
                 'type' => $type,
                 'ai_goal_prompt' => $data['ai_goal_prompt'] ?? null,
@@ -643,7 +644,10 @@ class BulkSmsSendService
             ->first(fn (Groupsms $c) => ($c->filters['_fingerprint'] ?? null) === $fingerprint);
         $stored['_fingerprint'] = $fingerprint;
 
+        $campaignName = trim((string) ($data['campaign_name'] ?? ''));
         $attributes = [
+            'title' => $campaignName !== '' ? $campaignName : 'پیش‌نویس: ' . Str::limit($rawMessage, 30),
+            'name' => $campaignName !== '' ? $campaignName : null,
             'type' => 'bulk',
             'template_id' => $templateId,
             'group' => $groupId,
@@ -689,6 +693,7 @@ class BulkSmsSendService
 
         return [
             'recipient_type' => $stored['recipient_type'] ?? 'normal',
+            'campaign_name' => $queued->name,
             'service_type' => $stored['service_type'] ?? ($queued->service_type ?: 'advertising'),
             'otp_category' => $stored['otp_category'] ?? $queued->otp_category,
             'classification' => $stored['classification'] ?? 'regular',
