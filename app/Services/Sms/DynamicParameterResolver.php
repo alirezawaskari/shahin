@@ -25,9 +25,15 @@ class DynamicParameterResolver
     public const TOKEN_USER_LAST_NAME  = '{نام خانوادگی}';
     public const TOKEN_DATE            = '{تاریخ}';
     public const TOKEN_TIME            = '{ساعت}';
+    /** Canonical invoice token. */
+    public const TOKEN_FACTOR_NUMBER   = '{شماره فاکتور}';
+    /** @deprecated Old name, still resolved so saved templates keep working. Use TOKEN_FACTOR_NUMBER. */
     public const TOKEN_FACTOR_ID       = '{شناسه فاکتور}';
     public const TOKEN_PAYMENT_LINK    = '{لینک پرداخت}';
+    /** @deprecated Merged into {شماره فاکتور}, still resolved so saved templates keep working. */
     public const TOKEN_REQUEST_ID      = '{شناسه درخواست}';
+    public const TOKEN_SITE_LINK       = '{لینک سایت}';
+    public const TOKEN_REQUEST_SUBJECT = '{موضوع درخواست}';
     public const TOKEN_BIRTH_DATE      = '{تاریخ تولد}';
     public const TOKEN_RECIPIENT_PHONE = '{شماره مخاطب}';
     public const TOKEN_BUSINESS_NAME   = '{نام فروشگاه}';
@@ -173,14 +179,48 @@ class DynamicParameterResolver
             return date('H:i');
         });
 
-        // {شناسه فاکتور} - Factor ID / Reference number
-        $this->register(self::TOKEN_FACTOR_ID, function (array $context): string {
+        // {شماره فاکتور} - Invoice number. {شناسه فاکتور} and {شناسه درخواست} are old names of the same value.
+        $factorNumber = function (array $context): string {
             $factor = $this->extractFactor($context);
             if ($factor) {
                 return (string) ($factor->id ?? $factor->resnumber ?? '');
             }
 
-            return (string) ($context['factor_id'] ?? $context['factor_number'] ?? '');
+            if (!empty($context['factor_id'] ?? $context['factor_number'] ?? null)) {
+                return (string) ($context['factor_id'] ?? $context['factor_number']);
+            }
+
+            $request = $this->extractRequest($context);
+            if ($request) {
+                return (string) ($request->id ?? $request->card_id ?? '');
+            }
+
+            return (string) ($context['request_id'] ?? '');
+        };
+        $this->register(self::TOKEN_FACTOR_NUMBER, $factorNumber);
+        $this->register(self::TOKEN_FACTOR_ID, $factorNumber);
+        $this->register(self::TOKEN_REQUEST_ID, $factorNumber);
+
+        // {لینک سایت} - Storefront link of the sending business
+        $this->register(self::TOKEN_SITE_LINK, function (array $context): string {
+            if (!empty($context['site_link'])) {
+                return (string) $context['site_link'];
+            }
+
+            $business = function_exists('ghorfe') ? ghorfe() : null;
+
+            return $business ? url($business->path()) : url('/');
+        });
+
+        // {موضوع درخواست} - Subject of the request the message is about
+        $this->register(self::TOKEN_REQUEST_SUBJECT, function (array $context): string {
+            if (!empty($context['request_subject'])) {
+                return (string) $context['request_subject'];
+            }
+
+            $request = $this->extractRequest($context);
+
+            return $request ? \Illuminate\Support\Str::limit((string) ($request->description ?? ''), 40, '') : '';
         });
 
         // {لینک پرداخت} - Payment link for factor
@@ -198,16 +238,6 @@ class DynamicParameterResolver
             }
 
             return '';
-        });
-
-        // {شناسه درخواست} - Request ID / Tracking ID
-        $this->register(self::TOKEN_REQUEST_ID, function (array $context): string {
-            $request = $this->extractRequest($context);
-            if ($request) {
-                return (string) ($request->id ?? $request->card_id ?? '');
-            }
-
-            return (string) ($context['request_id'] ?? '');
         });
 
         // {تاریخ تولد} - Recipient birth date

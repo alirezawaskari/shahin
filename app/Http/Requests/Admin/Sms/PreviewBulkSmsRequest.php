@@ -15,6 +15,8 @@ class PreviewBulkSmsRequest extends FormRequest
     {
         return [
             'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
+            'service_type' => ['nullable', 'string', 'in:advertising,otp'],
+            'otp_category' => ['nullable', 'string'],
             'message' => ['nullable', 'string'],
             'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_templates,id'],
             'sender_number_id' => ['nullable', 'integer', 'exists:ghorfe_settings,id'],
@@ -29,7 +31,7 @@ class PreviewBulkSmsRequest extends FormRequest
         $validator->after(function ($validator) {
             $templateId = $this->input('sms_message_template_id');
 
-            if (!empty($templateId)
+            if ($this->input('service_type') !== 'otp' && !empty($templateId)
                 && \App\Models\SmsTemplate::whereKey($templateId)->where('service_type', 'otp')->exists()) {
                 $validator->errors()->add('sms_message_template_id', 'قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');
             }

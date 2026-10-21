@@ -203,7 +203,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h3 class="fw-bold mb-1">ارسال پیامک تکی</h3>
-            <p class="text-muted small mb-0">ارسال پیامک تبلیغاتی یا اعتبارسنجی (OTP) به شماره یا کاربر مشخص</p>
+            <p class="text-muted small mb-0">ارسال پیامک از پنل تبلیغاتی/اطلاع‌رسانی یا پنل OTP به شماره یا کاربر مشخص</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
             @if($business)
@@ -230,29 +230,29 @@
                 {{-- 1. Service & sender --}}
                 <div class="card sms-section">
                     <div class="card-header">
-                        <h6 class="sms-section-title"><span class="badge bg-primary">۱</span> نوع سرویس و شماره فرستنده</h6>
+                        <h6 class="sms-section-title"><span class="badge bg-primary">۱</span> نوع پنل و سرشماره</h6>
                         @if($business)
                             <span class="badge bg-light text-dark border">کسب‌وکار: <strong>{{ $business->title }}</strong></span>
                         @endif
                     </div>
                     <div class="card-body">
                         <div class="sms-field">
-                            <span class="sms-label">نوع سرویس پیامک</span>
+                            <span class="sms-label">نوع پنل پیامک</span>
                             <div class="sms-choice-row">
                                 <label class="sms-choice fw-bold" id="advCheckWrapper" for="serviceTypeAdv">
                                     <input class="form-check-input" type="radio" name="service_type" id="serviceTypeAdv" value="advertising" {{ old('service_type', 'advertising') === 'advertising' ? 'checked' : '' }}>
-                                    <span><i class="fa fa-bullhorn text-warning me-1"></i> پیامک تبلیغاتی / اطلاع‌رسانی</span>
+                                    <span><i class="fa fa-bullhorn text-warning me-1"></i> پنل تبلیغاتی/اطلاع‌رسانی</span>
                                 </label>
                                 {{-- Hidden (not removed) for lower tiers: the page script expects the element. --}}
                                 <label class="sms-choice fw-bold" id="otpCheckWrapper" for="serviceTypeOtp" @if(!($canUseOtp ?? false)) style="display: none;" @endif>
                                     <input class="form-check-input" type="radio" name="service_type" id="serviceTypeOtp" value="otp" {{ old('service_type') === 'otp' ? 'checked' : '' }} @if(!($canUseOtp ?? false)) disabled @endif>
-                                    <span><i class="fa fa-key text-success me-1"></i> پیامک اعتبارسنجی (OTP)</span>
+                                    <span><i class="fa fa-key text-success me-1"></i> پنل OTP</span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="sms-field">
-                            <label class="sms-label" for="senderNumberSelect">شماره فرستنده</label>
+                            <label class="sms-label" for="senderNumberSelect">سرشماره</label>
 
                             {{-- Advertising Sender Select --}}
                             <div id="advertisingSenderContainer">
@@ -262,10 +262,10 @@
                                             {{ $sender->number }}
                                         </option>
                                     @empty
-                                        <option value="" disabled>هیچ شماره تبلیغاتی به این کسب‌وکار تخصیص داده نشده است</option>
+                                        <option value="" disabled>هیچ سرشماره تبلیغاتی به این کسب‌وکار تخصیص داده نشده است</option>
                                     @endforelse
                                 </select>
-                                <div class="sms-hint">تنها خطوط تخصیص یافته به این کسب‌وکار در دسترس هستند.</div>
+                                <div class="sms-hint">تنها سرشماره‌های تخصیص‌یافته به این کسب‌وکار در دسترس هستند.</div>
                             </div>
 
                             {{-- OTP Auto-selected Box (NO user choice) --}}
@@ -282,64 +282,20 @@
                                         <span class="badge bg-info text-dark">موجودی OTP: {{ number_format($otpBalance) }} ریال</span>
                                     </div>
                                 @else
-                                    <div class="alert alert-warning py-2 small mb-0">خط OTP در سامانه یافت نشد.</div>
+                                    <div class="alert alert-warning py-2 small mb-0">سرشماره OTP در سامانه یافت نشد.</div>
                                 @endif
                                 <div class="sms-hint text-info">
-                                    <i class="fa fa-lock me-1"></i> خط ارسال OTP به صورت خودکار تعیین شده و طبق قوانین سیستم امکان تغییر دستی آن وجود ندارد.
+                                    <i class="fa fa-lock me-1"></i> سرشماره OTP به صورت خودکار تعیین شده و طبق قوانین سیستم امکان تغییر دستی آن وجود ندارد.
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- 2. Recipient --}}
+                {{-- 2. Message --}}
                 <div class="card sms-section">
                     <div class="card-header">
-                        <h6 class="sms-section-title"><span class="badge bg-primary">۲</span> گیرنده</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-8">
-                                <label class="sms-label" for="contactSearchInput">انتخاب مخاطب از دفترچه تلفن یا جستجو</label>
-                                <div class="position-relative">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white"><i class="fa fa-search text-muted"></i></span>
-                                        <input type="text" id="contactSearchInput" class="form-control" placeholder="جستجو بر اساس نام، نام خانوادگی یا شماره تلفن...">
-                                        <button type="button" class="btn btn-outline-secondary" id="clearContactBtn" title="پاک کردن انتخاب">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </div>
-                                    {{-- Search Results Dropdown --}}
-                                    <div id="contactSearchResults" class="border rounded shadow-sm bg-white position-absolute w-100 mt-1" style="display: none; max-height: 220px; overflow-y: auto; z-index: 1000;"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#newContactModal">
-                                    <i class="fa fa-user-plus me-1"></i> افزودن مخاطب جدید
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="sms-label" for="recipientPhoneInput">شماره گیرنده <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fa fa-mobile text-muted"></i></span>
-                                    <input type="text" name="recipient_phone" id="recipientPhoneInput" class="form-control text-start font-monospace" placeholder="09xxxxxxxxx" value="{{ old('recipient_phone') }}" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="sms-label" for="selectedContactName">نام مخاطب انتخابی</label>
-                                <input type="text" id="selectedContactName" class="form-control bg-light" placeholder="نامشخص" readonly>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- 3. Message --}}
-                <div class="card sms-section">
-                    <div class="card-header">
-                        <h6 class="sms-section-title"><span class="badge bg-primary">۳</span> متن پیامک</h6>
+                        <h6 class="sms-section-title"><span class="badge bg-primary">۲</span> متن پیامک</h6>
                     </div>
                     <div class="card-body">
                         {{-- OTP only: fixed system category (احراز هویت / فروش / مالی / حقوقی). Hidden AND disabled (not posted) unless OTP is selected. --}}
@@ -363,13 +319,14 @@
                             // and non-OTP templates; non-matching options are rendered hidden + disabled.
                             $otpModeInitial = $classificationVisible;
                         @endphp
-                        <div class="sms-subbox">
+                        {{-- Folder / classification exist for the OTP panel only; the advertising panel has none. --}}
+                        <div class="sms-subbox" id="otpFolderBox" @unless($classificationVisible) style="display: none;" @endunless>
                             <div class="row g-3">
                                 <div class="{{ $classificationVisible ? 'col-md-7' : 'col-12' }}" id="messageGroupCol">
                                     <label class="sms-label" for="messageGroupSelect">
                                         <i class="fa fa-folder text-primary me-1"></i> دسته‌بندی موضوعی / پوشه پیام
                                     </label>
-                                    <select name="sms_message_group_id" id="messageGroupSelect" class="form-select">
+                                    <select name="sms_message_group_id" id="messageGroupSelect" class="form-select" @unless($classificationVisible) disabled @endunless>
                                         <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
                                         @if(isset($groups))
                                             @foreach($groups as $grp)
@@ -418,22 +375,28 @@
                             </div>
                         </div>
 
-                        {{-- Template Selection --}}
+                        {{-- Template bar: picking a template puts its text straight into the message box. --}}
                         <div class="sms-field">
-                            <label class="sms-label" for="templateSelect">انتخاب از قالب‌های پیامک آماده</label>
-                            <select id="templateSelect" name="template_id" class="form-select">
-                                <option value="">-- بدون قالب (متن دلخواه) --</option>
-                                @foreach($templates as $tpl)
-                                    @php
-                                        $tplIsOtp = $tpl->service_type === 'otp';
-                                        $tplPromo = !$tplIsOtp && (!$tpl->group || $tpl->group->isPromotional());
-                                        $tplHide = $otpModeInitial ? !$tplIsOtp : !$tplPromo;
-                                    @endphp
-                                    <option value="{{ $tpl->id }}" data-promotional="{{ $tplPromo ? '1' : '0' }}" @if($tplHide) hidden disabled @endif data-content="{{ $tpl->content }}" data-type="{{ $tpl->service_type }}" data-otp-category="{{ $tpl->otp_category }}" data-group-id="{{ $tpl->sms_message_group_id }}">
-                                        [{{ \App\Support\SmsLabels::serviceType($tpl->service_type) }}] {{ $tpl->title }} {{ $tpl->group ? '('.$tpl->group->name.')' : '' }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label class="sms-label" for="templateSelect">قالب آماده</label>
+                            <div class="input-group">
+                                <select id="templateSelect" name="template_id" class="form-select">
+                                    <option value="">-- بدون قالب (متن دلخواه) --</option>
+                                    @foreach($templates as $tpl)
+                                        @php
+                                            $tplIsOtp = $tpl->service_type === 'otp';
+                                            $tplPromo = !$tplIsOtp && (!$tpl->group || $tpl->group->isPromotional());
+                                            $tplHide = $otpModeInitial ? !$tplIsOtp : !$tplPromo;
+                                        @endphp
+                                        <option value="{{ $tpl->id }}" data-promotional="{{ $tplPromo ? '1' : '0' }}" @if($tplHide) hidden disabled @endif data-content="{{ $tpl->content }}" data-type="{{ $tpl->service_type }}" data-otp-category="{{ $tpl->otp_category }}" data-group-id="{{ $tpl->sms_message_group_id }}">
+                                            [{{ \App\Support\SmsLabels::panel($tpl->service_type) }}] {{ $tpl->title }} {{ $tpl->group ? '('.$tpl->group->name.')' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="متن فعلی را به عنوان قالب ذخیره کن">
+                                    <i class="fa fa-bookmark-o me-1"></i> ذخیره به‌عنوان قالب
+                                </button>
+                            </div>
+                            <div class="sms-hint">با انتخاب قالب، متن آن مستقیماً در کادر پیام قرار می‌گیرد و قابل ویرایش است.</div>
                         </div>
 
                         {{-- Shared editor: textarea + dynamic-parameter chips + live counter --}}
@@ -446,8 +409,35 @@
                             'rows' => 6,
                             'costPerPage' => $costPerPage,
                             'advertising' => old('service_type', 'advertising') !== 'otp',
-                            'chips' => ['{نام کاربر}', '{نام خانوادگی}', '{تاریخ}', '{ساعت}', '{شناسه فاکتور}', '{لینک پرداخت}', '{شناسه درخواست}'],
+                            'costLabel' => 'هزینه هر پیامک',
+                            // Dynamic parameters are not needed for single sends (disabled for now, kept for later):
+                            // 'chips' => ['{نام کاربر}', '{نام خانوادگی}', '{تاریخ}', '{ساعت}', '{شماره فاکتور}', '{لینک پرداخت}', '{لینک سایت}', '{موضوع درخواست}'],
+                            'chips' => [],
                         ])
+                    </div>
+                </div>
+
+                {{-- 3. Recipient: one field = search the contact list or type a number --}}
+                <div class="card sms-section">
+                    <div class="card-header">
+                        <h6 class="sms-section-title"><span class="badge bg-primary">۳</span> گیرنده</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="sms-field position-relative mb-0">
+                            <label class="sms-label" for="recipientPhoneInput">گیرنده <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fa fa-search text-muted"></i></span>
+                                <input type="text" name="recipient_phone" id="recipientPhoneInput" class="form-control text-start font-monospace" placeholder="شماره موبایل (09xxxxxxxxx) یا جستجوی نام در مخاطبین" autocomplete="off" value="{{ old('recipient_phone') }}" required>
+                                <button type="button" class="btn btn-outline-secondary" id="clearContactBtn" title="پاک کردن">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary d-none" id="saveContactBtn" data-bs-toggle="modal" data-bs-target="#newContactModal">
+                                    <i class="fa fa-user-plus me-1"></i> ذخیره در مخاطبین
+                                </button>
+                            </div>
+                            <div id="contactSearchResults" class="border rounded shadow-sm bg-white position-absolute w-100 mt-1" style="display: none; max-height: 220px; overflow-y: auto; z-index: 1000;"></div>
+                            <div class="sms-hint" id="selectedContactHint">مخاطب انتخاب‌شده: <strong id="selectedContactName">نامشخص</strong></div>
+                        </div>
                     </div>
                 </div>
 
@@ -460,7 +450,7 @@
                         <div class="sms-summary mb-3">
                             <div class="row g-3 align-items-center">
                                 <div class="col-md-4">
-                                    <span class="text-muted small d-block">هزینه تخمینی ارسال:</span>
+                                    <span class="text-muted small d-block">هزینه ارسال:</span>
                                     <strong class="fs-5 text-danger" id="previewCost">{{ number_format($costPerPage) }}</strong> <span class="small text-muted">ریال</span>
                                 </div>
                                 <div class="col-md-4">
@@ -495,9 +485,6 @@
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                             <button type="submit" id="submitSendBtn" class="btn btn-success px-4 py-2 fw-bold">
                                 <i class="fa fa-paper-plane me-1"></i> تایید و ارسال پیامک
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#historyForwardModal">
-                                <i class="fa fa-history me-1"></i> ارجاع پیام‌های قبلی به دیگران
                             </button>
                         </div>
                     </div>
@@ -577,10 +564,10 @@
                         <tr>
                             <th>شناسه</th>
                             <th>گیرنده</th>
-                            <th>خط فرستنده</th>
+                            <th>سرشماره</th>
                             <th>نوع</th>
                             <th>بخشی از متن</th>
-                            <th>پارت</th>
+                            <th>تعداد صفحه</th>
                             <th>هزینه (ریال)</th>
                             <th>وضعیت</th>
                             <th>تاریخ</th>
@@ -600,7 +587,7 @@
                                 <td><span dir="ltr">{{ $msg->sender_phone }}</span></td>
                                 <td>
                                     <span class="badge {{ $msg->service_type === 'otp' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                        {{ \App\Support\SmsLabels::serviceType($msg->service_type) }}
+                                        {{ \App\Support\SmsLabels::panel($msg->service_type) }}
                                     </span>
                                 </td>
                                 <td style="max-width: 280px;" class="text-truncate" title="{{ ($msg->content_redacted ?? false) ? 'محرمانه - دسترسی محدود' : $msg->content }}">
@@ -610,8 +597,8 @@
                                         {{ $msg->content }}
                                     @endif
                                 </td>
-                                <td>{{ $msg->page_count }}</td>
-                                <td>{{ number_format((float) $msg->cost) }}</td>
+                                <td>{{ $msg->page_count ?: 1 }}</td>
+                                <td>{{ $msg->cost !== null ? number_format((float) $msg->cost) : '-' }}</td>
                                 <td>
                                     <span class="badge bg-info text-dark">{{ \App\Support\SmsLabels::status($msg->status) }}</span>
                                 </td>
@@ -662,6 +649,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
                     <button type="submit" id="saveContactBtn" class="btn btn-primary">ثبت و انتخاب مخاطب</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal: save current text as a template --}}
+<div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="saveTemplateModalLabel"><i class="fa fa-bookmark-o me-2 text-success"></i> ذخیره به‌عنوان قالب</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
+            </div>
+            <form id="saveTemplateForm">
+                <div class="modal-body">
+                    <div id="saveTemplateAlert" class="alert alert-danger py-2 small" style="display: none;"></div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold" for="saveTemplateTitle">عنوان قالب <span class="text-danger">*</span></label>
+                        <input type="text" id="saveTemplateTitle" class="form-control" required maxlength="120" placeholder="مثال: یادآوری پرداخت">
+                    </div>
+                    <div class="small fw-bold mb-1">متن قالب</div>
+                    <div id="saveTemplateContent" class="p-2 bg-light border rounded small" style="max-height: 140px; overflow-y: auto; white-space: pre-wrap;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-success">ذخیره قالب</button>
                 </div>
             </form>
         </div>
@@ -866,7 +880,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const insufficientAlert = document.getElementById('insufficientBalanceAlert');
     const submitSendBtn = document.getElementById('submitSendBtn');
 
-    const contactSearchInput = document.getElementById('contactSearchInput');
+    const saveContactBtn = document.getElementById('saveContactBtn');
     const contactSearchResults = document.getElementById('contactSearchResults');
     const recipientPhoneInput = document.getElementById('recipientPhoneInput');
     const selectedContactName = document.getElementById('selectedContactName');
@@ -891,6 +905,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const timeNow = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
         resolved = resolved.replaceAll('{تاریخ}', todayJalali);
         resolved = resolved.replaceAll('{ساعت}', timeNow);
+        resolved = resolved.replaceAll('{شماره فاکتور}', '1024');
         resolved = resolved.replaceAll('{شناسه فاکتور}', '1024');
         resolved = resolved.replaceAll('{لینک پرداخت}', 'lalecard.ir/pf/1024');
         resolved = resolved.replaceAll('{شناسه درخواست}', 'REQ-500');
@@ -952,7 +967,7 @@ document.addEventListener('DOMContentLoaded', function () {
             singleLastCalculatedDeficit = 0;
         }
 
-        // An empty message can never be sent, even though its estimated cost is shown.
+        // An empty message can never be sent, even though its cost is shown.
         if (seg.empty) {
             submitSendBtn.disabled = true;
             submitSendBtn.classList.remove('btn-success');
@@ -975,6 +990,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (regular) regular.disabled = !show;
         if (classified) classified.disabled = !show;
+
+        // The folder / classification box exists for the OTP panel only (disabled = not submitted).
+        const folderBox = document.getElementById('otpFolderBox');
+        const folderSelect = document.getElementById('messageGroupSelect');
+        if (folderBox) folderBox.style.display = show ? '' : 'none';
+        if (folderSelect) folderSelect.disabled = !show;
 
         // Subject categories + templates: promotional mode shows only promotional groups and non-OTP
         // templates; OTP mode shows the full tree and only OTP templates. Non-matching options are
@@ -1020,6 +1041,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Toggle service type (Advertising vs OTP)
     function onServiceTypeChange() {
         syncClassificationVisibility();
+        const saveTplBtn = document.getElementById('saveAsTemplateBtn');
+        if (saveTplBtn) {
+            saveTplBtn.disabled = serviceTypeOtp.checked;
+            saveTplBtn.title = serviceTypeOtp.checked
+                ? 'ذخیره قالب برای پنل OTP هنوز فعال نیست'
+                : 'متن فعلی را به عنوان قالب ذخیره کن';
+        }
         if (serviceTypeOtp.checked) {
             document.getElementById('advertisingSenderContainer').style.display = 'none';
             document.getElementById('otpSenderContainer').style.display = 'block';
@@ -1116,32 +1144,82 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Recipient Phone typing
-    recipientPhoneInput.addEventListener('input', function () {
-        phoneRecipientTitle.textContent = this.value || 'مخاطب';
-    });
+    // ---- Recipient: one field. Type a number, or type a name / part of a number to search contacts.
+    const faDigits = '۰۱۲۳۴۵۶۷۸۹';
+    function normalizePhone(v) {
+        return String(v || '').replace(/[۰-۹]/g, function (d) { return faDigits.indexOf(d); }).replace(/\s+/g, '');
+    }
+    function isFullPhone(v) { return /^09\d{9}$/.test(v); }
 
-    // Contact search
+    function setContactHint(name) {
+        selectedContactName.textContent = name || 'نامشخص';
+    }
+
+    function resetContact() {
+        currentContact = null;
+        selectedUserId.value = '';
+        setContactHint('');
+        phoneAvatar.textContent = '?';
+    }
+
+    function selectContact(contact, keepInput) {
+        currentContact = contact;
+        if (!keepInput) recipientPhoneInput.value = contact.phone;
+        setContactHint(contact.name);
+        selectedUserId.value = contact.id;
+        saveContactBtn.classList.add('d-none');
+
+        phoneRecipientTitle.textContent = contact.name;
+        phoneAvatar.textContent = contact.name ? contact.name.charAt(0) : '?';
+
+        updateLivePreview();
+    }
+
     let searchTimeout = null;
-    contactSearchInput.addEventListener('input', function () {
-        const query = this.value.trim();
-        if (searchTimeout) clearTimeout(searchTimeout);
+    recipientPhoneInput.addEventListener('input', function () {
+        const raw = this.value.trim();
+        const phone = normalizePhone(raw);
+        phoneRecipientTitle.textContent = raw || 'مخاطب';
 
-        if (query.length < 2) {
+        // Typing away from the chosen contact's number drops the link to that contact.
+        if (currentContact && normalizePhone(currentContact.phone) !== phone) resetContact();
+
+        if (searchTimeout) clearTimeout(searchTimeout);
+        saveContactBtn.classList.add('d-none');
+
+        if (raw.length < 2) {
             contactSearchResults.style.display = 'none';
             return;
         }
 
         searchTimeout = setTimeout(() => {
-            fetch(`{{ route('admin.sms.single.contacts.search') }}?q=${encodeURIComponent(query)}`)
+            fetch(`{{ route('admin.sms.single.contacts.search') }}?q=${encodeURIComponent(phone || raw)}`)
                 .then(res => res.json())
                 .then(data => {
+                    const list = (data.status === 'success' && data.data) ? data.data : [];
+
+                    // A complete number: link it to the matching contact, or offer to save it as a new one.
+                    if (isFullPhone(phone)) {
+                        const exact = list.find(c => normalizePhone(c.phone) === phone);
+                        if (exact) {
+                            selectContact(exact, true);
+                        } else {
+                            saveContactBtn.classList.remove('d-none');
+                        }
+                    }
+
                     contactSearchResults.innerHTML = '';
-                    if (data.status === 'success' && data.data && data.data.length > 0) {
-                        data.data.forEach(contact => {
+                    if (list.length > 0 && !(isFullPhone(phone) && currentContact)) {
+                        list.forEach(contact => {
                             const item = document.createElement('div');
                             item.className = 'contact-dropdown-item';
-                            item.innerHTML = `<strong>${contact.name}</strong> <span class="text-muted font-monospace small">(${contact.phone})</span>`;
+                            const nameEl = document.createElement('strong');
+                            nameEl.textContent = contact.name;
+                            const phoneEl = document.createElement('span');
+                            phoneEl.className = 'text-muted font-monospace small';
+                            phoneEl.textContent = ' (' + contact.phone + ')';
+                            item.appendChild(nameEl);
+                            item.appendChild(phoneEl);
                             item.addEventListener('click', () => {
                                 selectContact(contact);
                                 contactSearchResults.style.display = 'none';
@@ -1150,35 +1228,73 @@ document.addEventListener('DOMContentLoaded', function () {
                         });
                         contactSearchResults.style.display = 'block';
                     } else {
-                        contactSearchResults.innerHTML = '<div class="p-2 text-muted small">مخاطبی یافت نشد.</div>';
-                        contactSearchResults.style.display = 'block';
+                        contactSearchResults.style.display = 'none';
                     }
                 });
         }, 250);
     });
 
-    function selectContact(contact) {
-        currentContact = contact;
-        recipientPhoneInput.value = contact.phone;
-        selectedContactName.value = contact.name;
-        selectedUserId.value = contact.id;
-        contactSearchInput.value = `${contact.name} (${contact.phone})`;
-
-        phoneRecipientTitle.textContent = contact.name;
-        phoneAvatar.textContent = contact.name ? contact.name.charAt(0) : '?';
-
-        updateLivePreview();
-    }
+    document.addEventListener('click', function (e) {
+        if (!contactSearchResults.contains(e.target) && e.target !== recipientPhoneInput) {
+            contactSearchResults.style.display = 'none';
+        }
+    });
 
     clearContactBtn.addEventListener('click', function () {
-        currentContact = null;
         recipientPhoneInput.value = '';
-        selectedContactName.value = '';
-        selectedUserId.value = '';
-        contactSearchInput.value = '';
+        resetContact();
+        saveContactBtn.classList.add('d-none');
+        contactSearchResults.style.display = 'none';
         phoneRecipientTitle.textContent = 'مخاطب';
-        phoneAvatar.textContent = '?';
         updateLivePreview();
+    });
+
+    // Saving the typed number: open the contact modal with it already filled in.
+    document.getElementById('newContactModal').addEventListener('show.bs.modal', function () {
+        const phoneField = document.getElementById('newContactPhone');
+        if (!phoneField.value) phoneField.value = normalizePhone(recipientPhoneInput.value);
+    });
+
+    // ---- Save the current text as a template
+    const saveTemplateForm = document.getElementById('saveTemplateForm');
+    document.getElementById('saveTemplateModal').addEventListener('show.bs.modal', function () {
+        document.getElementById('saveTemplateContent').textContent = textarea.value;
+        document.getElementById('saveTemplateAlert').style.display = 'none';
+    });
+    saveTemplateForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const alertBox = document.getElementById('saveTemplateAlert');
+        alertBox.style.display = 'none';
+        const title = document.getElementById('saveTemplateTitle').value.trim();
+
+        fetch(`{{ route('admin.sms.single.templates.store') }}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ title: title, content: textarea.value })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (ok && data.status === 'success') {
+                const opt = document.createElement('option');
+                opt.value = data.template.id;
+                opt.textContent = '[' + 'پنل تبلیغاتی/اطلاع‌رسانی' + '] ' + data.template.title;
+                opt.setAttribute('data-promotional', '1');
+                opt.setAttribute('data-type', 'advertising');
+                opt.setAttribute('data-content', data.template.content);
+                templateSelect.appendChild(opt);
+                templateSelect.value = data.template.id;
+                bootstrap.Modal.getInstance(document.getElementById('saveTemplateModal')).hide();
+                saveTemplateForm.reset();
+            } else {
+                const firstError = data.errors ? Object.values(data.errors)[0][0] : null;
+                alertBox.textContent = firstError || data.message || 'خطا در ذخیره قالب.';
+                alertBox.style.display = 'block';
+            }
+        })
+        .catch(() => {
+            alertBox.textContent = 'خطای ارتباط با سرور.';
+            alertBox.style.display = 'block';
+        });
     });
 
     // Inline Add New Contact Form Submission
@@ -1210,6 +1326,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (contactModal) contactModal.hide();
                 newContactForm.reset();
                 selectContact(data.contact);
+                saveContactBtn.classList.add('d-none');
             } else {
                 alertBox.textContent = data.message || 'خطا در ثبت مخاطب.';
                 alertBox.style.display = 'block';

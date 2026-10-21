@@ -129,7 +129,7 @@
         this.stats = null;
 
         var els = {};
-        ['used', 'suffix', 'suffixnote', 'remaining', 'pages', 'encoding', 'cost', 'tariff', 'optout', 'bar', 'badge'].forEach(function (k) {
+        ['used', 'suffix', 'suffixnote', 'remaining', 'pages', 'encoding', 'encodinghint', 'cost', 'tariff', 'optout', 'bar', 'badge'].forEach(function (k) {
             els[k] = root.querySelector('[data-sms-counter="' + k + '"]');
         });
         this.els = els;
@@ -216,6 +216,7 @@
         if (e.pages) e.pages.textContent = fa(s.pageCount);
         if (e.badge) e.badge.textContent = fa(s.pageCount) + ' صفحه';
         if (e.encoding) e.encoding.textContent = s.encodingLabel;
+        if (e.encodinghint) e.encodinghint.textContent = s.isUnicode ? '(متن فارسی: هر صفحه ۷۰ کاراکتر)' : '(متن انگلیسی: هر صفحه ۱۶۰ کاراکتر)';
         if (e.tariff) e.tariff.textContent = this.costPerPage ? fa(this.costPerPage) : '-';
         if (e.cost) e.cost.textContent = this.costPerPage ? fa(s.cost) : '-';
         if (e.optout) {

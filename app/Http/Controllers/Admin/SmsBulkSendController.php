@@ -72,6 +72,17 @@ class SmsBulkSendController extends Controller
     }
 
     /**
+     * The audience pool follows the sender's access tier (no manual choice): Diamond and above reach
+     * the advertising contact bank, lower tiers their own business contacts.
+     */
+    protected function recipientTypeFor(?\App\Models\User $user): string
+    {
+        return $user && $this->accessTierService->canAccess($user, SmsAccessTierService::TIER_DIAMOND)
+            ? 'advertising'
+            : 'normal';
+    }
+
+    /**
      * Display the Bulk SMS Send Interface.
      */
     public function index(Request $request): View
@@ -127,6 +138,18 @@ class SmsBulkSendController extends Controller
         }
 
         $userTier = $this->accessTierService->effectiveTier($user);
+
+        // OTP panel (Titanium only): fixed system line + the business' OTP balance.
+        $canUseOtp = $this->accessTierService->canUseOtp($user);
+        $otpSender = null;
+        $otpBalance = 0.0;
+        if ($canUseOtp) {
+            $otpSender = Setting::query()->where('type', 'otp')->where('status', 'active')->first()
+                ?? Setting::where('key', 'sms_sender_number')->first()
+                ?? Setting::where('key', 'iranSms_linenumber')->first();
+            $otpBalance = (float) ($business->otp_balance ?? 0);
+        }
+
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
         // Promotional subject categories only (event/greeting, sales, support)
         $dbGroups = Setting::where('key', 'sms_message_group')
@@ -162,6 +185,9 @@ class SmsBulkSendController extends Controller
             'business',
             'user',
             'userTier',
+            'canUseOtp',
+            'otpSender',
+            'otpBalance',
             'advertisingNumbers',
             'templates',
             'roles',
@@ -182,8 +208,17 @@ class SmsBulkSendController extends Controller
         $business = $this->resolveBusiness($request);
         $user = auth()->user();
 
-        $recipientType = (string) $request->input('recipient_type', 'normal');
+        $recipientType = $this->recipientTypeFor($user);
+        $serviceType = $this->bulkSmsSendService->resolveServiceType($request->all());
         $filters = (array) $request->input('filters', []);
+
+        if ($serviceType === 'otp' && !$this->accessTierService->canUseOtp($user)) {
+            return response()->json([
+                'status' => 'error',
+                'error_type' => 'tier_denied',
+                'message' => 'دسترسی به پنل OTP برای سطح دسترسی شما مجاز نیست.',
+            ], 403);
+        }
 
         if ($denied = $this->denyDirectSms($filters)) {
             return $denied;
@@ -228,7 +263,7 @@ class SmsBulkSendController extends Controller
 
         $representativeUser = $this->bulkSmsSendService->resolveWorstCaseRecipient($filterResult['valid_recipients']);
         $resolvedForEstimate = $this->bulkSmsSendService->resolvePlaceholders($rawMessage, [], $representativeUser);
-        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($resolvedForEstimate);
+        $segmentation = $this->bulkSmsSendService->calculateMessageSegmentation($resolvedForEstimate, $serviceType);
         $pageCount = $segmentation['page_count'];
         $tariff = $segmentation['tariff'];
 
@@ -239,10 +274,10 @@ class SmsBulkSendController extends Controller
         $currentBalance = 0.0;
         $senderNumber = null;
 
-        if ($business && $senderNumberId) {
+        if ($business && ($senderNumberId || $serviceType === 'otp')) {
             try {
-                $senderNumber = $this->bulkSmsSendService->resolveAdvertisingSenderNumber($business, (int) $senderNumberId);
-                $balanceInfo = $this->bulkSmsSendService->getBalance($business);
+                $senderNumber = $this->bulkSmsSendService->resolveSenderNumberFor($serviceType, $business, $senderNumberId ? (int) $senderNumberId : null, $user);
+                $balanceInfo = $this->bulkSmsSendService->getBalance($business, $serviceType);
                 $currentBalance = $balanceInfo['balance'];
             } catch (\Throwable) {
                 // Invalid or unassigned sender number
@@ -332,6 +367,9 @@ class SmsBulkSendController extends Controller
         }
 
         $validatedData = $request->validated();
+        $validatedData['recipient_type'] = $this->recipientTypeFor($user);
+        // `type` in a bulk form request is the OTP classification radio, never the campaign type.
+        unset($validatedData['type']);
         if ($request->filled('custom_numbers')) {
             $filters = $validatedData['filters'] ?? [];
             $filters['custom_numbers'] = $request->input('custom_numbers');
@@ -448,13 +486,12 @@ class SmsBulkSendController extends Controller
 
         $validator = Validator::make($request->all(), [
             'recipient_type' => ['nullable', 'string', 'in:normal,advertising'],
+            'service_type' => ['nullable', 'string', 'in:advertising,otp'],
+            'otp_category' => ['nullable', 'string', 'in:' . implode(',', \App\Enums\SmsOtpCategory::values())],
+            'classification' => ['nullable', 'string', 'in:regular,classified'],
             'message' => ['nullable', 'string'],
             'sms_message_template_id' => ['nullable', 'integer', 'exists:sms_templates,id'],
-            'sms_message_group_id' => ['nullable', function ($attr, $value, $fail) {
-                if (!Groupsms::isPromotionalGroup($value)) {
-                    $fail('دسته‌بندی موضوعی انتخاب‌شده برای پیامک تبلیغاتی مجاز نیست.');
-                }
-            }],
+            'sms_message_group_id' => ['nullable'],
             'sender_number_id' => ['nullable', 'integer', 'exists:ghorfe_settings,id'],
             'filters' => ['nullable', 'array'],
             'scheduled_at' => ['nullable', 'date'],
@@ -474,10 +511,10 @@ class SmsBulkSendController extends Controller
         }
 
         $data = $request->only([
-            'recipient_type', 'message', 'sms_message_template_id', 'sms_message_group_id',
-            'sender_number_id', 'scheduled_at',
+            'service_type', 'otp_category', 'classification', 'message', 'sms_message_template_id',
+            'sms_message_group_id', 'sender_number_id', 'scheduled_at',
         ]);
-        $data['recipient_type'] = $data['recipient_type'] ?? 'normal';
+        $data['recipient_type'] = $this->recipientTypeFor($user);
         $data['filters'] = $filters;
 
         try {

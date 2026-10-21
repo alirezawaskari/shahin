@@ -12,6 +12,7 @@
       $costPerPage   float|null  tariff per SMS page, from config('services.sms.cost_per_page')
       $advertising   bool        count the mandatory «لغو 11» opt-out (default: true)
       $chips         array of tokens for the dynamic-parameter palette ([] = no palette)
+      $costLabel     label of the per-message cost stat   (default: هزینه تخمینی هر پیامک)
 
     JS: public/assets/dashboard/js/sms-message-editor.js  (SmsMessageEditor.get('<id>')).
 --}}
@@ -26,6 +27,7 @@
     $costPerPage = $costPerPage ?? (float) config('services.sms.cost_per_page', 1200);
     $advertising = $advertising ?? true;
     $chips = $chips ?? [];
+    $costLabel = $costLabel ?? 'هزینه تخمینی هر پیامک';
 @endphp
 <div class="sms-editor" data-sms-editor data-for="{{ $id }}" data-cost-per-page="{{ $costPerPage }}" data-advertising="{{ $advertising ? '1' : '0' }}">
     <label class="sms-label" for="{{ $id }}">{{ $editorLabel }} @if($required)<span class="text-danger">*</span>@endif</label>
@@ -57,9 +59,9 @@
             <span class="sms-stat">کاراکتر: <strong data-sms-counter="used">۰</strong> <span class="text-muted" data-sms-counter="suffixnote" @if(!$advertising) style="display: none;" @endif>(شامل لغو 11)</span></span>
             <span class="sms-stat">باقی‌مانده تا صفحه بعد: <strong data-sms-counter="remaining">۷۰</strong></span>
             <span class="sms-stat">تعداد صفحه: <strong data-sms-counter="pages">۱</strong></span>
-            <span class="sms-stat">کدگذاری: <strong data-sms-counter="encoding">فارسی (Unicode)</strong></span>
+            <span class="sms-stat">کدگذاری: <strong data-sms-counter="encoding">فارسی (Unicode)</strong> <small class="text-muted" data-sms-counter="encodinghint">(متن فارسی: هر صفحه ۷۰ کاراکتر)</small></span>
             <span class="sms-stat sms-stat-end">تعرفه هر صفحه: <strong data-sms-counter="tariff">{{ number_format($costPerPage) }}</strong> ریال</span>
-            <span class="sms-stat">هزینه تخمینی هر پیامک: <strong data-sms-counter="cost">۰</strong> ریال</span>
+            <span class="sms-stat">{{ $costLabel }}: <strong data-sms-counter="cost">۰</strong> ریال</span>
         </div>
     </div>
 
