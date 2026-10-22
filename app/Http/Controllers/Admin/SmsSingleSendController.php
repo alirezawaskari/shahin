@@ -134,12 +134,14 @@ class SmsSingleSendController extends Controller
             $otpBalance = 0.0;
         }
 
+        $userTier = $this->accessTierService->effectiveTier(auth()->user());
         $regulatoryRulesText = $this->cmsContent->regulatoryRulesText();
         $costPerPage = (float) config('services.sms.cost_per_page', 1200);
         $groups = collect();
 
         return view('Admin.sms.single.index', compact(
             'business',
+            'userTier',
             'otpSender',
             'otpBalance',
             'canUseOtp',
@@ -292,19 +294,31 @@ class SmsSingleSendController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:120'],
             'content' => ['required', 'string', 'max:2000'],
+            'service_type' => ['nullable', 'string', 'in:advertising,otp,normal'],
+            'otp_category' => ['nullable', 'string'],
         ], [
             'title.required' => 'عنوان قالب الزامی است.',
             'content.required' => 'متن پیامک خالی است؛ ابتدا متن را بنویسید.',
         ]);
 
         $business = $this->resolveBusiness($request);
+        $serviceType = $validated['service_type'] ?? 'advertising';
+
+        if ($serviceType === 'otp') {
+            abort_unless($this->accessTierService->canUseOtp($user), 403, 'دسترسی به سرویس OTP مجاز نیست.');
+        }
+
+        $faName = $serviceType === 'otp' ? ('[OTP] ' . $validated['title']) : $validated['title'];
 
         $template = SmsTemplate::create([
             'user_id' => $user->id,
-            'ghorfe_online_list_id' => $business->id,
+            'ghorfe_online_list_id' => $business?->id,
             'title' => $validated['title'],
+            'name' => $validated['title'],
+            'fa_name' => $faName,
             'content' => $validated['content'],
-            'service_type' => 'advertising',
+            'service_type' => $serviceType,
+            'otp_category' => $serviceType === 'otp' ? ($validated['otp_category'] ?? 'auth_password_reset') : null,
             'status' => 'active',
         ]);
 
@@ -314,6 +328,8 @@ class SmsSingleSendController extends Controller
                 'id' => $template->id,
                 'title' => $template->title,
                 'content' => $template->content,
+                'service_type' => $template->service_type,
+                'otp_category' => $template->otp_category,
             ],
         ]);
     }

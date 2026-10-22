@@ -16,7 +16,7 @@
                     <div class="mb-1">
                         <label class="form-label small fw-bold" for="saveTemplateContent">متن قالب <span class="text-danger">*</span></label>
                         <textarea id="saveTemplateContent" class="form-control" rows="5" maxlength="2000" required placeholder="مثال: عید مبعث بر شما مبارک باد"></textarea>
-                        <div class="form-text">قالب پیامکی عادی (نه OTP) ساخته می‌شود و بعداً از لیست قالب‌ها قابل انتخاب است. اگر متنی در کادر پیام نوشته باشید، اینجا پر می‌شود.</div>
+                        <div class="form-text">قالب برای پنل پیامکی فعال ساخته می‌شود و بعداً از لیست قالب‌ها قابل انتخاب است. اگر متنی در کادر پیام نوشته باشید، اینجا پر می‌شود.</div>
                     </div>
                 </div>
                 <div class="modal-footer">

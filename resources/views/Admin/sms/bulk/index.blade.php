@@ -933,11 +933,11 @@
         // «لغو 11» belongs to the promotional panel only.
         bulkSmsEditor.setAdvertising(!otp);
 
-        // Templates are stored for the promotional panel only for now.
+        // Quick template create button remains accessible on OTP
         const saveTplBtn = document.getElementById('saveAsTemplateBtn');
         if (saveTplBtn) {
-            saveTplBtn.disabled = otp;
-            saveTplBtn.title = otp ? 'ایجاد قالب برای پنل OTP از این بخش فعال نیست' : 'ایجاد قالب پیامکی جدید';
+            saveTplBtn.disabled = false;
+            saveTplBtn.title = otp ? 'ایجاد قالب پیامکی جدید برای پنل OTP' : 'ایجاد قالب پیامکی جدید';
         }
 
         // Filter templates: OTP panel shows OTP templates; Advertising panel shows advertising/promotional templates
@@ -998,6 +998,13 @@
         if (tplSelect.value !== currentVal) {
             tplSelect.value = '';
         }
+
+        if (window.jQuery || window.$) {
+            const $tpl = (window.jQuery || window.$)(tplSelect);
+            if ($tpl.hasClass('select2-hidden-accessible')) {
+                $tpl.trigger('change.select2');
+            }
+        }
     }
 
     document.getElementById('serviceTypeAdv').addEventListener('change', () => onServiceTypeChange());
@@ -1019,39 +1026,77 @@
         document.getElementById('scheduleInputWrapper').style.display = isScheduled ? 'block' : 'none';
     }
 
-    // Auto update message from template selection
-    document.getElementById('sms_message_template_id').addEventListener('change', function () {
-        const selected = this.options[this.selectedIndex];
-        if (selected && selected.value) {
-            const content = selected.getAttribute('data-content') || '';
+    // Central function to apply selected bulk template
+    function applySelectedBulkTemplate(templateId) {
+        const tplSelect = document.getElementById('sms_message_template_id');
+        if (!templateId) {
             if (bulkSmsEditor) {
+                try { bulkSmsEditor.setValue(''); } catch (e) {}
+            }
+            const msgEl = document.getElementById('sms_message');
+            if (msgEl) msgEl.value = '';
+            const editorDiv = document.getElementById('sms_messageEditor') || document.querySelector('.sms-param-editor');
+            if (editorDiv) editorDiv.innerHTML = '';
+            updateMessageStatsAndMockup();
+            triggerPreview();
+            return;
+        }
+
+        const tpl = allTemplatesBulk.find(t => String(t.id) === String(templateId));
+        let content = tpl ? (tpl.content || '') : '';
+        if (!content && tplSelect && tplSelect.selectedOptions && tplSelect.selectedOptions.length > 0) {
+            content = tplSelect.selectedOptions[0].getAttribute('data-content') || '';
+        }
+
+        if (bulkSmsEditor) {
+            try {
                 bulkSmsEditor.setValue(content);
-            } else if (bulkMessageChipEditor) {
-                bulkMessageChipEditor.setValue(content);
-            } else {
-                document.getElementById('sms_message').value = content;
+            } catch (err) {
+                console.error('bulkSmsEditor.setValue error:', err);
             }
+        }
+        const msgEl = document.getElementById('sms_message');
+        if (msgEl) {
+            msgEl.value = content;
+            try {
+                msgEl.dispatchEvent(new Event('input', { bubbles: true }));
+                msgEl.dispatchEvent(new Event('change', { bubbles: true }));
+            } catch (e) {}
+        }
+        const editorDiv = document.getElementById('sms_messageEditor') || document.querySelector('.sms-param-editor');
+        if (editorDiv && (!editorDiv.textContent || editorDiv.textContent.trim() === '') && content) {
+            editorDiv.innerText = content;
+        }
 
-            const type = selected.getAttribute('data-type');
-            if (type === 'otp') {
-                if (serviceTypeOtp && !serviceTypeOtp.checked) {
-                    serviceTypeOtp.checked = true;
-                    onServiceTypeChange();
-                }
-                const tplCategory = selected.getAttribute('data-otp-category');
-                const catSelect = document.getElementById('otpCategorySelect');
-                if (tplCategory && catSelect) catSelect.value = tplCategory;
-            } else if (type === 'advertising') {
-                if (document.getElementById('serviceTypeAdv') && !document.getElementById('serviceTypeAdv').checked) {
-                    document.getElementById('serviceTypeAdv').checked = true;
-                    onServiceTypeChange();
-                }
-            }
+        if (tpl && tpl.type === 'otp' && tpl.otpCategory) {
+            const catSelect = document.getElementById('otpCategorySelect');
+            if (catSelect) catSelect.value = tpl.otpCategory;
+        }
 
-            const groupId = selected.getAttribute('data-group-id');
-            if (groupId && messageGroupSelect) {
-                messageGroupSelect.value = groupId;
-            }
+        updateMessageStatsAndMockup();
+        triggerPreview();
+    }
+
+    // Auto update message from template selection (supports native, jQuery and Select2)
+    const bulkTplSelect = document.getElementById('sms_message_template_id');
+    if (bulkTplSelect) {
+        bulkTplSelect.addEventListener('change', function () {
+            applySelectedBulkTemplate(this.value);
+        });
+        if (window.jQuery || window.$) {
+            const $ = window.jQuery || window.$;
+            $(bulkTplSelect).on('change select2:select', function (e) {
+                const v = $(this).val() || (e && e.params && e.params.data ? e.params.data.id : null) || bulkTplSelect.value;
+                applySelectedBulkTemplate(v);
+            });
+        }
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.id === 'sms_message_template_id') {
+            applySelectedBulkTemplate(e.target.value);
+        }
+    });
 
             updateMessageStatsAndMockup();
             triggerPreview();
@@ -1600,25 +1645,35 @@
             e.preventDefault();
             const alertBox = document.getElementById('saveTemplateAlert');
             alertBox.style.display = 'none';
+            const isOtp = serviceTypeOtp && serviceTypeOtp.checked;
+            const otpCatEl = document.getElementById('otpCategorySelect');
+            const currentOtpCat = (isOtp && otpCatEl) ? otpCatEl.value : null;
+
             fetch("{{ route('admin.sms.single.templates.store') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
-                body: JSON.stringify({ title: document.getElementById('saveTemplateTitle').value.trim(), content: document.getElementById('saveTemplateContent').value })
+                body: JSON.stringify({
+                    title: document.getElementById('saveTemplateTitle').value.trim(),
+                    content: document.getElementById('saveTemplateContent').value,
+                    service_type: isOtp ? 'otp' : 'advertising',
+                    otp_category: isOtp ? currentOtpCat : null
+                })
             })
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(({ ok, data }) => {
                 if (ok && data.status === 'success') {
+                    const isTplOtp = data.template.service_type === 'otp';
                     allTemplatesBulk.push({
                         id: String(data.template.id),
                         title: data.template.title,
-                        panelLabel: 'پنل پیامکی تبلیغاتی/اطلاع‌رسانی',
+                        panelLabel: isTplOtp ? 'پنل پیامکی OTP' : 'پنل پیامکی تبلیغاتی/اطلاع‌رسانی',
                         content: data.template.content,
-                        type: 'advertising',
-                        promotional: true,
-                        otpCategory: null
+                        type: data.template.service_type || (isTplOtp ? 'otp' : 'advertising'),
+                        promotional: !isTplOtp,
+                        otpCategory: data.template.otp_category
                     });
-                    rebuildBulkTemplateSelect('advertising', data.template.id);
-                    document.getElementById('sms_message_template_id').dispatchEvent(new Event('change'));
+                    rebuildBulkTemplateSelect(isOtp ? 'otp' : 'advertising', data.template.id);
+                    applySelectedBulkTemplate(data.template.id);
                     bootstrap.Modal.getInstance(modalEl).hide();
                     formEl.reset();
                 } else {

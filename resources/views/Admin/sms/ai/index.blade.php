@@ -188,21 +188,39 @@
             </form>
         @endif
         @php
-            $tierClass = match($userTier) {
-                'titanium' => 'tier-titanium',
-                'diamond' => 'tier-diamond',
-                'gold' => 'tier-gold',
-                default => 'tier-silver',
-            };
-            $tierLabel = match($userTier) {
-                'titanium' => 'تیتانیوم (Titanium)',
-                'diamond' => 'الماسی (Diamond)',
-                'gold' => 'طلایی (Gold)',
-                default => 'نقره‌ای (Silver)',
-            };
+            $currentUser = auth()->user();
+            $isSuperAdmin = $currentUser?->isSuperAdmin();
+            $isStaff = !$isSuperAdmin && ($currentUser?->isAdmin() || in_array($currentUser?->level, ['admin', 'ghorfeAdmin']));
+
+            if ($isSuperAdmin) {
+                $badgeClass = 'tier-superadmin';
+                $badgeLabel = 'مدیر ارشد (SuperAdmin)';
+                $badgeTitle = 'دسترسی کامل مدیریتی به تمام امکانات هوش مصنوعی';
+                $badgeIcon = 'fa-star';
+            } elseif ($isStaff) {
+                $badgeClass = 'tier-staff';
+                $badgeLabel = 'پرسنل / مدیر سامانه (Staff)';
+                $badgeTitle = 'دسترسی عوامل و پرسنل سامانه به ابزارها';
+                $badgeIcon = 'fa-user-secret';
+            } else {
+                $badgeClass = match($userTier) {
+                    'titanium' => 'tier-titanium',
+                    'diamond' => 'tier-diamond',
+                    'gold' => 'tier-gold',
+                    default => 'tier-silver',
+                };
+                $badgeLabel = 'سطح دسترسی: ' . match($userTier) {
+                    'titanium' => 'تیتانیوم (Titanium)',
+                    'diamond' => 'الماسی (Diamond)',
+                    'gold' => 'طلایی (Gold)',
+                    default => 'نقره‌ای (Silver)',
+                };
+                $badgeTitle = 'سطح دسترسی شما به هوش مصنوعی';
+                $badgeIcon = 'fa-shield';
+            }
         @endphp
-        <div class="tier-badge {{ $tierClass }}">
-            <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
+        <div class="tier-badge {{ $badgeClass }}" title="{{ $badgeTitle }}">
+            <i class="fa {{ $badgeIcon }}"></i> {{ $badgeLabel }}
         </div>
         <a href="{{ route('admin.sms.ai.campaigns', ['business_id' => $business?->id]) }}" class="btn btn-outline-secondary btn-sm">
             <i class="fa fa-history me-1"></i> تاریخچه کمپین‌های AI

@@ -132,7 +132,7 @@
                 if (part === '') {
                     return;
                 }
-                if (TOKEN_RE.test(part) && /^\{[^{}]{1,60}\}$/.test(part)) {
+                if (/^\{[^{}]{1,60}\}$/.test(part)) {
                     editor.appendChild(buildChip(part));
                 } else {
                     editor.appendChild(document.createTextNode(part));

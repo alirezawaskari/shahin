@@ -211,6 +211,41 @@
                     <i class="fa fa-building-o me-1"></i> کسب‌وکار: {{ $business->title }}
                 </span>
             @endif
+            @php
+                $currentUser = auth()->user();
+                $isSuperAdmin = $currentUser?->isSuperAdmin();
+                $isStaff = !$isSuperAdmin && ($currentUser?->isAdmin() || in_array($currentUser?->level, ['admin', 'ghorfeAdmin']));
+
+                if ($isSuperAdmin) {
+                    $badgeClass = 'tier-superadmin';
+                    $badgeLabel = 'مدیر ارشد (SuperAdmin)';
+                    $badgeTitle = 'دسترسی کامل مدیریتی به تمام امکانات ارسال پیامک';
+                    $badgeIcon = 'fa-star';
+                } elseif ($isStaff) {
+                    $badgeClass = 'tier-staff';
+                    $badgeLabel = 'پرسنل / مدیر سامانه (Staff)';
+                    $badgeTitle = 'دسترسی عوامل و پرسنل سامانه به ابزارها';
+                    $badgeIcon = 'fa-user-secret';
+                } else {
+                    $badgeClass = match($userTier ?? 'silver') {
+                        'titanium' => 'tier-titanium',
+                        'diamond' => 'tier-diamond',
+                        'gold' => 'tier-gold',
+                        default => 'tier-silver',
+                    };
+                    $badgeLabel = 'سطح دسترسی: ' . match($userTier ?? 'silver') {
+                        'titanium' => 'تیتانیوم (Titanium)',
+                        'diamond' => 'الماسی (Diamond)',
+                        'gold' => 'طلایی (Gold)',
+                        default => 'نقره‌ای (Silver)',
+                    };
+                    $badgeTitle = 'سطح دسترسی شما به پنل پیامک';
+                    $badgeIcon = 'fa-shield';
+                }
+            @endphp
+            <div class="tier-badge {{ $badgeClass }}" title="{{ $badgeTitle }}">
+                <i class="fa {{ $badgeIcon }}"></i> {{ $badgeLabel }}
+            </div>
             <a href="{{ route('admin.sms.bulk.index') }}" class="btn btn-outline-primary btn-sm">
                 <i class="fa fa-users me-1"></i> ارسال انبوه
             </a>
@@ -582,7 +617,7 @@
                     <div class="mb-1">
                         <label class="form-label small fw-bold" for="saveTemplateContent">متن قالب <span class="text-danger">*</span></label>
                         <textarea id="saveTemplateContent" class="form-control" rows="5" maxlength="2000" required placeholder="مثال: عید مبعث بر شما مبارک باد"></textarea>
-                        <div class="form-text">قالب پیامکی عادی (نه OTP) ساخته می‌شود و بعداً از لیست قالب‌ها قابل انتخاب است. اگر متنی در کادر پیام نوشته باشید، اینجا پر می‌شود.</div>
+                        <div class="form-text">قالب برای پنل پیامکی فعال ساخته می‌شود و بعداً از لیست قالب‌ها قابل انتخاب است. اگر متنی در کادر پیام نوشته باشید، اینجا پر می‌شود.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -913,6 +948,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (templateSelect.value !== currentVal) {
             templateSelect.value = '';
         }
+
+        if (window.jQuery || window.$) {
+            const $tpl = (window.jQuery || window.$)(templateSelect);
+            if ($tpl.hasClass('select2-hidden-accessible')) {
+                $tpl.trigger('change.select2');
+            }
+        }
     }
 
     // Toggle service type (Advertising vs OTP)
@@ -921,9 +963,9 @@ document.addEventListener('DOMContentLoaded', function () {
         syncClassificationVisibility();
         const saveTplBtn = document.getElementById('saveAsTemplateBtn');
         if (saveTplBtn) {
-            saveTplBtn.disabled = isOtp;
+            saveTplBtn.disabled = false;
             saveTplBtn.title = isOtp
-                ? 'ایجاد قالب برای پنل OTP از این بخش فعال نیست'
+                ? 'ایجاد قالب پیامکی جدید برای پنل OTP'
                 : 'ایجاد قالب پیامکی جدید';
         }
         if (isOtp) {
@@ -940,6 +982,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!keepTemplate && templateSelect) {
             templateSelect.value = '';
+            if (window.jQuery || window.$) {
+                const $tpl = (window.jQuery || window.$)(templateSelect);
+                if ($tpl.hasClass('select2-hidden-accessible')) {
+                    $tpl.trigger('change.select2');
+                }
+            }
         }
 
         updateLivePreview();
@@ -991,39 +1039,74 @@ document.addEventListener('DOMContentLoaded', function () {
         otpCategorySelect.addEventListener('change', updateClassificationFromOtpCategory);
     }
 
-    // Template selection: populates message box, syncs editor, counter, and preview
-    templateSelect.addEventListener('change', function () {
-        const selected = this.selectedOptions[0];
-        if (selected && selected.value) {
-            const content = selected.getAttribute('data-content') || '';
+    // Central function to apply selected template content to editor, textarea, and preview
+    function applySelectedTemplate(templateId) {
+        if (!templateId) {
             if (smsEditor) {
-                smsEditor.setValue(content);
-            } else if (paramChipEditor) {
-                paramChipEditor.setValue(content);
-            } else {
-                textarea.value = content;
+                try { smsEditor.setValue(''); } catch (e) {}
             }
-
-            const type = selected.getAttribute('data-type');
-            const catSelect = document.getElementById('otpCategorySelect');
-            const tplCategory = selected.getAttribute('data-otp-category');
-
-            if (type === 'otp' && tplCategory && catSelect) {
-                catSelect.value = tplCategory;
-                updateClassificationFromOtpCategory();
-            }
-
-            updateLivePreview();
-        } else {
-            // Placeholder chosen: clear message
-            if (smsEditor) {
-                smsEditor.setValue('');
-            } else if (paramChipEditor) {
-                paramChipEditor.setValue('');
-            } else {
+            if (textarea) {
                 textarea.value = '';
             }
+            const editorDiv = document.getElementById('messageTextareaEditor') || document.querySelector('.sms-param-editor');
+            if (editorDiv) editorDiv.innerHTML = '';
             updateLivePreview();
+            return;
+        }
+
+        const tpl = allTemplatesSingle.find(t => String(t.id) === String(templateId));
+        let content = tpl ? (tpl.content || '') : '';
+        if (!content && templateSelect.selectedOptions && templateSelect.selectedOptions.length > 0) {
+            content = templateSelect.selectedOptions[0].getAttribute('data-content') || '';
+        }
+
+        if (smsEditor) {
+            try {
+                smsEditor.setValue(content);
+            } catch (err) {
+                console.error('smsEditor.setValue error:', err);
+            }
+        }
+        if (textarea) {
+            textarea.value = content;
+            try {
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                textarea.dispatchEvent(new Event('change', { bubbles: true }));
+            } catch (e) {}
+        }
+
+        const editorDiv = document.getElementById('messageTextareaEditor') || document.querySelector('.sms-param-editor');
+        if (editorDiv && (!editorDiv.textContent || editorDiv.textContent.trim() === '') && content) {
+            editorDiv.innerText = content;
+        }
+
+        if (tpl && tpl.type === 'otp' && tpl.otpCategory) {
+            const catSelect = document.getElementById('otpCategorySelect');
+            if (catSelect) {
+                catSelect.value = tpl.otpCategory;
+                updateClassificationFromOtpCategory();
+            }
+        }
+
+        updateLivePreview();
+    }
+
+    // Template selection: supports native change, jQuery change, and Select2 select events
+    templateSelect.addEventListener('change', function () {
+        applySelectedTemplate(this.value);
+    });
+
+    if (window.jQuery || window.$) {
+        const $ = window.jQuery || window.$;
+        $(templateSelect).on('change select2:select', function (e) {
+            const v = $(this).val() || (e && e.params && e.params.data ? e.params.data.id : null) || templateSelect.value;
+            applySelectedTemplate(v);
+        });
+    }
+
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.id === 'templateSelect') {
+            applySelectedTemplate(e.target.value);
         }
     });
 
@@ -1150,25 +1233,34 @@ document.addEventListener('DOMContentLoaded', function () {
         alertBox.style.display = 'none';
         const title = document.getElementById('saveTemplateTitle').value.trim();
 
+        const isOtp = serviceTypeOtp && serviceTypeOtp.checked;
+        const currentOtpCat = (isOtp && otpCategorySelect) ? otpCategorySelect.value : null;
+
         fetch(`{{ route('admin.sms.single.templates.store') }}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-            body: JSON.stringify({ title: title, content: document.getElementById('saveTemplateContent').value })
+            body: JSON.stringify({
+                title: title,
+                content: document.getElementById('saveTemplateContent').value,
+                service_type: isOtp ? 'otp' : 'advertising',
+                otp_category: isOtp ? currentOtpCat : null
+            })
         })
         .then(res => res.json().then(data => ({ ok: res.ok, data })))
         .then(({ ok, data }) => {
             if (ok && data.status === 'success') {
+                const isTplOtp = data.template.service_type === 'otp';
                 allTemplatesSingle.push({
                     id: String(data.template.id),
                     title: data.template.title,
-                    panelLabel: 'پنل پیامکی تبلیغاتی/اطلاع‌رسانی',
+                    panelLabel: isTplOtp ? 'پنل پیامکی OTP' : 'پنل پیامکی تبلیغاتی/اطلاع‌رسانی',
                     content: data.template.content,
-                    type: 'advertising',
-                    promotional: true,
-                    otpCategory: null
+                    type: data.template.service_type || (isTplOtp ? 'otp' : 'advertising'),
+                    promotional: !isTplOtp,
+                    otpCategory: data.template.otp_category
                 });
-                rebuildTemplateSelect('advertising', data.template.id);
-                templateSelect.dispatchEvent(new Event('change'));
+                rebuildTemplateSelect(isOtp ? 'otp' : 'advertising', data.template.id);
+                applySelectedTemplate(data.template.id);
                 bootstrap.Modal.getInstance(document.getElementById('saveTemplateModal')).hide();
                 saveTemplateForm.reset();
             } else {

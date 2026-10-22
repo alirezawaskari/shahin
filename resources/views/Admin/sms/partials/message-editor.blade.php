@@ -56,12 +56,12 @@
         </div>
 
         <div class="sms-editor-footer" data-sms-counter="bar" aria-live="polite">
-            <span class="sms-stat">کاراکتر: <strong data-sms-counter="used">۰</strong> <span class="text-muted" data-sms-counter="suffixnote" @if(!$advertising) style="display: none;" @endif>(شامل لغو 11)</span></span>
-            <span class="sms-stat">باقی‌مانده تا صفحه بعد: <strong data-sms-counter="remaining">۷۰</strong></span>
+            <span class="sms-stat">کاراکتر: <strong data-sms-counter="used">{{ $advertising ? '۷' : '۰' }}</strong> <span class="text-muted" data-sms-counter="suffixnote" @if(!$advertising) style="display: none;" @endif>(شامل لغو 11)</span></span>
+            <span class="sms-stat">باقی‌مانده تا صفحه بعد: <strong data-sms-counter="remaining">{{ $advertising ? '۶۳' : '۷۰' }}</strong></span>
             <span class="sms-stat">تعداد صفحه: <strong data-sms-counter="pages">۱</strong></span>
             <span class="sms-stat">کدگذاری: <strong data-sms-counter="encoding">فارسی (Unicode)</strong> <small class="text-muted" data-sms-counter="encodinghint">(متن فارسی: هر صفحه ۷۰ کاراکتر)</small></span>
             <span class="sms-stat sms-stat-end">تعرفه هر صفحه: <strong data-sms-counter="tariff">{{ number_format($costPerPage) }}</strong> ریال</span>
-            <span class="sms-stat">{{ $costLabel }}: <strong data-sms-counter="cost">۰</strong> ریال</span>
+            <span class="sms-stat">{{ $costLabel }}: <strong data-sms-counter="cost">{{ $advertising ? number_format($costPerPage) : '۰' }}</strong> ریال</span>
         </div>
     </div>
 

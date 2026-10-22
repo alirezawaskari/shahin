@@ -56,3 +56,13 @@
     .sms-section > .card-body { padding: 1rem; }
     .sms-editor-footer .sms-stat-end { margin-inline-start: 0; }
 }
+
+/* Tier & Staff Badges */
+.tier-badge { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: .4rem; font-size: .8rem; font-weight: 600; }
+.tier-silver { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+.tier-gold { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.tier-diamond { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+.tier-titanium { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; }
+.tier-superadmin { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-weight: 700; }
+.tier-staff { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; font-weight: 600; }
+
