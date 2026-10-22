@@ -676,9 +676,15 @@ class Setting extends Model
 
     public function getTemplatesCountAttribute()
     {
-        return SmsTemplate::where(function ($q) {
-            $q->where('group', $this->id)
-              ->orWhere('group', $this->slug);
+        $id = $this->id;
+        $slug = $this->slug;
+        if (!$id && !$slug) {
+            return 0;
+        }
+
+        return SmsTemplate::all()->filter(function ($t) use ($id, $slug) {
+            $grp = $t->getRawOriginal('group') ?? $t->sms_message_group_id ?? null;
+            return $grp && ($grp == $id || $grp === $slug);
         })->count();
     }
 

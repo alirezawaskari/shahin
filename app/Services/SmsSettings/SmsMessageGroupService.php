@@ -17,7 +17,7 @@ class SmsMessageGroupService
     {
         $all = Setting::query()
             ->where('key', 'sms_message_group')
-            ->when($businessId, fn($q) => $q->where('settingable_id', $businessId))
+            ->when($businessId, fn($q) => $q->where(fn($sub) => $sub->where('settingable_id', $businessId)->orWhereNull('settingable_id')))
             ->get();
 
         $roots = $all->filter(fn ($s) => empty($s->parent_id))->values();
