@@ -18,6 +18,8 @@
     .tier-gold { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
     .tier-diamond { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
     .tier-titanium { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; }
+    .tier-superadmin { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .tier-staff { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
 
     .stat-card {
         background: #fff;
@@ -214,21 +216,39 @@
     </div>
     <div class="d-flex flex-wrap align-items-center gap-2">
         @php
-            $tierClass = match($userTier) {
-                'titanium' => 'tier-titanium',
-                'diamond' => 'tier-diamond',
-                'gold' => 'tier-gold',
-                default => 'tier-silver',
-            };
-            $tierLabel = match($userTier) {
-                'titanium' => 'تیتانیوم (Titanium)',
-                'diamond' => 'الماسی (Diamond)',
-                'gold' => 'طلایی (Gold)',
-                default => 'نقره‌ای (Silver)',
-            };
+            $currentUser = auth()->user();
+            $isSuperAdmin = $currentUser?->isSuperAdmin();
+            $isStaff = !$isSuperAdmin && ($currentUser?->isAdmin() || in_array($currentUser?->level, ['admin', 'ghorfeAdmin']));
+
+            if ($isSuperAdmin) {
+                $badgeClass = 'tier-superadmin';
+                $badgeLabel = 'مدیر ارشد (SuperAdmin)';
+                $badgeTitle = 'دسترسی کامل مدیریتی به تمام فیلترها و مخاطبان سراسری';
+                $badgeIcon = 'fa-star';
+            } elseif ($isStaff) {
+                $badgeClass = 'tier-staff';
+                $badgeLabel = 'پرسنل / مدیر سامانه (Staff)';
+                $badgeTitle = 'دسترسی عوامل و پرسنل سامانه به ابزارها و فیلترها';
+                $badgeIcon = 'fa-user-secret';
+            } else {
+                $badgeClass = match($userTier) {
+                    'titanium' => 'tier-titanium',
+                    'diamond' => 'tier-diamond',
+                    'gold' => 'tier-gold',
+                    default => 'tier-silver',
+                };
+                $badgeLabel = 'سطح دسترسی: ' . match($userTier) {
+                    'titanium' => 'تیتانیوم (Titanium)',
+                    'diamond' => 'الماسی (Diamond)',
+                    'gold' => 'طلایی (Gold)',
+                    default => 'نقره‌ای (Silver)',
+                };
+                $badgeTitle = 'سطح دسترسی شما به فیلترها و مخاطبان';
+                $badgeIcon = 'fa-shield';
+            }
         @endphp
-        <div class="tier-badge {{ $tierClass }}" title="سطح دسترسی شما به فیلترها و مخاطبان">
-            <i class="fa fa-shield"></i> سطح دسترسی: {{ $tierLabel }}
+        <div class="tier-badge {{ $badgeClass }}" title="{{ $badgeTitle }}">
+            <i class="fa {{ $badgeIcon }}"></i> {{ $badgeLabel }}
         </div>
         <a href="{{ route('admin.sms.bulk.index', ['tab' => 'campaigns']) }}" class="btn btn-outline-secondary btn-sm">
             <i class="fa fa-list me-1"></i> تاریخچه کمپین‌ها
