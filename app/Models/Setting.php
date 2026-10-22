@@ -124,12 +124,13 @@ class Setting extends Model
             {
                 $cleanCol = is_string($column) ? str_replace('ghorfe_settings.', '', $column) : $column;
                 if (is_string($cleanCol) && in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                    $column = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanCol) . " as `{$cleanCol}`");
+                    // Unquoted alias: Laravel derives the result property name from the text after " as ".
+                    $column = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanCol) . " as {$cleanCol}");
                 }
                 if ($key !== null) {
                     $cleanKey = is_string($key) ? str_replace('ghorfe_settings.', '', $key) : $key;
                     if (is_string($cleanKey) && in_array($cleanKey, self::VIRTUAL_COLUMNS, true)) {
-                        $key = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanKey) . " as `{$cleanKey}`");
+                        $key = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanKey) . " as {$cleanKey}");
                     }
                 }
                 return parent::pluck($column, $key);
