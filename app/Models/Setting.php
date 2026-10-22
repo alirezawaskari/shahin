@@ -48,6 +48,38 @@ class Setting extends Model
                 'is_active',
             ];
 
+            /**
+             * `value` is a TEXT column holding both JSON documents and plain strings (phone, address, panel name).
+             * MySQL 8 raises error 3141 when json_extract meets a plain string, MariaDB returns NULL.
+             * Every JSON-path read therefore goes through this JSON_VALID-guarded expression (NULL for plain rows).
+             */
+            protected function jsonPathSql(string $key): string
+            {
+                $key = preg_replace('/[^A-Za-z0-9_]/', '', $key);
+                $extract = "json_extract(`ghorfe_settings`.`value`, '$.\"{$key}\"')";
+
+                return "(CASE WHEN json_valid(`ghorfe_settings`.`value`) THEN (CASE WHEN json_type({$extract}) <> 'NULL' THEN json_unquote({$extract}) END) END)";
+            }
+
+            /**
+             * Maps a virtual column name ("status") or a "value->key" path to its key, or null when it is neither.
+             */
+            protected function virtualKey($column): ?string
+            {
+                if (!is_string($column)) {
+                    return null;
+                }
+                $clean = str_replace('ghorfe_settings.', '', $column);
+                if (in_array($clean, self::VIRTUAL_COLUMNS, true)) {
+                    return $clean;
+                }
+                if (preg_match('/^value->([A-Za-z0-9_]+)$/', $clean, $m)) {
+                    return $m[1];
+                }
+
+                return null;
+            }
+
             protected function transformColumns(array $columns): array
             {
                 $transformed = [];
@@ -55,7 +87,7 @@ class Setting extends Model
                 foreach ($columns as $column) {
                     $cleanCol = is_string($column) ? str_replace('ghorfe_settings.', '', $column) : $column;
                     if (is_string($cleanCol) && in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                        $transformed[] = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanCol}\"')) as `{$cleanCol}`");
+                        $transformed[] = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanCol) . " as `{$cleanCol}`");
                         $hasVirtual = true;
                     } else {
                         $transformed[] = $column;
@@ -92,12 +124,12 @@ class Setting extends Model
             {
                 $cleanCol = is_string($column) ? str_replace('ghorfe_settings.', '', $column) : $column;
                 if (is_string($cleanCol) && in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                    $column = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanCol}\"')) as `{$cleanCol}`");
+                    $column = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanCol) . " as `{$cleanCol}`");
                 }
                 if ($key !== null) {
                     $cleanKey = is_string($key) ? str_replace('ghorfe_settings.', '', $key) : $key;
                     if (is_string($cleanKey) && in_array($cleanKey, self::VIRTUAL_COLUMNS, true)) {
-                        $key = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanKey}\"')) as `{$cleanKey}`");
+                        $key = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanKey) . " as `{$cleanKey}`");
                     }
                 }
                 return parent::pluck($column, $key);
@@ -108,7 +140,7 @@ class Setting extends Model
                 if (is_string($column)) {
                     $cleanCol = str_replace('ghorfe_settings.', '', $column);
                     if (in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                        $column = \Illuminate\Support\Facades\DB::raw("json_unquote(json_extract(`ghorfe_settings`.`value`, '$.\"{$cleanCol}\"'))");
+                        $column = \Illuminate\Support\Facades\DB::raw($this->jsonPathSql($cleanCol));
                     }
                 }
                 return parent::orderBy($column, $direction);
@@ -116,13 +148,31 @@ class Setting extends Model
 
             public function whereNull($columns, $boolean = 'and', $not = false)
             {
-                if (is_string($columns)) {
-                    $cleanCol = str_replace('ghorfe_settings.', '', $columns);
-                    if (in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                        $columns = 'value->' . $cleanCol;
-                    }
+                $key = $this->virtualKey($columns);
+                if ($key !== null) {
+                    return $this->whereRaw($this->jsonPathSql($key) . ($not ? ' is not null' : ' is null'), [], $boolean);
                 }
                 return parent::whereNull($columns, $boolean, $not);
+            }
+
+            public function orWhereNull($columns)
+            {
+                return $this->whereNull($columns, 'or');
+            }
+
+            public function orWhereNotNull($columns)
+            {
+                return $this->whereNull($columns, 'or', true);
+            }
+
+            public function orWhereIn($column, $values)
+            {
+                return $this->whereIn($column, $values, 'or');
+            }
+
+            public function whereNotIn($column, $values, $boolean = 'and')
+            {
+                return $this->whereIn($column, $values, $boolean, true);
             }
 
             public function whereNotNull($columns, $boolean = 'and')
@@ -139,21 +189,30 @@ class Setting extends Model
                         if ($targetStatus === 'active') {
                             return parent::where(function ($q) {
                                 $q->where('value->status', 'active')
-                                  ->orWhereNull('value->status');
+                                  ->whereNull('value->status', 'or');
                             }, null, null, $boolean);
                         }
-                        $column = 'value->status';
                     } elseif ($cleanCol === 'type') {
                         $targetType = $operator !== null && $value === null ? $operator : $value;
                         if ($targetType === 'advertising') {
+                            // Legacy sender rows have no type and count as advertising. Only sender rows:
+                            // phone/email/API-key settings also lack a type and must never match.
                             return parent::where(function ($q) {
                                 $q->where('value->type', 'advertising')
-                                  ->orWhereNull('value->type');
+                                  ->orWhere(function ($legacy) {
+                                      $legacy->whereNull('value->type')->where('key', 'sms_sender_number');
+                                  });
                             }, null, null, $boolean);
                         }
-                        $column = 'value->type';
-                    } elseif (in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                        $column = 'value->' . $cleanCol;
+                    }
+
+                    $key = $this->virtualKey($column);
+                    if ($key !== null) {
+                        [$value, $operator] = $this->query->prepareValueAndOperator($value, $operator, func_num_args() === 2);
+                        if (!in_array(strtolower((string) $operator), ['=', '!=', '<>', '<', '>', '<=', '>=', 'like', 'not like'], true)) {
+                            $operator = '=';
+                        }
+                        return $this->whereRaw($this->jsonPathSql($key) . " {$operator} ?", [$value], $boolean);
                     }
                 }
                 return parent::where($column, $operator, $value, $boolean);
@@ -161,11 +220,14 @@ class Setting extends Model
 
             public function whereIn($column, $values, $boolean = 'and', $not = false)
             {
-                if (is_string($column)) {
-                    $cleanCol = str_replace('ghorfe_settings.', '', $column);
-                    if (in_array($cleanCol, self::VIRTUAL_COLUMNS, true)) {
-                        $column = 'value->' . $cleanCol;
+                $key = $this->virtualKey($column);
+                if ($key !== null) {
+                    $values = $values instanceof \Illuminate\Contracts\Support\Arrayable ? $values->toArray() : (array) $values;
+                    if ($values === []) {
+                        return $this->whereRaw($not ? '1 = 1' : '1 = 0', [], $boolean);
                     }
+                    $marks = implode(',', array_fill(0, count($values), '?'));
+                    return $this->whereRaw($this->jsonPathSql($key) . ($not ? ' not in ' : ' in ') . "({$marks})", array_values($values), $boolean);
                 }
                 return parent::whereIn($column, $values, $boolean, $not);
             }
