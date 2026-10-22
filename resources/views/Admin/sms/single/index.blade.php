@@ -1021,28 +1021,38 @@ document.addEventListener('DOMContentLoaded', function () {
         messageGroupSelect.addEventListener('change', updateClassificationFromGroup);
     }
 
-    // Template selection
+    // Template selection: populates message box, syncs editor, counter, and preview
     templateSelect.addEventListener('change', function () {
         const selected = this.selectedOptions[0];
         if (selected && selected.value) {
-            const content = selected.getAttribute('data-content');
-            if (paramChipEditor) {
+            const content = selected.getAttribute('data-content') || '';
+            if (smsEditor) {
+                smsEditor.setValue(content);
+            } else if (paramChipEditor) {
                 paramChipEditor.setValue(content);
             } else {
                 textarea.value = content;
             }
+
             const type = selected.getAttribute('data-type');
+            const catSelect = document.getElementById('otpCategorySelect');
+            const tplCategory = selected.getAttribute('data-otp-category');
+
             if (type === 'otp') {
-                serviceTypeOtp.checked = true;
-                onServiceTypeChange();
+                if (serviceTypeOtp && !serviceTypeOtp.checked) {
+                    serviceTypeOtp.checked = true;
+                    onServiceTypeChange();
+                }
             } else if (type === 'advertising') {
-                serviceTypeAdv.checked = true;
-                onServiceTypeChange();
+                if (serviceTypeAdv && !serviceTypeAdv.checked) {
+                    serviceTypeAdv.checked = true;
+                    onServiceTypeChange();
+                }
             }
 
-            const tplCategory = selected.getAttribute('data-otp-category');
-            const catSelect = document.getElementById('otpCategorySelect');
-            if (type === 'otp' && tplCategory && catSelect) catSelect.value = tplCategory;
+            if (type === 'otp' && tplCategory && catSelect) {
+                catSelect.value = tplCategory;
+            }
 
             const groupId = selected.getAttribute('data-group-id');
             if (groupId && messageGroupSelect) {
@@ -1050,6 +1060,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 updateClassificationFromGroup();
             }
 
+            updateLivePreview();
+        } else {
+            // Placeholder chosen: clear message
+            if (smsEditor) {
+                smsEditor.setValue('');
+            } else if (paramChipEditor) {
+                paramChipEditor.setValue('');
+            } else {
+                textarea.value = '';
+            }
             updateLivePreview();
         }
     });

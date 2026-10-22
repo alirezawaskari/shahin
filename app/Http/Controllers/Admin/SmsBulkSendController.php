@@ -111,9 +111,10 @@ class SmsBulkSendController extends Controller
             }
         }
 
-        // Active promotional templates only (scoped to business) — OTP/normal templates never appear here
+        // Active SMS templates (scoped to business, OTP included only if user tier has OTP access)
         $templates = SmsTemplate::active()
-            ->where('service_type', 'advertising')
+            ->when(!$this->accessTierService->canUseOtp(auth()->user()),
+                fn($q) => $q->where(fn($w) => $w->whereNull('service_type')->orWhere('service_type', '!=', 'otp')))
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->latest()
             ->get();

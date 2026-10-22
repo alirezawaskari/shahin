@@ -148,6 +148,56 @@ class SmsTemplate extends Model
         });
     }
 
+    public function getServiceTypeAttribute($val)
+    {
+        if (!empty($val)) {
+            return $val;
+        }
+
+        // System/OTP identification: classify templates that deliver passwords, confirmation codes, or system OTP notices
+        $content = (string) ($this->attributes['content'] ?? '');
+        $name = (string) ($this->attributes['name'] ?? '');
+        $faName = (string) ($this->attributes['fa_name'] ?? '');
+        $combined = $name . ' ' . $faName . ' ' . $content;
+
+        // If template has opt-out «لغو11» or «لغو 11» (or Persian digits «لغو۱۱»), it was designed for promotional/advertising
+        if (str_contains($content, 'لغو11') || str_contains($content, 'لغو 11') || str_contains($content, 'لغو۱۱') || str_contains($content, 'لغو ۱۱')) {
+            return 'advertising';
+        }
+
+        // Keywords indicating OTP / verification / authentication messages
+        if (preg_match('/(رمز|کد تایید|کد تأیید|otp|password|login|verification|token)/iu', $combined)) {
+            return 'otp';
+        }
+
+        return 'advertising';
+    }
+
+    public function getOtpCategoryAttribute($val)
+    {
+        if (!empty($val)) {
+            return $val;
+        }
+
+        if ($this->service_type !== 'otp') {
+            return null;
+        }
+
+        $combined = ($this->attributes['name'] ?? '') . ' ' . ($this->attributes['fa_name'] ?? '') . ' ' . ($this->attributes['content'] ?? '');
+
+        if (preg_match('/(حقوقی|اجرا|ضمانت|سند)/iu', $combined)) {
+            return \App\Enums\SmsOtpCategory::Legal->value;
+        }
+        if (preg_match('/(فاکتور|مالی|قسط|اقساط|واریز|بانک|چک|شارژ)/iu', $combined)) {
+            return \App\Enums\SmsOtpCategory::Finance->value;
+        }
+        if (preg_match('/(فروش|پیش فاکتور|خدمات)/iu', $combined)) {
+            return \App\Enums\SmsOtpCategory::Sales->value;
+        }
+
+        return \App\Enums\SmsOtpCategory::Auth->value;
+    }
+
     public function getTitleAttribute($val)
     {
         return $this->attributes['name'] ?? null;
