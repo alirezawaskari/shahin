@@ -2,10 +2,11 @@
 
 namespace App\Enums;
 
+use App\Models\Setting;
+
 /**
- * The four FIXED system categories every OTP message/template carries. Deliberately independent
- * of SmsMessageGroup (the editable, per-business message grouping and its confidentiality rules).
- * Promotional (advertising/normal) messages never carry one.
+ * System categories for OTP messages/templates.
+ * Connected directly to the groups/folders defined in Settings (sms_message_group).
  */
 enum SmsOtpCategory: string
 {
@@ -32,19 +33,39 @@ enum SmsOtpCategory: string
             $out[$case->value] = $case->label();
         }
 
+        try {
+            $dbGroups = Setting::where('key', 'sms_message_group')->get();
+            foreach ($dbGroups as $dbg) {
+                if ($dbg->slug) {
+                    $out[$dbg->slug] = $dbg->name ?: ($out[$dbg->slug] ?? $dbg->slug);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
+
         return $out;
     }
 
     /** @return array<int, string> */
     public static function values(): array
     {
-        return array_column(self::cases(), 'value');
+        return array_keys(self::options());
     }
 
     public static function labelFor(?string $slug): ?string
     {
-        $case = $slug ? self::tryFrom($slug) : null;
+        if (!$slug) {
+            return null;
+        }
 
-        return $case?->label();
+        $options = self::options();
+        if (isset($options[$slug])) {
+            return $options[$slug];
+        }
+
+        $case = self::tryFrom($slug);
+
+        return $case ? $case->label() : $slug;
     }
 }

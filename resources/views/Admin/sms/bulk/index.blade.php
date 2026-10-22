@@ -520,29 +520,35 @@
                 <div class="card-body">
                     {{-- OTP panel only: fixed system category + classification. The promotional panel has no folder or category. --}}
                     @if($canUseOtp ?? false)
-                        <div class="sms-subbox" id="otpExtraBox" style="display: none;">
+                        @php
+                            $otpVisible = old('service_type') === 'otp';
+                        @endphp
+                        <div class="sms-subbox" id="otpExtraBox" @unless($otpVisible) style="display: none;" @endunless>
                             <div class="row g-3">
                                 <div class="col-md-7">
                                     <label class="sms-label" for="otpCategorySelect"><i class="fa fa-tags text-warning me-1"></i> دسته‌بندی سیستمی OTP <span class="text-danger">*</span></label>
-                                    <select name="otp_category" id="otpCategorySelect" class="form-select" disabled>
+                                    <select name="otp_category" id="otpCategorySelect" class="form-select" @unless($otpVisible) disabled @endunless>
                                         <option value="">-- انتخاب کنید --</option>
                                         @foreach(\App\Enums\SmsOtpCategory::options() as $otpCatSlug => $otpCatLabel)
-                                            <option value="{{ $otpCatSlug }}">{{ $otpCatLabel }}</option>
+                                            <option value="{{ $otpCatSlug }}" {{ old('otp_category') === $otpCatSlug ? 'selected' : '' }}>{{ $otpCatLabel }}</option>
                                         @endforeach
                                     </select>
                                     <div class="sms-hint">هر پیامک OTP باید دقیقاً یکی از دسته‌بندی‌های ثابت سیستم را داشته باشد.</div>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-5" id="classificationCol">
                                     <span class="sms-label"><i class="fa fa-shield text-info me-1"></i> نوع پیام (سطح طبقه‌بندی)</span>
                                     <div class="sms-choice-row flex-nowrap">
-                                        <label class="sms-choice small fw-semibold" for="classRegular" style="flex-basis: 0;">
-                                            <input class="form-check-input" type="radio" name="classification" id="classRegular" value="regular" checked disabled>
+                                        <label class="sms-choice small fw-semibold" id="typeRegularWrapper" for="typeRegular" style="flex-basis: 0;">
+                                            <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" {{ old('type', old('classification', 'regular')) === 'regular' ? 'checked' : '' }} @unless($otpVisible) disabled @endunless>
                                             <span><i class="fa fa-envelope-o text-secondary me-1"></i> عادی</span>
                                         </label>
-                                        <label class="sms-choice small fw-bold text-danger" for="classClassified" style="flex-basis: 0;">
-                                            <input class="form-check-input" type="radio" name="classification" id="classClassified" value="classified" disabled>
+                                        <label class="sms-choice small fw-bold text-danger" id="typeClassifiedWrapper" for="typeClassified" style="flex-basis: 0;">
+                                            <input class="form-check-input" type="radio" name="type" id="typeClassified" value="classified" {{ old('type', old('classification')) === 'classified' ? 'checked' : '' }} @unless($otpVisible) disabled @endunless>
                                             <span><i class="fa fa-lock text-danger me-1"></i> محرمانه</span>
                                         </label>
+                                    </div>
+                                    <div class="sms-hint" id="classificationHint">
+                                        <span class="text-muted"><i class="fa fa-info-circle me-1"></i> پیام‌های مالی و حقوقی به‌طور خودکار «محرمانه» تعیین می‌شوند.</span>
                                     </div>
                                 </div>
                             </div>
@@ -928,7 +934,7 @@
         if (extra) extra.style.display = otp ? '' : 'none';
         const cat = document.getElementById('otpCategorySelect');
         if (cat) { cat.disabled = !otp; cat.required = otp; }
-        document.querySelectorAll('input[name="classification"]').forEach(i => { i.disabled = !otp; });
+        document.querySelectorAll('input[name="classification"], input[name="type"]').forEach(i => { i.disabled = !otp; });
 
         // «لغو 11» belongs to the promotional panel only.
         bulkSmsEditor.setAdvertising(!otp);
@@ -1070,11 +1076,51 @@
 
         if (tpl && tpl.type === 'otp' && tpl.otpCategory) {
             const catSelect = document.getElementById('otpCategorySelect');
-            if (catSelect) catSelect.value = tpl.otpCategory;
+            if (catSelect) {
+                catSelect.value = tpl.otpCategory;
+                updateClassificationFromOtpCategory();
+            }
         }
 
         updateMessageStatsAndMockup();
         triggerPreview();
+    }
+
+    // Classification Type Reaction from OTP Category
+    const otpCategorySelect = document.getElementById('otpCategorySelect');
+    const typeRegular = document.getElementById('typeRegular');
+    const typeClassified = document.getElementById('typeClassified');
+    const classificationHint = document.getElementById('classificationHint');
+
+    function updateClassificationFromOtpCategory() {
+        if (!otpCategorySelect) return;
+        const cat = otpCategorySelect.value;
+        if (!cat) {
+            if (classificationHint) {
+                classificationHint.innerHTML = '<span class="text-muted"><i class="fa fa-info-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های مالی و حقوقی به‌طور خودکار «محرمانه» تعیین می‌شوند.</span>';
+            }
+            return;
+        }
+
+        // mali and hoghoghi OTP categories are by default classified
+        if (cat === 'financial' || cat === 'legal' || cat === 'finance' || cat === 'mali' || cat === 'hoghoghi') {
+            if (typeClassified) typeClassified.checked = true;
+            if (classificationHint) {
+                classificationHint.innerHTML = '<span class="text-danger fw-bold"><i class="fa fa-lock ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> سطح پیام به صورت خودکار به دلیل ماهیت مالی/حقوقی «محرمانه» تعیین شد.</span>';
+            }
+        } else {
+            if (typeRegular) typeRegular.checked = true;
+            if (classificationHint) {
+                classificationHint.innerHTML = '<span class="text-success"><i class="fa fa-check-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> سطح پیام به صورت پیش‌فرض «عادی» است.</span>';
+            }
+        }
+    }
+
+    if (otpCategorySelect) {
+        otpCategorySelect.addEventListener('change', updateClassificationFromOtpCategory);
+        if (otpCategorySelect.value) {
+            updateClassificationFromOtpCategory();
+        }
     }
 
     // Auto update message from template selection (supports native, jQuery and Select2)
@@ -1091,28 +1137,6 @@
             });
         }
     }
-
-    document.addEventListener('change', function (e) {
-        if (e.target && e.target.id === 'sms_message_template_id') {
-            applySelectedBulkTemplate(e.target.value);
-        }
-    });
-
-            updateMessageStatsAndMockup();
-            triggerPreview();
-        } else {
-            // Placeholder chosen: clear message
-            if (bulkSmsEditor) {
-                bulkSmsEditor.setValue('');
-            } else if (bulkMessageChipEditor) {
-                bulkMessageChipEditor.setValue('');
-            } else {
-                document.getElementById('sms_message').value = '';
-            }
-            updateMessageStatsAndMockup();
-            triggerPreview();
-        }
-    });
 
     // Subject category (دسته‌بندی موضوعی). Bulk messages are always promotional: no classification.
     const messageGroupSelect = document.getElementById('messageGroupSelect');
