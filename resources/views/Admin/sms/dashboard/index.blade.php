@@ -163,15 +163,15 @@
             <div class="card border-0 shadow-sm h-100" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 3px solid #ef4444 !important; border-radius: 12px;">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-muted small fw-bold">تکرار در ۳۰ روز</span>
-                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #fef2f2; color: #ef4444;">
-                            <i class="fa fa-repeat"></i>
+                        <span class="text-muted small fw-bold">پیام‌های تکراری (۳۰ روز اخیر)</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #fef2f2; color: #ef4444;" title="پیام‌هایی با متن و گیرنده دقیقاً یکسان">
+                            <i class="fa fa-clone"></i>
                         </div>
                     </div>
                     <div>
-                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($repeats['numbers']) }} <small class="fs-6 text-muted">شماره</small></h4>
+                        <h4 class="fw-bold mb-1" style="color: #0f172a;">{{ number_format($repeats['duplicates']) }} <small class="fs-6 text-muted">پیام</small></h4>
                         <div class="text-muted small">
-                            شماره‌هایی که بیش از یک پیامک گرفته‌اند؛ پیامک‌های تکراری: <span class="text-danger fw-bold">{{ number_format($repeats['extra_messages']) }}</span>
+                            تکرار متن یکسان به همان شماره: <span class="text-danger fw-bold">{{ number_format($repeats['unique_pairs']) }}</span> مورد
                         </div>
                     </div>
                 </div>

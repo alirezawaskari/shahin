@@ -206,6 +206,11 @@
                         <i class="fa fa-bullhorn text-success me-1"></i> قراردادهای پنل عادی و تبلیغاتی
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="tab-bank-btn" data-bs-toggle="tab" data-bs-target="#pane-bank" type="button" role="tab">
+                        <i class="fa fa-folder-open text-primary me-1"></i> بانک قراردادها و الگوهای پیامک ({{ $bankContracts->count() }})
+                    </button>
+                </li>
             </ul>
         </div>
 
@@ -444,6 +449,88 @@
                                 @empty
                                     <tr>
                                         <td colspan="8" class="text-center py-4 text-muted">هیچ کسب‌وکاری یافت نشد.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: BANK OF CONTRACTS (مرکز رسمی قراردادها) -->
+                <div class="tab-pane fade" id="pane-bank" role="tabpanel">
+                    <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small">قراردادها و الگوهای ثبت‌شده در ماژول اصلی قراردادهای سامانه</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/dashboard/contract/create" class="btn btn-sm btn-primary">
+                                <i class="fa fa-plus me-1"></i> ایجاد قرارداد جدید در مرکز قراردادها
+                            </a>
+                            <a href="/dashboard/contractFolder" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-folder-open me-1"></i> پوشه‌های قرارداد
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">#</th>
+                                    <th>عنوان قرارداد / الگو</th>
+                                    <th>پوشه</th>
+                                    <th>نوع</th>
+                                    <th>وضعیت</th>
+                                    <th>تعداد انتساب‌ها</th>
+                                    <th>تاریخ ایجاد</th>
+                                    <th class="text-end pe-3">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($bankContracts as $bc)
+                                    <tr>
+                                        <td class="ps-3 font-monospace small">#{{ $bc->id }}</td>
+                                        <td class="fw-bold">{{ $bc->title }}</td>
+                                        <td>
+                                            @if($bc->folder)
+                                                <span class="badge bg-light text-dark border">{{ $bc->folder->title }}</span>
+                                            @else
+                                                <span class="text-muted small">دسته‌بندی نشده</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info text-dark">{{ $bc::TYPE[$bc->type] ?? 'عمومی' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-muted border">{{ $bc::STATUS[$bc->status] ?? 'تایید شده' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ $bc->usages()->count() }} مورد</span>
+                                        </td>
+                                        <td class="small">{{ verta($bc->created_at)->format('Y/m/d') }}</td>
+                                        <td class="text-end pe-3">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button"
+                                                        class="btn btn-outline-secondary view-contract-btn"
+                                                        data-title="{{ $bc->title }}"
+                                                        data-panel="الگوی قرارداد رسمی — #{{ $bc->id }}"
+                                                        data-number="CNT-{{ $bc->id }}"
+                                                        data-date="{{ verta($bc->created_at)->format('Y/m/d') }}"
+                                                        data-content="{{ $bc->content ?: 'بدون متن (فایل ضمیمه)' }}"
+                                                        data-signer="مرکز قراردادها">
+                                                    <i class="fa fa-eye"></i> مشاهده
+                                                </button>
+                                                <a href="/dashboard/contract/{{ $bc->id }}/edit" class="btn btn-outline-primary" title="ویرایش در مرکز قراردادها">
+                                                    <i class="fa fa-pencil"></i> ویرایش
+                                                </a>
+                                                <a href="/dashboard/contract/{{ $bc->id }}/export" target="_blank" class="btn btn-outline-info" title="خروجی PDF/چاپ">
+                                                    <i class="fa fa-print"></i> خروجی
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4 text-muted">هیچ قراردادی در مرکز قراردادها یافت نشد.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
