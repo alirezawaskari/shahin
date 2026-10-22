@@ -79,6 +79,36 @@ class SmsTemplate extends Model
                 }
                 return parent::whereIn($column, $values, $boolean, $not);
             }
+
+            /**
+             * sms_templates has no service_type / otp_category / group / ghorfe_online_list_id columns,
+             * so null checks on them are skipped, like where() and whereIn() above.
+             */
+            public function whereNull($columns, $boolean = 'and', $not = false)
+            {
+                if (is_string($columns)) {
+                    $cleanCol = str_replace('sms_templates.', '', $columns);
+                    if ($cleanCol === 'ghorfe_online_list_id' || in_array($cleanCol, self::IGNORED_COLUMNS, true)) {
+                        return $this;
+                    }
+                }
+                return parent::whereNull($columns, $boolean, $not);
+            }
+
+            public function whereNotNull($columns, $boolean = 'and')
+            {
+                return $this->whereNull($columns, $boolean, true);
+            }
+
+            public function orWhereNull($columns)
+            {
+                return $this->whereNull($columns, 'or');
+            }
+
+            public function orWhereNotNull($columns)
+            {
+                return $this->whereNull($columns, 'or', true);
+            }
         };
     }
 
