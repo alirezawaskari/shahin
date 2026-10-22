@@ -560,9 +560,11 @@
                                         $tmplIsOtp = $tmpl->service_type === 'otp';
                                         $tmplPromo = !$tmplIsOtp && (!$tmpl->group || $tmpl->group->isPromotional());
                                     @endphp
-                                    <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-type="{{ $tmpl->service_type }}" data-promotional="{{ $tmplPromo ? '1' : '0' }}" data-otp-category="{{ $tmpl->otp_category }}" data-group-id="{{ $tmpl->sms_message_group_id }}" @if($tmplIsOtp) hidden disabled @endif>
-                                        [{{ \App\Support\SmsLabels::panel($tmpl->service_type) }}] {{ $tmpl->title }}
-                                    </option>
+                                    @if(!$tmplIsOtp && $tmplPromo)
+                                        <option value="{{ $tmpl->id }}" data-content="{{ $tmpl->content }}" data-type="{{ $tmpl->service_type }}" data-promotional="1" data-otp-category="{{ $tmpl->otp_category }}" data-group-id="{{ $tmpl->sms_message_group_id }}">
+                                            [{{ \App\Support\SmsLabels::panel($tmpl->service_type) }}] {{ $tmpl->title }}
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                             <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="ایجاد قالب پیامکی جدید">
@@ -939,18 +941,7 @@
         }
 
         // Filter templates: OTP panel shows OTP templates; Advertising panel shows advertising/promotional templates
-        const tplSelect = document.getElementById('sms_message_template_id');
-        if (tplSelect) {
-            Array.prototype.forEach.call(tplSelect.querySelectorAll('option[data-type]'), function (o) {
-                const isOtpTpl = o.getAttribute('data-type') === 'otp';
-                const blocked = otp ? !isOtpTpl : isOtpTpl;
-                o.disabled = blocked;
-                o.hidden = blocked;
-            });
-            if (tplSelect.selectedOptions.length && tplSelect.selectedOptions[0].disabled) {
-                tplSelect.value = '';
-            }
-        }
+        rebuildBulkTemplateSelect(otp ? 'otp' : 'advertising');
 
         const phoneSender = document.getElementById('phonePreviewSender');
         if (otp) {
@@ -962,6 +953,51 @@
 
         updateMessageStatsAndMockup();
         if (skipPreview !== true) triggerPreview();
+    }
+
+    const allTemplatesBulk = [
+        @foreach($templates as $tmpl)
+        @php
+            $tmplIsOtp = $tmpl->service_type === 'otp';
+            $tmplPromo = !$tmplIsOtp && (!$tmpl->group || $tmpl->group->isPromotional());
+        @endphp
+        {
+            id: "{{ $tmpl->id }}",
+            title: @json($tmpl->title),
+            panelLabel: @json(\App\Support\SmsLabels::panel($tmpl->service_type)),
+            content: @json($tmpl->content),
+            type: @json($tmpl->service_type),
+            promotional: {{ $tmplPromo ? 'true' : 'false' }},
+            otpCategory: @json($tmpl->otp_category)
+        },
+        @endforeach
+    ];
+
+    function rebuildBulkTemplateSelect(serviceType, selectedId) {
+        const tplSelect = document.getElementById('sms_message_template_id');
+        if (!tplSelect) return;
+        const currentVal = selectedId !== undefined ? selectedId : tplSelect.value;
+        tplSelect.innerHTML = '<option value="">-- بدون قالب (تایپ متن دلخواه) --</option>';
+
+        allTemplatesBulk.forEach(function (tpl) {
+            const matches = serviceType === 'otp' ? (tpl.type === 'otp') : (tpl.type !== 'otp' && tpl.promotional);
+            if (matches) {
+                const opt = document.createElement('option');
+                opt.value = tpl.id;
+                opt.textContent = '[' + tpl.panelLabel + '] ' + tpl.title;
+                opt.setAttribute('data-content', tpl.content || '');
+                opt.setAttribute('data-type', tpl.type);
+                opt.setAttribute('data-otp-category', tpl.otpCategory || '');
+                if (String(currentVal) === String(tpl.id)) {
+                    opt.selected = true;
+                }
+                tplSelect.appendChild(opt);
+            }
+        });
+
+        if (tplSelect.value !== currentVal) {
+            tplSelect.value = '';
+        }
     }
 
     document.getElementById('serviceTypeAdv').addEventListener('change', () => onServiceTypeChange());
@@ -1572,16 +1608,17 @@
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(({ ok, data }) => {
                 if (ok && data.status === 'success') {
-                    const select = document.getElementById('sms_message_template_id');
-                    const opt = document.createElement('option');
-                    opt.value = data.template.id;
-                    opt.textContent = '[' + 'پنل تبلیغاتی/اطلاع‌رسانی' + '] ' + data.template.title;
-                    opt.setAttribute('data-content', data.template.content);
-                    opt.setAttribute('data-type', 'advertising');
-                    opt.setAttribute('data-promotional', '1');
-                    select.appendChild(opt);
-                    select.value = data.template.id;
-                    select.dispatchEvent(new Event('change'));
+                    allTemplatesBulk.push({
+                        id: String(data.template.id),
+                        title: data.template.title,
+                        panelLabel: 'پنل پیامکی تبلیغاتی/اطلاع‌رسانی',
+                        content: data.template.content,
+                        type: 'advertising',
+                        promotional: true,
+                        otpCategory: null
+                    });
+                    rebuildBulkTemplateSelect('advertising', data.template.id);
+                    document.getElementById('sms_message_template_id').dispatchEvent(new Event('change'));
                     bootstrap.Modal.getInstance(modalEl).hide();
                     formEl.reset();
                 } else {
@@ -1604,6 +1641,10 @@
         if (QUEUED_INPUT) {
             restoreQueuedInput(QUEUED_INPUT);
             updateMessageStatsAndMockup();
+        }
+        const tplSel = document.getElementById('sms_message_template_id');
+        if (tplSel && tplSel.value) {
+            tplSel.dispatchEvent(new Event('change'));
         }
     });
 </script>

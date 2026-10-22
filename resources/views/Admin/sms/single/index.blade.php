@@ -301,73 +301,32 @@
                         <h6 class="sms-section-title"><span class="badge bg-primary">۲</span> متن پیامک</h6>
                     </div>
                     <div class="card-body">
-                        {{-- OTP only: fixed system category (احراز هویت / فروش / مالی / حقوقی). Hidden AND disabled (not posted) unless OTP is selected. --}}
+                        {{-- OTP panel only: fixed system category + classification. The promotional panel has no folder or category. --}}
                         @if($canUseOtp ?? false)
-                        <div class="sms-field" id="otpCategoryBox" @unless(old('service_type') === 'otp') style="display: none;" @endunless>
-                            <label class="sms-label" for="otpCategorySelect"><i class="fa fa-tags text-warning me-1"></i> دسته‌بندی سیستمی OTP <span class="text-danger">*</span></label>
-                            <select name="otp_category" id="otpCategorySelect" class="form-select" @unless(old('service_type') === 'otp') disabled @endunless>
-                                <option value="">-- انتخاب کنید --</option>
-                                @foreach(\App\Enums\SmsOtpCategory::options() as $otpCatSlug => $otpCatLabel)
-                                    <option value="{{ $otpCatSlug }}" {{ old('otp_category') === $otpCatSlug ? 'selected' : '' }}>{{ $otpCatLabel }}</option>
-                                @endforeach
-                            </select>
-                            <div class="sms-hint">هر پیامک OTP باید دقیقاً یکی از دسته‌بندی‌های ثابت سیستم را داشته باشد.</div>
-                        </div>
-                        @endif
-
-                        {{-- Message Category / Folders. Classification (عادی/محرمانه) exists for OTP only. --}}
                         @php
-                            $classificationVisible = ($canUseOtp ?? false) && old('service_type') === 'otp';
-                            // Initial option set (before JS runs): promotional mode shows only promotional groups
-                            // and non-OTP templates; non-matching options are rendered hidden + disabled.
-                            $otpModeInitial = $classificationVisible;
+                            $otpVisible = old('service_type') === 'otp';
                         @endphp
-                        {{-- Folder / classification exist for the OTP panel only; the advertising panel has none. --}}
-                        <div class="sms-subbox" id="otpFolderBox" @unless($classificationVisible) style="display: none;" @endunless>
+                        <div class="sms-subbox" id="otpExtraBox" @unless($otpVisible) style="display: none;" @endunless>
                             <div class="row g-3">
-                                <div class="{{ $classificationVisible ? 'col-md-7' : 'col-12' }}" id="messageGroupCol">
-                                    <label class="sms-label" for="messageGroupSelect">
-                                        <i class="fa fa-folder text-primary me-1"></i> دسته‌بندی موضوعی / پوشه پیام
-                                    </label>
-                                    <select name="sms_message_group_id" id="messageGroupSelect" class="form-select" @unless($classificationVisible) disabled @endunless>
-                                        <option value="" data-slug="" data-confidential="0">-- بدون دسته‌بندی موضوعی (عمومی) --</option>
-                                        @if(isset($groups))
-                                            @foreach($groups as $grp)
-                                                @php
-                                                    $grpPromo = method_exists($grp, 'isPromotional') ? $grp->isPromotional() : true;
-                                                    $grpHide = !$otpModeInitial && !$grpPromo;
-                                                    $grpConf = method_exists($grp, 'isConfidential') && $grp->isConfidential();
-                                                @endphp
-                                                <optgroup label="📁 {{ $grp->name }}" @if($grpHide) hidden disabled @endif>
-                                                    <option value="{{ $grp->id }}" @if($grpHide) hidden disabled @endif data-promotional="{{ $grpPromo ? '1' : '0' }}" data-slug="{{ $grp->slug ?? '' }}" data-confidential="{{ $grpConf ? '1' : '0' }}" {{ old('sms_message_group_id') == $grp->id ? 'selected' : '' }}>
-                                                        {{ $grp->name }} (دسته اصلی)
-                                                    </option>
-                                                    @foreach(($grp->subgroups ?? $grp->children ?? collect()) as $sub)
-                                                        @php
-                                                            $subConf = method_exists($sub, 'isConfidential') && $sub->isConfidential();
-                                                        @endphp
-                                                        <option value="{{ $sub->id }}" @if($grpHide) hidden disabled @endif data-promotional="{{ $grpPromo ? '1' : '0' }}" data-slug="{{ $sub->slug ?? '' }}" data-confidential="{{ ($subConf || $grpConf) ? '1' : '0' }}" {{ old('sms_message_group_id') == $sub->id ? 'selected' : '' }}>
-                                                            {{ $grp->name }} › {{ $sub->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </optgroup>
-                                            @endforeach
-                                        @endif
+                                <div class="col-md-7">
+                                    <label class="sms-label" for="otpCategorySelect"><i class="fa fa-tags text-warning me-1"></i> دسته‌بندی سیستمی OTP <span class="text-danger">*</span></label>
+                                    <select name="otp_category" id="otpCategorySelect" class="form-select" @unless($otpVisible) disabled @endunless>
+                                        <option value="">-- انتخاب کنید --</option>
+                                        @foreach(\App\Enums\SmsOtpCategory::options() as $otpCatSlug => $otpCatLabel)
+                                            <option value="{{ $otpCatSlug }}" {{ old('otp_category') === $otpCatSlug ? 'selected' : '' }}>{{ $otpCatLabel }}</option>
+                                        @endforeach
                                     </select>
-                                    <div class="sms-hint" id="messageGroupHint"
-                                         data-hint-promo="سازمان‌دهی پیام در پوشه‌های موضوعی (مناسبتی و تبریک، فروش، پشتیبانی و زیرگروه‌ها)"
-                                         data-hint-otp="پوشه موضوعی اختیاری است؛ پیام‌های مالی و حقوقی به‌طور خودکار محرمانه ثبت می‌شوند.">{{ $otpModeInitial ? 'پوشه موضوعی اختیاری است؛ پیام‌های مالی و حقوقی به‌طور خودکار محرمانه ثبت می‌شوند.' : 'سازمان‌دهی پیام در پوشه‌های موضوعی (مناسبتی و تبریک، فروش، پشتیبانی و زیرگروه‌ها)' }}</div>
+                                    <div class="sms-hint">هر پیامک OTP باید دقیقاً یکی از دسته‌بندی‌های ثابت سیستم را داشته باشد.</div>
                                 </div>
-                                {{-- OTP only: hidden AND disabled (not submitted) for advertising; toggled by the page script --}}
-                                <div class="col-md-5" id="classificationCol" @unless($classificationVisible) style="display: none;" @endunless>
+                                <div class="col-md-5" id="classificationCol">
                                     <span class="sms-label"><i class="fa fa-shield text-info me-1"></i> نوع پیام (سطح طبقه‌بندی)</span>
                                     <div class="sms-choice-row flex-nowrap">
                                         <label class="sms-choice small fw-semibold" id="typeRegularWrapper" for="typeRegular" style="flex-basis: 0;">
-                                            <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" {{ old('type', 'regular') === 'regular' ? 'checked' : '' }} @unless($classificationVisible) disabled @endunless>
+                                            <input class="form-check-input" type="radio" name="type" id="typeRegular" value="regular" {{ old('type', 'regular') === 'regular' ? 'checked' : '' }} @unless($otpVisible) disabled @endunless>
                                             <span><i class="fa fa-envelope-o text-secondary me-1"></i> عادی</span>
                                         </label>
                                         <label class="sms-choice small fw-bold text-danger" id="typeClassifiedWrapper" for="typeClassified" style="flex-basis: 0;">
-                                            <input class="form-check-input" type="radio" name="type" id="typeClassified" value="classified" {{ old('type') === 'classified' ? 'checked' : '' }} @unless($classificationVisible) disabled @endunless>
+                                            <input class="form-check-input" type="radio" name="type" id="typeClassified" value="classified" {{ old('type') === 'classified' ? 'checked' : '' }} @unless($otpVisible) disabled @endunless>
                                             <span><i class="fa fa-lock text-danger me-1"></i> محرمانه</span>
                                         </label>
                                     </div>
@@ -377,6 +336,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                         {{-- Template bar: picking a template puts its text straight into the message box. --}}
                         <div class="sms-field">
@@ -384,15 +344,20 @@
                             <div class="input-group">
                                 <select id="templateSelect" name="template_id" class="form-select">
                                     <option value="">-- بدون قالب (متن دلخواه) --</option>
+                                    @php
+                                        $initialOtp = old('service_type') === 'otp';
+                                    @endphp
                                     @foreach($templates as $tpl)
                                         @php
                                             $tplIsOtp = $tpl->service_type === 'otp';
                                             $tplPromo = !$tplIsOtp && (!$tpl->group || $tpl->group->isPromotional());
-                                            $tplHide = $otpModeInitial ? !$tplIsOtp : !$tplPromo;
+                                            $matches = $initialOtp ? $tplIsOtp : (!$tplIsOtp && $tplPromo);
                                         @endphp
-                                        <option value="{{ $tpl->id }}" data-promotional="{{ $tplPromo ? '1' : '0' }}" @if($tplHide) hidden disabled @endif data-content="{{ $tpl->content }}" data-type="{{ $tpl->service_type }}" data-otp-category="{{ $tpl->otp_category }}" data-group-id="{{ $tpl->sms_message_group_id }}">
-                                            [{{ \App\Support\SmsLabels::panel($tpl->service_type) }}] {{ $tpl->title }} {{ $tpl->group ? '('.$tpl->group->name.')' : '' }}
-                                        </option>
+                                        @if($matches)
+                                            <option value="{{ $tpl->id }}" data-promotional="{{ $tplPromo ? '1' : '0' }}" data-content="{{ $tpl->content }}" data-type="{{ $tpl->service_type }}" data-otp-category="{{ $tpl->otp_category }}" {{ old('template_id') == $tpl->id ? 'selected' : '' }}>
+                                                [{{ \App\Support\SmsLabels::panel($tpl->service_type) }}] {{ $tpl->title }} {{ $tpl->group ? '('.$tpl->group->name.')' : '' }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                                 <button type="button" class="btn btn-outline-success" id="saveAsTemplateBtn" data-bs-toggle="modal" data-bs-target="#saveTemplateModal" title="ایجاد قالب پیامکی جدید">
@@ -890,75 +855,78 @@ document.addEventListener('DOMContentLoaded', function () {
     function syncClassificationVisibility() {
         const show = !serviceTypeOtp.disabled && serviceTypeOtp.checked;
         const col = document.getElementById('classificationCol');
-        const groupCol = document.getElementById('messageGroupCol');
         const regular = document.getElementById('typeRegular');
         const classified = document.getElementById('typeClassified');
         if (col) col.style.display = show ? '' : 'none';
-        if (groupCol) {
-            groupCol.classList.toggle('col-md-7', show);
-            groupCol.classList.toggle('col-12', !show);
-        }
         if (regular) regular.disabled = !show;
         if (classified) classified.disabled = !show;
 
-        // The folder / classification box exists for the OTP panel only (disabled = not submitted).
-        const folderBox = document.getElementById('otpFolderBox');
-        const folderSelect = document.getElementById('messageGroupSelect');
-        if (folderBox) folderBox.style.display = show ? '' : 'none';
-        if (folderSelect) folderSelect.disabled = !show;
-
-        // Subject categories + templates: promotional mode shows only promotional groups and non-OTP
-        // templates; OTP mode shows the full tree and only OTP templates. Non-matching options are
-        // hidden AND disabled; an option that became invalid resets to the placeholder.
-        const groupSelect = document.getElementById('messageGroupSelect');
-        if (groupSelect) {
-            Array.prototype.forEach.call(groupSelect.querySelectorAll('option[data-promotional]'), function (o) {
-                const blocked = !show && o.getAttribute('data-promotional') !== '1';
-                o.disabled = blocked;
-                o.hidden = blocked;
-            });
-            Array.prototype.forEach.call(groupSelect.querySelectorAll('optgroup'), function (g) {
-                const blocked = !show && !g.querySelector('option[data-promotional="1"]');
-                g.hidden = blocked;
-                g.disabled = blocked;
-            });
-            if (groupSelect.selectedOptions.length && groupSelect.selectedOptions[0].disabled) {
-                groupSelect.value = '';
-            }
-        }
-        const groupHint = document.getElementById('messageGroupHint');
-        if (groupHint) groupHint.textContent = groupHint.getAttribute(show ? 'data-hint-otp' : 'data-hint-promo');
-
-        const tplSelect = document.getElementById('templateSelect');
-        if (tplSelect) {
-            Array.prototype.forEach.call(tplSelect.querySelectorAll('option[data-type]'), function (o) {
-                const isOtpTpl = o.getAttribute('data-type') === 'otp';
-                const blocked = show ? !isOtpTpl : (isOtpTpl || o.getAttribute('data-promotional') !== '1');
-                o.disabled = blocked;
-                o.hidden = blocked;
-            });
-            if (tplSelect.selectedOptions.length && tplSelect.selectedOptions[0].disabled) {
-                tplSelect.value = '';
-            }
-        }
-
-        const catBox = document.getElementById('otpCategoryBox');
+        const extraBox = document.getElementById('otpExtraBox');
         const catSelect = document.getElementById('otpCategorySelect');
-        if (catBox) catBox.style.display = show ? '' : 'none';
+        if (extraBox) extraBox.style.display = show ? '' : 'none';
         if (catSelect) { catSelect.disabled = !show; catSelect.required = show; }
+
+        // Filter templates: OTP panel shows only OTP templates; Advertising panel shows only non-OTP templates
+        rebuildTemplateSelect(show ? 'otp' : 'advertising');
+    }
+
+    // Dynamic template population to guarantee non-matching options are completely excluded from the DOM
+    const allTemplatesSingle = [
+        @foreach($templates as $tpl)
+        @php
+            $tplIsOtp = $tpl->service_type === 'otp';
+            $tplPromo = !$tplIsOtp && (!$tpl->group || $tpl->group->isPromotional());
+        @endphp
+        {
+            id: "{{ $tpl->id }}",
+            title: @json($tpl->title),
+            panelLabel: @json(\App\Support\SmsLabels::panel($tpl->service_type)),
+            content: @json($tpl->content),
+            type: @json($tpl->service_type),
+            promotional: {{ $tplPromo ? 'true' : 'false' }},
+            otpCategory: @json($tpl->otp_category)
+        },
+        @endforeach
+    ];
+
+    function rebuildTemplateSelect(serviceType, selectedId) {
+        if (!templateSelect) return;
+        const currentVal = selectedId !== undefined ? selectedId : templateSelect.value;
+        templateSelect.innerHTML = '<option value="">-- بدون قالب (متن دلخواه) --</option>';
+
+        allTemplatesSingle.forEach(function (tpl) {
+            const matches = serviceType === 'otp' ? (tpl.type === 'otp') : (tpl.type !== 'otp' && tpl.promotional);
+            if (matches) {
+                const opt = document.createElement('option');
+                opt.value = tpl.id;
+                opt.textContent = '[' + tpl.panelLabel + '] ' + tpl.title;
+                opt.setAttribute('data-content', tpl.content || '');
+                opt.setAttribute('data-type', tpl.type);
+                opt.setAttribute('data-otp-category', tpl.otpCategory || '');
+                if (String(currentVal) === String(tpl.id)) {
+                    opt.selected = true;
+                }
+                templateSelect.appendChild(opt);
+            }
+        });
+
+        if (templateSelect.value !== currentVal) {
+            templateSelect.value = '';
+        }
     }
 
     // Toggle service type (Advertising vs OTP)
-    function onServiceTypeChange() {
+    function onServiceTypeChange(keepTemplate) {
+        const isOtp = serviceTypeOtp.checked;
         syncClassificationVisibility();
         const saveTplBtn = document.getElementById('saveAsTemplateBtn');
         if (saveTplBtn) {
-            saveTplBtn.disabled = serviceTypeOtp.checked;
-            saveTplBtn.title = serviceTypeOtp.checked
+            saveTplBtn.disabled = isOtp;
+            saveTplBtn.title = isOtp
                 ? 'ایجاد قالب برای پنل OTP از این بخش فعال نیست'
                 : 'ایجاد قالب پیامکی جدید';
         }
-        if (serviceTypeOtp.checked) {
+        if (isOtp) {
             document.getElementById('advertisingSenderContainer').style.display = 'none';
             document.getElementById('otpSenderContainer').style.display = 'block';
             phoneSenderNumber.textContent = otpNumber || 'OTP-System';
@@ -969,11 +937,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 phoneSenderNumber.textContent = senderNumberSelect.selectedOptions[0].getAttribute('data-number') || 'SMS';
             }
         }
+
+        if (!keepTemplate && templateSelect) {
+            templateSelect.value = '';
+        }
+
         updateLivePreview();
     }
 
-    serviceTypeAdv.addEventListener('change', onServiceTypeChange);
-    serviceTypeOtp.addEventListener('change', onServiceTypeChange);
+    serviceTypeAdv.addEventListener('change', function () { onServiceTypeChange(); });
+    serviceTypeOtp.addEventListener('change', function () { onServiceTypeChange(); });
     senderNumberSelect.addEventListener('change', function () {
         if (senderNumberSelect.selectedOptions.length > 0) {
             phoneSenderNumber.textContent = senderNumberSelect.selectedOptions[0].getAttribute('data-number');
@@ -984,27 +957,24 @@ document.addEventListener('DOMContentLoaded', function () {
     smsEditor.onChange(function () { updateLivePreview(); });
     const paramChipEditor = smsEditor.chips;
 
-    // Message Category (Group) & Classification Type Reaction
-    const messageGroupSelect = document.getElementById('messageGroupSelect');
+    // Classification Type Reaction from OTP Category
+    const otpCategorySelect = document.getElementById('otpCategorySelect');
     const typeRegular = document.getElementById('typeRegular');
     const typeClassified = document.getElementById('typeClassified');
     const classificationHint = document.getElementById('classificationHint');
 
-    function updateClassificationFromGroup() {
-        if (!messageGroupSelect) return;
-        const selected = messageGroupSelect.selectedOptions[0];
-        if (!selected || !selected.value) {
+    function updateClassificationFromOtpCategory() {
+        if (!otpCategorySelect) return;
+        const cat = otpCategorySelect.value;
+        if (!cat) {
             if (classificationHint) {
                 classificationHint.innerHTML = '<span class="text-muted"><i class="fa fa-info-circle ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> پیام‌های مالی و حقوقی به‌طور خودکار «محرمانه» تعیین می‌شوند.</span>';
             }
             return;
         }
 
-        const isConfidential = selected.getAttribute('data-confidential') === '1';
-        const slug = (selected.getAttribute('data-slug') || '').toLowerCase();
-
-        // hoghoghi / mali are by default classified
-        if (isConfidential || slug === 'hoghoghi' || slug === 'mali' || slug.includes('hoghoghi') || slug.includes('mali')) {
+        // mali and hoghoghi OTP categories are by default classified
+        if (cat === 'financial' || cat === 'legal' || cat === 'mali' || cat === 'hoghoghi') {
             if (typeClassified) typeClassified.checked = true;
             if (classificationHint) {
                 classificationHint.innerHTML = '<span class="text-danger fw-bold"><i class="fa fa-lock ms-1" style="margin-left: 4px !important; margin-right: 0 !important;"></i> سطح پیام به صورت خودکار به دلیل ماهیت مالی/حقوقی «محرمانه» تعیین شد.</span>';
@@ -1017,8 +987,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (messageGroupSelect) {
-        messageGroupSelect.addEventListener('change', updateClassificationFromGroup);
+    if (otpCategorySelect) {
+        otpCategorySelect.addEventListener('change', updateClassificationFromOtpCategory);
     }
 
     // Template selection: populates message box, syncs editor, counter, and preview
@@ -1038,26 +1008,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const catSelect = document.getElementById('otpCategorySelect');
             const tplCategory = selected.getAttribute('data-otp-category');
 
-            if (type === 'otp') {
-                if (serviceTypeOtp && !serviceTypeOtp.checked) {
-                    serviceTypeOtp.checked = true;
-                    onServiceTypeChange();
-                }
-            } else if (type === 'advertising') {
-                if (serviceTypeAdv && !serviceTypeAdv.checked) {
-                    serviceTypeAdv.checked = true;
-                    onServiceTypeChange();
-                }
-            }
-
             if (type === 'otp' && tplCategory && catSelect) {
                 catSelect.value = tplCategory;
-            }
-
-            const groupId = selected.getAttribute('data-group-id');
-            if (groupId && messageGroupSelect) {
-                messageGroupSelect.value = groupId;
-                updateClassificationFromGroup();
+                updateClassificationFromOtpCategory();
             }
 
             updateLivePreview();
@@ -1205,14 +1158,16 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(res => res.json().then(data => ({ ok: res.ok, data })))
         .then(({ ok, data }) => {
             if (ok && data.status === 'success') {
-                const opt = document.createElement('option');
-                opt.value = data.template.id;
-                opt.textContent = '[' + 'پنل تبلیغاتی/اطلاع‌رسانی' + '] ' + data.template.title;
-                opt.setAttribute('data-promotional', '1');
-                opt.setAttribute('data-type', 'advertising');
-                opt.setAttribute('data-content', data.template.content);
-                templateSelect.appendChild(opt);
-                templateSelect.value = data.template.id;
+                allTemplatesSingle.push({
+                    id: String(data.template.id),
+                    title: data.template.title,
+                    panelLabel: 'پنل پیامکی تبلیغاتی/اطلاع‌رسانی',
+                    content: data.template.content,
+                    type: 'advertising',
+                    promotional: true,
+                    otpCategory: null
+                });
+                rebuildTemplateSelect('advertising', data.template.id);
                 templateSelect.dispatchEvent(new Event('change'));
                 bootstrap.Modal.getInstance(document.getElementById('saveTemplateModal')).hide();
                 saveTemplateForm.reset();
@@ -1270,7 +1225,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Initial calculation on load
-    onServiceTypeChange();
+    onServiceTypeChange(true);
+    if (templateSelect && templateSelect.value) {
+        templateSelect.dispatchEvent(new Event('change'));
+    }
 });
 
 // Single Quick Payment Gate Logic
