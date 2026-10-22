@@ -241,12 +241,12 @@
                             <div class="sms-choice-row">
                                 <label class="sms-choice fw-bold" id="advCheckWrapper" for="serviceTypeAdv">
                                     <input class="form-check-input" type="radio" name="service_type" id="serviceTypeAdv" value="advertising" {{ old('service_type', 'advertising') === 'advertising' ? 'checked' : '' }}>
-                                    <span><i class="fa fa-bullhorn text-warning me-1"></i> پنل تبلیغاتی/اطلاع‌رسانی</span>
+                                    <span><i class="fa fa-bullhorn text-warning me-1"></i> پنل پیامکی تبلیغاتی/اطلاع‌رسانی</span>
                                 </label>
                                 {{-- Hidden (not removed) for lower tiers: the page script expects the element. --}}
                                 <label class="sms-choice fw-bold" id="otpCheckWrapper" for="serviceTypeOtp" @if(!($canUseOtp ?? false)) style="display: none;" @endif>
                                     <input class="form-check-input" type="radio" name="service_type" id="serviceTypeOtp" value="otp" {{ old('service_type') === 'otp' ? 'checked' : '' }} @if(!($canUseOtp ?? false)) disabled @endif>
-                                    <span><i class="fa fa-key text-success me-1"></i> پنل OTP</span>
+                                    <span><i class="fa fa-key text-success me-1"></i> پنل پیامکی OTP</span>
                                 </label>
                             </div>
                         </div>

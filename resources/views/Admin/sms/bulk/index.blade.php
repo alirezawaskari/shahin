@@ -310,12 +310,12 @@
                         <div class="sms-choice-row">
                             <label class="sms-choice fw-bold" for="serviceTypeAdv">
                                 <input class="form-check-input" type="radio" name="service_type" id="serviceTypeAdv" value="advertising" checked>
-                                <span><i class="fa fa-bullhorn text-warning me-1"></i> پنل تبلیغاتی/اطلاع‌رسانی</span>
+                                <span><i class="fa fa-bullhorn text-warning me-1"></i> پنل پیامکی تبلیغاتی/اطلاع‌رسانی</span>
                             </label>
                             @if($canUseOtp ?? false)
                                 <label class="sms-choice fw-bold" for="serviceTypeOtp">
                                     <input class="form-check-input" type="radio" name="service_type" id="serviceTypeOtp" value="otp">
-                                    <span><i class="fa fa-key text-success me-1"></i> پنل OTP</span>
+                                    <span><i class="fa fa-key text-success me-1"></i> پنل پیامکی OTP</span>
                                 </label>
                             @endif
                         </div>
