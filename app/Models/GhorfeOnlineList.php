@@ -176,6 +176,8 @@ class GhorfeOnlineList extends Model implements HasMedia
         foreach (self::SINGLE_IMAGE_COLLECTIONS as $collection) {
             $this->addMediaCollection($collection)->useDisk('public')->singleFile();
         }
+        $this->addMediaCollection('sms_contract_attachments_staff')->useDisk('public');
+        $this->addMediaCollection('sms_contract_attachments_client')->useDisk('public');
     }
 
     /** The media occupying gallery slot $index in $collection, if any. */

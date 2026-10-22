@@ -122,11 +122,16 @@ class SmsContractController extends Controller
             'content' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'file_path' => 'nullable|string',
+            'staff_attachments' => 'nullable|array|max:5',
+            'staff_attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
         ], [
             'service_type.required' => 'نوع سرویس قرارداد را مشخص کنید.',
             'mode.required' => 'نحوه انتساب قرارداد را مشخص کنید.',
             'contract_id.required_if' => 'الگو یا قرارداد مورد نظر را انتخاب کنید.',
             'title.required_if' => 'عنوان قرارداد یا الگو را وارد کنید.',
+            'staff_attachments.max' => 'حداکثر ۵ فایل پیوست مجاز است.',
+            'staff_attachments.*.mimes' => 'فرمت فایل‌های پیوست باید pdf, doc, docx, jpg, jpeg یا png باشد.',
+            'staff_attachments.*.max' => 'حجم هر فایل پیوست نباید بیش از ۱۰ مگابایت باشد.',
         ]);
 
         $serviceType = $validated['service_type'];
@@ -142,7 +147,8 @@ class SmsContractController extends Controller
                 $validated,
                 $business,
                 $request->file('file'),
-                $request->input('file_path')
+                $request->input('file_path'),
+                $request->file('staff_attachments')
             );
         } catch (ValidationException $e) {
             return redirect()->back()->withInput()->withErrors($e->errors());

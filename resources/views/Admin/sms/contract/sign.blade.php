@@ -83,6 +83,49 @@
                             </div>
                         </div>
 
+                        @php
+                            $clientMedia = $business->getMedia('sms_contract_attachments_client');
+                            $staffMedia = $business->getMedia('sms_contract_attachments_staff');
+                        @endphp
+
+                        @if($clientMedia->isNotEmpty() || $staffMedia->isNotEmpty())
+                            <div class="border rounded p-3 mb-3 bg-white">
+                                <h6 class="fw-bold small mb-2 text-dark">
+                                    <i class="fa fa-paperclip text-primary me-1"></i> مدارک و پیوست‌های ثبت‌شده:
+                                </h6>
+                                <div class="row g-2">
+                                    @foreach($clientMedia as $mediaItem)
+                                        <div class="col-12 col-md-6">
+                                            <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light small">
+                                                <div class="text-truncate me-2">
+                                                    <i class="fa fa-file-text-o text-muted me-1"></i>
+                                                    <span title="{{ $mediaItem->file_name }}">{{ Str::limit($mediaItem->file_name, 25) }}</span>
+                                                    <span class="badge bg-secondary ms-1">پیوست کاربر</span>
+                                                </div>
+                                                <a href="{{ $mediaItem->getUrl() }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    @foreach($staffMedia as $mediaItem)
+                                        <div class="col-12 col-md-6">
+                                            <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light small">
+                                                <div class="text-truncate me-2">
+                                                    <i class="fa fa-file-pdf-o text-muted me-1"></i>
+                                                    <span title="{{ $mediaItem->file_name }}">{{ Str::limit($mediaItem->file_name, 25) }}</span>
+                                                    <span class="badge bg-primary ms-1">پیوست مدیریت</span>
+                                                </div>
+                                                <a href="{{ $mediaItem->getUrl() }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="d-flex flex-wrap gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
                                 <i class="fa fa-print ms-1" style="margin-left: 6px !important; margin-right: 0 !important;"></i> چاپ تعهدنامه
@@ -94,7 +137,7 @@
                     </div>
                 </div>
             @else
-                <form action="{{ route('admin.sms.contract.accept') }}" method="POST">
+                <form action="{{ route('admin.sms.contract.accept') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="card border-0 shadow-sm">
                             {{-- Step 1: Acceptance of Terms & Signature Name --}}
@@ -110,6 +153,16 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">نام و نام خانوادگی (امضای الکترونیکی) <span class="text-danger">*</span></label>
                                 <input type="text" name="signature_name" id="signatureName" value="{{ old('signature_name') }}" class="form-control" placeholder="نام و نام خانوادگی خود را به‌عنوان تایید امضا وارد کنید" required>
+                            </div>
+
+                            {{-- Attachment Upload (Client Side - Max 5 files) --}}
+                            <div class="mb-3 p-3 bg-light rounded border">
+                                <label class="form-label fw-bold small mb-1">
+                                    <i class="fa fa-paperclip text-primary me-1"></i> پیوست مدارک، مجوزها یا مستندات احراز هویت و شرکت (حداکثر ۵ فایل - اختیاری)
+                                </label>
+                                <p class="text-muted small mb-2">فرمت‌های مجاز: PDF، تصاویر (JPG/PNG)، اسناد Word (حداکثر حجم هر فایل ۱۰ مگابایت)</p>
+                                <input type="file" name="client_attachments[]" id="clientAttachmentsInput" class="form-control form-control-sm" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                <div id="clientFileCountNotice" class="small text-muted mt-1">حداکثر می‌توانید تا ۵ فایل را به‌صورت هم‌زمان انتخاب کنید.</div>
                             </div>
 
                             {{-- Step 2: 6-digit OTP verification --}}
@@ -251,6 +304,25 @@
             sendBtn.disabled = false;
         });
     });
+
+    // Validate max 5 client attachments
+    var fileInput = document.getElementById('clientAttachmentsInput');
+    var fileNotice = document.getElementById('clientFileCountNotice');
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 5) {
+                alert('حداکثر می‌توانید ۵ فایل پیوست انتخاب کنید.');
+                fileInput.value = '';
+                if (fileNotice) {
+                    fileNotice.className = 'small text-danger mt-1';
+                    fileNotice.textContent = 'تعداد فایل‌های انتخابی بیشتر از ۵ مورد بود و حذف شدند. لطفاً حداکثر ۵ فایل انتخاب کنید.';
+                }
+            } else if (fileNotice) {
+                fileNotice.className = 'small text-success mt-1';
+                fileNotice.textContent = fileInput.files.length + ' فایل برای بارگذاری انتخاب شد (حداکثر ۵ فایل).';
+            }
+        });
+    }
 
     // Auto-submit form when 6 digits are typed (matching platform pattern)
     otpInput.addEventListener('input', function () {

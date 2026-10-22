@@ -141,11 +141,16 @@ class SmsContractSignController extends Controller
             'agree' => 'accepted',
             'signature_name' => 'required|string|max:191',
             'otp' => 'required|digits:6',
+            'client_attachments' => 'nullable|array|max:5',
+            'client_attachments.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
         ], [
             'agree.accepted' => 'برای ادامه باید تعهدنامه را مطالعه و تایید نمایید.',
             'signature_name.required' => 'ثبت نام و نام خانوادگی به‌عنوان امضای الکترونیکی الزامی است.',
             'otp.required' => 'کد تایید ۶ رقمی که به موبایل شما پیامک شده را وارد کنید.',
             'otp.digits' => 'کد تایید باید ۶ رقم باشد.',
+            'client_attachments.max' => 'حداکثر ۵ فایل پیوست مجاز است.',
+            'client_attachments.*.mimes' => 'فرمت فایل‌های پیوست باید pdf, doc, docx, jpg, jpeg یا png باشد.',
+            'client_attachments.*.max' => 'حجم هر فایل پیوست نباید بیش از ۱۰ مگابایت باشد.',
         ]);
 
         $contractText = $this->cmsContent->contractText();
@@ -167,6 +172,27 @@ class SmsContractSignController extends Controller
             'sms_contract_text_hash' => $verified->contract_hash,
             'sms_contract_otp_verified_at' => now(),
         ]);
+
+        // Save client uploaded attachments (max 5)
+        if ($request->hasFile('client_attachments')) {
+            $contractService = app(\App\Services\SmsSettings\SmsContractService::class);
+            $otpUsage = $contractService->getBusinessOtpContract($business);
+            $advUsage = $contractService->getBusinessAdvertisingContract($business);
+
+            $count = 0;
+            foreach ($request->file('client_attachments') as $file) {
+                if ($file instanceof \Illuminate\Http\UploadedFile && $count < 5) {
+                    $business->addMedia($file)->toMediaCollection('sms_contract_attachments_client');
+                    if ($otpUsage) {
+                        $otpUsage->addMedia($file)->toMediaCollection('client_attachments');
+                    }
+                    if ($advUsage) {
+                        $advUsage->addMedia($file)->toMediaCollection('client_attachments');
+                    }
+                    $count++;
+                }
+            }
+        }
 
         return redirect()->back()
             ->with('success', 'تعهدنامه استفاده از سرویس پیامک با موفقیت امضا و ثبت نهایی شد.');

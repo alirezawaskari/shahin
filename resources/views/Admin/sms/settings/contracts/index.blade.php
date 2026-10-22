@@ -30,6 +30,9 @@
                 </form>
             @endif
             @if(auth()->user()?->isSuperAdmin())
+                <a href="{{ url('/dashboard/contract') }}" class="btn btn-outline-secondary btn-sm" title="مرکز اصلی مدیریت قراردادها و الگوهای سامانه">
+                    <i class="fa fa-folder-open me-1"></i> مرکز اصلی قراردادها
+                </a>
                 <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#legalContentModal">
                     <i class="fa fa-balance-scale me-1"></i> ویرایش متون حقوقی و ضوابط
                 </button>
@@ -230,6 +233,29 @@
                                         $specOtp = $business ? $businessOtpUsage : $biz->otp_contract_usage;
                                         $effOtp = $specOtp ?: $otpContractUsage;
                                     @endphp
+                                    @php
+                                        $otpAttachments = collect();
+                                        if ($effOtp) {
+                                            foreach ($effOtp->getMedia('staff_attachments') as $m) {
+                                                $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+                                            }
+                                            foreach ($effOtp->getMedia('client_attachments') as $m) {
+                                                $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+                                            }
+                                        }
+                                        if ($biz) {
+                                            foreach ($biz->getMedia('sms_contract_attachments_staff') as $m) {
+                                                if (!$otpAttachments->contains('url', $m->getUrl())) {
+                                                    $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+                                                }
+                                            }
+                                            foreach ($biz->getMedia('sms_contract_attachments_client') as $m) {
+                                                if (!$otpAttachments->contains('url', $m->getUrl())) {
+                                                    $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+                                                }
+                                            }
+                                        }
+                                    @endphp
                                     <tr>
                                         <td class="ps-3">{{ $biz->id }}</td>
                                         <td class="fw-bold">{{ $biz->title }}</td>
@@ -270,7 +296,8 @@
                                                             data-number="{{ $effOtp->contract_number ?: '—' }}"
                                                             data-date="{{ $effOtp->contract_date ? verta($effOtp->contract_date)->format('Y/m/d') : '—' }}"
                                                             data-content="{{ $effOtp->contract->content ?: 'بدون متن (فایل پیوست)' }}"
-                                                            data-signer="{{ $biz->sms_contract_accepted ? ($biz->sms_contract_signature_name . ' (تایید شده با OTP)') : 'در انتظار امضا' }}">
+                                                            data-signer="{{ $biz->sms_contract_accepted ? ($biz->sms_contract_signature_name . ' (تایید شده با OTP)') : 'در انتظار امضا' }}"
+                                                            data-attachments="{{ json_encode($otpAttachments) }}">
                                                         <i class="fa fa-eye"></i> مشاهده
                                                     </button>
                                                 @endif
@@ -326,6 +353,27 @@
                                     @php
                                         $specAdv = $business ? $businessAdvUsage : $biz->advertising_contract_usage;
                                         $effAdv = $specAdv ?: $advContractUsage;
+                                        $advAttachments = collect();
+                                        if ($effAdv) {
+                                            foreach ($effAdv->getMedia('staff_attachments') as $m) {
+                                                $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+                                            }
+                                            foreach ($effAdv->getMedia('client_attachments') as $m) {
+                                                $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+                                            }
+                                        }
+                                        if ($biz) {
+                                            foreach ($biz->getMedia('sms_contract_attachments_staff') as $m) {
+                                                if (!$advAttachments->contains('url', $m->getUrl())) {
+                                                    $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+                                                }
+                                            }
+                                            foreach ($biz->getMedia('sms_contract_attachments_client') as $m) {
+                                                if (!$advAttachments->contains('url', $m->getUrl())) {
+                                                    $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+                                                }
+                                            }
+                                        }
                                     @endphp
                                     <tr>
                                         <td class="ps-3">{{ $biz->id }}</td>
@@ -367,7 +415,8 @@
                                                             data-number="{{ $effAdv->contract_number ?: '—' }}"
                                                             data-date="{{ $effAdv->contract_date ? verta($effAdv->contract_date)->format('Y/m/d') : '—' }}"
                                                             data-content="{{ $effAdv->contract->content ?: 'بدون متن (فایل پیوست)' }}"
-                                                            data-signer="{{ $biz->sms_contract_accepted ? ($biz->sms_contract_signature_name . ' (تایید شده با OTP)') : 'در انتظار امضا' }}">
+                                                            data-signer="{{ $biz->sms_contract_accepted ? ($biz->sms_contract_signature_name . ' (تایید شده با OTP)') : 'در انتظار امضا' }}"
+                                                            data-attachments="{{ json_encode($advAttachments) }}">
                                                         <i class="fa fa-eye"></i> مشاهده
                                                     </button>
                                                 @endif
@@ -419,6 +468,51 @@
         $effOtpBiz = $businessOtpUsage ?: $otpContractUsage;
         $effAdvBiz = $businessAdvUsage ?: $advContractUsage;
     @endphp
+    @php
+        $effOtpBizAttachments = collect();
+        if ($effOtpBiz) {
+            foreach ($effOtpBiz->getMedia('staff_attachments') as $m) {
+                $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+            }
+            foreach ($effOtpBiz->getMedia('client_attachments') as $m) {
+                $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+            }
+        }
+        if ($business) {
+            foreach ($business->getMedia('sms_contract_attachments_staff') as $m) {
+                if (!$effOtpBizAttachments->contains('url', $m->getUrl())) {
+                    $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+                }
+            }
+            foreach ($business->getMedia('sms_contract_attachments_client') as $m) {
+                if (!$effOtpBizAttachments->contains('url', $m->getUrl())) {
+                    $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+                }
+            }
+        }
+
+        $effAdvBizAttachments = collect();
+        if ($effAdvBiz) {
+            foreach ($effAdvBiz->getMedia('staff_attachments') as $m) {
+                $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+            }
+            foreach ($effAdvBiz->getMedia('client_attachments') as $m) {
+                $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+            }
+        }
+        if ($business) {
+            foreach ($business->getMedia('sms_contract_attachments_staff') as $m) {
+                if (!$effAdvBizAttachments->contains('url', $m->getUrl())) {
+                    $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
+                }
+            }
+            foreach ($business->getMedia('sms_contract_attachments_client') as $m) {
+                if (!$effAdvBizAttachments->contains('url', $m->getUrl())) {
+                    $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
+                }
+            }
+        }
+    @endphp
     <div class="row g-3 mb-4">
         <!-- OTP Contract Card (Read-Only) -->
         <div class="col-12 col-md-6">
@@ -446,7 +540,8 @@
                                 data-number="{{ $effOtpBiz->contract_number ?: '—' }}"
                                 data-date="{{ $effOtpBiz->contract_date ? verta($effOtpBiz->contract_date)->format('Y/m/d') : '—' }}"
                                 data-content="{{ $effOtpBiz->contract->content ?: 'بدون متن (فایل پیوست)' }}"
-                                data-signer="{{ $isContractSigned ? ($contractSigner . ' (تایید شده با OTP)') : 'در انتظار امضا' }}">
+                                data-signer="{{ $isContractSigned ? ($contractSigner . ' (تایید شده با OTP)') : 'در انتظار امضا' }}"
+                                data-attachments="{{ json_encode($effOtpBizAttachments) }}">
                             <i class="fa fa-eye me-1"></i> مشاهده متن قرارداد
                         </button>
                     @endif
@@ -480,7 +575,8 @@
                                 data-number="{{ $effAdvBiz->contract_number ?: '—' }}"
                                 data-date="{{ $effAdvBiz->contract_date ? verta($effAdvBiz->contract_date)->format('Y/m/d') : '—' }}"
                                 data-content="{{ $effAdvBiz->contract->content ?: 'بدون متن (فایل پیوست)' }}"
-                                data-signer="{{ $isContractSigned ? ($contractSigner . ' (تایید شده با OTP)') : 'در انتظار امضا' }}">
+                                data-signer="{{ $isContractSigned ? ($contractSigner . ' (تایید شده با OTP)') : 'در انتظار امضا' }}"
+                                data-attachments="{{ json_encode($effAdvBizAttachments) }}">
                             <i class="fa fa-eye me-1"></i> مشاهده متن قرارداد
                         </button>
                     @endif
@@ -543,7 +639,7 @@
                         </h6>
                     </div>
                     <div class="card-body p-4">
-                        <form action="{{ route('admin.sms.contract.accept') }}" method="POST">
+                        <form action="{{ route('admin.sms.contract.accept') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="business_id" value="{{ $business->id }}">
 
@@ -557,6 +653,16 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold small">نام و نام خانوادگی امضاکننده <span class="text-danger">*</span></label>
                                 <input type="text" name="signature_name" id="signatureName" value="{{ old('signature_name') }}" class="form-control" placeholder="نام و نام خانوادگی خود را به‌عنوان امضای الکترونیکی وارد کنید" required>
+                            </div>
+
+                            <!-- Client Attachments Upload (Max 5 files) -->
+                            <div class="mb-3 p-3 bg-light rounded border">
+                                <label class="form-label fw-bold small mb-1">
+                                    <i class="fa fa-paperclip text-primary me-1"></i> پیوست مدارک، مجوزها یا مستندات احراز هویت و شرکت (حداکثر ۵ فایل - اختیاری)
+                                </label>
+                                <p class="text-muted small mb-2">فرمت‌های مجاز: PDF، تصاویر (JPG/PNG)، اسناد Word (حداکثر حجم هر فایل ۱۰ مگابایت)</p>
+                                <input type="file" name="client_attachments[]" id="clientIndexAttachmentsInput" class="form-control form-control-sm" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                <div id="clientIndexFileNotice" class="small text-muted mt-1">حداکثر می‌توانید تا ۵ فایل را به‌صورت هم‌زمان انتخاب فرمایید.</div>
                             </div>
 
                             <div class="border rounded p-3 bg-light" id="otpBox"
@@ -651,9 +757,13 @@
                         <strong class="text-dark" id="viewModalDate">—</strong>
                     </div>
                 </div>
-                <div>
+                <div class="mb-3">
                     <label class="form-label fw-bold small">متن کامل قرارداد</label>
                     <div id="viewModalContent" class="p-3 bg-white border rounded small text-secondary" style="max-height: 360px; overflow-y: auto; white-space: pre-wrap; line-height: 1.9;"></div>
+                </div>
+                <div id="viewModalAttachmentsSection" style="display: none;">
+                    <label class="form-label fw-bold small"><i class="fa fa-paperclip text-primary me-1"></i> مدارک و فایل‌های پیوست شده</label>
+                    <div id="viewModalAttachmentsList" class="row g-2"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -926,7 +1036,7 @@
                         </div>
                     </div>
 
-                    <div class="row g-3">
+                    <div class="row g-3 mb-3">
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-bold small">شماره قرارداد</label>
                             <input type="text" name="contract_number" class="form-control" placeholder="مثال: CNT-1405-101">
@@ -935,6 +1045,16 @@
                             <label class="form-label fw-bold small">تاریخ قرارداد</label>
                             <input type="date" name="contract_date" class="form-control" value="{{ now()->toDateString() }}">
                         </div>
+                    </div>
+
+                    <!-- Staff Attachments (Max 5 files) -->
+                    <div class="p-3 bg-light rounded border">
+                        <label class="form-label fw-bold small mb-1">
+                            <i class="fa fa-paperclip text-primary me-1"></i> پیوست مدارک و مستندات اداری / مخابراتی مدیریت (حداکثر ۵ فایل - اختیاری)
+                        </label>
+                        <p class="text-muted small mb-2">مدارک تایید اپراتور، استعلامات یا معرفی‌نامه‌ها (PDF، تصویر یا Word حداکثر ۱۰ مگابایت)</p>
+                        <input type="file" name="staff_attachments[]" id="staffAttachmentsInput" class="form-control form-control-sm" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <div id="staffFileCountNotice" class="small text-muted mt-1">حداکثر می‌توانید تا ۵ فایل را به‌صورت هم‌زمان انتخاب فرمایید.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1004,6 +1124,43 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('viewModalSigner').textContent = this.getAttribute('data-signer') || '—';
             document.getElementById('viewModalContent').textContent = this.getAttribute('data-content') || '—';
 
+            // Attachments rendering
+            const rawAttachments = this.getAttribute('data-attachments');
+            const attachmentsSection = document.getElementById('viewModalAttachmentsSection');
+            const attachmentsList = document.getElementById('viewModalAttachmentsList');
+            if (attachmentsSection && attachmentsList) {
+                attachmentsList.innerHTML = '';
+                let items = [];
+                try {
+                    items = rawAttachments ? JSON.parse(rawAttachments) : [];
+                } catch (e) {
+                    items = [];
+                }
+
+                if (items.length > 0) {
+                    attachmentsSection.style.display = 'block';
+                    items.forEach(function (item) {
+                        const col = document.createElement('div');
+                        col.className = 'col-12 col-md-6';
+                        col.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light small">
+                                <div class="text-truncate me-2">
+                                    <i class="fa ${item.type === 'staff' ? 'fa-file-pdf-o' : 'fa-file-text-o'} text-muted me-1"></i>
+                                    <span title="${item.name}">${item.name}</span>
+                                    <span class="badge ${item.type === 'staff' ? 'bg-primary' : 'bg-secondary'} ms-1">${item.label}</span>
+                                </div>
+                                <a href="${item.url}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" title="دانلود / مشاهده">
+                                    <i class="fa fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                        attachmentsList.appendChild(col);
+                    });
+                } else {
+                    attachmentsSection.style.display = 'none';
+                }
+            }
+
             if (viewModal) {
                 viewModal.show();
             } else if (typeof jQuery !== 'undefined') {
@@ -1011,6 +1168,44 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    // Staff attachments 5-file validator
+    const staffFileInput = document.getElementById('staffAttachmentsInput');
+    const staffFileNotice = document.getElementById('staffFileCountNotice');
+    if (staffFileInput) {
+        staffFileInput.addEventListener('change', function () {
+            if (staffFileInput.files.length > 5) {
+                alert('حداکثر می‌توانید ۵ فایل پیوست انتخاب فرمایید.');
+                staffFileInput.value = '';
+                if (staffFileNotice) {
+                    staffFileNotice.className = 'small text-danger mt-1';
+                    staffFileNotice.textContent = 'تعداد فایل‌های انتخابی بیش از ۵ مورد بود و حذف شدند. لطفاً حداکثر ۵ فایل انتخاب نمایید.';
+                }
+            } else if (staffFileNotice) {
+                staffFileNotice.className = 'small text-success mt-1';
+                staffFileNotice.textContent = staffFileInput.files.length + ' فایل جهت بارگذاری انتخاب گردید (حداکثر ۵ فایل).';
+            }
+        });
+    }
+
+    // Client attachments 5-file validator in business view
+    const clientIndexFileInput = document.getElementById('clientIndexAttachmentsInput');
+    const clientIndexFileNotice = document.getElementById('clientIndexFileNotice');
+    if (clientIndexFileInput) {
+        clientIndexFileInput.addEventListener('change', function () {
+            if (clientIndexFileInput.files.length > 5) {
+                alert('حداکثر می‌توانید ۵ فایل پیوست انتخاب فرمایید.');
+                clientIndexFileInput.value = '';
+                if (clientIndexFileNotice) {
+                    clientIndexFileNotice.className = 'small text-danger mt-1';
+                    clientIndexFileNotice.textContent = 'تعداد فایل‌های انتخابی بیش از ۵ مورد بود و حذف شدند. لطفاً حداکثر ۵ فایل انتخاب نمایید.';
+                }
+            } else if (clientIndexFileNotice) {
+                clientIndexFileNotice.className = 'small text-success mt-1';
+                clientIndexFileNotice.textContent = clientIndexFileInput.files.length + ' فایل جهت بارگذاری انتخاب گردید (حداکثر ۵ فایل).';
+            }
+        });
+    }
 
     // Assign Contract Modal
     const assignModalEl = document.getElementById('assignContractModal');

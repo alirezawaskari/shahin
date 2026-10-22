@@ -41,7 +41,7 @@ class SmsContractService
             ->location('sms_otp')
             ->global()
             ->active()
-            ->with(['contract.folder', 'contract.media'])
+            ->with(['contract.folder', 'contract.media', 'media'])
             ->first();
     }
 
@@ -54,7 +54,7 @@ class SmsContractService
             ->location('sms_advertising')
             ->global()
             ->active()
-            ->with(['contract.folder', 'contract.media'])
+            ->with(['contract.folder', 'contract.media', 'media'])
             ->first();
     }
 
@@ -67,7 +67,7 @@ class SmsContractService
             ->location('sms_otp')
             ->for(GhorfeOnlineList::class, $business->id)
             ->active()
-            ->with(['contract.folder', 'contract.media'])
+            ->with(['contract.folder', 'contract.media', 'media'])
             ->first();
     }
 
@@ -80,7 +80,7 @@ class SmsContractService
             ->location('sms_advertising')
             ->for(GhorfeOnlineList::class, $business->id)
             ->active()
-            ->with(['contract.folder', 'contract.media'])
+            ->with(['contract.folder', 'contract.media', 'media'])
             ->first();
     }
 
@@ -108,7 +108,7 @@ class SmsContractService
             ->where('usable_type', GhorfeOnlineList::class)
             ->whereIn('usable_id', $businessIds)
             ->active()
-            ->with(['contract.folder', 'contract.media'])
+            ->with(['contract.folder', 'contract.media', 'media'])
             ->get()
             ->keyBy('usable_id');
 
@@ -117,7 +117,7 @@ class SmsContractService
             ->where('usable_type', GhorfeOnlineList::class)
             ->whereIn('usable_id', $businessIds)
             ->active()
-            ->with(['contract.folder', 'contract.media'])
+            ->with(['contract.folder', 'contract.media', 'media'])
             ->get()
             ->keyBy('usable_id');
 
@@ -143,7 +143,8 @@ class SmsContractService
         array $data,
         ?GhorfeOnlineList $business = null,
         ?UploadedFile $file = null,
-        ?string $filePath = null
+        ?string $filePath = null,
+        ?array $staffAttachments = null
     ): ContractUsage|Contract {
         $location = ($serviceType === 'otp') ? 'sms_otp' : 'sms_advertising';
         $isGlobalTemplate = !empty($data['is_global_template'])
@@ -167,7 +168,7 @@ class SmsContractService
             ]);
         }
 
-        return DB::transaction(function () use ($location, $ownerType, $ownerId, $data, $file, $filePath, $templateOnly, $saveAsTemplate) {
+        return DB::transaction(function () use ($location, $ownerType, $ownerId, $business, $data, $file, $filePath, $staffAttachments, $templateOnly, $saveAsTemplate) {
             $contractId = null;
 
             if (($data['mode'] ?? 'new') === 'existing' && !empty($data['contract_id'])) {
@@ -220,7 +221,7 @@ class SmsContractService
             $this->detachPrevious($location, $ownerType, $ownerId);
 
             // Create new ContractUsage
-            return ContractUsage::create([
+            $usage = ContractUsage::create([
                 'contract_id' => $contractId,
                 'usable_type' => $ownerType,
                 'usable_id' => $ownerId,
@@ -230,6 +231,22 @@ class SmsContractService
                 'is_active' => true,
                 'position' => 0,
             ]);
+
+            // Save staff attachments (max 5)
+            if (!empty($staffAttachments) && is_array($staffAttachments)) {
+                $count = 0;
+                foreach ($staffAttachments as $attachment) {
+                    if ($attachment instanceof UploadedFile && $count < 5) {
+                        $usage->addMedia($attachment)->toMediaCollection('staff_attachments');
+                        if ($business) {
+                            $business->addMedia($attachment)->toMediaCollection('sms_contract_attachments_staff');
+                        }
+                        $count++;
+                    }
+                }
+            }
+
+            return $usage;
         });
     }
 

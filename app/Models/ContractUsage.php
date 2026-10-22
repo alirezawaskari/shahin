@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * The independent relation that binds a contract to where it is used.
@@ -17,9 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * `usable_type` + `usable_id` both NULL means the contract applies to the whole
  * location (used by product purchase invoices, which have no per-owner screen).
  */
-class ContractUsage extends Model
+class ContractUsage extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
 
     /**
      * Usage locations (محل استفاده). Adding a location is one entry here —
@@ -29,6 +31,8 @@ class ContractUsage extends Model
         'registration_invoice' => 'فاکتور ثبت‌نام',
         'purchase_invoice' => 'فاکتور خرید',
         'employee' => 'همکاران',
+        'sms_otp' => 'پیامک خدماتی (OTP)',
+        'sms_advertising' => 'پیامک تبلیغاتی / اطلاع‌رسانی',
     ];
 
     /**
@@ -39,7 +43,15 @@ class ContractUsage extends Model
         'registration_invoice' => [Service::class],
         'purchase_invoice' => [Service::class, Product::class, null],
         'employee' => [Role::class],
+        'sms_otp' => [GhorfeOnlineList::class, null],
+        'sms_advertising' => [GhorfeOnlineList::class, null],
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('staff_attachments')->useDisk('public');
+        $this->addMediaCollection('client_attachments')->useDisk('public');
+    }
 
     protected $fillable = [
         'contract_id',
@@ -118,6 +130,7 @@ class ContractUsage extends Model
             Service::class => 'خدمت',
             Role::class => 'نقش',
             Product::class => 'محصول',
+            GhorfeOnlineList::class => 'کسب‌وکار',
             default => 'مورد',
         };
 
