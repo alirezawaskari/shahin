@@ -577,7 +577,7 @@
                                 <div class="fw-bold text-dark fs-6" id="cost_per_sms">۰ ریال</div>
                             </div>
                             <div class="col-md-4">
-                                <div class="text-muted small">هزینه تخمینی کل کمپین:</div>
+                                <div class="text-muted small">هزینه کل کمپین:</div>
                                 <div class="fw-bold text-primary fs-5" id="campaign_total_cost">۰ ریال</div>
                                 <div class="text-muted small" style="font-size: 11px;">(مخاطبین معتبر × صفحات × تعرفه هر صفحه)</div>
                             </div>

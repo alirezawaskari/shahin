@@ -12,7 +12,7 @@
       $costPerPage   float|null  tariff per SMS page, from config('services.sms.cost_per_page')
       $advertising   bool        count the mandatory «لغو 11» opt-out (default: true)
       $chips         array of tokens for the dynamic-parameter palette ([] = no palette)
-      $costLabel     label of the per-message cost stat   (default: هزینه تخمینی هر پیامک)
+      $costLabel     label of the per-message cost stat   (default: هزینه هر پیامک)
 
     JS: public/assets/dashboard/js/sms-message-editor.js  (SmsMessageEditor.get('<id>')).
 --}}
@@ -27,7 +27,7 @@
     $costPerPage = $costPerPage ?? (float) config('services.sms.cost_per_page', 1200);
     $advertising = $advertising ?? true;
     $chips = $chips ?? [];
-    $costLabel = $costLabel ?? 'هزینه تخمینی هر پیامک';
+    $costLabel = $costLabel ?? 'هزینه هر پیامک';
 @endphp
 <div class="sms-editor" data-sms-editor data-for="{{ $id }}" data-cost-per-page="{{ $costPerPage }}" data-advertising="{{ $advertising ? '1' : '0' }}">
     <label class="sms-label" for="{{ $id }}">{{ $editorLabel }} @if($required)<span class="text-danger">*</span>@endif</label>

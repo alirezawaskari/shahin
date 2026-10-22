@@ -412,7 +412,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="stat-pill">
-                                <div class="text-muted small">کل هزینه تخمینی</div>
+                                <div class="text-muted small">کل هزینه</div>
                                 <div id="finTotalCost" class="fw-bold text-danger">-</div>
                             </div>
                         </div>

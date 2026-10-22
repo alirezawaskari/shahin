@@ -64,7 +64,7 @@
             </div>
             <div class="text-muted small">
                 شماره فرستنده: <strong class="text-dark">{{ $campaign->senderNumber?->number ?? 'نامشخص' }}</strong> |
-                هزینه تخمینی: <strong class="text-primary">{{ number_format($campaign->cost_estimate) }} ریال</strong>
+                هزینه: <strong class="text-primary">{{ number_format($campaign->cost_estimate) }} ریال</strong>
             </div>
         </div>
 
