@@ -44,14 +44,23 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label fw-bold">نوع خط <span class="text-danger">*</span></label>
+                        <label class="form-label fw-bold">نوع پنل خط <span class="text-danger">*</span></label>
                         <select name="type" class="form-select" id="senderTypeSelect" required>
-                            <option value="advertising" {{ old('type', $senderNumber->type) === 'advertising' ? 'selected' : '' }}>تبلیغاتی</option>
+                            <option value="advertising" {{ old('type', $senderNumber->type) === 'advertising' ? 'selected' : '' }}>تبلیغاتی / اطلاع‌رسانی</option>
                             <option value="otp" {{ old('type', $senderNumber->type) === 'otp' ? 'selected' : '' }}>کد تایید (OTP - احراز هویت سراسری)</option>
                         </select>
                         <div class="form-text text-warning small mt-1" id="otpNotice" style="display: none;">
                             <i class="fa fa-info-circle me-1"></i> توجه: در کل سامانه تنها یک خط OTP سراسری مجاز است.
                         </div>
+                    </div>
+
+                    <div class="col-12 col-md-6" id="lineTypeContainer">
+                        <label class="form-label fw-bold">نوع سرشماره از نظر مخابراتی <span class="text-danger">*</span></label>
+                        <select name="line_type" class="form-select" id="lineTypeSelect" required>
+                            <option value="normal" {{ old('line_type', $senderNumber->line_type) === 'normal' ? 'selected' : '' }}>عادی (تبلیغاتی - مسدود برای لیست سیاه/DND)</option>
+                            <option value="service" {{ old('line_type', $senderNumber->line_type) === 'service' ? 'selected' : '' }}>خدماتی (امکان ارسال به لیست سیاه مخابرات)</option>
+                        </select>
+                        <small class="text-muted">مشخص کنید آیا این سرشماره خدماتی است یا خط عادی.</small>
                     </div>
 
                     <div class="col-12 col-md-6">
@@ -133,6 +142,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const typeSelect = document.getElementById('senderTypeSelect');
+        const lineTypeSelect = document.getElementById('lineTypeSelect');
         const otpNotice = document.getElementById('otpNotice');
         const bizGroup = document.getElementById('businessAssignmentGroup');
 
@@ -140,6 +150,7 @@
             if (typeSelect.value === 'otp') {
                 if (otpNotice) otpNotice.style.display = 'block';
                 if (bizGroup) bizGroup.style.display = 'none';
+                if (lineTypeSelect) lineTypeSelect.value = 'service';
             } else {
                 if (otpNotice) otpNotice.style.display = 'none';
                 if (bizGroup) bizGroup.style.display = 'block';

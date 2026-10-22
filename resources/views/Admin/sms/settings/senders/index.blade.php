@@ -147,6 +147,17 @@
                                     <span dir="ltr" class="font-monospace fw-bold fs-6 d-inline-block" style="color: #0f172a !important;">
                                         {{ $sender->number }}
                                     </span>
+                                    <div class="mt-1">
+                                        @if($sender->line_type === 'service')
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0" style="font-size: 11px;">
+                                                <i class="fa fa-check-circle me-1"></i> خط خدماتی (عبور از بلک‌لیست)
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-0" style="font-size: 11px;">
+                                                <i class="fa fa-info-circle me-1"></i> خط عادی (تبلیغاتی)
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if($sender->description)
                                         <div class="small text-muted fw-normal mt-1">{{ Str::limit($sender->description, 60) }}</div>
                                     @endif
@@ -154,11 +165,11 @@
                                 <td>
                                     @if($sender->type === 'otp')
                                         <span class="badge bg-warning text-dark px-2 py-1">
-                                            <i class="fa fa-shield me-1"></i> خدماتی (OTP)
+                                            <i class="fa fa-shield me-1"></i> پنل OTP
                                         </span>
                                     @else
                                         <span class="badge bg-primary text-white px-2 py-1">
-                                            <i class="fa fa-bullhorn me-1"></i> تبلیغاتی و اطلاع‌رسانی
+                                            <i class="fa fa-bullhorn me-1"></i> پنل تبلیغاتی/اطلاع‌رسانی
                                         </span>
                                     @endif
                                 </td>

@@ -258,8 +258,11 @@
                             <div id="advertisingSenderContainer">
                                 <select name="sender_number_id" id="senderNumberSelect" class="form-select">
                                     @forelse($advertisingNumbers as $sender)
-                                        <option value="{{ $sender->id }}" data-balance="{{ $sender->current_balance }}" data-number="{{ $sender->number }}" {{ old('sender_number_id') == $sender->id ? 'selected' : '' }}>
-                                            {{ $sender->number }}
+                                        @php
+                                            $lineLabel = $sender->isServiceLine() ? 'خدماتی' : 'عادی';
+                                        @endphp
+                                        <option value="{{ $sender->id }}" data-balance="{{ $sender->current_balance }}" data-number="{{ $sender->number }}" data-line-type="{{ $sender->line_type }}" {{ old('sender_number_id') == $sender->id ? 'selected' : '' }}>
+                                            {{ $sender->number }} ({{ $lineLabel }})
                                         </option>
                                     @empty
                                         <option value="" disabled>هیچ سرشماره تبلیغاتی به این کسب‌وکار تخصیص داده نشده است</option>

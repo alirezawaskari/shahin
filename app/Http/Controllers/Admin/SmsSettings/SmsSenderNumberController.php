@@ -90,6 +90,7 @@ class SmsSenderNumberController extends Controller
                 },
             ],
             'type' => 'required|in:otp,advertising',
+            'line_type' => 'nullable|in:service,normal',
             'sms_panel' => 'required|string|max:100',
             'status' => 'required|in:active,inactive',
             'contract_status' => 'nullable|string|max:100',
@@ -99,13 +100,16 @@ class SmsSenderNumberController extends Controller
         ], [
             'number.required' => 'شماره خط فرستنده الزامی است.',
             'number.unique' => 'این شماره قبلاً در سامانه ثبت شده است.',
-            'type.required' => 'نوع خط را مشخص کنید.',
+            'type.required' => 'نوع پنل خط را مشخص کنید.',
             'sms_panel.required' => 'پنل پیامک مربوطه را انتخاب کنید.',
             'status.required' => 'وضعیت خط را مشخص کنید.',
         ]);
 
         $businessIds = $request->input('business_ids', []);
         $validated['contract_status'] = $validated['contract_status'] ?: 'تایید شده';
+        if (empty($validated['line_type'])) {
+            $validated['line_type'] = ($validated['type'] === 'otp') ? 'service' : 'normal';
+        }
 
         try {
             $sender = $this->senderNumberService->create($validated, $businessIds);
@@ -158,6 +162,7 @@ class SmsSenderNumberController extends Controller
                 },
             ],
             'type' => 'required|in:otp,advertising',
+            'line_type' => 'nullable|in:service,normal',
             'sms_panel' => 'required|string|max:100',
             'status' => 'required|in:active,inactive',
             'contract_status' => 'nullable|string|max:100',
@@ -167,12 +172,15 @@ class SmsSenderNumberController extends Controller
         ], [
             'number.required' => 'شماره خط فرستنده الزامی است.',
             'number.unique' => 'این شماره برای خط دیگری ثبت شده است.',
-            'type.required' => 'نوع خط را مشخص کنید.',
+            'type.required' => 'نوع پنل خط را مشخص کنید.',
             'sms_panel.required' => 'پنل پیامک مربوطه را انتخاب کنید.',
             'status.required' => 'وضعیت خط را مشخص کنید.',
         ]);
 
         $businessIds = $request->input('business_ids', []);
+        if (empty($validated['line_type'])) {
+            $validated['line_type'] = ($validated['type'] === 'otp') ? 'service' : 'normal';
+        }
 
         try {
             $this->senderNumberService->update($senderNumber, $validated, $businessIds);

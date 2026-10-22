@@ -320,7 +320,18 @@
                                                     {{ $sender->number }}
                                                 </label>
                                             </div>
-                                            <span class="badge bg-success small">فعال</span>
+                                            <div class="d-flex align-items-center gap-1">
+                                                @if($sender->isServiceLine())
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle small px-2 py-1" style="font-size: 11px;">
+                                                        <i class="fa fa-check-circle me-1"></i> خدماتی
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle small px-2 py-1" style="font-size: 11px;">
+                                                        عادی
+                                                    </span>
+                                                @endif
+                                                <span class="badge bg-success small">فعال</span>
+                                            </div>
                                         </div>
                                         <div class="mt-2 text-muted small d-flex justify-content-between align-items-center">
                                             <span>موجودی پنل تبلیغاتی:</span>

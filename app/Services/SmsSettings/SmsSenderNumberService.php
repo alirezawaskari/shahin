@@ -82,6 +82,7 @@ class SmsSenderNumberService
                 'settingable_id' => $primaryId,
                 'number' => $data['number'],
                 'type' => $data['type'],
+                'line_type' => $data['line_type'] ?? (($data['type'] === 'otp') ? 'service' : 'normal'),
                 'sms_panel' => $data['sms_panel'],
                 'status' => $data['status'] ?? 'active',
                 'contract_status' => $data['contract_status'] ?? 'تایید شده',
@@ -108,14 +109,20 @@ class SmsSenderNumberService
     public function update(Setting $senderNumber, array $data, ?array $businessIds = null): Setting
     {
         try {
-            $senderNumber->update([
+            $updateData = [
                 'number' => $data['number'] ?? $senderNumber->number,
                 'type' => $data['type'] ?? $senderNumber->type,
                 'sms_panel' => $data['sms_panel'] ?? $senderNumber->sms_panel,
                 'status' => $data['status'] ?? $senderNumber->status,
                 'contract_status' => $data['contract_status'] ?? $senderNumber->contract_status,
                 'description' => $data['description'] ?? $senderNumber->description,
-            ]);
+            ];
+
+            if (array_key_exists('line_type', $data)) {
+                $updateData['line_type'] = $data['line_type'];
+            }
+
+            $senderNumber->update($updateData);
         } catch (DomainException $e) {
             throw ValidationException::withMessages([
                 'type' => [$e->getMessage()],

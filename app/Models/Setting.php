@@ -22,6 +22,7 @@ class Setting extends Model
         'settingable_id',
         'number',
         'type',
+        'line_type',
         'sms_panel',
         'status',
         'name',
@@ -34,6 +35,7 @@ class Setting extends Model
         return new class($query) extends \Illuminate\Database\Eloquent\Builder {
             protected const VIRTUAL_COLUMNS = [
                 'type',
+                'line_type',
                 'status',
                 'number',
                 'sms_panel',
@@ -241,6 +243,7 @@ class Setting extends Model
             $virtualKeys = [
                 'number',
                 'type',
+                'line_type',
                 'sms_panel',
                 'status',
                 'name',
@@ -291,7 +294,7 @@ class Setting extends Model
     |-----------------------------------
     | MORPH RELATION
     |-----------------------------------
-    */
+    |*/
     public function settingable()
     {
         return $this->morphTo();
@@ -313,6 +316,29 @@ class Setting extends Model
         }
         $decoded = json_decode($this->value, true);
         return is_array($decoded) ? ($decoded['type'] ?? 'advertising') : 'advertising';
+    }
+
+    public function getLineTypeAttribute($val)
+    {
+        if ($val !== null && $val !== '') {
+            return $val;
+        }
+        $decoded = json_decode($this->value, true);
+        // Default to 'service' for OTP lines, 'normal' for advertising lines if unspecified
+        if (is_array($decoded) && !empty($decoded['line_type'])) {
+            return $decoded['line_type'];
+        }
+        return ($this->type === 'otp') ? 'service' : 'normal';
+    }
+
+    public function isServiceLine(): bool
+    {
+        return $this->line_type === 'service';
+    }
+
+    public function isNormalLine(): bool
+    {
+        return !$this->isServiceLine();
     }
 
     public function getSmsPanelAttribute($val)
