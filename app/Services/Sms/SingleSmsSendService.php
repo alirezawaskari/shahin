@@ -341,9 +341,7 @@ class SingleSmsSendService
     public function resolveOtpCategory(array $data): string
     {
         $templateId = $data['sms_message_template_id'] ?? $data['template_id'] ?? null;
-        $templateCategory = $templateId
-            ? SmsTemplate::whereKey($templateId)->value('otp_category')
-            : null;
+        $templateCategory = SmsTemplate::categoryOf($templateId ? (int) $templateId : null);
         $chosen = !empty($data['otp_category']) ? (string) $data['otp_category'] : null;
 
         $category = $chosen ?: $templateCategory;

@@ -2,10 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class SmsTemplate extends Model
 {
+    public const TYPE_OTP = 'otp';
+
+    public const TYPE_ADVERTISING = 'advertising';
+
+    /**
+     * sms_templates has no service_type / otp_category columns: the type is derived from the text.
+     * A template whose content carries one of the advertising opt-out markers is advertising, otherwise
+     * a template that carries one of the OTP keywords (name, Persian name or content) is OTP.
+     * classify(), the accessors and the scopes below all read these two lists, so they cannot drift apart.
+     */
+    public const OTP_KEYWORDS = ['رمز', 'کد تایید', 'کد تأیید', 'otp', 'password', 'login', 'verification', 'token'];
+
+    public const ADVERTISING_MARKERS = ['لغو11', 'لغو 11', 'لغو۱۱', 'لغو ۱۱'];
+
     /**
      * @var array
      */
@@ -154,23 +169,101 @@ class SmsTemplate extends Model
             return $val;
         }
 
-        // System/OTP identification: classify templates that deliver passwords, confirmation codes, or system OTP notices
-        $content = (string) ($this->attributes['content'] ?? '');
-        $name = (string) ($this->attributes['name'] ?? '');
-        $faName = (string) ($this->attributes['fa_name'] ?? '');
+        return self::classify(
+            $this->attributes['name'] ?? null,
+            $this->attributes['fa_name'] ?? null,
+            $this->attributes['content'] ?? null,
+        );
+    }
+
+    /**
+     * The one PHP rule for a template's type. Used by the accessor and by every caller that has the text.
+     */
+    public static function classify(?string $name, ?string $faName, ?string $content): string
+    {
+        $content = (string) $content;
+
+        foreach (self::ADVERTISING_MARKERS as $marker) {
+            if (str_contains($content, $marker)) {
+                return self::TYPE_ADVERTISING;
+            }
+        }
+
+        $alternatives = implode('|', array_map(fn (string $k) => preg_quote($k, '/'), self::OTP_KEYWORDS));
         $combined = $name . ' ' . $faName . ' ' . $content;
 
-        // If template has opt-out «لغو11» or «لغو 11» (or Persian digits «لغو۱۱»), it was designed for promotional/advertising
-        if (str_contains($content, 'لغو11') || str_contains($content, 'لغو 11') || str_contains($content, 'لغو۱۱') || str_contains($content, 'لغو ۱۱')) {
-            return 'advertising';
+        return preg_match('/(' . $alternatives . ')/iu', $combined) === 1 ? self::TYPE_OTP : self::TYPE_ADVERTISING;
+    }
+
+    /**
+     * The type of a stored template, read from the whole row. Loading a single column instead
+     * (value('service_type')) would leave the text empty and always classify the template as advertising.
+     */
+    public static function typeOf(?int $id): ?string
+    {
+        return $id ? static::query()->find($id)?->service_type : null;
+    }
+
+    /** The OTP category of a stored template (whole row, see typeOf()). */
+    public static function categoryOf(?int $id): ?string
+    {
+        return $id ? static::query()->find($id)?->otp_category : null;
+    }
+
+    /**
+     * Whether this template may be used by the business: shared templates (no owner) or templates of
+     * the business owner, the same rule as where('ghorfe_online_list_id', ...). A business without an
+     * owner is not filtered (the where() fallback is unchanged), so it is treated as visible here too.
+     */
+    public function isVisibleTo(?GhorfeOnlineList $business): bool
+    {
+        if (!$business || $business->user_id === null || $this->user_id === null) {
+            return true;
         }
 
-        // Keywords indicating OTP / verification / authentication messages
-        if (preg_match('/(رمز|کد تایید|کد تأیید|otp|password|login|verification|token)/iu', $combined)) {
-            return 'otp';
+        return (int) $this->user_id === (int) $business->user_id;
+    }
+
+    /** OTP templates, computed in SQL with the same rule as classify(). */
+    public function scopeOtp(Builder $query): Builder
+    {
+        [$sql, $bindings] = self::otpCondition();
+
+        return $query->whereRaw('(' . $sql . ')', $bindings);
+    }
+
+    /** Non-OTP (advertising) templates: the complement of scopeOtp(). */
+    public function scopeNotOtp(Builder $query): Builder
+    {
+        [$sql, $bindings] = self::otpCondition();
+
+        return $query->whereRaw('NOT (' . $sql . ')', $bindings);
+    }
+
+    /**
+     * @return array{0: string, 1: array<int, string>} SQL condition and bindings for "is an OTP template"
+     */
+    protected static function otpCondition(): array
+    {
+        $bindings = [];
+
+        $markers = [];
+        foreach (self::ADVERTISING_MARKERS as $marker) {
+            $markers[] = "COALESCE(content, '') LIKE ?";
+            $bindings[] = '%' . $marker . '%';
         }
 
-        return 'advertising';
+        $keywords = [];
+        foreach (['name', 'fa_name', 'content'] as $column) {
+            foreach (self::OTP_KEYWORDS as $keyword) {
+                $keywords[] = "COALESCE({$column}, '') LIKE ?";
+                $bindings[] = '%' . $keyword . '%';
+            }
+        }
+
+        $sql = '(NOT (' . implode(' OR ', $markers) . ') AND (' . implode(' OR ', $keywords) . '))';
+
+        return [$sql, $bindings];
     }
 
     public function getOtpCategoryAttribute($val)

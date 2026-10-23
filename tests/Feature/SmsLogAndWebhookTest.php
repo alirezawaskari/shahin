@@ -662,6 +662,62 @@ class SmsLogAndWebhookTest extends TestCase
         $this->assertEquals($msg->id, $req->smsMessages->first()->id);
     }
 
+    public function test_request_history_is_not_dropped_when_the_request_id_matches_a_groupsms_id(): void
+    {
+        // A groupsms row already owns the id the request is about to take: the two id sequences are separate.
+        $existing = Groupsms::create([
+            'ghorfe_online_list_id' => $this->businessA->id,
+            'direction' => 'outbound',
+            'content' => 'پیام قبلی',
+            'status' => 'sent',
+            'recipient_phone' => $this->regularCustomer->phone,
+        ]);
+
+        $req = UserReqModel::create([
+            'id' => $existing->id,
+            'user_id' => $this->regularCustomer->id,
+            'status' => '1',
+        ]);
+
+        Groupsms::create([
+            'ghorfe_online_list_id' => $this->businessA->id,
+            'direction' => 'outbound',
+            'content' => 'پیام مربوط به درخواست',
+            'status' => 'sent',
+            'recipient_phone' => $this->regularCustomer->phone,
+            'user_id' => $this->regularCustomer->id,
+            'request_id' => $req->id,
+        ]);
+
+        $this->assertCount(1, History::where('historiable_type', UserReqModel::class)
+            ->where('historiable_id', $req->id)
+            ->get());
+    }
+
+    public function test_bulk_recipient_rows_do_not_write_request_history(): void
+    {
+        $req = UserReqModel::create([
+            'id' => 102,
+            'user_id' => $this->regularCustomer->id,
+            'status' => '1',
+        ]);
+
+        // A bulk recipient row points request_id at its campaign, not at a customer request.
+        Groupsms::create([
+            'ghorfe_online_list_id' => $this->businessA->id,
+            'direction' => 'outbound',
+            'type' => 'bulk_recipient',
+            'content' => 'پیام انبوه',
+            'status' => 'pending',
+            'recipient_phone' => $this->regularCustomer->phone,
+            'request_id' => $req->id,
+        ]);
+
+        $this->assertCount(0, History::where('historiable_type', UserReqModel::class)
+            ->where('historiable_id', $req->id)
+            ->get());
+    }
+
     public function test_user_request_model_relations(): void
     {
         $req = UserReqModel::create([

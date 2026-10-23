@@ -65,7 +65,9 @@ class SmsOtpCategoryTest extends TestCase
         $this->assertSame('فروش', SmsOtpCategory::labelFor('sales'));
         $this->assertSame('مالی', SmsOtpCategory::labelFor('finance'));
         $this->assertSame('حقوقی', SmsOtpCategory::labelFor('legal'));
-        $this->assertNull(SmsOtpCategory::labelFor('nope'));
+        // An unknown slug (a settings group that was removed after the message was sent) is shown as stored:
+        // the logs and template views and SmsMessageResource render labelFor() directly.
+        $this->assertSame('nope', SmsOtpCategory::labelFor('nope'));
     }
 
     // ---- templates ----
@@ -209,11 +211,13 @@ class SmsOtpCategoryTest extends TestCase
 
     // ---- bulk ----
 
-    public function test_bulk_requests_do_not_define_an_otp_category(): void
+    public function test_bulk_requests_accept_an_otp_category_for_the_otp_panel(): void
     {
-        $this->assertArrayNotHasKey('otp_category', (new \App\Http\Requests\Admin\Sms\SendBulkSmsRequest)->rules());
-        $this->assertArrayNotHasKey('otp_category', (new \App\Http\Requests\Admin\Sms\PreviewBulkSmsRequest)->rules());
-        $this->assertStringNotContainsString('otp_category', file_get_contents(app_path('Services/Sms/BulkSmsSendService.php')));
+        // The OTP panel of the bulk page takes the same fixed category as the single page (the bulk page was
+        // synced with the single page later). Promotional bulk sends ignore it (see SendBulkSmsRequest).
+        $this->assertArrayHasKey('otp_category', (new \App\Http\Requests\Admin\Sms\SendBulkSmsRequest)->rules());
+        $this->assertArrayHasKey('otp_category', (new \App\Http\Requests\Admin\Sms\PreviewBulkSmsRequest)->rules());
+        $this->assertStringContainsString('resolveOtpCategory', file_get_contents(app_path('Services/Sms/BulkSmsSendService.php')));
     }
 
     // ---- logs ----

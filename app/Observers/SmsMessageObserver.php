@@ -37,9 +37,10 @@ class SmsMessageObserver
             return;
         }
 
-        // If this message belongs to a bulk campaign or is a recipient row,
-        // request_id is the campaign (parent Groupsms) ID, not a customer Request ID.
-        if ($message->campaign_id || Groupsms::whereKey($message->request_id)->exists()) {
+        // A bulk campaign's recipient rows carry request_id = the campaign's Groupsms id, not a customer
+        // Request id. They are told apart by their own row type. The old check looked the request_id up
+        // in the groupsms id sequence, and a request whose id matched any groupsms id lost its history line.
+        if ($message->is_bulk || $message->type === 'bulk_recipient') {
             return;
         }
 

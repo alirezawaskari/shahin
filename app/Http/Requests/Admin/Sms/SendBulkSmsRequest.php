@@ -75,7 +75,7 @@ class SendBulkSmsRequest extends FormRequest
 
             // Promotional flow only: OTP templates never go through the promotional panel.
             if (!empty($templateId)
-                && \App\Models\SmsTemplate::whereKey($templateId)->where('service_type', 'otp')->exists()) {
+                && \App\Models\SmsTemplate::whereKey($templateId)->otp()->exists()) {
                 $validator->errors()->add('sms_message_template_id', 'قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');
             }
         });

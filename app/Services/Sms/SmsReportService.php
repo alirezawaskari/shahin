@@ -142,7 +142,7 @@ class SmsReportService
         $messages = $baseQuery->paginate($perPage)->withQueryString();
         app(CatalogBreadcrumbResolver::class)->annotateMessages($messages->getCollection());
 
-        $templates = SmsTemplate::query()->where('service_type', 'otp')->get();
+        $templates = SmsTemplate::query()->otp()->get();
         $groups = \Illuminate\Support\Facades\Schema::hasColumn('groupsms', 'group')
             ? Groupsms::select('group')->distinct()->whereNotNull('group')->get()->map(fn ($r) => (object)['id' => $r->group, 'name' => $r->group])
             : collect();

@@ -32,7 +32,7 @@ class PreviewBulkSmsRequest extends FormRequest
             $templateId = $this->input('sms_message_template_id');
 
             if ($this->input('service_type') !== 'otp' && !empty($templateId)
-                && \App\Models\SmsTemplate::whereKey($templateId)->where('service_type', 'otp')->exists()) {
+                && \App\Models\SmsTemplate::whereKey($templateId)->otp()->exists()) {
                 $validator->errors()->add('sms_message_template_id', 'قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');
             }
         });

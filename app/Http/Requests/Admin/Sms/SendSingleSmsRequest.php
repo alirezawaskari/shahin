@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Sms;
 
 use App\Enums\SmsOtpCategory;
+use App\Models\SmsTemplate;
 use App\Services\Sms\SmsAccessTierService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -64,7 +65,7 @@ class SendSingleSmsRequest extends FormRequest
             if ($this->input('service_type') === 'otp' && !$validator->errors()->has('otp_category')) {
                 $templateCategory = null;
                 if (!empty($this->input('template_id')) && !$validator->errors()->has('template_id')) {
-                    $templateCategory = \App\Models\SmsTemplate::whereKey($this->input('template_id'))->value('otp_category');
+                    $templateCategory = \App\Models\SmsTemplate::categoryOf((int) $this->input('template_id'));
                 }
                 $chosen = $this->input('otp_category') ?: null;
                 if (!$chosen && !$templateCategory) {
@@ -96,11 +97,11 @@ class SendSingleSmsRequest extends FormRequest
                 return;
             }
 
+            // The business link is not stored on the template: visibility follows the owner (user_id), like the picker.
             $business = ghorfe();
-            $foreign = $business && $template->ghorfe_online_list_id !== null
-                && (int) $template->ghorfe_online_list_id !== (int) $business->id;
+            $foreign = $business && !$template->isVisibleTo($business);
 
-            if ($template->service_type === 'otp' || $foreign) {
+            if ($template->service_type === SmsTemplate::TYPE_OTP || $foreign) {
                 $validator->errors()->add('template_id', 'قالب پیامک انتخاب شده معتبر نیست.');
             }
         });

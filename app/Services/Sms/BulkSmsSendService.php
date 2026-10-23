@@ -264,8 +264,7 @@ class BulkSmsSendService
             return;
         }
 
-        $serviceType = SmsTemplate::whereKey($templateId)->value('service_type');
-        if ($serviceType === 'otp') {
+        if (SmsTemplate::typeOf($templateId) === SmsTemplate::TYPE_OTP) {
             throw new DomainException('قالب‌های کد تأیید (OTP) برای ارسال تبلیغاتی انبوه مجاز نیستند.');
         }
     }

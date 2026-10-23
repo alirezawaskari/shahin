@@ -208,6 +208,68 @@ class TargetSmsRoutesTest extends TestCase
                 $t->timestamps();
             });
         }
+
+        // Filter-modal lists the callcenter pages load (FilterServiceProvider::tasks_requires), columns as in
+        // database/migrations (2022_07_09 organizations, 2018_12_31 provinces, 2022_07_06 recruitment_notices).
+        if (! $schema::hasTable('organizations')) {
+            $schema::create('organizations', function (\Illuminate\Database\Schema\Blueprint $t) {
+                $t->unsignedInteger('id')->primary();
+                $t->unsignedInteger('parent_id')->nullable();
+                $t->string('archive_number', 110)->nullable();
+                $t->string('organ_code', 110)->nullable();
+                $t->integer('precent')->nullable();
+                $t->string('fa_name')->nullable();
+                $t->string('en_name')->nullable();
+                $t->bigInteger('credit')->nullable();
+                $t->string('agent_organ')->nullable();
+                $t->string('slug')->nullable();
+                $t->text('header_description')->nullable();
+                $t->integer('status')->default(1);
+                $t->integer('archive_status')->default(1);
+                $t->string('type')->default('contracting_party');
+                $t->text('image')->nullable();
+                $t->text('document')->nullable();
+                $t->string('sms_code')->nullable();
+                $t->string('call')->nullable();
+                $t->text('address')->nullable();
+                $t->text('stamp')->nullable();
+                $t->softDeletes();
+                $t->timestamps();
+            });
+        }
+
+        if (! $schema::hasTable('organization_service')) {
+            $schema::create('organization_service', function (\Illuminate\Database\Schema\Blueprint $t) {
+                $t->unsignedInteger('service_id');
+                $t->unsignedInteger('organization_id');
+                $t->primary(['service_id', 'organization_id']);
+            });
+        }
+
+        if (! $schema::hasTable('provinces')) {
+            $schema::create('provinces', function (\Illuminate\Database\Schema\Blueprint $t) {
+                $t->increments('id');
+                $t->string('name');
+                $t->integer('code');
+                $t->softDeletes();
+                $t->timestamps();
+            });
+        }
+
+        if (! $schema::hasTable('recruitment_notices')) {
+            $schema::create('recruitment_notices', function (\Illuminate\Database\Schema\Blueprint $t) {
+                $t->integer('id')->primary();
+                $t->string('title', 100);
+                $t->text('description');
+                $t->integer('status')->default(1);
+                $t->text('image')->nullable();
+                $t->unsignedInteger('province_id')->nullable();
+                $t->unsignedInteger('representation_id');
+                // The model uses SoftDeletes; the migration has no deleted_at, so the fixture follows the model.
+                $t->softDeletes();
+                $t->timestamps();
+            });
+        }
     }
 
     public function test_dashboard_sms()

@@ -32,11 +32,15 @@ class SmsMessageTemplateService
         }
 
         if (!$includeOtp) {
-            $query->where(fn ($q) => $q->whereNull('service_type')->orWhere('service_type', '!=', 'otp'));
+            $query->notOtp();
         }
 
         if (!empty($filters['service_type']) && $filters['service_type'] !== 'all') {
-            $query->where('service_type', $filters['service_type']);
+            if ($filters['service_type'] === SmsTemplate::TYPE_OTP) {
+                $query->otp();
+            } else {
+                $query->notOtp();
+            }
         }
 
         if (!empty($filters['status']) && $filters['status'] !== 'all') {

@@ -105,7 +105,7 @@ class SmsSingleSendController extends Controller
         // Active SMS templates (scoped to business)
         $templates = SmsTemplate::active()
             ->when(!$this->accessTierService->canUseOtp(auth()->user()),
-                fn($q) => $q->where(fn($w) => $w->whereNull('service_type')->orWhere('service_type', '!=', 'otp')))
+                fn($q) => $q->notOtp())
             ->when($business, fn($q) => $q->where('ghorfe_online_list_id', $business->id))
             ->latest()
             ->get();
