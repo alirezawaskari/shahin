@@ -24,6 +24,8 @@ use Tests\TestCase;
  */
 class SmsAutoResponderTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
@@ -52,6 +54,7 @@ class SmsAutoResponderTest extends TestCase
         DB::purge('sqlite');
         DB::setDefaultConnection('sqlite');
         DB::reconnect('sqlite');
+        $this->registerSqliteJsonFunctions();
 
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
@@ -328,6 +331,7 @@ class SmsAutoResponderTest extends TestCase
             $this->gatewayCalls[] = [$panel, $phone, $message];
         });
         $this->app->instance(SingleSmsSendService::class, $send);
+        $this->useStoredSettingsShape();
     }
 
     protected function makeRule(string $keyword, string $type = 'exact', array $extra = [], ?GhorfeOnlineList $business = null): Setting

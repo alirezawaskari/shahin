@@ -20,6 +20,8 @@ use Tests\TestCase;
 
 class SmsFinancialAndReportTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected User $adminUser;
@@ -216,8 +218,7 @@ class SmsFinancialAndReportTest extends TestCase
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         // Setup test data
         $this->adminUser = User::create([

@@ -222,12 +222,25 @@ class SmsContractService
             ]);
         }
 
-        return DB::transaction(function () use ($location, $ownerType, $ownerId, $data, $file, $filePath, $staffAttachments, $templateOnly) {
+        $staffFiles = is_array($staffAttachments)
+            ? array_values(array_filter($staffAttachments, fn ($f) => $f instanceof UploadedFile))
+            : [];
+        // Refused before anything is created, so a bad batch leaves no template copy or rows behind.
+        $this->assertStaffFiles($staffFiles);
+
+        return DB::transaction(function () use ($location, $ownerType, $ownerId, $data, $file, $filePath, $staffFiles, $templateOnly) {
             $contractId = null;
 
             if (($data['mode'] ?? 'new') === 'existing' && !empty($data['contract_id'])) {
                 $contractId = (int) $data['contract_id'];
                 $contract = Contract::findOrFail($contractId);
+
+                // A template is used to make a contract, it never carries business files. With staff
+                // files, the business gets its own contract made from the template; the template stays as it is.
+                if ($staffFiles) {
+                    $contract = $this->makeDedicatedContract($contract);
+                    $contractId = $contract->id;
+                }
             } else {
                 // A folder is applied only when the user explicitly picks one.
                 $folder = null;
@@ -265,9 +278,6 @@ class SmsContractService
             }
 
             // Staff files belong to the contract itself (max 5, enforced by the media service).
-            $staffFiles = is_array($staffAttachments)
-                ? array_values(array_filter($staffAttachments, fn ($f) => $f instanceof UploadedFile))
-                : [];
             if ($staffFiles) {
                 try {
                     $this->contractMedia->addStaffFiles($contract, $staffFiles);
@@ -294,6 +304,57 @@ class SmsContractService
                 'position' => 0,
             ]);
         });
+    }
+
+    /**
+     * Staff files of an assignment: at most 5, each a valid file. Throws a validation error before
+     * any write, the same rules the media service applies when the files are attached.
+     *
+     * @param  array<int, UploadedFile>  $files
+     */
+    protected function assertStaffFiles(array $files): void
+    {
+        if (count($files) > ContractMediaService::STAFF_LIMIT) {
+            throw ValidationException::withMessages(['staff_attachments' => ['حداکثر ۵ فایل پیوست مجاز است.']]);
+        }
+
+        try {
+            foreach ($files as $file) {
+                $this->contractMedia->assertFile($file);
+            }
+        } catch (ContractMediaException $e) {
+            throw ValidationException::withMessages(['staff_attachments' => [$e->getMessage()]]);
+        }
+    }
+
+    /**
+     * A new contract made from a template, for one business's staff files: the template's title,
+     * type, status, content and original file, no folder. The template itself is not changed.
+     */
+    protected function makeDedicatedContract(Contract $template): Contract
+    {
+        $contract = Contract::create([
+            'title' => $template->title,
+            'type' => $template->type,
+            'status' => $template->status,
+            'content' => $template->content,
+            'contract_folder_id' => null,
+        ]);
+
+        $original = $template->getFirstMedia('file');
+        if ($original) {
+            $original->copy($contract, 'file');
+        }
+
+        if (Auth::id()) {
+            ContractHistory::create([
+                'contract_id' => $contract->id,
+                'user_id' => Auth::id(),
+                'file' => $contract->file,
+            ]);
+        }
+
+        return $contract;
     }
 
     /**

@@ -12,6 +12,8 @@ use Tests\TestCase;
 
 class SmsAuditServiceTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     protected SmsAuditService $audit;
 
     protected function setUp(): void
@@ -28,6 +30,7 @@ class SmsAuditServiceTest extends TestCase
         DB::purge('sqlite');
         DB::setDefaultConnection('sqlite');
         DB::reconnect('sqlite');
+        $this->registerSqliteJsonFunctions();
 
         Schema::create('sms_logs', function (Blueprint $t) {
             $t->id();
@@ -60,6 +63,8 @@ class SmsAuditServiceTest extends TestCase
         });
 
         $this->audit = new SmsAuditService();
+        $this->createStoredSettingsTable();
+        $this->useStoredSettingsShape();
     }
 
     public function test_sender_role_falls_back_to_system_without_a_user(): void

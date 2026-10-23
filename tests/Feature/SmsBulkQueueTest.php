@@ -23,6 +23,8 @@ use Tests\TestCase;
  */
 class SmsBulkQueueTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
@@ -186,8 +188,7 @@ class SmsBulkQueueTest extends TestCase
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
         $this->otherBusiness = GhorfeOnlineList::create(['title' => 'فروشگاه دیگر']);
@@ -308,9 +309,13 @@ class SmsBulkQueueTest extends TestCase
             'created_by' => $this->titaniumUser->id,
         ]);
 
-        $view = app(\App\Http\Controllers\Admin\SmsBulkSendController::class)->queue(request());
-        $this->assertSame('Admin.sms.bulk.queue', $view->name());
-        $ids = $view->getData()['queued']->pluck('id')->all();
+        // The queue is a tab of the bulk page: queue() only redirects to it.
+        $redirect = app(\App\Http\Controllers\Admin\SmsBulkSendController::class)->queue(request());
+        $this->assertStringContainsString('tab=queue', $redirect->getTargetUrl());
+
+        $view = app(\App\Http\Controllers\Admin\SmsBulkSendController::class)->index(request()->merge(['tab' => 'queue']));
+        $this->assertSame('Admin.sms.bulk.index', $view->name());
+        $ids = $view->getData()['queuedList']->pluck('id')->all();
         $this->assertSame([$mine->id], $ids);
 
         // Another business' entry can be neither sent, resumed nor deleted from here.

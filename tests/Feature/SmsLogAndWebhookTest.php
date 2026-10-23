@@ -20,6 +20,8 @@ use Tests\TestCase;
 
 class SmsLogAndWebhookTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     protected User $adminUser;
     protected User $superAdminUser;
     protected User $regularCustomer;
@@ -299,8 +301,7 @@ class SmsLogAndWebhookTest extends TestCase
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         // Seed basic fixtures
         $this->businessA = GhorfeOnlineList::create(['title' => 'فروشگاه آلفا', 'slug' => 'alpha']);

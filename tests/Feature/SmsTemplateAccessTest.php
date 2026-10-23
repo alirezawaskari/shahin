@@ -19,6 +19,8 @@ use Tests\TestCase;
  */
 class SmsTemplateAccessTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
@@ -249,8 +251,7 @@ class SmsTemplateAccessTest extends TestCase
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         // Test business & advertising number
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
@@ -334,7 +335,11 @@ class SmsTemplateAccessTest extends TestCase
     {
         return SmsTemplate::create([
             'title' => $title,
-            'content' => 'متن ' . $title,
+            // sms_templates stores no service type: the app derives it from the name and content.
+            // An OTP template carries an OTP keyword, an advertising one carries the opt-out marker.
+            'content' => $serviceType === 'otp'
+                ? 'رمز یکبار مصرف شما: 1234 ' . $title
+                : 'متن ' . $title . ' لغو11',
             'service_type' => $serviceType,
             'status' => 'active',
             'ghorfe_online_list_id' => $this->business->id,

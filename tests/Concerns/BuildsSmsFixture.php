@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Schema;
 trait BuildsSmsFixture
 {
     use SeedsSmsBalances;
+    use SmsSqliteSchema;
 
     protected User $adminUser;
     protected User $superAdminUser;
@@ -203,8 +204,7 @@ trait BuildsSmsFixture
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         // Setup test data
         $this->adminUser = User::create([

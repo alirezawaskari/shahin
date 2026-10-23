@@ -21,6 +21,8 @@ use Tests\TestCase;
  */
 class SmsInboundFilterTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
@@ -212,8 +214,7 @@ class SmsInboundFilterTest extends TestCase
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         // Test business & advertising number
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);

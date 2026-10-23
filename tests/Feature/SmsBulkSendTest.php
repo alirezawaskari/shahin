@@ -22,6 +22,8 @@ use Tests\TestCase;
 
 class SmsBulkSendTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected GhorfeOnlineList $business;
@@ -280,8 +282,7 @@ class SmsBulkSendTest extends TestCase
             $table->timestamps();
         });
 
-        $migration = require base_path('database/migrations/2026_10_07_000001_add_sms_module_columns_to_existing_tables.php');
-        $migration->up();
+        $this->applySmsModuleColumns();
 
         // Test business & advertising number
         $this->business = GhorfeOnlineList::create(['title' => 'فروشگاه شایان']);
@@ -714,8 +715,10 @@ class SmsBulkSendTest extends TestCase
     {
         $this->actingAs($this->silverUser);
 
+        // The recipient pool is chosen by the server from the user's own tier, so the request cannot ask for it.
+        // Silver is refused where the filter reaches across businesses ("all" needs Titanium).
         $response = $this->postJson(route('admin.sms.bulk.preview'), [
-            'recipient_type' => 'advertising', // Silver is not allowed!
+            'filters' => ['business' => ['all']],
             'message' => 'متن پیامک',
             'sender_number_id' => $this->advSender->id,
         ]);
@@ -723,7 +726,7 @@ class SmsBulkSendTest extends TestCase
         $response->assertStatus(403);
         $response->assertJsonPath('status', 'error');
         $response->assertJsonPath('error_type', 'tier_denied');
-        $response->assertJsonPath('required_tier', 'diamond');
+        $response->assertJsonPath('required_tier', 'titanium');
         $response->assertJsonPath('user_tier', 'silver');
     }
 
@@ -986,9 +989,12 @@ class SmsBulkSendTest extends TestCase
 
     private function sentMessage(array $attrs): \App\Models\Groupsms
     {
+        // The text is stored in the message column; a 'content' given by the caller is the same text.
+        $text = $attrs['content'] ?? $attrs['message'] ?? 'متن';
+
         return \App\Models\Groupsms::create(array_merge([
             'ghorfe_online_list_id' => $this->business->id, 'direction' => 'outbound', 'service_type' => 'advertising',
-            'recipient_phone' => '09121110001', 'phones' => '09121110001', 'content' => 'متن', 'message' => 'متن', 'status' => 'sent', 'classification' => 'regular',
+            'recipient_phone' => '09121110001', 'phones' => '09121110001', 'content' => $text, 'message' => $text, 'status' => 'sent', 'classification' => 'regular',
         ], $attrs));
     }
 

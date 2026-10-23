@@ -25,6 +25,8 @@ use Tests\TestCase;
 
 class SmsSettingsTest extends TestCase
 {
+    use \Tests\Concerns\SmsSqliteSchema;
+
     use \Tests\Concerns\SeedsSmsBalances;
 
     protected User $adminUser;
@@ -45,6 +47,7 @@ class SmsSettingsTest extends TestCase
         DB::purge('sqlite');
         DB::setDefaultConnection('sqlite');
         DB::reconnect('sqlite');
+        $this->registerSqliteJsonFunctions();
 
         // Prerequisites
         Schema::create('users', function (Blueprint $table) {
@@ -226,6 +229,9 @@ class SmsSettingsTest extends TestCase
 
         $this->businessA = GhorfeOnlineList::create(['title' => 'فروشگاه آلفا', 'slug' => 'alfa']);
         $this->businessB = GhorfeOnlineList::create(['title' => 'فروشگاه بتا', 'slug' => 'beta']);
+        $this->useStoredSettingsShape();
+        $this->useStoredTemplateShape();
+        $this->useHistoriesTable();
     }
 
     // ==========================================
@@ -259,11 +265,12 @@ class SmsSettingsTest extends TestCase
             'description' => 'پنل اصلی پیامک خدماتی',
         ]);
 
+        // type and status are stored in the JSON value of the row, not in columns.
         $this->assertDatabaseHas('ghorfe_settings', [
             'id' => $panel->id,
             'key' => 'sms_panel',
-            'type' => 'otp',
-            'status' => 'active',
+            'value->type' => 'otp',
+            'value->status' => 'active',
         ]);
 
         $this->assertEquals('secret_key_123', $panel->getConnectionSetting('api_key'));
@@ -308,7 +315,7 @@ class SmsSettingsTest extends TestCase
             'sms_panel' => 'IranSms',
             'status' => 'active',
         ]);
-        $this->assertDatabaseHas('ghorfe_settings', ['id' => $otpSender->id, 'type' => 'otp']);
+        $this->assertDatabaseHas('ghorfe_settings', ['id' => $otpSender->id, 'value->type' => 'otp']);
 
         // 2. Attempt to create a second OTP sender number - must throw ValidationException surfacing the guard cleanly
         $this->expectException(ValidationException::class);

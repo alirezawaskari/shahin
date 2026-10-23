@@ -323,4 +323,135 @@ class SmsContractFilesTest extends TestCase
         $this->assertSame($general->id, $service->getOtpContract()->id);
         $this->assertSame($dedicated->id, $service->getBusinessOtpContract($business)->id);
     }
+
+    private function template(): Contract
+    {
+        $template = $this->contract();
+        $template->addMedia($this->pdf('template.pdf'))->toMediaCollection('file');
+
+        return $template->fresh();
+    }
+
+    private function otpBusinessUsage(GhorfeOnlineList $business): ?ContractUsage
+    {
+        return app(SmsContractService::class)->getBusinessOtpContract($business);
+    }
+
+    public function test_assigning_a_template_with_staff_files_leaves_the_template_file_free(): void
+    {
+        $template = $this->template();
+        $templateFileId = $template->getFirstMedia('file')->id;
+        $contractsBefore = Contract::count();
+
+        app(SmsContractService::class)->saveContract(
+            'otp',
+            ['mode' => 'existing', 'contract_id' => $template->id, 'contract_date' => '2026-10-24'],
+            $this->business,
+            null,
+            null,
+            [$this->pdf('staff-a.pdf'), $this->pdf('staff-b.pdf')]
+        );
+
+        $template = $template->fresh();
+        $this->assertCount(0, $template->getMedia('staff_attachments'));
+        $this->assertCount(1, $template->getMedia('file'));
+        $this->assertSame($templateFileId, $template->getFirstMedia('file')->id);
+        $this->assertSame($template->title, $template->fresh()->title);
+
+        // One new dedicated contract, made from the template, holding the staff files and a copy of the template file.
+        $this->assertSame($contractsBefore + 1, Contract::count());
+        $usage = $this->otpBusinessUsage($this->business);
+        $this->assertNotNull($usage);
+        $this->assertNotSame($template->id, $usage->contract_id);
+
+        $dedicated = $usage->contract;
+        $this->assertSame($template->title, $dedicated->title);
+        $this->assertCount(2, $dedicated->getMedia('staff_attachments'));
+        $this->assertCount(1, $dedicated->getMedia('file'));
+        $this->assertNull($dedicated->contract_folder_id);
+
+        // The business sees its staff files through the usage (the view modal and tables read this list).
+        $staff = app(SmsContractService::class)->staffFilesFor($usage);
+        $this->assertCount(2, $staff);
+    }
+
+    public function test_another_business_on_the_same_template_does_not_see_those_files(): void
+    {
+        $template = $this->template();
+        $other = GhorfeOnlineList::create(['title' => 'کسب‌وکار دوم', 'slug' => 'second', 'status' => false]);
+        $service = app(SmsContractService::class);
+
+        $service->saveContract('otp', ['mode' => 'existing', 'contract_id' => $template->id], $this->business, null, null, [$this->pdf('only-mine.pdf')]);
+
+        // The second business uses the same template without files.
+        $service->saveContract('otp', ['mode' => 'existing', 'contract_id' => $template->id], $other, null, null, null);
+
+        $otherUsage = $this->otpBusinessUsage($other);
+        $this->assertSame($template->id, $otherUsage->contract_id);
+        $this->assertCount(0, $service->staffFilesFor($otherUsage));
+        $this->assertSame([], array_values(array_filter(
+            $service->attachmentItems($otherUsage, $other, 'sms_otp'),
+            fn ($item) => $item['type'] === 'staff'
+        )));
+
+        $ownStaff = $service->staffFilesFor($this->otpBusinessUsage($this->business));
+        $this->assertCount(1, $ownStaff);
+    }
+
+    public function test_assignment_without_files_still_references_the_template(): void
+    {
+        $template = $this->template();
+        $contractsBefore = Contract::count();
+
+        app(SmsContractService::class)->saveContract('otp', ['mode' => 'existing', 'contract_id' => $template->id], $this->business, null, null, []);
+
+        $this->assertSame($contractsBefore, Contract::count());
+        $this->assertSame($template->id, $this->otpBusinessUsage($this->business)->contract_id);
+        $this->assertCount(0, $template->fresh()->getMedia('staff_attachments'));
+    }
+
+    public function test_six_staff_files_are_refused_and_nothing_is_created(): void
+    {
+        $template = $this->template();
+        $service = app(SmsContractService::class);
+        $contractsBefore = Contract::count();
+        $usagesBefore = ContractUsage::count();
+        $mediaBefore = DB::table('media')->count();
+
+        $files = array_map(fn ($i) => $this->pdf("s{$i}.pdf"), range(1, 6));
+        try {
+            $service->saveContract('otp', ['mode' => 'existing', 'contract_id' => $template->id], $this->business, null, null, $files);
+            $this->fail('Six staff files must be refused.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->assertArrayHasKey('staff_attachments', $e->errors());
+        }
+
+        $this->assertSame($contractsBefore, Contract::count());
+        $this->assertSame($usagesBefore, ContractUsage::count());
+        $this->assertSame($mediaBefore, DB::table('media')->count());
+        $this->assertCount(0, $template->fresh()->getMedia('staff_attachments'));
+    }
+
+    public function test_a_wrong_file_type_in_the_batch_creates_nothing(): void
+    {
+        $template = $this->template();
+        $service = app(SmsContractService::class);
+        $contractsBefore = Contract::count();
+        $usagesBefore = ContractUsage::count();
+        $mediaBefore = DB::table('media')->count();
+
+        try {
+            $service->saveContract('otp', ['mode' => 'existing', 'contract_id' => $template->id], $this->business, null, null, [
+                $this->pdf('ok.pdf'),
+                UploadedFile::fake()->create('virus.exe', 10),
+            ]);
+            $this->fail('A file of the wrong type must be refused.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->assertArrayHasKey('staff_attachments', $e->errors());
+        }
+
+        $this->assertSame($contractsBefore, Contract::count());
+        $this->assertSame($usagesBefore, ContractUsage::count());
+        $this->assertSame($mediaBefore, DB::table('media')->count());
+    }
 }
